@@ -11,12 +11,12 @@ using FlareAI.Core.Editing;
 namespace FlareAI.Flare.UI
 {
     /// <summary>
-    /// Check-style results as a working list, not a report. Modeless, so the author keeps editing:
-    /// selecting a row highlights the text in Flare; Fix / Fix all apply word-level tracked changes;
-    /// Rewrite paragraph hands findings that need judgment to the model. Lint results show at once,
-    /// the model's review is appended when it arrives.
+    /// Check-style results as a working list, not a report. Lives in a docked Flare pane (or a floating window
+    /// as fallback), so the author keeps editing: selecting a row highlights the text in Flare; Fix / Fix all
+    /// apply word-level tracked changes; Rewrite paragraph hands findings that need judgment to the model.
+    /// Lint results show at once, the model's review is appended when it arrives. Layout adapts to a narrow sidebar.
     /// </summary>
-    public sealed class FindingsForm : Form
+    public sealed class FindingsPanel : UserControl
     {
         private readonly ActionRunner _runner;
         private readonly IDocumentAdapter _doc;
@@ -27,70 +27,84 @@ namespace FlareAI.Flare.UI
         private readonly Button _goTo, _fix, _fixAll, _rewrite, _recheck, _rule;
         private readonly List<StyleFinding> _findings = new List<StyleFinding>();
         private BackgroundWorker _worker;
-        private bool _reviewing;
+        private bool _reviewing, _started;
         private string _lintNote;
         private IList<XmlNode> _blocks;
         private List<StyleFinding> _lint;
 
-        public FindingsForm(ActionRunner runner, IDocumentAdapter doc, Func<ActionRunner> newRunner)
+        /// <summary>Raised when the author clicks Close; the host hides its pane or window.</summary>
+        public event EventHandler CloseRequested;
+
+        /// <summary>"Check style: topic.htm" — for the host's title.</summary>
+        public string Title { get; private set; }
+
+        public FindingsPanel(ActionRunner runner, IDocumentAdapter doc, Func<ActionRunner> newRunner)
         {
             _runner = runner; _doc = doc; _newRunner = newRunner;
-            Text = "FlareAI — Check style: " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
-            StartPosition = FormStartPosition.Manual;
-            var area = Screen.FromPoint(Cursor.Position).WorkingArea;
-            Size = new Size(720, 460);
-            Location = new Point(area.Right - Width - 24, area.Bottom - Height - 24);
-            MinimumSize = new Size(560, 300);
+            Title = "FlareAI — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
-            ShowInTaskbar = false;
+            Padding = new Padding(6);
+            MinimumSize = new Size(260, 220);
 
-            _status = new Label { Left = 10, Top = 10, Width = 690, Height = 18, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
-            _progress = new ProgressBar { Left = 10, Top = 30, Width = 690, Height = 6, Style = ProgressBarStyle.Marquee, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
-            _list = new ListView
-            {
-                Left = 10, Top = 42, Width = 690, Height = 336, View = View.Details, FullRowSelect = true, HideSelection = false,
-                MultiSelect = true, ShowItemToolTips = true, Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
-            };
-            _list.Columns.Add("Text", 230);
-            _list.Columns.Add("Fix", 200);
-            _list.Columns.Add("Why", 240);
+            _status = new Label { Dock = DockStyle.Top, AutoSize = false, Height = 34, Text = "Linting…" };
+            _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
+            _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = true, ShowItemToolTips = true };
+            _list.Columns.Add("Text");
+            _list.Columns.Add("Fix");
+            _list.Columns.Add("Why");
             _list.Groups.Add("error", "Errors");
             _list.Groups.Add("warning", "Warnings");
             _list.Groups.Add("suggestion", "Suggestions");
+            _list.Resize += (s, e) => FitColumns();
             _list.SelectedIndexChanged += (s, e) => { UpdateButtons(); if (_list.SelectedItems.Count == 1) GoTo(Selected()[0], false); };
             _list.DoubleClick += (s, e) => { var sel = Selected(); if (sel.Count == 1 && sel[0].CanFix) Fix(sel); };
             _list.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { Fix(Selected()); e.Handled = true; } };
 
-            var y = 388;
-            _goTo = Btn("Go to", 10, y, (s, e) => { var sel = Selected(); if (sel.Count > 0) GoTo(sel[0], true); });
-            _fix = Btn("Fix", 96, y, (s, e) => Fix(Selected()));
-            _fixAll = Btn("Fix all", 182, y, (s, e) => Fix(_findings));
-            _fixAll.Width = 110;
-            _rewrite = Btn("Rewrite paragraph…", 298, y, (s, e) => RewriteParagraph());
-            _rewrite.Width = 140;
-            _rule = Btn("Guide ↗", 444, y, (s, e) => { var sel = Selected(); if (sel.Count == 1 && !string.IsNullOrEmpty(sel[0].Link)) OpenLink(sel[0].Link); });
-            _recheck = Btn("Re-check", 530, y, (s, e) => Start());
-            var close = Btn("Close", 616, y, (s, e) => Close());
-            _recheck.Anchor = close.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            // Buttons wrap onto more rows when the pane is narrow.
+            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
+            _fixAll = Btn(bar, "Fix all", (s, e) => Fix(_findings));
+            _fix = Btn(bar, "Fix", (s, e) => Fix(Selected()));
+            _rewrite = Btn(bar, "Rewrite paragraph…", (s, e) => RewriteParagraph());
+            _goTo = Btn(bar, "Go to", (s, e) => { var sel = Selected(); if (sel.Count > 0) GoTo(sel[0], true); });
+            _rule = Btn(bar, "Guide ↗", (s, e) => { var sel = Selected(); if (sel.Count == 1 && !string.IsNullOrEmpty(sel[0].Link)) OpenLink(sel[0].Link); });
+            _recheck = Btn(bar, "Re-check", (s, e) => Start());
+            Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
             var tips = new ToolTip();
             tips.SetToolTip(_fix, "Apply the selected fixes as tracked changes (Enter, or double-click a row).");
             tips.SetToolTip(_fixAll, "Apply every fix that has an exact replacement, as one undoable tracked change.");
             tips.SetToolTip(_rule, "Open the style-guide page for the selected rule.");
             tips.SetToolTip(_rewrite, "Ask the model to rewrite the paragraph to resolve the selected findings; you review it before it is applied.");
 
-            Controls.AddRange(new Control[] { _status, _progress, _list });
-            KeyPreview = true;
-            KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) Close(); };
-            FormClosing += (s, e) => { if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); };
-            Shown += (s, e) => Start();
+            Controls.Add(_list);      // Fill must be added first so docked bars take their space
+            Controls.Add(bar);
+            Controls.Add(_progress);
+            Controls.Add(_status);
+            HandleDestroyed += (s, e) => { if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); };
         }
 
-        private Button Btn(string text, int left, int top, EventHandler click)
+        /// <summary>Starts the first check. Hosts call this once the panel is placed (it needs a window handle).</summary>
+        public void Begin()
         {
-            var b = new Button { Text = text, Left = left, Top = top, Width = 80, Height = 26, Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
+            if (_started) return;
+            _started = true;
+            if (IsHandleCreated) BeginInvoke((Action)Start);
+            else HandleCreated += (s, e) => BeginInvoke((Action)Start);
+        }
+
+        private static Button Btn(FlowLayoutPanel bar, string text, EventHandler click)
+        {
+            var b = new Button { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Height = 26, Margin = new Padding(0, 0, 4, 4) };
             b.Click += click;
-            Controls.Add(b);
+            bar.Controls.Add(b);
             return b;
+        }
+
+        private void FitColumns()
+        {
+            var w = Math.Max(150, _list.ClientSize.Width - 4);
+            _list.Columns[0].Width = w * 34 / 100;
+            _list.Columns[1].Width = w * 24 / 100;
+            _list.Columns[2].Width = w - _list.Columns[0].Width - _list.Columns[1].Width;
         }
 
         // ---- check -------------------------------------------------------------------------------

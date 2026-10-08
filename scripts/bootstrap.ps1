@@ -16,7 +16,11 @@ Write-Host "Flare : $($flare.Root)  (version folder $($flare.Version))"
 Write-Host "DLL   : $($flare.PluginApiDll)"
 New-Item -ItemType Directory -Force -Path "lib" | Out-Null
 Copy-Item $flare.PluginApiDll "lib\B3.PluginAPIKit.dll" -Force
-Write-Host "lib   : copied B3.PluginAPIKit.dll"
+# Flare internals used only by the docked sidebar (behind a fallback); compile-time reference, never shipped.
+foreach ($d in "B3.AppKit", "B3.CoreKit", "B3.CommonInterfacesKit", "B3.CssKit", "B3.XmlKit") {
+    Copy-Item (Join-Path $flare.AppDir "$d.dll") "lib\$d.dll" -Force
+}
+Write-Host "lib   : copied B3.PluginAPIKit.dll + B3 internals for the sidebar"
 
 # Flare's own runtime — tells us what CLR the host actually runs on
 $flareExe = [System.Reflection.AssemblyName]::GetAssemblyName($flare.Exe)

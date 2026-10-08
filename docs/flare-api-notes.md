@@ -72,6 +72,15 @@ IRibbonComboBox combo = group.AddRibbonCombobox(new RibbonMenuData { ... });
 - XHTML elements are in **no namespace**; MadCap elements are in the MadCap namespace.
 - Conditions: `MadCap:conditions="Default.Print"` attributes on any element.
 
+## Docked panes (internal API, verified Flare 22)
+- `INavContext.GetParentForm()` is a `B3.AppKit.Editor`; its `PaneDock` (`IPaneDock`) hosts every pane.
+- A plugin pane = `new B3.AppKit.Pane { Name, Title, View = <subclass of B3.AppKit.PaneView (a Panel)> }`,
+  then `dock.InstallPane(pane)` + `dock.PinPane(pane, DockStyle.Right)` (Flare still puts it in the left group).
+  `UninstallPane` removes it. Pane names in `dock.Panes`: ContentExplorer, ProjectExplorer, HelpDynamic, StartPage, Document.
+- `InstallPane(pane, parent, InstallPaneAction.Install)` *replaces* the parent's view (Dynamic Help vanished). Don't.
+- Controls added to an already-visible pane never get `VisibleChanged`; start work explicitly.
+- Not public API: keep every use in `UI/PanelHost.cs` (`FlarePane`), JIT-isolated, with the floating-window fallback.
+
 ## Verified write behavior (Flare 22, tested live 2026-10-08)
 - `ReplaceDocumentNode(target, new, …)` keeps `target` (same object) and copies `new`'s content and
   attributes into it. Node references survive; `new` is never attached.

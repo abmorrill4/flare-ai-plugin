@@ -151,7 +151,7 @@ namespace FlareAI.Flare
                 if (kind == ActionKind.CheckStyle)
                 {
                     // Modeless: the author works through the list while editing.
-                    new FindingsForm(runner, adapter, () => NewRunner(project)).Show(_nav.GetParentForm());
+                    PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(project)), _nav.GetParentForm());
                     return;
                 }
                 using (var f = new ResultForm(title, runner, adapter, kind, instruction))

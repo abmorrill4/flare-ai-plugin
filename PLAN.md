@@ -135,9 +135,10 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    not the text"), glossary terms (canonical spelling, definitions for the AI, spelling vocabulary),
    `Resources/StyleGuide/` if present. Settings: ordered layer list + "Use this project's terms" toggle.
    Same config format for the plugin, Claude Code, and the gateway.
-2. `[ ]` **Docked sidebar.** Host the findings list as a native Flare pane via B3.AppKit (`IPaneDock`/`Pane`/
+2. `[x]` **Docked sidebar.** Host the findings list as a native Flare pane via B3.AppKit (`IPaneDock`/`Pane`/
    `IPaneView`; internal, not public API) behind one adapter; fall back to the floating window if Flare
-   changes. Results follow the active topic.
+   changes. Done: native pane (Flare's own dock/float/close), responsive layout; Flare places it with the left
+   panes and remembers where the author drags it. Results following the active topic is item 7.
 3. `[ ]` **Tool Strip mode** (Markup AI has it, we don't): `CreateCustomToolBar` buttons for the same actions.
 4. `[ ]` **Mark of the Web** (Markup AI's #1 install issue, same for us): installer runs `Unblock-File`;
    tester guide says so; Diagnostics reports blocked files next to the plugin.

@@ -27,6 +27,13 @@
       <HintPath>..\..\lib\B3.PluginAPIKit.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- Flare internals for the docked sidebar only (UI/PanelHost.cs, FlarePane). Not public API: every use is
+         behind a try/catch fallback. Copied from the Flare install by the bootstrap script; never shipped. -->
+    <Reference Include="B3.AppKit"><HintPath>..\..\lib\B3.AppKit.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="B3.CoreKit"><HintPath>..\..\lib\B3.CoreKit.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="B3.CommonInterfacesKit"><HintPath>..\..\lib\B3.CommonInterfacesKit.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="B3.CssKit"><HintPath>..\..\lib\B3.CssKit.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="B3.XmlKit"><HintPath>..\..\lib\B3.XmlKit.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
 
   <ItemGroup>
