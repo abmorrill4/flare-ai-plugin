@@ -100,6 +100,62 @@ namespace FlareAI.Core.Actions
             return findings;
         }
 
+        /// <summary>
+        /// Lint findings inside the snippets these blocks include (and snippets those include), read from disk.
+        /// Each finding carries the snippet's path; fixes are applied in the snippet (the caller opens it).
+        /// </summary>
+        public List<StyleFinding> LintSnippets(IList<XmlNode> blocks, string topicPath)
+        {
+            var findings = new List<StyleFinding>();
+            if (_style == null || string.IsNullOrEmpty(topicPath)) return findings;
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { System.IO.Path.GetFullPath(topicPath) };
+            LintSnippetsOf(blocks, topicPath, seen, findings, 0);
+            return findings;
+        }
+
+        private void LintSnippetsOf(IList<XmlNode> blocks, string hostPath, HashSet<string> seen, List<StyleFinding> findings, int depth)
+        {
+            if (depth > 4) return;
+            foreach (var path in SnippetPaths(blocks, hostPath))
+            {
+                if (!seen.Add(path) || !System.IO.File.Exists(path)) continue;
+                XmlDocument snippet;
+                try { snippet = new XmlDocument { PreserveWhitespace = true }; snippet.Load(path); }
+                catch (Exception ex) { Diagnostics.Log("snippet " + path, ex); continue; }
+                var body = BlockSelector.FindBody(snippet);
+                if (body == null) continue;
+                var inner = new List<XmlNode>();
+                foreach (XmlNode c in body.ChildNodes) if (c.NodeType == XmlNodeType.Element) inner.Add(c);
+                foreach (var f in Lint(inner))
+                {
+                    f.DocumentPath = path;
+                    f.Block = null; // located again in the snippet as Flare opens it
+                    findings.Add(f);
+                }
+                LintSnippetsOf(inner, path, seen, findings, depth + 1);
+            }
+        }
+
+        private static IEnumerable<string> SnippetPaths(IList<XmlNode> blocks, string hostPath)
+        {
+            var dir = System.IO.Path.GetDirectoryName(hostPath) ?? "";
+            var removed = TrackedChanges.RemoveIds(blocks.Count > 0 ? blocks[0].OwnerDocument : null);
+            foreach (var b in blocks)
+            {
+                var ns = new XmlNamespaceManager(b.OwnerDocument.NameTable);
+                ns.AddNamespace("MadCap", BlockSelector.MadCapNs);
+                foreach (XmlElement s in b.SelectNodes("descendant-or-self::MadCap:snippetBlock | descendant-or-self::MadCap:snippetText", ns))
+                {
+                    var src = s.GetAttribute("src");
+                    if (src.Length == 0 || TrackedChanges.IsDeleted(s, removed)) continue;
+                    string full;
+                    try { full = System.IO.Path.GetFullPath(System.IO.Path.Combine(dir, src.Replace('/', System.IO.Path.DirectorySeparatorChar))); }
+                    catch (Exception) { continue; }
+                    yield return full;
+                }
+            }
+        }
+
         /// <summary>Resolves "Set.Name" to the variable's value for linting; null leaves the variable out.</summary>
         public Func<string, string> VariableValue { get; set; }
 
@@ -176,6 +232,7 @@ namespace FlareAI.Core.Actions
         {
             var blocks = PickCheckBlocks(doc);
             var lint = Lint(blocks);
+            lint.AddRange(LintSnippets(blocks, doc.SourcePath));
             var all = new List<StyleFinding>(lint);
             all.AddRange(Review(blocks, lint));
             return all;

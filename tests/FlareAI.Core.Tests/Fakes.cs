@@ -11,8 +11,12 @@ namespace FlareAI.Core.Tests
     public sealed class FakeDocumentAdapter : IDocumentAdapter
     {
         public FakeDocumentAdapter(string fixtureName)
+            : this(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fixtures", fixtureName), true) { }
+
+        /// <summary>Any topic or snippet on disk (for multi-file tests).</summary>
+        public FakeDocumentAdapter(string fullPath, bool _)
         {
-            SourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fixtures", fixtureName);
+            SourcePath = fullPath;
             Document = new XmlDocument { PreserveWhitespace = true };
             Document.Load(SourcePath);
             SelectionNodes = new List<XmlNode>();

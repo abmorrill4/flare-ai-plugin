@@ -150,7 +150,7 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    hits inside variable values are dropped; hits across markup show on their first run, not one-click.
    Insert-variable is **guided** (Go to + Insert ▸ Variable): every plugin-side insert crashes Flare 22 on Redo.
    Follow-up: drive Flare's internal TextVariableInsertCommand on the selection for a true one-click fix.
-6. `[ ]` **Snippets checked** (Markup AI: not checked). Check style includes referenced snippets' text,
+6. `[x]` **Snippets checked** (Markup AI: not checked). Check style includes referenced snippets' text,
    labelled "in snippet X"; Fix opens the snippet and applies there, tracked.
 7. `[ ]` **Results that survive** (Markup AI: ~20 topics, lost on rename). Lint re-runs instantly on topic
    switch; AI review cached by file path + content hash (rename-proof); dismissed findings remembered.

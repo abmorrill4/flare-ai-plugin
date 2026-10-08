@@ -24,6 +24,8 @@ namespace FlareAI.Core.Actions
         public string Layer { get; set; }
         /// <summary>Guide page for the rule, when known.</summary>
         public string Link { get; set; }
+        /// <summary>File the finding lives in when it is not the checked topic (a snippet); null = the topic.</summary>
+        public string DocumentPath { get; set; }
         public bool IsFixed { get; set; }
         /// <summary>
         /// Set when the text is a typed copy of this project variable's value. Not one-click: Flare 22 cannot redo a

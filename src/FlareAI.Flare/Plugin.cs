@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using B3.PluginAPIKit;
 using FlareAI.Core;
+using FlareAI.Core.Editing;
 using FlareAI.Core.Actions;
 using FlareAI.Core.Llm;
 using FlareAI.Core.Settings;
@@ -175,7 +176,7 @@ namespace FlareAI.Flare
                 if (kind == ActionKind.CheckStyle)
                 {
                     // Docked (or floating) and modeless: the author works through the list while editing.
-                    PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter)), _nav.GetParentForm());
+                    PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter), OpenAdapter), _nav.GetParentForm());
                     return;
                 }
                 using (var f = new ResultForm(title, runner, adapter, kind, instruction))
@@ -230,6 +231,21 @@ namespace FlareAI.Flare
         {
             if (_style != null) { try { _style.Dispose(); } catch (Exception ex) { Diagnostics.Log("docstyle stop", ex); } }
             _style = null;
+        }
+
+        /// <summary>Opens (or activates) a file in Flare's editor and wraps it; null if Flare can't open it.</summary>
+        private IDocumentAdapter OpenAdapter(string path)
+        {
+            try
+            {
+                var doc = _host.GetEditorContext().OpenDocument(path);
+                return doc == null ? null : new FlareDocumentAdapter(doc);
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("open " + path, ex);
+                return null;
+            }
         }
 
         private FlareDocumentAdapter ActiveAdapter()

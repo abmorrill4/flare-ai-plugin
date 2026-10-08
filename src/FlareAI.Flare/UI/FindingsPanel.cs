@@ -38,9 +38,12 @@ namespace FlareAI.Flare.UI
         /// <summary>"Check style: topic.htm" — for the host's title.</summary>
         public string Title { get; private set; }
 
-        public FindingsPanel(ActionRunner runner, IDocumentAdapter doc, Func<ActionRunner> newRunner)
+        private readonly Func<string, IDocumentAdapter> _open;
+
+        /// <param name="open">Opens another file (a snippet) in Flare and returns its adapter, or null.</param>
+        public FindingsPanel(ActionRunner runner, IDocumentAdapter doc, Func<ActionRunner> newRunner, Func<string, IDocumentAdapter> open)
         {
-            _runner = runner; _doc = doc; _newRunner = newRunner;
+            _runner = runner; _doc = doc; _newRunner = newRunner; _open = open;
             Title = "FlareAI — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
             Padding = new Padding(6);
@@ -123,6 +126,8 @@ namespace FlareAI.Flare.UI
                 List<StyleFinding> lint;
                 try { lint = _runner.Lint(blocks); }
                 catch (Exception ex) { Diagnostics.Log("docstyle", ex); lint = new List<StyleFinding>(); _lintNote = "Style linter unavailable (" + ex.Message + ") — showing AI review only."; }
+                try { lint.AddRange(_runner.LintSnippets(blocks, _doc.SourcePath)); }
+                catch (Exception ex) { Diagnostics.Log("snippets", ex); }
                 var prompt = _runner.ReviewPrompt(blocks, lint); // last DOM read on this thread
                 _blocks = blocks; _lint = lint;
                 _worker.ReportProgress(0, lint);                  // from here the author may edit while we wait
@@ -164,7 +169,7 @@ namespace FlareAI.Flare.UI
                 _findings.Add(f);
                 var item = new ListViewItem(new[]
                 {
-                    "\"" + f.Excerpt + "\"",
+                    (f.DocumentPath == null ? "" : "[" + System.IO.Path.GetFileNameWithoutExtension(f.DocumentPath) + "] ") + "\"" + f.Excerpt + "\"",
                     f.Variable != null ? "Go to, then Insert ▸ Variable ▸ " + f.Variable : f.Replacement == null ? "(needs rewrite)" : (f.Replacement.Length == 0 ? "delete" : "→ " + f.Replacement),
                     "[" + LayerLabel(f) + "] " + f.Suggestion
                 })
@@ -174,6 +179,19 @@ namespace FlareAI.Flare.UI
                 _list.Items.Add(item);
             }
             _list.EndUpdate();
+        }
+
+        private static List<List<StyleFinding>> GroupByDocument(List<StyleFinding> findings)
+        {
+            var groups = new List<List<StyleFinding>>();
+            foreach (var f in findings)
+            {
+                var g = groups.Find(x => x[0].DocumentPath == f.DocumentPath);
+                if (g == null) groups.Add(g = new List<StyleFinding>());
+                g.Add(f);
+            }
+            groups.Sort((a, b) => (a[0].DocumentPath == null ? 0 : 1).CompareTo(b[0].DocumentPath == null ? 0 : 1));
+            return groups;
         }
 
         private static string LayerLabel(StyleFinding f)
@@ -191,11 +209,29 @@ namespace FlareAI.Flare.UI
 
         // ---- actions -----------------------------------------------------------------------------
 
+        /// <summary>The document a finding lives in: the topic, or its snippet (opened in Flare on demand).</summary>
+        private IDocumentAdapter DocOf(StyleFinding f, bool open)
+        {
+            // Edits and selections go through the editor's selection, so the target must be the active document:
+            // re-activate the topic too (after a snippet fix the snippet's tab is in front).
+            var path = f.DocumentPath ?? _doc.SourcePath;
+            if (open && _open != null && path != null)
+            {
+                var opened = _open(path);
+                if (opened != null && f.DocumentPath == null) return _doc; // keep the adapter whose DOM the findings came from
+                if (opened != null) return opened;
+            }
+            return f.DocumentPath == null ? _doc : null;
+        }
+
         private void GoTo(StyleFinding f, bool report)
         {
             if (f.IsFixed) return;
+            // Selecting a row in a snippet doesn't switch documents on its own; Go to (button/double-click) does.
+            var doc = DocOf(f, report);
+            if (doc == null) { if (report) _status.Text = "Could not open " + f.DocumentPath; return; }
             var ok = false;
-            try { ok = _runner.GoTo(_doc, f); } catch (Exception ex) { Diagnostics.Log("GoTo", ex); }
+            try { ok = _runner.GoTo(doc, f); } catch (Exception ex) { Diagnostics.Log("GoTo", ex); }
             if (!ok && report) _status.Text = "That text is no longer in the topic (it was edited). Re-check to refresh.";
         }
 
@@ -205,7 +241,14 @@ namespace FlareAI.Flare.UI
             if (todo.Count == 0) { _status.Text = "Nothing selected has a one-click fix. Try Rewrite paragraph."; return; }
             try
             {
-                var n = _runner.ApplyFixes(_doc, todo, todo.Count == 1 ? "FlareAI: " + todo[0].Rule : "FlareAI: " + todo.Count + " style fixes");
+                var n = 0;
+                // One operation per document: the topic, then each snippet (opened in Flare so the fix is tracked there).
+                foreach (var group in GroupByDocument(todo))
+                {
+                    var doc = DocOf(group[0], true);
+                    if (doc == null) { Diagnostics.Log("Fix: could not open " + group[0].DocumentPath); continue; }
+                    n += _runner.ApplyFixes(doc, group, group.Count == 1 ? "FlareAI: " + group[0].Rule : "FlareAI: " + group.Count + " style fixes");
+                }
                 foreach (ListViewItem item in _list.Items) Restyle(item);
                 _status.Text = Summary() + "  Applied " + n + " fix(es) as tracked changes" + (n < todo.Count ? "; " + (todo.Count - n) + " skipped because the text changed." : ".") + " Ctrl+Z undoes them in one step.";
             }
@@ -219,8 +262,8 @@ namespace FlareAI.Flare.UI
 
         private void RewriteParagraph()
         {
-            var sel = Selected().FindAll(f => !f.IsFixed);
-            if (sel.Count == 0) return;
+            var sel = Selected().FindAll(f => !f.IsFixed && f.DocumentPath == null);
+            if (sel.Count == 0) { _status.Text = "Rewrite paragraph works on the topic; for a snippet, open it and run Rewrite there."; return; }
             var block = _runner.LocateBlock(_doc, sel[0]);
             if (block == null) { _status.Text = "That text is no longer in the topic. Re-check to refresh."; return; }
             var related = _findings.FindAll(f => !f.IsFixed && _runner.LocateBlock(_doc, f) == block);
