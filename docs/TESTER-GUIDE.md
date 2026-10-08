@@ -41,6 +41,9 @@ our company rules on top; each finding says which (**[Google]**, **[Company]**, 
 - "(needs rewrite)" rows: select one and click **Rewrite paragraph…** — the AI rewrites that paragraph to
   resolve its findings and shows you the result before anything changes. Rewrites arrive as word-level
   tracked changes, and any tracked changes already in the paragraph stay pending for you to review.
+- **Dismiss** hides a finding that isn't an issue here (remembered for that text, just for you).
+  **Ignore rule…** turns a rule off for the whole project — it writes to the project's
+  `Content/Resources/StyleGuide/overrides.ini`, so your team gets the same decision.
 - **Re-check** after a round of fixes to see what's left.
 
 ## Known Flare limitation

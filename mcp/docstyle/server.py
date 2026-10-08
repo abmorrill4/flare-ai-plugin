@@ -51,7 +51,7 @@ class Layer:
     @staticmethod
     def from_dir(path, name=None):
         path = Path(path)
-        read = lambda p: p.read_text(encoding="utf-8") if p.is_file() else ""
+        read = lambda p: p.read_text(encoding="utf-8-sig") if p.is_file() else ""  # tolerate a BOM (Windows editors)
         rules_dir = path / "rules"
         rules = {p.name: read(p) for p in sorted(rules_dir.glob("*.yml"))} if rules_dir.is_dir() else {}
         gl = json.loads(read(path / "glossary.json") or '{"terms": []}')["terms"]
@@ -140,12 +140,13 @@ def project_layer(root: Path):
                                   "ignorecase: false\naction:\n  name: replace\nswap:\n" +
                                   "".join(f"  '{re.escape(k)}': '{v}'\n" for k, v in sorted(swaps.items())))
 
-    guide = ""
+    guide, overrides = "", []
     sg = root / "Content" / "Resources" / "StyleGuide"
     if sg.is_dir():
         inner = Layer.from_dir(sg)
         rules.update({"Guide" + k: v for k, v in inner.rules.items()})
         accept += inner.accept
+        overrides = inner.overrides
         guide = inner.guide
         for topic in sorted(sg.glob("*.htm")):
             p = _Text()
@@ -153,7 +154,7 @@ def project_layer(root: Path):
             guide += "\n\n" + re.sub(r"\n\s*\n+", "\n", "".join(p.out)).strip()
     if variables:
         guide += "\n\n## Project variables (type the variable, not the text)\n" + "\n".join(f"- {v['name']}: {v['value']}" for v in variables)
-    layer = Layer("project", root, guide.strip(), rules, accept, terms)
+    layer = Layer("project", root, guide.strip(), rules, accept, terms, overrides)
     layer.variables = variables
     return layer
 
@@ -410,6 +411,9 @@ def _selftest():
         assert "Say \"tap\"" in comp.guide() and "General.ProductName" in comp.guide()
         assert any(e["term"] == "Zelle transfer" for e in ds.glossary(str(topic)))
         assert not [h for h in ds.lint(["Open Acme Online Banking."]) if h["layer"] == "project"]
+        (sg / "overrides.ini").write_text("Company.PlainWords = NO\n", encoding="utf-8")
+        assert not [h for h in ds.lint(["We utilize it."], project=str(topic)) if h["rule"] == "Company.PlainWords"]
+        assert [h for h in ds.lint(["We utilize it."]) if h["rule"] == "Company.PlainWords"]  # other projects unaffected
     print("selftest ok:", len(hits), "hits; project layer ok")
 
 

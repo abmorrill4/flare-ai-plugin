@@ -64,6 +64,12 @@ namespace FlareAI.Core.Actions
             return string.IsNullOrEmpty(doc == null ? null : doc.SelectionText) ? PickBlocks(doc, new List<XmlNode>()) : PickBlocks(doc);
         }
 
+        /// <summary>Every block of the topic, regardless of selection.</summary>
+        public IList<XmlNode> PickAllBlocks(IDocumentAdapter doc)
+        {
+            return PickBlocks(doc, new List<XmlNode>());
+        }
+
         private static IList<XmlNode> PickBlocks(IDocumentAdapter doc, IList<XmlNode> selection)
         {
             if (doc == null || !doc.IsEditableTopic)

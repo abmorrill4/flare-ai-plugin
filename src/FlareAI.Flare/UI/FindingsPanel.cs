@@ -24,7 +24,9 @@ namespace FlareAI.Flare.UI
         private readonly Label _status;
         private readonly ProgressBar _progress;
         private readonly ListView _list;
-        private readonly Button _goTo, _fix, _fixAll, _rewrite, _recheck, _rule;
+        private readonly Button _goTo, _fix, _fixAll, _rewrite, _recheck, _rule, _dismiss, _ignore;
+        private static readonly Dismissals Dismissed = Dismissals.Load(System.IO.Path.Combine(FlareAI.Core.Settings.PluginSettings.SettingsDirectory, "dismissed.json"));
+        private HashSet<string> _ignoredAi;
         private readonly List<StyleFinding> _findings = new List<StyleFinding>();
         private BackgroundWorker _worker;
         private bool _reviewing, _started;
@@ -38,6 +40,7 @@ namespace FlareAI.Flare.UI
         /// <summary>"Check style: topic.htm" — for the host's title.</summary>
         public string Title { get; private set; }
 
+        private readonly bool _wholeTopic;
         private IList<string> _files; // project mode: lint these files (no AI), group by file
 
         /// <summary>A project-wide check: every topic and snippet, linter only, grouped by file.</summary>
@@ -66,6 +69,8 @@ namespace FlareAI.Flare.UI
                              ReviewCache cache, bool aiOnStart)
         {
             _runner = runner; _doc = doc; _newRunner = newRunner; _open = open; _cache = cache; _aiOnStart = aiOnStart;
+            // Keep the first check's scope: Go to selects text in the editor, which must not shrink a Re-check.
+            _wholeTopic = string.IsNullOrEmpty(doc.SelectionText);
             Title = "FlareAI — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
             Padding = new Padding(6);
@@ -92,12 +97,16 @@ namespace FlareAI.Flare.UI
             _rewrite = Btn(bar, "Rewrite paragraph…", (s, e) => RewriteParagraph());
             _goTo = Btn(bar, "Go to", (s, e) => { var sel = Selected(); if (sel.Count > 0) GoTo(sel[0], true); });
             _rule = Btn(bar, "Guide ↗", (s, e) => { var sel = Selected(); if (sel.Count == 1 && !string.IsNullOrEmpty(sel[0].Link)) OpenLink(sel[0].Link); });
+            _dismiss = Btn(bar, "Dismiss", (s, e) => Dismiss());
+            _ignore = Btn(bar, "Ignore rule…", (s, e) => IgnoreRule());
             _recheck = Btn(bar, "Re-check", (s, e) => { _aiOnStart = true; Start(); });
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
             var tips = new ToolTip();
             tips.SetToolTip(_fix, "Apply the selected fixes as tracked changes (Enter, or double-click a row).");
             tips.SetToolTip(_fixAll, "Apply every fix that has an exact replacement, as one undoable tracked change.");
             tips.SetToolTip(_rule, "Open the style-guide page for the selected rule.");
+            tips.SetToolTip(_dismiss, "Not an issue here: hide the selected findings and keep them hidden on later checks (just for you).");
+            tips.SetToolTip(_ignore, "Turn the selected rule off for this whole project (written to the project's StyleGuide folder, shared with your team).");
             tips.SetToolTip(_rewrite, "Ask the model to rewrite the paragraph to resolve the selected findings; you review it before it is applied.");
 
             Controls.Add(_list);      // Fill must be added first so docked bars take their space
@@ -145,7 +154,7 @@ namespace FlareAI.Flare.UI
             if (_files != null) { StartProject(); return; }
             _worker.DoWork += (s, e) =>
             {
-                var blocks = _runner.PickCheckBlocks(_doc);
+                var blocks = _wholeTopic ? _runner.PickAllBlocks(_doc) : _runner.PickCheckBlocks(_doc);
                 List<StyleFinding> lint;
                 try { lint = _runner.Lint(blocks); }
                 catch (Exception ex) { Diagnostics.Log("docstyle", ex); lint = new List<StyleFinding>(); _lintNote = "Style linter unavailable (" + ex.Message + ") — showing AI review only."; }
@@ -218,9 +227,12 @@ namespace FlareAI.Flare.UI
 
         private void Add(List<StyleFinding> found)
         {
+            if (_ignoredAi == null) _ignoredAi = ProjectRules.IgnoredAiRules(_doc.SourcePath);
             _list.BeginUpdate();
             foreach (var f in found)
             {
+                if (Dismissed.IsDismissed(f, _doc.SourcePath)) continue;
+                if (f.Layer == "ai" && _ignoredAi.Contains(f.Rule ?? "")) continue;
                 _findings.Add(f);
                 var item = new ListViewItem(new[]
                 {
@@ -234,6 +246,45 @@ namespace FlareAI.Flare.UI
                 _list.Items.Add(item);
             }
             _list.EndUpdate();
+        }
+
+        private void Dismiss()
+        {
+            var sel = Selected();
+            if (sel.Count == 0) return;
+            foreach (var f in sel) Dismissed.Dismiss(f, _doc.SourcePath);
+            RemoveRows(f => sel.Contains(f));
+            _status.Text = Summary() + "  Dismissed " + sel.Count + " finding(s); they stay hidden for this text.";
+        }
+
+        private void IgnoreRule()
+        {
+            var sel = Selected();
+            if (sel.Count != 1) { _status.Text = "Select one finding whose rule you want to turn off."; return; }
+            var f = sel[0];
+            var file = ProjectRules.OverridesPath(f.DocumentPath ?? _doc.SourcePath);
+            if (file == null) { _status.Text = "This topic is not inside a Flare project."; return; }
+            if (MessageBox.Show(this, "Turn off \"" + f.Rule + "\" for this whole project?\n\nThis writes to\n" + file +
+                    "\nwhich is shared with your team through source control. Delete the line to turn the rule back on.",
+                    "FlareAI — Ignore rule", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            try
+            {
+                ProjectRules.Ignore(f.DocumentPath ?? _doc.SourcePath, f);
+                if (f.Layer == "ai") _ignoredAi.Add(f.Rule);
+                RemoveRows(x => x.Rule == f.Rule);
+                _status.Text = Summary() + "  \"" + f.Rule + "\" is off for this project.";
+            }
+            catch (Exception ex) { Diagnostics.Log("Ignore rule", ex); _status.Text = "Could not write " + file + ": " + ex.Message; }
+        }
+
+        private void RemoveRows(Predicate<StyleFinding> match)
+        {
+            _list.BeginUpdate();
+            for (var i = _list.Items.Count - 1; i >= 0; i--)
+                if (match((StyleFinding)_list.Items[i].Tag)) _list.Items.RemoveAt(i);
+            _list.EndUpdate();
+            _findings.RemoveAll(match);
+            UpdateButtons();
         }
 
         private static List<List<StyleFinding>> GroupByDocument(List<StyleFinding> findings)
@@ -391,6 +442,8 @@ namespace FlareAI.Flare.UI
             _rewrite.Enabled = sel.Exists(f => !f.IsFixed);
             _rule.Enabled = sel.Count == 1 && !string.IsNullOrEmpty(sel[0].Link);
             _recheck.Enabled = !_reviewing;
+            _dismiss.Enabled = sel.Count > 0;
+            _ignore.Enabled = sel.Count == 1;
         }
     }
 }

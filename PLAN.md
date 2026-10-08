@@ -161,7 +161,7 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    report grouped by topic → open topic + go to finding; optional AI review per topic on demand.
    Done: AI ▸ Check project lints Content/**/*.htm|html|flsnp (StyleGuide folder excluded) in batched linter calls,
    grouped by file; Go to/Fix open the file; Fix all across >3 files asks first. TOC-scoped check: not yet.
-9. `[ ]` **Dismiss / ignore** (Markup AI has it): dismiss a finding; "ignore rule for this project" writes
+9. `[x]` **Dismiss / ignore** (Markup AI has it): dismiss a finding; "ignore rule for this project" writes
    to the project layer.
 10. `[ ]` **Finer blocks for tables and lists**: send the row/item, not the whole table, when the selection is
     inside one cell/item.
