@@ -164,7 +164,8 @@ namespace FlareAI.Flare.UI
 
         private static string LayerLabel(StyleFinding f)
         {
-            return f.Layer == "company" ? "Company" : f.Layer == "google" ? "Google" : "AI";
+            if (string.IsNullOrEmpty(f.Layer) || f.Layer == "ai") return "AI";
+            return char.ToUpperInvariant(f.Layer[0]) + f.Layer.Substring(1); // Google, Company, Project, or a custom layer's folder name
         }
 
         private string Summary()

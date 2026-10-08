@@ -16,8 +16,9 @@ A MadCap Flare Desktop plugin (`src/FlareAI.Flare`, net40) over a Flare-agnostic
   `ReplaceBlocks(...)` for validated block rewrites, `Edit(op, () => ReplaceSpan(...))` for word-level fixes.
   Never call `ReplaceDocumentNode` with an unvalidated fragment. Read the "Verified write behavior" section
   of `docs/flare-api-notes.md` before touching `FlareDocumentAdapter` — most obvious approaches fail in Flare 22.
-- Style rules live only in `mcp/docstyle` (Google baseline + company layer). Don't hard-code style rules in
-  prompts or C#.
+- Style rules live only in docstyle layers (`mcp/docstyle/layers/*`, configured layer folders, or a Flare project's
+  variables/glossary/StyleGuide). Don't hard-code style rules in prompts or C#. Vale gotcha: words in a vocabulary
+  accept list become exceptions in *every* rule — never put glossary or variable words there.
 - Never log or print the API key. Settings use DPAPI; dev fallback is the `ANTHROPIC_API_KEY`
   env var, loaded from the git-ignored `.env` at the repo root by `scripts\Load-DotEnv.ps1`.
 

@@ -80,8 +80,11 @@ namespace FlareAI.Core.Tests
     {
         public string GuideText = "- Refer to end users as \"members\".";
 
-        public IList<FlareAI.Core.Style.LintHit> Lint(IList<string> texts, IList<int> headings)
+        public string LastProject;
+
+        public IList<FlareAI.Core.Style.LintHit> Lint(IList<string> texts, IList<int> headings, string project)
         {
+            LastProject = project;
             var hits = new List<FlareAI.Core.Style.LintHit>();
             for (var i = 0; i < texts.Count; i++)
             {
@@ -97,7 +100,7 @@ namespace FlareAI.Core.Tests
             return hits;
         }
 
-        public string Guide() { return GuideText; }
+        public string Guide(string project) { return GuideText; }
     }
 
     /// <summary>Returns canned text, or transforms the user prompt; records every request.</summary>

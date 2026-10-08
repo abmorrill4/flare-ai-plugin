@@ -41,12 +41,16 @@ namespace FlareAI.Core.Actions
         private readonly int _maxTokens;
         private readonly IStyleService _style;
 
-        public ActionRunner(ILlmClient llm, PromptBuilder prompts, int maxTokens, IStyleService style = null)
+        private readonly string _project;
+
+        /// <param name="project">Path of the topic (any path inside its Flare project) for the project style layer; null for none.</param>
+        public ActionRunner(ILlmClient llm, PromptBuilder prompts, int maxTokens, IStyleService style = null, string project = null)
         {
             _llm = llm;
             _prompts = prompts;
             _maxTokens = maxTokens;
             _style = style;
+            _project = project;
         }
 
         public IList<XmlNode> PickBlocks(IDocumentAdapter doc)
@@ -84,7 +88,7 @@ namespace FlareAI.Core.Actions
                 texts.Add(runs[i].Value);
                 if (TextRuns.IsHeading(runs[i])) headings.Add(i);
             }
-            foreach (var h in _style.Lint(texts, headings)) findings.Add(FindingLocator.FromLint(h, runs[h.Index]));
+            foreach (var h in _style.Lint(texts, headings, _project)) findings.Add(FindingLocator.FromLint(h, runs[h.Index]));
             return findings;
         }
 

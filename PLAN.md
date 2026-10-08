@@ -125,6 +125,44 @@ Exit criteria: tester can run all three on their own project for a day without a
 - [x] Rewrites over pending tracked changes: the model sees the text as the author reads it (`AcceptedView`),
       edits land word-level around the pending changes, which stay pending. Only restructuring such text is refused.
 
+### Phase 2c — Close the gaps (benchmarked against Markup AI's documented limitations) `[~]`
+
+Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change; the rest are independent.
+
+1. `[x]` **Configurable style layers + project layer.** Google (built in) → any number of layer folders
+   (`guide.md` + `rules/*.yml` + `accept.txt`; network share, git checkout, or inside a Flare project) →
+   optional **project layer generated from the open Flare project**: variable values ("type the variable,
+   not the text"), glossary terms (canonical spelling, definitions for the AI, spelling vocabulary),
+   `Resources/StyleGuide/` if present. Settings: ordered layer list + "Use this project's terms" toggle.
+   Same config format for the plugin, Claude Code, and the gateway.
+2. `[ ]` **Docked sidebar.** Host the findings list as a native Flare pane via B3.AppKit (`IPaneDock`/`Pane`/
+   `IPaneView`; internal, not public API) behind one adapter; fall back to the floating window if Flare
+   changes. Results follow the active topic.
+3. `[ ]` **Tool Strip mode** (Markup AI has it, we don't): `CreateCustomToolBar` buttons for the same actions.
+4. `[ ]` **Mark of the Web** (Markup AI's #1 install issue, same for us): installer runs `Unblock-File`;
+   tester guide says so; Diagnostics reports blocked files next to the plugin.
+5. `[ ]` **Variables resolved** (Markup AI: not checked). Lint sees variable values in context (sentence rules
+   work across them); findings inside a value point to the variable set, not the topic; the AI review gets
+   the values. **Insert variable** fix for project-variable findings: replace the typed text with the
+   `MadCap:variable` (tracked; the validator allows introducing only variables that exist in the project).
+6. `[ ]` **Snippets checked** (Markup AI: not checked). Check style includes referenced snippets' text,
+   labelled "in snippet X"; Fix opens the snippet and applies there, tracked.
+7. `[ ]` **Results that survive** (Markup AI: ~20 topics, lost on rename). Lint re-runs instantly on topic
+   switch; AI review cached by file path + content hash (rename-proof); dismissed findings remembered.
+8. `[ ]` **Project / TOC check** (Markup AI: one topic only). "Check project": lint every topic (no AI cost),
+   report grouped by topic → open topic + go to finding; optional AI review per topic on demand.
+9. `[ ]` **Dismiss / ignore** (Markup AI has it): dismiss a finding; "ignore rule for this project" writes
+   to the project layer.
+10. `[ ]` **Finer blocks for tables and lists**: send the row/item, not the whole table, when the selection is
+    inside one cell/item.
+11. `[ ]` Manual tests 17 (network off) and 20 (Tool Strip) once 3 lands.
+
+Won't fix: Flare Online (Desktop plugin; docstyle MCP + skill cover repo-based authoring); plugin enable
+is per Windows user (Flare behavior; documented).
+
+Already better than Markup AI: fixes and rewrites are tracked changes (theirs are not); selection checks;
+pending changes preserved; no WebView2/SaaS dependency; same rules in Claude Code and the gateway.
+
 ### Phase 3 — Tester handoff `[ ]`
 
 - [x] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.

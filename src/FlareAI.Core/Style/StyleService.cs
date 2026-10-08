@@ -27,14 +27,15 @@ namespace FlareAI.Core.Style
     public interface IStyleService
     {
         /// <param name="headings">Indices of runs that are headings (heading rules apply only to them).</param>
-        IList<LintHit> Lint(IList<string> texts, IList<int> headings);
-        /// <summary>The layered style guide (Google baseline + company overrides) for the system prompt.</summary>
-        string Guide();
+        /// <param name="project">Path inside a Flare project to add its project layer (variables, glossary, StyleGuide), or null.</param>
+        IList<LintHit> Lint(IList<string> texts, IList<int> headings, string project);
+        /// <summary>The layered style guide (Google → configured layers → project) for the system prompt.</summary>
+        string Guide(string project);
     }
 
     /// <summary>
     /// docstyle over MCP stdio. Starts the server on first use and restarts it if it died.
-    /// The guide is fetched once per server start.
+    /// The layered guide is cached per project until the server restarts (Settings change or crash).
     /// </summary>
     public sealed class McpStyleService : IStyleService, IDisposable
     {
@@ -42,18 +43,20 @@ namespace FlareAI.Core.Style
         private readonly int _timeoutMs;
         private readonly object _gate = new object();
         private McpStdioClient _client;
-        private string _guide;
+        private readonly Dictionary<string, string> _guides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public McpStyleService(string command, string arguments, string workingDirectory, int timeoutMs)
         {
             _command = command; _arguments = arguments; _workingDirectory = workingDirectory; _timeoutMs = timeoutMs;
         }
 
-        public IList<LintHit> Lint(IList<string> texts, IList<int> headings)
+        public IList<LintHit> Lint(IList<string> texts, IList<int> headings, string project)
         {
             var result = new List<LintHit>();
             if (texts.Count == 0) return result;
-            var json = Client().CallTool("lint", new JObject { ["texts"] = new JArray(texts), ["headings"] = new JArray(headings ?? new int[0]) });
+            var args = new JObject { ["texts"] = new JArray(texts), ["headings"] = new JArray(headings ?? new int[0]) };
+            if (!string.IsNullOrEmpty(project)) args["project"] = project;
+            var json = Client().CallTool("lint", args);
             foreach (var f in json["findings"] ?? new JArray())
                 result.Add(new LintHit
                 {
@@ -65,10 +68,19 @@ namespace FlareAI.Core.Style
             return result;
         }
 
-        public string Guide()
+        public string Guide(string project)
         {
-            Client();
-            return _guide;
+            var key = project ?? "";
+            lock (_gate)
+            {
+                string cached;
+                if (_guides.TryGetValue(key, out cached)) return cached;
+            }
+            var args = new JObject { ["query"] = "" };
+            if (key.Length > 0) args["project"] = key;
+            var guide = (string)Client().CallTool("style_lookup", args)["guide"];
+            lock (_gate) _guides[key] = guide;
+            return guide;
         }
 
         private McpStdioClient Client()
@@ -78,7 +90,7 @@ namespace FlareAI.Core.Style
                 if (_client != null && _client.IsAlive) return _client;
                 if (_client != null) _client.Dispose();
                 _client = new McpStdioClient(_command, _arguments, _workingDirectory, _timeoutMs);
-                _guide = (string)_client.CallTool("style_lookup", new JObject { ["query"] = "" })["guide"];
+                _guides.Clear(); // a restarted server may have new layer content
                 Diagnostics.Log("docstyle started: " + _command + " " + _arguments);
                 return _client;
             }

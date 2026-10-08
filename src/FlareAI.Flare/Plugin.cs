@@ -145,12 +145,13 @@ namespace FlareAI.Flare
                     MessageBox.Show("Open a topic in the XML Editor first.", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
-                var runner = NewRunner();
+                var project = adapter.SourcePath;
+                var runner = NewRunner(project);
                 if (runner == null) return;
                 if (kind == ActionKind.CheckStyle)
                 {
                     // Modeless: the author works through the list while editing.
-                    new FindingsForm(runner, adapter, NewRunner).Show(_nav.GetParentForm());
+                    new FindingsForm(runner, adapter, () => NewRunner(project)).Show(_nav.GetParentForm());
                     return;
                 }
                 using (var f = new ResultForm(title, runner, adapter, kind, instruction))
@@ -164,7 +165,7 @@ namespace FlareAI.Flare
         }
 
         /// <summary>Fresh settings + LLM client per action; the docstyle server process is shared. Null if not configured.</summary>
-        private ActionRunner NewRunner()
+        private ActionRunner NewRunner(string topicPath)
         {
             var settings = PluginSettings.Load();
             ILlmClient llm;
@@ -176,7 +177,8 @@ namespace FlareAI.Flare
                 return null;
             }
             var style = StyleService(settings);
-            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : style.Guide), settings.MaxTokens, style);
+            var project = settings.UseProjectLayer ? topicPath : null;
+            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(project)), settings.MaxTokens, style, project);
         }
 
         private McpStyleService _style;
@@ -185,7 +187,7 @@ namespace FlareAI.Flare
         private McpStyleService StyleService(PluginSettings settings)
         {
             if (string.IsNullOrEmpty(settings.StyleServerCommand)) { ResetStyleService(); return null; }
-            var args = (settings.StyleServerArgs ?? "").Replace("{PluginDir}", PluginDirectory);
+            var args = settings.StyleServerArgsFor(PluginDirectory);
             var key = settings.StyleServerCommand + " " + args;
             if (_style == null || _styleKey != key)
             {

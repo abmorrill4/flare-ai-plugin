@@ -1,4 +1,4 @@
-# Product and technical terms: exact capitalization. Keep in sync with ../../glossary.json (selftest checks).
+# Product and technical terms: exact capitalization. Keep in sync with ../glossary.json (selftest checks).
 extends: substitution
 message: "Use '%s' instead of '%s'."
 level: warning

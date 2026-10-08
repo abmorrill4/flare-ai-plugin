@@ -36,6 +36,25 @@ namespace FlareAI.Core.Settings
         /// <summary>docstyle MCP server launch command; empty disables linting. {PluginDir} expands to the plugin folder.</summary>
         public string StyleServerCommand { get; set; }
         public string StyleServerArgs { get; set; }
+        /// <summary>
+        /// Style layer folders applied after the Google baseline, in order (later wins), one per line.
+        /// Empty = the bundled company layer. Each folder: guide.md, rules/*.yml, accept.txt, glossary.json, overrides.ini.
+        /// </summary>
+        public string StyleLayers { get; set; }
+        /// <summary>Add the open Flare project's variables, glossary and Resources/StyleGuide folder as the last layer.</summary>
+        public bool UseProjectLayer { get; set; }
+
+        /// <summary>Server arguments with {PluginDir} expanded and one --layer per configured folder.</summary>
+        public string StyleServerArgsFor(string pluginDir)
+        {
+            var args = (StyleServerArgs ?? "").Replace("{PluginDir}", pluginDir);
+            foreach (var line in (StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var dir = line.Trim().Replace("{PluginDir}", pluginDir);
+                if (dir.Length > 0) args += " --layer \"" + dir.TrimEnd('\\') + "\"";
+            }
+            return args;
+        }
 
         public PluginSettings()
         {
@@ -47,6 +66,8 @@ namespace FlareAI.Core.Settings
             WriteDiagnostics = true;
             StyleServerCommand = DefaultStyleServerCommand;
             StyleServerArgs = DefaultStyleServerArgs;
+            StyleLayers = "";
+            UseProjectLayer = true;
         }
 
         public const string DefaultStyleServerCommand = "uv";

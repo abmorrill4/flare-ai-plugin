@@ -31,7 +31,8 @@ The prompt/response contract (`<revised>…</revised>`, findings JSON) is unchan
    `mcp_configs: [{ mcp_client_name: "docstyle", tools_to_execute: ["*"] }]`, with a budget.
 3. Tool names arrive at the model prefixed with the client name (`docstyle_style_lookup`).
 
-   Deploy the whole `mcp/docstyle` folder (server, guides, Vale styles, `.vale.ini`, glossary) to
+   Add `--layer <dir>` args for the company layers (same as the plugin's Style layers setting).
+   Deploy the whole `mcp/docstyle` folder (server + `layers/`) to
    `/opt/docstyle`; `uv` installs the MCP SDK and Vale on first run. `--selftest` verifies it.
 
 ## What the plugin stops doing

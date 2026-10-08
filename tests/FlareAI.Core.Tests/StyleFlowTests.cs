@@ -13,7 +13,7 @@ namespace FlareAI.Core.Tests
     {
         private static ActionRunner Runner(FakeLlmClient llm, IStyleService style)
         {
-            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : style.Guide), 1024, style);
+            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(null)), 1024, style);
         }
 
         private static string P1(FakeDocumentAdapter doc) { return doc.Document.SelectSingleNode("//body/p[1]").InnerText; }
@@ -128,15 +128,48 @@ namespace FlareAI.Core.Tests
             if (!File.Exists(server) || !OnPath("uv.exe")) return;
             using (var svc = new McpStyleService("uv", "run --quiet --script \"" + server + "\"", Path.GetDirectoryName(server), 120000))
             {
-                var hits = svc.Lint(new[] { "Configure Single Sign-On", "It supports SAML 2.0.", "In order to utilize SSO, click here." }, new[] { 0 });
+                var hits = svc.Lint(new[] { "Configure Single Sign-On", "It supports SAML 2.0.", "In order to utilize SSO, click here." }, new[] { 0 }, null);
                 Assert.Contains(hits, h => h.Index == 0 && h.Match == "Single Sign-On" && h.Replacement == "single sign-on");
                 Assert.DoesNotContain(hits, h => h.Index == 1);
                 Assert.Contains(hits, h => h.Index == 2 && h.Match == "utilize" && h.Replacement == "use" && h.Layer == "company");
                 Assert.Contains(hits, h => h.Rule == "Company.LinkText" && h.Replacement == null && h.Link.Contains("link-text"));
-                var guide = svc.Guide();
+                var guide = svc.Guide(null);
                 Assert.Contains("Google developer documentation style guide", guide);
                 Assert.Contains("members", guide);
             }
+        }
+
+        [Fact]
+        public void Docstyle_OverRealMcp_ProjectLayerComesFromTheFlareProject()
+        {
+            var server = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\mcp\docstyle\server.py"));
+            if (!File.Exists(server) || !OnPath("uv.exe")) return;
+            var root = Path.Combine(Path.GetTempPath(), "flareai-proj-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(Path.Combine(root, @"Project\VariableSets"));
+            Directory.CreateDirectory(Path.Combine(root, "Content"));
+            File.WriteAllText(Path.Combine(root, "Demo.flprj"), "<CatapultProject />");
+            File.WriteAllText(Path.Combine(root, @"Project\VariableSets\General.flvar"), "<CatapultVariableSet><Variable Name=\"ProductName\">Acme Online Banking</Variable></CatapultVariableSet>");
+            var topic = Path.Combine(root, @"Content\Topic.htm");
+            File.WriteAllText(topic, "<html/>");
+            try
+            {
+                var settings = new FlareAI.Core.Settings.PluginSettings { StyleLayers = "{PluginDir}\\layers\\company" };
+                using (var svc = new McpStyleService("uv", "run --quiet --script \"" + server + "\"" + settings.StyleServerArgsFor(Path.GetDirectoryName(server)).Replace(settings.StyleServerArgs.Replace("{PluginDir}", Path.GetDirectoryName(server)), ""), Path.GetDirectoryName(server), 120000))
+                {
+                    var hits = svc.Lint(new[] { "Open Acme Online Banking to start." }, new int[0], topic);
+                    Assert.Contains(hits, h => h.Layer == "project" && h.Match == "Acme Online Banking" && h.Message.Contains("General.ProductName"));
+                    Assert.DoesNotContain(svc.Lint(new[] { "Open Acme Online Banking to start." }, new int[0], null), h => h.Layer == "project");
+                    Assert.Contains("General.ProductName", svc.Guide(topic));
+                }
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
+        [Fact]
+        public void Settings_BuildOneLayerArgumentPerConfiguredFolder()
+        {
+            var s = new FlareAI.Core.Settings.PluginSettings { StyleServerArgs = "run x.py", StyleLayers = "\\\\share\\style\\company\r\n\r\n{PluginDir}\\layers\\team\\" };
+            Assert.Equal("run x.py --layer \"\\\\share\\style\\company\" --layer \"C:\\p\\layers\\team\"", s.StyleServerArgsFor(@"C:\p"));
         }
 
         private static bool OnPath(string exe)
@@ -146,8 +179,8 @@ namespace FlareAI.Core.Tests
 
         private sealed class BrokenStyleService : IStyleService
         {
-            public System.Collections.Generic.IList<LintHit> Lint(System.Collections.Generic.IList<string> texts, System.Collections.Generic.IList<int> headings) { throw new McpException("server exited"); }
-            public string Guide() { throw new McpException("server exited"); }
+            public System.Collections.Generic.IList<LintHit> Lint(System.Collections.Generic.IList<string> texts, System.Collections.Generic.IList<int> headings, string project) { throw new McpException("server exited"); }
+            public string Guide(string project) { throw new McpException("server exited"); }
         }
     }
 }

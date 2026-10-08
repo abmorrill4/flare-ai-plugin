@@ -34,9 +34,15 @@ Then in Flare: **File > Options > Plugins > FlareAI > Enable**, restart Flare, l
 One source of style truth, used by the plugin, Claude Code, and (later) the Bifrost gateway:
 `mcp/docstyle`, an MCP server with `lint`, `style_lookup`, `glossary_lookup`.
 
-- **Layer 1 – Google developer documentation style guide:** `guides/google.md` (condensed, linked) and the
-  vendored `styles/Google` Vale package.
-- **Layer 2 – company style (wins on conflict):** `guides/company.md` and `styles/Company/*.yml`.
+Layers apply in order, later wins:
+- **Google developer documentation style guide** (built in): `layers/google` — condensed, linked guide plus the
+  vendored errata-ai/Google Vale package.
+- **Your layers** (Settings → Style layers, one folder per line; default `layers/company`): any folder with
+  `guide.md`, `rules/*.yml` (Vale), `accept.txt`, `glossary.json`, `overrides.ini`. A network share, a git checkout,
+  or a folder in a Flare project all work — where the company guide lives is a setting, not a code change.
+- **This project** (Settings toggle, on by default): generated from the open Flare project — variable values
+  ("insert the variable instead of typing it"), glossary terms (canonical casing; definitions go to the AI), and
+  `Content/Resources/StyleGuide/` if the project has one.
 - Claude Code: `.mcp.json` registers the server; the `docstyle` skill (`.claude/skills/docstyle`) applies it.
 - Needs `uv` (`winget install astral-sh.uv`); Vale and the MCP SDK are fetched by `uv` on first run.
   Check it: `uv run --script mcp/docstyle/server.py --selftest`.
