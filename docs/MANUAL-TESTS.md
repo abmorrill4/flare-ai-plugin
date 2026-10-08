@@ -55,5 +55,5 @@ Record result per row: ✅ / ❌ + note. Run after every deploy to `Plugins\Flar
 | 17 | ⏭ | Not run (disabling network would cut the remote session) |
 | 18 | ✅ | Response arrives after cancel, logged, never applied |
 | 19 | ✅ | Tab gone after restart, no errors on exit |
-| 20 | ⏭ | Not run (would change the user's UI mode); expected: no entry point |
+| 20 | ✅ | (re-run after Phase 2c item 3) Tool Strip mode — Flare 2026 marks it Deprecated — shows an **AI** menu and a Check style / Rewrite / Ask… toolbar; ribbon mode unaffected |
 | new | ✅ | Rewrite over pending tracked changes refuses: "Accept or reject them (Review tab) before rewriting." |

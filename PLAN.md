@@ -139,9 +139,9 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    `IPaneView`; internal, not public API) behind one adapter; fall back to the floating window if Flare
    changes. Done: native pane (Flare's own dock/float/close), responsive layout; Flare places it with the left
    panes and remembers where the author drags it. Results following the active topic is item 7.
-3. `[ ]` **Tool Strip mode** (Markup AI has it, we don't): `CreateCustomToolBar` buttons for the same actions.
-4. `[ ]` **Mark of the Web** (Markup AI's #1 install issue, same for us): installer runs `Unblock-File`;
-   tester guide says so; Diagnostics reports blocked files next to the plugin.
+3. `[x]` **Tool Strip mode** (Markup AI has it, we don't): `CreateCustomToolBar` buttons for the same actions.
+4. `[x]` **Mark of the Web** (Markup AI's #1 install issue, same for us): installer runs `Unblock-File`;
+   tester guide says so. (A blocked plugin never loads, so in-plugin detection is moot.)
 5. `[ ]` **Variables resolved** (Markup AI: not checked). Lint sees variable values in context (sentence rules
    work across them); findings inside a value point to the variable set, not the topic; the AI review gets
    the values. **Insert variable** fix for project-variable findings: replace the typed text with the
@@ -156,7 +156,7 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    to the project layer.
 10. `[ ]` **Finer blocks for tables and lists**: send the row/item, not the whole table, when the selection is
     inside one cell/item.
-11. `[ ]` Manual tests 17 (network off) and 20 (Tool Strip) once 3 lands.
+11. `[~]` Manual tests: 20 (Tool Strip) ✅; 17 (network off) still open.
 
 Won't fix: Flare Online (Desktop plugin; docstyle MCP + skill cover repo-based authoring); plugin enable
 is per Windows user (Flare behavior; documented).

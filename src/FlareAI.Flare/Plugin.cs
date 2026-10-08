@@ -41,6 +41,7 @@ namespace FlareAI.Flare
                 Diagnostics.Log("FlareAI starting in " + _host.GetName() + " (" + _host.GetCompany() + "), plugin dir " + PluginDirectory);
                 _nav = _host.GetNavContext();
                 CreateRibbon();
+                CreateToolStrip();
                 _activated = true;
             }
             catch (Exception ex)
@@ -72,6 +73,30 @@ namespace FlareAI.Flare
             IRibbonGroup tools = tab.AddNewRibbonGroup("Plugin");
             tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings.png"));
             tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag.png"));
+        }
+
+        /// <summary>
+        /// Same actions for Flare's Tool Strip UI mode, where the ribbon tab is invisible: an "AI" menu and toolbar.
+        /// Failures are logged only — the ribbon is the primary surface.
+        /// </summary>
+        private void CreateToolStrip()
+        {
+            try
+            {
+                var menu = _nav.CreateToolStripMenu("AI", "Q");
+                menu.AddMenuItem("Check style", new DelegateCommand(OnCheckStyle));
+                menu.AddMenuItem("Rewrite selection", new DelegateCommand(OnRewrite));
+                menu.AddMenuItem("Ask…", new DelegateCommand(OnAsk));
+                menu.AddSeparator();
+                menu.AddMenuItem("Settings", new DelegateCommand(OnSettings));
+                menu.AddMenuItem("Diagnostics", new DelegateCommand(OnDiagnostics));
+
+                var bar = _nav.CreateCustomToolBar("FlareAI");
+                bar.AddButton("Check style", new DelegateCommand(OnCheckStyle));
+                bar.AddButton("Rewrite", new DelegateCommand(OnRewrite));
+                bar.AddButton("Ask…", new DelegateCommand(OnAsk));
+            }
+            catch (Exception ex) { Diagnostics.Log("Tool Strip entries", ex); }
         }
 
         private RibbonControlData Button(string label, string keyTip, Action onClick, string icon)

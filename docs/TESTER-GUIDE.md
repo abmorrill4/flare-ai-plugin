@@ -6,7 +6,10 @@ undoes it in one step.
 
 ## Install (needs admin, or ask IT)
 1. Close Flare.
-2. Unzip. Copy the `FlareAI` folder into
+2. Before unzipping a downloaded copy: right-click the zip → **Properties** → tick **Unblock** → OK.
+   (Otherwise Windows blocks the plugin and Flare silently won't list it. Already unzipped? Run
+   `Get-ChildItem <folder> -Recurse | Unblock-File` in PowerShell.)
+   Unzip. Copy the `FlareAI` folder into
    `C:\Program Files\MadCap Software\MadCap Flare <version>\Flare.app\Plugins\`
 3. Start Flare → **File > Options > Plugins** → select FlareAI → **Enable** → restart Flare.
 4. Switch to Ribbon UI mode if you use the tool strip (View > Interface).

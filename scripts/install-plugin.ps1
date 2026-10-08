@@ -27,6 +27,9 @@ Remove-Item "$target\docstyle\*" -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item "$repo\mcp\docstyle\*" -Destination "$target\docstyle" -Recurse -Force -Exclude "__pycache__"
 if (Test-Path "$repo\src\FlareAI.Flare\Icons") { Copy-Item "$repo\src\FlareAI.Flare\Icons" -Destination $target -Recurse -Force }
 
+# Mark of the Web: Windows silently blocks .NET assemblies that came from a downloaded zip, and Flare then just
+# doesn't list the plugin. Clear it on everything we installed.
+Get-ChildItem $target -Recurse -File | Unblock-File
 Write-Host "Installed to $target"
 Get-ChildItem $target | Select-Object Name, Length | Format-Table -AutoSize
 Write-Host "Now: start Flare > File > Options > Plugins > FlareAI > Enable > restart Flare."
