@@ -42,6 +42,11 @@ our company rules on top; each finding says which (**[Google]**, **[Company]**, 
   tracked changes, and any tracked changes already in the paragraph stay pending for you to review.
 - **Re-check** after a round of fixes to see what's left.
 
+## Known Flare limitation
+After a paragraph-level AI edit of text that contains a variable, Ctrl+Z works but Ctrl+Y (redo) can make Flare show
+an error dialog. Word-level fixes and rewrites are not affected. For "type the variable" findings, click the row (the
+text is selected) and use Insert ▸ Variable — Flare replaces the selection.
+
 ## What it will refuse
 - Snippet blocks and variables selected on their own (it cannot edit snippet content inline).
 - Any result that would drop or change a variable, cross-reference, snippet, or condition — you'll see

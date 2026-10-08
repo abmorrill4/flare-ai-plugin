@@ -21,6 +21,8 @@ namespace FlareAI.Core.Style
         public string Layer { get; set; }
         /// <summary>Guide page explaining the rule, when known.</summary>
         public string Link { get; set; }
+        /// <summary>Set when Match is a typed copy of this project variable's value (fix = insert the variable).</summary>
+        public string Variable { get; set; }
     }
 
     /// <summary>The style guide and linter. Implemented over the docstyle MCP server; faked in tests.</summary>
@@ -63,7 +65,7 @@ namespace FlareAI.Core.Style
                     Index = (int)f["index"], Start = (int)f["start"], Length = (int)f["length"],
                     Match = (string)f["match"], Replacement = (string)f["replacement"],
                     Rule = (string)f["rule"], Severity = (string)f["severity"] ?? "suggestion", Message = (string)f["message"],
-                    Layer = (string)f["layer"], Link = (string)f["link"]
+                    Layer = (string)f["layer"], Link = (string)f["link"], Variable = (string)f["variable"]
                 });
             return result;
         }

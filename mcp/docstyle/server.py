@@ -238,10 +238,12 @@ class Docstyle:
                 fix = _fix(a, text, start, end)
                 if fix:
                     start, end = fix[0], fix[1]
-                message = a.get("Message", "")
+                message, variable = a.get("Message", ""), None
                 if a["Check"].endswith(".Variables") and text[start:end] in variables:
-                    message = f"'{text[start:end]}' is the value of variable {variables[text[start:end]]}: insert the variable instead of typing it."
+                    variable = variables[text[start:end]]
+                    message = f"'{text[start:end]}' is the value of variable {variable}: insert the variable instead of typing it."
                 hits.append({
+                    "variable": variable,
                     "index": i, "start": start, "length": end - start, "match": text[start:end],
                     "replacement": fix[2] if fix else None, "rule": a["Check"], "layer": comp.layer_of(a["Check"]),
                     "severity": a.get("Severity", "suggestion"), "message": message, "link": a.get("Link", ""),
@@ -312,8 +314,9 @@ def build_server(ds: Docstyle):
     def lint(texts: list[str], headings: list[int] | None = None, project: str | None = None) -> dict:
         """Lint plain-text runs (one per XHTML text node; never include markup). `headings` = indices of
         heading runs. `project` = any path inside a Flare project to add its project layer. Returns
-        findings with run index, character span, matched text, rule, layer, guide link, and an exact
-        `replacement` when the fix is mechanical (null when it needs judgment)."""
+        findings with run index, character span, matched text, rule, layer, guide link, an exact
+        `replacement` when the fix is mechanical (null when it needs judgment), and `variable` (the
+        project variable's name) when the text is a typed copy of a variable's value."""
         return {"findings": ds.lint(texts, headings or [], project)}
 
     @mcp.tool()
@@ -399,6 +402,7 @@ def _selftest():
         pby = {h["match"]: h for h in ph}
         assert pby["Acme Online Banking"]["layer"] == "project", ph
         assert "General.ProductName" in pby["Acme Online Banking"]["message"]
+        assert pby["Acme Online Banking"]["variable"] == "General.ProductName"
         assert pby["click the button"]["replacement"] == "tap the button"
         assert pby["Zelle Transfer"]["replacement"] == "Zelle transfer"
         comp = ds.compose(str(topic))

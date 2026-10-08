@@ -25,6 +25,11 @@ namespace FlareAI.Core.Actions
         /// <summary>Guide page for the rule, when known.</summary>
         public string Link { get; set; }
         public bool IsFixed { get; set; }
+        /// <summary>
+        /// Set when the text is a typed copy of this project variable's value. Not one-click: Flare 22 cannot redo a
+        /// plugin-inserted variable (it crashes), so the author selects the text (Go to) and uses Insert ▸ Variable.
+        /// </summary>
+        public string Variable { get; set; }
         public bool CanFix { get { return Replacement != null && !IsFixed; } }
     }
 

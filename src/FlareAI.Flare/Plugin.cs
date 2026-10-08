@@ -170,13 +170,12 @@ namespace FlareAI.Flare
                     MessageBox.Show("Open a topic in the XML Editor first.", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
-                var project = adapter.SourcePath;
-                var runner = NewRunner(project);
+                var runner = NewRunner(adapter);
                 if (runner == null) return;
                 if (kind == ActionKind.CheckStyle)
                 {
-                    // Modeless: the author works through the list while editing.
-                    PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(project)), _nav.GetParentForm());
+                    // Docked (or floating) and modeless: the author works through the list while editing.
+                    PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter)), _nav.GetParentForm());
                     return;
                 }
                 using (var f = new ResultForm(title, runner, adapter, kind, instruction))
@@ -190,8 +189,9 @@ namespace FlareAI.Flare
         }
 
         /// <summary>Fresh settings + LLM client per action; the docstyle server process is shared. Null if not configured.</summary>
-        private ActionRunner NewRunner(string topicPath)
+        private ActionRunner NewRunner(FlareDocumentAdapter adapter)
         {
+            var topicPath = adapter.SourcePath;
             var settings = PluginSettings.Load();
             ILlmClient llm;
             try { llm = LlmClientFactory.Create(settings); }
@@ -203,7 +203,10 @@ namespace FlareAI.Flare
             }
             var style = StyleService(settings);
             var project = settings.UseProjectLayer ? topicPath : null;
-            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(project)), settings.MaxTokens, style, project);
+            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(project)), settings.MaxTokens, style, project)
+            {
+                VariableValue = adapter.VariableValue
+            };
         }
 
         private McpStyleService _style;

@@ -165,7 +165,7 @@ namespace FlareAI.Flare.UI
                 var item = new ListViewItem(new[]
                 {
                     "\"" + f.Excerpt + "\"",
-                    f.Replacement == null ? "(needs rewrite)" : (f.Replacement.Length == 0 ? "delete" : "→ " + f.Replacement),
+                    f.Variable != null ? "Go to, then Insert ▸ Variable ▸ " + f.Variable : f.Replacement == null ? "(needs rewrite)" : (f.Replacement.Length == 0 ? "delete" : "→ " + f.Replacement),
                     "[" + LayerLabel(f) + "] " + f.Suggestion
                 })
                 { Tag = f, Group = _list.Groups[f.Severity] ?? _list.Groups["suggestion"] };

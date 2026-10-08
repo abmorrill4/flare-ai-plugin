@@ -41,5 +41,8 @@ namespace FlareAI.Core.Editing
         /// Call inside <see cref="Edit"/>. False when the editor could not do it (nothing changed).
         /// </summary>
         bool ReplaceSpan(XmlText run, int start, int length, string replacement);
+
+        /// <summary>Current value of a project variable ("Set.Name"), or null if unknown.</summary>
+        string VariableValue(string qualifiedName);
     }
 }

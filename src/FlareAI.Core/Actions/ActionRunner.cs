@@ -80,16 +80,42 @@ namespace FlareAI.Core.Actions
         {
             var findings = new List<StyleFinding>();
             if (_style == null) return findings;
-            var runs = TextRuns.Of(blocks);
+            // Lint whole lines (inline markup flattened, variables resolved), then map each hit back to the run it
+            // falls in. Hits inside a variable's value belong to the variable set, not this topic: dropped here.
+            var lines = TextLines.Of(blocks, VariableValue);
             var texts = new List<string>();
             var headings = new List<int>();
-            for (var i = 0; i < runs.Count; i++)
+            for (var i = 0; i < lines.Count; i++)
             {
-                texts.Add(runs[i].Value);
-                if (TextRuns.IsHeading(runs[i])) headings.Add(i);
+                texts.Add(lines[i].Text);
+                if (lines[i].IsHeading) headings.Add(i);
             }
-            foreach (var h in _style.Lint(texts, headings, _project)) findings.Add(FindingLocator.FromLint(h, runs[h.Index]));
+            var inVariables = 0;
+            foreach (var h in _style.Lint(texts, headings, _project))
+            {
+                var f = MapToRun(lines[h.Index], h);
+                if (f != null) findings.Add(f); else inVariables++;
+            }
+            if (inVariables > 0) Diagnostics.Log("Lint: " + inVariables + " finding(s) inside variable values skipped");
             return findings;
+        }
+
+        /// <summary>Resolves "Set.Name" to the variable's value for linting; null leaves the variable out.</summary>
+        public Func<string, string> VariableValue { get; set; }
+
+        private static StyleFinding MapToRun(TextLine line, LintHit h)
+        {
+            int start = h.Start, end = h.Start + h.Length;
+            var pieces = new List<Segment>();
+            foreach (var s in line.Segments)
+                if (s.Offset < end && start < s.Offset + s.Text.Length && s.Text.Length > 0) pieces.Add(s);
+            var first = pieces.Find(s => s.Run != null && s.Run.Value.Trim().Length > 0);
+            if (first == null) return null; // entirely inside variable values (or whitespace)
+            var from = Math.Max(start, first.Offset) - first.Offset;
+            var to = Math.Min(end, first.Offset + first.Text.Length) - first.Offset;
+            // Only a hit wholly inside one run can be fixed mechanically; one that spans markup or a variable
+            // is shown on its first run and needs a rewrite.
+            return FindingLocator.FromLint(h, first.Run, from, to - from, pieces.Count == 1);
         }
 
         /// <summary>
@@ -186,16 +212,18 @@ namespace FlareAI.Core.Actions
             if (todo.Count == 0) return 0;
 
             var applied = 0;
-            doc.Edit(operationName, () =>
-            {
-                foreach (var item in todo)
+            var text = todo;
+            if (text.Count > 0)
+                doc.Edit(operationName, () =>
                 {
-                    var f = item.Key;
-                    XmlText run; int start;
-                    if (!FindingLocator.TryLocate(doc.Document, f, out run, out start)) continue;
-                    if (doc.ReplaceSpan(run, start, f.Excerpt.Length, f.Replacement)) { f.IsFixed = true; applied++; }
-                }
-            });
+                    foreach (var item in text)
+                    {
+                        var f = item.Key;
+                        XmlText run; int start;
+                        if (!FindingLocator.TryLocate(doc.Document, f, out run, out start)) continue;
+                        if (doc.ReplaceSpan(run, start, f.Excerpt.Length, f.Replacement)) { f.IsFixed = true; applied++; }
+                    }
+                });
             Diagnostics.Log("Applied " + operationName + ": " + applied + "/" + todo.Count + " text fix(es)");
             return applied;
         }

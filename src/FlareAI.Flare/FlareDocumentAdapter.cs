@@ -174,6 +174,17 @@ namespace FlareAI.Flare
             }
         }
 
+        public string VariableValue(string qualifiedName)
+        {
+            try
+            {
+                var dot = qualifiedName.IndexOf('.');
+                if (dot <= 0) return null;
+                return _doc.LookupVariableValue(qualifiedName.Substring(0, dot), qualifiedName.Substring(dot + 1));
+            }
+            catch (Exception) { return null; }
+        }
+
         /// <summary>
         /// Flare 22's ISelection leaves internal &lt;SelectionMarker/&gt; (and Start/End) elements in the DOM after
         /// ReplaceText; they would be saved into the topic and confuse the next selection. Remove them untracked.

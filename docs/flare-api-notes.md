@@ -81,6 +81,17 @@ IRibbonComboBox combo = group.AddRibbonCombobox(new RibbonMenuData { ... });
 - Controls added to an already-visible pane never get `VisibleChanged`; start work explicitly.
 - Not public API: keep every use in `UI/PanelHost.cs` (`FlarePane`), JIT-isolated, with the floating-window fallback.
 
+## Variables and redo (verified Flare 22)
+- Any tracked *node* operation whose content includes a `MadCap:variable` (InsertDocumentNode of a variable, or a
+  ReplaceDocumentNode of an element containing one) undoes fine but **crashes Flare on Redo** ("specified node cannot
+  be inserted… wrong type"). The same replacement without a variable redoes fine.
+- `ISelection.ReplaceText("<MadCap:variable …/>")` inserts the markup as literal text. There is no public, redo-safe way
+  to insert a variable; the plugin guides the author to Insert ▸ Variable on the selected text instead.
+  (Flare's own command is `B3.XmlTextApi.TextVariableInsertCommand`, internal.)
+- Inside one operation Flare writes `MadCap:change` elements immediately but adds their `changeData` ids to the head
+  only at `EndOperation`: don't use head ids to recognise changes made in the current operation.
+- `IPaneDock.PinPane` means auto-hide (the pane collapses when the editor gets focus); `InstallPane` alone docks it.
+
 ## Verified write behavior (Flare 22, tested live 2026-10-08)
 - `ReplaceDocumentNode(target, new, …)` keeps `target` (same object) and copies `new`'s content and
   attributes into it. Node references survive; `new` is never attached.

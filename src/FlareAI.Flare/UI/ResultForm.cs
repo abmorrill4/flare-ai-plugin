@@ -93,7 +93,9 @@ namespace FlareAI.Flare.UI
                 notes.AddRange(_proposal.Notes);
                 _status.Text = (_proposal.RemainingLint.Count == 0 ? "Proposed edit passes the style linter." : "Proposed edit — " + _proposal.RemainingLint.Count + " linter issue(s) remain (listed below).")
                                + (notes.Count > 0 ? "  " + string.Join("  ", notes.ToArray()) : "")
-                               + (_proposal.WordPlan != null ? "  Applies as " + _proposal.WordPlan.Count + " word-level tracked change(s)." : "  Applies as a paragraph-level tracked change (structure changes).");
+                               + (_proposal.WordPlan != null ? "  Applies as " + _proposal.WordPlan.Count + " word-level tracked change(s)." : "  Applies as a paragraph-level tracked change (structure changes).")
+                               + (_proposal.WordPlan == null && _proposal.ProposedXml != null && _proposal.ProposedXml.Contains("MadCap:variable")
+                                   ? "  Note: Flare 22 can undo this edit but not redo it (Ctrl+Y) because the text contains a variable." : "");
                 var sb = new StringBuilder(_proposal.ProposedXml);
                 if (_proposal.RemainingLint.Count > 0)
                     sb.AppendLine().AppendLine().AppendLine("--- still flagged by the linter ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));

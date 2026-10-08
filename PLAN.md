@@ -142,10 +142,14 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
 3. `[x]` **Tool Strip mode** (Markup AI has it, we don't): `CreateCustomToolBar` buttons for the same actions.
 4. `[x]` **Mark of the Web** (Markup AI's #1 install issue, same for us): installer runs `Unblock-File`;
    tester guide says so. (A blocked plugin never loads, so in-plugin detection is moot.)
-5. `[ ]` **Variables resolved** (Markup AI: not checked). Lint sees variable values in context (sentence rules
+5. `[x]` **Variables resolved** (Markup AI: not checked). Lint sees variable values in context (sentence rules
    work across them); findings inside a value point to the variable set, not the topic; the AI review gets
    the values. **Insert variable** fix for project-variable findings: replace the typed text with the
    `MadCap:variable` (tracked; the validator allows introducing only variables that exist in the project).
+   Done: lint runs on whole lines (inline markup flattened, variable values resolved via LookupVariableValue);
+   hits inside variable values are dropped; hits across markup show on their first run, not one-click.
+   Insert-variable is **guided** (Go to + Insert ▸ Variable): every plugin-side insert crashes Flare 22 on Redo.
+   Follow-up: drive Flare's internal TextVariableInsertCommand on the selection for a true one-click fix.
 6. `[ ]` **Snippets checked** (Markup AI: not checked). Check style includes referenced snippets' text,
    labelled "in snippet X"; Fix opens the snippet and applies there, tracked.
 7. `[ ]` **Results that survive** (Markup AI: ~20 topics, lost on rename). Lint re-runs instantly on topic

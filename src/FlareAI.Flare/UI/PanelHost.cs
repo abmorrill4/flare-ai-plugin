@@ -75,8 +75,7 @@ namespace FlareAI.Flare.UI
                 _pane = new B3.AppKit.Pane { Name = "FlareAI.Findings", Title = panel.Title, View = _view };
                 // Flare picks the group (the left panes by default); the author can drag it anywhere and Flare's
                 // layout remembers it by pane name. (Installing under another pane replaces that pane's view.)
-                dock.InstallPane(_pane);
-                dock.PinPane(_pane, DockStyle.Right);
+                dock.InstallPane(_pane); // (PinPane = auto-hide: the pane collapses whenever the editor gets focus)
             }
             _view.SetContent(panel);
             _pane.Title = panel.Title;

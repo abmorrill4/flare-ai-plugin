@@ -68,6 +68,14 @@ namespace FlareAI.Core.Tests
             body();
         }
 
+        public Dictionary<string, string> Variables = new Dictionary<string, string> { { "General.ProductName", "Acme Online Banking" } };
+
+        public string VariableValue(string qualifiedName)
+        {
+            string v;
+            return Variables.TryGetValue(qualifiedName, out v) ? v : null;
+        }
+
         public bool ReplaceSpan(XmlText run, int start, int length, string replacement)
         {
             run.Value = run.Value.Substring(0, start) + replacement + run.Value.Substring(start + length);
@@ -88,6 +96,10 @@ namespace FlareAI.Core.Tests
             var hits = new List<FlareAI.Core.Style.LintHit>();
             for (var i = 0; i < texts.Count; i++)
             {
+                foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(texts[i], @"Acme Online Banking"))
+                    hits.Add(new FlareAI.Core.Style.LintHit { Index = i, Start = m.Index, Length = m.Length, Match = m.Value, Rule = "Project.Variables", Severity = "warning", Layer = "project", Message = "Insert the variable.", Variable = "General.ProductName" });
+                foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(texts[i], @"to Settings"))
+                    hits.Add(new FlareAI.Core.Style.LintHit { Index = i, Start = m.Index, Length = m.Length, Match = m.Value, Replacement = "to the Settings", Rule = "Test.Across", Severity = "suggestion", Layer = "company", Message = "Spans markup." });
                 foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(texts[i], @"\butilize\b|\bthe user\b"))
                     hits.Add(new FlareAI.Core.Style.LintHit
                     {

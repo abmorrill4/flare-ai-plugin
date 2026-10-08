@@ -14,12 +14,23 @@ namespace FlareAI.Core.Style
     {
         private const int ContextChars = 40;
 
+        /// <summary>A lint hit for [start, start+length) of one run (the run's share of a line-level hit).</summary>
+        public static StyleFinding FromLint(LintHit h, XmlText run, int start, int length, bool exact)
+        {
+            var f = FromLint(new LintHit
+            {
+                Start = start, Length = length, Match = run.Value.Substring(start, length), Replacement = exact ? h.Replacement : null,
+                Rule = h.Rule, Severity = h.Severity, Message = h.Message, Layer = h.Layer, Link = h.Link, Variable = exact ? h.Variable : null
+            }, run);
+            return f;
+        }
+
         public static StyleFinding FromLint(LintHit h, XmlText run)
         {
             return new StyleFinding
             {
                 Source = "lint", Rule = h.Rule, Severity = h.Severity, Suggestion = h.Message,
-                Excerpt = h.Match, Replacement = h.Replacement, Layer = h.Layer, Link = h.Link,
+                Excerpt = h.Match, Replacement = h.Replacement, Layer = h.Layer, Link = h.Link, Variable = h.Variable,
                 Before = Tail(run.Value.Substring(0, h.Start)), Block = TextRuns.BlockOf(run)
             };
         }
