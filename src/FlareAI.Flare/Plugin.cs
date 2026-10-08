@@ -69,15 +69,15 @@ namespace FlareAI.Flare
             IRibbon ribbon = _nav.GetRibbon();
             IRibbonTab tab = ribbon.AddNewRibbonTab("AI", "Q");
             IRibbonGroup actions = tab.AddNewRibbonGroup("Assist");
-            actions.AddRibbonButton(Button("Check style", "C", OnCheckStyle, "check.png"));
-            actions.AddRibbonButton(Button("Rewrite selection", "R", OnRewrite, "rewrite.png"));
-            actions.AddRibbonButton(Button("Ask…", "A", OnAsk, "ask.png"));
-            actions.AddRibbonButton(Button("Check project", "P", OnCheckProject, "project.png"));
+            actions.AddRibbonButton(Button("Check style", "C", OnCheckStyle, "check"));
+            actions.AddRibbonButton(Button("Rewrite selection", "R", OnRewrite, "rewrite"));
+            actions.AddRibbonButton(Button("Ask…", "A", OnAsk, "ask"));
+            actions.AddRibbonButton(Button("Check project", "P", OnCheckProject, "project"));
 
             IRibbonGroup tools = tab.AddNewRibbonGroup("Plugin");
-            tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings.png"));
-            tools.AddRibbonButton(Button("Validate style guide", "V", OnValidateGuide, "validate.png"));
-            tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag.png"));
+            tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings"));
+            tools.AddRibbonButton(Button("Validate style guide", "V", OnValidateGuide, "validate"));
+            tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag"));
         }
 
         /// <summary>
@@ -89,33 +89,45 @@ namespace FlareAI.Flare
             try
             {
                 var menu = _nav.CreateToolStripMenu("AI", "Q");
-                menu.AddMenuItem("Check style", new DelegateCommand(OnCheckStyle));
-                menu.AddMenuItem("Rewrite selection", new DelegateCommand(OnRewrite));
-                menu.AddMenuItem("Ask…", new DelegateCommand(OnAsk));
-                menu.AddMenuItem("Check project", new DelegateCommand(OnCheckProject));
+                menu.AddMenuItem("Check style", new DelegateCommand(OnCheckStyle), null, IconPath("check-16.png"));
+                menu.AddMenuItem("Rewrite selection", new DelegateCommand(OnRewrite), null, IconPath("rewrite-16.png"));
+                menu.AddMenuItem("Ask…", new DelegateCommand(OnAsk), null, IconPath("ask-16.png"));
+                menu.AddMenuItem("Check project", new DelegateCommand(OnCheckProject), null, IconPath("project-16.png"));
                 menu.AddSeparator();
-                menu.AddMenuItem("Settings", new DelegateCommand(OnSettings));
-                menu.AddMenuItem("Validate style guide", new DelegateCommand(OnValidateGuide));
-                menu.AddMenuItem("Diagnostics", new DelegateCommand(OnDiagnostics));
+                menu.AddMenuItem("Settings", new DelegateCommand(OnSettings), null, IconPath("settings-16.png"));
+                menu.AddMenuItem("Validate style guide", new DelegateCommand(OnValidateGuide), null, IconPath("validate-16.png"));
+                menu.AddMenuItem("Diagnostics", new DelegateCommand(OnDiagnostics), null, IconPath("diag-16.png"));
 
                 var bar = _nav.CreateCustomToolBar("FlareAI");
-                bar.AddButton("Check style", new DelegateCommand(OnCheckStyle));
-                bar.AddButton("Rewrite", new DelegateCommand(OnRewrite));
-                bar.AddButton("Ask…", new DelegateCommand(OnAsk));
+                bar.AddButton("Check style", new DelegateCommand(OnCheckStyle), null, IconPath("check-16.png"), RibbonIconSize.Small);
+                bar.AddButton("Rewrite", new DelegateCommand(OnRewrite), null, IconPath("rewrite-16.png"), RibbonIconSize.Small);
+                bar.AddButton("Ask…", new DelegateCommand(OnAsk), null, IconPath("ask-16.png"), RibbonIconSize.Small);
             }
             catch (Exception ex) { Diagnostics.Log("Tool Strip entries", ex); }
         }
 
         private RibbonControlData Button(string label, string keyTip, Action onClick, string icon)
         {
-            var data = new RibbonControlData { Label = label, KeyTip = keyTip, Command = new DelegateCommand(onClick) };
-            var path = Path.Combine(PluginDirectory, Path.Combine("Icons", icon));
-            if (File.Exists(path))
+            return new RibbonControlData
             {
-                try { data.LargeImage = new System.Windows.Media.Imaging.BitmapImage(new Uri(path)); }
-                catch (Exception ex) { Diagnostics.Log("icon " + icon, ex); }
-            }
-            return data;
+                Label = label, KeyTip = keyTip, Command = new DelegateCommand(onClick),
+                LargeImage = Image(icon + ".png"), SmallImage = Image(icon + "-16.png")
+            };
+        }
+
+        /// <summary>Full path of a bundled icon (Icons\*.png, made by scripts\make-icons.ps1), or null if missing.</summary>
+        private string IconPath(string file)
+        {
+            var path = Path.Combine(PluginDirectory, Path.Combine("Icons", file));
+            return File.Exists(path) ? path : null;
+        }
+
+        private System.Windows.Media.ImageSource Image(string file)
+        {
+            var path = IconPath(file);
+            if (path == null) return null;
+            try { return new System.Windows.Media.Imaging.BitmapImage(new Uri(path)); }
+            catch (Exception ex) { Diagnostics.Log("icon " + file, ex); return null; }
         }
 
         // ---- actions -----------------------------------------------------------------

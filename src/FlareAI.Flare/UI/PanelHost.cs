@@ -75,7 +75,8 @@ namespace FlareAI.Flare.UI
                 return false;
             }
 
-            if (_pane == null || _pane.IsDisposed || _view == null || _view.IsDisposed)
+            // Closing the pane with Flare's own ✕ uninstalls it without disposing it: reinstall then.
+            if (_pane == null || _pane.IsDisposed || _view == null || _view.IsDisposed || !dock.Panes.Contains(_pane))
             {
                 _view = new SidebarView();
                 _pane = new B3.AppKit.Pane { Name = "FlareAI.Findings", Title = panel.Title, View = _view };
