@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "docstyle": {
+      "command": "uv",
+      "args": ["run", "--quiet", "--script", "mcp/docstyle/server.py"]
+    }
+  }
+}

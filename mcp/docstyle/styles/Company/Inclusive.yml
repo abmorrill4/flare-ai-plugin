@@ -1,0 +1,14 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+link: https://developers.google.com/style/inclusive-documentation
+level: error
+ignorecase: true
+action:
+  name: replace
+swap:
+  whitelist: allowlist
+  whitelists: allowlists
+  whitelisted: allowlisted
+  blacklist: blocklist
+  blacklists: blocklists
+  blacklisted: blocklisted

@@ -1,0 +1,8 @@
+extends: existence
+message: "Use descriptive link text, not '%s'."
+link: https://developers.google.com/style/link-text
+level: error
+ignorecase: true
+tokens:
+  - click here
+  - this link

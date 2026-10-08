@@ -1,0 +1,12 @@
+# Deletions: the docstyle server turns these into "delete the words" fixes.
+extends: existence
+message: "Filler: '%s'. State the point directly."
+link: https://developers.google.com/style/tone
+level: warning
+ignorecase: true
+tokens:
+  - please note that
+  - note that
+  - please
+  - simply
+  - easily

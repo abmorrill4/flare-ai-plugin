@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net40</TargetFramework>
+    <RootNamespace>FlareAI.Core</RootNamespace>
+    <AssemblyName>FlareAI.Core</AssemblyName>
+    <!-- Flare requirement: plugin assemblies target .NET Framework 4.0. No async/await, no HttpClient. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Security" /> <!-- DPAPI: System.Security.Cryptography.ProtectedData -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 13.x still supports net40 -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Prompts\*.md" LogicalName="FlareAI.Core.Prompts.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

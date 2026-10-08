@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>FlareAI.Flare</RootNamespace>
+    <AssemblyName>FlareAI.Flare</AssemblyName>
+    <!-- Flare 22 ships B3.PluginAPIKit built for .NET 4.8, so the plugin must target net48. The ribbon API is WPF; dialogs are WinForms. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <!-- WPF, needed for RibbonControlData / ICommand / BitmapImage used by the Flare ribbon API -->
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copied from the Flare install by scripts\bootstrap.ps1. Never redistributed. -->
+    <Reference Include="B3.PluginAPIKit">
+      <HintPath>..\..\lib\B3.PluginAPIKit.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FlareAI.Core\FlareAI.Core.csproj" />
+  </ItemGroup>
+
+</Project>

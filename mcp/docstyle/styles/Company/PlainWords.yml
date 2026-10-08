@@ -1,0 +1,16 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+link: https://developers.google.com/style/word-list
+level: warning
+ignorecase: true
+action:
+  name: replace
+swap:
+  utilize: use
+  utilizes: uses
+  utilized: used
+  utilizing: using
+  in order to: to
+  prior to: before
+  is able to: can
+  are able to: can

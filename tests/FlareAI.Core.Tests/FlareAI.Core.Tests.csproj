@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Tests run on a modern framework; Core (net40) is binary-compatible. -->
+    <TargetFramework>net48</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>FlareAI.Core.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\fixtures\**\*" Link="fixtures\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

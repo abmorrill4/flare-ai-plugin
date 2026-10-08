@@ -1,0 +1,23 @@
+# build
+bin/
+obj/
+dist/
+*.user
+*.suo
+.vs/
+.idea/
+
+# copied from the Flare install — never commit MadCap binaries
+lib/*.dll
+lib/*.pdb
+
+# generated
+docs/api-dump.txt
+
+# secrets — never
+.env
+*.env
+settings.json
+
+# python
+__pycache__/

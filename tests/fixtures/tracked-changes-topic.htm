@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <MadCap:changeData>
+            <MadCap:RemoveChange MadCap:userName="arthu" MadCap:initials="AR" MadCap:id="1" MadCap:timestamp="2026-10-08T08:04:29.5207818-04:00" />
+            <MadCap:AddChange MadCap:userName="arthu" MadCap:initials="AR" MadCap:id="2" MadCap:timestamp="2026-10-08T08:04:29.5264988-04:00" />
+        </MadCap:changeData><title>Configure single sign-on</title>
+    </head>
+    <body>
+        <h1>Configure single sign-on</h1>
+        <p>
+            <MadCap:change MadCap:changes="2">To use SSO, make sure your administrator has granted you the required permissions before you start the configuration. </MadCap:change><MadCap:variable name="General.ProductName" MadCap:changes="2" />
+            <MadCap:change MadCap:changes="2"> supports SAML 2.0 and OIDC.</MadCap:change>
+            <MadCap:change MadCap:changes="1">In order to be able to utilize SSO functionality, the user should simply ensure that they have been granted the appropriate permissions by their administrator prior to attempting to proceed with the configuration process. Please note that </MadCap:change><MadCap:variable name="General.ProductName" MadCap:changes="1" />
+            <MadCap:change MadCap:changes="1"> supports SAML 2.0 and OIDC.</MadCap:change>
+        </p>
+        <p MadCap:conditions="Default.Print">This paragraph is only in print output.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/AdminWarning.flsnp" />
+        <h2>Steps</h2>
+        <ol>
+            <li>Navigate to <b>Settings</b> &gt; <b>Security</b>.</li>
+            <li>The SSO toggle should be clicked by the user, e.g. to enable it.</li>
+            <li>Enter your identity provider's metadata URL and click <b>Save</b>.</li>
+        </ol>
+        <p>For more information, see <MadCap:xref href="Troubleshooting-SSO.htm">Troubleshoot SSO</MadCap:xref>.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Advanced options</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>Whitelist the IdP's IP ranges if your firewall blocks outbound traffic.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>
