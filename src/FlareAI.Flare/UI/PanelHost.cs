@@ -15,9 +15,15 @@ namespace FlareAI.Flare.UI
     public static class PanelHost
     {
         private static bool _paneBroken;
+        private static FindingsPanel _current;
+
+        /// <summary>The findings panel currently shown (docked or floating), or null once closed.</summary>
+        public static FindingsPanel Current { get { return _current != null && !_current.IsDisposed && _current.Parent != null ? _current : null; } }
 
         public static void Show(FindingsPanel panel, Form flareMainForm)
         {
+            _current = panel;
+            panel.CloseRequested += (s, e) => { if (_current == panel) _current = null; };
             if (!_paneBroken)
             {
                 try

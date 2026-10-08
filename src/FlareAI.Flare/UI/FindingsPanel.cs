@@ -38,12 +38,21 @@ namespace FlareAI.Flare.UI
         /// <summary>"Check style: topic.htm" — for the host's title.</summary>
         public string Title { get; private set; }
 
+        /// <summary>Path of the topic this panel checks.</summary>
+        public string TopicPath { get { return _doc.SourcePath; } }
+
         private readonly Func<string, IDocumentAdapter> _open;
+        private readonly ReviewCache _cache;
+        private bool _aiOnStart;
 
         /// <param name="open">Opens another file (a snippet) in Flare and returns its adapter, or null.</param>
-        public FindingsPanel(ActionRunner runner, IDocumentAdapter doc, Func<ActionRunner> newRunner, Func<string, IDocumentAdapter> open)
+        /// <param name="cache">Shared AI review cache (same content = same review, across topics and renames).</param>
+        /// <param name="aiOnStart">False when the panel opens because the author switched topics: only a cached AI
+        /// review is shown automatically; a new one runs on Re-check (no surprise cost).</param>
+        public FindingsPanel(ActionRunner runner, IDocumentAdapter doc, Func<ActionRunner> newRunner, Func<string, IDocumentAdapter> open,
+                             ReviewCache cache, bool aiOnStart)
         {
-            _runner = runner; _doc = doc; _newRunner = newRunner; _open = open;
+            _runner = runner; _doc = doc; _newRunner = newRunner; _open = open; _cache = cache; _aiOnStart = aiOnStart;
             Title = "FlareAI — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
             Padding = new Padding(6);
@@ -70,7 +79,7 @@ namespace FlareAI.Flare.UI
             _rewrite = Btn(bar, "Rewrite paragraph…", (s, e) => RewriteParagraph());
             _goTo = Btn(bar, "Go to", (s, e) => { var sel = Selected(); if (sel.Count > 0) GoTo(sel[0], true); });
             _rule = Btn(bar, "Guide ↗", (s, e) => { var sel = Selected(); if (sel.Count == 1 && !string.IsNullOrEmpty(sel[0].Link)) OpenLink(sel[0].Link); });
-            _recheck = Btn(bar, "Re-check", (s, e) => Start());
+            _recheck = Btn(bar, "Re-check", (s, e) => { _aiOnStart = true; Start(); });
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
             var tips = new ToolTip();
             tips.SetToolTip(_fix, "Apply the selected fixes as tracked changes (Enter, or double-click a row).");
@@ -132,13 +141,18 @@ namespace FlareAI.Flare.UI
                 _blocks = blocks; _lint = lint;
                 _worker.ReportProgress(0, lint);                  // from here the author may edit while we wait
                 if (_worker.CancellationPending) { e.Cancel = true; return; }
-                e.Result = _runner.CallReview(prompt);
+                var cached = _cache == null ? null : _cache.Get(prompt);
+                if (cached != null) { e.Result = cached; return; }
+                if (!_aiOnStart) { e.Result = null; return; }    // switched topics: don't spend on a review unasked
+                var raw = _runner.CallReview(prompt);
+                if (_cache != null) _cache.Put(prompt, raw);
+                e.Result = raw;
             };
             _worker.ProgressChanged += (s, e) =>
             {
                 if (IsDisposed) return;
                 Add((List<StyleFinding>)e.UserState);
-                _status.Text = Summary() + " Reviewing with AI… (you can fix these now)";
+                _status.Text = Summary() + (_aiOnStart ? " Reviewing with AI… (you can fix these now)" : "");
                 UpdateButtons();
             };
             _worker.RunWorkerCompleted += (s, e) =>
@@ -149,6 +163,10 @@ namespace FlareAI.Flare.UI
                 {
                     Diagnostics.Log("Check style", e.Error);
                     _status.Text = Summary() + " AI review failed: " + e.Error.Message;
+                }
+                else if (e.Result == null)
+                {
+                    _status.Text = Summary() + "  Linter only — click Re-check for the AI review.";
                 }
                 else
                 {

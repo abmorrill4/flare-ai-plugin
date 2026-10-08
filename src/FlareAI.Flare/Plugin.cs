@@ -43,6 +43,7 @@ namespace FlareAI.Flare
                 _nav = _host.GetNavContext();
                 CreateRibbon();
                 CreateToolStrip();
+                try { _host.GetEditorContext().DocumentSwitched += OnDocumentSwitched; } catch (Exception ex) { Diagnostics.Log("subscribe", ex); }
                 _activated = true;
             }
             catch (Exception ex)
@@ -54,6 +55,7 @@ namespace FlareAI.Flare
 
         public void Stop()
         {
+            try { _host.GetEditorContext().DocumentSwitched -= OnDocumentSwitched; } catch (Exception) { }
             ResetStyleService();
             try { _host.Dispose(); } catch (Exception ex) { Diagnostics.Log("Stop", ex); }
             _activated = false;
@@ -176,7 +178,7 @@ namespace FlareAI.Flare
                 if (kind == ActionKind.CheckStyle)
                 {
                     // Docked (or floating) and modeless: the author works through the list while editing.
-                    PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter), OpenAdapter), _nav.GetParentForm());
+                    ShowFindings(adapter, runner, true);
                     return;
                 }
                 using (var f = new ResultForm(title, runner, adapter, kind, instruction))
@@ -231,6 +233,34 @@ namespace FlareAI.Flare
         {
             if (_style != null) { try { _style.Dispose(); } catch (Exception ex) { Diagnostics.Log("docstyle stop", ex); } }
             _style = null;
+        }
+
+        private static readonly ReviewCache Reviews = new ReviewCache();
+
+        private void ShowFindings(FlareDocumentAdapter adapter, ActionRunner runner, bool aiOnStart)
+        {
+            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter), OpenAdapter, Reviews, aiOnStart), _nav.GetParentForm());
+        }
+
+        /// <summary>
+        /// While the findings view is open it follows the active topic: instant lint for the new topic, plus the AI
+        /// review only if this exact content was reviewed before (cache). Snippet tabs opened by our own fixes don't count.
+        /// </summary>
+        private void OnDocumentSwitched(object sender, EventArgs e)
+        {
+            try
+            {
+                var current = PanelHost.Current;
+                if (current == null) return;
+                var adapter = ActiveAdapter();
+                if (adapter == null || !adapter.IsEditableTopic) return;
+                var path = adapter.SourcePath ?? "";
+                if (string.Equals(path, current.TopicPath, StringComparison.OrdinalIgnoreCase)) return;
+                if (path.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)) return;
+                var runner = NewRunner(adapter);
+                if (runner != null) ShowFindings(adapter, runner, false);
+            }
+            catch (Exception ex) { Diagnostics.Log("DocumentSwitched", ex); }
         }
 
         /// <summary>Opens (or activates) a file in Flare's editor and wraps it; null if Flare can't open it.</summary>

@@ -152,8 +152,11 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    Follow-up: drive Flare's internal TextVariableInsertCommand on the selection for a true one-click fix.
 6. `[x]` **Snippets checked** (Markup AI: not checked). Check style includes referenced snippets' text,
    labelled "in snippet X"; Fix opens the snippet and applies there, tracked.
-7. `[ ]` **Results that survive** (Markup AI: ~20 topics, lost on rename). Lint re-runs instantly on topic
+7. `[x]` **Results that survive** (Markup AI: ~20 topics, lost on rename). Lint re-runs instantly on topic
    switch; AI review cached by file path + content hash (rename-proof); dismissed findings remembered.
+   Done: the open findings view follows the active topic (instant lint); AI review cached by a hash of the exact
+   review prompt (content-addressed, so renames and switches don't matter); a new review on switch runs only on
+   Re-check (no surprise cost). Dismissals: item 9.
 8. `[ ]` **Project / TOC check** (Markup AI: one topic only). "Check project": lint every topic (no AI cost),
    report grouped by topic → open topic + go to finding; optional AI review per topic on demand.
 9. `[ ]` **Dismiss / ignore** (Markup AI has it): dismiss a finding; "ignore rule for this project" writes
