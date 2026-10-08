@@ -72,6 +72,7 @@ namespace FlareAI.Flare
             actions.AddRibbonButton(Button("Check style", "C", OnCheckStyle, "check.png"));
             actions.AddRibbonButton(Button("Rewrite selection", "R", OnRewrite, "rewrite.png"));
             actions.AddRibbonButton(Button("Ask…", "A", OnAsk, "ask.png"));
+            actions.AddRibbonButton(Button("Check project", "P", OnCheckProject, "project.png"));
 
             IRibbonGroup tools = tab.AddNewRibbonGroup("Plugin");
             tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings.png"));
@@ -90,6 +91,7 @@ namespace FlareAI.Flare
                 menu.AddMenuItem("Check style", new DelegateCommand(OnCheckStyle));
                 menu.AddMenuItem("Rewrite selection", new DelegateCommand(OnRewrite));
                 menu.AddMenuItem("Ask…", new DelegateCommand(OnAsk));
+                menu.AddMenuItem("Check project", new DelegateCommand(OnCheckProject));
                 menu.AddSeparator();
                 menu.AddMenuItem("Settings", new DelegateCommand(OnSettings));
                 menu.AddMenuItem("Diagnostics", new DelegateCommand(OnDiagnostics));
@@ -125,6 +127,32 @@ namespace FlareAI.Flare
             {
                 if (f.ShowDialog() != DialogResult.OK || string.IsNullOrEmpty(f.Instruction)) return;
                 RunAction("Ask", ActionKind.Ask, f.Instruction);
+            }
+        }
+
+        /// <summary>Lints every topic and snippet in the active topic's project (no AI cost) into the findings view.</summary>
+        private void OnCheckProject()
+        {
+            try
+            {
+                var adapter = ActiveAdapter();
+                var files = ActionRunner.ProjectFiles(adapter == null ? null : adapter.SourcePath);
+                if (adapter == null || files.Count == 0)
+                {
+                    MessageBox.Show("Open any topic of the project first (Check project scans that project's Content folder).", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                var runner = NewRunner(adapter);
+                if (runner == null) return;
+                var root = Path.GetDirectoryName(files[0]);
+                while (root != null && Directory.GetFiles(root, "*.flprj").Length == 0) root = Path.GetDirectoryName(root);
+                var name = root == null ? "" : Path.GetFileName(root);
+                PanelHost.Show(FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter), OpenAdapter, files, name), _nav.GetParentForm());
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Check project", ex);
+                MessageBox.Show(ex.Message, "FlareAI — Check project", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -251,7 +279,7 @@ namespace FlareAI.Flare
             try
             {
                 var current = PanelHost.Current;
-                if (current == null) return;
+                if (current == null || current.IsProjectReport) return;
                 var adapter = ActiveAdapter();
                 if (adapter == null || !adapter.IsEditableTopic) return;
                 var path = adapter.SourcePath ?? "";

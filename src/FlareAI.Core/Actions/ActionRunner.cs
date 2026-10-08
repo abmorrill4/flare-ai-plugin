@@ -156,6 +156,75 @@ namespace FlareAI.Core.Actions
             }
         }
 
+        /// <summary>Topics and snippets of the Flare project containing <paramref name="anyPath"/> (Content folder), or empty.</summary>
+        public static List<string> ProjectFiles(string anyPath)
+        {
+            var files = new List<string>();
+            if (string.IsNullOrEmpty(anyPath)) return files;
+            var dir = new System.IO.DirectoryInfo(System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(anyPath)));
+            while (dir != null && dir.GetFiles("*.flprj").Length == 0) dir = dir.Parent;
+            if (dir == null) return files;
+            var content = System.IO.Path.Combine(dir.FullName, "Content");
+            if (!System.IO.Directory.Exists(content)) return files;
+            var guide = System.IO.Path.Combine(content, @"Resources\StyleGuide") + System.IO.Path.DirectorySeparatorChar;
+            foreach (var pattern in new[] { "*.htm", "*.html", "*.flsnp" })
+                foreach (var f in System.IO.Directory.GetFiles(content, pattern, System.IO.SearchOption.AllDirectories))
+                    if (!f.StartsWith(guide, StringComparison.OrdinalIgnoreCase) && new System.IO.FileInfo(f).Length < 2000000) files.Add(f);
+            files.Sort(StringComparer.OrdinalIgnoreCase);
+            return files;
+        }
+
+        /// <summary>
+        /// Lints whole files from disk (no AI): every topic/snippet in one linter call per batch. Findings carry the
+        /// file path; fixes are applied after opening the file in the editor.
+        /// </summary>
+        public List<StyleFinding> LintFiles(IList<string> paths, Action<int, int> progress = null)
+        {
+            var findings = new List<StyleFinding>();
+            if (_style == null) return findings;
+            var lines = new List<TextLine>();
+            var owners = new List<string>();
+            var done = 0;
+            foreach (var path in paths)
+            {
+                done++;
+                try
+                {
+                    var xml = new XmlDocument { PreserveWhitespace = true };
+                    xml.Load(path);
+                    var body = BlockSelector.FindBody(xml);
+                    if (body == null) continue;
+                    var blocks = new List<XmlNode>();
+                    foreach (XmlNode c in body.ChildNodes) if (c.NodeType == XmlNodeType.Element) blocks.Add(c);
+                    foreach (var l in TextLines.Of(blocks, VariableValue)) { lines.Add(l); owners.Add(path); }
+                }
+                catch (Exception ex) { Diagnostics.Log("project lint: " + path, ex); }
+                if (progress != null && (done % 25 == 0 || done == paths.Count)) progress(done, paths.Count);
+            }
+            const int Batch = 1500;
+            for (var from = 0; from < lines.Count; from += Batch)
+            {
+                var count = Math.Min(Batch, lines.Count - from);
+                var texts = new List<string>();
+                var headings = new List<int>();
+                for (var i = 0; i < count; i++)
+                {
+                    texts.Add(lines[from + i].Text);
+                    if (lines[from + i].IsHeading) headings.Add(i);
+                }
+                foreach (var h in _style.Lint(texts, headings, _project))
+                {
+                    var f = MapToRun(lines[from + h.Index], h);
+                    if (f == null) continue;
+                    f.DocumentPath = owners[from + h.Index];
+                    f.Block = null;
+                    findings.Add(f);
+                }
+            }
+            Diagnostics.Log("Project lint: " + paths.Count + " files, " + lines.Count + " lines, " + findings.Count + " findings");
+            return findings;
+        }
+
         /// <summary>Resolves "Set.Name" to the variable's value for linting; null leaves the variable out.</summary>
         public Func<string, string> VariableValue { get; set; }
 

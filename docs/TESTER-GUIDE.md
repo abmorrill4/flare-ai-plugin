@@ -26,6 +26,7 @@ account; nobody else on the machine can read it.
 |---|---|---|
 | **Check style** | Opens a findings list for the selection (or whole topic): instant linter results, then AI review | Only when you click Fix |
 | **Rewrite selection** | Rewrites the selected paragraph(s) for clarity and style | Yes, word-level tracked changes |
+| **Check project** | Lints every topic and snippet in the project (no AI cost); results grouped by file | Only when you click Fix |
 | **Ask…** | Does what you type ("make this a numbered list", "shorten to two sentences") | Yes, tracked |
 
 Selection rule: it works on whole paragraphs/lists/tables containing your selection. Caret only =

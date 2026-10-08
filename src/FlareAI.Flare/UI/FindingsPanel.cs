@@ -38,6 +38,19 @@ namespace FlareAI.Flare.UI
         /// <summary>"Check style: topic.htm" — for the host's title.</summary>
         public string Title { get; private set; }
 
+        private IList<string> _files; // project mode: lint these files (no AI), group by file
+
+        /// <summary>A project-wide check: every topic and snippet, linter only, grouped by file.</summary>
+        public static FindingsPanel ForProject(ActionRunner runner, IDocumentAdapter activeDoc, Func<ActionRunner> newRunner,
+                                               Func<string, IDocumentAdapter> open, IList<string> files, string projectName)
+        {
+            var panel = new FindingsPanel(runner, activeDoc, newRunner, open, null, false) { _files = files };
+            panel.Title = "FlareAI — project " + projectName + " (" + files.Count + " files)";
+            return panel;
+        }
+
+        public bool IsProjectReport { get { return _files != null; } }
+
         /// <summary>Path of the topic this panel checks.</summary>
         public string TopicPath { get { return _doc.SourcePath; } }
 
@@ -69,7 +82,7 @@ namespace FlareAI.Flare.UI
             _list.Groups.Add("suggestion", "Suggestions");
             _list.Resize += (s, e) => FitColumns();
             _list.SelectedIndexChanged += (s, e) => { UpdateButtons(); if (_list.SelectedItems.Count == 1) GoTo(Selected()[0], false); };
-            _list.DoubleClick += (s, e) => { var sel = Selected(); if (sel.Count == 1 && sel[0].CanFix) Fix(sel); };
+            _list.DoubleClick += (s, e) => { var sel = Selected(); if (sel.Count != 1) return; if (sel[0].CanFix) Fix(sel); else GoTo(sel[0], true); };
             _list.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { Fix(Selected()); e.Handled = true; } };
 
             // Buttons wrap onto more rows when the pane is narrow.
@@ -129,6 +142,7 @@ namespace FlareAI.Flare.UI
             UpdateButtons();
 
             _worker = new BackgroundWorker { WorkerReportsProgress = true, WorkerSupportsCancellation = true };
+            if (_files != null) { StartProject(); return; }
             _worker.DoWork += (s, e) =>
             {
                 var blocks = _runner.PickCheckBlocks(_doc);
@@ -179,6 +193,29 @@ namespace FlareAI.Flare.UI
             _worker.RunWorkerAsync();
         }
 
+        private void StartProject()
+        {
+            _status.Text = "Linting " + _files.Count + " files…";
+            _worker.DoWork += (s, e) => e.Result = _runner.LintFiles(_files, (done, total) => _worker.ReportProgress(done * 100 / Math.Max(1, total), done + "/" + total));
+            _worker.ProgressChanged += (s, e) => { if (!IsDisposed) _status.Text = "Linting " + e.UserState + " files…"; };
+            _worker.RunWorkerCompleted += (s, e) =>
+            {
+                if (IsDisposed || e.Cancelled) return;
+                _reviewing = false; _progress.Visible = false;
+                if (e.Error != null) { Diagnostics.Log("Check project", e.Error); _status.Text = "Project check failed: " + e.Error.Message; }
+                else
+                {
+                    var found = (List<StyleFinding>)e.Result;
+                    Add(found);
+                    var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var f in found) files.Add(f.DocumentPath);
+                    _status.Text = found.Count + " issue(s) in " + files.Count + " of " + _files.Count + " files (linter only). Go to opens the topic.";
+                }
+                UpdateButtons();
+            };
+            _worker.RunWorkerAsync();
+        }
+
         private void Add(List<StyleFinding> found)
         {
             _list.BeginUpdate();
@@ -187,11 +224,11 @@ namespace FlareAI.Flare.UI
                 _findings.Add(f);
                 var item = new ListViewItem(new[]
                 {
-                    (f.DocumentPath == null ? "" : "[" + System.IO.Path.GetFileNameWithoutExtension(f.DocumentPath) + "] ") + "\"" + f.Excerpt + "\"",
+                    (f.DocumentPath == null || _files != null ? "" : "[" + System.IO.Path.GetFileNameWithoutExtension(f.DocumentPath) + "] ") + "\"" + f.Excerpt + "\"",
                     f.Variable != null ? "Go to, then Insert ▸ Variable ▸ " + f.Variable : f.Replacement == null ? "(needs rewrite)" : (f.Replacement.Length == 0 ? "delete" : "→ " + f.Replacement),
                     "[" + LayerLabel(f) + "] " + f.Suggestion
                 })
-                { Tag = f, Group = _list.Groups[f.Severity] ?? _list.Groups["suggestion"] };
+                { Tag = f, Group = _files != null ? FileGroup(f.DocumentPath) : (_list.Groups[f.Severity] ?? _list.Groups["suggestion"]) };
                 item.ToolTipText = LayerLabel(f) + " · " + f.Rule + (string.IsNullOrEmpty(f.Link) ? "" : "\n" + f.Link) + "\n\"" + f.Excerpt + "\"";
                 Restyle(item);
                 _list.Items.Add(item);
@@ -216,6 +253,26 @@ namespace FlareAI.Flare.UI
         {
             if (string.IsNullOrEmpty(f.Layer) || f.Layer == "ai") return "AI";
             return char.ToUpperInvariant(f.Layer[0]) + f.Layer.Substring(1); // Google, Company, Project, or a custom layer's folder name
+        }
+
+        private ListViewGroup FileGroup(string path)
+        {
+            var key = path ?? "";
+            var g = _list.Groups[key];
+            if (g == null)
+            {
+                var root = _files.Count > 0 ? CommonRoot() : "";
+                g = _list.Groups.Add(key, root.Length > 0 && key.StartsWith(root, StringComparison.OrdinalIgnoreCase) ? key.Substring(root.Length) : System.IO.Path.GetFileName(key));
+            }
+            return g;
+        }
+
+        private string CommonRoot()
+        {
+            var content = System.IO.Path.GetDirectoryName(_files[0]);
+            while (content != null && !System.IO.Path.GetFileName(content).Equals("Content", StringComparison.OrdinalIgnoreCase))
+                content = System.IO.Path.GetDirectoryName(content);
+            return content == null ? "" : content + System.IO.Path.DirectorySeparatorChar;
         }
 
         private string Summary()
@@ -257,6 +314,9 @@ namespace FlareAI.Flare.UI
         {
             var todo = findings.FindAll(f => f.CanFix);
             if (todo.Count == 0) { _status.Text = "Nothing selected has a one-click fix. Try Rewrite paragraph."; return; }
+            var fileCount = GroupByDocument(todo).Count;
+            if (fileCount > 3 && MessageBox.Show(this, "Apply " + todo.Count + " fixes in " + fileCount + " files?\n\nEach file opens in Flare and gets the fixes as tracked changes (one undo step per file). Nothing is saved automatically.",
+                    "FlareAI", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
             try
             {
                 var n = 0;

@@ -157,8 +157,10 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    Done: the open findings view follows the active topic (instant lint); AI review cached by a hash of the exact
    review prompt (content-addressed, so renames and switches don't matter); a new review on switch runs only on
    Re-check (no surprise cost). Dismissals: item 9.
-8. `[ ]` **Project / TOC check** (Markup AI: one topic only). "Check project": lint every topic (no AI cost),
+8. `[x]` **Project / TOC check** (Markup AI: one topic only). "Check project": lint every topic (no AI cost),
    report grouped by topic → open topic + go to finding; optional AI review per topic on demand.
+   Done: AI ▸ Check project lints Content/**/*.htm|html|flsnp (StyleGuide folder excluded) in batched linter calls,
+   grouped by file; Go to/Fix open the file; Fix all across >3 files asks first. TOC-scoped check: not yet.
 9. `[ ]` **Dismiss / ignore** (Markup AI has it): dismiss a finding; "ignore rule for this project" writes
    to the project layer.
 10. `[ ]` **Finer blocks for tables and lists**: send the row/item, not the whole table, when the selection is
