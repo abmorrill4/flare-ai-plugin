@@ -101,6 +101,12 @@ namespace FlareAI.Flare.UI
                     sb.AppendLine().AppendLine().AppendLine("--- still flagged by the linter ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));
                 _output.Text = sb.ToString();
                 _apply.Enabled = true;
+                if (_proposal.WordPlan != null && _proposal.WordPlan.Count == 0)
+                {
+                    _status.Text = "Already meets the style guide — nothing to change.";
+                    _apply.Enabled = false;
+                    _close.Text = "Close";
+                }
             }
             else
             {

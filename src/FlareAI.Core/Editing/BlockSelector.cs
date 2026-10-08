@@ -42,7 +42,41 @@ namespace FlareAI.Core.Editing
 
             // document order, in case the editor handed us nodes end-first
             result.Sort((a, b) => IndexInParent(a).CompareTo(IndexInParent(b)));
+
+            // Inside one list or table, send only the items/rows touched (siblings), not the whole list or table:
+            // smaller prompts, smaller tracked changes. Mixed or structural selections keep the whole block.
+            if (result.Count == 1 && IsContainer(result[0]))
+            {
+                var units = Units(selectionNodes, result[0]);
+                if (units != null) return units;
+            }
             return result;
+        }
+
+        private static bool IsContainer(XmlNode block)
+        {
+            return block.NamespaceURI.Length == 0 && (block.LocalName == "ul" || block.LocalName == "ol" || block.LocalName == "table" || block.LocalName == "dl");
+        }
+
+        /// <summary>The li / tr / dt-dd items holding the selection, if they are siblings; otherwise null.</summary>
+        private static IList<XmlNode> Units(IList<XmlNode> selectionNodes, XmlNode container)
+        {
+            var units = new List<XmlNode>();
+            foreach (var n in selectionNodes)
+            {
+                XmlNode unit = null;
+                for (var cur = n; cur != null && cur != container; cur = cur.ParentNode)
+                    if (cur.NodeType == XmlNodeType.Element && cur.NamespaceURI.Length == 0 &&
+                        (cur.LocalName == "li" || cur.LocalName == "tr" || cur.LocalName == "dt" || cur.LocalName == "dd"))
+                        unit = cur; // keep climbing: the outermost item below the container wins (nested lists stay whole)
+                if (unit == null) return null;
+                if (!units.Contains(unit)) units.Add(unit);
+            }
+            if (units.Count == 0) return null;
+            var parent = units[0].ParentNode;
+            if (units.Exists(u => u.ParentNode != parent)) return null;
+            units.Sort((a, b) => IndexInParent(a).CompareTo(IndexInParent(b)));
+            return units;
         }
 
         /// <summary>Snippet blocks and other opaque includes cannot be rewritten in place.</summary>

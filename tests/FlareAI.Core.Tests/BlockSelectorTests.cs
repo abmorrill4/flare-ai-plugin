@@ -26,13 +26,39 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
-        public void SelectionInsideListItem_ReturnsWholeList()
+        public void SelectionInsideListItem_ReturnsJustThatItem()
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             doc.SelectXPath("//ol/li[2]/text()");
             var blocks = BlockSelector.SelectBlocks(doc.Document, doc.SelectionNodes);
             Assert.Single(blocks);
-            Assert.Equal("ol", blocks[0].LocalName);
+            Assert.Equal("li", blocks[0].LocalName);
+            Assert.Contains("SSO toggle", blocks[0].InnerText);
+        }
+
+        [Fact]
+        public void SelectionAcrossTwoListItems_ReturnsBoth_SelectionWithTheListAndMore_ReturnsBlocks()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            doc.SelectXPath("//ol/li[2]/text() | //ol/li[3]/text()");
+            Assert.Equal(new[] { "li", "li" }, BlockSelector.SelectBlocks(doc.Document, doc.SelectionNodes).Select(b => b.LocalName).ToArray());
+            doc.SelectXPath("//ol/li[3]/text() | //body/p[3]/text()");
+            Assert.Equal(new[] { "ol", "p" }, BlockSelector.SelectBlocks(doc.Document, doc.SelectionNodes).Select(b => b.LocalName).ToArray());
+        }
+
+        [Fact]
+        public void Rewrite_OfOneListItem_ReplacesOnlyThatItem()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            doc.SelectXPath("//ol/li[2]/text()");
+            var llm = new FakeLlmClient(r => "<revised><li>Click the SSO toggle to enable it.</li></revised>");
+            var runner = new FlareAI.Core.Actions.ActionRunner(llm, new FlareAI.Core.Actions.PromptBuilder(null), 1024);
+            var proposal = runner.Rewrite(doc, null);
+            Assert.True(proposal.Validation.IsValid, proposal.Validation.ToString());
+            Assert.DoesNotContain("Navigate to", llm.Requests[0].User);   // only the selected item was sent
+            runner.Apply(doc, proposal, "x");
+            Assert.Equal("Click the SSO toggle to enable it.", doc.Document.SelectSingleNode("//ol/li[2]").InnerText);
+            Assert.Equal(3, doc.Document.SelectNodes("//ol/li").Count);
         }
 
         [Fact]

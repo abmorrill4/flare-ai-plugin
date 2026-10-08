@@ -163,7 +163,7 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
    grouped by file; Go to/Fix open the file; Fix all across >3 files asks first. TOC-scoped check: not yet.
 9. `[x]` **Dismiss / ignore** (Markup AI has it): dismiss a finding; "ignore rule for this project" writes
    to the project layer.
-10. `[ ]` **Finer blocks for tables and lists**: send the row/item, not the whole table, when the selection is
+10. `[x]` **Finer blocks for tables and lists**: send the row/item, not the whole table, when the selection is
     inside one cell/item.
 11. `[~]` Manual tests: 20 (Tool Strip) ✅; 17 (network off) still open.
 
