@@ -21,7 +21,8 @@ Pass `project` (any path inside a MadCap Flare project) to `lint`, `style_lookup
 that project's layer: its variable values ("insert the variable, don't type the text"), glossary terms, and
 `Content/Resources/StyleGuide/` if present.
 
-If the server is not connected, say so and fall back to `mcp/docstyle/layers/*/guide.md`.
+If the server is not connected, say so and fall back to `mcp/docstyle/layers/google/guide.md` and the
+`.htm` topics in `mcp/docstyle/layers/company/Content/Resources/StyleGuide/`.
 
 ## Review workflow (check style)
 1. Split the content into text runs (text between tags). Never lint or quote across markup.
@@ -45,9 +46,13 @@ If the server is not connected, say so and fall back to `mcp/docstyle/layers/*/g
 - Output well-formed XHTML; keep the block structure unless asked to restructure.
 
 ## Changing the rules
-- Layers are folders: `guide.md` (prose), `rules/*.yml` (Vale), `accept.txt`, `glossary.json`, `overrides.ini`.
+- A layer is a Flare project (rules in `Content/Resources/StyleGuide/*.htm` + variable sets + glossary) or a plain
+  folder (`guide.md`, `rules/*.yml`, `accept.txt`, `glossary.json`, `overrides.ini`, `*.htm`).
   Built in: `mcp/docstyle/layers/google` (vendored errata-ai/Google package — replace from a new release, don't edit)
-  and `layers/company` (placeholder). More layers: `server.py --layer DIR` (repeatable; later wins).
-- To override a Google rule, add `Google.Will = NO` (or a new level) to a layer's `overrides.ini` and say why in its `guide.md`.
-- A Flare project can carry its own layer in `Content/Resources/StyleGuide/` (same folder shape; `.htm` topics count as guide text).
-- After changes: `uv run --script mcp/docstyle/server.py --selftest`.
+  and `layers/company` (starter Flare project, placeholder rules). More layers: `server.py --layer PATH` (repeatable; later wins).
+- In a topic: bullets are prose rules (nested `Bad:`/`Good:` items make them testable); Avoid/Use/Severity/Why/Example
+  tables become Vale rules; a Rule/Setting/Reason table overrides Google rules (`Will` / `off`).
+- Every rule has an ID (`company:terminology/1`); `style_lookup` returns them. Cite the ID in findings; use `general`
+  when no rule applies.
+- After changes: `validate_guide(project)` (every table row against its Example) and
+  `uv run --script mcp/docstyle/server.py --selftest`.

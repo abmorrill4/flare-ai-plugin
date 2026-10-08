@@ -132,10 +132,17 @@ namespace FlareAI.Core.Tests
                 Assert.Contains(hits, h => h.Index == 0 && h.Match == "Single Sign-On" && h.Replacement == "single sign-on");
                 Assert.DoesNotContain(hits, h => h.Index == 1);
                 Assert.Contains(hits, h => h.Index == 2 && h.Match == "utilize" && h.Replacement == "use" && h.Layer == "company");
-                Assert.Contains(hits, h => h.Rule == "Company.LinkText" && h.Replacement == null && h.Link.Contains("link-text"));
+                // Rules from the company guide's tables carry a citable id and link back to their Flare topic.
+                Assert.Contains(hits, h => h.Match == "click here" && h.Replacement == null && h.Layer == "company"
+                                           && h.RuleId.StartsWith("company:plain-language/") && h.Link.StartsWith("file:") && h.Link.EndsWith("Plain-language.htm"));
                 var guide = svc.Guide(null);
-                Assert.Contains("Google developer documentation style guide", guide);
+                Assert.Contains("[google:", guide);
                 Assert.Contains("members", guide);
+                Assert.Contains(svc.Rules(null), r => r.Id == "company:terminology/1" && r.Section == "Audience");
+                var report = svc.Validate(null);
+                Assert.Equal(0, report.Errors);
+                Assert.True(report.TableRules > 0 && report.TestedByExample == report.TableRules);
+                Assert.NotEmpty(svc.Examples(null));
             }
         }
 
@@ -181,6 +188,9 @@ namespace FlareAI.Core.Tests
         {
             public System.Collections.Generic.IList<LintHit> Lint(System.Collections.Generic.IList<string> texts, System.Collections.Generic.IList<int> headings, string project) { throw new McpException("server exited"); }
             public string Guide(string project) { throw new McpException("server exited"); }
+            public System.Collections.Generic.IList<GuideRule> Rules(string project) { throw new McpException("server exited"); }
+            public GuideReport Validate(string project) { throw new McpException("server exited"); }
+            public System.Collections.Generic.IList<GuideExample> Examples(string project) { throw new McpException("server exited"); }
         }
     }
 }

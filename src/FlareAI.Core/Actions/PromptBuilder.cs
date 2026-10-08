@@ -34,7 +34,7 @@ namespace FlareAI.Core.Actions
             sb.AppendLine().AppendLine();
             if (!string.IsNullOrEmpty(guide))
             {
-                sb.AppendLine("Style guide: the Google developer documentation style guide is the baseline; the company guide after it is layered on top and wins on any conflict.").AppendLine();
+                sb.AppendLine("Style guide: layers in order; each later layer overrides the ones before it on any conflict. Every rule has an id in [brackets]; cite it when you apply the rule.").AppendLine();
                 sb.Append(guide.Trim());
             }
             else

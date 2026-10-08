@@ -37,12 +37,26 @@ One source of style truth, used by the plugin, Claude Code, and (later) the Bifr
 Layers apply in order, later wins:
 - **Google developer documentation style guide** (built in): `layers/google` — condensed, linked guide plus the
   vendored errata-ai/Google Vale package.
-- **Your layers** (Settings → Style layers, one folder per line; default `layers/company`): any folder with
-  `guide.md`, `rules/*.yml` (Vale), `accept.txt`, `glossary.json`, `overrides.ini`. A network share, a git checkout,
-  or a folder in a Flare project all work — where the company guide lives is a setting, not a code change.
+- **Your layers** (Settings → Style layers, one path per line; default `layers/company`): a **Flare project**
+  (folder containing a `.flprj`) or a plain folder. Put it on a network share or in a git checkout so everyone
+  points at the same copy — where the company guide lives is a setting, not a code change.
 - **This project** (Settings toggle, on by default): generated from the open Flare project — variable values
   ("insert the variable instead of typing it"), glossary terms (canonical casing; definitions go to the AI), and
   `Content/Resources/StyleGuide/` if the project has one.
+
+### The company style guide is a Flare project
+`layers/company` is a starter project (`CompanyStyle.flprj`) — open it in Flare and replace the placeholder rules.
+The linter and the AI read `Content/Resources/StyleGuide/*.htm`, the project's variable sets and its glossary:
+- **Bullets** are prose rules for the AI. Nest `Bad: …` / `Good: …` items under a bullet so the rule can be tested.
+  Paragraphs are context, not rules.
+- **Avoid / Use / Severity / Why / Example tables** become lint rules with one-click fixes. `Use` = `(delete)`
+  deletes the text; empty `Use` only flags it. Comma-separated `Avoid` entries pair with the same number of `Use` entries.
+- **Rule / Setting / Reason tables** switch Google rules off or change their level (`off`, `error`, `warning`, `suggestion`).
+- Every rule gets a stable ID (`company:terminology/1`). The AI must cite one, so findings read
+  "[AI · Company: Terminology]" and **Guide ↗** opens the rule's topic in Flare.
+- **AI ▸ Validate style guide** tests the guide itself: each table row against its Example (free), then, on request,
+  each prose rule's Bad/Good examples against the AI ("AI applies 5 of 5 prose rules as written").
+
 - Claude Code: `.mcp.json` registers the server; the `docstyle` skill (`.claude/skills/docstyle`) applies it.
 - Needs `uv` (`winget install astral-sh.uv`); Vale and the MCP SDK are fetched by `uv` on first run.
   Check it: `uv run --script mcp/docstyle/server.py --selftest`.

@@ -34,8 +34,9 @@ whole topic.
 
 ## Working the findings list
 The list stays open while you edit. The style guide is Google's developer documentation style guide with
-our company rules on top; each finding says which (**[Google]**, **[Company]**, or **[AI]** for judgment calls).
-- Click a row: the text is highlighted in the topic. **Guide ↗** opens the rule's page.
+our company rules on top; each finding says which (**[Google]**, **[Company]**, or **[AI · Company: Section]** for
+AI judgment calls, naming the rule it applied).
+- Click a row: the text is highlighted in the topic. **Guide ↗** opens the rule's page (company rules open in Flare).
 - **Fix** (or Enter / double-click): applies the shown replacement as a tracked change.
   **Fix all** applies every one-click fix in one step; one Ctrl+Z undoes them all.
 - "(needs rewrite)" rows: select one and click **Rewrite paragraph…** — the AI rewrites that paragraph to
@@ -45,6 +46,11 @@ our company rules on top; each finding says which (**[Google]**, **[Company]**, 
   **Ignore rule…** turns a rule off for the whole project — it writes to the project's
   `Content/Resources/StyleGuide/overrides.ini`, so your team gets the same decision.
 - **Re-check** after a round of fixes to see what's left.
+
+## Editing the company style guide
+It's a Flare project (`CompanyStyle`). Its `About` topic explains the format. After editing, run
+**AI > Validate style guide**: it checks every rule table against its examples, and **Check prose rules with AI…**
+shows which written rules the AI actually applies.
 
 ## Known Flare limitation
 After a paragraph-level AI edit of text that contains a variable, Ctrl+Z works but Ctrl+Y (redo) can make Flare show

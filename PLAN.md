@@ -166,6 +166,12 @@ Order matters: 1 unblocks the company-guide decision; 2 is the biggest UX change
 10. `[x]` **Finer blocks for tables and lists**: send the row/item, not the whole table, when the selection is
     inside one cell/item.
 11. `[~]` Manual tests: 20 (Tool Strip) ✅; 17 (network off) still open.
+12. `[x]` **Company guide as a Flare project.** `layers/company` is `CompanyStyle.flprj`; StyleGuide topics are parsed:
+    bullets = citable prose rules (nested Bad/Good), Avoid/Use tables = Vale rules with fixes, Rule/Setting tables =
+    Google overrides, plus the project's variables and glossary. Stable rule IDs; the AI must cite one (grounded to
+    layer/section/link, unknown IDs dropped to "general"). **Validate style guide**: table rows vs. their Examples,
+    contradictions, then optional AI check of prose rules' Bad/Good examples. Verified in Flare: 16/16 table rules,
+    AI 5/5 prose rules. Follow-up: verify Global Project Linking as a way to import the guide into each project.
 
 Won't fix: Flare Online (Desktop plugin; docstyle MCP + skill cover repo-based authoring); plugin enable
 is per Windows user (Flare behavior; documented).

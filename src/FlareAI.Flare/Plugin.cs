@@ -76,6 +76,7 @@ namespace FlareAI.Flare
 
             IRibbonGroup tools = tab.AddNewRibbonGroup("Plugin");
             tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings.png"));
+            tools.AddRibbonButton(Button("Validate style guide", "V", OnValidateGuide, "validate.png"));
             tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag.png"));
         }
 
@@ -94,6 +95,7 @@ namespace FlareAI.Flare
                 menu.AddMenuItem("Check project", new DelegateCommand(OnCheckProject));
                 menu.AddSeparator();
                 menu.AddMenuItem("Settings", new DelegateCommand(OnSettings));
+                menu.AddMenuItem("Validate style guide", new DelegateCommand(OnValidateGuide));
                 menu.AddMenuItem("Diagnostics", new DelegateCommand(OnDiagnostics));
 
                 var bar = _nav.CreateCustomToolBar("FlareAI");
@@ -159,6 +161,34 @@ namespace FlareAI.Flare
         private void OnSettings()
         {
             using (var f = new SettingsForm()) f.ShowDialog();
+        }
+
+        /// <summary>Tests the layered style guide (tables against examples; optionally prose rules against the AI).</summary>
+        private void OnValidateGuide()
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                var style = StyleService(settings);
+                if (style == null) { MessageBox.Show("The style linter is turned off in Settings.", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+                var adapter = ActiveAdapter();
+                var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
+                using (var f = new GuideReportForm(style, () => adapter == null ? NewRunnerWithoutTopic(settings, style, project) : NewRunner(adapter), project))
+                    f.ShowDialog(_nav.GetParentForm());
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Validate style guide", ex);
+                MessageBox.Show(ex.Message, "FlareAI — Validate style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private ActionRunner NewRunnerWithoutTopic(PluginSettings settings, McpStyleService style, string project)
+        {
+            ILlmClient llm;
+            try { llm = LlmClientFactory.Create(settings); }
+            catch (LlmException lex) { MessageBox.Show(lex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
+            return new ActionRunner(llm, new PromptBuilder(() => style.Guide(project)), settings.MaxTokens, style, project);
         }
 
         private void OnDiagnostics()
@@ -285,6 +315,8 @@ namespace FlareAI.Flare
                 var path = adapter.SourcePath ?? "";
                 if (string.Equals(path, current.TopicPath, StringComparison.OrdinalIgnoreCase)) return;
                 if (path.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)) return;
+                // Style-guide topics list the very words they ban; following into one (e.g. via Guide ↗) would flood the panel.
+                if (path.IndexOf(@"\Resources\StyleGuide\", StringComparison.OrdinalIgnoreCase) >= 0) return;
                 var runner = NewRunner(adapter);
                 if (runner != null) ShowFindings(adapter, runner, false);
             }

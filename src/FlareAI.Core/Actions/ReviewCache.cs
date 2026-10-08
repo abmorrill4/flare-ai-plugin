@@ -55,7 +55,7 @@ namespace FlareAI.Core.Actions
             return new StyleFinding
             {
                 Source = f.Source, Rule = f.Rule, Severity = f.Severity, Excerpt = f.Excerpt, Suggestion = f.Suggestion,
-                Replacement = f.Replacement, Layer = f.Layer, Link = f.Link, Variable = f.Variable, DocumentPath = f.DocumentPath
+                Replacement = f.Replacement, Layer = f.Layer, Link = f.Link, Variable = f.Variable, DocumentPath = f.DocumentPath, RuleId = f.RuleId
             };
         }
     }

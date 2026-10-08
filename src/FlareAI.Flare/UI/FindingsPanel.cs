@@ -302,6 +302,7 @@ namespace FlareAI.Flare.UI
 
         private static string LayerLabel(StyleFinding f)
         {
+            if (f.RuleLayer != null) return "AI · " + char.ToUpperInvariant(f.RuleLayer[0]) + f.RuleLayer.Substring(1) + ": " + f.RuleSection;
             if (string.IsNullOrEmpty(f.Layer) || f.Layer == "ai") return "AI";
             return char.ToUpperInvariant(f.Layer[0]) + f.Layer.Substring(1); // Google, Company, Project, or a custom layer's folder name
         }
@@ -411,7 +412,19 @@ namespace FlareAI.Flare.UI
 
         private void OpenLink(string url)
         {
-            if (!url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return; // only ever open web guide pages
+            // Rules written in a Flare style-guide topic link to that topic: open it in Flare, next to the work.
+            if (url.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var path = new Uri(url).LocalPath;
+                    if (_open != null && (path.EndsWith(".htm", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".html", StringComparison.OrdinalIgnoreCase)) && _open(path) != null) return;
+                }
+                catch (Exception ex) { Diagnostics.Log("guide link", ex); }
+                _status.Text = "Could not open " + url;
+                return;
+            }
+            if (!url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return; // otherwise only web guide pages
             try { System.Diagnostics.Process.Start(url); } catch (Exception ex) { _status.Text = "Could not open " + url + ": " + ex.Message; }
         }
 

@@ -1,9 +1,0 @@
-extends: existence
-message: "Company style: don't promise timelines, pricing, or availability ('%s')."
-level: warning
-ignorecase: true
-tokens:
-  - guaranteed
-  - coming soon
-  - free of charge
-  - in the next release

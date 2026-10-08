@@ -1,8 +1,0 @@
-extends: existence
-message: "Address the reader as 'you' ('%s')."
-link: https://developers.google.com/style/person
-level: warning
-ignorecase: true
-tokens:
-  - the user
-  - the end user

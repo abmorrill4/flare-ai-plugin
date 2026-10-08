@@ -6,7 +6,9 @@ An automatic linter has already flagged these issues — do NOT repeat them:
 Report only what a linter cannot judge, ranked by impact on the reader: instructions that are not imperative, passive or unclear sentences, wrong audience terms, missing first-use expansions, sentences doing two jobs, vague or promissory claims, steps out of order. Skip anything trivial or subjective. At most 8 findings; fewer is better. If the text is already fine, return [].
 
 Return ONLY a JSON array (no prose, no fences). Each item:
-{"rule": "<2-4 word rule name>", "severity": "error|warning|suggestion", "excerpt": "<exact contiguous text copied from the fragment>", "replacement": "<exact text to put in place of excerpt, or null>", "why": "<max 15 words>"}
+{"rule_id": "<id of the style-guide rule you apply, copied from the [brackets] in the guide, e.g. company:terminology/1>", "rule": "<2-4 word rule name>", "severity": "error|warning|suggestion", "excerpt": "<exact contiguous text copied from the fragment>", "replacement": "<exact text to put in place of excerpt, or null>", "why": "<max 15 words>"}
+
+Ground every finding in the guide: rule_id must be an id that appears in the guide. Prefer the most specific layer (project, then company, then google). If no guide rule covers an issue, use "general" — and only report it if it clearly hurts the reader.
 
 Excerpt rules — findings that break these are discarded:
 - Copy it character-for-character from the fragment, as plain text, never including tags, and never spanning a tag (for example, text on both sides of a <b> or a MadCap element).

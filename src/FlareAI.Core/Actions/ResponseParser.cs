@@ -24,6 +24,11 @@ namespace FlareAI.Core.Actions
         public string Layer { get; set; }
         /// <summary>Guide page for the rule, when known.</summary>
         public string Link { get; set; }
+        /// <summary>The guide rule this finding applies ("company:terminology/3"); null = not tied to a guide rule.</summary>
+        public string RuleId { get; set; }
+        /// <summary>Layer and section of <see cref="RuleId"/>, for display ("Company: Terminology").</summary>
+        public string RuleLayer { get; set; }
+        public string RuleSection { get; set; }
         /// <summary>File the finding lives in when it is not the checked topic (a snippet); null = the topic.</summary>
         public string DocumentPath { get; set; }
         public bool IsFixed { get; set; }
@@ -52,7 +57,7 @@ namespace FlareAI.Core.Actions
                 var replacement = item["replacement"];
                 list.Add(new StyleFinding
                 {
-                    Source = "ai", Layer = "ai",
+                    Source = "ai", Layer = "ai", RuleId = (string)item["rule_id"],
                     Rule = (string)item["rule"] ?? "",
                     Severity = ((string)item["severity"] ?? "suggestion").ToLowerInvariant(),
                     Excerpt = (string)item["excerpt"] ?? "",

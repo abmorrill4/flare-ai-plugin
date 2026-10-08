@@ -286,13 +286,68 @@ namespace FlareAI.Core.Actions
             var runs = TextRuns.Of(scope);
 
             var kept = new List<StyleFinding>();
+            var rules = GuideRules();
             foreach (var f in raw)
             {
                 if (f.Replacement != null && (f.Replacement.IndexOf('<') >= 0 || f.Replacement == f.Excerpt)) f.Replacement = null;
+                Ground(f, rules);
                 if (FindingLocator.Anchor(f, runs) && !Duplicates(f, lint)) kept.Add(f);
             }
             if (kept.Count < raw.Count) Diagnostics.Log("Review: dropped " + (raw.Count - kept.Count) + " unquotable/duplicate finding(s)");
             return kept;
+        }
+
+        private Dictionary<string, GuideRule> GuideRules()
+        {
+            var map = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
+            if (_style == null) return map;
+            try { foreach (var r in _style.Rules(_project)) map[r.Id] = r; }
+            catch (Exception ex) { Diagnostics.Log("guide rules", ex); }
+            return map;
+        }
+
+        /// <summary>Keeps a cited rule only if it exists in the guide; attaches its layer, section, and link.</summary>
+        private static void Ground(StyleFinding f, Dictionary<string, GuideRule> rules)
+        {
+            GuideRule rule;
+            if (f.RuleId != null && rules.TryGetValue(f.RuleId.Trim(), out rule))
+            {
+                f.RuleId = rule.Id; f.RuleLayer = rule.Layer; f.RuleSection = rule.Section;
+                if (string.IsNullOrEmpty(f.Link)) f.Link = rule.Link;
+            }
+            else f.RuleId = null; // "general", or a made-up id
+        }
+
+        /// <summary>
+        /// Checks that the AI applies prose rules: each Bad example must produce a finding citing that rule, each
+        /// Good example must not. Two model calls per example.
+        /// </summary>
+        public List<ExampleResult> VerifyExamples(IList<GuideExample> examples, Action<int, int> progress = null)
+        {
+            var results = new List<ExampleResult>();
+            var rules = GuideRules();
+            for (var i = 0; i < examples.Count; i++)
+            {
+                var ex = examples[i];
+                var result = new ExampleResult { Example = ex };
+                if (!string.IsNullOrEmpty(ex.Bad)) result.BadCaught = Cites(ex.Bad, ex.Id, rules);
+                if (!string.IsNullOrEmpty(ex.Good)) result.GoodClean = !Cites(ex.Good, ex.Id, rules);
+                results.Add(result);
+                if (progress != null) progress(i + 1, examples.Count);
+            }
+            return results;
+        }
+
+        private bool Cites(string text, string id, Dictionary<string, GuideRule> rules)
+        {
+            var fragment = "<p>" + System.Security.SecurityElement.Escape(text) + "</p>\n";
+            var prompt = _prompts.BuildUser(ActionKind.CheckStyle, fragment, null, "");
+            foreach (var f in CallReview(prompt))
+            {
+                Ground(f, rules);
+                if (string.Equals(f.RuleId, id, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+            return false;
         }
 
         /// <summary>The block that currently holds the finding's text (blocks are replaced by edits), or null.</summary>
