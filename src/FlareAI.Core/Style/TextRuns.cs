@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using FlareAI.Core.Editing;
@@ -43,6 +44,22 @@ namespace FlareAI.Core.Style
             for (var n = run.ParentNode; n != null && n.NodeType == XmlNodeType.Element; n = n.ParentNode)
                 if (n.NamespaceURI.Length == 0 && n.LocalName.Length == 2 && n.LocalName[0] == 'h' && char.IsDigit(n.LocalName[1])) return true;
             return false;
+        }
+
+        /// <summary>Smallest widening of [start, start+length) that occurs exactly once in <paramref name="text"/>.</summary>
+        public static void UniqueSpan(string text, int start, int length, out int s, out int l)
+        {
+            s = start; l = Math.Max(length, 1);
+            if (s + l > text.Length) s = Math.Max(0, text.Length - l);
+            while (true)
+            {
+                var piece = text.Substring(s, l);
+                var first = text.IndexOf(piece, StringComparison.Ordinal);
+                if (first == text.LastIndexOf(piece, StringComparison.Ordinal)) return;
+                if (s + l < text.Length) l++;          // grow right first: keeps the change start where it is
+                else if (s > 0) { s--; l++; }
+                else return;                            // whole run repeats itself: cannot do better
+            }
         }
 
         /// <summary>The body-level block containing a node, or null when the node is detached.</summary>

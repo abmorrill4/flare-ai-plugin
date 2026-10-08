@@ -5,6 +5,7 @@ using System.Xml;
 using B3.PluginAPIKit;
 using FlareAI.Core;
 using FlareAI.Core.Editing;
+using FlareAI.Core.Style;
 
 namespace FlareAI.Flare
 {
@@ -103,6 +104,9 @@ namespace FlareAI.Flare
             try
             {
                 if (run.ParentNode == null || start < 0 || start + length > run.Value.Length) return false;
+                int us, ul;
+                TextRuns.UniqueSpan(run.Value, start, length, out us, out ul);
+                start = us; length = ul;
                 var target = run.Value.Substring(start, length);
                 // Put the caret in the run's element first, then search. We don't rely on whether Flare's
                 // Select(string) searches from the caret or from the top: we repeat until the selection is
@@ -143,6 +147,13 @@ namespace FlareAI.Flare
         /// </summary>
         public bool ReplaceSpan(XmlText run, int start, int length, string replacement)
         {
+            // Select(string) cannot target an offset, so widen the span until it is unique in its text node
+            // and re-type the extra characters unchanged ("you" in "your … you" → "you " / "members ").
+            int s, l;
+            TextRuns.UniqueSpan(run.Value, start, length, out s, out l);
+            var text = run.Value;
+            replacement = text.Substring(s, start - s) + replacement + text.Substring(start + length, s + l - start - length);
+            start = s; length = l;
             if (!SelectText(run, start, length)) return false;
             var sel = _doc.Selection;
             var wasTracking = sel.TrackChange;

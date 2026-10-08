@@ -210,13 +210,15 @@ namespace FlareAI.Flare.UI
             if (block == null) { _status.Text = "That text is no longer in the topic. Re-check to refresh."; return; }
             var related = _findings.FindAll(f => !f.IsFixed && _runner.LocateBlock(_doc, f) == block);
             var instruction = "Resolve these review findings and change nothing else:\n" + ActionRunner.Summarize(related);
+            string applied;
             using (var form = new ResultForm("Rewrite paragraph", _newRunner(), _doc, ActionKind.Ask, instruction, new List<XmlNode> { block }))
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;
+                applied = form.AppliedSummary;
             }
             foreach (var f in related) f.IsFixed = true;
             foreach (ListViewItem item in _list.Items) Restyle(item);
-            _status.Text = Summary() + "  Paragraph rewritten as a tracked change. Re-check to see what is left.";
+            _status.Text = Summary() + "  " + applied + " Re-check to see what is left.";
             UpdateButtons();
         }
 

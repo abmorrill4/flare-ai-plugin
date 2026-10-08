@@ -22,7 +22,7 @@ account; nobody else on the machine can read it.
 | Button | What it does | Writes to the topic? |
 |---|---|---|
 | **Check style** | Opens a findings list for the selection (or whole topic): instant linter results, then AI review | Only when you click Fix |
-| **Rewrite selection** | Rewrites the selected paragraph(s) for clarity and style | Yes, tracked |
+| **Rewrite selection** | Rewrites the selected paragraph(s) for clarity and style | Yes, word-level tracked changes |
 | **Ask…** | Does what you type ("make this a numbered list", "shorten to two sentences") | Yes, tracked |
 
 Selection rule: it works on whole paragraphs/lists/tables containing your selection. Caret only =
@@ -35,8 +35,8 @@ our company rules on top; each finding says which (**[Google]**, **[Company]**, 
 - **Fix** (or Enter / double-click): applies the shown replacement as a tracked change.
   **Fix all** applies every one-click fix in one step; one Ctrl+Z undoes them all.
 - "(needs rewrite)" rows: select one and click **Rewrite paragraph…** — the AI rewrites that paragraph to
-  resolve its findings and shows you the result before anything changes. Do this *before* Fix all on that
-  paragraph (it won't rewrite a paragraph with pending tracked changes).
+  resolve its findings and shows you the result before anything changes. Rewrites arrive as word-level
+  tracked changes, and any tracked changes already in the paragraph stay pending for you to review.
 - **Re-check** after a round of fixes to see what's left.
 
 ## What it will refuse

@@ -20,6 +20,13 @@ namespace FlareAI.Core.Actions
         public List<StyleFinding> RemainingLint { get; set; }
         /// <summary>Non-fatal problems worth showing (for example: linter unavailable).</summary>
         public List<string> Notes { get; set; }
+        /// <summary>The blocks as the model saw them (pending changes resolved to what the author reads).</summary>
+        public IList<XmlNode> View { get; set; }
+        /// <summary>
+        /// Word-level replacements equivalent to the proposal, when it kept the structure; null means the
+        /// proposal restructures and applies as a block replacement.
+        /// </summary>
+        public List<StyleFinding> WordPlan { get; set; }
     }
 
     /// <summary>
@@ -201,13 +208,13 @@ namespace FlareAI.Core.Actions
             foreach (var b in blocks)
                 if (BlockSelector.IsOpaque(b))
                     throw new InvalidOperationException("The selection includes a " + b.Name + ", which cannot be rewritten in place. Select text inside a paragraph instead.");
-            if (TrackedChanges.HasPending(blocks))
-                throw new InvalidOperationException("The selection has pending tracked changes. Accept or reject them (Review tab) before rewriting.");
-
+            // Pending tracked changes stay pending: the model sees the text as the author reads it, and the
+            // result is applied word-level around them (never accepted or rejected on the author's behalf).
+            var view = AcceptedView.Of(blocks);
             var notes = new List<string>();
             var lint = SafeLint(blocks, notes);
             var kind = string.IsNullOrEmpty(instruction) ? ActionKind.Rewrite : ActionKind.Ask;
-            var proposal = Propose(doc, blocks, _prompts.BuildUser(kind, XhtmlFragment.Serialize(blocks), instruction, Summarize(lint)), kind.ToString());
+            var proposal = Propose(doc, blocks, view, _prompts.BuildUser(kind, XhtmlFragment.Serialize(view), instruction, Summarize(lint)), kind.ToString());
             proposal.Notes = notes;
             proposal.RemainingLint = new List<StyleFinding>();
             if (!proposal.Validation.IsValid || _style == null || notes.Count > 0) return proposal;
@@ -216,7 +223,7 @@ namespace FlareAI.Core.Actions
             var left = Significant(SafeLint(proposal.ProposedBlocks, notes));
             if (left.Count > 0)
             {
-                var repaired = Propose(doc, blocks, _prompts.BuildRepair(proposal.ProposedXml, Summarize(left)), kind + ".repair");
+                var repaired = Propose(doc, blocks, view, _prompts.BuildRepair(proposal.ProposedXml, Summarize(left)), kind + ".repair");
                 if (repaired.Validation.IsValid)
                 {
                     repaired.Notes = notes;
@@ -228,17 +235,23 @@ namespace FlareAI.Core.Actions
             return proposal;
         }
 
-        private RewriteProposal Propose(IDocumentAdapter doc, IList<XmlNode> blocks, string user, string label)
+        private RewriteProposal Propose(IDocumentAdapter doc, IList<XmlNode> blocks, IList<XmlNode> view, string user, string label)
         {
             var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = user, MaxTokens = _maxTokens });
             Diagnostics.Log(label + ": blocks=" + blocks.Count + " in=" + resp.InputTokens + " out=" + resp.OutputTokens + " stop=" + resp.StopReason);
 
-            var proposal = new RewriteProposal { OriginalBlocks = blocks, Raw = resp, Validation = new ValidationResult(), Notes = new List<string>(), RemainingLint = new List<StyleFinding>() };
+            var proposal = new RewriteProposal { OriginalBlocks = blocks, View = view, Raw = resp, Validation = new ValidationResult(), Notes = new List<string>(), RemainingLint = new List<StyleFinding>() };
             try
             {
                 proposal.ProposedXml = ResponseParser.ParseRevised(resp.Text);
                 proposal.ProposedBlocks = XhtmlFragment.ParseInto(proposal.ProposedXml, doc.Document);
-                proposal.Validation = XhtmlValidator.Validate(blocks, proposal.ProposedBlocks);
+                proposal.Validation = XhtmlValidator.Validate(view, proposal.ProposedBlocks);
+                if (proposal.Validation.IsValid)
+                {
+                    proposal.WordPlan = WordDiff.Plan(view, proposal.ProposedBlocks, blocks);
+                    if (proposal.WordPlan == null && TrackedChanges.HasPending(blocks))
+                        proposal.Validation.Errors.Add("This edit restructures text that has pending tracked changes. Accept or reject those changes (Review tab) first, or ask for a wording-only edit.");
+                }
             }
             catch (XmlException xe)
             {
@@ -251,13 +264,37 @@ namespace FlareAI.Core.Actions
             return proposal;
         }
 
-        /// <summary>Applies a validated proposal. Refuses if validation failed — the UI must not bypass this.</summary>
-        public void Apply(IDocumentAdapter doc, RewriteProposal proposal, string operationName)
+        /// <summary>
+        /// Applies a validated proposal as one undoable tracked operation: word-level replacements when the
+        /// proposal kept the structure, otherwise a block replacement. Refuses if validation failed — the UI must
+        /// not bypass this. Returns a one-line description of what was applied.
+        /// </summary>
+        public string Apply(IDocumentAdapter doc, RewriteProposal proposal, string operationName)
         {
             if (proposal == null || !proposal.Validation.IsValid)
                 throw new InvalidOperationException("Cannot apply: proposal failed validation.");
+
+            var plan = proposal.WordPlan;
+            if (plan != null)
+            {
+                if (plan.Count == 0) return "No wording changes to apply.";
+                // All-or-nothing: only go word-level when every piece can be found right now.
+                var locatable = plan.TrueForAll(f => { XmlText r; int s; return FindingLocator.TryLocate(doc.Document, f, out r, out s); });
+                if (locatable)
+                {
+                    var n = ApplyFixes(doc, plan, operationName);
+                    if (n < plan.Count) Diagnostics.Log(operationName + ": only " + n + "/" + plan.Count + " word edits applied");
+                    return n == plan.Count
+                        ? "Applied as " + n + " word-level tracked change(s)."
+                        : "Applied " + n + " of " + plan.Count + " word-level changes — review them, or Ctrl+Z to undo all.";
+                }
+                Diagnostics.Log(operationName + ": word plan not locatable, falling back to block replacement");
+            }
+            if (TrackedChanges.HasPending(proposal.OriginalBlocks))
+                throw new InvalidOperationException("The paragraph has pending tracked changes and this edit cannot be applied word by word. Accept or reject them (Review tab) first.");
             doc.ReplaceBlocks(operationName, proposal.OriginalBlocks, proposal.ProposedBlocks);
             Diagnostics.Log("Applied " + operationName + ": " + proposal.OriginalBlocks.Count + " → " + proposal.ProposedBlocks.Count + " blocks");
+            return "Applied as a paragraph-level tracked change (the edit restructures the text).";
         }
 
         // ---- helpers -----------------------------------------------------------------------------

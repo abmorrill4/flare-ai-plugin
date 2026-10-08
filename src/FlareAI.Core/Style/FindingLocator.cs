@@ -24,6 +24,17 @@ namespace FlareAI.Core.Style
             };
         }
 
+        /// <summary>A replacement for an exact span of a run (used for word-level rewrites).</summary>
+        public static StyleFinding ForSpan(XmlText run, int start, int length, string replacement, XmlNode liveBlock)
+        {
+            return new StyleFinding
+            {
+                Source = "rewrite", Rule = "rewrite", Severity = "suggestion", Layer = "ai",
+                Excerpt = run.Value.Substring(start, length), Replacement = replacement,
+                Before = Tail(run.Value.Substring(0, start)), Block = liveBlock
+            };
+        }
+
         /// <summary>Anchors a model finding to the runs it quotes. False when the excerpt is not verbatim in one run.</summary>
         public static bool Anchor(StyleFinding f, IList<XmlText> runs)
         {
@@ -63,6 +74,8 @@ namespace FlareAI.Core.Style
                 }
             }
             // Earlier fixes in the same run change the context; the first occurrence in the block is the best guess.
+            // Rewrite pieces are often single words, so for them only an exact context match is safe.
+            if (f.Source == "rewrite") return false;
             run = fallback; start = fallbackAt;
             return run != null;
         }

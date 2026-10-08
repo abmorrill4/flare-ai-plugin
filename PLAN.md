@@ -84,7 +84,7 @@ Exit criteria: solution builds, tests pass, we know the real shape of the ribbon
 - [x] Enable on File > Options > Plugins → **AI** tab appears immediately (no restart needed in Flare 22).
 - [x] Button "Diagnostics" dumps: active doc path, selection text, selection node names,
       block nodes `BlockSelector` would pick → to `%APPDATA%\FlareAI\diag.log`.
-- [ ] Settings dialog: store API key (DPAPI), model, base URL. Verify round-trip.
+- [x] Settings dialog: store API key (DPAPI), model, base URL. Verify round-trip.
 
 Exit criteria: we can see the selection → block mapping is right on a real topic.
 
@@ -95,9 +95,9 @@ Exit criteria: we can see the selection → block mapping is right on a real top
 - [x] **Rewrite selection**: prompt → model returns `<revised>…</revised>` XHTML →
       validate → replace block nodes as tracked changes.
 - [x] **Ask…**: free-form instruction on the selection; same write-back path.
-- [ ] Round-trip safety: `XhtmlValidator` rejects dropped `MadCap:*` elements, changed
+- [x] Round-trip safety: `XhtmlValidator` rejects dropped `MadCap:*` elements, changed
       snippet/variable/xref refs, unknown elements, namespace drift.
-- [ ] Error UX: network/auth failures surface in the dialog, never crash Flare.
+- [x] Error UX: network/auth failures surface in the dialog, never crash Flare.
 
 - [x] Pending tracked changes: Check style omits deleted text; Rewrite/Ask refuse blocks with
       pending changes (Flare stores them as `MadCap:changes` ids → `head/MadCap:changeData`).
@@ -120,13 +120,15 @@ Exit criteria: tester can run all three on their own project for a day without a
       tracked changes, one undo step; Rewrite paragraph → model resolves that paragraph's findings; Guide ↗.
 - [x] Rewrite/Ask: lint findings go into the prompt; output is linted and repaired once if needed.
 - [x] `docstyle` Claude skill (`.claude/skills/docstyle`) and `.mcp.json` so Claude Code applies the same layers.
-- [ ] Rewrites still land as paragraph-level tracked changes; diff them into word-level `ReplaceSpan`s.
-- [ ] Rewrite paragraph refuses blocks with pending tracked changes (accept/reject first) — revisit after tester feedback.
+- [x] Rewrites land word-level: when the proposal keeps the structure, `WordDiff` turns it into word
+      replacements applied like fixes (one undo step); restructures fall back to a block replacement.
+- [x] Rewrites over pending tracked changes: the model sees the text as the author reads it (`AcceptedView`),
+      edits land word-level around the pending changes, which stay pending. Only restructuring such text is refused.
 
 ### Phase 3 — Tester handoff `[ ]`
 
-- [ ] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.
-- [ ] Write `docs\TESTER-GUIDE.md` (install, enable, enter key, the three buttons, how to
+- [x] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.
+- [x] Write `docs\TESTER-GUIDE.md` (install, enable, enter key, the three buttons, how to
       report problems, where `diag.log` is).
 - [ ] Feedback loop: 1-week trial, collect findings in `docs\FEEDBACK.md`.
 

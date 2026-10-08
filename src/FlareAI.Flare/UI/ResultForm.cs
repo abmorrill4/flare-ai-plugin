@@ -33,6 +33,9 @@ namespace FlareAI.Flare.UI
         private RewriteProposal _proposal;
         private readonly IList<XmlNode> _blocks;
 
+        /// <summary>After OK: what was applied, for the caller's status line.</summary>
+        public string AppliedSummary { get; private set; }
+
         public ResultForm(string title, ActionRunner runner, IDocumentAdapter doc, ActionKind kind, string instruction)
             : this(title, runner, doc, kind, instruction, null) { }
 
@@ -89,7 +92,8 @@ namespace FlareAI.Flare.UI
                 var notes = new List<string>(_proposal.Validation.Warnings);
                 notes.AddRange(_proposal.Notes);
                 _status.Text = (_proposal.RemainingLint.Count == 0 ? "Proposed edit passes the style linter." : "Proposed edit — " + _proposal.RemainingLint.Count + " linter issue(s) remain (listed below).")
-                               + (notes.Count > 0 ? "  " + string.Join("  ", notes.ToArray()) : "") + "  Applies as tracked changes.";
+                               + (notes.Count > 0 ? "  " + string.Join("  ", notes.ToArray()) : "")
+                               + (_proposal.WordPlan != null ? "  Applies as " + _proposal.WordPlan.Count + " word-level tracked change(s)." : "  Applies as a paragraph-level tracked change (structure changes).");
                 var sb = new StringBuilder(_proposal.ProposedXml);
                 if (_proposal.RemainingLint.Count > 0)
                     sb.AppendLine().AppendLine().AppendLine("--- still flagged by the linter ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));
@@ -108,7 +112,7 @@ namespace FlareAI.Flare.UI
         {
             try
             {
-                _runner.Apply(_doc, _proposal, "FlareAI " + _title);
+                AppliedSummary = _runner.Apply(_doc, _proposal, "FlareAI " + _title);
                 DialogResult = DialogResult.OK;
                 Close();
             }

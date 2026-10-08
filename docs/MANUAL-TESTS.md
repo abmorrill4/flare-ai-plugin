@@ -27,6 +27,8 @@ Record result per row: ✅ / ❌ + note. Run after every deploy to `Plugins\Flar
 | 22 | Go to | Click a row | Exact excerpt highlighted in the editor |
 | 23 | Fix all | Click Fix all | Word-level Added/Deleted pairs, no stray markup in saved XML; one Ctrl+Z undoes all; Ctrl+Y redoes without error; Accept All works |
 | 24 | Rewrite paragraph | Select a "(needs rewrite)" row → Rewrite paragraph… | Preview says whether it passes the linter; Apply = tracked change; rows marked fixed |
+| 26 | Word-level rewrite | Rewrite a wordy paragraph | Preview says "Applies as N word-level tracked change(s)"; unchanged phrases stay plain; undo/redo clean |
+| 27 | Rewrite over pending changes | Rewrite or Ask on a paragraph with pending changes | Model sees current text; new edits land around the old ones, which stay pending; restructuring it is refused with a clear message |
 | 25 | Linter down | Settings → clear Style linter command | Check style shows AI review only, with a note; Rewrite still works |
 | 20 | Tool Strip UI mode | Switch Flare to tool strip mode | Note whether any entry point exists (expected: none until context menu added) |
 

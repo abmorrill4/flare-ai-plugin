@@ -83,7 +83,8 @@ IRibbonComboBox combo = group.AddRibbonCombobox(new RibbonMenuData { ... });
 - `ISelection.ReplaceText` with `TrackChange = true` after `Select(...)` gives native word-level changes that
   undo **and redo** cleanly. It leaves `<SelectionMarker/>` (and Start/End) elements in the DOM — remove them
   untracked after each edit or they are saved into the topic and misplace the next replacement.
-- `Select(string)` + checking `Selection.GetXmlNodeList()` contains the intended text node reliably targets one
-  occurrence. Every edit splits text nodes: re-locate (text + context) before each edit, right-most first.
+- `Select(string)` selects the first match; checking `Selection.GetXmlNodeList()` contains the intended text node
+  only pins the node, not the offset. Widen the span until it is unique in its text node (`TextRuns.UniqueSpan`)
+  and re-type the extra characters, or "you" will hit the "you" inside "your". Every edit splits text nodes: re-locate (text + context) before each edit, right-most first.
 - One `StartOperation/EndOperation` around many edits = one Ctrl+Z. Flare assigns one Add/Remove change id
   pair per operation.

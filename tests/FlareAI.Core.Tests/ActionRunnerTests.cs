@@ -25,7 +25,7 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
-        public void Rewrite_ThenApply_ReplacesNodeAsOneOperation()
+        public void Rewrite_ThenApply_IsWordLevelInOneOperation()
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             doc.SelectXPath("//body/p[2]/text()");
@@ -34,8 +34,9 @@ namespace FlareAI.Core.Tests
             var proposal = runner.Rewrite(doc, null);
             Assert.True(proposal.Validation.IsValid, proposal.Validation.ToString());
 
-            runner.Apply(doc, proposal, "AI rewrite");
-            Assert.Single(doc.Replacements);
+            Assert.Contains("word-level", runner.Apply(doc, proposal, "AI rewrite"));
+            Assert.Empty(doc.Replacements);          // same structure: no block replacement
+            Assert.Single(doc.TextOperations);       // one undo step
             Assert.Equal("Print only.", doc.Document.SelectSingleNode("//body/p[2]").InnerText);
         }
 
@@ -117,16 +118,6 @@ namespace FlareAI.Core.Tests
             Assert.Contains("In order to be able to utilize", doc.Document.OuterXml); // document untouched
         }
 
-        [Fact]
-        public void Rewrite_OverPendingChanges_Refuses()
-        {
-            var doc = new FakeDocumentAdapter("tracked-changes-topic.htm");
-            doc.SelectXPath("//body/p[1]");
-            var llm = new FakeLlmClient(FakeLlmClient.EchoRevised);
-            var ex = Assert.Throws<InvalidOperationException>(() => Runner(llm).Rewrite(doc, null));
-            Assert.Contains("tracked changes", ex.Message);
-            Assert.Empty(llm.Requests);
-        }
 
         [Fact]
         public void CheckStyle_CaretOnly_ChecksWholeTopic()
