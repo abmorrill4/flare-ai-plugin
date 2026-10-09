@@ -14,3 +14,7 @@ Google does not endorse this project.
 MadCap Flare is a trademark of MadCap Software, Inc. This project is not affiliated with or endorsed by MadCap
 Software. It uses Flare's public Plug-In API; `B3.PluginAPIKit.dll` belongs to MadCap and is not included here or in
 releases (Flare already has it). Claude and Anthropic are trademarks of Anthropic, PBC.
+
+## Third-party components
+- Newtonsoft.Json © James Newton-King, MIT License (https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md),
+  shipped as `Newtonsoft.Json.dll`.
