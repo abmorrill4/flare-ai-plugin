@@ -331,6 +331,28 @@ namespace FlareAI.Flare.UI
             }
             _list.EndUpdate();
             UpdateButtons();
+            var changed = Changed;
+            if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
+        }
+
+        /// <summary>Raised whenever the list changes (new findings, accept, reject, refresh): the editor markers follow it.</summary>
+        public static event Action<FindingsPanel> Changed;
+
+        /// <summary>The topic this panel shows.</summary>
+        public IDocumentAdapter Doc { get { return _doc; } }
+
+        /// <summary>Open proposals in the topic itself (not in snippets), for the editor markers.</summary>
+        public List<StyleFinding> OpenTopicFindings() { return _findings.FindAll(f => !f.IsFixed && !f.IsStale && f.DocumentPath == null); }
+
+        /// <summary>
+        /// Live check: replaces the topic's linter and structure findings with fresh ones (the author typed); AI findings
+        /// stay, and any whose text changed show as stale. Skipped while a review is running.
+        /// </summary>
+        public void RefreshLint(List<StyleFinding> lint)
+        {
+            if (_reviewing || _files != null) return;
+            _findings.RemoveAll(f => f.Source != "ai" && f.DocumentPath == null && !f.IsFixed);
+            Add(lint);
         }
 
         private ListViewGroup GroupFor(StyleFinding f)

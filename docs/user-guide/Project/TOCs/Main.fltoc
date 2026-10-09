@@ -4,6 +4,7 @@
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/install.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/settings.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/check-style.htm" />
+    <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/editor.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/rewrite.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/check-project.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/assists.htm" />

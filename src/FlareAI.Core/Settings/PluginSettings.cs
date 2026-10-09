@@ -42,6 +42,14 @@ namespace FlareAI.Core.Settings
         public bool UseProjectLayer { get; set; }
         /// <summary>After each build of an HTML target, add Markdown per topic + llms.txt to the output.</summary>
         public bool LlmExportAfterBuild { get; set; }
+        /// <summary>Mark paragraphs with open proposals in the editor (a margin bar; view only, never saved).</summary>
+        public bool ShowMarkers { get; set; }
+        /// <summary>Re-lint the topic a moment after typing stops (free: no AI).</summary>
+        public bool LiveCheck { get; set; }
+        /// <summary>After saving a topic, show how many style issues it has (never blocks the save).</summary>
+        public bool CheckOnSave { get; set; }
+        /// <summary>When a build starts, lint the project and show a report (never blocks the build).</summary>
+        public bool ReportBeforeBuild { get; set; }
         /// <summary>Fast-tier model (refine, topic assists); empty = built-in default. <see cref="Model"/> is the standard tier.</summary>
         public string FastModel { get; set; }
         /// <summary>Deep-tier model (owner edits to the style guide); empty = built-in default.</summary>
@@ -91,6 +99,7 @@ namespace FlareAI.Core.Settings
             WriteDiagnostics = true;
             StyleLayers = "";
             UseProjectLayer = true;
+            ShowMarkers = LiveCheck = CheckOnSave = ReportBeforeBuild = true;
         }
 
         // ---- key handling -------------------------------------------------------------

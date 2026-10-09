@@ -56,6 +56,19 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void MarkerCss_AddressesEachBlockBySiblingChain_ColoredByWorstSeverity()
+        {
+            var blocks = Body("<h1>T</h1><p>One</p><ol><li>A</li><li>B</li></ol><MadCap:dropDown><p>In</p></MadCap:dropDown>");
+            var li2 = blocks[2].ChildNodes[1];
+            Assert.Equal("body > h1 + p", FlareAI.Core.Editing.MarkerCss.SelectorFor(blocks[1]));
+            Assert.Equal("body > h1 + p + ol > li + li", FlareAI.Core.Editing.MarkerCss.SelectorFor(li2));
+            Assert.Equal("body > h1 + p + ol + MadCap|dropDown > p", FlareAI.Core.Editing.MarkerCss.SelectorFor(blocks[3].FirstChild));
+            var css = FlareAI.Core.Editing.MarkerCss.Css(new[] { new KeyValuePair<XmlNode, string>(blocks[1], "suggestion"), new KeyValuePair<XmlNode, string>(blocks[1], "error") });
+            Assert.Contains("body > h1 + p { border-left: 3px solid #c62828;", css);   // worst severity wins
+            Assert.Single(css.Split('\n'), l => l.StartsWith("body"));
+        }
+
+        [Fact]
         public void CleanTopicHasNoFindings()
         {
             Assert.Empty(StructureCheck.Of(Body(

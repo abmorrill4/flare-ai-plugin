@@ -46,6 +46,9 @@ namespace FlareAI.Flare
                 CreateToolStrip();
                 try { _host.GetEditorContext().DocumentSwitched += OnDocumentSwitched; } catch (Exception ex) { Diagnostics.Log("subscribe", ex); }
                 try { _host.GetCompilerContext().CompileComplete += OnCompileComplete; } catch (Exception ex) { Diagnostics.Log("subscribe compile", ex); }
+                _editor = new EditorIntegration(_host, LintRunner, () => _nav.GetParentForm(), OnCheckStyle, OnRewrite, OnAsk, OnCheckProject);
+                try { _host.GetCompilerContext().CompileStart += OnCompileStart; } catch (Exception ex) { Diagnostics.Log("subscribe compile start", ex); }
+                _editor.AttachAll();
                 _activated = true;
             }
             catch (Exception ex)
@@ -59,6 +62,7 @@ namespace FlareAI.Flare
         {
             try { _host.GetEditorContext().DocumentSwitched -= OnDocumentSwitched; } catch (Exception) { }
             try { _host.GetCompilerContext().CompileComplete -= OnCompileComplete; } catch (Exception) { }
+            try { _host.GetCompilerContext().CompileStart -= OnCompileStart; } catch (Exception) { }
             _style = null;
             try { _host.Dispose(); } catch (Exception ex) { Diagnostics.Log("Stop", ex); }
             _activated = false;
@@ -501,8 +505,28 @@ namespace FlareAI.Flare
         /// While the findings view is open it follows the active topic: instant lint for the new topic, plus the AI
         /// review only if this exact content was reviewed before (cache). Snippet tabs opened by our own fixes don't count.
         /// </summary>
+        private EditorIntegration _editor;
+        private string _lastTopic;
+
+        private void OnCompileStart(object sender, EventArgs e)
+        {
+            var active = ActiveAdapter();
+            _editor.OnCompileStart(active != null ? active.SourcePath : _lastTopic);
+        }
+
+        /// <summary>A runner for the linter only (live check, check on save, report before build): no API key needed.</summary>
+        private ActionRunner LintRunner(FlareDocumentAdapter adapter)
+        {
+            var settings = PluginSettings.Load();
+            var style = StyleService(settings);
+            if (style == null) return null;
+            var project = settings.UseProjectLayer ? adapter.SourcePath : null;
+            return new ActionRunner(null, PromptBuilder.For(style, project), 0, style, project, RoutingFor(settings)) { VariableValue = adapter.VariableValue };
+        }
+
         private void OnDocumentSwitched(object sender, EventArgs e)
         {
+            try { if (_editor != null) _editor.AttachAll(); var a = ActiveAdapter(); if (a != null) _lastTopic = a.SourcePath; } catch (Exception ex) { Diagnostics.Log("editor", ex); }
             try
             {
                 var current = PanelHost.Current;

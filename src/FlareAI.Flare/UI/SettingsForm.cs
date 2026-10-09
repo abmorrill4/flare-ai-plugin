@@ -9,7 +9,7 @@ namespace FlareAI.Flare.UI
     public sealed class SettingsForm : Form
     {
         private readonly TextBox _layers, _feedback;
-        private readonly CheckBox _projectLayer, _llmExport;
+        private readonly CheckBox _projectLayer, _llmExport, _markers, _live, _onSave, _beforeBuild;
         private readonly ComboBox _provider;
         private readonly TextBox _baseUrl, _model, _fastModel, _deepModel, _key, _mcpTools, _timeout;
         private readonly CheckBox _diag;
@@ -24,7 +24,7 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 600);
+            ClientSize = new Size(520, 692);
             Font = SystemFonts.MessageBoxFont;
 
             var y = 12;
@@ -55,6 +55,14 @@ namespace FlareAI.Flare.UI
             _timeout = AddRow("Timeout (s)", y, out y, new TextBox { Text = _settings.TimeoutSeconds.ToString(), Width = 60 });
             _llmExport = new CheckBox { Text = "After each HTML build, add LLM-ready Markdown and llms.txt to the output", Left = 140, Top = y, Width = 368, Checked = _settings.LlmExportAfterBuild };
             Controls.Add(_llmExport); y += 26;
+            _markers = new CheckBox { Text = "Mark paragraphs with proposals in the editor", Left = 140, Top = y, Width = 368, Checked = _settings.ShowMarkers };
+            Controls.Add(_markers); y += 22;
+            _live = new CheckBox { Text = "Check as I type (style rules only, no AI)", Left = 140, Top = y, Width = 368, Checked = _settings.LiveCheck };
+            Controls.Add(_live); y += 22;
+            _onSave = new CheckBox { Text = "After saving, tell me how many style issues the topic has", Left = 140, Top = y, Width = 368, Checked = _settings.CheckOnSave };
+            Controls.Add(_onSave); y += 22;
+            _beforeBuild = new CheckBox { Text = "When a build starts, report the project's style issues", Left = 140, Top = y, Width = 368, Checked = _settings.ReportBeforeBuild };
+            Controls.Add(_beforeBuild); y += 26;
             _diag = new CheckBox { Text = "Write diagnostics log", Left = 140, Top = y, Width = 300, Checked = _settings.WriteDiagnostics };
             Controls.Add(_diag); y += 30;
 
@@ -109,6 +117,10 @@ namespace FlareAI.Flare.UI
             _settings.UseProjectLayer = _projectLayer.Checked;
             _settings.FeedbackFolder = _feedback.Text.Trim();
             _settings.LlmExportAfterBuild = _llmExport.Checked;
+            _settings.ShowMarkers = _markers.Checked;
+            _settings.LiveCheck = _live.Checked;
+            _settings.CheckOnSave = _onSave.Checked;
+            _settings.ReportBeforeBuild = _beforeBuild.Checked;
             if (_key.Text.Trim().Length > 0) _settings.SetApiKey(_key.Text.Trim());
             try
             {

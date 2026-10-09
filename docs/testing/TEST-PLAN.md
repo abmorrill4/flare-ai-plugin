@@ -47,6 +47,17 @@ numbers and URLs). One shared snippet (`LegacyApp.flsnp`, used by 9 topics) says
 | B4 | Select a step list, **Ask…** "make this a table". | Either a valid restructure or a clear refusal; never a broken topic. |
 | B5 | Make a tracked change in a paragraph (don't accept it), then **Rewrite selection** on it. | The AI sees the current text (your insertion, not the deleted text); edits land around your change. |
 
+## B2. In the editor
+
+| # | Do | Expect |
+|---|---|---|
+| E1a | Right-click in a topic. | Flare's menu has **FlareAI: Check style**, **Rewrite selection**, **Ask…** once each; each works on the text you right-clicked. |
+| E1b | Type "Please utilize the customer list." at the end of a paragraph and stop. | About a second later the paragraph gets an amber margin bar; the review pane (if open on the topic) lists the new issues. |
+| E1c | Open the pane (**Check style**) and accept or reject proposals. | Markers follow: a paragraph loses its bar when its last proposal is resolved; AI findings mark their paragraphs too. |
+| E1d | Save (Ctrl+S) a topic with issues. | A notice at the bottom right: "N style issue(s) in topic.htm. Saved anyway." with *Show them*. The saved file has no stylesheet or marker in it. |
+| E1e | Start a build (Project > Build Primary). | A notice: "Building. N style issue(s) in M file(s)" with *Open the report*; the build runs normally. |
+| E1f | In Settings, turn each of the four options off. | The matching behavior stops; the others still work. |
+
 ## C. Project-wide
 
 | # | Do | Expect |

@@ -102,6 +102,12 @@ lint row must pass the validator. `tools/google-style/coverage.md` is the report
 - **AI ▸ Tune style guide** (owners) pools everyone's decisions: disputed rules, often-rejected rules, repeated hand
   edits, requests to turn rules off — with evidence; **Draft a change with AI** edits the rule as tracked changes.
 
+### In the editor
+Right-click items (Check style, Rewrite selection, Ask…) in Flare's own context menu; margin markers on paragraphs with
+open proposals (a stylesheet applied to the editor view only, never saved; blocks addressed by CSS2 sibling chains
+because Flare's CSS engine has no `:nth-of-type`); live lint a second after typing stops; an issue count after save;
+and a project report when a build starts. All non-blocking, each with a setting.
+
 ### Outside Flare
 `tools/FlareAI.Mcp` is the same engine as an MCP stdio server (`lint`, `style_lookup`, `glossary_lookup`,
 `validate_guide`, `guide_examples`, `mine_style`). `.mcp.json` registers it for Claude Code, and the `docstyle` skill
