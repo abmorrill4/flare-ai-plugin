@@ -34,4 +34,4 @@ if (Test-Path "$repo\src\FlareAI.Flare\Icons") { Copy-Item "$repo\src\FlareAI.Fl
 Get-ChildItem $target -Recurse -File | Unblock-File
 Write-Host "Installed to $target"
 Get-ChildItem $target | Select-Object Name, Length | Format-Table -AutoSize
-Write-Host "Now: start Flare > File > Options > Plugins > FlareAI > Enable > restart Flare."
+Write-Host "Now: start Flare > File > Options > Plugins > House Style > Enable > restart Flare."
