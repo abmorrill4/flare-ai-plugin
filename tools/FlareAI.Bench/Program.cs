@@ -187,8 +187,8 @@ namespace FlareAI.Bench
             Usage.Reset();
 
             var repo = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\.."));
-            var server = Path.Combine(repo, @"mcp\docstyle\server.py");
-            var style = new McpStyleService("uv", "run --quiet --script \"" + server + "\"", repo, 120000);
+            var guide = Path.Combine(repo, "styleguide");
+            var style = new StyleEngine(new[] { guide }, guide);
             ILlmClient llm = null;
             if (!_o.NoAi)
             {
@@ -248,7 +248,6 @@ namespace FlareAI.Bench
             var tune = Decide();
             var rewrites = _o.Rewrites > 0 && llm != null ? Rewrites(scope, vars, llm, style, routing) : new List<JObject>();
             Write(scope, files.Count, all.Elapsed.TotalSeconds, tune, rewrites);
-            style.Dispose();
             Diagnostics.Sink = null;
             log.Dispose();
             Console.WriteLine(File.ReadAllText(Path.Combine(_o.Out, "report.md")).Split(new[] { "\n## " }, StringSplitOptions.None)[0]);
@@ -326,7 +325,7 @@ namespace FlareAI.Bench
 
         // ---- rewrites -------------------------------------------------------------------------------------------
 
-        private List<JObject> Rewrites(List<Defect> scope, Dictionary<string, string> vars, ILlmClient llm, McpStyleService style, Routing routing)
+        private List<JObject> Rewrites(List<Defect> scope, Dictionary<string, string> vars, ILlmClient llm, StyleEngine style, Routing routing)
         {
             var results = new List<JObject>();
             var picks = scope.Where(d => d.Sentence != null && !d.File.Contains("/Snippets/")).GroupBy(d => d.Kind).Select(g => g.First()).Take(_o.Rewrites).ToList();

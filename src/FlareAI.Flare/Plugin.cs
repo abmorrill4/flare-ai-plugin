@@ -59,7 +59,7 @@ namespace FlareAI.Flare
         {
             try { _host.GetEditorContext().DocumentSwitched -= OnDocumentSwitched; } catch (Exception) { }
             try { _host.GetCompilerContext().CompileComplete -= OnCompileComplete; } catch (Exception) { }
-            ResetStyleService();
+            _style = null;
             try { _host.Dispose(); } catch (Exception ex) { Diagnostics.Log("Stop", ex); }
             _activated = false;
         }
@@ -267,21 +267,11 @@ namespace FlareAI.Flare
             }
         }
 
-        /// <summary>Runs docstyle --llm-export; returns a one-line summary.</summary>
-        private string RunLlmExport(PluginSettings settings, string output)
+        /// <summary>Turns the built output into Markdown per topic + llms.txt; returns a one-line summary.</summary>
+        private static string RunLlmExport(PluginSettings settings, string output)
         {
-            var args = (settings.StyleServerArgs ?? PluginSettings.DefaultStyleServerArgs).Replace("{PluginDir}", PluginDirectory) + " --llm-export \"" + output.TrimEnd('\\') + "\"";
-            var psi = new System.Diagnostics.ProcessStartInfo(string.IsNullOrEmpty(settings.StyleServerCommand) ? PluginSettings.DefaultStyleServerCommand : settings.StyleServerCommand, args)
-            { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true, WorkingDirectory = PluginDirectory };
-            using (var p = System.Diagnostics.Process.Start(psi))
-            {
-                var stderr = p.StandardError.ReadToEndAsyncCompat();
-                var stdout = p.StandardOutput.ReadToEnd();
-                p.WaitForExit(300000);
-                if (p.ExitCode != 0) throw new InvalidOperationException("LLM export failed: " + stderr());
-                var json = Newtonsoft.Json.Linq.JObject.Parse(stdout.Trim());
-                return (int)json["topics"] + " topic(s) exported as Markdown to " + (string)json["markdown"] + ", with llms.txt and llms-full.txt in " + output + ".";
-            }
+            var r = FlareAI.Core.Output.LlmExport.Export(output.TrimEnd('\\'));
+            return r.Topics + " topic(s) exported as Markdown to " + r.Markdown + ", with llms.txt and llms-full.txt in " + output + ".";
         }
 
         /// <summary>The most recently built output folder of the project (Output\user\Target or Output\Target), or null.</summary>
@@ -367,7 +357,7 @@ namespace FlareAI.Flare
             }
         }
 
-        private ActionRunner NewRunnerWithoutTopic(PluginSettings settings, McpStyleService style, string project)
+        private ActionRunner NewRunnerWithoutTopic(PluginSettings settings, StyleEngine style, string project)
         {
             ILlmClient llm;
             try { llm = LlmClientFactory.Create(settings); }
@@ -484,27 +474,20 @@ namespace FlareAI.Flare
             return settings.Routing(Team.Current == null ? null : Team.Current.GuideRoot);
         }
 
-        private McpStyleService _style;
+        private StyleEngine _style;
         private string _styleKey;
 
-        private McpStyleService StyleService(PluginSettings settings)
+        /// <summary>The in-process style guide and linter; rebuilt when the configured guide projects change.</summary>
+        private StyleEngine StyleService(PluginSettings settings)
         {
-            if (string.IsNullOrEmpty(settings.StyleServerCommand)) { ResetStyleService(); return null; }
-            var args = settings.StyleServerArgsFor(PluginDirectory);
-            var key = settings.StyleServerCommand + " " + args;
+            var roots = settings.GuideRoots(PluginDirectory);
+            var key = string.Join("|", roots.ToArray());
             if (_style == null || _styleKey != key)
             {
-                ResetStyleService();
-                _style = new McpStyleService(settings.StyleServerCommand, args, PluginDirectory, 60000);
+                _style = new StyleEngine(roots, PluginSettings.BundledGuide(PluginDirectory));
                 _styleKey = key;
             }
             return _style;
-        }
-
-        private void ResetStyleService()
-        {
-            if (_style != null) { try { _style.Dispose(); } catch (Exception ex) { Diagnostics.Log("docstyle stop", ex); } }
-            _style = null;
         }
 
         private static readonly ReviewCache Reviews = new ReviewCache(300, Path.Combine(PluginSettings.SettingsDirectory, "reviews.json"));

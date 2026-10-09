@@ -483,8 +483,8 @@ namespace FlareAI.Core.Actions
         public TopicAssist Assist(IList<XmlNode> blocks)
         {
             var glossary = "";
-            if (_style is McpStyleService)
-                try { foreach (var g in ((McpStyleService)_style).GlossaryTerms(_project)) glossary += g + "\n"; } catch (Exception ex) { Diagnostics.Log("assist: glossary", ex); }
+            if (_style is StyleEngine)
+                try { foreach (var g in ((StyleEngine)_style).GlossaryTerms(_project)) glossary += g + "\n"; } catch (Exception ex) { Diagnostics.Log("assist: glossary", ex); }
             var fragment = XhtmlFragment.Serialize(TrackedChanges.WithoutDeletions(blocks));
             var parts = new[]
             {

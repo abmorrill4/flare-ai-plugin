@@ -1,9 +1,0 @@
-MadCap
-Flare
-SSO
-SAML
-OIDC
-IdP
-IdPs
-allowlist
-blocklist

@@ -22,7 +22,7 @@ namespace FlareAI.Flare.UI
     public sealed class BuildGuideForm : Form
     {
         private readonly Team _team;
-        private readonly McpStyleService _style;
+        private readonly StyleEngine _style;
         private readonly string _project;
         private readonly Func<ActionRunner> _runner;
         private readonly Func<string, IDocumentAdapter> _open;
@@ -34,7 +34,7 @@ namespace FlareAI.Flare.UI
         private readonly Button _mine, _notes, _add;
         private readonly ProgressBar _progress;
 
-        public BuildGuideForm(Team team, McpStyleService style, string project, Func<ActionRunner> runner, Func<string, IDocumentAdapter> open)
+        public BuildGuideForm(Team team, StyleEngine style, string project, Func<ActionRunner> runner, Func<string, IDocumentAdapter> open)
         {
             _team = team; _style = style; _project = project; _runner = runner; _open = open;
             Text = "FlareAI — Build style guide";

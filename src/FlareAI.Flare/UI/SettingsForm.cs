@@ -8,7 +8,7 @@ namespace FlareAI.Flare.UI
     /// <summary>Provider, base URL, model, key. The key is DPAPI-protected on save and never shown back.</summary>
     public sealed class SettingsForm : Form
     {
-        private readonly TextBox _styleCmd, _styleArgs, _layers, _feedback;
+        private readonly TextBox _layers, _feedback;
         private readonly CheckBox _projectLayer, _llmExport;
         private readonly ComboBox _provider;
         private readonly TextBox _baseUrl, _model, _fastModel, _deepModel, _key, _mcpTools, _timeout;
@@ -24,7 +24,7 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 616);
+            ClientSize = new Size(520, 600);
             Font = SystemFonts.MessageBoxFont;
 
             var y = 12;
@@ -45,13 +45,9 @@ namespace FlareAI.Flare.UI
             clearKey.LinkClicked += (s, e) => { _settings.SetApiKey(null); _key.Text = ""; RefreshKeyStatus(); };
             Controls.Add(_keyStatus); Controls.Add(clearKey); y += 18;
             _mcpTools = AddRow("MCP include tools", y, out y, new TextBox { Text = _settings.McpIncludeTools });
-            _styleCmd = AddRow("Style linter (MCP)", y, out y, new TextBox { Text = _settings.StyleServerCommand, Width = 60 });
-            _styleArgs = new TextBox { Text = _settings.StyleServerArgs, Left = 206, Top = _styleCmd.Top, Width = 302 };
-            Controls.Add(_styleArgs);
-            Controls.Add(new Label { Text = "docstyle server: command + arguments. Clear the command to turn linting off.", Left = 140, Top = y - 4, Width = 368, Height = 18, ForeColor = SystemColors.GrayText }); y += 18;
-            _layers = AddRow("Style layers", y, out y, new TextBox { Text = (_settings.StyleLayers ?? "").Replace(";", Environment.NewLine), Multiline = true, Height = 58, ScrollBars = ScrollBars.Vertical });
-            y += 32;
-            Controls.Add(new Label { Text = "One folder per line, applied after Google in order (later wins). Empty = bundled company layer.", Left = 140, Top = y - 4, Width = 368, Height = 18, ForeColor = SystemColors.GrayText }); y += 18;
+            _layers = AddRow("Style guide project", y, out y, new TextBox { Text = (_settings.StyleLayers ?? "").Replace(";", Environment.NewLine), Multiline = true, Height = 40, ScrollBars = ScrollBars.Vertical });
+            y += 14;
+            Controls.Add(new Label { Text = "Folder of your team's style guide (a Flare project). Empty = the guide bundled with the plugin.", Left = 140, Top = y - 4, Width = 368, Height = 18, ForeColor = SystemColors.GrayText }); y += 18;
             _projectLayer = new CheckBox { Text = "Also use the open project's variables, glossary and Resources\\StyleGuide", Left = 140, Top = y, Width = 368, Checked = _settings.UseProjectLayer };
             Controls.Add(_projectLayer); y += 28;
             _feedback = AddRow("Team feedback folder", y, out y, new TextBox { Text = _settings.FeedbackFolder ?? "" });
@@ -109,8 +105,6 @@ namespace FlareAI.Flare.UI
             _settings.McpIncludeTools = _mcpTools.Text.Trim();
             _settings.TimeoutSeconds = timeout;
             _settings.WriteDiagnostics = _diag.Checked;
-            _settings.StyleServerCommand = _styleCmd.Text.Trim();
-            _settings.StyleServerArgs = _styleArgs.Text.Trim();
             _settings.StyleLayers = _layers.Text.Trim();
             _settings.UseProjectLayer = _projectLayer.Checked;
             _settings.FeedbackFolder = _feedback.Text.Trim();

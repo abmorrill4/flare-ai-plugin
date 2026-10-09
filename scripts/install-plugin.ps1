@@ -20,11 +20,10 @@ if (-not (Test-Path $src)) { throw "Build output not found at $src" }
 New-Item -ItemType Directory -Force -Path $target | Out-Null
 # Do NOT copy B3.PluginAPIKit.dll into the plugin folder — Flare already loads its own copy.
 Get-ChildItem $src -File | Where-Object { $_.Name -ne "B3.PluginAPIKit.dll" } | Copy-Item -Destination $target -Force
-# ship the docstyle MCP server (style guide + linter) + icons alongside
-Remove-Item "$target\rules" -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path "$target\docstyle" | Out-Null
-Remove-Item "$target\docstyle\*" -Recurse -Force -ErrorAction SilentlyContinue
-Copy-Item "$repo\mcp\docstyle\*" -Destination "$target\docstyle" -Recurse -Force -Exclude "__pycache__"
+# Ship the bundled style guide (a Flare project: Google rules + starter company rules) and icons alongside.
+# Remove what older versions shipped (the Python docstyle helper).
+Remove-Item "$target\rules", "$target\docstyle", "$target\StyleGuide" -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item "$repo\styleguide" -Destination "$target\StyleGuide" -Recurse -Force
 if (Test-Path "$repo\src\FlareAI.Flare\Icons") { Copy-Item "$repo\src\FlareAI.Flare\Icons" -Destination $target -Recurse -Force }
 
 # Mark of the Web: Windows silently blocks .NET assemblies that came from a downloaded zip, and Flare then just

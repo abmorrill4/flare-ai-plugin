@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using FlareAI.Core.Actions;
-using FlareAI.Core.Mcp;
 using FlareAI.Core.Style;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -121,77 +120,13 @@ namespace FlareAI.Core.Tests
             Assert.Contains(proposal.Notes, n => n.Contains("linter unavailable"));
         }
 
-        [Fact]
-        public void Docstyle_OverRealMcp_LintsAndServesGuide()
-        {
-            // Integration: the shipped server through the real stdio client. Skips quietly when uv is absent.
-            var server = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\mcp\docstyle\server.py"));
-            if (!File.Exists(server) || !OnPath("uv.exe")) return;
-            using (var svc = new McpStyleService("uv", "run --quiet --script \"" + server + "\"", Path.GetDirectoryName(server), 120000))
-            {
-                var hits = svc.Lint(new[] { "Configure Single Sign-On", "It supports SAML 2.0.", "In order to utilize SSO, click here." }, new[] { 0 }, null);
-                Assert.Contains(hits, h => h.Index == 0 && h.Match == "Single Sign-On" && h.Replacement == "single sign-on");
-                Assert.DoesNotContain(hits, h => h.Index == 1);
-                Assert.Contains(hits, h => h.Index == 2 && h.Match == "utilize" && h.Replacement == "use" && h.Layer == "company");
-                // Rules from the company guide's tables carry a citable id and link back to their Flare topic.
-                Assert.Contains(hits, h => h.Match == "click here" && h.Replacement == null && h.Layer == "company"
-                                           && h.RuleId.StartsWith("company:plain-language/") && h.Link.StartsWith("file:") && h.Link.EndsWith("Plain-language.htm"));
-                var guide = svc.Guide(null);
-                Assert.Contains("[google:", guide);
-                Assert.Contains("members", guide);
-                Assert.Contains(svc.Rules(null), r => r.Id == "company:terminology/1" && r.Section == "Audience");
-                var report = svc.Validate(null);
-                Assert.Equal(0, report.Errors);
-                Assert.True(report.TableRules > 0 && report.TestedByExample == report.TableRules);
-                Assert.NotEmpty(svc.Examples(null));
-            }
-        }
-
-        [Fact]
-        public void Docstyle_OverRealMcp_ProjectLayerComesFromTheFlareProject()
-        {
-            var server = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\mcp\docstyle\server.py"));
-            if (!File.Exists(server) || !OnPath("uv.exe")) return;
-            var root = Path.Combine(Path.GetTempPath(), "flareai-proj-" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(Path.Combine(root, @"Project\VariableSets"));
-            Directory.CreateDirectory(Path.Combine(root, "Content"));
-            File.WriteAllText(Path.Combine(root, "Demo.flprj"), "<CatapultProject />");
-            File.WriteAllText(Path.Combine(root, @"Project\VariableSets\General.flvar"), "<CatapultVariableSet><Variable Name=\"ProductName\">Acme Online Banking</Variable></CatapultVariableSet>");
-            var topic = Path.Combine(root, @"Content\Topic.htm");
-            File.WriteAllText(topic, "<html/>");
-            try
-            {
-                var settings = new FlareAI.Core.Settings.PluginSettings { StyleLayers = "{PluginDir}\\layers\\company" };
-                using (var svc = new McpStyleService("uv", "run --quiet --script \"" + server + "\"" + settings.StyleServerArgsFor(Path.GetDirectoryName(server)).Replace(settings.StyleServerArgs.Replace("{PluginDir}", Path.GetDirectoryName(server)), ""), Path.GetDirectoryName(server), 120000))
-                {
-                    var hits = svc.Lint(new[] { "Open Acme Online Banking to start." }, new int[0], topic);
-                    Assert.Contains(hits, h => h.Layer == "project" && h.Match == "Acme Online Banking" && h.Message.Contains("General.ProductName"));
-                    Assert.DoesNotContain(svc.Lint(new[] { "Open Acme Online Banking to start." }, new int[0], null), h => h.Layer == "project");
-                    Assert.Contains("General.ProductName", svc.Guide(topic));
-                }
-            }
-            finally { Directory.Delete(root, true); }
-        }
-
-        [Fact]
-        public void Settings_BuildOneLayerArgumentPerConfiguredFolder()
-        {
-            var s = new FlareAI.Core.Settings.PluginSettings { StyleServerArgs = "run x.py", StyleLayers = "\\\\share\\style\\company\r\n\r\n{PluginDir}\\layers\\team\\" };
-            Assert.Equal("run x.py --layer \"\\\\share\\style\\company\" --layer \"C:\\p\\layers\\team\"", s.StyleServerArgsFor(@"C:\p"));
-        }
-
-        private static bool OnPath(string exe)
-        {
-            return (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';').Any(d => { try { return File.Exists(Path.Combine(d.Trim(), exe)); } catch (ArgumentException) { return false; } });
-        }
-
         private sealed class BrokenStyleService : IStyleService
         {
-            public System.Collections.Generic.IList<LintHit> Lint(System.Collections.Generic.IList<string> texts, System.Collections.Generic.IList<int> headings, string project) { throw new McpException("server exited"); }
-            public string Guide(string project) { throw new McpException("server exited"); }
-            public System.Collections.Generic.IList<GuideRule> Rules(string project) { throw new McpException("server exited"); }
-            public GuideReport Validate(string project) { throw new McpException("server exited"); }
-            public System.Collections.Generic.IList<GuideExample> Examples(string project) { throw new McpException("server exited"); }
+            public System.Collections.Generic.IList<LintHit> Lint(System.Collections.Generic.IList<string> texts, System.Collections.Generic.IList<int> headings, string project) { throw new InvalidOperationException("style engine failed"); }
+            public string Guide(string project) { throw new InvalidOperationException("style engine failed"); }
+            public System.Collections.Generic.IList<GuideRule> Rules(string project) { throw new InvalidOperationException("style engine failed"); }
+            public GuideReport Validate(string project) { throw new InvalidOperationException("style engine failed"); }
+            public System.Collections.Generic.IList<GuideExample> Examples(string project) { throw new InvalidOperationException("style engine failed"); }
         }
     }
 }

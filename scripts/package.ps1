@@ -10,8 +10,7 @@ Remove-Item "$repo\dist\stage" -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
 Get-ChildItem "src\FlareAI.Flare\bin\Release\net48" -File | Where-Object { $_.Name -ne "B3.PluginAPIKit.dll" -and $_.Extension -in ".dll", ".pdb", ".json" } | Copy-Item -Destination $stage
-New-Item -ItemType Directory -Force -Path "$stage\docstyle" | Out-Null
-Copy-Item "mcp\docstyle\*" -Destination "$stage\docstyle" -Recurse -Force -Exclude "__pycache__"
+Copy-Item "styleguide" -Destination "$stage\StyleGuide" -Recurse -Force
 if (Test-Path "src\FlareAI.Flare\Icons") { Copy-Item "src\FlareAI.Flare\Icons" -Destination $stage -Recurse }
 Copy-Item "docs\TESTER-GUIDE.md" -Destination "$repo\dist\stage\README-INSTALL.md" -ErrorAction SilentlyContinue
 

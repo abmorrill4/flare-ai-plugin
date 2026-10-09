@@ -11,7 +11,7 @@ Also writes source/units.json: every paragraph, list item, table row and example
 (page#n + hash). Compiled rule cards cite these units; the coverage report fails on any unit that no card covers and
 that isn't marked not-applicable.
 
-    uv run --script scripts/google-style-snapshot.py
+    uv run --script tools/google-style/snapshot.py
 """
 import datetime
 import hashlib
@@ -26,7 +26,7 @@ from bs4 import BeautifulSoup
 from markdownify import markdownify
 
 BASE = "https://developers.google.com"
-OUT = Path(__file__).resolve().parent.parent / "mcp" / "docstyle" / "layers" / "google" / "source"
+OUT = Path(__file__).resolve().parent / "source"
 UA = {"User-Agent": "FlareAI-docstyle-snapshot/1.0 (style guide layer; CC BY 4.0 attribution kept)"}
 
 

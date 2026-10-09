@@ -33,17 +33,14 @@ namespace FlareAI.Core.Settings
         /// <summary>Bifrost only: comma-separated patterns for x-bf-mcp-include-tools.</summary>
         public string McpIncludeTools { get; set; }
         public bool WriteDiagnostics { get; set; }
-        /// <summary>docstyle MCP server launch command; empty disables linting. {PluginDir} expands to the plugin folder.</summary>
-        public string StyleServerCommand { get; set; }
-        public string StyleServerArgs { get; set; }
         /// <summary>
-        /// Style layer folders applied after the Google baseline, in order (later wins), one per line.
-        /// Empty = the bundled company layer. Each folder: guide.md, rules/*.yml, accept.txt, glossary.json, overrides.ini.
+        /// The team's style guide project: a Flare project with Content\Resources\StyleGuide\Google and \Company. One per
+        /// line if there are several (later wins). Empty = the starter guide bundled with the plugin.
         /// </summary>
         public string StyleLayers { get; set; }
         /// <summary>Add the open Flare project's variables, glossary and Resources/StyleGuide folder as the last layer.</summary>
         public bool UseProjectLayer { get; set; }
-        /// <summary>After each build of an HTML target, add Markdown per topic + llms.txt to the output (docstyle --llm-export).</summary>
+        /// <summary>After each build of an HTML target, add Markdown per topic + llms.txt to the output.</summary>
         public bool LlmExportAfterBuild { get; set; }
         /// <summary>Fast-tier model (refine, topic assists); empty = built-in default. <see cref="Model"/> is the standard tier.</summary>
         public string FastModel { get; set; }
@@ -64,25 +61,24 @@ namespace FlareAI.Core.Settings
         /// </summary>
         public string FeedbackFolder { get; set; }
 
-        /// <summary>The company style guide: the last configured layer, or the bundled company layer.</summary>
-        public string GuideRoot(string pluginDir)
+        /// <summary>The style guide shipped with the plugin: the starter project, and the Google rules for guides without them.</summary>
+        public static string BundledGuide(string pluginDir) { return System.IO.Path.Combine(pluginDir, "StyleGuide"); }
+
+        /// <summary>The configured style guide projects, in order; the bundled guide when none is set.</summary>
+        public System.Collections.Generic.List<string> GuideRoots(string pluginDir)
         {
-            string last = null;
+            var list = new System.Collections.Generic.List<string>();
             foreach (var line in (StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
-                if (line.Trim().Length > 0) last = line.Trim().Replace("{PluginDir}", pluginDir);
-            return last ?? System.IO.Path.Combine(pluginDir, @"docstyle\layers\company");
+                if (line.Trim().Length > 0) list.Add(line.Trim().Replace("{PluginDir}", pluginDir).TrimEnd('\\'));
+            if (list.Count == 0) list.Add(BundledGuide(pluginDir));
+            return list;
         }
 
-        /// <summary>Server arguments with {PluginDir} expanded and one --layer per configured folder.</summary>
-        public string StyleServerArgsFor(string pluginDir)
+        /// <summary>The team's style guide: the last configured project, or the bundled one.</summary>
+        public string GuideRoot(string pluginDir)
         {
-            var args = (StyleServerArgs ?? "").Replace("{PluginDir}", pluginDir);
-            foreach (var line in (StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                var dir = line.Trim().Replace("{PluginDir}", pluginDir);
-                if (dir.Length > 0) args += " --layer \"" + dir.TrimEnd('\\') + "\"";
-            }
-            return args;
+            var roots = GuideRoots(pluginDir);
+            return roots[roots.Count - 1];
         }
 
         public PluginSettings()
@@ -93,14 +89,9 @@ namespace FlareAI.Core.Settings
             MaxTokens = 4096;
             TimeoutSeconds = 90;
             WriteDiagnostics = true;
-            StyleServerCommand = DefaultStyleServerCommand;
-            StyleServerArgs = DefaultStyleServerArgs;
             StyleLayers = "";
             UseProjectLayer = true;
         }
-
-        public const string DefaultStyleServerCommand = "uv";
-        public const string DefaultStyleServerArgs = "run --quiet --script \"{PluginDir}\\docstyle\\server.py\"";
 
         // ---- key handling -------------------------------------------------------------
 
