@@ -36,7 +36,16 @@ namespace FlareAI.Core.Llm
         {
             var messages = new JArray();
             if (!string.IsNullOrEmpty(req.System)) messages.Add(new JObject { ["role"] = "system", ["content"] = req.System });
-            messages.Add(new JObject { ["role"] = "user", ["content"] = req.User ?? "" });
+            JToken content = req.User ?? "";
+            if (req.Images != null && req.Images.Count > 0)
+            {
+                var parts = new JArray();
+                foreach (var img in req.Images)
+                    parts.Add(new JObject { ["type"] = "image_url", ["image_url"] = new JObject { ["url"] = "data:" + img.MediaType + ";base64," + img.Base64 } });
+                parts.Add(new JObject { ["type"] = "text", ["text"] = req.User ?? "" });
+                content = parts;
+            }
+            messages.Add(new JObject { ["role"] = "user", ["content"] = content });
             var body = new JObject
             {
                 ["model"] = model,

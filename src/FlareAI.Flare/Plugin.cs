@@ -76,6 +76,7 @@ namespace FlareAI.Flare
             actions.AddRibbonButton(Button("Rewrite selection", "R", OnRewrite, "rewrite"));
             actions.AddRibbonButton(Button("Ask…", "A", OnAsk, "ask"));
             actions.AddRibbonButton(Button("Check project", "P", OnCheckProject, "project"));
+            actions.AddRibbonButton(Button("Topic assists", "I", OnAssist, "assist"));
 
             IRibbonGroup tools = tab.AddNewRibbonGroup("Plugin");
             tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings"));
@@ -204,6 +205,24 @@ namespace FlareAI.Flare
                 });
             }
             catch (Exception ex) { Diagnostics.Log("Team", ex); }
+        }
+
+        /// <summary>Meta description, index keywords, synonyms, micro content and glossary candidates for the open topic.</summary>
+        private void OnAssist()
+        {
+            try
+            {
+                var adapter = ActiveAdapter();
+                if (adapter == null || !adapter.IsEditableTopic) { MessageBox.Show("Open a topic in the XML Editor first.", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+                var runner = NewRunner(adapter);
+                if (runner == null) return;
+                using (var f = new AssistForm(runner, adapter)) f.ShowDialog(_nav.GetParentForm());
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Topic assists", ex);
+                MessageBox.Show(ex.Message, "FlareAI — Topic assists", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // ---- LLM-ready output ------------------------------------------------------------------

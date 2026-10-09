@@ -623,6 +623,8 @@ def build_server(ds: Docstyle):
         """Look up a term in every layer's glossary (company and project): canonical spelling,
         abbreviation, definition or usage note."""
         t = term.strip().lower()
+        if not t:   # empty term: every glossary entry
+            return {"entries": ds.glossary(project)}
         return {"entries": [e for e in ds.glossary(project)
                             if t in (e["term"].lower(), (e.get("abbr") or "").lower())
                             or any(t == v.lower() for v in e.get("variants", []))]}

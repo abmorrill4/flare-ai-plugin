@@ -172,6 +172,17 @@ namespace FlareAI.Core.Style
             return list;
         }
 
+        /// <summary>Terms the layered glossary already defines (docstyle glossary_lookup with an empty term = all).</summary>
+        public List<string> GlossaryTerms(string project)
+        {
+            var args = new JObject { ["term"] = "" };
+            if (!string.IsNullOrEmpty(project)) args["project"] = project;
+            var list = new List<string>();
+            var json = Client().CallTool("glossary_lookup", args);
+            foreach (var e in json["matches"] ?? json["entries"] ?? new JArray()) { var t = (string)e["term"]; if (!string.IsNullOrEmpty(t)) list.Add(t); }
+            return list;
+        }
+
         /// <summary>Candidate rules mined from a Flare project's own content (docstyle mine_style).</summary>
         public List<RuleCandidate> Mine(string project, out int files)
         {

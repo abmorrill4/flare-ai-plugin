@@ -17,6 +17,7 @@ $icons = [ordered]@{
     tune     = 0xE9E9  # Equalizer (tuning)
     build    = 0xE70B  # QuickNote
     llm      = 0xE943  # Code
+    assist   = 0xE82F  # Lightbulb
 }
 $color = [System.Drawing.Color]::FromArgb(255, 14, 124, 134)  # FlareAI teal; reads on Flare's light ribbon
 

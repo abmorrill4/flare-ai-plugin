@@ -259,6 +259,17 @@ Plugin: AI ▸ Export for LLMs, and an automatic export on Flare's CompileComple
 and an in-app build exported automatically (trial-mode output is scrambled by Flare itself). The post-build event
 command is documented in the README for madbuild/CI.
 
+### Phase 2h — Authoring assists `[x]`
+
+- **Alt text (vision):** the review pane's alt-text proposals offer "Suggest alt text…": the AI reads the image
+  (PNG/JPEG/GIF/WebP) with the heading and paragraph as context, the author edits, and the alt is applied as a validated
+  tracked change. Verified in Flare on a real screenshot.
+- **Topic assists** (AI ▸ Topic assists): one call drafts a meta description, index keywords (with subentries), search
+  synonym groups, micro content (question/answer pairs) and glossary candidates (minus terms the glossary has), each with
+  a Copy button. Copy, not write: Flare's head metadata, index markers, synonym and micro-content files aren't safely
+  writable through the plugin API.
+- LLM clients send images (Anthropic image blocks; Bifrost/OpenAI image_url data URIs).
+
 ### Phase 3 — Tester handoff `[ ]`
 
 - [x] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.

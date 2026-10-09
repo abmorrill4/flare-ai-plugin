@@ -352,6 +352,31 @@ namespace FlareAI.Core.Actions
             };
         }
 
+        /// <summary>Alt text for an image (vision). Null when the model judges it decorative.</summary>
+        public string SuggestAlt(LlmImageFile image, string context)
+        {
+            var resp = _llm.Complete(new LlmRequest
+            {
+                System = _prompts.BuildSystem(), User = _prompts.BuildAlt(context), MaxTokens = 200,
+                Images = new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } }
+            });
+            Diagnostics.Log("Alt text: in=" + resp.InputTokens + " out=" + resp.OutputTokens);
+            var alt = (resp.Text ?? "").Trim().Trim('"');
+            return alt.Equals("DECORATIVE", StringComparison.OrdinalIgnoreCase) ? null : alt;
+        }
+
+        /// <summary>Meta description, index keywords, search synonyms, micro content and glossary candidates for the blocks.</summary>
+        public TopicAssist Assist(IList<XmlNode> blocks)
+        {
+            var glossary = "";
+            if (_style is McpStyleService)
+                try { foreach (var g in ((McpStyleService)_style).GlossaryTerms(_project)) glossary += g + "\n"; } catch (Exception ex) { Diagnostics.Log("assist: glossary", ex); }
+            var fragment = XhtmlFragment.Serialize(TrackedChanges.WithoutDeletions(blocks));
+            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = _prompts.BuildAssist(fragment, glossary.Trim()), MaxTokens = _maxTokens });
+            Diagnostics.Log("Topic assists: in=" + resp.InputTokens + " out=" + resp.OutputTokens);
+            return TopicAssist.Parse(resp.Text);
+        }
+
         /// <summary>Candidate style-guide rules the AI finds in an author's notes, an old guide, or another tool's prompt.</summary>
         public List<RuleCandidate> ExtractRules(string notes)
         {

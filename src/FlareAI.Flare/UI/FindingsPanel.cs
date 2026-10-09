@@ -468,6 +468,7 @@ namespace FlareAI.Flare.UI
                 return;
             }
             if (f.Kind == "restructure") { RewriteParagraph(f); return; }
+            if (f.Rule == "Structure.AltText" && f.DocumentPath == null) { SuggestAltText(f); return; }
             if (f.Kind == "manual")
             {
                 GoTo(f, true);
@@ -479,6 +480,45 @@ namespace FlareAI.Flare.UI
                 FeedbackLog.Record(f, _doc.SourcePath, "accepted");
                 Next();
             }
+        }
+
+        /// <summary>The AI looks at the image and drafts alt text; the author edits it; it is applied as a tracked change.</summary>
+        private void SuggestAltText(StyleFinding f)
+        {
+            var block = _runner.LocateBlock(_doc, f) ?? f.Block;
+            var img = AltText.MissingIn(block);
+            if (img == null) { _status.Text = "That image already has alt text (or is gone). Re-analyze."; return; }
+            LlmImageFile image;
+            try { image = AltText.Load(_doc.SourcePath, img.GetAttribute("src")); }
+            catch (Exception ex) { _status.Text = ex.Message + " Write the alt text in the image's properties."; return; }
+            var src = img.GetAttribute("src");
+            var context = AltText.Context(block);
+            var runner = _newRunner() ?? _runner;
+            Busy(true, "Looking at " + System.IO.Path.GetFileName(image.Path) + "…");
+            var worker = new BackgroundWorker();
+            worker.DoWork += (s, e) => e.Result = runner.SuggestAlt(image, context);
+            worker.RunWorkerCompleted += (s, e) =>
+            {
+                if (IsDisposed) return;
+                Busy(false, null);
+                if (e.Error != null) { Diagnostics.Log("Alt text", e.Error); _status.Text = "Alt text failed: " + e.Error.Message; return; }
+                var suggestion = (string)e.Result;
+                var alt = TextPrompt.Ask(this, "Alt text", suggestion == null
+                    ? "The AI thinks " + System.IO.Path.GetFileName(image.Path) + " is decorative. Type alt text if it isn't (screen readers will read it):"
+                    : "Alt text for " + System.IO.Path.GetFileName(image.Path) + " (edit before applying):", suggestion ?? "", false);
+                if (string.IsNullOrEmpty(alt)) return;
+                try
+                {
+                    AltText.Apply(_doc, block, src, alt.Trim());
+                    f.IsFixed = true;
+                    FeedbackLog.Record(f, _doc.SourcePath, suggestion != null && alt.Trim() == suggestion ? "accepted" : "edited", alt.Trim());
+                    Rebuild();
+                    _status.Text = Summary() + "  Alt text added as a tracked change.";
+                    Next();
+                }
+                catch (Exception ex) { Diagnostics.Log("Alt text apply", ex); _status.Text = "Could not apply: " + ex.Message; }
+            };
+            worker.RunWorkerAsync();
         }
 
         private void AcceptAllMechanical()
@@ -786,7 +826,7 @@ namespace FlareAI.Flare.UI
             var f = Current();
             var open = f != null && !f.IsFixed && !f.IsStale;
             _accept.Enabled = open;
-            _accept.Text = f == null ? "Accept" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Accept";
+            _accept.Text = f == null ? "Accept" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Suggest alt text…" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Accept";
             _reject.Enabled = f != null && !f.IsFixed;
             _edit.Enabled = open && f.Kind != "variable" && f.Kind != "manual";
             _refine.Enabled = open && !_reviewing;

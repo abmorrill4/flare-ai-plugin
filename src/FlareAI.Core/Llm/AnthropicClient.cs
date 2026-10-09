@@ -37,13 +37,24 @@ namespace FlareAI.Core.Llm
             {
                 ["model"] = model,
                 ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : 4096,
-                ["messages"] = new JArray(new JObject { ["role"] = "user", ["content"] = req.User ?? "" })
+                ["messages"] = new JArray(new JObject { ["role"] = "user", ["content"] = UserContent(req) })
             };
             // The system prompt (instructions + the whole layered style guide) is identical across calls: cache it,
             // so section-by-section reviews and repeat checks pay for it once.
             if (!string.IsNullOrEmpty(req.System))
                 body["system"] = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
             return body.ToString(Formatting.None);
+        }
+
+        /// <summary>Plain text, or image blocks followed by the text when the request carries images.</summary>
+        private static JToken UserContent(LlmRequest req)
+        {
+            if (req.Images == null || req.Images.Count == 0) return req.User ?? "";
+            var parts = new JArray();
+            foreach (var img in req.Images)
+                parts.Add(new JObject { ["type"] = "image", ["source"] = new JObject { ["type"] = "base64", ["media_type"] = img.MediaType, ["data"] = img.Base64 } });
+            parts.Add(new JObject { ["type"] = "text", ["text"] = req.User ?? "" });
+            return parts;
         }
 
         public LlmResponse Complete(LlmRequest request)

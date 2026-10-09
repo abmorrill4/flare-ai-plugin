@@ -10,6 +10,14 @@ namespace FlareAI.Core.Llm
         public int MaxTokens { get; set; }
         /// <summary>Optional hint for the provider to attach MCP tools (Bifrost: x-bf-mcp-include-tools).</summary>
         public string ToolsHint { get; set; }
+        /// <summary>Images sent before the text (vision): media type ("image/png") and base64 data.</summary>
+        public System.Collections.Generic.List<LlmImage> Images { get; set; }
+    }
+
+    public sealed class LlmImage
+    {
+        public string MediaType { get; set; }
+        public string Base64 { get; set; }
     }
 
     public sealed class LlmResponse
