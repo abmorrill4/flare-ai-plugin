@@ -150,6 +150,6 @@ HTML build…" does it automatically when you build in Flare. For `madbuild` / C
 
 ## License
 
-Code: MIT (`LICENSE`). The Google style guide rules are derived from the
+Code: MIT (`LICENSE`). Releases are signed through SignPath: see the [code signing policy](docs/code-signing.md). The Google style guide rules are derived from the
 [Google developer documentation style guide](https://developers.google.com/style) under CC BY 4.0. See `NOTICE.md`.
 Not affiliated with MadCap Software or Google.

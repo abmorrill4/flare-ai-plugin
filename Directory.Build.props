@@ -6,8 +6,10 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <Version>0.1.0</Version>
-    <Authors>Alkami Enterprise Technology</Authors>
-    <Product>FlareAI</Product>
+    <Authors>Praeviderant Inc.</Authors>
+    <Company>Praeviderant Inc.</Company>
+    <Copyright>Copyright (c) 2026 Praeviderant Inc.</Copyright>
+    <Product>House Style</Product>
   </PropertyGroup>
   <!-- Lets `dotnet build` target .NET Framework 4.0 / 4.8 on machines without the old targeting packs (incl. macOS). -->
   <ItemGroup>

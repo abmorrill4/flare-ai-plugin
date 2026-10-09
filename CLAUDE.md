@@ -25,6 +25,11 @@ A MadCap Flare Desktop plugin (`src/FlareAI.Flare`, net40) over a Flare-agnostic
 - Never log or print the API key. Settings use DPAPI; dev fallback is the `ANTHROPIC_API_KEY`
   env var, loaded from the git-ignored `.env` at the repo root by `scripts\Load-DotEnv.ps1`.
 
+- `ref/` holds compile-only stubs of the Flare API members the plugin uses (generated, never shipped); the build uses
+  them when `lib\B3.PluginAPIKit.dll` is absent (CI). After using a new Flare API member, regenerate:
+  `dotnet run --project tools/FlareAI.RefStubs -- src/FlareAI.Flare/bin/Release/net48/FlareAI.Flare.dll lib <net48 ref dir> ref`.
+  Packaging excludes every `B3.*` file. Releases: push a `v*` tag; CI builds, signs via SignPath, publishes (`docs/code-signing.md`).
+
 ## Commands
 ```powershell
 powershell.exe -File .\scripts\bootstrap.ps1   # first run; needs Windows PowerShell 5.1 (ReflectionOnly API)
