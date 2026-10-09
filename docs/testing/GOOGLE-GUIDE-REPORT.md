@@ -88,8 +88,9 @@ time. The first call of a check also runs alone, so the rest read the cache it w
 
   Teams turn these off in the Company folder's "Changes to the Google guide" table.
 - "we" and "will" are now AI judgment, not lint: Google states both rules as depending on context.
-- Rule ids are positional within each generated topic. When Google changes a page and it's recompiled, ids on that page
-  can shift, and feedback history for those rules restarts.
+- Rule ids are permanent (stored on each rule). A recompile keeps a rule's key when the new rule says the same thing
+  or covers mostly the same source passages (by content hash); keys of removed rules are retired, never reused.
+  Verified by recompiling three pages: every rule kept its key, including one the model reworded.
 - The 4 uncovered units and 6 dropped rows are listed in `tools/google-style/coverage.md` for a follow-up compile.
 
 ## Reproduce

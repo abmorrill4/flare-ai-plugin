@@ -136,7 +136,7 @@ namespace FlareAI.Flare.UI
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             _recheck = Btn(bar, "Re-check", (s, e) => { _aiOnStart = true; Start(); });
-            _ignore = Btn(bar, "Ignore rule…", (s, e) => IgnoreRule());
+            _ignore = Btn(bar, "Turn off rule…", (s, e) => IgnoreRule());
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
 
             var tips = new ToolTip();
@@ -301,6 +301,11 @@ namespace FlareAI.Flare.UI
                     var rule = _runner.RuleFor(f.RuleId);   // company/project table rules: label by guide section
                     if (rule != null) f.RuleSection = rule.Section;
                 }
+                if (f.RuleText == null && f.RuleId != null)
+                {
+                    var cited = _runner.RuleFor(f.RuleId);   // its wording now: feedback records a fingerprint of it
+                    if (cited != null) f.RuleText = cited.Text;
+                }
                 _findings.Add(f);
             }
             Rebuild();
@@ -426,7 +431,8 @@ namespace FlareAI.Flare.UI
             // Why: the reason, the rule as written in the guide, and its example.
             Line(_cardWhy, f.Suggestion, FontStyle.Regular);
             var rule = _runner.RuleFor(f.RuleId);
-            if (rule != null) Line(_cardWhy, "Rule " + rule.Id + ": " + rule.Text, FontStyle.Italic);
+            // The rule by what it says and where it lives; the id is only a reference for owners (Validate, Tune).
+            if (rule != null) Line(_cardWhy, (rule.Layer == "google" ? "Google" : rule.Layer == "project" ? "This project" : "Company") + " · " + rule.Section + ": " + rule.Text, FontStyle.Italic);
             var ex = _runner.ExampleFor(f.RuleId);
             if (ex != null)
             {
@@ -434,6 +440,7 @@ namespace FlareAI.Flare.UI
                 if (!string.IsNullOrEmpty(ex.Good)) Line(_cardWhy, "✓ " + ex.Good, FontStyle.Regular);
             }
             if (rule == null && f.Source == "ai") Line(_cardWhy, "General editing judgment (not tied to a guide rule).", FontStyle.Italic);
+            if (rule != null) Ref(_cardWhy, "Rule id " + rule.Id);
             _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
             UpdateButtons();
         }
@@ -444,6 +451,15 @@ namespace FlareAI.Flare.UI
             box.SelectionStart = box.TextLength;
             box.SelectionFont = new Font(box.Font, style);
             box.SelectionColor = SystemColors.ControlText;
+            box.AppendText((box.TextLength > 0 ? "\n" : "") + text);
+        }
+
+        /// <summary>A small grey reference line (rule ids: for owners, not something writers need to read).</summary>
+        private static void Ref(RichTextBox box, string text)
+        {
+            box.SelectionStart = box.TextLength;
+            box.SelectionFont = new Font(box.Font.FontFamily, box.Font.Size - 1.5f, FontStyle.Regular);
+            box.SelectionColor = SystemColors.GrayText;
             box.AppendText((box.TextLength > 0 ? "\n" : "") + text);
         }
 
@@ -721,21 +737,29 @@ namespace FlareAI.Flare.UI
                 _status.Text = Summary() + "  Sent to the style guide owner" + (team.FeedbackFolder == null ? " (set a team feedback folder in Settings so they receive it)." : ".");
                 return;
             }
-            var file = ProjectRules.OverridesPath(f.DocumentPath ?? _doc.SourcePath);
-            if (file == null) { _status.Text = "This topic is not inside a Flare project."; return; }
-            if (MessageBox.Show(this, "Turn off \"" + f.Rule + "\" for this whole project?\n\nThis writes to\n" + file +
-                    "\nwhich is shared with your team through source control. Delete the line to turn the rule back on.",
-                    "FlareAI — Ignore rule", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
-            try
+            // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
+            var rule = _runner.RuleFor(f.RuleId);
+            var guide = team != null ? team.GuideRoot : null;
+            var described = rule != null ? (rule.Layer == "google" ? "Google" : "Company") + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : f.Layer) + ")";
+            using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null))
             {
-                ProjectRules.Ignore(f.DocumentPath ?? _doc.SourcePath, f);
-                if (f.Layer == "ai") _ignoredAi.Add(f.Rule);
-                FeedbackLog.Record(f, _doc.SourcePath, "rule ignored");
-                _findings.RemoveAll(x => x.Rule == f.Rule);
-                Rebuild();
-                _status.Text = Summary() + "  \"" + f.Rule + "\" is off for this project.";
+                if (form.ShowDialog(this) != DialogResult.OK) return;
+                try
+                {
+                    string where;
+                    if (form.ForTeam) where = FlareAI.Core.Style.GuideOverrides.Set(guide, rule.Id, form.Setting, form.Reason);
+                    else { ProjectRules.Ignore(f.DocumentPath ?? _doc.SourcePath, f, form.Setting); where = ProjectRules.OverridesPath(f.DocumentPath ?? _doc.SourcePath); }
+                    FeedbackLog.Record(f, _doc.SourcePath, form.Setting == "off" ? "rule ignored" : "rule changed", form.Reason);
+                    if (form.Setting == "off")
+                    {
+                        if (f.Layer == "ai" && f.RuleId == null) _ignoredAi.Add(f.Rule);
+                        _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId : x.Rule == f.Rule);
+                        Rebuild();
+                    }
+                    _status.Text = Summary() + "  Rule set to " + form.Setting + (form.ForTeam ? " for the team (in " + System.IO.Path.GetFileName(where) + "; commit it so everyone gets it)." : " for this project.");
+                }
+                catch (Exception ex) { Diagnostics.Log("Change rule", ex); _status.Text = "Could not change the rule: " + ex.Message; }
             }
-            catch (Exception ex) { Diagnostics.Log("Ignore rule", ex); _status.Text = "Could not write " + file + ": " + ex.Message; }
         }
 
         // ---- navigation --------------------------------------------------------------------------
@@ -819,7 +843,7 @@ namespace FlareAI.Flare.UI
             return new StyleFinding
             {
                 Source = f.Source, Rule = f.Rule, Severity = f.Severity, Excerpt = f.Excerpt, Suggestion = f.Suggestion, Replacement = f.Replacement,
-                Before = f.Before, Block = f.Block, Layer = f.Layer, Link = f.Link, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection,
+                Before = f.Before, Block = f.Block, Layer = f.Layer, Link = f.Link, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, RuleText = f.RuleText,
                 DocumentPath = f.DocumentPath, Variable = f.Variable, Section = f.Section, Order = f.Order
             };
         }

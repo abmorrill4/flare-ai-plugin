@@ -6,80 +6,80 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/api-reference-comments">API reference code comments</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>Documentation basics</h2>
         <ul>
-            <li MadCap:conditions="Content.API">Provide a description for every class, interface, struct, and any other similar member of the API (such as union types in C++).</li>
-            <li MadCap:conditions="Content.API">Provide a description for every constant, field, enum, and typedef.</li>
-            <li MadCap:conditions="Content.API">Provide a description for every method, with a description for each parameter, the return value, and any exceptions thrown.</li>
-            <li MadCap:conditions="Content.API">On each unique page (for a class, interface, etc.), include a code sample (~5-20 lines) at the top.</li>
-            <li MadCap:conditions="Content.API">Put all API names, classes, methods, constants, and parameters in code font.</li>
-            <li MadCap:conditions="Content.API,Content.Links">Link each API name, class, method, constant, and parameter to the corresponding reference page.</li>
-            <li MadCap:conditions="Content.API">Put string literals in code font, and enclose them in double quotation marks.<ul><li>Good: &quot;wrap_content&quot;</li></ul></li>
-            <li MadCap:conditions="Content.API">Make sure that the spelling of a class name in documentation matches the spelling in code, with capital letters and no spaces.<ul><li>Good: ActionBar</li></ul></li>
-            <li MadCap:conditions="Content.API">Don&apos;t make class names plural; instead, add a plural noun.<ul><li>Bad: Intents, Activities</li><li>Good: Intent objects, Activity instances</li></ul></li>
-            <li MadCap:conditions="Content.API">If a class has a name that&apos;s a common term, you can refer to it with the corresponding English word, in lowercase and not in code font.<ul><li>Good: activities, action bar</li></ul></li>
+            <li id="rule-1" MadCap:conditions="Content.API">Provide a description for every class, interface, struct, and any other similar member of the API (such as union types in C++).</li>
+            <li id="rule-2" MadCap:conditions="Content.API">Provide a description for every constant, field, enum, and typedef.</li>
+            <li id="rule-3" MadCap:conditions="Content.API">Provide a description for every method, with a description for each parameter, the return value, and any exceptions thrown.</li>
+            <li id="rule-4" MadCap:conditions="Content.API">On each unique page (for a class, interface, etc.), include a code sample (~5-20 lines) at the top.</li>
+            <li id="rule-5" MadCap:conditions="Content.API">Put all API names, classes, methods, constants, and parameters in code font.</li>
+            <li id="rule-6" MadCap:conditions="Content.API,Content.Links">Link each API name, class, method, constant, and parameter to the corresponding reference page.</li>
+            <li id="rule-7" MadCap:conditions="Content.API">Put string literals in code font, and enclose them in double quotation marks.<ul><li>Good: &quot;wrap_content&quot;</li></ul></li>
+            <li id="rule-8" MadCap:conditions="Content.API">Make sure that the spelling of a class name in documentation matches the spelling in code, with capital letters and no spaces.<ul><li>Good: ActionBar</li></ul></li>
+            <li id="rule-9" MadCap:conditions="Content.API">Don&apos;t make class names plural; instead, add a plural noun.<ul><li>Bad: Intents, Activities</li><li>Good: Intent objects, Activity instances</li></ul></li>
+            <li id="rule-10" MadCap:conditions="Content.API">If a class has a name that&apos;s a common term, you can refer to it with the corresponding English word, in lowercase and not in code font.<ul><li>Good: activities, action bar</li></ul></li>
         </ul>
         <h2>Classes, interfaces, structs</h2>
         <ul>
-            <li MadCap:conditions="Content.API">In the first sentence of a class description, briefly state the intended purpose or function of the class or interface with information that can&apos;t be deduced from the class name and signature.<ul><li>Good: A primary toolbar within the activity that may display the activity title, application-level navigation affordances, and other interactive items.</li></ul></li>
-            <li MadCap:conditions="Content.API">In additional class documentation, elaborate on how to use the API, including how to invoke or instantiate it, what some of the key features are, and any best practices or pitfalls.</li>
-            <li MadCap:conditions="Content.API">Make the first sentence of each class description unique and descriptive, yet short.</li>
-            <li MadCap:conditions="Content.API">Don&apos;t repeat the class name in the first sentence.</li>
-            <li MadCap:conditions="Content.API">Don&apos;t say &quot;this class will/does ...&quot; in a class description.</li>
-            <li MadCap:conditions="Content.API">Don&apos;t use a period before the actual end of the first sentence, because some document generators naively terminate the short description at the first period.</li>
+            <li id="rule-11" MadCap:conditions="Content.API">In the first sentence of a class description, briefly state the intended purpose or function of the class or interface with information that can&apos;t be deduced from the class name and signature.<ul><li>Good: A primary toolbar within the activity that may display the activity title, application-level navigation affordances, and other interactive items.</li></ul></li>
+            <li id="rule-12" MadCap:conditions="Content.API">In additional class documentation, elaborate on how to use the API, including how to invoke or instantiate it, what some of the key features are, and any best practices or pitfalls.</li>
+            <li id="rule-13" MadCap:conditions="Content.API">Make the first sentence of each class description unique and descriptive, yet short.</li>
+            <li id="rule-14" MadCap:conditions="Content.API">Don&apos;t repeat the class name in the first sentence.</li>
+            <li id="rule-15" MadCap:conditions="Content.API">Don&apos;t say &quot;this class will/does ...&quot; in a class description.</li>
+            <li id="rule-16" MadCap:conditions="Content.API">Don&apos;t use a period before the actual end of the first sentence, because some document generators naively terminate the short description at the first period.</li>
         </ul>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.API"><td>e.g.</td><td>for example</td><td>warning</td><td>Generators may truncate the short description.</td><td>Returns a resource, e.g. a bird.</td></tr>
+            <tr id="rule-17" MadCap:conditions="Content.API"><td>e.g.</td><td>for example</td><td>warning</td><td>Generators may truncate the short description.</td><td>Returns a resource, e.g. a bird.</td></tr>
         </table>
         <h2>Members</h2>
         <ul>
-            <li MadCap:conditions="Content.API">Make descriptions for members (constants and fields) as brief as possible.<ul><li>Good: Show &apos;home&apos; elements in this action bar, leaving more space for other navigation elements. This includes logo and icon.</li></ul></li>
-            <li MadCap:conditions="Content.API">In member descriptions, be sure to link to relevant methods that use the constant or field.<ul><li>Good: See also: setDisplayOptions(int), setDisplayOptions(int, int)</li></ul></li>
+            <li id="rule-18" MadCap:conditions="Content.API">Make descriptions for members (constants and fields) as brief as possible.<ul><li>Good: Show &apos;home&apos; elements in this action bar, leaving more space for other navigation elements. This includes logo and icon.</li></ul></li>
+            <li id="rule-19" MadCap:conditions="Content.API">In member descriptions, be sure to link to relevant methods that use the constant or field.<ul><li>Good: See also: setDisplayOptions(int), setDisplayOptions(int, int)</li></ul></li>
         </ul>
         <h2>Methods</h2>
         <ul>
-            <li MadCap:conditions="Content.API">In the first sentence for a method description, briefly state what action the method performs.<ul><li>Good: Checks whether this activity is in the process of being destroyed in order to be recreated with a new configuration.</li></ul></li>
-            <li MadCap:conditions="Content.API">In subsequent sentences of a method description, explain why and how to use the method, state any prerequisites that must be met before calling it, give details about exceptions that may occur, and specify any related APIs.</li>
-            <li MadCap:conditions="Content.API">Document any dependencies (such as Android permissions) that are needed to call the method, and how the method behaves if such a dependency is missing.<ul><li>Good: the method throws a SecurityException</li></ul></li>
-            <li MadCap:conditions="Content.API">Use present tense for all descriptions.<ul><li>Good: Adds a new bird to the ornithology list.</li></ul></li>
+            <li id="rule-20" MadCap:conditions="Content.API">In the first sentence for a method description, briefly state what action the method performs.<ul><li>Good: Checks whether this activity is in the process of being destroyed in order to be recreated with a new configuration.</li></ul></li>
+            <li id="rule-21" MadCap:conditions="Content.API">In subsequent sentences of a method description, explain why and how to use the method, state any prerequisites that must be met before calling it, give details about exceptions that may occur, and specify any related APIs.</li>
+            <li id="rule-22" MadCap:conditions="Content.API">Document any dependencies (such as Android permissions) that are needed to call the method, and how the method behaves if such a dependency is missing.<ul><li>Good: the method throws a SecurityException</li></ul></li>
+            <li id="rule-23" MadCap:conditions="Content.API">Use present tense for all descriptions.<ul><li>Good: Adds a new bird to the ornithology list.</li></ul></li>
         </ul>
         <h2>Description</h2>
         <ul>
-            <li MadCap:conditions="Content.API">If a method performs an operation and returns some data, start the description with a verb describing the operation.<ul><li>Good: Adds a new bird to the ornithology list and returns the ID of the new entry.</li></ul></li>
-            <li MadCap:conditions="Content.API">If it&apos;s a &quot;getter&quot; method and it returns a boolean, start with &quot;Checks whether ....&quot;</li>
-            <li MadCap:conditions="Content.API">If it&apos;s a &quot;getter&quot; method and it returns something other than a boolean, start with &quot;Gets the ....&quot;</li>
-            <li MadCap:conditions="Content.API">If a method has no return value, start with a verb such as &quot;Sets the ....&quot; (turning on an ability or setting), &quot;Updates the ....&quot; (updating a property), &quot;Deletes the ....&quot; (deleting something), or &quot;Registers ....&quot; (registering a callback or other element for later reference).</li>
-            <li MadCap:conditions="Content.API">For a callback, start with &quot;Called by ....&quot; (for example, &quot;Called by Android when ....&quot;).<ul><li>Good: Called by Android when ....</li></ul></li>
-            <li MadCap:conditions="Content.API">For a callback, later in the description say &quot;Subclasses implement this method to ....&quot;</li>
-            <li MadCap:conditions="Content.API">If it&apos;s a convenience method that constructs the class object, start with &quot;Creates a ....&quot;</li>
+            <li id="rule-24" MadCap:conditions="Content.API">If a method performs an operation and returns some data, start the description with a verb describing the operation.<ul><li>Good: Adds a new bird to the ornithology list and returns the ID of the new entry.</li></ul></li>
+            <li id="rule-25" MadCap:conditions="Content.API">If it&apos;s a &quot;getter&quot; method and it returns a boolean, start with &quot;Checks whether ....&quot;</li>
+            <li id="rule-26" MadCap:conditions="Content.API">If it&apos;s a &quot;getter&quot; method and it returns something other than a boolean, start with &quot;Gets the ....&quot;</li>
+            <li id="rule-27" MadCap:conditions="Content.API">If a method has no return value, start with a verb such as &quot;Sets the ....&quot; (turning on an ability or setting), &quot;Updates the ....&quot; (updating a property), &quot;Deletes the ....&quot; (deleting something), or &quot;Registers ....&quot; (registering a callback or other element for later reference).</li>
+            <li id="rule-28" MadCap:conditions="Content.API">For a callback, start with &quot;Called by ....&quot; (for example, &quot;Called by Android when ....&quot;).<ul><li>Good: Called by Android when ....</li></ul></li>
+            <li id="rule-29" MadCap:conditions="Content.API">For a callback, later in the description say &quot;Subclasses implement this method to ....&quot;</li>
+            <li id="rule-30" MadCap:conditions="Content.API">If it&apos;s a convenience method that constructs the class object, start with &quot;Creates a ....&quot;</li>
         </ul>
         <h2>Parameters</h2>
         <ul>
-            <li MadCap:conditions="Content.API">Capitalize the first word of a parameter description.</li>
-            <li MadCap:conditions="Content.API">End a parameter description sentence or phrase with a period.</li>
-            <li MadCap:conditions="Content.API">Begin descriptions of non-boolean parameters with &quot;The&quot; or &quot;A&quot; if possible.<ul><li>Good: The ID of the bird you want to get.</li></ul></li>
-            <li MadCap:conditions="Content.API">For boolean parameters that tell the API to do or not do something, state what the API does if the parameter is true and if it&apos;s false.<ul><li>Good: enableCertificateValidation: If true, validates the SSL certificate before proceeding. If false, trusts the certificate without validating it.</li></ul></li>
-            <li MadCap:conditions="Content.API">For boolean parameters that declare the already-established state of something, use the format &quot;True if ...; false otherwise.&quot;<ul><li>Good: True if the zoom is set; false otherwise.</li></ul></li>
-            <li MadCap:conditions="Content.API">In boolean parameter and return value descriptions, don&apos;t put the words &quot;true&quot; and &quot;false&quot; in code font or quotation marks.</li>
-            <li MadCap:conditions="Content.API">For parameters with default behavior, explain what the behavior is for each value or range of values, and then say what the default value is.</li>
-            <li MadCap:conditions="Content.API">Use the format Default: to explain the default value of a parameter.</li>
+            <li id="rule-31" MadCap:conditions="Content.API">Capitalize the first word of a parameter description.</li>
+            <li id="rule-32" MadCap:conditions="Content.API">End a parameter description sentence or phrase with a period.</li>
+            <li id="rule-33" MadCap:conditions="Content.API">Begin descriptions of non-boolean parameters with &quot;The&quot; or &quot;A&quot; if possible.<ul><li>Good: The ID of the bird you want to get.</li></ul></li>
+            <li id="rule-34" MadCap:conditions="Content.API">For boolean parameters that tell the API to do or not do something, state what the API does if the parameter is true and if it&apos;s false.<ul><li>Good: enableCertificateValidation: If true, validates the SSL certificate before proceeding. If false, trusts the certificate without validating it.</li></ul></li>
+            <li id="rule-35" MadCap:conditions="Content.API">For boolean parameters that declare the already-established state of something, use the format &quot;True if ...; false otherwise.&quot;<ul><li>Good: True if the zoom is set; false otherwise.</li></ul></li>
+            <li id="rule-36" MadCap:conditions="Content.API">In boolean parameter and return value descriptions, don&apos;t put the words &quot;true&quot; and &quot;false&quot; in code font or quotation marks.</li>
+            <li id="rule-37" MadCap:conditions="Content.API">For parameters with default behavior, explain what the behavior is for each value or range of values, and then say what the default value is.</li>
+            <li id="rule-38" MadCap:conditions="Content.API">Use the format Default: to explain the default value of a parameter.</li>
         </ul>
         <h2>Return values</h2>
         <ul>
-            <li MadCap:conditions="Content.API">Be as brief as possible in the return value&apos;s description; put any detailed information in the class description.</li>
-            <li MadCap:conditions="Content.API">If the return value is anything other than a boolean, start with &quot;The ...&quot;.<ul><li>Good: The bird specified by the given ID.</li></ul></li>
-            <li MadCap:conditions="Content.API">If the return value is a boolean, use the format &quot;True if ...; false otherwise.&quot;<ul><li>Good: True if the bird is in the sanctuary; false otherwise.</li></ul></li>
+            <li id="rule-39" MadCap:conditions="Content.API">Be as brief as possible in the return value&apos;s description; put any detailed information in the class description.</li>
+            <li id="rule-40" MadCap:conditions="Content.API">If the return value is anything other than a boolean, start with &quot;The ...&quot;.<ul><li>Good: The bird specified by the given ID.</li></ul></li>
+            <li id="rule-41" MadCap:conditions="Content.API">If the return value is a boolean, use the format &quot;True if ...; false otherwise.&quot;<ul><li>Good: True if the bird is in the sanctuary; false otherwise.</li></ul></li>
         </ul>
         <h2>Exceptions</h2>
         <ul>
-            <li MadCap:conditions="Content.API">In languages where the reference generator automatically inserts the word &quot;Throws&quot;, begin your exception description with &quot;If ...&quot;.<ul><li>Good: If no key is assigned.</li></ul></li>
-            <li MadCap:conditions="Content.API">Where the reference generator doesn&apos;t insert &quot;Throws&quot;, begin your exception description with &quot;Thrown when ...&quot;.<ul><li>Good: Thrown when no key is assigned.</li></ul></li>
+            <li id="rule-42" MadCap:conditions="Content.API">In languages where the reference generator automatically inserts the word &quot;Throws&quot;, begin your exception description with &quot;If ...&quot;.<ul><li>Good: If no key is assigned.</li></ul></li>
+            <li id="rule-43" MadCap:conditions="Content.API">Where the reference generator doesn&apos;t insert &quot;Throws&quot;, begin your exception description with &quot;Thrown when ...&quot;.<ul><li>Good: Thrown when no key is assigned.</li></ul></li>
         </ul>
         <h2>Deprecations</h2>
         <ul>
-            <li MadCap:conditions="Content.API">When something is deprecated, tell the user what to use as a replacement.<ul><li>Good: Deprecated. Use #CameraPose instead.</li></ul></li>
-            <li MadCap:conditions="Content.API">If you track your API with version numbers, mention which version something was first deprecated in.</li>
-            <li MadCap:conditions="Content.API">Put the most important deprecation information in the first sentence of the description; use subsequent sentences to explain why something is deprecated and any other useful information.</li>
-            <li MadCap:conditions="Content.API">If a method is deprecated, tell the reader what to do to make their code work.<ul><li>Good: Deprecated. Access this field using the getField method.</li></ul></li>
+            <li id="rule-44" MadCap:conditions="Content.API">When something is deprecated, tell the user what to use as a replacement.<ul><li>Good: Deprecated. Use #CameraPose instead.</li></ul></li>
+            <li id="rule-45" MadCap:conditions="Content.API">If you track your API with version numbers, mention which version something was first deprecated in.</li>
+            <li id="rule-46" MadCap:conditions="Content.API">Put the most important deprecation information in the first sentence of the description; use subsequent sentences to explain why something is deprecated and any other useful information.</li>
+            <li id="rule-47" MadCap:conditions="Content.API">If a method is deprecated, tell the reader what to do to make their code work.<ul><li>Good: Deprecated. Access this field using the getField method.</li></ul></li>
         </ul>
     </body>
 </html>

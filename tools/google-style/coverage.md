@@ -23,30 +23,30 @@
 | other-sources | pack:links | 9 | 5 | 0 | 0 |  |
 | timeless-documentation | core | 28 | 20 | 4 | 0 |  |
 | tone | core | 34 | 28 | 6 | 0 |  |
-| abbreviations | core | 74 | 28 | 19 | 0 |  |
+| abbreviations | pack:abbreviations | 74 | 28 | 19 | 0 |  |
 | voice | core | 16 | 6 | 1 | 0 |  |
 | anthropomorphism | core | 6 | 2 | 0 | 0 |  |
 | articles | core | 7 | 1 | 4 | 0 |  |
 | capitalization | core | 26 | 19 | 4 | 0 |  |
-| contractions | core | 5 | 7 | 0 | 0 |  |
+| contractions | pack:apostrophes | 5 | 7 | 0 | 0 |  |
 | pluralization | core | 46 | 18 | 6 | 0 |  |
-| possessives | core | 26 | 9 | 2 | 0 |  |
+| possessives | pack:apostrophes | 26 | 9 | 2 | 0 |  |
 | prepositions | core | 6 | 4 | 1 | 0 |  |
 | tense | core | 12 | 4 | 0 | 0 |  |
 | pronouns | core | 33 | 14 | 5 | 0 |  |
 | person | core | 16 | 13 | 0 | 0 |  |
 | sentence-structure | core | 5 | 1 | 1 | 0 |  |
 | reference-verbs | pack:table | 5 | 1 | 1 | 0 |  |
-| colons | core | 10 | 2 | 4 | 0 |  |
+| colons | pack:colons | 10 | 2 | 4 | 0 |  |
 | commas | core | 28 | 10 | 5 | 0 |  |
-| dashes | core | 21 | 6 | 11 | 0 |  |
-| ellipses | core | 14 | 12 | 0 | 0 |  |
-| hyphens | core | 80 | 34 | 6 | 0 |  |
-| parentheses | core | 9 | 4 | 0 | 0 |  |
+| dashes | pack:dashes | 21 | 6 | 11 | 0 |  |
+| ellipses | pack:ellipses | 14 | 12 | 0 | 0 |  |
+| hyphens | pack:hyphens | 80 | 34 | 6 | 0 |  |
+| parentheses | pack:parentheses | 9 | 4 | 0 | 0 |  |
 | periods | core | 42 | 20 | 11 | 2 |  |
-| quotation-marks | core | 34 | 14 | 2 | 0 |  |
-| semicolons | core | 4 | 4 | 0 | 0 |  |
-| slashes | core | 27 | 15 | 1 | 0 |  |
+| quotation-marks | pack:quotes | 34 | 14 | 2 | 0 |  |
+| semicolons | pack:semicolons | 4 | 4 | 0 | 0 |  |
+| slashes | pack:slashes | 27 | 15 | 1 | 0 |  |
 | dates-times | pack:numbers | 52 | 38 | 6 | 0 |  |
 | format-examples | pack:code | 5 | 5 | 2 | 0 |  |
 | images | pack:images | 98 | 70 | 28 | 0 |  |
@@ -182,7 +182,7 @@
 - lists: Discretionary choice, no requirement (lists#122)
 - possessives: Introduction (possessives#1)
 - possessives: Cross-reference pointer (possessives#26)
-- future: Cross-reference pointer (future#2)
+- future: Cross-reference pointer to other pages (future#2)
 - prepositions: Cross-reference pointer to another page. (prepositions#6)
 - slashes: Cross-reference pointer to another page (slashes#3)
 - hyphens: Introduction to guidelines (hyphens#2)
@@ -229,7 +229,10 @@
 - notices: Introduction to list (notices#4)
 - notices: HTML markup recommendation for sites (notices#19)
 - notices: HTML code sample (notices#20)
-- articles: Cross-reference pointer (articles#4, articles#5, articles#6, articles#7)
+- articles: Pointer to Write for a global audience (articles#4)
+- articles: Pointer to Headings and titles (articles#5)
+- articles: Pointer to Articles before product names (articles#6)
+- articles: Pointer to Indefinite articles before abbreviations (articles#7)
 - filenames: Section introduction (filenames#13)
 - filenames: Introduction to list (filenames#14)
 - units-of-measure: Pointer to Abbreviations page (units-of-measure#3)

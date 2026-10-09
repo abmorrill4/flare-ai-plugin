@@ -54,6 +54,11 @@ namespace FlareAI.Core.Style
         public List<string> Applies = new List<string>();
         /// <summary>Product condition tags: the rule applies only to these products (empty = every product).</summary>
         public List<string> Products = new List<string>();
+        /// <summary>True when the rule's id comes from its permanent key (id="rule-…" on its bullet or row), not its position.</summary>
+        public bool HasKey { get; set; }
+        /// <summary>The bullet or table row the rule is written in, and its position in the topic (for assigning keys).</summary>
+        internal System.Xml.XmlElement Element;
+        internal int Position;
         /// <summary>A row of an Avoid/Use or Pattern table: the linter enforces it, so it isn't sent to the AI.</summary>
         public bool IsLint { get; set; }
         /// <summary>Words or phrases the rule is about (a Term/Rule table row): it applies only when the text uses one.</summary>

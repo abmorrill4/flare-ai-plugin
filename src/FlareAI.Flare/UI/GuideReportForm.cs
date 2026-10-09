@@ -56,7 +56,14 @@ namespace FlareAI.Flare.UI
         private new void Validate()
         {
             var worker = new BackgroundWorker();
-            worker.DoWork += (s, e) => e.Result = new object[] { _style.Validate(_project), _style.Examples(_project) };
+            worker.DoWork += (s, e) =>
+            {
+                // Owners (or a writer with no team) give new rules their permanent keys first: ids that never shift.
+                var keyed = 0;
+                var engine = _style as StyleEngine;
+                if (engine != null && (Team.Current == null || Team.Current.IsOwner)) keyed = engine.AssignKeys();
+                e.Result = new object[] { _style.Validate(_project), _style.Examples(_project), keyed };
+            };
             worker.RunWorkerCompleted += (s, e) =>
             {
                 if (IsDisposed) return;
@@ -66,7 +73,8 @@ namespace FlareAI.Flare.UI
                 var report = (GuideReport)parts[0];
                 _examples = (IList<GuideExample>)parts[1];
                 Write(report);
-                _status.Text = (report.Errors == 0 ? "Rule tables pass." : report.Errors + " error(s) to fix.") +
+                var keyed = (int)parts[2];
+                _status.Text = (keyed > 0 ? "Gave " + keyed + " new rule(s) permanent ids.  " : "") + (report.Errors == 0 ? "Rule tables pass." : report.Errors + " error(s) to fix.") +
                                (_examples.Count > 0 ? "  " + _examples.Count + " prose rule(s) have Bad/Good examples you can check against the AI." : "");
                 _ai.Enabled = _examples.Count > 0;
             };

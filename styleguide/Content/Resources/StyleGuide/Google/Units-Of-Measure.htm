@@ -6,66 +6,66 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/units-of-measure">Units of measurement</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>Spaces in units of measurement</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">For most units of measurement, when you specify a number with the unit, use a nonbreaking space between the number and the unit.<ul><li>Bad: 64GB</li><li>Good: 64&amp;nbsp;GB (64 GB)</li></ul></li>
-            <li MadCap:conditions="Content.Numbers">When the unit of measure is money or percent or degrees of an angle, don&apos;t use a space.<ul><li>Good: $10</li></ul></li>
-            <li MadCap:conditions="Content.Numbers">For degrees of temperature, include a nonbreaking space between the number and the degree symbol, and don&apos;t use a space between the degree symbol and the temperature scale (F or C).<ul><li>Good: 50 °C</li></ul></li>
+            <li id="rule-1" MadCap:conditions="Content.Numbers">For most units of measurement, when you specify a number with the unit, use a nonbreaking space between the number and the unit.<ul><li>Bad: 64GB</li><li>Good: 64&amp;nbsp;GB (64 GB)</li></ul></li>
+            <li id="rule-2" MadCap:conditions="Content.Numbers">When the unit of measure is money or percent or degrees of an angle, don&apos;t use a space.<ul><li>Good: $10</li></ul></li>
+            <li id="rule-3" MadCap:conditions="Content.Numbers">For degrees of temperature, include a nonbreaking space between the number and the degree symbol, and don&apos;t use a space between the degree symbol and the temperature scale (F or C).<ul><li>Good: 50 °C</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>(?&lt;![\w.])\d+(?:\.\d+)?(?:kB|KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB|mm|cm|km)\b</td><td></td><td>warning</td><td>Number and unit need a nonbreaking space.</td><td>The disk has 64GB of storage.</td></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>(?&lt;![\w.])\d+(?:\.\d+)? (?:kB|KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB|mm|cm|km)\b</td><td></td><td>suggestion</td><td>A regular space lets the unit wrap to the next line.</td><td>The disk has 64 GB of storage.</td></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>(?&lt;=\d)[ \u00A0]+%</td><td></td><td>warning</td><td></td><td>Usage reached 65 % of the quota.</td></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>[$£€][ \u00A0]+\d</td><td></td><td>warning</td><td></td><td>The plan costs $ 10 per month.</td></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>(?&lt;=\d)°[CF]\b</td><td></td><td>warning</td><td></td><td>The device operates at 50°C.</td></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>°[ \u00A0]+[CF]\b</td><td></td><td>warning</td><td></td><td>The device operates at 50 ° C.</td></tr>
+            <tr id="rule-4" MadCap:conditions="Content.Numbers"><td>(?&lt;![\w.])\d+(?:\.\d+)?(?:kB|KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB|mm|cm|km)\b</td><td></td><td>warning</td><td>Number and unit need a nonbreaking space.</td><td>The disk has 64GB of storage.</td></tr>
+            <tr id="rule-5" MadCap:conditions="Content.Numbers"><td>(?&lt;![\w.])\d+(?:\.\d+)? (?:kB|KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB|mm|cm|km)\b</td><td></td><td>suggestion</td><td>A regular space lets the unit wrap to the next line.</td><td>The disk has 64 GB of storage.</td></tr>
+            <tr id="rule-6" MadCap:conditions="Content.Numbers"><td>(?&lt;=\d)[ \u00A0]+%</td><td></td><td>warning</td><td></td><td>Usage reached 65 % of the quota.</td></tr>
+            <tr id="rule-7" MadCap:conditions="Content.Numbers"><td>[$£€][ \u00A0]+\d</td><td></td><td>warning</td><td></td><td>The plan costs $ 10 per month.</td></tr>
+            <tr id="rule-8" MadCap:conditions="Content.Numbers"><td>(?&lt;=\d)°[CF]\b</td><td></td><td>warning</td><td></td><td>The device operates at 50°C.</td></tr>
+            <tr id="rule-9" MadCap:conditions="Content.Numbers"><td>°[ \u00A0]+[CF]\b</td><td></td><td>warning</td><td></td><td>The device operates at 50 ° C.</td></tr>
         </table>
         <h2>Markdown</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">For Kelvin temperatures, leave out the degree symbol but use a nonbreaking space before the K.<ul><li>Good: 300 K</li></ul></li>
-            <li MadCap:conditions="Content.Numbers">When a number and unit of measurement combine to modify a noun, don&apos;t hyphenate unless the hyphen is needed for clarity.<ul><li>Good: 200&amp;nbsp;GB disk (200 GB disk)</li></ul></li>
+            <li id="rule-10" MadCap:conditions="Content.Numbers">For Kelvin temperatures, leave out the degree symbol but use a nonbreaking space before the K.<ul><li>Good: 300 K</li></ul></li>
+            <li id="rule-11" MadCap:conditions="Content.Numbers">When a number and unit of measurement combine to modify a noun, don&apos;t hyphenate unless the hyphen is needed for clarity.<ul><li>Good: 200&amp;nbsp;GB disk (200 GB disk)</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>\d[ \u00A0]?°[ \u00A0]?K\b</td><td></td><td>warning</td><td>Kelvin temperatures don&apos;t use a degree symbol.</td><td>The sample is cooled to 300 °K.</td></tr>
+            <tr id="rule-12" MadCap:conditions="Content.Numbers"><td>\d[ \u00A0]?°[ \u00A0]?K\b</td><td></td><td>warning</td><td>Kelvin temperatures don&apos;t use a degree symbol.</td><td>The sample is cooled to 300 °K.</td></tr>
         </table>
         <h2>Ranges of numbers with units</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">In a range of numbers, repeat the unit for each number; unit includes symbols and abbreviations but not nouns.<ul><li>Bad: -40-85 °C</li><li>Good: -40 °C to 85 °C</li></ul></li>
-            <li MadCap:conditions="Content.Numbers">Use the word to between the numbers in a range, rather than a hyphen.<ul><li>Bad: -40-85 °C</li><li>Good: -40 °C to 85 °C</li></ul></li>
+            <li id="rule-13" MadCap:conditions="Content.Numbers">In a range of numbers, repeat the unit for each number; unit includes symbols and abbreviations but not nouns.<ul><li>Bad: -40-85 °C</li><li>Good: -40 °C to 85 °C</li></ul></li>
+            <li id="rule-14" MadCap:conditions="Content.Numbers">Use the word to between the numbers in a range, rather than a hyphen.<ul><li>Bad: -40-85 °C</li><li>Good: -40 °C to 85 °C</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>\d+[-–]\d+[ \u00A0]?(?:°[CF]|kB|KB|MB|GB|TB|KiB|MiB|GiB|TiB|%)</td><td></td><td>warning</td><td>A hyphen can be misinterpreted as a subtraction sign.</td><td>The operating range is -40-85 °C.</td></tr>
+            <tr id="rule-15" MadCap:conditions="Content.Numbers"><td>\d+[-–]\d+[ \u00A0]?(?:°[CF]|kB|KB|MB|GB|TB|KiB|MiB|GiB|TiB|%)</td><td></td><td>warning</td><td>A hyphen can be misinterpreted as a subtraction sign.</td><td>The operating range is -40-85 °C.</td></tr>
         </table>
         <h2>Hyphens with multiplied units</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">When the components of a unit of measurement are multiplied by each other, hyphenate them.<ul><li>Good: 5 vCPU-hours</li></ul></li>
+            <li id="rule-16" MadCap:conditions="Content.Numbers">When the components of a unit of measurement are multiplied by each other, hyphenate them.<ul><li>Good: 5 vCPU-hours</li></ul></li>
         </ul>
         <h2>Use k to indicate thousands</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">If you indicate thousands with a lowercase k, add a noun to indicate what the number measures, to make clear that you&apos;re not using k as an abbreviation for kilobytes.<ul><li>Good: On this plan, you are limited to 55k download operations and 20k upload operations per day.</li></ul></li>
+            <li id="rule-17" MadCap:conditions="Content.Numbers">If you indicate thousands with a lowercase k, add a noun to indicate what the number measures, to make clear that you&apos;re not using k as an abbreviation for kilobytes.<ul><li>Good: On this plan, you are limited to 55k download operations and 20k upload operations per day.</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>(?&lt;=\d)[ \u00A0]k\b</td><td></td><td>warning</td><td></td><td>You are limited to 55 k download operations.</td></tr>
+            <tr id="rule-18" MadCap:conditions="Content.Numbers"><td>(?&lt;=\d)[ \u00A0]k\b</td><td></td><td>warning</td><td></td><td>You are limited to 55 k download operations.</td></tr>
         </table>
         <h2>Currency</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">If you&apos;re writing about monetary amounts, make sure that the reader knows what currency you&apos;re referring to.</li>
-            <li MadCap:conditions="Content.Numbers">If there&apos;s any possibility of ambiguity, use a currency indicator before the amount.<ul><li>Good: US$10</li></ul></li>
+            <li id="rule-19" MadCap:conditions="Content.Numbers">If you&apos;re writing about monetary amounts, make sure that the reader knows what currency you&apos;re referring to.</li>
+            <li id="rule-20" MadCap:conditions="Content.Numbers">If there&apos;s any possibility of ambiguity, use a currency indicator before the amount.<ul><li>Good: US$10</li></ul></li>
         </ul>
         <h2>Rates</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">Use per instead of the division slash (/) when space permits; it&apos;s OK to use the slash when space is limited, such as in a table with small cells.<ul><li>Bad: requests/day</li><li>Good: requests per day</li></ul></li>
-            <li MadCap:conditions="Content.Numbers">Shorten per to p only for well-established abbreviations for rate units, such as Gbps for gigabits per second or MBps for megabytes per second.<ul><li>Bad: Gb/s</li><li>Good: Gbps</li></ul></li>
+            <li id="rule-21" MadCap:conditions="Content.Numbers">Use per instead of the division slash (/) when space permits; it&apos;s OK to use the slash when space is limited, such as in a table with small cells.<ul><li>Bad: requests/day</li><li>Good: requests per day</li></ul></li>
+            <li id="rule-22" MadCap:conditions="Content.Numbers">Shorten per to p only for well-established abbreviations for rate units, such as Gbps for gigabits per second or MBps for megabytes per second.<ul><li>Bad: Gb/s</li><li>Good: Gbps</li></ul></li>
         </ul>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>Gb/s</td><td>Gbps</td><td>warning</td><td></td><td>The link supports 10 Gb/s.</td></tr>
+            <tr id="rule-23" MadCap:conditions="Content.Numbers"><td>Gb/s</td><td>Gbps</td><td>warning</td><td></td><td>The link supports 10 Gb/s.</td></tr>
         </table>
         <h2>Decimal and binary units</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">Use the same system to measure bytes as the technology that you&apos;re documenting; don&apos;t use MB if you mean MiB, or GB if you mean GiB.</li>
+            <li id="rule-24" MadCap:conditions="Content.Numbers">Use the same system to measure bytes as the technology that you&apos;re documenting; don&apos;t use MB if you mean MiB, or GB if you mean GiB.</li>
         </ul>
     </body>
 </html>

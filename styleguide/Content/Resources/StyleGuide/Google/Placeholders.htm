@@ -6,57 +6,57 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/placeholders">Placeholder formatting</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>Placeholders</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">In general, don&apos;t use a single x or a series of x&apos;s as placeholders; use a more informative placeholder, except in contexts (such as HTTP status codes) where a series of x&apos;s is the standard.</li>
+            <li id="rule-1" MadCap:conditions="Content.Code">In general, don&apos;t use a single x or a series of x&apos;s as placeholders; use a more informative placeholder, except in contexts (such as HTTP status codes) where a series of x&apos;s is the standard.</li>
         </ul>
         <h2>Placeholders in inline text</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">If your sample code and command placeholders occur in a sentence, wrap them by using the var element inside a code element, like this: &lt;code&gt;&lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;&lt;/code&gt;.<ul><li>Good: &lt;code&gt;&lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;&lt;/code&gt;</li></ul></li>
-            <li MadCap:conditions="Content.Code">If your placeholder does not represent a code sample or command, wrap it by using the var element, like this: &lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;.<ul><li>Good: &lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;</li></ul></li>
+            <li id="rule-2" MadCap:conditions="Content.Code">If your sample code and command placeholders occur in a sentence, wrap them by using the var element inside a code element, like this: &lt;code&gt;&lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;&lt;/code&gt;.<ul><li>Good: &lt;code&gt;&lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;&lt;/code&gt;</li></ul></li>
+            <li id="rule-3" MadCap:conditions="Content.Code">If your placeholder does not represent a code sample or command, wrap it by using the var element, like this: &lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;.<ul><li>Good: &lt;var&gt;PLACEHOLDER_NAME&lt;/var&gt;</li></ul></li>
         </ul>
         <h2>Placeholders in code blocks</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">If your placeholders are in a block of code, wrap the code block in a pre element, and tag placeholders with var elements.<ul><li>Good: &lt;pre&gt; gcloud compute forwarding-rules create &lt;var&gt;FORWARDING_RULE_NAME&lt;/var&gt; \ --global | --region=&lt;var&gt;REGION&lt;/var&gt; \ --load-balancing-scheme=&lt;var&gt;LOAD_BALANCING_SCHEME&lt;/var&gt; \ --network=&lt;var&gt;NETWORK&lt;/var&gt; \ ... &lt;/pre&gt;</li></ul></li>
+            <li id="rule-4" MadCap:conditions="Content.Code">If your placeholders are in a block of code, wrap the code block in a pre element, and tag placeholders with var elements.<ul><li>Good: &lt;pre&gt; gcloud compute forwarding-rules create &lt;var&gt;FORWARDING_RULE_NAME&lt;/var&gt; \ --global | --region=&lt;var&gt;REGION&lt;/var&gt; \ --load-balancing-scheme=&lt;var&gt;LOAD_BALANCING_SCHEME&lt;/var&gt; \ --network=&lt;var&gt;NETWORK&lt;/var&gt; \ ... &lt;/pre&gt;</li></ul></li>
         </ul>
         <h2>Placeholder text</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">Use uppercase characters with underscore delimiters in placeholder text.<ul><li>Bad: .../&lt;var&gt;API-name&lt;/var&gt;</li><li>Good: .../&lt;var&gt;API_NAME&lt;/var&gt;</li></ul></li>
-            <li MadCap:conditions="Content.Code">If the context in which your placeholders appear makes using uppercase characters with underscore delimiters a bad idea, use something else that makes sense to you, but be internally consistent.</li>
-            <li MadCap:conditions="Content.Code">Don&apos;t include possessive adjectives in placeholders.<ul><li>Bad: .../&lt;var&gt;MY_API_NAME&lt;/var&gt;</li><li>Good: .../&lt;var&gt;API_NAME&lt;/var&gt;</li></ul></li>
+            <li id="rule-5" MadCap:conditions="Content.Code">Use uppercase characters with underscore delimiters in placeholder text.<ul><li>Bad: .../&lt;var&gt;API-name&lt;/var&gt;</li><li>Good: .../&lt;var&gt;API_NAME&lt;/var&gt;</li></ul></li>
+            <li id="rule-6" MadCap:conditions="Content.Code">If the context in which your placeholders appear makes using uppercase characters with underscore delimiters a bad idea, use something else that makes sense to you, but be internally consistent.</li>
+            <li id="rule-7" MadCap:conditions="Content.Code">Don&apos;t include possessive adjectives in placeholders.<ul><li>Bad: .../&lt;var&gt;MY_API_NAME&lt;/var&gt;</li><li>Good: .../&lt;var&gt;API_NAME&lt;/var&gt;</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Code"><td>&lt;var&gt;[^&lt;]*[a-z \-][^&lt;]*&lt;/var&gt;</td><td></td><td>suggestion</td><td>Placeholders use uppercase with underscore delimiters.</td><td>.../&lt;var&gt;apiName&lt;/var&gt;</td></tr>
-            <tr MadCap:conditions="Content.Code"><td>&lt;var&gt;(?:MY|YOUR|OUR|THEIR)_[A-Z0-9_]+&lt;/var&gt;</td><td></td><td>warning</td><td>Placeholders shouldn&apos;t contain possessive adjectives.</td><td>.../&lt;var&gt;YOUR_API_NAME&lt;/var&gt;</td></tr>
+            <tr id="rule-8" MadCap:conditions="Content.Code"><td>&lt;var&gt;[^&lt;]*[a-z \-][^&lt;]*&lt;/var&gt;</td><td></td><td>suggestion</td><td>Placeholders use uppercase with underscore delimiters.</td><td>.../&lt;var&gt;apiName&lt;/var&gt;</td></tr>
+            <tr id="rule-9" MadCap:conditions="Content.Code"><td>&lt;var&gt;(?:MY|YOUR|OUR|THEIR)_[A-Z0-9_]+&lt;/var&gt;</td><td></td><td>warning</td><td>Placeholders shouldn&apos;t contain possessive adjectives.</td><td>.../&lt;var&gt;YOUR_API_NAME&lt;/var&gt;</td></tr>
         </table>
         <h2>Explain placeholders</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">When you use a placeholder in text or code, explain the placeholder the first time you use it.<ul><li>Good: gcloud compute instances create INSTANCE_NAME --metadata enable-guest-attributes=TRUE Replace INSTANCE_NAME with the name that you want your new VM instance to have.</li></ul></li>
-            <li MadCap:conditions="Content.Code">Repeat a placeholder explanation only when doing so might benefit the reader—for example, when your document is lengthy, you&apos;ve introduced several other placeholders in a long procedure, or your document isn&apos;t intended to be read from beginning to end.</li>
+            <li id="rule-10" MadCap:conditions="Content.Code">When you use a placeholder in text or code, explain the placeholder the first time you use it.<ul><li>Good: gcloud compute instances create INSTANCE_NAME --metadata enable-guest-attributes=TRUE Replace INSTANCE_NAME with the name that you want your new VM instance to have.</li></ul></li>
+            <li id="rule-11" MadCap:conditions="Content.Code">Repeat a placeholder explanation only when doing so might benefit the reader—for example, when your document is lengthy, you&apos;ve introduced several other placeholders in a long procedure, or your document isn&apos;t intended to be read from beginning to end.</li>
         </ul>
         <h2>Single placeholder</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">For a single placeholder, use the format &quot;Replace PLACEHOLDER with a description of what the placeholder represents.&quot;<ul><li>Good: Replace BUILD_ID with the ID of the WORKING build that you copied in the preceding step.</li></ul></li>
+            <li id="rule-12" MadCap:conditions="Content.Code">For a single placeholder, use the format &quot;Replace PLACEHOLDER with a description of what the placeholder represents.&quot;<ul><li>Good: Replace BUILD_ID with the ID of the WORKING build that you copied in the preceding step.</li></ul></li>
         </ul>
         <h2>Two or more placeholders</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">For two or more placeholders, follow the command line with a descriptive list of the placeholders used in the command line.</li>
-            <li MadCap:conditions="Content.Code">Explain what each placeholder represents even if the placeholder value is intuitive to you.</li>
-            <li MadCap:conditions="Content.Code">Introduce the list of command-line placeholders with &quot;Replace the following:&quot;.<ul><li>Good: Replace the following:</li></ul></li>
-            <li MadCap:conditions="Content.Code">List the placeholders in the order in which they appear in the command line.</li>
-            <li MadCap:conditions="Content.Code">Tag each placeholder in a code sample or command with code and var elements; for non-code samples, remove the code elements.<ul><li>Good: &lt;li&gt;&lt;code&gt;&lt;var&gt;INSTANCE_NAME&lt;/var&gt;&lt;/code&gt;: description&lt;/li&gt;</li></ul></li>
-            <li MadCap:conditions="Content.Code">Follow each listed placeholder with a colon and a description that starts with a lowercase letter.<ul><li>Good: ADMIN_PROJECT_ID: the project that owns the reservation</li></ul></li>
-            <li MadCap:conditions="Content.Code">If the placeholder description contains an example, introduce it with an em dash or &quot;such as&quot;.<ul><li>Good: ZONE: a Google Cloud zone that&apos;s close to your location—for example, us-east1.</li></ul></li>
-            <li MadCap:conditions="Content.Code,Content.Lists">Make each item in the placeholder list follow the list style.</li>
+            <li id="rule-13" MadCap:conditions="Content.Code">For two or more placeholders, follow the command line with a descriptive list of the placeholders used in the command line.</li>
+            <li id="rule-14" MadCap:conditions="Content.Code">Explain what each placeholder represents even if the placeholder value is intuitive to you.</li>
+            <li id="rule-15" MadCap:conditions="Content.Code">Introduce the list of command-line placeholders with &quot;Replace the following:&quot;.<ul><li>Good: Replace the following:</li></ul></li>
+            <li id="rule-16" MadCap:conditions="Content.Code">List the placeholders in the order in which they appear in the command line.</li>
+            <li id="rule-17" MadCap:conditions="Content.Code">Tag each placeholder in a code sample or command with code and var elements; for non-code samples, remove the code elements.<ul><li>Good: &lt;li&gt;&lt;code&gt;&lt;var&gt;INSTANCE_NAME&lt;/var&gt;&lt;/code&gt;: description&lt;/li&gt;</li></ul></li>
+            <li id="rule-18" MadCap:conditions="Content.Code">Follow each listed placeholder with a colon and a description that starts with a lowercase letter.<ul><li>Good: ADMIN_PROJECT_ID: the project that owns the reservation</li></ul></li>
+            <li id="rule-19" MadCap:conditions="Content.Code">If the placeholder description contains an example, introduce it with an em dash or &quot;such as&quot;.<ul><li>Good: ZONE: a Google Cloud zone that&apos;s close to your location—for example, us-east1.</li></ul></li>
+            <li id="rule-20" MadCap:conditions="Content.Code,Content.Lists">Make each item in the placeholder list follow the list style.</li>
         </ul>
         <h2>Placeholders in output</h2>
         <ul>
-            <li MadCap:conditions="Content.Code">If you provide a code output example, explain any placeholders that appear in sample output.</li>
-            <li MadCap:conditions="Content.Code">Use var elements to identify the placeholder text in the output.</li>
-            <li MadCap:conditions="Content.Code">Follow the example output with a list of the placeholders used in the example.</li>
-            <li MadCap:conditions="Content.Code">Introduce the list of output placeholders with &quot;This output includes the following values:&quot;.<ul><li>Good: This output includes the following values:</li></ul></li>
-            <li MadCap:conditions="Content.Code">List the output placeholders in the order in which they appear in the example.</li>
-            <li MadCap:conditions="Content.Code">Tag each output placeholder with a var element, followed by a colon and a description that starts with a lowercase letter.<ul><li>Good: OPERATION_ID: the ID of the import operation</li></ul></li>
-            <li MadCap:conditions="Content.Code">If an output placeholder description contains an example, introduce it with an em dash or &quot;such as&quot;.<ul><li>Good: SOURCE_FILE: the URI for the image in Cloud Storage—for example, gs://my-bucket/my-image.vmdk</li></ul></li>
+            <li id="rule-21" MadCap:conditions="Content.Code">If you provide a code output example, explain any placeholders that appear in sample output.</li>
+            <li id="rule-22" MadCap:conditions="Content.Code">Use var elements to identify the placeholder text in the output.</li>
+            <li id="rule-23" MadCap:conditions="Content.Code">Follow the example output with a list of the placeholders used in the example.</li>
+            <li id="rule-24" MadCap:conditions="Content.Code">Introduce the list of output placeholders with &quot;This output includes the following values:&quot;.<ul><li>Good: This output includes the following values:</li></ul></li>
+            <li id="rule-25" MadCap:conditions="Content.Code">List the output placeholders in the order in which they appear in the example.</li>
+            <li id="rule-26" MadCap:conditions="Content.Code">Tag each output placeholder with a var element, followed by a colon and a description that starts with a lowercase letter.<ul><li>Good: OPERATION_ID: the ID of the import operation</li></ul></li>
+            <li id="rule-27" MadCap:conditions="Content.Code">If an output placeholder description contains an example, introduce it with an em dash or &quot;such as&quot;.<ul><li>Good: SOURCE_FILE: the URI for the image in Cloud Storage—for example, gs://my-bucket/my-image.vmdk</li></ul></li>
         </ul>
     </body>
 </html>

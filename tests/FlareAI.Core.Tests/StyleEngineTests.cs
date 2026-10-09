@@ -194,6 +194,70 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void RuleKeys_FreezeTodaysIds_ThenSurviveInsertsMovesAndCopies()
+        {
+            const string head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html><body><h1>Words</h1>\n";
+            var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Words.htm", head +
+                "<ul><li>Say members.</li><li>Say sign in.</li></ul>\n<table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr><td>utilise</td><td>use</td><td>We utilise it.</td></tr></table>\n</body></html>"));
+            var file = Path.Combine(root, @"Content\Resources\StyleGuide\Words.htm");
+            try
+            {
+                Func<StyleEngine> engine = () => new StyleEngine(new[] { root }, Guide);
+                Func<string, string> idOf = text => engine().Rules(null).First(x => x.Layer != "google" && x.Text.Contains(text)).Id;
+                var before = new[] { idOf("Say members"), idOf("Say sign in"), idOf("utilise") };
+                Assert.Equal(new[] { "words/1", "words/2", "words/3" }, before.Select(i => i.Substring(i.IndexOf(':') + 1)).ToArray());
+                Assert.Contains(engine().Validate(null).Issues, i => i.Message.Contains("no permanent key"));
+
+                // An owner validates: today's ids become permanent keys, nothing else in the topic changes.
+                Assert.Equal(3, engine().AssignKeys());
+                Assert.Equal(before, new[] { idOf("Say members"), idOf("Say sign in"), idOf("utilise") });
+                Assert.Contains("<li id=\"rule-1\">Say members.</li>", File.ReadAllText(file));
+                Assert.DoesNotContain(engine().Validate(null).Issues, i => i.Message.Contains("no permanent key"));
+
+                // A new rule at the top, a copied bullet, rules reordered: the old ids stay put.
+                var s = File.ReadAllText(file).Replace("<ul><li id=\"rule-1\">Say members.</li><li id=\"rule-2\">Say sign in.</li></ul>",
+                    "<ul><li>Say select, not click.</li><li id=\"rule-2\">Say sign in.</li><li id=\"rule-1\">Say members.</li><li id=\"rule-1\">Say members (copy).</li></ul>");
+                File.WriteAllText(file, s);
+                Assert.Equal(before, new[] { idOf("Say members."), idOf("Say sign in"), idOf("utilise") });
+                Assert.Contains("~", idOf("Say select"));                                       // provisional until an owner validates
+                Assert.Contains(engine().Validate(null).Issues, i => i.Message.Contains("share the key"));
+                Assert.Equal(2, engine().AssignKeys());                                          // the new rule and the copy
+                var fresh = new[] { idOf("Say select"), idOf("Say members (copy)") };
+                Assert.All(fresh, id => Assert.Matches(@"words/k[0-9a-z]{4}$", id));
+                Assert.Equal(before, new[] { idOf("Say members."), idOf("Say sign in"), idOf("utilise") });
+                Assert.Equal(0, engine().AssignKeys());                                          // stable: nothing left to do
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
+        [Fact]
+        public void TurningOffAGoogleRuleForTheTeam_WritesTheGuide_AndStopsLintAndAi()
+        {
+            var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Company\Changes.htm",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html><body><h1>Changes to the Google guide</h1>\n        <table>\n            <tr><th>Rule</th><th>Setting</th><th>Reason</th></tr>\n        </table>\n</body></html>"));
+            try
+            {
+                var e = new StyleEngine(new[] { root }, Guide);
+                var prose = e.Rules(null).First(r => r.Layer == "google" && !r.IsLint && r.Applies.Count == 0 && r.Triggers.Count == 0);
+                var lint = e.Rules(null).First(r => r.Layer == "google" && r.IsLint && r.Products.Count == 0);
+                Assert.Contains(prose.Text, e.GuideFor(null, new GuideScope())[0]);
+                var file = GuideOverrides.Set(root, prose.Id, "off", "Not for our audience.");
+                GuideOverrides.Set(root, lint.Id, "off", "Too noisy.");
+                GuideOverrides.Set(root, prose.Id, "off", "Not for our audience, per review.");   // same rule again: row updated, not duplicated
+                Assert.EndsWith("Changes.htm", file);
+                var text = File.ReadAllText(file);
+                Assert.Equal(1, System.Text.RegularExpressions.Regex.Matches(text, System.Text.RegularExpressions.Regex.Escape(prose.Id)).Count);
+                Assert.Contains("per review", text);
+                var after = new StyleEngine(new[] { root }, Guide);
+                Assert.DoesNotContain("[" + prose.Id + "]", after.GuideFor(null, new GuideScope())[0]);   // the AI no longer gets it
+                Assert.DoesNotContain(prose.Id, after.RuleIdsFor(null, new GuideScope()));
+                var example = after.Rules(null).Where(r => r.Id == lint.Id).Select(r => r.Text).First();
+                Assert.DoesNotContain(after.Validate(null).Issues, i => i.Message.StartsWith("No rule"));
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
+        [Fact]
         public void EditingTheGuide_IsPickedUpWithoutRestart()
         {
             var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Words.htm",

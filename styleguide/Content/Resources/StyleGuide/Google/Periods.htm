@@ -6,56 +6,56 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/periods">Periods and end punctuation</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>Periods and end punctuation</h2>
         <ul>
-            <li>End a complete sentence with a period, unless it&apos;s a question; lists have exceptions.</li>
+            <li id="rule-1">End a complete sentence with a period, unless it&apos;s a question; lists have exceptions.</li>
         </ul>
         <h2>Periods with URLs</h2>
         <ul>
-            <li MadCap:conditions="Content.Links">Whenever possible, avoid putting URLs in text.</li>
-            <li MadCap:conditions="Content.Links">Rewrite the sentence so that the URL isn&apos;t at the end of the sentence.</li>
-            <li MadCap:conditions="Content.Links">Put the URL on a separate line from the text, omitting the final period.<ul><li>Bad: We use your feedback to improve the Animals API, in accordance with Example Pet Store&apos;s Privacy Policy at http://www.examplepetstore.com/privacy/.</li><li>Good: We use your feedback to improve the Animals API, in accordance with Example Pet Store&apos;s Privacy Policy: http://www.examplepetstore.com/privacy/</li></ul></li>
+            <li id="rule-2" MadCap:conditions="Content.Links">Whenever possible, avoid putting URLs in text.</li>
+            <li id="rule-3" MadCap:conditions="Content.Links">Rewrite the sentence so that the URL isn&apos;t at the end of the sentence.</li>
+            <li id="rule-4" MadCap:conditions="Content.Links">Put the URL on a separate line from the text, omitting the final period.<ul><li>Bad: We use your feedback to improve the Animals API, in accordance with Example Pet Store&apos;s Privacy Policy at http://www.examplepetstore.com/privacy/.</li><li>Good: We use your feedback to improve the Animals API, in accordance with Example Pet Store&apos;s Privacy Policy: http://www.examplepetstore.com/privacy/</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Links"><td>https?://\S+[ \t]+\.(?=\s|$)</td><td></td><td>error</td><td></td><td>See the policy at http://www.example.com/privacy/ .</td></tr>
+            <tr id="rule-5" MadCap:conditions="Content.Links"><td>https?://\S+[ \t]+\.(?=\s|$)</td><td></td><td>error</td><td></td><td>See the policy at http://www.example.com/privacy/ .</td></tr>
         </table>
         <h2>Periods with quotation marks</h2>
         <ul>
-            <li>When a sentence ends with material inside quotation marks, place the period inside the quotation marks, except when the quotation marks enclose a keyword or other literal string.<ul><li>Good: ... you might say &quot;Fixed typo.&quot;</li></ul></li>
-            <li>If the material inside the quotation marks ends with a question mark or an exclamation point, don&apos;t use a period.<ul><li>Good: Children always ask &quot;Why?&quot;</li></ul></li>
+            <li id="rule-6">When a sentence ends with material inside quotation marks, place the period inside the quotation marks, except when the quotation marks enclose a keyword or other literal string.<ul><li>Good: ... you might say &quot;Fixed typo.&quot;</li></ul></li>
+            <li id="rule-7">If the material inside the quotation marks ends with a question mark or an exclamation point, don&apos;t use a period.<ul><li>Good: Children always ask &quot;Why?&quot;</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr><td>[?!][&quot;”]\.</td><td></td><td>error</td><td></td><td>Children always ask &quot;Why?&quot;.</td></tr>
+            <tr id="rule-8"><td>[?!][&quot;”]\.</td><td></td><td>error</td><td></td><td>Children always ask &quot;Why?&quot;.</td></tr>
         </table>
         <h2>Periods with parentheses</h2>
         <ul>
-            <li>If the last part of a sentence is contained inside parentheses, put the period after the closing parenthesis.<ul><li>Good: Your application could show a notification when a relevant file or folder has changed (even if that change occurs while your application isn&apos;t running).</li></ul></li>
-            <li>If the parentheses contain a complete sentence, put the period inside the parentheses.<ul><li>Good: App Engine applications are easy to create, easy to maintain, and easy to scale. (With App Engine, there are no servers for you to maintain.)</li></ul></li>
+            <li id="rule-9">If the last part of a sentence is contained inside parentheses, put the period after the closing parenthesis.<ul><li>Good: Your application could show a notification when a relevant file or folder has changed (even if that change occurs while your application isn&apos;t running).</li></ul></li>
+            <li id="rule-10">If the parentheses contain a complete sentence, put the period inside the parentheses.<ul><li>Good: App Engine applications are easy to create, easy to maintain, and easy to scale. (With App Engine, there are no servers for you to maintain.)</li></ul></li>
         </ul>
         <h2>Periods with headings</h2>
         <ul>
-            <li MadCap:conditions="Content.Headings">Don&apos;t end headings with periods.</li>
+            <li id="rule-11" MadCap:conditions="Content.Headings">Don&apos;t end headings with periods.</li>
         </ul>
         <h2>Periods with numbers</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">Use a period to represent a decimal point, not a comma.</li>
+            <li id="rule-12" MadCap:conditions="Content.Numbers">Use a period to represent a decimal point, not a comma.</li>
         </ul>
         <h2>Periods with abbreviations</h2>
         <ul>
-            <li>Put a period after a shortened word.</li>
+            <li id="rule-13">Put a period after a shortened word.</li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr><td>\b(?:[A-Z]\.){2,}</td><td></td><td>warning</td><td></td><td>Send the request to the A.P.I. endpoint.</td></tr>
+            <tr id="rule-14"><td>\b(?:[A-Z]\.){2,}</td><td></td><td>warning</td><td></td><td>Send the request to the A.P.I. endpoint.</td></tr>
         </table>
         <h2>Exclamation points</h2>
         <ul>
-            <li>In general, avoid exclamation points.</li>
-            <li>Never use exclamation points in concept and reference docs; maintain a neutral, objective tone.</li>
-            <li MadCap:conditions="Content.Steps">In procedural topics, avoid exclamation points and use periods for completion steps.<ul><li>Good: The VM is created.</li></ul></li>
-            <li MadCap:conditions="Content.Code">In code examples, use exclamation points when required by syntax, such as the != operator.</li>
-            <li>Use an exclamation point when it&apos;s part of a specific error code or log message that must be matched exactly.</li>
-            <li>In tutorials and learning modules, use exclamation points sparingly to mark major milestones or achievements.<ul><li>Good: Congratulations! You&apos;ve completed the setup.</li></ul></li>
+            <li id="rule-15">In general, avoid exclamation points.</li>
+            <li id="rule-16">Never use exclamation points in concept and reference docs; maintain a neutral, objective tone.</li>
+            <li id="rule-17" MadCap:conditions="Content.Steps">In procedural topics, avoid exclamation points and use periods for completion steps.<ul><li>Good: The VM is created.</li></ul></li>
+            <li id="rule-18" MadCap:conditions="Content.Code">In code examples, use exclamation points when required by syntax, such as the != operator.</li>
+            <li id="rule-19">Use an exclamation point when it&apos;s part of a specific error code or log message that must be matched exactly.</li>
+            <li id="rule-20">In tutorials and learning modules, use exclamation points sparingly to mark major milestones or achievements.<ul><li>Good: Congratulations! You&apos;ve completed the setup.</li></ul></li>
         </ul>
     </body>
 </html>

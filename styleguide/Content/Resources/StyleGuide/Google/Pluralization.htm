@@ -6,42 +6,42 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/pluralization">Pluralization</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>Pluralization</h2>
         <ul>
-            <li>Follow the standard rules for pluralization in US English and use the regular plural form of a word in most cases.</li>
-            <li>Avoid using &apos;s to form a plural to avoid confusing a plural with a possessive or contraction.</li>
+            <li id="rule-1">Follow the standard rules for pluralization in US English and use the regular plural form of a word in most cases.</li>
+            <li id="rule-2">Avoid using &apos;s to form a plural to avoid confusing a plural with a possessive or contraction.</li>
         </ul>
         <h2>Singular and plural</h2>
         <ul>
-            <li>For sentences with long or complex subjects, make sure to use either a plural or singular appropriately.<ul><li>Bad: The efficiency of algorithms that process data sets depend on memory allocation.</li><li>Good: Confirm that the number of entries listed in the directory is accurate.</li></ul></li>
-            <li>For sentences with more than one subject connected by and or or, make sure to use either a plural or singular appropriately.<ul><li>Bad: User authentication and authorization is processed and handled by the security module.</li><li>Good: The request payload and header information are logged for debugging.</li></ul></li>
-            <li>For consistent style, use a plural after one or more, not a singular.<ul><li>Good: If one or more tests fail, a system warning is triggered.</li></ul></li>
-            <li>Because one or more can express the possibility of one or more outcomes, reword the sentence for clarity when it helps.<ul><li>Good: If any one test fails, a system warning is triggered.</li></ul></li>
-            <li>Use a singular after more than one, not a plural.<ul><li>Good: You can create more than one instance at a time.</li></ul></li>
+            <li id="rule-3">For sentences with long or complex subjects, make sure to use either a plural or singular appropriately.<ul><li>Bad: The efficiency of algorithms that process data sets depend on memory allocation.</li><li>Good: Confirm that the number of entries listed in the directory is accurate.</li></ul></li>
+            <li id="rule-4">For sentences with more than one subject connected by and or or, make sure to use either a plural or singular appropriately.<ul><li>Bad: User authentication and authorization is processed and handled by the security module.</li><li>Good: The request payload and header information are logged for debugging.</li></ul></li>
+            <li id="rule-5">For consistent style, use a plural after one or more, not a singular.<ul><li>Good: If one or more tests fail, a system warning is triggered.</li></ul></li>
+            <li id="rule-6">Because one or more can express the possibility of one or more outcomes, reword the sentence for clarity when it helps.<ul><li>Good: If any one test fails, a system warning is triggered.</li></ul></li>
+            <li id="rule-7">Use a singular after more than one, not a plural.<ul><li>Good: You can create more than one instance at a time.</li></ul></li>
         </ul>
         <h2>Plural abbreviations</h2>
         <ul>
-            <li>Treat acronyms, initialisms, and other abbreviations as regular words when making them plural, and avoid using &apos;s to form the plural.<ul><li>Bad: API&apos;s, SKE&apos;s, and IDE&apos;s</li><li>Good: APIs, SKEs, and IDEs</li></ul></li>
-            <li>If the acronym, initialism, or abbreviation ends in s, sh, ch, or x, then add es—for example, OSes, DISHes, DCCHes, and BMXes.<ul><li>Good: OSes, DISHes, DCCHes, and BMXes</li></ul></li>
-            <li>When spelling out a term, make sure that both the spelled-out term and abbreviation match, with both either being a plural or singular.<ul><li>Bad: virtual machines (VM)</li><li>Good: virtual machines (VMs)</li></ul></li>
-            <li MadCap:conditions="Content.Numbers">When spelling out a unit of measure with a number, use the singular if the number is one, and the plural for all other numbers, including zero, decimal numbers, and numbers greater than one.<ul><li>Good: 0.5 degrees</li></ul></li>
+            <li id="rule-8">Treat acronyms, initialisms, and other abbreviations as regular words when making them plural, and avoid using &apos;s to form the plural.<ul><li>Bad: API&apos;s, SKE&apos;s, and IDE&apos;s</li><li>Good: APIs, SKEs, and IDEs</li></ul></li>
+            <li id="rule-9">If the acronym, initialism, or abbreviation ends in s, sh, ch, or x, then add es—for example, OSes, DISHes, DCCHes, and BMXes.<ul><li>Good: OSes, DISHes, DCCHes, and BMXes</li></ul></li>
+            <li id="rule-10">When spelling out a term, make sure that both the spelled-out term and abbreviation match, with both either being a plural or singular.<ul><li>Bad: virtual machines (VM)</li><li>Good: virtual machines (VMs)</li></ul></li>
+            <li id="rule-11" MadCap:conditions="Content.Numbers">When spelling out a unit of measure with a number, use the singular if the number is one, and the plural for all other numbers, including zero, decimal numbers, and numbers greater than one.<ul><li>Good: 0.5 degrees</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?[\s\u00A0]?(?:KBs|MBs|GBs|TBs|PBs|Kbs|Mbs|Gbs)\b</td><td></td><td>warning</td><td></td><td>The instance has 64 GBs of memory.</td></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?(?:KB|MB|GB|TB|PB)\b</td><td></td><td>warning</td><td></td><td>The disk has 64GB of storage.</td></tr>
+            <tr id="rule-12" MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?[\s\u00A0]?(?:KBs|MBs|GBs|TBs|PBs|Kbs|Mbs|Gbs)\b</td><td></td><td>warning</td><td></td><td>The instance has 64 GBs of memory.</td></tr>
+            <tr id="rule-13" MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?(?:KB|MB|GB|TB|PB)\b</td><td></td><td>warning</td><td></td><td>The disk has 64GB of storage.</td></tr>
         </table>
         <h2>Plural product and feature names</h2>
         <ul>
-            <li>Don&apos;t form a plural or possessive for the trademark of a product, feature, or company name.</li>
-            <li>Use singular class names; don&apos;t manually make a singular class name plural—instead, add a plural noun after the class name.<ul><li>Bad: Intents and Activities</li><li>Good: Intent objects and Activity instances</li></ul></li>
+            <li id="rule-14">Don&apos;t form a plural or possessive for the trademark of a product, feature, or company name.</li>
+            <li id="rule-15">Use singular class names; don&apos;t manually make a singular class name plural—instead, add a plural noun after the class name.<ul><li>Bad: Intents and Activities</li><li>Good: Intent objects and Activity instances</li></ul></li>
         </ul>
         <h2>Plurals in parentheses</h2>
         <ul>
-            <li>Use either a plural or singular construction and keep things consistent throughout your documentation, choosing what is most appropriate for your documentation and your audience.<ul><li>Bad: The value of the parent depends on the value(s) of its child(ren).</li><li>Good: The value of the parent depends on the values of its children.</li></ul></li>
-            <li>If it&apos;s important in a specific context to indicate both singular and plural, use one or more.<ul><li>Bad: You can use a physical linecard, which can contain port(s).</li><li>Good: You can use a physical linecard, which can contain one or more ports.</li></ul></li>
+            <li id="rule-16">Use either a plural or singular construction and keep things consistent throughout your documentation, choosing what is most appropriate for your documentation and your audience.<ul><li>Bad: The value of the parent depends on the value(s) of its child(ren).</li><li>Good: The value of the parent depends on the values of its children.</li></ul></li>
+            <li id="rule-17">If it&apos;s important in a specific context to indicate both singular and plural, use one or more.<ul><li>Bad: You can use a physical linecard, which can contain port(s).</li><li>Good: You can use a physical linecard, which can contain one or more ports.</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr><td>\b[A-Za-z]{2,}\((?:s|es|ren)\)</td><td></td><td>warning</td><td></td><td>To find your API key(s), visit the Credentials page.</td></tr>
+            <tr id="rule-18"><td>\b[A-Za-z]{2,}\((?:s|es|ren)\)</td><td></td><td>warning</td><td></td><td>To find your API key(s), visit the Credentials page.</td></tr>
         </table>
     </body>
 </html>

@@ -59,14 +59,21 @@ A team copies the starter project, keeps it in git, and points Settings → Styl
 - **Avoid / Use / Severity / Why / Example tables** become lint rules with one-click fixes. `Use` = `(delete)`
   deletes the text; empty `Use` only flags it. Comma-separated `Avoid` entries pair with the same number of `Use`
   entries. A table with **Pattern** instead of Avoid takes a regular expression, for formats words can't express.
-- **Rule / Setting / Reason tables** turn rules off or change their level (`off`, `error`, `warning`, `suggestion`);
-  name the rule by its id (`google:numbers/3`).
+- **Rule / Setting / Reason tables** turn rules off or change their level (`off`, `error`, `warning`, `suggestion`).
+  Owners don't write these by hand: **Turn off rule…** in the review pane writes the row (for the team, in the
+  guide) or a line in the project's `overrides.ini` (for one project). A turned-off rule stops both the linter and
+  the AI.
 - **Condition tags scope a rule** (a bullet, a table row, or the heading above a group): **Content** tags (Code, Steps,
   Lists, Numbers, Tables, Links, Headings, Images, UI, Notes, Examples, Math, API, Footnotes, Emphasis) send the rule
   to the AI only for sections with that content — a row tagged Headings is linted in headings only. **Product** tags
   limit a rule to products; the guide's Product tag set lists the products it covers, and rules for any other product
   (including Google's Android, Google Cloud and Google Workspace entries) never load.
-- Every rule has an id (`company:terminology/1`, `google:procedures/12`); the AI must cite one.
+- Every rule has a permanent id (`company:terminology/1`, `google:procedures/12`) that the AI must cite and that team
+  feedback is keyed on. It's stored on the rule's bullet or row as `id="rule-…"`, invisible in Flare's normal
+  editor. Validating as an owner gives new or copied rules their keys; the Google compiler carries keys forward
+  when Google rewrites a page (matching rules by the source text they cover) and retires keys it never reuses.
+  Feedback also records a fingerprint of the rule's wording, so Tune doesn't count decisions about an earlier
+  wording against a rewritten rule.
 - **AI ▸ Validate style guide** tests the guide: each table row against its Example, contradictions, duplicates and
   overrides between Company and Google, override tables that name missing rules, and (on request) each prose rule's
   Bad/Good examples against the AI.

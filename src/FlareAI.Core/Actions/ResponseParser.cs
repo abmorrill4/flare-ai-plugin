@@ -32,6 +32,8 @@ namespace FlareAI.Core.Actions
         /// <summary>Layer and section of <see cref="RuleId"/>, for display ("Company: Terminology").</summary>
         public string RuleLayer { get; set; }
         public string RuleSection { get; set; }
+        /// <summary>The cited rule's wording when the finding was shown: feedback records a fingerprint of it.</summary>
+        public string RuleText { get; set; }
         /// <summary>File the finding lives in when it is not the checked topic (a snippet); null = the topic.</summary>
         public string DocumentPath { get; set; }
         public bool IsFixed { get; set; }

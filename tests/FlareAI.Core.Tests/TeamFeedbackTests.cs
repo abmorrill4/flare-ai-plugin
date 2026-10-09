@@ -9,6 +9,22 @@ namespace FlareAI.Core.Tests
 {
     public class TeamFeedbackTests
     {
+        [Fact]
+        public void Tune_CountsOnlyDecisionsAboutTheRulesCurrentWording()
+        {
+            var t0 = new DateTime(2026, 10, 1);
+            var old = FeedbackLog.WordingHash("Say members.");
+            var now = FeedbackLog.WordingHash("Say members, not customers or users.");
+            var decisions = new List<Decision>();
+            for (var i = 0; i < 10; i++) { var d = D(i % 2 == 0 ? "ana" : "raj", "rejected"); d.RuleHash = old; d.At = t0.AddMinutes(i); decisions.Add(d); }
+            for (var i = 0; i < 10; i++) { var d = D(i % 2 == 0 ? "ana" : "raj", "accepted"); d.RuleHash = now; d.At = t0.AddDays(1).AddMinutes(i); decisions.Add(d); }
+            var items = FeedbackStats.Analyze(decisions);
+            Assert.DoesNotContain(items, x => x.Kind == "review");                 // the old rejections don't count against the rewrite
+            Assert.Contains(items, x => x.Kind == "working" && x.Accepted == 10 && x.Rejected == 0);
+            Assert.Null(FeedbackLog.WordingHash(null));
+            Assert.Equal(FeedbackLog.WordingHash("Say  Members."), old);           // case and spacing don't change the fingerprint
+        }
+
         private static Decision D(string writer, string verdict, string rule = "company:terminology/1", string reason = null, string excerpt = "customers", string replacement = "members")
         {
             return new Decision { Writer = writer, Verdict = verdict, RuleId = rule, Reason = reason, Excerpt = excerpt, Replacement = replacement, File = "a.htm" };

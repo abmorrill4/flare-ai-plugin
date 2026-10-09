@@ -134,9 +134,11 @@ namespace FlareAI.Core.Style
             }
         }
 
+        private readonly Dictionary<string, XmlDocument> _docs = new Dictionary<string, XmlDocument>(StringComparer.OrdinalIgnoreCase);
+
         private void LoadTopic(string path)
         {
-            var doc = new XmlDocument();
+            var doc = new XmlDocument { PreserveWhitespace = true };
             try { doc.Load(path); }
             catch (XmlException e) { Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Not well-formed XML: " + e.Message }); return; }
             var body = BlockSelector.FindBody(doc);
@@ -145,6 +147,10 @@ namespace FlareAI.Core.Style
             var title = h1 != null ? TextOf(h1) : System.IO.Path.GetFileNameWithoutExtension(path);
             var topic = Slug(System.IO.Path.GetFileNameWithoutExtension(path));
             var state = new TopicState { Topic = topic, Section = new Section { Title = title, Source = System.IO.Path.GetFileName(path) }, Heading = title, Link = new Uri(System.IO.Path.GetFullPath(path)).AbsoluteUri, Path = path };
+            // A topic whose rules carry keys uses them; a topic with none yet keeps its positional ids until keys are
+            // assigned (frozen to those same ids), so feedback already recorded stays attached.
+            state.Keyed = doc.SelectNodes("//*[starts-with(@id,'" + KeyPrefix + "')]").Count > 0;
+            _docs[path] = doc;
             _sections.Add(state.Section);
             Walk(body, state);
         }
@@ -153,6 +159,8 @@ namespace FlareAI.Core.Style
         {
             public string Topic, Heading, Link, Path;
             public int N;
+            public bool Keyed;
+            public HashSet<string> Keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             public Section Section;
             public List<string> HeadingConditions = new List<string>();
         }
@@ -177,7 +185,7 @@ namespace FlareAI.Core.Style
                         if (li.NodeType != XmlNodeType.Element || li.LocalName != "li") continue;
                         string own, bad, good;
                         BulletParts(li, out own, out bad, out good);
-                        var item = AddItem(s.Topic + "/" + (++s.N), s.Heading, own, s.Link, s.Path, bad, good);
+                        var item = AddItem(s, (XmlElement)li, s.Heading, own, s.Link, bad, good);
                         Scope(item, s.HeadingConditions.Concat(Conditions(child)).Concat(Conditions(li)));
                         s.Section.Lines.Add("- [" + item.Id + "] " + own + Scope(item.Applies.Select(a => "Content." + a).Concat(item.Products.Select(p => "Product." + p)).ToList()) +
                                             (bad.Length > 0 ? "\n    Bad: " + bad : "") + (good.Length > 0 ? "\n    Good: " + good : ""));
@@ -223,7 +231,7 @@ namespace FlareAI.Core.Style
                     Func<int, string> cell = c => c >= 0 && c < row.Count ? row[c].Trim() : "";
                     var terms = Regex.Split(cell(termC), @"\s*[,;]\s*").Select(t => t.Trim()).Where(t => t.Length > 0).ToList();
                     if (terms.Count == 0 || cell(proseC).Length == 0) { Problem("error", file, "table row " + (r + 1), "Row needs a Term and a Rule."); continue; }
-                    var item = AddItem(s.Topic + "/" + (++s.N), s.Heading, cell(proseC), s.Link, s.Path, cell(badC), cell(goodC));
+                    var item = AddItem(s, (XmlElement)keep[r].tr, s.Heading, cell(proseC), s.Link, cell(badC), cell(goodC));
                     item.Triggers.AddRange(terms);
                     Scope(item, tableConditions.Concat(Conditions(keep[r].tr)));
                     s.Section.Lines.Add("- [" + item.Id + "] (" + string.Join(", ", terms.ToArray()) + ") " + item.Text +
@@ -247,16 +255,15 @@ namespace FlareAI.Core.Style
                     var sev = (cell(sevC).Length > 0 ? cell(sevC) : "warning").ToLowerInvariant();
                     if (!Severities.Contains(sev)) { Problem("warning", file, "table row " + rowNo, "Unknown severity '" + sev + "'; using warning."); sev = "warning"; }
                     var why = cell(whyC);
-                    s.N++;
                     var shown = isPattern ? "the pattern " + avoid[0] : string.Join(", ", avoid.Select(a => "'" + a + "'").ToArray());
                     var text = "Avoid " + shown + (IsDelete(use) ? " (delete it)." : IsFlagOnly(use) ? " (rewrite)." : " → use '" + use + "'.") + (why.Length > 0 ? " " + why : "");
-                    var item = AddItem(s.Topic + "/" + s.N, s.Heading, text, s.Link, s.Path, "", "");
+                    var item = AddItem(s, (XmlElement)keep[r].tr, s.Heading, text, s.Link, "", "");
                     item.IsLint = true;
                     Scope(item, tableConditions.Concat(Conditions(keep[r].tr)));
                     LintRule rule;
                     try { rule = BuildRule(avoid, use, sev, why, isPattern); }
                     catch (ArgumentException e) { Problem("error", file, "table row " + rowNo, "Pattern isn't a valid regular expression: " + e.Message); continue; }
-                    rule.Id = item.Id; rule.LocalName = Camel(s.Topic) + s.N; rule.Layer = Name; rule.Link = s.Link;
+                    rule.Id = item.Id; rule.LocalName = Camel(s.Topic) + Camel(item.Id.Substring(item.Id.LastIndexOf('/') + 1)); rule.Layer = Name; rule.Link = s.Link;
                     rule.Applies = item.Applies; rule.Products = item.Products;
                     rule.File = file; rule.Row = rowNo; rule.Avoid = avoid; rule.Use = use; rule.Example = cell(exC);
                     Rules.Add(rule);
@@ -383,6 +390,78 @@ namespace FlareAI.Core.Style
         }
 
         // ---- items and conditions ------------------------------------------------------------------------------
+
+        public const string KeyPrefix = "rule-";
+
+        /// <summary>
+        /// A rule written in a topic: its id is "layer:topic/key" from the element's id="rule-key" (permanent), or, until
+        /// keys are assigned, "layer:topic/N" by position ("layer:topic/~N" in a topic that already has keys, so a
+        /// provisional id can't collide with a permanent one).
+        /// </summary>
+        private GuideRule AddItem(TopicState s, XmlElement el, string section, string text, string link, string bad, string good)
+        {
+            var n = ++s.N;
+            var attr = el.GetAttribute("id");
+            string key = null;
+            if (attr.StartsWith(KeyPrefix, StringComparison.Ordinal) && attr.Length > KeyPrefix.Length)
+            {
+                key = attr.Substring(KeyPrefix.Length);
+                if (!s.Keys.Add(key)) { Problem("warning", System.IO.Path.GetFileName(s.Path), "rule " + n, "Two rules share the key '" + key + "' (a copied bullet or row?): Validate gives the copy a new key."); key = null; }
+            }
+            var item = AddItem(s.Topic + "/" + (key ?? (s.Keyed ? "~" + n : n.ToString())), section, text, link, s.Path, bad, good);
+            item.HasKey = key != null;
+            item.Element = el;
+            item.Position = n;
+            return item;
+        }
+
+        /// <summary>
+        /// Gives every rule without a key a permanent one, written into its topic as id="rule-…". A topic with no keys yet
+        /// is frozen to its current positional ids (so recorded feedback stays attached); otherwise new rules get a new
+        /// short key. Returns how many rules got keys. Only topics that change are saved.
+        /// </summary>
+        public int AssignKeys()
+        {
+            var assigned = 0;
+            var rnd = new Random();
+            foreach (var topic in Items.Where(i => i.Element != null).GroupBy(i => i.Source))
+            {
+                XmlDocument doc;
+                if (!_docs.TryGetValue(topic.Key, out doc)) continue;
+                var freeze = !topic.Any(i => i.HasKey) && doc.SelectNodes("//*[starts-with(@id,'" + KeyPrefix + "')]").Count == 0;
+                var used = new HashSet<string>(topic.Where(i => i.HasKey).Select(i => i.Id.Substring(i.Id.LastIndexOf('/') + 1)), StringComparer.OrdinalIgnoreCase);
+                var changed = 0;
+                foreach (var item in topic.Where(i => !i.HasKey))
+                {
+                    string key;
+                    if (freeze) key = item.Position.ToString();
+                    else do key = "k" + Base36(rnd.Next(36 * 36 * 36, 36 * 36 * 36 * 36)); while (!used.Add(key));
+                    item.Element.SetAttribute("id", KeyPrefix + key);
+                    changed++;
+                }
+                if (changed == 0) continue;
+                try { Save(doc, topic.Key); assigned += changed; }
+                catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { Diagnostics.Log("keys: can't write " + topic.Key, ex); }   // read-only (bundled guide, locked file)
+            }
+            return assigned;
+        }
+
+        private static string Base36(int v)
+        {
+            const string digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+            var sb = new StringBuilder();
+            do { sb.Insert(0, digits[v % 36]); v /= 36; } while (v > 0);
+            return sb.ToString();
+        }
+
+        /// <summary>Saves a topic as it was read: same declaration, same byte-order mark, whitespace untouched.</summary>
+        internal static void Save(XmlDocument doc, string path)
+        {
+            var bytes = File.ReadAllBytes(path);
+            var bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+            var settings = new XmlWriterSettings { Encoding = new UTF8Encoding(bom), OmitXmlDeclaration = !(doc.FirstChild is XmlDeclaration) };
+            using (var w = XmlWriter.Create(path, settings)) doc.Save(w);
+        }
 
         private GuideRule AddItem(string localId, string section, string text, string link, string source, string bad, string good)
         {

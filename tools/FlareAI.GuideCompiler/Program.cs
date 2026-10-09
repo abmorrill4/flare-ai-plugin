@@ -103,6 +103,7 @@ namespace FlareAI.GuideCompiler
                 if (i < 0) i = t.IndexOf(':');
                 return (string)u["kind"] == "dt" && i > 0 ? t.Substring(0, i).Trim() : null;
             });
+            Topic.UnitHashes = units.Properties().SelectMany(p => (JArray)p.Value).ToDictionary(u => (string)u["id"], u => (string)u["hash"]);
             if (_rewrite) return RewriteTopics(coverage, index);
             var jobs = new List<PageJob>();
             foreach (var p in index["pages"])
@@ -162,6 +163,9 @@ namespace FlareAI.GuideCompiler
         {
             var first = parts[0];
             var rules = Topic.Prepare(first, new JArray(parts.SelectMany(j => (JArray)results[j]["rules"])));
+            var previous = compiled[first.Slug] as JObject;
+            var retired = previous != null && previous["retired"] is JArray ra ? ra : new JArray();
+            Topic.CarryKeys(rules, previous == null ? null : (JArray)previous["rules"], retired);
             File.WriteAllText(Path.Combine(OutDir, Topic.FileName(first.Slug)), Topic.Write(first, rules), new UTF8Encoding(false));
             compiled[first.Slug] = new JObject
             {
@@ -170,7 +174,8 @@ namespace FlareAI.GuideCompiler
                 ["not_applicable"] = new JArray(parts.SelectMany(j => (JArray)results[j]["not_applicable"])),
                 ["uncovered"] = new JArray(parts.SelectMany(j => (JArray)results[j]["uncovered"] ?? new JArray())),
                 ["dropped"] = new JArray(parts.SelectMany(j => (JArray)results[j]["dropped"] ?? new JArray())),
-                ["errors"] = new JArray(parts.Where(j => results[j]["error"] != null).Select(j => (string)results[j]["error"]))
+                ["errors"] = new JArray(parts.Where(j => results[j]["error"] != null).Select(j => (string)results[j]["error"])),
+                ["retired"] = retired
             };
         }
 
@@ -184,6 +189,9 @@ namespace FlareAI.GuideCompiler
                 var c = (JObject)p.Value;
                 var page = (JObject)coverage[p.Name];
                 var job = new PageJob { Slug = p.Name, Title = (string)c["title"], Url = (string)c["url"], Scope = (string)page["scope"], Trigger = (string)page["trigger"] };
+                // Freeze: a rule without a key takes today's id suffix as its permanent key.
+                foreach (var r in (JArray)c["rules"])
+                    if (r["key"] == null && r["id"] != null) r["key"] = ((string)r["id"]).Substring(((string)r["id"]).LastIndexOf('/') + 1);
                 var rules = Topic.Prepare(job, (JArray)c["rules"]);
                 File.WriteAllText(Path.Combine(OutDir, Topic.FileName(p.Name)), Topic.Write(job, rules), new UTF8Encoding(false));
                 c["rules"] = Topic.WithIds(p.Name, rules);
@@ -373,7 +381,7 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
                 if (prose.Count > 0)
                 {
                     sb.Append("        <ul>\n");
-                    foreach (var r in prose) sb.Append("            <li").Append(Conditions(job, r)).Append(">").Append(X((string)r["text"])).Append("</li>\n");
+                    foreach (var r in prose) sb.Append("            <li").Append(Key(r)).Append(Conditions(job, r)).Append(">").Append(X((string)r["text"])).Append("</li>\n");
                     sb.Append("        </ul>\n");
                 }
                 var terms = ordered.Where(r => (string)r["heading"] == h && (string)r["kind"] == "term").ToList();
@@ -381,7 +389,7 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
                 {
                     sb.Append("        <table>\n            <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>\n");
                     foreach (var r in terms)
-                        sb.Append("            <tr").Append(Conditions(job, r)).Append("><td>").Append(X((string)r["term"])).Append("</td><td>").Append(X((string)r["text"]))
+                        sb.Append("            <tr").Append(Key(r)).Append(Conditions(job, r)).Append("><td>").Append(X((string)r["term"])).Append("</td><td>").Append(X((string)r["text"]))
                           .Append("</td><td>").Append(X((string)r["bad"])).Append("</td><td>").Append(X((string)r["good"])).Append("</td></tr>\n");
                     sb.Append("        </table>\n");
                 }
@@ -397,11 +405,13 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
             if (rows.Count == 0) return;
             sb.Append("        <table>\n            <tr><th>").Append(kind == "row" ? "Avoid" : "Pattern").Append("</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>\n");
             foreach (var r in rows)
-                sb.Append("            <tr").Append(Conditions(job, r)).Append("><td>").Append(X(kind == "row" ? (string)r["avoid"] : (string)r["pattern"])).Append("</td><td>")
+                sb.Append("            <tr").Append(Key(r)).Append(Conditions(job, r)).Append("><td>").Append(X(kind == "row" ? (string)r["avoid"] : (string)r["pattern"])).Append("</td><td>")
                   .Append(X((string)r["use"])).Append("</td><td>").Append(X((string)r["severity"])).Append("</td><td>").Append(X((string)r["why"]))
                   .Append("</td><td>").Append(X((string)r["example"])).Append("</td></tr>\n");
             sb.Append("        </table>\n");
         }
+
+        private static string Key(JToken r) { return r["key"] == null ? "" : " id=\"" + FlareAI.Core.Style.GuideLayer.KeyPrefix + X((string)r["key"]) + "\""; }
 
         public static string FileName(string slug) { return string.Join("-", slug.Split('-').Select(w => char.ToUpperInvariant(w[0]) + w.Substring(1)).ToArray()) + ".htm"; }
 
@@ -417,14 +427,50 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
             return c.Count == 0 ? "" : " MadCap:conditions=\"" + string.Join(",", c.ToArray()) + "\"";
         }
 
-        /// <summary>The guide gives ids in document order per topic: prose bullets and table rows share one counter.</summary>
+        /// <summary>Rule ids from their permanent keys ("google:numbers/12"), with the fingerprints of the source text each covers.</summary>
         public static JArray WithIds(string slug, JArray rules)
         {
-            var ordered = Ordered(rules);
             var outArr = new JArray();
             var topic = GuideLayerSlug(Path.GetFileNameWithoutExtension(FileName(slug)));
-            for (var i = 0; i < ordered.Count; i++) { var o = (JObject)ordered[i].DeepClone(); o["id"] = "google:" + topic + "/" + (i + 1); outArr.Add(o); }
+            foreach (var r in Ordered(rules))
+            {
+                var o = (JObject)r.DeepClone();
+                o["id"] = "google:" + topic + "/" + (string)o["key"];
+                o["unit_hashes"] = new JArray((o["units"] ?? new JArray()).Select(u => { string h; return UnitHashes != null && UnitHashes.TryGetValue((string)u, out h) ? h : null; }).Where(h => h != null).ToArray());
+                outArr.Add(o);
+            }
             return outArr;
+        }
+
+        /// <summary>Source unit id → content hash (units.json): what a rule says, independent of where it sits on the page.</summary>
+        public static Dictionary<string, string> UnitHashes;
+
+        private static string Norm(JToken r) { return Regex.Replace(((string)r["text"] + "|" + (string)r["avoid"] + "|" + (string)r["pattern"] + "|" + (string)r["term"]).ToLowerInvariant(), @"\W+", " ").Trim(); }
+
+        /// <summary>
+        /// Permanent keys for a recompiled page: a new rule that says the same thing, or covers mostly the same source text
+        /// (by content hash, so moved paragraphs still match), keeps the old rule's key; anything else gets a new key. Keys of
+        /// rules that no longer exist are retired, never reused, so feedback about them can't attach to a different rule.
+        /// </summary>
+        public static void CarryKeys(JArray fresh, JArray old, JArray retired)
+        {
+            var free = (old ?? new JArray()).Where(o => o["key"] != null).ToList();
+            var taken = new HashSet<string>((retired ?? new JArray()).Select(x => (string)x["key"]).Concat(free.Select(o => (string)o["key"])));
+            var rnd = new Random();
+            foreach (var r in fresh)
+            {
+                if (r["key"] != null) continue;
+                var hashes = new HashSet<string>((r["units"] ?? new JArray()).Select(u => { string h; return UnitHashes.TryGetValue((string)u, out h) ? h : null; }).Where(h => h != null));
+                var match = free.FirstOrDefault(o => (string)o["kind"] == (string)r["kind"] && Norm(o) == Norm(r))
+                         ?? free.Where(o => (string)o["kind"] == (string)r["kind"] && hashes.Count > 0)
+                                .Select(o => new { o, overlap = o["unit_hashes"] == null ? 0 : o["unit_hashes"].Count(h => hashes.Contains((string)h)) })
+                                .Where(x => x.overlap * 2 >= hashes.Count).OrderByDescending(x => x.overlap).Select(x => x.o).FirstOrDefault();
+                if (match != null) { r["key"] = match["key"]; free.Remove(match); continue; }
+                string key;
+                do key = "k" + Convert.ToString(rnd.Next(46656, 1679616), 16).PadLeft(5, '0').Substring(0, 4); while (!taken.Add(key));
+                r["key"] = key;
+            }
+            foreach (var o in free) retired.Add(new JObject { ["key"] = o["key"], ["text"] = o["text"] ?? o["avoid"] ?? o["pattern"], ["retired"] = DateTime.UtcNow.ToString("yyyy-MM-dd") });
         }
 
         private static string GuideLayerSlug(string s) { var r = Regex.Replace(s.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-'); return r.Length == 0 ? "x" : r; }
@@ -469,7 +515,7 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
                     sb.Append("        <ul>\n");
                     foreach (var r in prose)
                     {
-                        sb.Append("            <li").Append(Conditions(job, r)).Append(">").Append(X((string)r["text"]));
+                        sb.Append("            <li").Append(Key(r)).Append(Conditions(job, r)).Append(">").Append(X((string)r["text"]));
                         var bad = (string)r["bad"]; var good = (string)r["good"];
                         if (!string.IsNullOrEmpty(bad) || !string.IsNullOrEmpty(good))
                         {
@@ -482,17 +528,7 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
                     }
                     sb.Append("        </ul>\n");
                 }
-                foreach (var kind in new[] { "row", "pattern" })
-                {
-                    var rows = ordered.Where(r => (string)r["heading"] == h && (string)r["kind"] == kind).ToList();
-                    if (rows.Count == 0) continue;
-                    sb.Append("        <table>\n            <tr><th>").Append(kind == "row" ? "Avoid" : "Pattern").Append("</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>\n");
-                    foreach (var r in rows)
-                        sb.Append("            <tr").Append(Conditions(job, r)).Append("><td>").Append(X(kind == "row" ? (string)r["avoid"] : (string)r["pattern"])).Append("</td><td>")
-                          .Append(X((string)r["use"])).Append("</td><td>").Append(X((string)r["severity"])).Append("</td><td>").Append(X((string)r["why"]))
-                          .Append("</td><td>").Append(X((string)r["example"])).Append("</td></tr>\n");
-                    sb.Append("        </table>\n");
-                }
+                foreach (var kind in new[] { "row", "pattern" }) AppendTable(sb, job, ordered, h, kind);
             }
             sb.Append("    </body>\n</html>\n");
             return sb.ToString();
@@ -517,7 +553,7 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
                 var r = (JArray)c["rules"];
                 int u = (int)c["units"], n = ((JArray)c["not_applicable"]).Select(x => (string)x["unit"]).Distinct().Count(), un = ((JArray)c["uncovered"]).Count, d = ((JArray)c["dropped"]).Count;
                 units += u; na += n; uncovered += un; dropped += d; covered += u - un - n;
-                prose += r.Count(x => (string)x["kind"] == "prose"); rows += r.Count(x => (string)x["kind"] == "row"); patterns += r.Count(x => (string)x["kind"] == "pattern");
+                prose += r.Count(x => (string)x["kind"] == "prose" || (string)x["kind"] == "term"); rows += r.Count(x => (string)x["kind"] == "row"); patterns += r.Count(x => (string)x["kind"] == "pattern");
                 lines.Add("| " + slug + " | " + scope + (pages[slug]["trigger"] != null ? ":" + pages[slug]["trigger"] : "") + " | " + u + " | " + r.Count + " | " + n + " | " + (un + d) + " | " +
                           string.Join("; ", ((JArray)c["errors"]).Select(e => (string)e).ToArray()) + " |");
             }

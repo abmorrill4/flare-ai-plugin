@@ -6,37 +6,37 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/phone-numbers">Phone numbers</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>Use example phone numbers</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">To show an example phone number, use a US number in the range 800‑555‑0100 through 800‑555‑0199.</li>
-            <li MadCap:conditions="Content.Numbers">Never use a real phone number in examples.</li>
+            <li id="rule-1" MadCap:conditions="Content.Numbers">To show an example phone number, use a US number in the range 800‑555‑0100 through 800‑555‑0199.</li>
+            <li id="rule-2" MadCap:conditions="Content.Numbers">Never use a real phone number in examples.</li>
         </ul>
         <h2>Format phone numbers in HTML or Markdown</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">To ensure that a phone number is displayed on the same line, use a nonbreaking hyphen (&amp;#8209;) where appropriate in HTML or Markdown.<ul><li>Good: 415&amp;#8209;555&amp;#8209;0132</li></ul></li>
+            <li id="rule-3" MadCap:conditions="Content.Numbers">To ensure that a phone number is displayed on the same line, use a nonbreaking hyphen (&amp;#8209;) where appropriate in HTML or Markdown.<ul><li>Good: 415&amp;#8209;555&amp;#8209;0132</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>(?&lt;![\w-])\+?(?:\d{1,3}-)?\d{3}-\d{3}-\d{4}(?![\w-])</td><td></td><td>suggestion</td><td>Keeps the phone number on one line.</td><td>Call 800-555-0123 for support.</td></tr>
+            <tr id="rule-4" MadCap:conditions="Content.Numbers"><td>(?&lt;![\w-])\+?(?:\d{1,3}-)?\d{3}-\d{3}-\d{4}(?![\w-])</td><td></td><td>suggestion</td><td>Keeps the phone number on one line.</td><td>Call 800-555-0123 for support.</td></tr>
         </table>
         <h2>Format North American phone numbers</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">To format a real phone number in the US, Canada, and other NANP countries, use a nonbreaking hyphen to separate the area code, three-digit exchange code, and four-digit number.<ul><li>Good: 415‑555‑0132</li></ul></li>
+            <li id="rule-5" MadCap:conditions="Content.Numbers">To format a real phone number in the US, Canada, and other NANP countries, use a nonbreaking hyphen to separate the area code, three-digit exchange code, and four-digit number.<ul><li>Good: 415‑555‑0132</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>\(\d{3}\)\s?\d{3}[-‑.]\d{4}\b</td><td></td><td>warning</td><td></td><td>Call (415) 555-0132 for help.</td></tr>
+            <tr id="rule-6" MadCap:conditions="Content.Numbers"><td>\(\d{3}\)\s?\d{3}[-‑.]\d{4}\b</td><td></td><td>warning</td><td></td><td>Call (415) 555-0132 for help.</td></tr>
         </table>
         <h2>Format international phone numbers</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">To format a real phone number in non-NANP countries, include the country and area codes.<ul><li>Good: +1‑415‑555‑0132</li></ul></li>
-            <li MadCap:conditions="Content.Numbers">Insert a plus sign immediately before the country code (no space); the plus sign stands in for the exit code.<ul><li>Good: +1‑415‑555‑0132</li></ul></li>
+            <li id="rule-7" MadCap:conditions="Content.Numbers">To format a real phone number in non-NANP countries, include the country and area codes.<ul><li>Good: +1‑415‑555‑0132</li></ul></li>
+            <li id="rule-8" MadCap:conditions="Content.Numbers">Insert a plus sign immediately before the country code (no space); the plus sign stands in for the exit code.<ul><li>Good: +1‑415‑555‑0132</li></ul></li>
         </ul>
         <h2>Format phone numbers that include an extension</h2>
         <ul>
-            <li MadCap:conditions="Content.Numbers">To specify a phone extension, follow the phone number with the word extension, and then specify the extension number.<ul><li>Good: 415‑555‑0132, extension 987</li></ul></li>
+            <li id="rule-9" MadCap:conditions="Content.Numbers">To specify a phone extension, follow the phone number with the word extension, and then specify the extension number.<ul><li>Good: 415‑555‑0132, extension 987</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr MadCap:conditions="Content.Numbers"><td>\d{4},?\s+(?:[Ee]xt\.?|EXT\.?)\s*\d+</td><td></td><td>warning</td><td></td><td>Call 415-555-0132 ext. 987.</td></tr>
+            <tr id="rule-10" MadCap:conditions="Content.Numbers"><td>\d{4},?\s+(?:[Ee]xt\.?|EXT\.?)\s*\d+</td><td></td><td>warning</td><td></td><td>Call 415-555-0132 ext. 987.</td></tr>
         </table>
     </body>
 </html>

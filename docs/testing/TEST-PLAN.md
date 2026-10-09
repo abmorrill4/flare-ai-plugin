@@ -63,7 +63,9 @@ numbers and URLs). One shared snippet (`LegacyApp.flsnp`, used by 9 topics) says
 | D2 | **Build style guide > Mine this project** on the corpus. | Competing forms found (for example `customers` vs `members`, `Single Sign-On` vs `single sign-on`) with counts and sentences. |
 | D3 | **Build style guide > Add notes…**, paste: "We never say 'log in' — always 'sign in'. Don't promise dates." | Proposed rules quote your words; checked ones go to the guide's `From-our-content` topic. |
 | D4 | Point **Team feedback folder** at `bench-out/<run>/feedback` (produced by the bench, below), **Tune style guide**. | The claims rule shows as disputed (one author rejects it, others accept); often-rejected AI rules are listed with evidence. |
-| D5 | With `FlareAI/owners.txt` listing someone else: **Ignore rule…** | You can't turn the rule off; a request goes to the owners instead. |
+| D5 | With `FlareAI/owners.txt` listing someone else: **Turn off rule…** | You can't turn the rule off; a request goes to the owners instead. |
+| D6 | As an owner: **Turn off rule…** on a Google proposal, "For the whole team", level off, a reason. | A row appears in the guide's *Changes to the Google guide* topic (no ID typed); Re-check: the rule no longer appears, from the linter or the AI. |
+| D7 | In the Company guide, insert a new bullet above existing rules, copy another bullet, then **Validate style guide** as an owner. | Status says new rules got permanent IDs; existing rules keep their IDs (Tune evidence and earlier feedback still point at them); no other change in the topic files (`git diff` shows only `id="rule-…"` attributes). |
 
 ## E. Output and assists
 

@@ -130,7 +130,7 @@ namespace FlareAI.Core.Style
             scope = scope ?? new GuideScope();
             var always = scope.Always;
             Func<GuideRule, bool> applies = r => r.Applies.Count == 0 || r.Applies.Any(scope.Content.Contains) || r.Applies.Any(always.Contains);
-            Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products);
+            Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products) && !comp.IsOff(r.Id);
             // Always-on: untagged rules plus the packs nearly every section needs; one block, cached for an hour.
             core = r => eligible(r) && r.Triggers.Count == 0 && (r.Applies.Count == 0 || r.Applies.Any(always.Contains));
             packs = r => eligible(r) && (r.Triggers.Count > 0 ? applies(r) && r.TriggeredBy(scope.Text)
@@ -146,6 +146,18 @@ namespace FlareAI.Core.Style
         }
 
         public GuideReport Validate(string project) { return Compose(project).Validate(); }
+
+        /// <summary>
+        /// Writes permanent keys into the team guide's own rules (not the generated Google folder, not docs projects).
+        /// For style guide owners: run before Validate. Returns how many rules got keys.
+        /// </summary>
+        public int AssignKeys()
+        {
+            var n = 0;
+            foreach (var g in _guides) n += GuideLayer.Load(g, null, null, "Google").AssignKeys();
+            lock (_gate) _cache.Clear();
+            return n;
+        }
 
         /// <summary>Terms every layer's glossary defines (for topic assists: don't propose what's already there).</summary>
         public List<string> GlossaryTerms(string project)
@@ -217,6 +229,13 @@ namespace FlareAI.Core.Style
         public bool ForOurProducts(ICollection<string> products)
         {
             return products == null || products.Count == 0 || products.Any(OurProducts.Contains);
+        }
+
+        /// <summary>True when a Rule/Setting table (or overrides.ini) turns this rule off: then neither the linter nor the AI uses it.</summary>
+        public bool IsOff(string ruleId)
+        {
+            string v;
+            return ruleId != null && _overrides.TryGetValue(ruleId, out v) && v == "off";
         }
 
         /// <summary>"off", a severity, or null: what the layers above say about this rule.</summary>
@@ -397,6 +416,13 @@ namespace FlareAI.Core.Style
                     if (!known.Contains(key))
                         report.Issues.Add(new GuideIssue { Level = "error", Layer = l.Name, File = "", Location = "override " + o.Key, Message = "No rule '" + o.Key + "': use a rule id from the guide, for example google:numbers/3." });
                 }
+            // Rules without a permanent key: their ids would shift when rules are added or moved.
+            foreach (var l in Layers)
+            {
+                var unkeyed = l.Items.Count(i => i.Element != null && !i.HasKey);
+                if (unkeyed > 0)
+                    report.Issues.Add(new GuideIssue { Level = "warning", Layer = l.Name, File = "", Location = "keys", Message = unkeyed + " rule(s) have no permanent key yet. Validating as a style guide owner assigns them (no other change to the topics)." });
+            }
             report.TableRules = rows.Count;
             report.TestedByExample = withEx.Count;
             report.ProseRules = Items.Count - rows.Count;

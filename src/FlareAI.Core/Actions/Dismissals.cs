@@ -77,12 +77,16 @@ namespace FlareAI.Core.Actions
 
         public static bool IsLinterRule(StyleFinding f) { return f.Layer != "ai" && f.Rule != null && f.Rule.Contains("."); }
 
-        public static void Ignore(string anyProjectPath, StyleFinding f)
+        /// <param name="setting">off, suggestion, warning or error.</param>
+        public static void Ignore(string anyProjectPath, StyleFinding f, string setting = "off")
         {
             var path = OverridesPath(anyProjectPath);
             if (path == null) throw new InvalidOperationException("This topic is not inside a Flare project.");
             Directory.CreateDirectory(Path.GetDirectoryName(path));
-            var line = IsLinterRule(f) ? f.Rule + " = NO" : "# ai-ignore: " + f.Rule;
+            // A guide rule by its permanent id (lint and AI alike); an uncited AI judgment by its name.
+            var line = f.RuleId != null ? f.RuleId + " = " + setting
+                     : IsLinterRule(f) ? f.Rule + " = " + (setting == "off" ? "NO" : setting)
+                     : "# ai-ignore: " + f.Rule;
             var existing = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8).TrimStart('﻿') : "# Rules turned off for this project (FlareAI \"Ignore rule\"). Vale syntax: Style.Rule = NO\r\n";
             if (existing.IndexOf(line, StringComparison.OrdinalIgnoreCase) >= 0) return;
             File.WriteAllText(path, existing.TrimEnd() + "\r\n" + line + "\r\n", NoBom); // ini readers choke on a BOM

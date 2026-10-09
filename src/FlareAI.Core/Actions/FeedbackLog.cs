@@ -23,11 +23,20 @@ namespace FlareAI.Core.Actions
             var line = JsonConvert.SerializeObject(new
             {
                 at = DateTime.UtcNow.ToString("o"), writer = team == null ? Environment.UserName : team.Writer, decision, reason,
-                kind = f.Kind, source = f.Source, layer = f.Layer, rule = f.Rule, rule_id = f.RuleId,
+                kind = f.Kind, source = f.Source, layer = f.Layer, rule = f.Rule, rule_id = f.RuleId, rule_hash = WordingHash(f.RuleText),
                 excerpt = f.Excerpt, replacement = f.Replacement, file = f.DocumentPath ?? topicPath
             }, Formatting.None);
             Append(PersonalPath, line);
             if (team != null) Append(team.SharedFeedbackFile, line);
+        }
+
+        /// <summary>A short fingerprint of a rule's wording: decisions about an earlier wording can be told apart.</summary>
+        public static string WordingHash(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return null;
+            var norm = System.Text.RegularExpressions.Regex.Replace(text.ToLowerInvariant(), @"\W+", " ").Trim();
+            using (var sha = System.Security.Cryptography.SHA1.Create())
+                return BitConverter.ToString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(norm)), 0, 4).Replace("-", "").ToLowerInvariant();
         }
 
         private static void Append(string path, string line)

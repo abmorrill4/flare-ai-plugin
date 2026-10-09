@@ -15,6 +15,8 @@ namespace FlareAI.Core.Actions
         public string Reason { get; set; }
         public string Rule { get; set; }
         public string RuleId { get; set; }
+        /// <summary>Fingerprint of the rule's wording when the decision was made (null in older logs).</summary>
+        public string RuleHash { get; set; }
         public string Layer { get; set; }
         public string Excerpt { get; set; }
         public string Replacement { get; set; }
@@ -61,7 +63,7 @@ namespace FlareAI.Core.Actions
                         list.Add(new Decision
                         {
                             At = (DateTime?)o["at"] ?? DateTime.MinValue, Writer = (string)o["writer"] ?? Path.GetFileNameWithoutExtension(file),
-                            Verdict = (string)o["decision"], Reason = (string)o["reason"], Rule = (string)o["rule"], RuleId = (string)o["rule_id"],
+                            Verdict = (string)o["decision"], Reason = (string)o["reason"], Rule = (string)o["rule"], RuleId = (string)o["rule_id"], RuleHash = (string)o["rule_hash"],
                             Layer = (string)o["layer"], Excerpt = (string)o["excerpt"], Replacement = (string)o["replacement"], File = (string)o["file"]
                         });
                     }
@@ -89,7 +91,12 @@ namespace FlareAI.Core.Actions
             var items = new List<TuneItem>();
             foreach (var g in decisions.Where(d => d.IsAccept || d.IsReject).GroupBy(d => d.Key))
             {
-                var all = g.ToList();
+                // Only decisions about the rule as it reads now (the wording of its latest decision): a rewritten rule
+                // starts fresh instead of carrying rejections of what it used to say.
+                var latest = g.Where(d => d.RuleHash != null).OrderBy(d => d.At).Select(d => d.RuleHash).LastOrDefault();
+                var all = g.Where(d => latest == null || d.RuleHash == null || d.RuleHash == latest).ToList();
+                var earlier = g.Count() - all.Count;
+                if (all.Count == 0) continue;
                 int acc = all.Count(d => d.IsAccept), rej = all.Count(d => d.IsReject);
                 var writers = all.Select(d => d.Writer).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
                 var rate = (double)rej / Math.Max(1, acc + rej);
@@ -116,7 +123,8 @@ namespace FlareAI.Core.Actions
                     {
                         Kind = "review", Rule = g.Key, Title = "Often rejected: " + g.Key + " (" + Pct(rate) + " of " + (acc + rej) + ")",
                         Accepted = acc, Rejected = rej, Writers = writers,
-                        Evidence = Reasons(all).Concat(Samples(all.Where(d => d.IsReject), 4)).ToList()
+                        Evidence = Reasons(all).Concat(Samples(all.Where(d => d.IsReject), 4))
+                            .Concat(earlier > 0 ? new[] { earlier + " older decision(s) about an earlier wording of this rule aren't counted." } : new string[0]).ToList()
                     });
                 }
                 else if (acc + rej >= minDecisions && rate <= 0.1)
