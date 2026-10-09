@@ -490,6 +490,13 @@ namespace FlareAI.Core.Actions
 
         public RewriteProposal Rewrite(IDocumentAdapter doc, IList<XmlNode> blocks, string instruction)
         {
+            return Rewrite(doc, blocks, instruction, true);
+        }
+
+        /// <param name="lint">False for style-guide topics: they quote the very words their rules ban, so linting them
+        /// (and the self-check repair round) would "fix" the rules themselves.</param>
+        public RewriteProposal Rewrite(IDocumentAdapter doc, IList<XmlNode> blocks, string instruction, bool lint)
+        {
             foreach (var b in blocks)
                 if (BlockSelector.IsOpaque(b))
                     throw new InvalidOperationException("The selection includes a " + b.Name + ", which cannot be rewritten in place. Select text inside a paragraph instead.");
@@ -497,12 +504,12 @@ namespace FlareAI.Core.Actions
             // result is applied word-level around them (never accepted or rejected on the author's behalf).
             var view = AcceptedView.Of(blocks);
             var notes = new List<string>();
-            var lint = SafeLint(blocks, notes);
+            var found = lint ? SafeLint(blocks, notes) : new List<StyleFinding>();
             var kind = string.IsNullOrEmpty(instruction) ? ActionKind.Rewrite : ActionKind.Ask;
-            var proposal = Propose(doc, blocks, view, _prompts.BuildUser(kind, XhtmlFragment.Serialize(view), instruction, Summarize(lint)), kind.ToString());
+            var proposal = Propose(doc, blocks, view, _prompts.BuildUser(kind, XhtmlFragment.Serialize(view), instruction, Summarize(found)), kind.ToString());
             proposal.Notes = notes;
             proposal.RemainingLint = new List<StyleFinding>();
-            if (!proposal.Validation.IsValid || _style == null || notes.Count > 0) return proposal;
+            if (!lint || !proposal.Validation.IsValid || _style == null || notes.Count > 0) return proposal;
 
             // Self-check: lint our own output and give the model one chance to fix what it left behind.
             var left = Significant(SafeLint(proposal.ProposedBlocks, notes));

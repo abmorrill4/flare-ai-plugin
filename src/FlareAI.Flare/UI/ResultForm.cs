@@ -35,6 +35,9 @@ namespace FlareAI.Flare.UI
         private RewriteProposal _proposal;
         private readonly IList<XmlNode> _blocks;
 
+        /// <summary>False when rewriting a style-guide topic (see <see cref="ActionRunner.Rewrite(IDocumentAdapter, IList{XmlNode}, string, bool)"/>).</summary>
+        public bool Lint { get; set; } = true;
+
         /// <summary>After OK: what was applied, for the caller's status line.</summary>
         public string AppliedSummary { get; private set; }
 
@@ -77,7 +80,7 @@ namespace FlareAI.Flare.UI
 
         private void Work(object sender, DoWorkEventArgs e)
         {
-            e.Result = _blocks != null ? _runner.Rewrite(_doc, _blocks, _instruction) : _runner.Rewrite(_doc, _instruction);
+            e.Result = _blocks != null ? _runner.Rewrite(_doc, _blocks, _instruction, Lint) : _runner.Rewrite(_doc, _instruction);
         }
 
         private void Done(object sender, RunWorkerCompletedEventArgs e)

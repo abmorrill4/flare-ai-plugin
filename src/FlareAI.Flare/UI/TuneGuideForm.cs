@@ -23,6 +23,8 @@ namespace FlareAI.Flare.UI
         private readonly IStyleService _style;
         private readonly string _project;
         private readonly Func<string, IDocumentAdapter> _open;
+        private readonly Func<IDocumentAdapter, ActionRunner> _runnerFor;
+        private readonly Button _draft, _prompts;
         private readonly Label _head;
         private readonly ListView _list;
         private readonly RichTextBox _detail;
@@ -38,9 +40,10 @@ namespace FlareAI.Flare.UI
             { "working", "Working well" }
         };
 
-        public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open)
+        /// <param name="runnerFor">An action runner for a style-guide topic opened in Flare (drafts guide edits).</param>
+        public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open, Func<IDocumentAdapter, ActionRunner> runnerFor)
         {
-            _team = team; _style = style; _project = project; _open = open;
+            _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor;
             Text = "FlareAI — Tune style guide";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 600);
@@ -58,9 +61,16 @@ namespace FlareAI.Flare.UI
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
             var refresh = new Button { Text = "Refresh", AutoSize = true };
             _openRule = new Button { Text = "Open rule in the guide", AutoSize = true, Enabled = false };
+            _draft = new Button { Text = "Draft a change with AI…", AutoSize = true, Enabled = false };
+            _prompts = new Button { Text = "Customize AI prompts…", AutoSize = true, Enabled = IsOwner };
             refresh.Click += (s, e) => Load();
             _openRule.Click += (s, e) => OpenRule();
-            bar.Controls.AddRange(new Control[] { close, refresh, _openRule });
+            _draft.Click += (s, e) => DraftChange();
+            _prompts.Click += (s, e) => CustomizePrompts();
+            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts });
+            var tips = new ToolTip();
+            tips.SetToolTip(_draft, "The AI rewrites this rule in the guide from the team's evidence; you review the change and apply it as tracked changes (owners only).");
+            tips.SetToolTip(_prompts, @"Copy the AI's instructions into the guide (FlareAI\prompts) so the team can tune them, versioned with the rules (owners only).");
             Controls.Add(_list);
             Controls.Add(_detail);
             Controls.Add(bar);
@@ -131,6 +141,60 @@ namespace FlareAI.Flare.UI
             Write(Advice(it.Kind), FontStyle.Italic);
             _detail.Select(0, 0);
             _openRule.Enabled = known && !string.IsNullOrEmpty(rule.Link);
+            _draft.Enabled = _openRule.Enabled && IsOwner && it.Kind != "working" && rule.Link.StartsWith("file:", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsOwner { get { return _team == null || _team.IsOwner; } }
+
+        /// <summary>Opens the rule's topic, finds the rule's bullet or row, and has the AI draft the change from the evidence.</summary>
+        private void DraftChange()
+        {
+            var it = Current();
+            GuideRule rule;
+            if (it == null || !_rules.TryGetValue(it.Rule ?? "", out rule)) return;
+            try
+            {
+                var doc = _open == null ? null : _open(new Uri(rule.Link).LocalPath);
+                if (doc == null) { MessageBox.Show(this, "Could not open " + rule.Link, "FlareAI"); return; }
+                var block = GuideEdits.Locate(doc.Document, rule.Text);
+                if (block == null) { MessageBox.Show(this, "Could not find this rule in " + System.IO.Path.GetFileName(doc.SourcePath) + ". Open it and edit the rule there.", "FlareAI"); return; }
+                var runner = _runnerFor == null ? null : _runnerFor(doc);
+                if (runner == null) return;
+                var instruction = GuideEdits.Instruction(it, rule, block.LocalName == "tr");
+                using (var form = new ResultForm("Draft style guide change", runner, doc, ActionKind.Ask, instruction, new List<System.Xml.XmlNode> { block }) { Lint = false })
+                {
+                    if (form.ShowDialog(this) != DialogResult.OK) return;
+                    _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ": review, save and commit the guide, then run Validate style guide.";
+                }
+            }
+            catch (Exception ex) { Diagnostics.Log("tune: draft", ex); MessageBox.Show(this, ex.Message, "FlareAI — Draft change"); }
+        }
+
+        /// <summary>Seeds the guide's FlareAI\prompts folder with the built-in templates (missing ones only) and opens it.</summary>
+        private void CustomizePrompts()
+        {
+            if (_team == null || _team.GuideRoot == null) return;
+            try
+            {
+                var dir = System.IO.Path.Combine(_team.GuideRoot, System.IO.Path.Combine("FlareAI", "prompts"));
+                System.IO.Directory.CreateDirectory(dir);
+                var added = 0;
+                foreach (var name in PromptBuilder.Templates)
+                {
+                    var file = System.IO.Path.Combine(dir, name);
+                    if (System.IO.File.Exists(file)) continue;
+                    System.IO.File.WriteAllText(file, PromptBuilder.BuiltIn(name), new System.Text.UTF8Encoding(false));
+                    added++;
+                }
+                var readme = System.IO.Path.Combine(dir, "README.txt");
+                if (!System.IO.File.Exists(readme))
+                    System.IO.File.WriteAllText(readme, "The AI's instructions. A file here replaces the built-in template of the same name for every writer\r\n" +
+                        "who uses this style guide. Keep the {{PLACEHOLDERS}}. Delete a file to go back to the built-in version.\r\n" +
+                        "Commit changes like any rule change; run Validate style guide > Check prose rules with AI afterwards.\r\n", new System.Text.UTF8Encoding(false));
+                _head.Text = (added > 0 ? "Copied " + added + " prompt template(s) to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
+                System.Diagnostics.Process.Start("explorer.exe", "\"" + dir + "\"");
+            }
+            catch (Exception ex) { Diagnostics.Log("tune: prompts", ex); MessageBox.Show(this, ex.Message, "FlareAI — Customize AI prompts"); }
         }
 
         private static string Advice(string kind)

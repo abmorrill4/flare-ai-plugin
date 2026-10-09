@@ -227,8 +227,13 @@ runs docstyle locally. Shared rules change only through the guide owner(s); git 
    Verified in Flare with a git clone of the guide one commit behind, an owners file, and seeded feedback from two
    writers: report items, evidence, Open rule, behind-notice, and a non-owner's ignore request landing in the shared
    folder. A guide names itself in `FlareAI/layer.txt` so rule ids match across clones.
-5. `[ ]` Next: AI-drafted guide edits from a report item, written as tracked changes into the guide topic; style-guide
-   builder mining Flare projects into the same cards; prompts as overridable files in the guide.
+5. `[x]` **AI-drafted guide edits** (owners): Tune ▸ Draft a change with AI finds the rule's bullet/row in the guide
+   topic, drafts the change from the team's evidence (scope, exception, new Bad/Good pair), shows the readable diff,
+   applies as tracked changes (no lint on guide topics). Verified in Flare on a disputed rule.
+6. `[x]` **Prompts as files**: `<guide>/FlareAI/prompts/*.md` overrides the built-in templates for everyone using the
+   guide; Tune ▸ Customize AI prompts seeds them.
+7. `[ ]` **Style-guide builder**: mine Flare projects (term variants, UI verbs, heading case, typed variable values)
+   and pasted notes/old guides into proposal cards; accepted rules are written into the guide.
 
 Next phases (agreed order): **2e** feedback loop (rejection reasons → per-rule precision; teach actions that edit
 the company guide; prompts as overridable files in the guide project) · **2f** accessibility, white-label and

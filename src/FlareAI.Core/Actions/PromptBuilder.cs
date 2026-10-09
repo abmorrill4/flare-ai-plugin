@@ -23,6 +23,7 @@ namespace FlareAI.Core.Actions
         public PromptBuilder(Func<string> companyGuide)
         {
             _guide = companyGuide;
+            OverrideFolder = DefaultOverrideFolder;
         }
 
         public string BuildSystem()
@@ -80,7 +81,31 @@ namespace FlareAI.Core.Actions
                 .Replace("{{PROPOSAL}}", proposal ?? "").Replace("{{INSTRUCTION}}", (instruction ?? "").Trim());
         }
 
-        private static string Embedded(string name)
+        /// <summary>
+        /// Folder of team prompt overrides (the guide's FlareAI\prompts): a file there with a template's name replaces the
+        /// built-in template, so owners tune the AI's instructions in the guide, versioned with the rules. Null = built-ins only.
+        /// </summary>
+        public static string DefaultOverrideFolder { get; set; }
+
+        /// <summary>This builder's override folder (defaults to <see cref="DefaultOverrideFolder"/>).</summary>
+        public string OverrideFolder { get; set; }
+
+        /// <summary>Names of the templates a team can override.</summary>
+        public static readonly string[] Templates = { "system-base.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md" };
+
+        private string Embedded(string name)
+        {
+            var custom = OverrideFolder == null ? null : Path.Combine(OverrideFolder, name);
+            if (custom != null && File.Exists(custom))
+            {
+                try { return File.ReadAllText(custom, Encoding.UTF8); }
+                catch (Exception ex) { Diagnostics.Log("prompt override " + custom, ex); }
+            }
+            return BuiltIn(name);
+        }
+
+        /// <summary>The template shipped with the plugin (used to seed an override file).</summary>
+        public static string BuiltIn(string name)
         {
             var asm = Assembly.GetExecutingAssembly();
             using (var s = asm.GetManifestResourceStream("FlareAI.Core.Prompts." + name))

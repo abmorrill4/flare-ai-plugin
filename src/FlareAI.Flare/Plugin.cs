@@ -189,6 +189,7 @@ namespace FlareAI.Flare
                 FeedbackLog.PersonalPath = Path.Combine(PluginSettings.SettingsDirectory, "feedback.jsonl");
                 var team = Team.Load(settings.GuideRoot(PluginDirectory), settings.FeedbackFolder);
                 Team.Current = team;
+                PromptBuilder.DefaultOverrideFolder = team.GuideRoot == null ? null : Path.Combine(team.GuideRoot, Path.Combine("FlareAI", "prompts"));
                 Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
                 System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                 {
@@ -208,7 +209,7 @@ namespace FlareAI.Flare
                 var style = StyleService(settings);
                 var adapter = ActiveAdapter();
                 var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
-                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter))
+                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false)))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)
@@ -307,6 +308,13 @@ namespace FlareAI.Flare
         /// <summary>Fresh settings + LLM client per action; the docstyle server process is shared. Null if not configured.</summary>
         private ActionRunner NewRunner(FlareDocumentAdapter adapter)
         {
+            return NewRunner(adapter, true);
+        }
+
+        /// <param name="projectLayer">False for style-guide topics: the guide project is already a layer.</param>
+        private ActionRunner NewRunner(FlareDocumentAdapter adapter, bool projectLayer)
+        {
+            if (adapter == null) return null;
             var topicPath = adapter.SourcePath;
             var settings = PluginSettings.Load();
             ILlmClient llm;
@@ -318,7 +326,7 @@ namespace FlareAI.Flare
                 return null;
             }
             var style = StyleService(settings);
-            var project = settings.UseProjectLayer ? topicPath : null;
+            var project = settings.UseProjectLayer && projectLayer ? topicPath : null;
             return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(project)), settings.MaxTokens, style, project)
             {
                 VariableValue = adapter.VariableValue
