@@ -21,3 +21,6 @@ settings.json
 
 # python
 __pycache__/
+
+# local demo media (recordings, renders)
+demo/
