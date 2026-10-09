@@ -1,0 +1,637 @@
+{
+ "fetched": "2026-10-09",
+ "source": "https://developers.google.com/style",
+ "license": "CC BY 4.0",
+ "pages": [
+  {
+   "slug": "about",
+   "title": "About this guide Stay organized with collections Save and categorize content based on your preferences.",
+   "section": "",
+   "url": "https://developers.google.com/style",
+   "sha256": "3d8187447b8d5c74",
+   "words": 465,
+   "units": 23
+  },
+  {
+   "slug": "highlights",
+   "title": "Highlights",
+   "section": "Introduction",
+   "url": "https://developers.google.com/style/highlights",
+   "sha256": "79e9883d8e2ce02a",
+   "words": 187,
+   "units": 21
+  },
+  {
+   "slug": "whats-new",
+   "title": "What's new",
+   "section": "Introduction",
+   "url": "https://developers.google.com/style/whats-new",
+   "sha256": "a15870beab4726e8",
+   "words": 11078,
+   "units": 636
+  },
+  {
+   "slug": "philosophy",
+   "title": "Philosophy of this guide",
+   "section": "Introduction",
+   "url": "https://developers.google.com/style/philosophy",
+   "sha256": "386f951c4bee8712",
+   "words": 257,
+   "units": 16
+  },
+  {
+   "slug": "word-list",
+   "title": "Word list",
+   "section": "Key resources",
+   "url": "https://developers.google.com/style/word-list",
+   "sha256": "5700d815b9ef508c",
+   "words": 18115,
+   "units": 619
+  },
+  {
+   "slug": "product-names",
+   "title": "Product names",
+   "section": "Key resources",
+   "url": "https://developers.google.com/style/product-names",
+   "sha256": "4f08f7f6b5c0b564",
+   "words": 627,
+   "units": 25
+  },
+  {
+   "slug": "text-formatting",
+   "title": "Text-formatting summary",
+   "section": "Key resources",
+   "url": "https://developers.google.com/style/text-formatting",
+   "sha256": "35d5ce495be46114",
+   "words": 581,
+   "units": 10
+  },
+  {
+   "slug": "accessibility",
+   "title": "Accessibility",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/accessibility",
+   "sha256": "8ab93b93560b5744",
+   "words": 1717,
+   "units": 87
+  },
+  {
+   "slug": "excessive-claims",
+   "title": "Excessive claims",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/excessive-claims",
+   "sha256": "f0694f8d96008685",
+   "words": 349,
+   "units": 15
+  },
+  {
+   "slug": "future",
+   "title": "Future features",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/future",
+   "sha256": "e2252de3a70a0a87",
+   "words": 31,
+   "units": 2
+  },
+  {
+   "slug": "translation",
+   "title": "Global audience",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/translation",
+   "sha256": "51bb011b4ccd9f70",
+   "words": 1796,
+   "units": 63
+  },
+  {
+   "slug": "inclusive-documentation",
+   "title": "Inclusive language",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/inclusive-documentation",
+   "sha256": "b91c23898a982bd0",
+   "words": 1950,
+   "units": 71
+  },
+  {
+   "slug": "jargon",
+   "title": "Jargon",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/jargon",
+   "sha256": "084d0b43b45c413b",
+   "words": 465,
+   "units": 8
+  },
+  {
+   "slug": "prescriptive-documentation",
+   "title": "Prescriptive documentation",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/prescriptive-documentation",
+   "sha256": "89d687143d17a092",
+   "words": 578,
+   "units": 25
+  },
+  {
+   "slug": "other-sources",
+   "title": "Third-party content",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/other-sources",
+   "sha256": "cd33fbb4f7d60905",
+   "words": 209,
+   "units": 9
+  },
+  {
+   "slug": "timeless-documentation",
+   "title": "Timeless documentation",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/timeless-documentation",
+   "sha256": "729faa3d1b3eaa9d",
+   "words": 553,
+   "units": 28
+  },
+  {
+   "slug": "tone",
+   "title": "Voice and tone",
+   "section": "General principles",
+   "url": "https://developers.google.com/style/tone",
+   "sha256": "e69d67c5aedc3695",
+   "words": 691,
+   "units": 34
+  },
+  {
+   "slug": "abbreviations",
+   "title": "Abbreviations",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/abbreviations",
+   "sha256": "fe1f27cc67808631",
+   "words": 1196,
+   "units": 74
+  },
+  {
+   "slug": "voice",
+   "title": "Active voice",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/voice",
+   "sha256": "ed1b86fae503ab36",
+   "words": 294,
+   "units": 16
+  },
+  {
+   "slug": "anthropomorphism",
+   "title": "Anthropomorphism",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/anthropomorphism",
+   "sha256": "157e722d71e9db89",
+   "words": 78,
+   "units": 6
+  },
+  {
+   "slug": "articles",
+   "title": "Articles (a, an, the)",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/articles",
+   "sha256": "7a92772b17b58429",
+   "words": 111,
+   "units": 7
+  },
+  {
+   "slug": "capitalization",
+   "title": "Capitalization",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/capitalization",
+   "sha256": "ea2e7992084a7f1f",
+   "words": 597,
+   "units": 26
+  },
+  {
+   "slug": "contractions",
+   "title": "Contractions",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/contractions",
+   "sha256": "6bf80a926b23c390",
+   "words": 119,
+   "units": 5
+  },
+  {
+   "slug": "pluralization",
+   "title": "Pluralization",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/pluralization",
+   "sha256": "aa5856bf525712e0",
+   "words": 761,
+   "units": 46
+  },
+  {
+   "slug": "possessives",
+   "title": "Possessives",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/possessives",
+   "sha256": "2d8cd64478ca685d",
+   "words": 344,
+   "units": 26
+  },
+  {
+   "slug": "prepositions",
+   "title": "Prepositions",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/prepositions",
+   "sha256": "c014d2c5336f43c0",
+   "words": 124,
+   "units": 6
+  },
+  {
+   "slug": "tense",
+   "title": "Present tense",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/tense",
+   "sha256": "26f75fb059b08491",
+   "words": 188,
+   "units": 12
+  },
+  {
+   "slug": "pronouns",
+   "title": "Pronouns",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/pronouns",
+   "sha256": "405e2e8e8c65925a",
+   "words": 595,
+   "units": 33
+  },
+  {
+   "slug": "person",
+   "title": "Second person",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/person",
+   "sha256": "59d86e27b59b99f3",
+   "words": 450,
+   "units": 16
+  },
+  {
+   "slug": "sentence-structure",
+   "title": "Sentence structure",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/sentence-structure",
+   "sha256": "d814fbff9d0f892f",
+   "words": 143,
+   "units": 5
+  },
+  {
+   "slug": "reference-verbs",
+   "title": "Verbs in reference documents",
+   "section": "Language and grammar",
+   "url": "https://developers.google.com/style/reference-verbs",
+   "sha256": "d412753cc9e4423b",
+   "words": 96,
+   "units": 5
+  },
+  {
+   "slug": "colons",
+   "title": "Colons",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/colons",
+   "sha256": "723df48188da8760",
+   "words": 171,
+   "units": 10
+  },
+  {
+   "slug": "commas",
+   "title": "Commas",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/commas",
+   "sha256": "9537826b15344578",
+   "words": 578,
+   "units": 28
+  },
+  {
+   "slug": "dashes",
+   "title": "Dashes",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/dashes",
+   "sha256": "7ba78b5183a66665",
+   "words": 392,
+   "units": 21
+  },
+  {
+   "slug": "ellipses",
+   "title": "Ellipses",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/ellipses",
+   "sha256": "d72ccf3a7025e3fc",
+   "words": 412,
+   "units": 14
+  },
+  {
+   "slug": "hyphens",
+   "title": "Hyphens",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/hyphens",
+   "sha256": "db4274d8a855f461",
+   "words": 1168,
+   "units": 80
+  },
+  {
+   "slug": "parentheses",
+   "title": "Parentheses",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/parentheses",
+   "sha256": "7e5897082757342e",
+   "words": 205,
+   "units": 9
+  },
+  {
+   "slug": "periods",
+   "title": "Periods and end punctuation",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/periods",
+   "sha256": "c6c334638ecd7f9b",
+   "words": 716,
+   "units": 42
+  },
+  {
+   "slug": "quotation-marks",
+   "title": "Quotation marks",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/quotation-marks",
+   "sha256": "df335539b8c04ab1",
+   "words": 672,
+   "units": 34
+  },
+  {
+   "slug": "semicolons",
+   "title": "Semicolons",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/semicolons",
+   "sha256": "3eba9a0b3d5d1481",
+   "words": 217,
+   "units": 4
+  },
+  {
+   "slug": "slashes",
+   "title": "Slashes",
+   "section": "Punctuation",
+   "url": "https://developers.google.com/style/slashes",
+   "sha256": "1a4a615cb7d71092",
+   "words": 337,
+   "units": 27
+  },
+  {
+   "slug": "dates-times",
+   "title": "Dates and times",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/dates-times",
+   "sha256": "45ff9626caa0cbd0",
+   "words": 910,
+   "units": 52
+  },
+  {
+   "slug": "format-examples",
+   "title": "Examples",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/format-examples",
+   "sha256": "9a6894413a891846",
+   "words": 293,
+   "units": 5
+  },
+  {
+   "slug": "images",
+   "title": "Figures and other images",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/images",
+   "sha256": "ad070b83b93f65f2",
+   "words": 2665,
+   "units": 98
+  },
+  {
+   "slug": "footnotes",
+   "title": "Footnotes",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/footnotes",
+   "sha256": "059a4b0b88efdfd1",
+   "words": 100,
+   "units": 8
+  },
+  {
+   "slug": "headings",
+   "title": "Headings and titles",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/headings",
+   "sha256": "f4641e88cc68563f",
+   "words": 1294,
+   "units": 45
+  },
+  {
+   "slug": "italics-terms",
+   "title": "Italics with terms",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/italics-terms",
+   "sha256": "d8110de37de22457",
+   "words": 137,
+   "units": 7
+  },
+  {
+   "slug": "lists",
+   "title": "Lists",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/lists",
+   "sha256": "3f77678f8d06e83f",
+   "words": 1837,
+   "units": 150
+  },
+  {
+   "slug": "mathematical-notation",
+   "title": "Mathematical notation",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/mathematical-notation",
+   "sha256": "4e495fe8cd3522b0",
+   "words": 894,
+   "units": 71
+  },
+  {
+   "slug": "notices",
+   "title": "Notes and other notices",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/notices",
+   "sha256": "69f089573b9da90d",
+   "words": 615,
+   "units": 20
+  },
+  {
+   "slug": "numbers",
+   "title": "Numbers",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/numbers",
+   "sha256": "a1a148c7ee6ac291",
+   "words": 1118,
+   "units": 72
+  },
+  {
+   "slug": "paragraph-structure",
+   "title": "Paragraphs",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/paragraph-structure",
+   "sha256": "2efc9e73c54d54bb",
+   "words": 224,
+   "units": 6
+  },
+  {
+   "slug": "phone-numbers",
+   "title": "Phone numbers",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/phone-numbers",
+   "sha256": "bddc44bef9697dae",
+   "words": 285,
+   "units": 14
+  },
+  {
+   "slug": "procedures",
+   "title": "Procedures",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/procedures",
+   "sha256": "ffb5cac6830fcce6",
+   "words": 1966,
+   "units": 111
+  },
+  {
+   "slug": "tables",
+   "title": "Tables",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/tables",
+   "sha256": "597e10f581e8b38f",
+   "words": 941,
+   "units": 43
+  },
+  {
+   "slug": "units-of-measure",
+   "title": "Units of measurement",
+   "section": "Formatting and organization",
+   "url": "https://developers.google.com/style/units-of-measure",
+   "sha256": "d5b5bb3de537d0e0",
+   "words": 661,
+   "units": 53
+  },
+  {
+   "slug": "cross-references",
+   "title": "Cross-references and linking",
+   "section": "Linking",
+   "url": "https://developers.google.com/style/cross-references",
+   "sha256": "21bea5b9b3e1be2c",
+   "words": 1545,
+   "units": 73
+  },
+  {
+   "slug": "headings-targets",
+   "title": "Headings as link targets",
+   "section": "Linking",
+   "url": "https://developers.google.com/style/headings-targets",
+   "sha256": "d968433f3acf9d40",
+   "words": 500,
+   "units": 31
+  },
+  {
+   "slug": "api-reference-comments",
+   "title": "API reference code comments",
+   "section": "Computer interfaces",
+   "url": "https://developers.google.com/style/api-reference-comments",
+   "sha256": "5b70f6c35aea0d04",
+   "words": 1335,
+   "units": 71
+  },
+  {
+   "slug": "code-in-text",
+   "title": "Code in text",
+   "section": "Computer interfaces",
+   "url": "https://developers.google.com/style/code-in-text",
+   "sha256": "0482382d6d74c25c",
+   "words": 2147,
+   "units": 110
+  },
+  {
+   "slug": "code-samples",
+   "title": "Code samples",
+   "section": "Computer interfaces",
+   "url": "https://developers.google.com/style/code-samples",
+   "sha256": "d827386a52e80244",
+   "words": 503,
+   "units": 28
+  },
+  {
+   "slug": "code-syntax",
+   "title": "Command-line syntax",
+   "section": "Computer interfaces",
+   "url": "https://developers.google.com/style/code-syntax",
+   "sha256": "97af0869b4ac198e",
+   "words": 2681,
+   "units": 115
+  },
+  {
+   "slug": "placeholders",
+   "title": "Placeholder formatting",
+   "section": "Computer interfaces",
+   "url": "https://developers.google.com/style/placeholders",
+   "sha256": "bb0693751bdbc05a",
+   "words": 1225,
+   "units": 99
+  },
+  {
+   "slug": "ui-elements",
+   "title": "UI elements and interaction",
+   "section": "Computer interfaces",
+   "url": "https://developers.google.com/style/ui-elements",
+   "sha256": "10eb215b47ddb82c",
+   "words": 2930,
+   "units": 159
+  },
+  {
+   "slug": "semantic-tagging",
+   "title": "HTML and semantic tagging",
+   "section": "HTML and CSS",
+   "url": "https://developers.google.com/style/semantic-tagging",
+   "sha256": "33a29eaabe02cdb2",
+   "words": 248,
+   "units": 9
+  },
+  {
+   "slug": "html-formatting",
+   "title": "HTML formatting",
+   "section": "HTML and CSS",
+   "url": "https://developers.google.com/style/html-formatting",
+   "sha256": "0509138f2f07dc66",
+   "words": 294,
+   "units": 13
+  },
+  {
+   "slug": "markdown",
+   "title": "Markdown versus HTML",
+   "section": "HTML and CSS",
+   "url": "https://developers.google.com/style/markdown",
+   "sha256": "bdd4e0f0dc84e893",
+   "words": 136,
+   "units": 3
+  },
+  {
+   "slug": "examples",
+   "title": "Example domains and names",
+   "section": "Names and naming",
+   "url": "https://developers.google.com/style/examples",
+   "sha256": "75d62614e72954cc",
+   "words": 921,
+   "units": 82
+  },
+  {
+   "slug": "filenames",
+   "title": "Filenames",
+   "section": "Names and naming",
+   "url": "https://developers.google.com/style/filenames",
+   "sha256": "aa2d588a93176f10",
+   "words": 628,
+   "units": 53
+  },
+  {
+   "slug": "trademarks",
+   "title": "Trademarks",
+   "section": "Names and naming",
+   "url": "https://developers.google.com/style/trademarks",
+   "sha256": "a1df0097018ddd19",
+   "words": 150,
+   "units": 10
+  }
+ ]
+}
