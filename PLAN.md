@@ -279,9 +279,14 @@ command is documented in the README for madbuild/CI.
 - [x] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.
 - [x] Write `docs\TESTER-GUIDE.md` (install, enable, enter key, the three buttons, how to
       report problems, where `diag.log` is).
-- [ ] Feedback loop: 1-week trial, collect findings in `docs\FEEDBACK.md`.
+- [x] Package refreshed (`dist\FlareAI-0.1.0.zip`: plugin, icons, docstyle with mining + LLM export); tester guide covers
+      the review pane, structure checks, assists, LLM export, Build/Tune style guide and strict ownership.
+- [ ] Feedback loop: 1-week trial, collect findings in `docs\FEEDBACK.md`. (Needs real writers.)
 
 ### Phase 4 — Bifrost integration `[ ]`
+
+Blocked on a running gateway: `BifrostClient` exists (now with image support); the gateway side (MCP registration,
+virtual keys) needs the Bifrost host. Not needed for team sync (git + shared feedback folder cover it).
 
 - [ ] `BifrostClient : ILlmClient` → `POST {gateway}/v1/chat/completions`, header `x-bf-vk`,
       non-streaming, optional `x-bf-mcp-include-tools`.

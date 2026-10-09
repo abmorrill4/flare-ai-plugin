@@ -15,7 +15,14 @@ in neither layer. When unsure, call `style_lookup` and cite the section.
   headings. Returns exact spans, the rule, its layer (`google`, `company`, `project`, or a custom layer folder name), a guide link, and an exact
   `replacement` when the fix is mechanical (`null` when it needs judgment).
 - `style_lookup(query)`: matching guide sections from every layer; `""` returns the full layered guide.
-- `glossary_lookup(term)`: canonical spelling, abbreviation, first-use note.
+- `glossary_lookup(term)`: canonical spelling, abbreviation, first-use note (`""` lists every entry).
+- `validate_guide(project)` / `guide_examples(project)`: test the guide itself (rule rows against their examples;
+  prose rules with Bad/Good examples).
+- `mine_style(project)`: proposed rules from a Flare project's own content (spelling variants, competing words,
+  capitalization, heading case) with counts and example sentences, minus what the guide already enforces.
+
+Outside MCP: `server.py --llm-export OUTPUT_DIR [--url BASE]` turns built Flare HTML into Markdown per topic +
+`llms.txt` / `llms-full.txt`.
 
 Pass `project` (any path inside a MadCap Flare project) to `lint`, `style_lookup`, and `glossary_lookup` to add
 that project's layer: its variable values ("insert the variable, don't type the text"), glossary terms, and

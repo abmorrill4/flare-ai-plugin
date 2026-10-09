@@ -28,6 +28,8 @@ account; nobody else on the machine can read it.
 | **Rewrite selection** | Rewrites the selected paragraph(s) for clarity and style | Yes, word-level tracked changes |
 | **Check project** | Lints every topic and snippet in the project (no AI cost); results grouped by file | Only when you click Fix |
 | **Ask…** | Does what you type ("make this a numbered list", "shorten to two sentences") | Yes, tracked |
+| **Topic assists** | Drafts a meta description, index keywords, search synonyms, micro content and glossary terms for the topic, each with a Copy button | No — you paste what you keep |
+| **Export for LLMs** | Turns built HTML output into Markdown per topic + `llms.txt` (for AI assistants and chatbots) | No — writes into the output folder |
 
 Selection rule: it works on whole paragraphs/lists/tables containing your selection. Caret only =
 whole topic.
@@ -40,10 +42,18 @@ The pane lists every proposal in reading order, grouped under the topic's headin
   it comes from: **[Google]**, **[Company · section]**, or **[AI · Company: section]** for AI judgment calls.
 - **Impact:** for text inside a snippet, how many files use that snippet.
 
+Besides style, the pane flags things a style checker can't see: images without alt text, skipped heading levels, a
+second h1, tables without a header row, link text like "click here", and hard-coded phone numbers, email addresses
+and URLs (in white-label docs these belong in variables). These are "fix in the editor" items: **Go to**, fix it,
+**Re-analyze**. For a missing alt text, the button reads **Suggest alt text…**: the AI looks at the image and drafts
+the alt text; you edit it, and it's applied as a tracked change.
+
 Decide on each one:
 - **Accept** (Enter, or double-click): applies it as a tracked change and moves to the next proposal. For "needs a
   rewrite", the button reads **Rewrite…**: the AI rewrites that paragraph and shows you the result as marked-up text
   first. **Accept all mechanical** applies every exact rule fix in the topic at once (one Ctrl+Z undoes them).
+  **Propose all as tracked changes** writes every proposal that has exact text (rule fixes and AI wording) into the
+  topic at once, so you can review them with Flare's own Accept/Reject (Review tab) or send them in a review package.
 - **Reject ▾** (Delete): pick why: *wrong*, *fine here*, or *rule doesn't apply*. It stays hidden for that text, and
   the reason is recorded so the guide and the AI can be tuned. *Skip for now* just moves on.
 - **Edit…**: type the replacement yourself, then apply it. **Refine…**: tell the AI how to change this one proposal
@@ -61,6 +71,20 @@ click **Re-check** for a fresh review.
 It's a Flare project (`CompanyStyle`). Its `About` topic explains the format. After editing, run
 **AI > Validate style guide**: it checks every rule table against its examples, and **Check prose rules with AI…**
 shows which written rules the AI actually applies.
+
+If your team has style guide owners (listed in the guide's `FlareAI/owners.txt`), only they change shared rules.
+For everyone else, **Ignore rule…** sends the owners a request with your reason instead of turning the rule off.
+
+For owners:
+- **Build style guide** proposes rules from evidence. **Mine this project** finds where your topics disagree with
+  each other (spelling variants, competing words like sign in / log in, capitalization, heading case) with counts and
+  real sentences; pick the preferred form. **Add notes or an old guide…** turns pasted or dictated notes (Win+H), an
+  old style guide, or another AI tool's prompt into rules that quote where they came from. Checked rules are added to
+  the guide's `From-our-content` topic; then run Validate style guide.
+- **Tune style guide** pools the team's review decisions (Settings → Team feedback folder): rules writers disagree
+  on, rules that are often rejected, hand edits several writers keep making, and requests to turn rules off — each
+  with the evidence. **Draft a change with AI** rewrites the rule from that evidence as tracked changes in the guide;
+  **Customize AI prompts** puts the AI's own instructions in the guide so you can tune them like rules.
 
 ## Known Flare limitation
 After a paragraph-level AI edit of text that contains a variable, Ctrl+Z works but Ctrl+Y (redo) can make Flare show
