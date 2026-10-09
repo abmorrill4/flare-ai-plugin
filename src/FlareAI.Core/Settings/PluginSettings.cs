@@ -45,6 +45,19 @@ namespace FlareAI.Core.Settings
         public bool UseProjectLayer { get; set; }
         /// <summary>After each build of an HTML target, add Markdown per topic + llms.txt to the output (docstyle --llm-export).</summary>
         public bool LlmExportAfterBuild { get; set; }
+        /// <summary>Fast-tier model (refine, topic assists); empty = built-in default. <see cref="Model"/> is the standard tier.</summary>
+        public string FastModel { get; set; }
+        /// <summary>Deep-tier model (owner edits to the style guide); empty = built-in default.</summary>
+        public string DeepModel { get; set; }
+        /// <summary>Model calls run at once for per-block work.</summary>
+        public int Parallelism { get; set; }
+
+        /// <summary>The routing in effect: these settings, then the team's FlareAI\models.json in the style guide.</summary>
+        public FlareAI.Core.Llm.Routing Routing(string guideRoot)
+        {
+            return new FlareAI.Core.Llm.Routing(string.IsNullOrEmpty(FastModel) ? null : FastModel, string.IsNullOrEmpty(Model) ? null : Model,
+                                                string.IsNullOrEmpty(DeepModel) ? null : DeepModel).WithTeamFile(guideRoot);
+        }
         /// <summary>
         /// Shared team feedback folder (a synced OneDrive/SharePoint folder, network share, or repo writers can push to);
         /// each writer appends to their own file there. Empty = decisions stay in the personal log only.

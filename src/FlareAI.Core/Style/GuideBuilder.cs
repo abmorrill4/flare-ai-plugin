@@ -95,22 +95,45 @@ namespace FlareAI.Core.Style
             return list;
         }
 
-        /// <summary>Candidates the AI extracted from notes or an old guide (a JSON array; see action-extract.md).</summary>
+        /// <summary>Notes split into paragraph-sized pieces (blank lines; small paragraphs merged), each read on its own.</summary>
+        public static List<string> Chunks(string notes, int min = 400, int max = 3000)
+        {
+            var chunks = new List<string>();
+            var cur = new StringBuilder();
+            foreach (var para in System.Text.RegularExpressions.Regex.Split((notes ?? "").Replace("\r\n", "\n"), @"\n\s*\n"))
+            {
+                var p = para.Trim();
+                if (p.Length == 0) continue;
+                if (cur.Length > 0 && (cur.Length >= min || cur.Length + p.Length > max)) { chunks.Add(cur.ToString()); cur.Clear(); }
+                if (cur.Length > 0) cur.Append("\n\n");
+                cur.Append(p);
+            }
+            if (cur.Length > 0) chunks.Add(cur.ToString());
+            return chunks;
+        }
+
+        /// <summary>Candidates from the extract contract's rules (or a bare JSON array of them, from older answers).</summary>
         public static List<RuleCandidate> ParseExtracted(string modelText)
         {
-            var list = new List<RuleCandidate>();
             var s = (modelText ?? "").Trim();
+            if (s.StartsWith("{")) return FromExtracted((JArray)(JObject.Parse(s)["rules"] ?? new JArray()));
             int start = s.IndexOf('['), end = s.LastIndexOf(']');
             if (start < 0 || end <= start) throw new FormatException("Model did not return a JSON array.");
+            return FromExtracted(JArray.Parse(s.Substring(start, end - start + 1)));
+        }
+
+        public static List<RuleCandidate> FromExtracted(JArray rules)
+        {
+            var list = new List<RuleCandidate>();
             var n = 0;
-            foreach (var c in JArray.Parse(s.Substring(start, end - start + 1)))
+            foreach (var c in rules)
             {
-                var avoid = ((string)c["avoid"] ?? "").Trim();
+                var avoid = ((string)c["kind"] == "prose" ? "" : ((string)c["avoid"] ?? "")).Trim();
                 var rc = new RuleCandidate
                 {
                     Id = "notes:" + (++n), Kind = "notes", Title = (string)c["title"] ?? (string)c["text"] ?? avoid,
                     Avoid = avoid.Length > 0 ? avoid : null, Use = (string)c["use"] ?? "", Why = (string)c["why"], Example = (string)c["example"],
-                    Text = (string)c["text"], Bad = (string)c["bad"], Good = (string)c["good"], Quote = (string)c["quote"]
+                    Text = Empty((string)c["text"]), Bad = Empty((string)c["bad"]), Good = Empty((string)c["good"]), Quote = (string)c["quote"]
                 };
                 var sev = ((string)c["severity"] ?? "warning").ToLowerInvariant();
                 rc.Severity = sev == "error" || sev == "suggestion" ? sev : "warning";
@@ -118,6 +141,8 @@ namespace FlareAI.Core.Style
             }
             return list;
         }
+
+        private static string Empty(string s) { return string.IsNullOrEmpty(s) ? null : s; }
 
         /// <summary>
         /// Writes accepted candidates into the guide: rows go into the Avoid/Use table and bullets into the list of the

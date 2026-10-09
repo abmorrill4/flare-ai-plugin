@@ -11,7 +11,7 @@ namespace FlareAI.Flare.UI
         private readonly TextBox _styleCmd, _styleArgs, _layers, _feedback;
         private readonly CheckBox _projectLayer, _llmExport;
         private readonly ComboBox _provider;
-        private readonly TextBox _baseUrl, _model, _key, _mcpTools, _timeout;
+        private readonly TextBox _baseUrl, _model, _fastModel, _deepModel, _key, _mcpTools, _timeout;
         private readonly CheckBox _diag;
         private readonly Label _keyStatus;
         private readonly PluginSettings _settings;
@@ -24,7 +24,7 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 556);
+            ClientSize = new Size(520, 616);
             Font = SystemFonts.MessageBoxFont;
 
             var y = 12;
@@ -34,7 +34,11 @@ namespace FlareAI.Flare.UI
             _provider.SelectedIndexChanged += (s, e) => OnProviderChanged();
 
             _baseUrl = AddRow("Base URL", y, out y, new TextBox { Text = _settings.BaseUrl });
-            _model = AddRow("Model", y, out y, new TextBox { Text = _settings.Model });
+            _model = AddRow("Model (standard)", y, out y, new TextBox { Text = _settings.Model });
+            _fastModel = AddRow("Fast / deep models", y, out y, new TextBox { Text = _settings.FastModel ?? "", Width = 180 });
+            _deepModel = new TextBox { Text = _settings.DeepModel ?? "", Left = 328, Top = _fastModel.Top, Width = 180 };
+            Controls.Add(_deepModel);
+            Controls.Add(new Label { Text = "Empty = claude-haiku-5-5 / claude-opus-5-5. A style guide's FlareAI\\models.json overrides these for the team.", Left = 140, Top = y - 4, Width = 368, Height = 30, ForeColor = SystemColors.GrayText }); y += 30;
             _key = AddRow("API / virtual key", y, out y, new TextBox { UseSystemPasswordChar = true });
             _keyStatus = new Label { Left = 140, Top = y - 4, Width = 290, Height = 18, ForeColor = SystemColors.GrayText };
             var clearKey = new LinkLabel { Text = "Clear stored key", Left = 430, Top = y - 4, Width = 90, Height = 18 };
@@ -100,6 +104,8 @@ namespace FlareAI.Flare.UI
             _settings.Provider = (LlmProvider)_provider.SelectedIndex;
             _settings.BaseUrl = _baseUrl.Text.Trim();
             _settings.Model = _model.Text.Trim();
+            _settings.FastModel = _fastModel.Text.Trim();
+            _settings.DeepModel = _deepModel.Text.Trim();
             _settings.McpIncludeTools = _mcpTools.Text.Trim();
             _settings.TimeoutSeconds = timeout;
             _settings.WriteDiagnostics = _diag.Checked;

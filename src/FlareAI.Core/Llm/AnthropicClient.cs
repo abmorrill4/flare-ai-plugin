@@ -8,12 +8,16 @@ using Newtonsoft.Json.Linq;
 namespace FlareAI.Core.Llm
 {
     /// <summary>
-    /// Phase 1 transport: POST {baseUrl}/v1/messages with x-api-key.
-    /// Built on HttpWebRequest because the plugin must target .NET Framework 4.0.
+    /// POST {baseUrl}/v1/messages with x-api-key. Built on HttpWebRequest because the plugin must target .NET 4.0.
+    /// Per request: model, effort and an output schema (structured outputs). The response is checked before it is
+    /// read: an answer cut off at the ceiling or a safety refusal becomes a typed <see cref="LlmException"/>.
+    /// Sonnet 5.5 / Opus 5.5 / Fable requests opt into server-side refusal fallbacks.
     /// </summary>
     public sealed class AnthropicClient : ILlmClient
     {
         public const string ApiVersion = "2023-06-01";
+        public const string FallbackBeta = "server-side-fallback-2026-07-01";
+        public const int DefaultMaxTokens = 16000;
 
         private readonly string _baseUrl;
         private readonly string _apiKey;
@@ -30,19 +34,31 @@ namespace FlareAI.Core.Llm
             EnsureTls12();
         }
 
+        /// <summary>Models that accept the server-side "default" refusal fallback (Claude API).</summary>
+        public static bool UsesFallback(string model)
+        {
+            return model != null && (model.StartsWith("claude-sonnet-5-5") || model.StartsWith("claude-opus-5") || model.StartsWith("claude-fable-5"));
+        }
+
         /// <summary>Exposed for tests: the exact JSON body we send.</summary>
         public static string BuildBody(string model, LlmRequest req)
         {
+            model = string.IsNullOrEmpty(req.Model) ? model : req.Model;
             var body = new JObject
             {
                 ["model"] = model,
-                ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : 4096,
+                ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : DefaultMaxTokens,
                 ["messages"] = new JArray(new JObject { ["role"] = "user", ["content"] = UserContent(req) })
             };
             // The system prompt (instructions + the whole layered style guide) is identical across calls: cache it,
-            // so section-by-section reviews and repeat checks pay for it once.
+            // so per-block reviews and repeat checks pay for it once.
             if (!string.IsNullOrEmpty(req.System))
                 body["system"] = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
+            var output = new JObject();
+            if (!string.IsNullOrEmpty(req.Effort)) output["effort"] = req.Effort;
+            if (req.Schema != null) output["format"] = new JObject { ["type"] = "json_schema", ["schema"] = req.Schema };
+            if (output.Count > 0) body["output_config"] = output;
+            if (UsesFallback(model)) body["fallbacks"] = "default";
             return body.ToString(Formatting.None);
         }
 
@@ -59,10 +75,10 @@ namespace FlareAI.Core.Llm
 
         public LlmResponse Complete(LlmRequest request)
         {
-            var url = _baseUrl + "/v1/messages";
+            var model = string.IsNullOrEmpty(request.Model) ? _model : request.Model;
             var payload = Encoding.UTF8.GetBytes(BuildBody(_model, request));
 
-            var http = (HttpWebRequest)WebRequest.Create(url);
+            var http = (HttpWebRequest)WebRequest.Create(_baseUrl + "/v1/messages");
             http.Method = "POST";
             http.ContentType = "application/json";
             http.Accept = "application/json";
@@ -71,24 +87,44 @@ namespace FlareAI.Core.Llm
             http.UserAgent = "FlareAI/0.1 (MadCap Flare plugin)";
             http.Headers["x-api-key"] = _apiKey;
             http.Headers["anthropic-version"] = ApiVersion;
+            if (UsesFallback(model)) http.Headers["anthropic-beta"] = FallbackBeta;
             http.ContentLength = payload.Length;
 
+            LlmResponse resp;
             try
             {
                 using (var s = http.GetRequestStream()) s.Write(payload, 0, payload.Length);
-                using (var resp = (HttpWebResponse)http.GetResponse())
-                    return Parse(ReadAll(resp));
+                using (var r = (HttpWebResponse)http.GetResponse())
+                    resp = Parse(ReadAll(r));
             }
             catch (WebException wex)
             {
-                var resp = wex.Response as HttpWebResponse;
-                if (resp == null)
-                    throw new LlmException("Network error: " + wex.Message, 0, wex);
-                var text = ReadAll(resp);
+                var r = wex.Response as HttpWebResponse;
+                if (r == null) throw new LlmException("Network error: " + wex.Message, 0, wex, LlmFailure.Network);
+                var text = ReadAll(r);
                 var detail = text;
                 try { detail = JObject.Parse(text)["error"]["message"].ToString(); } catch (Exception) { }
-                throw new LlmException("HTTP " + (int)resp.StatusCode + ": " + detail, (int)resp.StatusCode, wex);
+                throw new LlmException("HTTP " + (int)r.StatusCode + ": " + detail, (int)r.StatusCode, wex);
             }
+            return Check(resp, request);
+        }
+
+        /// <summary>
+        /// Stop reason first, then the contract: a cut-off answer, a refusal, or JSON that doesn't parse never reaches
+        /// a caller as if it were a result.
+        /// </summary>
+        public static LlmResponse Check(LlmResponse resp, LlmRequest request)
+        {
+            if (resp.StopReason == "max_tokens")
+                throw new LlmException("The AI's answer was cut off (" + resp.OutputTokens + " tokens). Try a smaller selection.", 0, null, LlmFailure.Truncated);
+            if (resp.StopReason == "refusal")
+                throw new LlmException("The AI declined this request (safety filter). Try rewording or a smaller selection.", 0, null, LlmFailure.Refusal);
+            if (request.Schema != null)
+            {
+                try { resp.Json = JObject.Parse(resp.Text); }
+                catch (JsonException ex) { throw new LlmException("The AI's answer didn't match the expected format.", 0, ex, LlmFailure.Contract); }
+            }
+            return resp;
         }
 
         /// <summary>Exposed for tests.</summary>
@@ -108,7 +144,9 @@ namespace FlareAI.Core.Llm
                 Model = (string)o["model"],
                 StopReason = (string)o["stop_reason"],
                 InputTokens = usage != null ? (int?)usage["input_tokens"] ?? 0 : 0,
-                OutputTokens = usage != null ? (int?)usage["output_tokens"] ?? 0 : 0
+                OutputTokens = usage != null ? (int?)usage["output_tokens"] ?? 0 : 0,
+                CacheReadTokens = usage != null ? (int?)usage["cache_read_input_tokens"] ?? 0 : 0,
+                CacheWriteTokens = usage != null ? (int?)usage["cache_creation_input_tokens"] ?? 0 : 0
             };
         }
 

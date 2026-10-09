@@ -39,12 +39,15 @@ def local(tag):
     return tag.split("}")[-1] if isinstance(tag, str) else ""
 
 
-def block_text(el):
-    """Text of a block, without the text of nested blocks (a list inside a list item is its own block)."""
+def block_text(el, variables=None):
+    """Text of a block, without the text of nested blocks (a list inside a list item is its own block). Variables read
+    as their values, so example sentences stay whole ("Staff at Acme Financial choose…", not "Staff at choose…")."""
     parts = [el.text or ""]
     for c in el:
-        if local(c.tag) not in BLOCKS and local(c.tag) not in ("ul", "ol", "table"):
-            parts.append(block_text(c))
+        if local(c.tag) == "variable":
+            parts.append((variables or {}).get(c.get("name", ""), ""))
+        elif local(c.tag) not in BLOCKS and local(c.tag) not in ("ul", "ol", "table"):
+            parts.append(block_text(c, variables))
         parts.append(c.tail or "")
     return re.sub(r"\s+", " ", "".join(parts)).strip()
 
@@ -54,6 +57,13 @@ def project_blocks(root, limit=3000):
     content = Path(root) / "Content"
     guide = (content / "Resources" / "StyleGuide").resolve()
     files = sorted(p for ext in ("*.htm", "*.html", "*.flsnp") for p in content.rglob(ext) if guide not in p.resolve().parents)
+    variables = {}
+    for vf in sorted((Path(root) / "Project" / "VariableSets").glob("*.flvar")):
+        try:
+            for v in ET.parse(vf).getroot().iter("Variable"):
+                variables[vf.stem + "." + (v.get("Name") or "")] = (v.text or "").strip()
+        except ET.ParseError:
+            pass
     out = []
     for f in files[:limit]:
         try:
@@ -66,7 +76,7 @@ def project_blocks(root, limit=3000):
         for el in body.iter():
             tag = local(el.tag)
             if tag in BLOCKS:
-                text = block_text(el)
+                text = block_text(el, variables)
                 if text:
                     out.append((f.name, tag, text))
     return out, len(files)

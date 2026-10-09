@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
+using Newtonsoft.Json.Linq;
 using FlareAI.Core.Editing;
 using FlareAI.Core.Llm;
 using FlareAI.Core.Style;
@@ -27,6 +31,17 @@ namespace FlareAI.Core.Actions
         /// proposal restructures and applies as a block replacement.
         /// </summary>
         public List<StyleFinding> WordPlan { get; set; }
+        /// <summary>The model could only do part of the task by changing wording; the rest needs a structural edit.</summary>
+        public bool NeedsRestructure { get; set; }
+        public string RestructureNote { get; set; }
+    }
+
+    /// <summary>One unit of AI review: its blocks, their numbered runs, and the prompt.</summary>
+    public sealed class ReviewUnit
+    {
+        public List<XmlNode> Blocks { get; set; }
+        public RunMap Runs { get; set; }
+        public string Prompt { get; set; }
     }
 
     /// <summary>
@@ -44,13 +59,59 @@ namespace FlareAI.Core.Actions
         private readonly string _project;
 
         /// <param name="project">Path of the topic (any path inside its Flare project) for the project style layer; null for none.</param>
-        public ActionRunner(ILlmClient llm, PromptBuilder prompts, int maxTokens, IStyleService style = null, string project = null)
+        /// <param name="routing">Model and effort per task; null = built-in defaults.</param>
+        public ActionRunner(ILlmClient llm, PromptBuilder prompts, int maxTokens, IStyleService style = null, string project = null, Routing routing = null)
         {
             _llm = llm;
             _prompts = prompts;
             _maxTokens = maxTokens;
             _style = style;
             _project = project;
+            Routing = routing ?? new Routing();
+        }
+
+        public Routing Routing { get; private set; }
+
+        /// <summary>How many model calls run at once for per-block work.</summary>
+        public int Parallelism { get; set; } = 6;
+
+        /// <summary>
+        /// One model call for a task: its route (model, effort), the system prompt, and the output contract. The token
+        /// ceiling is a safety net only; a cut-off answer is retried once with more room.
+        /// </summary>
+        private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null)
+        {
+            var route = Routing.For(task);
+            var req = new LlmRequest
+            {
+                Task = task, System = _prompts.BuildSystem(), User = user, Schema = schema, Model = route.Model, Effort = route.Effort,
+                Images = images, MaxTokens = Math.Max(_maxTokens, AnthropicClient.DefaultMaxTokens)
+            };
+            var sw = Stopwatch.StartNew();
+            LlmResponse resp;
+            try { resp = _llm.Complete(req); }
+            catch (LlmException ex) when (ex.Failure == LlmFailure.Truncated)
+            {
+                Diagnostics.Log(task + ": cut off at " + req.MaxTokens + " tokens; retrying with more room");
+                req.MaxTokens *= 2;
+                resp = _llm.Complete(req);
+            }
+            Usage.Record(task, route.Model, resp, sw.Elapsed.TotalSeconds);
+            Diagnostics.Log(task + ": " + route.Model + "/" + route.Effort + " in=" + resp.InputTokens + " cached=" + resp.CacheReadTokens +
+                            " out=" + resp.OutputTokens + " stop=" + resp.StopReason + " " + sw.ElapsedMilliseconds + "ms");
+            if (schema != null && resp.Json == null)
+            {
+                try { resp.Json = JObject.Parse(resp.Text ?? ""); }
+                catch (Newtonsoft.Json.JsonException ex) { throw new LlmException("The AI's answer didn't match the expected format.", 0, ex, LlmFailure.Contract); }
+            }
+            return resp;
+        }
+
+        /// <summary>Runs one job per item, a few at a time; the first failure is rethrown as itself.</summary>
+        private void Each(int count, Action<int> job)
+        {
+            try { Parallel.For(0, count, new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, Parallelism) }, job); }
+            catch (AggregateException ae) { throw ae.Flatten().InnerExceptions[0]; }
         }
 
         public IList<XmlNode> PickBlocks(IDocumentAdapter doc)
@@ -251,51 +312,105 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>
-        /// Model review for what a linter cannot judge. Only findings that quote the topic verbatim survive,
-        /// so every finding can be shown in place; repeats of lint findings are dropped.
+        /// Model review for what a linter cannot judge, unit by unit. Only findings that quote a run of their unit
+        /// verbatim survive, so every finding can be shown in place; repeats of lint findings are dropped.
         /// </summary>
         public List<StyleFinding> Review(IList<XmlNode> blocks, IList<StyleFinding> lint)
         {
-            return AnchorReview(CallReview(ReviewPrompt(blocks, lint)), blocks, lint);
+            var units = PrepareReview(blocks, lint);
+            var raw = new List<StyleFinding>[units.Count];
+            Each(units.Count, i => raw[i] = CallReview(units[i]));
+            var kept = new List<StyleFinding>();
+            for (var i = 0; i < units.Count; i++) kept.AddRange(AnchorReview(raw[i], units[i], lint));
+            return kept;
         }
 
-        /// <summary>Step 1 (reads the DOM): the review prompt for these blocks.</summary>
-        public string ReviewPrompt(IList<XmlNode> blocks, IList<StyleFinding> lint)
+        /// <summary>
+        /// Step 1 (reads the DOM): splits the blocks into review units — one block each ("block", the default), or one
+        /// section each — with each unit's prompt: the marked runs, the topic and section it's in, and the lint already
+        /// found there. Units with fewer than <paramref name="minWords"/> words (a short heading) are skipped.
+        /// </summary>
+        public List<ReviewUnit> PrepareReview(IList<XmlNode> blocks, IList<StyleFinding> lint, int minWords = 4)
         {
-            return _prompts.BuildUser(ActionKind.CheckStyle, XhtmlFragment.Serialize(TrackedChanges.WithoutDeletions(blocks)), null, Summarize(lint));
+            var units = new List<ReviewUnit>();
+            if (blocks.Count == 0) return units;
+            var groups = Routing.ReviewUnit == "section"
+                ? ReviewOrder.Sections(blocks)
+                : blocks.Select(b => new List<XmlNode> { b }).ToList();
+            var title = TopicTitle(blocks[0].OwnerDocument);
+            foreach (var g in groups)
+            {
+                var map = RunMap.Of(g);
+                if (map.Ids.Count == 0 || WordCount(map) < minWords) continue;
+                var unitLint = (lint ?? new List<StyleFinding>()).Where(f => f.DocumentPath == null && g.Exists(b => Contains(b, f))).ToList();
+                var context = (title.Length > 0 ? "Topic: " + title + "\n" : "") + (SectionOf(g[0]).Length > 0 ? "Section: " + SectionOf(g[0]) : "");
+                units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)) });
+            }
+            return units;
         }
 
-        /// <summary>Step 2 (no DOM access, safe off the UI thread while the author edits): ask the model.</summary>
-        public List<StyleFinding> CallReview(string prompt)
+        /// <summary>Step 2 (no DOM access; runs off the UI thread, several at once): the model's findings for one unit.</summary>
+        public List<StyleFinding> CallReview(ReviewUnit unit)
         {
-            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = prompt, MaxTokens = _maxTokens });
-            var raw = ResponseParser.ParseFindings(resp.Text);
-            Diagnostics.Log("Review: ai=" + raw.Count + " in=" + resp.InputTokens + " out=" + resp.OutputTokens + " stop=" + resp.StopReason);
+            var resp = Ask("review", unit.Prompt, Contracts.Review(unit.Runs.Ids, GuideRules().Keys));
+            int dropped;
+            var raw = Contracts.ReadReview(resp.Json, unit.Runs, out dropped);
+            if (dropped > 0) Diagnostics.Log("Review: dropped " + dropped + " finding(s) that broke the contract");
             return raw;
         }
 
         /// <summary>
-        /// Step 3 (reads the DOM, run it on the thread that edits): keep findings that quote the topic as it is
-        /// now, preferring the reviewed blocks; drop repeats of lint findings and unsafe replacements.
+        /// Step 3 (reads the DOM, on the thread that edits): anchor each finding in its live run; drop text edited since
+        /// the review and repeats of lint findings.
         /// </summary>
-        public List<StyleFinding> AnchorReview(List<StyleFinding> raw, IList<XmlNode> blocks, IList<StyleFinding> lint)
+        public List<StyleFinding> AnchorReview(List<StyleFinding> raw, ReviewUnit unit, IList<StyleFinding> lint)
         {
-            var scope = new List<XmlNode>();
-            foreach (var b in blocks) if (TextRuns.BlockOf(b) == b) scope.Add(b);
-            var body = blocks.Count > 0 ? BlockSelector.FindBody(blocks[0].OwnerDocument) : null;
-            if (body != null) foreach (XmlNode c in body.ChildNodes) if (c.NodeType == XmlNodeType.Element && !scope.Contains(c)) scope.Add(c);
-            var runs = TextRuns.Of(scope);
-
             var kept = new List<StyleFinding>();
             var rules = GuideRules();
             foreach (var f in raw)
             {
-                if (f.Replacement != null && (f.Replacement.IndexOf('<') >= 0 || f.Replacement == f.Excerpt)) f.Replacement = null;
+                XmlText run;
+                if (f.RunId == null || !unit.Runs.Runs.TryGetValue(f.RunId, out run) || run.ParentNode == null) continue;
+                var at = run.Value.IndexOf(f.Excerpt, StringComparison.Ordinal);
+                if (at < 0) continue;
+                var anchor = FindingLocator.ForSpan(run, at, f.Excerpt.Length, f.Replacement, TextRuns.BlockOf(run));
+                f.Before = anchor.Before;
+                f.Block = anchor.Block;
                 Ground(f, rules);
-                if (FindingLocator.Anchor(f, runs) && !Duplicates(f, lint)) kept.Add(f);
+                if (!Duplicates(f, lint ?? new List<StyleFinding>())) kept.Add(f);
             }
-            if (kept.Count < raw.Count) Diagnostics.Log("Review: dropped " + (raw.Count - kept.Count) + " unquotable/duplicate finding(s)");
             return kept;
+        }
+
+        private static bool Contains(XmlNode block, StyleFinding f)
+        {
+            return (block == f.Block || TextRuns.BlockOf(block) == f.Block) && block.InnerText.IndexOf(f.Excerpt ?? "", StringComparison.Ordinal) >= 0;
+        }
+
+        private static int WordCount(RunMap map)
+        {
+            var n = 0;
+            foreach (var id in map.Ids) n += map.Texts[id].Split(new[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+            return n;
+        }
+
+        private static string TopicTitle(XmlDocument doc)
+        {
+            var body = BlockSelector.FindBody(doc);
+            var h1 = body == null ? null : body.SelectSingleNode(".//*[local-name()='h1']");
+            if (h1 != null) return System.Text.RegularExpressions.Regex.Replace(h1.InnerText, @"\s+", " ").Trim();
+            var t = doc == null ? null : doc.SelectSingleNode("//*[local-name()='title']");
+            return t == null ? "" : t.InnerText.Trim();
+        }
+
+        /// <summary>The heading the node falls under ("" before the first heading).</summary>
+        private static string SectionOf(XmlNode node)
+        {
+            var block = TextRuns.BlockOf(node) ?? node;
+            for (var n = block; n != null; n = n.PreviousSibling)
+                if (n.NodeType == XmlNodeType.Element && ReviewOrder.IsHeading(n))
+                    return System.Text.RegularExpressions.Regex.Replace(n.InnerText, @"\s+", " ").Trim();
+            return "";
         }
 
         private Dictionary<string, GuideRule> _rules;
@@ -339,50 +454,71 @@ namespace FlareAI.Core.Actions
         public StyleFinding Refine(StyleFinding f, string context, string instruction)
         {
             var proposal = (f.Replacement == null ? "(no exact text proposed — needs a rewrite)" : "\"" + f.Replacement + "\"") + " — " + f.Suggestion;
-            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = _prompts.BuildRefine(context, f.Excerpt, proposal, instruction), MaxTokens = 512 });
-            Diagnostics.Log("Refine: in=" + resp.InputTokens + " out=" + resp.OutputTokens);
-            var r = ResponseParser.ParseRefined(resp.Text);
-            var replacement = r.Key;
+            var json = Ask("refine", _prompts.BuildRefine(context, f.Excerpt, proposal, instruction), Contracts.Refine()).Json;
+            var r = json["replacement"];
+            var replacement = r == null || r.Type == JTokenType.Null ? null : (string)r;
             if (replacement != null && replacement.IndexOf('<') >= 0) replacement = null;
+            var why = (string)json["why"];
             return new StyleFinding
             {
                 Source = "ai", Layer = "ai", Rule = f.Rule, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, Link = f.Link,
-                Severity = f.Severity, Excerpt = f.Excerpt, Before = f.Before, Block = f.Block, DocumentPath = f.DocumentPath,
-                Replacement = replacement, Suggestion = string.IsNullOrEmpty(r.Value) ? f.Suggestion : r.Value, Section = f.Section, Order = f.Order
+                Severity = f.Severity, Excerpt = f.Excerpt, Before = f.Before, Block = f.Block, DocumentPath = f.DocumentPath, RunId = f.RunId,
+                Replacement = replacement, Suggestion = string.IsNullOrEmpty(why) ? f.Suggestion : why, Section = f.Section, Order = f.Order
             };
         }
 
         /// <summary>Alt text for an image (vision). Null when the model judges it decorative.</summary>
         public string SuggestAlt(LlmImageFile image, string context)
         {
-            var resp = _llm.Complete(new LlmRequest
-            {
-                System = _prompts.BuildSystem(), User = _prompts.BuildAlt(context), MaxTokens = 200,
-                Images = new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } }
-            });
-            Diagnostics.Log("Alt text: in=" + resp.InputTokens + " out=" + resp.OutputTokens);
-            var alt = (resp.Text ?? "").Trim().Trim('"');
-            return alt.Equals("DECORATIVE", StringComparison.OrdinalIgnoreCase) ? null : alt;
+            var json = Ask("alt", _prompts.BuildAlt(context), Contracts.Alt(),
+                           new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } }).Json;
+            var alt = ((string)json["alt"] ?? "").Trim();
+            return (bool?)json["decorative"] == true || alt.Length == 0 ? null : alt;
         }
 
-        /// <summary>Meta description, index keywords, search synonyms, micro content and glossary candidates for the blocks.</summary>
+        /// <summary>
+        /// Meta description, index keywords, search synonyms, micro content and glossary candidates for the blocks: three
+        /// small calls, each with its own contract, run at once.
+        /// </summary>
         public TopicAssist Assist(IList<XmlNode> blocks)
         {
             var glossary = "";
             if (_style is McpStyleService)
                 try { foreach (var g in ((McpStyleService)_style).GlossaryTerms(_project)) glossary += g + "\n"; } catch (Exception ex) { Diagnostics.Log("assist: glossary", ex); }
             var fragment = XhtmlFragment.Serialize(TrackedChanges.WithoutDeletions(blocks));
-            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = _prompts.BuildAssist(fragment, glossary.Trim()), MaxTokens = _maxTokens });
-            Diagnostics.Log("Topic assists: in=" + resp.InputTokens + " out=" + resp.OutputTokens);
-            return TopicAssist.Parse(resp.Text);
+            var parts = new[]
+            {
+                new KeyValuePair<string, JObject>("Write its meta description and its index keywords (3-8; 'Parent:Child' for a subentry).", Contracts.AssistMeta()),
+                new KeyValuePair<string, JObject>("List search synonym groups: up to 5 terms the topic uses, each with the words readers might search for instead.", Contracts.AssistSynonyms()),
+                new KeyValuePair<string, JObject>("Write up to 5 micro content entries (a question or phrase readers search for, and a 1-2 sentence answer from the topic) and up to 5 glossary candidates (terms the topic uses but doesn't define).", Contracts.AssistAnswers()),
+            };
+            var answers = new JObject[parts.Length];
+            Each(parts.Length, i => answers[i] = Ask("assist", _prompts.BuildAssist(fragment, glossary.Trim(), parts[i].Key), parts[i].Value).Json);
+            var t = new TopicAssist { Description = (string)answers[0]["description"] };
+            foreach (var k in answers[0]["keywords"] ?? new JArray()) t.Keywords.Add((string)k);
+            foreach (var g in answers[1]["groups"] ?? new JArray())
+            {
+                var group = new List<string> { (string)g["term"] };
+                foreach (var a in g["alternatives"] ?? new JArray()) group.Add((string)a);
+                if (group.Count > 1) t.Synonyms.Add(group);
+            }
+            foreach (var m in answers[2]["micro_content"] ?? new JArray()) t.MicroContent.Add(new KeyValuePair<string, string>((string)m["phrase"], (string)m["response"]));
+            foreach (var g in answers[2]["glossary"] ?? new JArray()) t.Glossary.Add(new KeyValuePair<string, string>((string)g["term"], (string)g["definition"]));
+            return t;
         }
 
-        /// <summary>Candidate style-guide rules the AI finds in an author's notes, an old guide, or another tool's prompt.</summary>
+        /// <summary>
+        /// Candidate style-guide rules from an author's notes, an old guide, or another tool's prompt: the notes are split
+        /// into paragraphs-sized chunks, each read on its own (small, focused jobs).
+        /// </summary>
         public List<RuleCandidate> ExtractRules(string notes)
         {
-            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = _prompts.BuildExtract(notes), MaxTokens = _maxTokens });
-            Diagnostics.Log("Extract rules: in=" + resp.InputTokens + " out=" + resp.OutputTokens + " stop=" + resp.StopReason);
-            return GuideBuilder.ParseExtracted(resp.Text);
+            var chunks = GuideBuilder.Chunks(notes);
+            var answers = new JArray[chunks.Count];
+            Each(chunks.Count, i => answers[i] = (JArray)(Ask("extract", _prompts.BuildExtract(chunks[i]), Contracts.Extract()).Json["rules"] ?? new JArray()));
+            var all = new JArray();
+            foreach (var a in answers) foreach (var r in a) all.Add(r);
+            return GuideBuilder.FromExtracted(all);
         }
 
         private static readonly Dictionary<string, int> SnippetUses = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -440,9 +576,11 @@ namespace FlareAI.Core.Actions
 
         private bool Cites(string text, string id, Dictionary<string, GuideRule> rules)
         {
-            var fragment = "<p>" + System.Security.SecurityElement.Escape(text) + "</p>\n";
-            var prompt = _prompts.BuildUser(ActionKind.CheckStyle, fragment, null, "");
-            foreach (var f in CallReview(prompt))
+            var doc = new XmlDocument();
+            doc.LoadXml("<html><body><p>" + System.Security.SecurityElement.Escape(text) + "</p></body></html>");
+            var units = PrepareReview(new List<XmlNode> { doc.DocumentElement["body"].FirstChild }, null, 1);
+            if (units.Count == 0) return false;
+            foreach (var f in CallReview(units[0]))
             {
                 Ground(f, rules);
                 if (string.Equals(f.RuleId, id, StringComparison.OrdinalIgnoreCase)) return true;
@@ -527,45 +665,114 @@ namespace FlareAI.Core.Actions
             return Rewrite(doc, blocks, instruction, true);
         }
 
-        /// <param name="lint">False for style-guide topics: they quote the very words their rules ban, so linting them
-        /// (and the self-check repair round) would "fix" the rules themselves.</param>
-        public RewriteProposal Rewrite(IDocumentAdapter doc, IList<XmlNode> blocks, string instruction, bool lint)
+        /// <summary>
+        /// Rewrite by wording only: each block is its own job (run at once), the model returns new text for the runs it
+        /// changes — never markup — so the structure can't break. Applied as word-level tracked changes. If the task needs
+        /// structural edits, the proposal says so (<see cref="RewriteProposal.NeedsRestructure"/>); see <see cref="Restructure"/>.
+        /// </summary>
+        /// <param name="lint">False for style-guide topics: they quote the very words their rules ban.</param>
+        /// <param name="task">Route: "rewrite", or "draft" for owner edits to the style guide.</param>
+        public RewriteProposal Rewrite(IDocumentAdapter doc, IList<XmlNode> blocks, string instruction, bool lint, string task = "rewrite")
         {
             foreach (var b in blocks)
                 if (BlockSelector.IsOpaque(b))
                     throw new InvalidOperationException("The selection includes a " + b.Name + ", which cannot be rewritten in place. Select text inside a paragraph instead.");
-            // Pending tracked changes stay pending: the model sees the text as the author reads it, and the
-            // result is applied word-level around them (never accepted or rejected on the author's behalf).
-            var view = AcceptedView.Of(blocks);
             var notes = new List<string>();
             var found = lint ? SafeLint(blocks, notes) : new List<StyleFinding>();
-            var kind = string.IsNullOrEmpty(instruction) ? ActionKind.Rewrite : ActionKind.Ask;
-            var proposal = Propose(doc, blocks, view, _prompts.BuildUser(kind, XhtmlFragment.Serialize(view), instruction, Summarize(found)), kind.ToString());
+            var proposal = RewriteRuns(blocks, instruction, found, task);
             proposal.Notes = notes;
-            proposal.RemainingLint = new List<StyleFinding>();
-            if (!lint || !proposal.Validation.IsValid || _style == null || notes.Count > 0) return proposal;
+            if (!lint || _style == null || notes.Count > 0) return proposal;
 
-            // Self-check: lint our own output and give the model one chance to fix what it left behind.
+            // Self-check: lint our own result and give the model one chance to fix what it left behind.
             var left = Significant(SafeLint(proposal.ProposedBlocks, notes));
             if (left.Count > 0)
             {
-                var repaired = Propose(doc, blocks, view, _prompts.BuildRepair(proposal.ProposedXml, Summarize(left)), kind + ".repair");
-                if (repaired.Validation.IsValid)
-                {
-                    repaired.Notes = notes;
-                    proposal = repaired;
-                    left = Significant(SafeLint(proposal.ProposedBlocks, notes));
-                }
+                var repaired = RewriteRuns(blocks, (string.IsNullOrEmpty(instruction) ? "" : instruction + "\n") + "Also fix these, which your first version left in:\n" + Summarize(left), found, task);
+                var leftAfter = Significant(SafeLint(repaired.ProposedBlocks, notes));
+                if (leftAfter.Count < left.Count) { repaired.Notes = notes; proposal = repaired; left = leftAfter; }
             }
             proposal.RemainingLint = left;
             return proposal;
         }
 
-        private RewriteProposal Propose(IDocumentAdapter doc, IList<XmlNode> blocks, IList<XmlNode> view, string user, string label)
+        private RewriteProposal RewriteRuns(IList<XmlNode> blocks, string instruction, List<StyleFinding> lint, string task)
         {
-            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = user, MaxTokens = _maxTokens });
-            Diagnostics.Log(label + ": blocks=" + blocks.Count + " in=" + resp.InputTokens + " out=" + resp.OutputTokens + " stop=" + resp.StopReason);
+            var proposal = new RewriteProposal
+            {
+                OriginalBlocks = blocks, View = AcceptedView.Of(blocks), Validation = new ValidationResult(), Notes = new List<string>(),
+                RemainingLint = new List<StyleFinding>(), WordPlan = new List<StyleFinding>()
+            };
+            var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }) }).ToList();
+            var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()))).ToList();
+            var changes = new Dictionary<string, string>[units.Count];
+            var restructure = new bool[units.Count];
+            var restructureNotes = new string[units.Count];
+            Each(units.Count, i =>
+            {
+                if (units[i].Map.Ids.Count == 0) { changes[i] = new Dictionary<string, string>(); return; }
+                var schema = Contracts.Rewrite(units[i].Map.Ids);
+                var errors = new List<string>();
+                changes[i] = Contracts.ReadRewrite(Ask(task, prompts[i], schema).Json, units[i].Map, errors, out restructure[i], out restructureNotes[i]);
+                if (errors.Count > 0)
+                {
+                    // One retry with the contract breaches spelled out; then keep what was valid.
+                    Diagnostics.Log(task + ": contract breaches, retrying: " + string.Join(" ", errors.ToArray()));
+                    var retryErrors = new List<string>();
+                    var retry = Contracts.ReadRewrite(Ask(task, prompts[i] + "\n\nYour previous answer broke the format: " + string.Join(" ", errors.ToArray()) + " Answer again.", schema).Json,
+                                                      units[i].Map, retryErrors, out restructure[i], out restructureNotes[i]);
+                    if (retryErrors.Count <= errors.Count) changes[i] = retry;
+                    if (retryErrors.Count > 0) Diagnostics.Log(task + ": still " + retryErrors.Count + " breach(es); kept the valid changes");
+                }
+            });
 
+            var proposed = new List<XmlNode>();
+            for (var i = 0; i < units.Count; i++)
+            {
+                var map = units[i].Map;
+                var clone = units[i].Block.CloneNode(true);
+                var cloneRuns = TextRuns.Of(new List<XmlNode> { clone }).Where(r => r.Value.Trim().Length > 0).ToList();
+                for (var k = 0; k < map.Ids.Count && k < cloneRuns.Count; k++)
+                {
+                    string text;
+                    if (!changes[i].TryGetValue(map.Ids[k], out text)) continue;
+                    cloneRuns[k].Value = text;
+                    var run = map.Runs[map.Ids[k]];
+                    var block = TextRuns.BlockOf(run) ?? units[i].Block;
+                    if (!WordDiff.PlanRun(run, text, block, proposal.WordPlan))
+                        proposal.WordPlan.Add(FindingLocator.ForSpan(run, 0, run.Value.Length, text, block));
+                }
+                proposed.Add(clone);
+                if (restructure[i]) proposal.NeedsRestructure = true;
+                // The note says what restructuring is needed, or what only the author can supply.
+                if (!string.IsNullOrEmpty(restructureNotes[i])) proposal.RestructureNote = (proposal.RestructureNote == null ? "" : proposal.RestructureNote + " ") + restructureNotes[i];
+            }
+            proposal.ProposedBlocks = AcceptedView.Of(proposed);
+            proposal.ProposedXml = XhtmlFragment.Serialize(proposal.ProposedBlocks);
+            return proposal;
+        }
+
+        /// <summary>
+        /// Structural rewrite (split a step, make a list): the model returns XHTML, which must pass the validator. Applied
+        /// word-level when the structure turns out unchanged, otherwise as a block replacement.
+        /// </summary>
+        public RewriteProposal Restructure(IDocumentAdapter doc, IList<XmlNode> blocks, string instruction)
+        {
+            foreach (var b in blocks)
+                if (BlockSelector.IsOpaque(b))
+                    throw new InvalidOperationException("The selection includes a " + b.Name + ", which cannot be rewritten in place. Select text inside a paragraph instead.");
+            var view = AcceptedView.Of(blocks);
+            var notes = new List<string>();
+            var lint = SafeLint(blocks, notes);
+            var kind = string.IsNullOrEmpty(instruction) ? ActionKind.Rewrite : ActionKind.Ask;
+            var proposal = Propose(doc, blocks, view, _prompts.BuildUser(kind, XhtmlFragment.Serialize(view), instruction, Summarize(lint)), "restructure");
+            proposal.Notes = notes;
+            proposal.RemainingLint = proposal.Validation.IsValid ? Significant(SafeLint(proposal.ProposedBlocks, notes)) : new List<StyleFinding>();
+            return proposal;
+        }
+
+        private RewriteProposal Propose(IDocumentAdapter doc, IList<XmlNode> blocks, IList<XmlNode> view, string user, string task)
+        {
+            var resp = Ask(task, user, null);
             var proposal = new RewriteProposal { OriginalBlocks = blocks, View = view, Raw = resp, Validation = new ValidationResult(), Notes = new List<string>(), RemainingLint = new List<StyleFinding>() };
             try
             {

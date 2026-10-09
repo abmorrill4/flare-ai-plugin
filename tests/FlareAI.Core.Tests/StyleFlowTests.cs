@@ -41,7 +41,8 @@ namespace FlareAI.Core.Tests
         public void Review_GetsLintSummaryAndGuide_KeepsOnlyVerbatimNonDuplicateFindings()
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
-            var llm = new FakeLlmClient(r => @"[
+            // Per-block review: the model answers for the block it was given.
+            var llm = new FakeLlmClient(r => !r.User.Contains("they have been granted") ? "[]" : @"[
               {""rule"":""passive"",""severity"":""warning"",""excerpt"":""they have been granted the appropriate permissions by their administrator"",""replacement"":""your administrator has granted you the required permissions"",""why"":""Active voice.""},
               {""rule"":""made up"",""severity"":""error"",""excerpt"":""text that is not in the topic"",""replacement"":null,""why"":""x""},
               {""rule"":""repeat"",""severity"":""warning"",""excerpt"":""utilize"",""replacement"":""use"",""why"":""x""},
@@ -49,7 +50,7 @@ namespace FlareAI.Core.Tests
             ]");
             var findings = Runner(llm, new FakeStyleService()).CheckStyle(doc);
 
-            Assert.Contains("\"utilize\" → \"use\"", llm.Requests[0].User);
+            Assert.Contains(llm.Requests, q => q.User.Contains("\"utilize\" → \"use\""));
             Assert.Contains("members", llm.Requests[0].System);
             var ai = findings.Where(f => f.Source == "ai").ToList();
             Assert.Equal(new[] { "passive", "markup" }, ai.Select(f => f.Rule).ToArray());
@@ -104,7 +105,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Equal(2, llm.Requests.Count);
             Assert.Contains("\"utilize\" → \"use\"", llm.Requests[0].User);   // original lint in the first prompt
-            Assert.Contains("still flags", llm.Requests[1].User);             // repair round
+            Assert.Contains("your first version left in", llm.Requests[1].User);   // repair round
             Assert.True(proposal.Validation.IsValid, proposal.Validation.ToString());
             Assert.Empty(proposal.RemainingLint);
             Assert.Contains("To use SSO", proposal.ProposedXml);

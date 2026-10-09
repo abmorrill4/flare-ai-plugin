@@ -71,6 +71,15 @@ namespace FlareAI.Core.Editing
             return s;
         }
 
+        /// <summary>
+        /// Word-level replacements that turn one run's text into <paramref name="after"/> (a run-level rewrite). False when
+        /// the change can't be expressed as edits inside the run.
+        /// </summary>
+        public static bool PlanRun(XmlText run, string after, XmlNode liveBlock, List<StyleFinding> edits)
+        {
+            return DiffSlot(new List<XmlText> { run }, after, liveBlock, edits);
+        }
+
         private static bool DiffSlot(List<XmlText> runs, string after, XmlNode liveBlock, List<StyleFinding> edits)
         {
             var before = Concat(runs);

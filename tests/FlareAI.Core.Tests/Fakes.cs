@@ -142,16 +142,86 @@ namespace FlareAI.Core.Tests
 
         public LlmResponse Complete(LlmRequest request)
         {
-            Requests.Add(request);
-            return new LlmResponse { Text = _answer(request), Model = "fake", StopReason = "end_turn" };
+            lock (Requests) Requests.Add(request);
+            return new LlmResponse { Text = Adapt(request, _answer(request)), Model = "fake", StopReason = "end_turn" };
         }
 
-        /// <summary>Echoes the fragment back unchanged inside &lt;revised&gt; — a rewrite must be a no-op.</summary>
+        /// <summary>Echoes the fragment back unchanged — a rewrite must be a no-op (both the run and the XHTML contract).</summary>
         public static string EchoRevised(LlmRequest r)
         {
+            if (r.Schema != null) return "{\"changes\":[],\"needs_restructure\":false,\"note\":\"\"}";
             var i = r.User.LastIndexOf("Fragment:", StringComparison.Ordinal);
             var frag = r.User.Substring(i + "Fragment:".Length).Trim();
             return "<revised>\n" + frag + "\n</revised>";
+        }
+
+        /// <summary>A run-contract answer that edits every run's text with <paramref name="edit"/>.</summary>
+        public static string EditRuns(LlmRequest r, Func<string, string> edit)
+        {
+            var changes = new Newtonsoft.Json.Linq.JArray();
+            foreach (var run in MarkedRuns(r.User))
+            {
+                var t = edit(run.Value);
+                if (t != run.Value) changes.Add(new Newtonsoft.Json.Linq.JObject { ["run_id"] = run.Key, ["text"] = t });
+            }
+            return new Newtonsoft.Json.Linq.JObject { ["changes"] = changes, ["needs_restructure"] = false, ["note"] = "" }.ToString();
+        }
+
+        /// <summary>The runs of a run-addressed prompt, in order: ⟦r1⟧text⟦/r1⟧.</summary>
+        public static List<KeyValuePair<string, string>> MarkedRuns(string prompt)
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            var at = prompt.LastIndexOf("Text:", StringComparison.Ordinal);   // skip the template's own ⟦r1⟧ example
+            if (at >= 0) prompt = prompt.Substring(at);
+            foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(prompt, "⟦(r\\d+)⟧(.*?)⟦/\\1⟧", System.Text.RegularExpressions.RegexOptions.Singleline))
+                list.Add(new KeyValuePair<string, string>(m.Groups[1].Value, System.Net.WebUtility.HtmlDecode(m.Groups[2].Value)));
+            return list;
+        }
+
+        /// <summary>
+        /// Lets tests keep answering in the old shapes: a JSON array of findings becomes the review contract (each finding
+        /// placed in the run that holds its excerpt); a &lt;revised&gt; fragment becomes run changes when its text pieces line
+        /// up with the runs, or a restructure request when they don't. Real contract-shaped answers pass through.
+        /// </summary>
+        private static string Adapt(LlmRequest r, string text)
+        {
+            if (r.Schema == null || text == null) return text;
+            var t = text.Trim();
+            if (t.StartsWith("```")) { t = t.Substring(t.IndexOf('\n') + 1); if (t.EndsWith("```")) t = t.Substring(0, t.Length - 3); t = t.Trim(); }
+            if (t.StartsWith("{")) return t;
+            var runs = MarkedRuns(r.User);
+            if (r.Task == "review")
+            {
+                var findings = new Newtonsoft.Json.Linq.JArray();
+                if (t.StartsWith("["))
+                    foreach (var f in Newtonsoft.Json.Linq.JArray.Parse(t))
+                    {
+                        var excerpt = (string)f["excerpt"] ?? "";
+                        var run = runs.Find(x => excerpt.Length > 0 && x.Value.Contains(excerpt));
+                        findings.Add(new Newtonsoft.Json.Linq.JObject
+                        {
+                            ["run_id"] = run.Key ?? "r999", ["excerpt"] = excerpt, ["rule_id"] = (string)f["rule_id"] ?? "general", ["rule"] = (string)f["rule"] ?? "",
+                            ["severity"] = (string)f["severity"] ?? "suggestion", ["replacement"] = f["replacement"] ?? Newtonsoft.Json.Linq.JValue.CreateNull(),
+                            ["why"] = (string)f["why"] ?? (string)f["suggestion"] ?? ""
+                        });
+                    }
+                return new Newtonsoft.Json.Linq.JObject { ["findings"] = findings }.ToString();
+            }
+            var open = t.IndexOf("<revised>", StringComparison.Ordinal);
+            var close = t.LastIndexOf("</revised>", StringComparison.Ordinal);
+            if (open < 0 || close <= open) return t;   // prose: breaks the contract, as a real model would
+            var frag = t.Substring(open + 9, close - open - 9);
+            var doc = new XmlDocument();
+            doc.LoadXml("<x xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\">" + frag + "</x>");
+            var texts = new List<string>();
+            foreach (XmlNode n in doc.SelectNodes("//text()")) if (n.Value.Trim().Length > 0) texts.Add(n.Value);
+            var changes = new Newtonsoft.Json.Linq.JArray();
+            var restructure = texts.Count != runs.Count;
+            if (!restructure)
+                for (var i = 0; i < runs.Count; i++)
+                    if (texts[i].Trim() != runs[i].Value.Trim())
+                        changes.Add(new Newtonsoft.Json.Linq.JObject { ["run_id"] = runs[i].Key, ["text"] = texts[i] });
+            return new Newtonsoft.Json.Linq.JObject { ["changes"] = changes, ["needs_restructure"] = restructure, ["note"] = restructure ? "structure differs" : "" }.ToString();
         }
     }
 }

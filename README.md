@@ -7,6 +7,14 @@ with the normal review tools.
 Phase 1 uses the Anthropic API directly. Phase 2 moves to the Bifrost enterprise gateway.
 See `PLAN.md`.
 
+## Docs
+
+- User guide: `docs/user-guide` (a Flare project — open `FlareAI-Guide.flprj`).
+- Testers: `docs/TESTER-GUIDE.md` (quickstart), `docs/testing/TEST-PLAN.md`, `docs/testing/BUG-TEMPLATE.md`.
+- Stress test, model bake-off and routing decisions: `docs/testing/STRESS-REPORT.md`.
+- Test corpus: `uv run --script scripts/make-corpus.py corpus` (250 topics + ground truth); headless bench:
+  `tools/FlareAI.Bench`.
+
 ## Quick start (Windows box with Flare installed)
 
 ```powershell

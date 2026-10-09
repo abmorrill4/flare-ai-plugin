@@ -372,7 +372,8 @@ namespace FlareAI.Flare
             ILlmClient llm;
             try { llm = LlmClientFactory.Create(settings); }
             catch (LlmException lex) { MessageBox.Show(lex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
-            return new ActionRunner(llm, new PromptBuilder(() => style.Guide(project)), settings.MaxTokens, style, project);
+            return new ActionRunner(llm, new PromptBuilder(() => style.Guide(project)), settings.MaxTokens, style, project, RoutingFor(settings))
+            { Parallelism = settings.Parallelism > 0 ? settings.Parallelism : 6 };
         }
 
         private void OnDiagnostics()
@@ -401,6 +402,15 @@ namespace FlareAI.Flare
                         Diagnostics.Log("DIAG changeData: " + (data == null ? "(none)" : Shorten(data.OuterXml, 1500)));
                         if (picked.Count > 0) Diagnostics.Log("DIAG first block XML: " + Shorten(picked[0].OuterXml, 3000));
                     }
+                }
+                var settingsNow = PluginSettings.Load();
+                sb.AppendLine().Append(RoutingFor(settingsNow).Describe());
+                var usage = Usage.Snapshot();
+                if (usage.Count > 0)
+                {
+                    sb.AppendLine("AI use this session:");
+                    foreach (var u in usage)
+                        sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + u.Calls + " call(s), " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
                 }
                 Diagnostics.Log("DIAG\n" + sb);
                 MessageBox.Show(sb + "\n(written to " + Diagnostics.LogPath + ")", "FlareAI diagnostics");
@@ -462,10 +472,16 @@ namespace FlareAI.Flare
             }
             var style = StyleService(settings);
             var project = settings.UseProjectLayer && projectLayer ? topicPath : null;
-            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(project)), settings.MaxTokens, style, project)
+            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(project)), settings.MaxTokens, style, project, RoutingFor(settings))
             {
+                Parallelism = settings.Parallelism > 0 ? settings.Parallelism : 6,
                 VariableValue = adapter.VariableValue
             };
+        }
+
+        private static Routing RoutingFor(PluginSettings settings)
+        {
+            return settings.Routing(Team.Current == null ? null : Team.Current.GuideRoot);
         }
 
         private McpStyleService _style;
@@ -526,8 +542,15 @@ namespace FlareAI.Flare
         {
             try
             {
-                var doc = _host.GetEditorContext().OpenDocument(path);
-                return doc == null ? null : new FlareDocumentAdapter(doc);
+                var ctx = _host.GetEditorContext();
+                var wasOpen = false;
+                foreach (var d in ctx.GetDocuments())
+                {
+                    var open = d as IDocument;
+                    if (open != null && string.Equals(open.GetSourceUrl(), path, StringComparison.OrdinalIgnoreCase)) { wasOpen = true; break; }
+                }
+                var doc = ctx.OpenDocument(path);
+                return doc == null ? null : new FlareDocumentAdapter(doc) { OpenedByPlugin = !wasOpen };
             }
             catch (Exception ex)
             {

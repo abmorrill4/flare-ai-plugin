@@ -1,17 +1,28 @@
 using System;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace FlareAI.Core.Llm
 {
     /// <summary>A single-turn completion request. Provider-agnostic so Bifrost can replace Anthropic-direct.</summary>
     public sealed class LlmRequest
     {
+        /// <summary>Which task this is ("review", "rewrite", …): selects the route and labels logs and usage.</summary>
+        public string Task { get; set; }
         public string System { get; set; }
         public string User { get; set; }
+        /// <summary>A safety ceiling, not the control: output size is governed by <see cref="Schema"/>. 0 = route default.</summary>
         public int MaxTokens { get; set; }
+        /// <summary>Model for this request; null = the client's default.</summary>
+        public string Model { get; set; }
+        /// <summary>low / medium / high / xhigh / max; null = the model's default.</summary>
+        public string Effort { get; set; }
+        /// <summary>The output contract: a JSON schema the response must match (structured outputs). Null = free text.</summary>
+        public JObject Schema { get; set; }
         /// <summary>Optional hint for the provider to attach MCP tools (Bifrost: x-bf-mcp-include-tools).</summary>
         public string ToolsHint { get; set; }
         /// <summary>Images sent before the text (vision): media type ("image/png") and base64 data.</summary>
-        public System.Collections.Generic.List<LlmImage> Images { get; set; }
+        public List<LlmImage> Images { get; set; }
     }
 
     public sealed class LlmImage
@@ -27,14 +38,23 @@ namespace FlareAI.Core.Llm
         public string StopReason { get; set; }
         public int InputTokens { get; set; }
         public int OutputTokens { get; set; }
+        public int CacheReadTokens { get; set; }
+        public int CacheWriteTokens { get; set; }
+        /// <summary>The response parsed as JSON when the request had a schema.</summary>
+        public JObject Json { get; set; }
     }
+
+    /// <summary>Why a request failed, so callers can react (retry with more room, tell the author, fall back).</summary>
+    public enum LlmFailure { Http, Network, Truncated, Refusal, Contract }
 
     public sealed class LlmException : Exception
     {
         public int StatusCode { get; private set; }
-        public LlmException(string message, int statusCode = 0, Exception inner = null) : base(message, inner)
+        public LlmFailure Failure { get; private set; }
+        public LlmException(string message, int statusCode = 0, Exception inner = null, LlmFailure failure = LlmFailure.Http) : base(message, inner)
         {
             StatusCode = statusCode;
+            Failure = failure;
         }
     }
 

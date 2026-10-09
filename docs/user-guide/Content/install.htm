@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Install the plugin</title>
+    </head>
+    <body>
+        <h1>Install the plugin</h1>
+<p>You need Flare 2026, version 22, on Windows, administrator rights for the install, and an Anthropic API key from your team.</p>
+<ol>
+<li>Close Flare.</li>
+<li>If you downloaded a zip file, right-click it, select <b>Properties</b>, select <b>Unblock</b>, and then select <b>OK</b>. Windows otherwise blocks the plugin, and Flare doesn't list it.</li>
+<li>Copy the plugin folder, <code>FlareAI</code>, into the <b>Plugins</b> folder of your Flare installation, for example <code>C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins</code>.</li>
+<li>Install uv, which runs the style checker. In a terminal, run <code>winget install astral-sh.uv</code>. You don't need administrator rights for this step.</li>
+<li>Start Flare, select <b>File &gt; Options &gt; Plugins</b>, select <MadCap:variable name="General.PluginName" />, select <b>Enable</b>, and then restart Flare.</li>
+</ol>
+<p>The <b>AI</b> tab appears on the ribbon. The first style check downloads the checker, which takes about a minute.</p>
+    </body>
+</html>

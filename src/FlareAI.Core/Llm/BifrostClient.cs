@@ -48,11 +48,18 @@ namespace FlareAI.Core.Llm
             messages.Add(new JObject { ["role"] = "user", ["content"] = content });
             var body = new JObject
             {
-                ["model"] = model,
+                ["model"] = string.IsNullOrEmpty(req.Model) ? model : req.Model,
                 ["messages"] = messages,
-                ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : 4096,
+                ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : AnthropicClient.DefaultMaxTokens,
                 ["stream"] = false
             };
+            if (!string.IsNullOrEmpty(req.Effort)) body["reasoning_effort"] = req.Effort;
+            if (req.Schema != null)
+                body["response_format"] = new JObject
+                {
+                    ["type"] = "json_schema",
+                    ["json_schema"] = new JObject { ["name"] = (req.Task ?? "output").Replace("-", "_"), ["strict"] = true, ["schema"] = req.Schema }
+                };
             return body.ToString(Formatting.None);
         }
 
@@ -70,21 +77,26 @@ namespace FlareAI.Core.Llm
             if (!string.IsNullOrEmpty(tools)) http.Headers["x-bf-mcp-include-tools"] = tools;
             http.ContentLength = payload.Length;
 
+            LlmResponse result;
             try
             {
                 using (var s = http.GetRequestStream()) s.Write(payload, 0, payload.Length);
                 using (var resp = (HttpWebResponse)http.GetResponse())
-                    return Parse(ReadAll(resp));
+                    result = Parse(ReadAll(resp));
             }
             catch (WebException wex)
             {
                 var resp = wex.Response as HttpWebResponse;
-                if (resp == null) throw new LlmException("Network error: " + wex.Message, 0, wex);
+                if (resp == null) throw new LlmException("Network error: " + wex.Message, 0, wex, LlmFailure.Network);
                 var text = ReadAll(resp);
                 var detail = text;
                 try { detail = JObject.Parse(text)["error"]["message"].ToString(); } catch (Exception) { }
                 throw new LlmException("HTTP " + (int)resp.StatusCode + ": " + detail, (int)resp.StatusCode, wex);
             }
+            // OpenAI finish reasons: "length" = cut off, "content_filter" = refused.
+            if (result.StopReason == "length") result.StopReason = "max_tokens";
+            if (result.StopReason == "content_filter") result.StopReason = "refusal";
+            return AnthropicClient.Check(result, request);
         }
 
         public static LlmResponse Parse(string json)

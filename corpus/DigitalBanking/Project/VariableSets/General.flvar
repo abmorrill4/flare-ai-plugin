@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultVariableSet>
+    <Variable Name="ProductName" EvaluatedDefinition="Acme Online Banking">Acme Online Banking</Variable>
+    <Variable Name="CompanyName" EvaluatedDefinition="Acme Financial">Acme Financial</Variable>
+    <Variable Name="SupportPhone" EvaluatedDefinition="1-800-555-0100">1-800-555-0100</Variable>
+</CatapultVariableSet>

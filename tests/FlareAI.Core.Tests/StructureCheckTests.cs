@@ -36,6 +36,26 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void ImageAloneInItsParagraph_IsFlagged_AndFoundFromTheFinding()
+        {
+            // Flare's usual pattern: the image has a paragraph of its own, with no text to anchor on (bench: 10/10 missed).
+            var blocks = Body("<h1>Pay bills</h1><p>Open the payee list.</p><p><img src=\"a.png\" /></p>");
+            var f = Assert.Single(StructureCheck.Of(blocks), x => x.Rule == "Structure.AltText");
+            Assert.Equal("Open the payee list.", f.Excerpt);
+            Assert.NotNull(FlareAI.Core.Actions.AltText.MissingIn(f.Block));
+        }
+
+        [Fact]
+        public void CodeIsLiteral_NotLinted_NotEditable()
+        {
+            var blocks = Body("<p>Edit <code>www.bank.example/FlareAI/owners.txt</code> to add owners.</p><pre>call 800-555-0100</pre>");
+            Assert.Empty(StructureCheck.Of(blocks));                                        // no "hard-coded URL / phone"
+            Assert.DoesNotContain(TextRuns.Of(blocks), r => r.Value.Contains("owners.txt")); // no AI run can touch it
+            var line = Assert.Single(TextLines.Of(blocks, null), l => l.Text.Contains("to add owners"));
+            Assert.DoesNotContain("owners.txt", line.Text);
+        }
+
+        [Fact]
         public void CleanTopicHasNoFindings()
         {
             Assert.Empty(StructureCheck.Of(Body(

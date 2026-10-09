@@ -17,6 +17,17 @@ namespace FlareAI.Core.Style
             "snippetBlock", "snippetText", "keyword", "concept", "annotation", "variable", "glossaryTerm", "toggler"
         };
 
+        /// <summary>
+        /// Literal text: file paths, commands, JSON. Never linted (a path isn't a sentence) and never an editable run, so
+        /// no AI edit can change it. Bench: the linter flagged "FlareAI/owners.txt" as a product name to replace.
+        /// </summary>
+        public static readonly HashSet<string> Literal = new HashSet<string> { "code", "pre", "kbd", "samp", "var" };
+
+        public static bool IsLiteral(XmlNode n)
+        {
+            return n.NodeType == XmlNodeType.Element && n.NamespaceURI.Length == 0 && Literal.Contains(n.LocalName);
+        }
+
         public static List<XmlText> Of(IList<XmlNode> blocks)
         {
             var runs = new List<XmlText>();
@@ -34,6 +45,7 @@ namespace FlareAI.Core.Style
             }
             if (n.NodeType != XmlNodeType.Element) return;
             if (n.NamespaceURI == BlockSelector.MadCapNs && Opaque.Contains(n.LocalName)) return;
+            if (IsLiteral(n)) return;
             if (TrackedChanges.IsDeleted(n, removed)) return;
             foreach (XmlNode c in n.ChildNodes) Walk(c, removed, runs);
         }

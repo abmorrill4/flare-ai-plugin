@@ -13,8 +13,13 @@ namespace FlareAI.Core
 
         public static string LogPath { get { return Path.Combine(PluginSettings.SettingsDirectory, "diag.log"); } }
 
+        /// <summary>When set, receives every line instead of the log file (the stress harness counts them).</summary>
+        public static Action<string> Sink;
+
         public static void Log(string message)
         {
+            var sink = Sink;
+            if (sink != null) { sink(message); return; }
             if (!Enabled) return;
             try
             {

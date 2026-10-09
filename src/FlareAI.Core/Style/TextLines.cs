@@ -63,6 +63,13 @@ namespace FlareAI.Core.Style
             if (n.NodeType != XmlNodeType.Element || TrackedChanges.IsDeleted(n, removed)) return;
             var madcap = n.NamespaceURI == BlockSelector.MadCapNs;
             if (madcap && Opaque.Contains(n.LocalName)) return;
+            if (TextRuns.IsLiteral(n))
+            {
+                // Keeps the sentence readable for the linter ("Edit x to…") without linting the code itself.
+                if (line == null) { line = new TextLine(); lines.Add(line); }
+                Add(line, new Segment { Text = "x" });
+                return;
+            }
             if (madcap && n.LocalName == "variable")
             {
                 var name = ((XmlElement)n).GetAttribute("name");

@@ -161,7 +161,7 @@ namespace FlareAI.Flare.UI
                 var runner = _runnerFor == null ? null : _runnerFor(doc);
                 if (runner == null) return;
                 var instruction = GuideEdits.Instruction(it, rule, block.LocalName == "tr");
-                using (var form = new ResultForm("Draft style guide change", runner, doc, ActionKind.Ask, instruction, new List<System.Xml.XmlNode> { block }) { Lint = false })
+                using (var form = new ResultForm("Draft style guide change", runner, doc, ActionKind.Ask, instruction, new List<System.Xml.XmlNode> { block }) { Lint = false, Task = "draft" })
                 {
                     if (form.ShowDialog(this) != DialogResult.OK) return;
                     _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ": review, save and commit the guide, then run Validate style guide.";

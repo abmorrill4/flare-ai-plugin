@@ -59,7 +59,17 @@ namespace FlareAI.Core.Tests
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             doc.SelectXPath("//ol/li[2]/text()");
-            var llm = new FakeLlmClient(r => "<revised><li>Click the SSO toggle to enable it.</li></revised>");
+            var llm = new FakeLlmClient(r =>
+            {
+                // Edit the runs as a model would: new text for the runs that change, nothing else.
+                var changes = new Newtonsoft.Json.Linq.JArray();
+                foreach (var run in FakeLlmClient.MarkedRuns(r.User))
+                {
+                    var t = run.Value.Replace("The ", "Click the ").Replace(" should be clicked by the user, e.g.", "");
+                    if (t != run.Value) changes.Add(new Newtonsoft.Json.Linq.JObject { ["run_id"] = run.Key, ["text"] = t });
+                }
+                return new Newtonsoft.Json.Linq.JObject { ["changes"] = changes, ["needs_restructure"] = false, ["note"] = "" }.ToString();
+            });
             var runner = new FlareAI.Core.Actions.ActionRunner(llm, new FlareAI.Core.Actions.PromptBuilder(null), 1024);
             var proposal = runner.Rewrite(doc, null);
             Assert.True(proposal.Validation.IsValid, proposal.Validation.ToString());

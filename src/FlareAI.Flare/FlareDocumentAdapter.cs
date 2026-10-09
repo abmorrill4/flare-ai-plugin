@@ -21,6 +21,19 @@ namespace FlareAI.Flare
 
         public FlareDocumentAdapter(IDocument doc) { _doc = doc; }
 
+        /// <summary>True when the plugin opened this file (it wasn't open in Flare before): bulk edits save and close it.</summary>
+        public bool OpenedByPlugin { get; set; }
+
+        /// <summary>
+        /// Saves (tracked changes stay tracked: Review &gt; Reject still works) and closes the editor. Bulk edits across a
+        /// project must not leave one tab per file open: past ~100 tabs Windows runs out of window handles and Flare crashes.
+        /// </summary>
+        public void SaveAndClose()
+        {
+            _doc.Save();
+            _doc.Close();
+        }
+
         public string SourcePath
         {
             get { try { return _doc == null ? null : _doc.GetSourceUrl(); } catch (Exception) { return null; } }

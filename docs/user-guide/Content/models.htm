@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Models and cost</title>
+    </head>
+    <body>
+        <h1>Models and cost</h1>
+<p>The plugin splits AI work into small jobs, one paragraph or one proposal at a time, and sends each job to the smallest model that does it well. Every job has an output contract: the API returns structured data that the plugin checks before anything reaches your topic.</p>
+<h2>Which model does what</h2>
+<table><thead><tr><th>Task</th><th>Tier</th><th>Default model and effort</th></tr></thead><tbody>
+<tr><td>Style review, paragraph by paragraph</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Rewrite selection, Ask, Rewrite…</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Restructure</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Alt text from the image</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Rules from notes</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Refine one proposal</td><td>Fast</td><td>Claude Haiku 5.5, medium</td></tr>
+<tr><td>Topic assists</td><td>Fast</td><td>Claude Haiku 5.5, medium</td></tr>
+<tr><td>Draft a style guide change, for owners</td><td>Deep</td><td>Claude Opus 5.5, high</td></tr>
+</tbody></table>
+<h2>Why these defaults</h2>
+<p>The plugin's test bench ran the review and rewrites on a 45-topic sample of a synthetic banking help project, with 76 planted problems, on each model:</p>
+<table><thead><tr><th>Model, effort</th><th>Planted problems found</th><th>Findings nobody planted</th><th>Cost per topic</th><th>Seconds per topic</th><th>Rewrites</th></tr></thead><tbody>
+<tr><td>Haiku 5.5, low</td><td>100%</td><td>113</td><td>$0.001</td><td>14</td><td>Dropped words next to bold labels</td></tr>
+<tr><td>Haiku 5.5, medium</td><td>100%</td><td>59</td><td>$0.001</td><td>17</td><td>Dropped words next to bold labels</td></tr>
+<tr><td>Sonnet 5.5, low</td><td>100%</td><td>94</td><td>$0.014</td><td>12</td><td>Faithful</td></tr>
+<tr><td>Sonnet 5.5, medium</td><td>100%</td><td>107</td><td>$0.013</td><td>14</td><td>Faithful</td></tr>
+<tr><td>Sonnet 5.5, medium, per section</td><td>100%</td><td>75</td><td>$0.008</td><td>5</td><td>Faithful</td></tr>
+<tr><td>Opus 5.5, medium</td><td>100%</td><td>58</td><td>$0.030</td><td>20</td><td>Added details the text didn't have</td></tr>
+</tbody></table>
+<p>Every model found every planted problem, so the choice rests on the rest. Findings nobody planted are partly real problems in the sample text and partly noise. Rewrites are where models differ most. Sonnet changed only what the task called for. After that run, a stricter review prompt kept every planted problem and cut the findings nobody planted on Sonnet from 107 to 71. The plugin also rejects a rewrite that drops the words after a bold label or link, whatever the model, and asks again.</p>
+<h2>Change the models for your team</h2>
+<p>A style guide owner can set models for the whole team in the guide project's <code>FlareAI/models.json</code>:</p>
+<pre>{
+  "tiers": { "fast": { "model": "claude-haiku-5-5", "effort": "medium" } },
+  "tasks": { "review": "standard" },
+  "review_unit": "section"
+}</pre>
+<p><code>review_unit</code> is <code>block</code>, one call per paragraph and the default, or <code>section</code>, one call per heading's worth of text. Sections were cheaper and faster, with the same results, in the bench sample. One writer can choose models in <b>Settings</b>, but the team file wins.</p>
+<h2>See what you spend</h2>
+<p><b>AI &gt; Diagnostics</b> lists the routing in effect and, for this session, the calls, tokens and estimated cost per task and model. The API caches the style guide part of every request, so repeated checks cost less.</p>
+    </body>
+</html>

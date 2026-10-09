@@ -93,8 +93,11 @@ namespace FlareAI.Core.Style
             XmlText run = runs.Count > 0 ? runs[0] : null;
             if (run == null)
             {
-                // The last text before the element in its block, else the block's first text.
+                // The last text before the element in its block, else the block's first text. A block with no text at
+                // all (an image in its own paragraph, the usual Flare pattern) anchors on the nearest text in the topic.
                 var block = TextRuns.BlockOf(el) ?? el;
+                if (TextRuns.Of(new List<XmlNode> { block }).TrueForAll(t => t.Value.Trim().Length == 0))
+                    block = BlockSelector.FindBody(el.OwnerDocument) ?? block;
                 var order = new List<XmlNode>();
                 Walk(block, order);
                 var at = order.IndexOf(el);

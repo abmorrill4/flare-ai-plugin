@@ -76,9 +76,25 @@ namespace FlareAI.Core.Actions
 
         public string BuildAlt(string context) { return Embedded("action-alt.md").Replace("{{CONTEXT}}", context ?? ""); }
 
-        public string BuildAssist(string fragment, string glossary)
+        /// <summary>One part of Topic assists (description + keywords, synonyms, or micro content + glossary).</summary>
+        public string BuildAssist(string fragment, string glossary, string part)
         {
-            return Embedded("action-assist.md").Replace("{{GLOSSARY}}", string.IsNullOrEmpty(glossary) ? "(none)" : glossary).Replace("{{FRAGMENT}}", fragment ?? "");
+            return Embedded("action-assist.md").Replace("{{PART}}", part ?? "").Replace("{{GLOSSARY}}", string.IsNullOrEmpty(glossary) ? "(none)" : glossary).Replace("{{FRAGMENT}}", fragment ?? "");
+        }
+
+        /// <summary>Review of one unit: the marked text, its context (topic title, section), and what the linter already found.</summary>
+        public string BuildReview(string context, string marked, string lint)
+        {
+            return Embedded("action-check.md").Replace("{{CONTEXT}}", context ?? "").Replace("{{LINT}}", string.IsNullOrEmpty(lint) ? "(none)" : lint).Replace("{{FRAGMENT}}", marked ?? "");
+        }
+
+        /// <summary>Run-level rewrite of one block: the task (instruction, or the default style pass) and the marked text.</summary>
+        public string BuildRunRewrite(string instruction, string marked, string lint)
+        {
+            var task = string.IsNullOrEmpty(instruction)
+                ? "Task: make this text meet the style guide. Fix every linter finding below, and tighten wordy, vague, or passive sentences into plain, direct instructions and statements. Runs that are already clear and compliant stay as they are."
+                : "Task (the author's instruction): " + instruction.Trim();
+            return Embedded("action-rewrite-runs.md").Replace("{{INSTRUCTION}}", task).Replace("{{LINT}}", string.IsNullOrEmpty(lint) ? "(none)" : lint).Replace("{{FRAGMENT}}", marked ?? "");
         }
 
         /// <summary>Notes, an old guide, or another tool's prompt → candidate rules (JSON array).</summary>
@@ -104,7 +120,7 @@ namespace FlareAI.Core.Actions
         public string OverrideFolder { get; set; }
 
         /// <summary>Names of the templates a team can override.</summary>
-        public static readonly string[] Templates = { "system-base.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md", "action-extract.md", "action-alt.md", "action-assist.md" };
+        public static readonly string[] Templates = { "system-base.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md", "action-extract.md", "action-alt.md", "action-assist.md", "action-rewrite-runs.md" };
 
         private string Embedded(string name)
         {

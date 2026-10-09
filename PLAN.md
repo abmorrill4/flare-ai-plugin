@@ -281,6 +281,12 @@ command is documented in the README for madbuild/CI.
       report problems, where `diag.log` is).
 - [x] Package refreshed (`dist\FlareAI-0.1.0.zip`: plugin, icons, docstyle with mining + LLM export); tester guide covers
       the review pane, structure checks, assists, LLM export, Build/Tune style guide and strict ownership.
+- [x] Output contracts per task (structured outputs, run-addressed rewrites, check-and-retry), routing tiers
+      (fast/standard/deep, team `FlareAI/models.json`), usage and cost in Diagnostics.
+- [x] Stress test: synthetic 250-topic corpus with ground truth (`scripts/make-corpus.py`), headless bench
+      (`tools/FlareAI.Bench`), model bake-off, in-Flare runs. Findings and fixes: `docs/testing/STRESS-REPORT.md`.
+- [x] Tester pack: user guide as a Flare project (`docs/user-guide`, dogfooded with the plugin), test plan with
+      expected results and bug template (`docs/testing`).
 - [ ] Feedback loop: 1-week trial, collect findings in `docs\FEEDBACK.md`. (Needs real writers.)
 
 ### Phase 4 — Bifrost integration `[ ]`

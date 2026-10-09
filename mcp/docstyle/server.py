@@ -752,9 +752,12 @@ def _selftest():
         proj = Path(tmp) / "Docs"
         (proj / "Content").mkdir(parents=True)
         (proj / "Docs.flprj").write_text("<CatapultProject />", encoding="utf-8")
-        topic = ('<?xml version="1.0" encoding="utf-8"?><html><body><h1>Set up alerts for your account</h1>'
+        (proj / "Project" / "VariableSets").mkdir(parents=True)
+        (proj / "Project" / "VariableSets" / "General.flvar").write_text(
+            '<CatapultVariableSet><Variable Name="Bank">Acme Financial</Variable></CatapultVariableSet>', encoding="utf-8")
+        topic = ('<?xml version="1.0" encoding="utf-8"?><html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd"><body><h1>Set up alerts for your account</h1>'
                  "<p>Turn on autopay for bills. Autopay runs monthly. Autopay stops when you cancel.</p>"
-                 "<p>You can also set up auto-pay here. Edit auto-pay later.</p>"
+                 '<p>At <MadCap:variable name="General.Bank" /> you can also set up auto-pay here. Edit auto-pay later.</p>'
                  "<p>To start, sign in to the app. Then sign in again and log in to the console. Sign in daily. Log in to see statements.</p>"
                  "<p>Open the app and go to Online Banking now. From there, go to Online Banking settings and then online banking help, and online banking alerts.</p>"
                  "<h2>Change Your Alert Settings</h2><h2>View Your Account History</h2><h2>Delete an alert from the list</h2><h2>Reset Your Online Password</h2></body></html>")
@@ -765,6 +768,7 @@ def _selftest():
         spelling = next(c for c in mined["candidates"] if c["kind"] == "spelling" and "autopay" in c["prefer"])
         assert spelling["prefer"] == "autopay" and spelling["row"]["avoid"] == "auto-pay", spelling
         assert "auto-pay" in spelling["row"]["example"], spelling["row"]
+        assert spelling["row"]["example"].startswith("At Acme Financial you"), spelling["row"]   # variables read as their values
         signin = next((c for c in mined["candidates"] if c["kind"] == "synonym" and "sign" in c["prefer"]), None)
         assert signin and signin["prefer"] == "sign in" and signin["row"]["avoid"] == "log in", signin
         assert "capitalization" in kinds, [c["title"] for c in mined["candidates"]]

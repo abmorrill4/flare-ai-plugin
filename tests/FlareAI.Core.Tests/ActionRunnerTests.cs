@@ -20,7 +20,7 @@ namespace FlareAI.Core.Tests
             Assert.True(proposal.Validation.IsValid, proposal.Validation.ToString());
             Assert.Single(proposal.ProposedBlocks);
             Assert.Equal(proposal.OriginalBlocks[0].OuterXml, proposal.ProposedBlocks[0].OuterXml);
-            Assert.Contains("Fragment:", llm.Requests[0].User);
+            Assert.Contains("⟦r1⟧", llm.Requests[0].User);   // runs are addressed, never markup
             Assert.Contains("MadCap:", llm.Requests[0].System);
         }
 
@@ -46,9 +46,9 @@ namespace FlareAI.Core.Tests
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             doc.SelectXPath("//body/p[2]/text()");
             var llm = new FakeLlmClient(r => "Sure! Here is a better version of your paragraph.");
-            var proposal = Runner(llm).Rewrite(doc, null);
-            Assert.False(proposal.Validation.IsValid);
-            Assert.Throws<InvalidOperationException>(() => Runner(llm).Apply(doc, proposal, "x"));
+            // Prose instead of the contract: a typed failure the UI can explain, never a half-parsed edit.
+            var ex = Assert.Throws<LlmException>(() => Runner(llm).Rewrite(doc, null));
+            Assert.Equal(LlmFailure.Contract, ex.Failure);
         }
 
         [Fact]
@@ -127,8 +127,9 @@ namespace FlareAI.Core.Tests
             doc.SelectionText = ""; // caret, nothing selected
             var llm = new FakeLlmClient(r => "");
             Runner(llm).CheckStyle(doc);
-            Assert.Contains("Configure single sign-on", llm.Requests[0].User);
-            Assert.Contains("Whitelist the IdP", llm.Requests[0].User);
+            // Per-block review: every block of the topic is sent, each with the topic title as context.
+            Assert.All(llm.Requests, q => Assert.Contains("Configure single sign-on", q.User));
+            Assert.Contains(llm.Requests, q => q.User.Contains("Whitelist the IdP"));
         }
 
         [Fact]

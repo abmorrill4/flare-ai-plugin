@@ -46,9 +46,20 @@ namespace FlareAI.Core.Actions
         public static XmlElement MissingIn(XmlNode block)
         {
             if (block == null || block.NodeType != XmlNodeType.Element) return null;
-            foreach (XmlElement img in block.SelectNodes("descendant-or-self::*[local-name()='img']"))
-                if (img.GetAttribute("alt").Trim().Length == 0) return img;
+            // An image alone in its paragraph has no text, so its finding sits on the text next to it: look there too.
+            foreach (var b in new[] { block, Sibling(block, true), Sibling(block, false) })
+            {
+                if (b == null) continue;
+                foreach (XmlElement img in b.SelectNodes("descendant-or-self::*[local-name()='img']"))
+                    if (img.GetAttribute("alt").Trim().Length == 0) return img;
+            }
             return null;
+        }
+
+        private static XmlNode Sibling(XmlNode n, bool next)
+        {
+            do n = next ? n.NextSibling : n.PreviousSibling; while (n != null && n.NodeType != XmlNodeType.Element);
+            return n;
         }
 
         /// <summary>The image file and its media type for the model; throws with a reason the author can act on.</summary>

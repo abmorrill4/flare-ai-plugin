@@ -212,35 +212,37 @@ namespace FlareAI.Flare.UI
                 catch (Exception ex) { Diagnostics.Log("snippets", ex); }
                 foreach (var f in lint)
                     if (f.DocumentPath != null && !_usage.ContainsKey(f.DocumentPath)) _usage[f.DocumentPath] = ActionRunner.SnippetUsage(f.DocumentPath);
-                // Long topics are reviewed section by section, so the first cards arrive in seconds.
-                var sections = ReviewOrder.Sections(blocks);
-                var prompts = new List<string>();
-                foreach (var sec in sections) prompts.Add(_runner.ReviewPrompt(sec, lint.FindAll(f => f.DocumentPath == null && sec.Exists(b => b == f.Block || FlareAI.Core.Style.TextRuns.BlockOf(b) == f.Block))));
+                // The AI review is split into small units (one block each, by default) reviewed several at a time, so the
+                // first cards arrive in seconds and each model call has one focused job. Prompts read the DOM: build them here.
+                var units = _runner.PrepareReview(blocks, lint);
                 _lint = lint;
-                _worker.ReportProgress(0, new object[] { lint, null, 0, sections.Count });  // from here the author may edit while we wait
-                for (var i = 0; i < sections.Count; i++)
+                _worker.ReportProgress(0, new object[] { lint, null, 0, units.Count });  // from here the author may edit while we wait
+                var done = 0;
+                System.Threading.Tasks.Parallel.For(0, units.Count, new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = _runner.Parallelism }, (i, loop) =>
                 {
-                    if (_worker.CancellationPending) { e.Cancel = true; return; }
-                    var raw = _cache == null ? null : _cache.Get(prompts[i]);
+                    if (_worker.CancellationPending) { loop.Stop(); return; }
+                    var raw = _cache == null ? null : _cache.Get(units[i].Prompt);
                     if (raw != null) cachedAny = true;
                     else if (_aiOnStart)
                     {
-                        raw = _runner.CallReview(prompts[i]);
-                        if (_cache != null) _cache.Put(prompts[i], raw);
+                        raw = _runner.CallReview(units[i]);
+                        if (_cache != null) _cache.Put(units[i].Prompt, raw);
                     }
-                    if (raw != null) _worker.ReportProgress(i + 1, new object[] { raw, sections[i], i + 1, sections.Count });
-                }
+                    var n = System.Threading.Interlocked.Increment(ref done);
+                    if (raw != null) _worker.ReportProgress(n, new object[] { raw, units[i], n, units.Count });
+                });
+                if (_worker.CancellationPending) e.Cancel = true;
             };
             _worker.ProgressChanged += (s, e) =>
             {
                 if (IsDisposed) return;
                 var p = (object[])e.UserState;
                 var found = (List<StyleFinding>)p[0];
-                var section = (List<XmlNode>)p[1];
-                int done = (int)p[2], total = (int)p[3];
-                Add(section == null ? found : _runner.AnchorReview(found, section, _lint)); // DOM work on the UI thread
-                if (_aiOnStart && done < total)
-                    _status.Text = Summary() + "  Reviewing with AI" + (total > 1 ? " — section " + (done + 1) + " of " + total : "") + "… (you can work on these now)";
+                var unit = p[1] as ReviewUnit;
+                int doneUnits = (int)p[2], total = (int)p[3];
+                Add(unit == null ? found : _runner.AnchorReview(found, unit, _lint)); // DOM work on the UI thread
+                if (_aiOnStart && doneUnits < total)
+                    _status.Text = Summary() + "  Reviewing with AI — " + doneUnits + " of " + total + " paragraphs… (you can work on these now)";
                 else _status.Text = Summary();
             };
             _worker.RunWorkerCompleted += (s, e) =>
@@ -490,6 +492,9 @@ namespace FlareAI.Flare.UI
             var block = _runner.LocateBlock(_doc, f) ?? f.Block;
             var img = AltText.MissingIn(block);
             if (img == null) { _status.Text = "That image already has alt text (or is gone). Re-analyze."; return; }
+            var inside = false;
+            for (XmlNode n = img; n != null && !inside; n = n.ParentNode) inside = n == block;
+            if (!inside) block = img.ParentNode; // the finding sits on the text next to an image-only paragraph
             LlmImageFile image;
             try { image = AltText.Load(_doc.SourcePath, img.GetAttribute("src")); }
             catch (Exception ex) { _status.Text = ex.Message + " Write the alt text in the image's properties."; return; }
@@ -528,7 +533,8 @@ namespace FlareAI.Flare.UI
             var todo = _findings.FindAll(f => f.CanFix && f.Kind == "mechanical" && (f.DocumentPath == null || _files != null));
             if (todo.Count == 0) return;
             var files = GroupByDocument(todo).Count;
-            if (files > 3 && MessageBox.Show(this, "Apply " + todo.Count + " fixes in " + files + " files?\n\nEach file opens in Flare and gets the fixes as tracked changes (one undo step per file). Nothing is saved automatically.",
+            if (files > 3 && MessageBox.Show(this, "Apply " + todo.Count + " fixes in " + files + " files?\n\nEach file gets the fixes as tracked changes. Files that aren't open now are saved and closed after their fixes " +
+                    "(the changes stay tracked: review them with Review > Accept / Reject). Files you have open are left open and unsaved.",
                     "FlareAI", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
             var n = Apply(todo, todo.Count == 1 ? "FlareAI: " + todo[0].Rule : "FlareAI: " + todo.Count + " style fixes");
             foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "accepted");
@@ -564,6 +570,12 @@ namespace FlareAI.Flare.UI
                     var doc = DocOf(group[0], true);
                     if (doc == null) { Diagnostics.Log("Apply: could not open " + group[0].DocumentPath); continue; }
                     n += _runner.ApplyFixes(doc, group, operation);
+                    // Project-wide: a file opened just for this is saved and closed (one tab per file crashes Flare at ~100).
+                    var fa = doc as FlareAI.Flare.FlareDocumentAdapter;
+                    if (_files != null && fa != null && fa.OpenedByPlugin && doc != _doc)
+                    {
+                        try { fa.SaveAndClose(); } catch (Exception ex) { Diagnostics.Log("Apply: save/close " + doc.SourcePath, ex); }
+                    }
                 }
                 if (_files == null && todo.Exists(f => f.DocumentPath != null) && _open != null) _open(_doc.SourcePath); // back to the topic
                 Rebuild();
@@ -654,8 +666,9 @@ namespace FlareAI.Flare.UI
             worker.DoWork += (s, e) =>
             {
                 var lint = _runner.Lint(blocks);
-                var raw = _runner.CallReview(_runner.ReviewPrompt(blocks, lint));
-                e.Result = new object[] { lint, raw };
+                var units = _runner.PrepareReview(blocks, lint, 1);
+                var raw = units.Count == 0 ? new List<StyleFinding>() : _runner.CallReview(units[0]);
+                e.Result = new object[] { lint, raw, units.Count == 0 ? null : units[0] };
             };
             worker.RunWorkerCompleted += (s, e) =>
             {
@@ -665,7 +678,7 @@ namespace FlareAI.Flare.UI
                 var parts = (object[])e.Result;
                 var lint = (List<StyleFinding>)parts[0];
                 var fresh = new List<StyleFinding>(lint);
-                fresh.AddRange(_runner.AnchorReview((List<StyleFinding>)parts[1], blocks, lint));
+                if (parts[2] != null) fresh.AddRange(_runner.AnchorReview((List<StyleFinding>)parts[1], (ReviewUnit)parts[2], lint));
                 _findings.RemoveAll(x => !x.IsFixed && x.DocumentPath == null && (x.Block == block || (x.IsStale && x.Block == f.Block)));
                 Add(fresh);
                 Select(fresh.Count > 0 ? fresh[0] : null);

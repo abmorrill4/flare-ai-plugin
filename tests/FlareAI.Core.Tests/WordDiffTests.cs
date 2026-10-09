@@ -18,12 +18,45 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void RunRewrite_AfterBoldLabel_KeepsEveryUnchangedWord()
+        {
+            // Bench: "from the <b>Transfers</b> page. Each change …" came back as "from the Transfers Each change …".
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = XhtmlFragment.ParseInto("<p>Members can remove a transfer from the <b>Transfers</b> page. Each change appears in the account history. Your new transfer is ready to go! Our best-in-class transfer experience delights members.</p>", doc.Document)[0];
+            doc.Document.SelectSingleNode("//body").AppendChild(p);
+            doc.SelectXPath("//body/p[last()]/text()[2]");
+            var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace("ready to go!", "ready to go.").Replace("Our best-in-class transfer experience delights members.", "The transfer experience is designed for members.")));
+            var runner = Runner(llm);
+            var proposal = runner.Rewrite(doc, null);
+            Assert.True(proposal.Validation.IsValid, proposal.Validation.ToString());
+            runner.Apply(doc, proposal, "x");
+            Assert.Equal("Members can remove a transfer from the Transfers page. Each change appears in the account history. Your new transfer is ready to go. The transfer experience is designed for members.", Visible(p));
+        }
+
+        [Fact]
+        public void RunRewrite_DroppingTheWordsAfterABoldLabel_IsRetried_ThenLeftOut()
+        {
+            // Haiku in the bench: " page. Each change …" came back as "Each change …", losing "page.".
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = XhtmlFragment.ParseInto("<p>Remove a transfer from the <b>Transfers</b> page. Your transfer is ready to go!</p>", doc.Document)[0];
+            doc.Document.SelectSingleNode("//body").AppendChild(p);
+            doc.SelectXPath("//body/p[last()]/text()[2]");
+            var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace(" page. Your transfer is ready to go!", "Your transfer is ready.")));
+            var runner = Runner(llm);
+            var proposal = runner.Rewrite(doc, null);
+            Assert.Equal(2, llm.Requests.Count);                                  // the breach is retried once
+            Assert.Contains("must still start with \"page.\"", llm.Requests[1].User);
+            runner.Apply(doc, proposal, "x");
+            Assert.Contains("Transfers page.", Visible(p));                        // the bad change never lands
+        }
+
+        [Fact]
         public void Restructure_FallsBackToBlockReplacement()
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             doc.SelectXPath("//body/p[2]/text()");
             var runner = Runner(new FakeLlmClient(r => "<revised><ul MadCap:conditions=\"Default.Print\"><li>Only in print.</li></ul></revised>"));
-            var proposal = runner.Rewrite(doc, null);
+            var proposal = runner.Restructure(doc, runner.PickBlocks(doc), null);
             Assert.Null(proposal.WordPlan);
             Assert.Contains("paragraph-level", runner.Apply(doc, proposal, "x"));
             Assert.Single(doc.Replacements);
@@ -57,7 +90,7 @@ namespace FlareAI.Core.Tests
             // Flare-saved topic: p[1] holds a pending insertion (new text) and a pending deletion (old text).
             var doc = new FakeDocumentAdapter("tracked-changes-topic.htm");
             doc.SelectXPath("//body/p[1]");
-            var llm = new FakeLlmClient(r => FakeLlmClient.EchoRevised(r).Replace("make sure your administrator has granted", "ask your administrator to grant"));
+            var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace("make sure your administrator has granted", "ask your administrator to grant")));
             var runner = Runner(llm);
             var proposal = runner.Rewrite(doc, null);
 
@@ -77,7 +110,8 @@ namespace FlareAI.Core.Tests
         {
             var doc = new FakeDocumentAdapter("tracked-changes-topic.htm");
             doc.SelectXPath("//body/p[1]");
-            var proposal = Runner(new FakeLlmClient(r => "<revised><ul><li>To use SSO, ask your administrator. <MadCap:variable name=\"General.ProductName\" /> supports SAML 2.0 and OIDC.</li></ul></revised>")).Rewrite(doc, null);
+            var runner = Runner(new FakeLlmClient(r => "<revised><ul><li>To use SSO, ask your administrator. <MadCap:variable name=\"General.ProductName\" /> supports SAML 2.0 and OIDC.</li></ul></revised>"));
+            var proposal = runner.Restructure(doc, runner.PickBlocks(doc), null);
             Assert.False(proposal.Validation.IsValid);
             Assert.Contains(proposal.Validation.Errors, e => e.Contains("pending tracked changes"));
         }

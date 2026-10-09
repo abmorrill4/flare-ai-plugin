@@ -24,3 +24,13 @@ __pycache__/
 
 # local demo media (recordings, renders)
 demo/
+
+# stress harness output (regenerate with tools/FlareAI.Bench)
+bench-out/
+corpus/DigitalBanking/Analyzer/
+corpus/DigitalBanking/Output/
+corpus/DigitalBanking/Project/Reports/
+docs/user-guide/Analyzer/
+docs/user-guide/Output/
+**/Project/Users/
+*.flprjuser

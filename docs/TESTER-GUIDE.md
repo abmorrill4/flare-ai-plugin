@@ -1,5 +1,8 @@
 # FlareAI — tester guide (proof of concept)
 
+> Quickstart. The full user guide is a Flare project in `docs/user-guide` (open `FlareAI-Guide.flprj`); the test plan
+> with expected results, the test corpus and the bug template are in `docs/testing`.
+
 Thanks for trying this. It adds an **AI** tab to Flare Desktop with three actions. Every edit it makes
 arrives as a **tracked change**, so you accept or reject it exactly like a reviewer's edit, and Ctrl+Z
 undoes it in one step.

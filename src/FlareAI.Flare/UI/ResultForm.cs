@@ -38,6 +38,12 @@ namespace FlareAI.Flare.UI
         /// <summary>False when rewriting a style-guide topic (see <see cref="ActionRunner.Rewrite(IDocumentAdapter, IList{XmlNode}, string, bool)"/>).</summary>
         public bool Lint { get; set; } = true;
 
+        /// <summary>The route for wording edits: "rewrite", or "draft" for owner edits to the style guide.</summary>
+        public string Task { get; set; } = "rewrite";
+
+        private bool _restructuring;
+        private readonly Button _restructure;
+
         /// <summary>After OK: what was applied, for the caller's status line.</summary>
         public string AppliedSummary { get; private set; }
 
@@ -67,8 +73,17 @@ namespace FlareAI.Flare.UI
             _apply = new Button { Text = "Apply as tracked changes", Left = 540, Top = 482, Width = 160, Enabled = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
             _close = new Button { Text = "Cancel", Left = 706, Top = 482, Width = 42, DialogResult = DialogResult.Cancel, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
             _close.Width = 60; _close.Left = 688;
+            _restructure = new Button { Text = "Restructure instead…", Left = 380, Top = 482, Width = 150, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
+            _restructure.Click += (s, e) =>
+            {
+                // The wording-only path said the task needs structural edits: ask for XHTML (validated) instead.
+                _restructuring = true;
+                _restructure.Visible = false; _apply.Enabled = false; _progress.Visible = true;
+                _status.Text = "Asking for a structural edit…";
+                _worker.RunWorkerAsync();
+            };
             _apply.Click += (s, e) => OnApply();
-            Controls.AddRange(new Control[] { _status, _progress, _diff, _output, _showXml, _apply, _close });
+            Controls.AddRange(new Control[] { _status, _progress, _diff, _output, _showXml, _restructure, _apply, _close });
             CancelButton = _close;
 
             _worker = new BackgroundWorker { WorkerSupportsCancellation = true };
@@ -80,7 +95,8 @@ namespace FlareAI.Flare.UI
 
         private void Work(object sender, DoWorkEventArgs e)
         {
-            e.Result = _blocks != null ? _runner.Rewrite(_doc, _blocks, _instruction, Lint) : _runner.Rewrite(_doc, _instruction);
+            var blocks = _blocks ?? _runner.PickBlocks(_doc);
+            e.Result = _restructuring ? _runner.Restructure(_doc, blocks, _instruction) : _runner.Rewrite(_doc, blocks, _instruction, Lint, Task);
         }
 
         private void Done(object sender, RunWorkerCompletedEventArgs e)
@@ -118,9 +134,18 @@ namespace FlareAI.Flare.UI
                     _diff.AppendText("\nStill flagged by the linter:\n" + ActionRunner.Summarize(_proposal.RemainingLint));
                 _output.Visible = false; _diff.Visible = true; _showXml.Visible = true;
                 _apply.Enabled = true;
+                if (_proposal.NeedsRestructure)
+                {
+                    _restructure.Visible = true;
+                    _status.Text += "  The AI says this also needs a structural change" + (string.IsNullOrEmpty(_proposal.RestructureNote) ? "" : ": " + _proposal.RestructureNote) + " — apply the wording now, or Restructure instead.";
+                }
+                else if (!string.IsNullOrEmpty(_proposal.RestructureNote))
+                    _status.Text += "  Note from the AI: " + _proposal.RestructureNote;   // e.g. a fact only the author can supply
                 if (_proposal.WordPlan != null && _proposal.WordPlan.Count == 0)
                 {
-                    _status.Text = "Already meets the style guide — nothing to change.";
+                    _status.Text = _proposal.NeedsRestructure ? "No wording changes; the AI says this needs a structural change" + (string.IsNullOrEmpty(_proposal.RestructureNote) ? "." : ": " + _proposal.RestructureNote)
+                                 : !string.IsNullOrEmpty(_proposal.RestructureNote) ? "No wording changes. Note from the AI: " + _proposal.RestructureNote
+                                 : "Already meets the style guide — nothing to change.";
                     _apply.Enabled = false;
                     _close.Text = "Close";
                 }
@@ -128,7 +153,7 @@ namespace FlareAI.Flare.UI
             else
             {
                 _status.Text = "Rejected — the model's output would damage the topic structure. Nothing was changed.";
-                _output.Text = _proposal.Validation + Environment.NewLine + Environment.NewLine + "--- raw response ---" + Environment.NewLine + _proposal.Raw.Text;
+                _output.Text = _proposal.Validation + Environment.NewLine + Environment.NewLine + "--- raw response ---" + Environment.NewLine + (_proposal.Raw == null ? "" : _proposal.Raw.Text);
                 _close.Text = "Close";
             }
         }
