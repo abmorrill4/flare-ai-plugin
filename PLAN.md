@@ -204,10 +204,6 @@ deterministic rule vs. AI judgment; impact — "in snippet X (used by N topics)"
    SSO", "shorter"); Re-analyze re-reviews one block after the author edited it.
 6. `[x]` **Streaming by section.** The AI review runs section by section and appends cards as each finishes
    (cached per section), so long topics show results in seconds.
-   Done (verified in Flare): AI reviews are saved to `%APPDATA%\FlareAIeviews.json` and reappear instantly after a
-   restart; rejections (with reason) persist in `dismissed.json`; every decision is logged to `feedback.jsonl` for 2e;
-   the system prompt is sent with prompt caching. Known gap: a pending tracked deletion can show as "removed" in the
-   rewrite diff.
    Done, verified in Flare: AI reviews are saved to `%APPDATA%\FlareAI\reviews.json` and reappear instantly after a
    restart; rejections (with reason) persist in `dismissed.json`; every decision is logged to `feedback.jsonl` for 2e;
    the system prompt is sent with prompt caching. Known gap: a pending tracked deletion can show as "removed" in the
