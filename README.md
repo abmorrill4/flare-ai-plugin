@@ -4,8 +4,23 @@ Adds a **House Style** ribbon tab to Flare Desktop with *Check style*, *Rewrite 
 *Ask…* actions. Edits come back as Flare tracked changes so the author accepts or rejects
 with the normal review tools.
 
-Phase 1 uses the Anthropic API directly. Phase 2 moves to the Bifrost enterprise gateway.
-See `PLAN.md`.
+Checks every topic against the full Google developer documentation style guide plus your team's own rules, kept in
+one Flare project. Bring your own Anthropic API key. Architecture: `PLAN.md`.
+
+## Install (writers)
+
+1. Download `HouseStyle-<version>.zip` from [Releases](../../releases), right-click it > **Properties** > **Unblock**.
+2. Close Flare. Copy the `FlareAI` folder from the zip into `C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins`.
+3. Start Flare > **File > Options > Plugins > House Style > Enable**, restart Flare.
+4. **House Style > Settings**: paste your [Anthropic API key](https://console.anthropic.com/settings/keys).
+
+Tested with MadCap Flare 2026 (22). The style checker is free; AI review costs about 2¢ per topic on your key.
+
+## Privacy
+
+Linting runs locally. When you ask for an AI review, rewrite or answer, the text of the sections being checked (and, for alt text, the image) and the
+relevant style rules go to the Anthropic API under your key, and nothing else (no telemetry; nothing goes to the
+authors). Your key is stored with Windows DPAPI in `%APPDATA%\FlareAI\settings.json` and never logged.
 
 ## Docs
 
@@ -132,3 +147,9 @@ HTML build…" does it automatically when you build in Flare. For `madbuild` / C
 | Diagnostics log | `%APPDATA%\FlareAI\diag.log` |
 | Installed plugin | `C:\Program Files\MadCap Software\MadCap Flare <ver>\Flare.app\Plugins\FlareAI\` |
 | API dump from the real DLL | `docs\api-dump.txt` (generated) |
+
+## License
+
+Code: MIT (`LICENSE`). The Google style guide rules are derived from the
+[Google developer documentation style guide](https://developers.google.com/style) under CC BY 4.0. See `NOTICE.md`.
+Not affiliated with MadCap Software or Google.
