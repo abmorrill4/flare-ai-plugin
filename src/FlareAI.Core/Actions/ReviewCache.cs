@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace FlareAI.Core.Actions
 {
@@ -9,16 +11,29 @@ namespace FlareAI.Core.Actions
     /// AI review results keyed by a hash of the exact review prompt (fragment + lint summary + nothing else).
     /// Same content → same key, regardless of file name or path, so results survive renames and topic switches
     /// and an unchanged topic never pays for a second review. Holds raw (unanchored) findings; callers anchor
-    /// copies against the live DOM.
+    /// copies against the live DOM. With a path, the cache is saved to disk, so reviews also survive closing Flare.
     /// </summary>
     public sealed class ReviewCache
     {
         private readonly int _capacity;
+        private readonly string _path;
         private readonly Dictionary<string, List<StyleFinding>> _items = new Dictionary<string, List<StyleFinding>>(StringComparer.Ordinal);
         private readonly LinkedList<string> _order = new LinkedList<string>();
         private readonly object _gate = new object();
 
-        public ReviewCache(int capacity = 300) { _capacity = capacity; }
+        /// <param name="path">JSON file to load from and save to; null keeps the cache in memory only.</param>
+        public ReviewCache(int capacity = 300, string path = null)
+        {
+            _capacity = capacity;
+            _path = path;
+            if (path == null || !File.Exists(path)) return;
+            try
+            {
+                var saved = JsonConvert.DeserializeObject<List<KeyValuePair<string, List<StyleFinding>>>>(File.ReadAllText(path, Encoding.UTF8));
+                if (saved != null) foreach (var kv in saved) if (kv.Value != null) { _items[kv.Key] = kv.Value; _order.AddLast(kv.Key); }
+            }
+            catch (Exception ex) { Diagnostics.Log("review cache " + path, ex); }
+        }
 
         public static string Key(string prompt)
         {
@@ -47,7 +62,21 @@ namespace FlareAI.Core.Actions
                     if (_order.Count > _capacity) { _items.Remove(_order.First.Value); _order.RemoveFirst(); }
                 }
                 _items[key] = raw.ConvertAll(Copy);
+                Save();
             }
+        }
+
+        private void Save()
+        {
+            if (_path == null) return;
+            try
+            {
+                var list = new List<KeyValuePair<string, List<StyleFinding>>>();
+                foreach (var k in _order) list.Add(new KeyValuePair<string, List<StyleFinding>>(k, _items[k]));
+                Directory.CreateDirectory(Path.GetDirectoryName(_path));
+                File.WriteAllText(_path, JsonConvert.SerializeObject(list), ProjectRules.NoBom);
+            }
+            catch (Exception ex) { Diagnostics.Log("review cache " + _path, ex); }
         }
 
         private static StyleFinding Copy(StyleFinding f)

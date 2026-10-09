@@ -39,7 +39,10 @@ namespace FlareAI.Core.Llm
                 ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : 4096,
                 ["messages"] = new JArray(new JObject { ["role"] = "user", ["content"] = req.User ?? "" })
             };
-            if (!string.IsNullOrEmpty(req.System)) body["system"] = req.System;
+            // The system prompt (instructions + the whole layered style guide) is identical across calls: cache it,
+            // so section-by-section reviews and repeat checks pay for it once.
+            if (!string.IsNullOrEmpty(req.System))
+                body["system"] = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
             return body.ToString(Formatting.None);
         }
 

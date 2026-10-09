@@ -129,7 +129,7 @@ namespace FlareAI.Core.Editing
         }
 
         /// <summary>LCS over tokens (whitespace equals any whitespace); returns changed ranges [oa,ob,pa,pb].</summary>
-        private static List<int[]> Chunks(List<string> a, List<string> b)
+        internal static List<int[]> Chunks(List<string> a, List<string> b)
         {
             int n = a.Count, m = b.Count;
             var dp = new int[n + 1, m + 1];
@@ -156,7 +156,7 @@ namespace FlareAI.Core.Editing
             return result;
         }
 
-        private static List<string> Tokens(string s)
+        internal static List<string> Tokens(string s)
         {
             var list = new List<string>();
             foreach (Match t in Token.Matches(s)) list.Add(t.Value);
@@ -181,7 +181,7 @@ namespace FlareAI.Core.Editing
             return true; // also true when from >= to (overlap)
         }
 
-        private static bool IsSpace(string t) { return t.Length > 0 && char.IsWhiteSpace(t[0]); }
+        internal static bool IsSpace(string t) { return t.Length > 0 && char.IsWhiteSpace(t[0]); }
         private static bool Eq(string x, string y) { return x == y || (IsSpace(x) && IsSpace(y)); }
         private static bool Same(string x, string y) { return Regex.Replace(x, @"\s+", " ").Trim() == Regex.Replace(y, @"\s+", " ").Trim(); }
 

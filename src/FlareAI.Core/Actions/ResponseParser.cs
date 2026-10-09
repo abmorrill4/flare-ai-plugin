@@ -19,6 +19,7 @@ namespace FlareAI.Core.Actions
         /// <summary>Up to 40 chars of run text before the excerpt — disambiguates repeats when re-locating.</summary>
         public string Before { get; set; }
         /// <summary>The body-level block the finding was found in (may be replaced by later edits).</summary>
+        [Newtonsoft.Json.JsonIgnore]
         public System.Xml.XmlNode Block { get; set; }
         /// <summary>"google", "company", or "ai".</summary>
         public string Layer { get; set; }
@@ -37,7 +38,28 @@ namespace FlareAI.Core.Actions
         /// plugin-inserted variable (it crashes), so the author selects the text (Go to) and uses Insert ▸ Variable.
         /// </summary>
         public string Variable { get; set; }
-        public bool CanFix { get { return Replacement != null && !IsFixed; } }
+        public bool CanFix { get { return Replacement != null && !IsFixed && !IsStale; } }
+
+        /// <summary>Heading of the section the finding is in ("" before the first heading); set by <see cref="ReviewOrder"/>.</summary>
+        [Newtonsoft.Json.JsonIgnore] public string Section { get; set; }
+        /// <summary>Document order (sections, then position); set by <see cref="ReviewOrder"/>.</summary>
+        [Newtonsoft.Json.JsonIgnore] public long Order { get; set; }
+        /// <summary>The text the finding quotes is no longer in the document (edited since the review).</summary>
+        [Newtonsoft.Json.JsonIgnore] public bool IsStale { get; set; }
+
+        /// <summary>
+        /// What deciding on it takes: "mechanical" (exact rule fix), "wording" (AI-proposed exact text), "restructure"
+        /// (needs a rewrite), or "variable" (insert a variable).
+        /// </summary>
+        public string Kind
+        {
+            get
+            {
+                if (Variable != null) return "variable";
+                if (Replacement == null) return "restructure";
+                return Source == "ai" ? "wording" : "mechanical";
+            }
+        }
     }
 
     /// <summary>Tolerant extraction of our two response contracts: a JSON findings array, or a &lt;revised&gt; block.</summary>
@@ -66,6 +88,19 @@ namespace FlareAI.Core.Actions
                 });
             }
             return list;
+        }
+
+        /// <summary>The refine contract: {"replacement": "...", "why": "..."}. Key = replacement (null allowed), Value = why.</summary>
+        public static KeyValuePair<string, string> ParseRefined(string text)
+        {
+            if (string.IsNullOrEmpty(text)) throw new FormatException("Empty response.");
+            var s = StripFences(text).Trim();
+            var start = s.IndexOf('{');
+            var end = s.LastIndexOf('}');
+            if (start < 0 || end <= start) throw new FormatException("Model did not return a JSON object.");
+            var o = JObject.Parse(s.Substring(start, end - start + 1));
+            var r = o["replacement"];
+            return new KeyValuePair<string, string>(r == null || r.Type == JTokenType.Null ? null : (string)r, (string)o["why"] ?? "");
         }
 
         public static string ParseRevised(string text)

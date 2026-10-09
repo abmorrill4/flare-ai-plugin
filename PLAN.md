@@ -179,6 +179,43 @@ is per Windows user (Flare behavior; documented).
 Already better than Markup AI: fixes and rewrites are tracked changes (theirs are not); selection checks;
 pending changes preserved; no WebView2/SaaS dependency; same rules in Claude Code and the gateway.
 
+### Phase 2d — Review workflow: discrete, evidence-based proposals `[~]`
+
+The output of a review is where the plugin wins or loses. A long topic must turn into small, understandable pieces of
+work the author can decide on one by one — never a wall of suggestions, never output that vanishes on close.
+
+**Proposal card** (one per finding): what — the exact span as a readable before/after word diff (never raw XHTML);
+why — the cited rule, its text and its Bad/Good example (an AI finding that cannot cite a rule is dropped); source —
+deterministic rule vs. AI judgment; impact — "in snippet X (used by N topics)", "inside variable Y".
+
+1. `[x]` **Readable diffs.** Rewrite/Ask proposals render as text with deletions struck and insertions marked, per
+   block (list items numbered); raw XHTML only behind "Show XHTML". Cards show the same diff for their span.
+2. `[x]` **Cards + triage.** The pane leads with a summary ("23 proposals in 5 sections: 14 mechanical · 6 wording ·
+   3 restructure"), lists proposals in document order grouped by section heading, and shows the selected one as a
+   card with Accept · Reject ▾ (wrong / fine here / rule doesn't apply) · Edit… · Refine… · Explain.
+   "Accept all mechanical" replaces Fix all.
+3. `[x]` **No view jumping.** Accepting never switches the editor away from the topic. Snippet proposals are listed
+   with their impact and applied only when the author opens that snippet ("Apply in snippet"), then the topic is
+   re-activated.
+4. `[x]` **Persistent review sessions.** Per topic and per user (`%APPDATA%\FlareAI\reviews`), keyed by content:
+   statuses (open / accepted / rejected / deferred) survive closing the pane or Flare; a proposal whose text changed
+   underneath is marked stale, not silently dropped.
+5. `[x]` **Refine / re-analyze.** Refine re-asks the model for one proposal with the author's instruction ("keep
+   SSO", "shorter"); Re-analyze re-reviews one block after the author edited it.
+6. `[x]` **Streaming by section.** The AI review runs section by section and appends cards as each finishes
+   (cached per section), so long topics show results in seconds.
+   Done (verified in Flare): AI reviews are saved to `%APPDATA%\FlareAIeviews.json` and reappear instantly after a
+   restart; rejections (with reason) persist in `dismissed.json`; every decision is logged to `feedback.jsonl` for 2e;
+   the system prompt is sent with prompt caching. Known gap: a pending tracked deletion can show as "removed" in the
+   rewrite diff.
+7. `[ ]` **Bulk mode (optional).** "Propose as tracked changes": every accepted-in-principle proposal is written as a
+   tracked change with a Flare annotation carrying rule + why, for Flare's own Review tools and review packages.
+
+Next phases (agreed order): **2e** feedback loop (rejection reasons → per-rule precision; teach actions that edit
+the company guide; prompts as overridable files in the guide project) · **2f** accessibility, white-label and
+snippet-impact checks · **2g** LLM-ready output on build (per-topic Markdown + llms.txt via CompileComplete / build
+events) · **2h** authoring assists (alt text, micro content, search synonyms, glossary, meta descriptions).
+
 ### Phase 3 — Tester handoff `[ ]`
 
 - [x] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.

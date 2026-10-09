@@ -73,6 +73,13 @@ namespace FlareAI.Core.Actions
             return Embedded("action-repair.md").Replace("{{LINT}}", lint).Replace("{{FRAGMENT}}", revisedXml);
         }
 
+        /// <summary>One proposal, re-asked with the author's instruction ("keep SSO", "shorter").</summary>
+        public string BuildRefine(string context, string excerpt, string proposal, string instruction)
+        {
+            return Embedded("action-refine.md").Replace("{{CONTEXT}}", context ?? "").Replace("{{EXCERPT}}", excerpt ?? "")
+                .Replace("{{PROPOSAL}}", proposal ?? "").Replace("{{INSTRUCTION}}", (instruction ?? "").Trim());
+        }
+
         private static string Embedded(string name)
         {
             var asm = Assembly.GetExecutingAssembly();

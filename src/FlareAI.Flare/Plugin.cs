@@ -305,7 +305,7 @@ namespace FlareAI.Flare
             _style = null;
         }
 
-        private static readonly ReviewCache Reviews = new ReviewCache();
+        private static readonly ReviewCache Reviews = new ReviewCache(300, Path.Combine(PluginSettings.SettingsDirectory, "reviews.json"));
 
         private void ShowFindings(FlareDocumentAdapter adapter, ActionRunner runner, bool aiOnStart)
         {

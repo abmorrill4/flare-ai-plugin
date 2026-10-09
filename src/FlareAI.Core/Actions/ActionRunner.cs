@@ -297,13 +297,79 @@ namespace FlareAI.Core.Actions
             return kept;
         }
 
+        private Dictionary<string, GuideRule> _rules;
+        private Dictionary<string, GuideExample> _examples;
+
         private Dictionary<string, GuideRule> GuideRules()
         {
+            if (_rules != null) return _rules;
             var map = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
             if (_style == null) return map;
-            try { foreach (var r in _style.Rules(_project)) map[r.Id] = r; }
+            try { foreach (var r in _style.Rules(_project)) map[r.Id] = r; _rules = map; }
             catch (Exception ex) { Diagnostics.Log("guide rules", ex); }
             return map;
+        }
+
+        /// <summary>The guide rule with this id (for the proposal card), or null.</summary>
+        public GuideRule RuleFor(string id)
+        {
+            GuideRule r;
+            return id != null && GuideRules().TryGetValue(id, out r) ? r : null;
+        }
+
+        /// <summary>The rule's Bad/Good example, or null. Loaded once per runner.</summary>
+        public GuideExample ExampleFor(string id)
+        {
+            if (id == null || _style == null) return null;
+            if (_examples == null)
+            {
+                _examples = new Dictionary<string, GuideExample>(StringComparer.OrdinalIgnoreCase);
+                try { foreach (var e in _style.Examples(_project)) _examples[e.Id] = e; }
+                catch (Exception ex) { Diagnostics.Log("guide examples", ex); }
+            }
+            GuideExample g;
+            return _examples.TryGetValue(id, out g) ? g : null;
+        }
+
+        /// <summary>
+        /// Re-asks the model for one proposal with the author's instruction. Returns a new finding (same rule, text
+        /// and anchor; new replacement and reason). No DOM access: pass the paragraph text as context.
+        /// </summary>
+        public StyleFinding Refine(StyleFinding f, string context, string instruction)
+        {
+            var proposal = (f.Replacement == null ? "(no exact text proposed — needs a rewrite)" : "\"" + f.Replacement + "\"") + " — " + f.Suggestion;
+            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = _prompts.BuildRefine(context, f.Excerpt, proposal, instruction), MaxTokens = 512 });
+            Diagnostics.Log("Refine: in=" + resp.InputTokens + " out=" + resp.OutputTokens);
+            var r = ResponseParser.ParseRefined(resp.Text);
+            var replacement = r.Key;
+            if (replacement != null && replacement.IndexOf('<') >= 0) replacement = null;
+            return new StyleFinding
+            {
+                Source = "ai", Layer = "ai", Rule = f.Rule, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, Link = f.Link,
+                Severity = f.Severity, Excerpt = f.Excerpt, Before = f.Before, Block = f.Block, DocumentPath = f.DocumentPath,
+                Replacement = replacement, Suggestion = string.IsNullOrEmpty(r.Value) ? f.Suggestion : r.Value, Section = f.Section, Order = f.Order
+            };
+        }
+
+        private static readonly Dictionary<string, int> SnippetUses = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>How many topics and snippets in the project include this snippet (by file name). Cached per session.</summary>
+        public static int SnippetUsage(string snippetPath)
+        {
+            lock (SnippetUses)
+            {
+                int n;
+                if (SnippetUses.TryGetValue(snippetPath, out n)) return n;
+                var name = System.IO.Path.GetFileName(snippetPath);
+                foreach (var file in ProjectFiles(snippetPath))
+                {
+                    if (string.Equals(file, snippetPath, StringComparison.OrdinalIgnoreCase)) continue;
+                    try { if (System.IO.File.ReadAllText(file).IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0) n++; }
+                    catch (Exception) { }
+                }
+                SnippetUses[snippetPath] = n;
+                return n;
+            }
         }
 
         /// <summary>Keeps a cited rule only if it exists in the guide; attaches its layer, section, and link.</summary>

@@ -92,7 +92,7 @@ namespace FlareAI.Core.Tests
         public void AnthropicBody_HasSystemAndUser()
         {
             var body = AnthropicClient.BuildBody("m", new LlmRequest { System = "S", User = "U", MaxTokens = 10 });
-            Assert.Contains("\"system\":\"S\"", body);
+            Assert.Contains("\"system\":[{\"type\":\"text\",\"text\":\"S\",\"cache_control\":{\"type\":\"ephemeral\"}}]", body);
             Assert.Contains("\"role\":\"user\"", body);
             Assert.Contains("\"max_tokens\":10", body);
         }

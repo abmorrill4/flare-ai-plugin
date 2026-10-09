@@ -32,20 +32,30 @@ account; nobody else on the machine can read it.
 Selection rule: it works on whole paragraphs/lists/tables containing your selection. Caret only =
 whole topic.
 
-## Working the findings list
-The list stays open while you edit. The style guide is Google's developer documentation style guide with
-our company rules on top; each finding says which (**[Google]**, **[Company]**, or **[AI · Company: Section]** for
-AI judgment calls, naming the rule it applied).
-- Click a row: the text is highlighted in the topic. **Guide ↗** opens the rule's page (company rules open in Flare).
-- **Fix** (or Enter / double-click): applies the shown replacement as a tracked change.
-  **Fix all** applies every one-click fix in one step; one Ctrl+Z undoes them all.
-- "(needs rewrite)" rows: select one and click **Rewrite paragraph…** — the AI rewrites that paragraph to
-  resolve its findings and shows you the result before anything changes. Rewrites arrive as word-level
-  tracked changes, and any tracked changes already in the paragraph stay pending for you to review.
-- **Dismiss** hides a finding that isn't an issue here (remembered for that text, just for you).
-  **Ignore rule…** turns a rule off for the whole project — it writes to the project's
-  `Content/Resources/StyleGuide/overrides.ini`, so your team gets the same decision.
-- **Re-check** after a round of fixes to see what's left.
+## Working the review pane
+The pane lists every proposal in reading order, grouped under the topic's headings, with a summary on top
+("12 proposals in 3 sections: 7 mechanical · 3 wording · 2 need a rewrite"). Select one to see its card:
+- **What changes:** the words around it with the edit marked (removed text struck red, added text green).
+- **Why:** the reason, the style-guide rule it applies (with its Bad/Good example when the guide has one), and where
+  it comes from: **[Google]**, **[Company · section]**, or **[AI · Company: section]** for AI judgment calls.
+- **Impact:** for text inside a snippet, how many files use that snippet.
+
+Decide on each one:
+- **Accept** (Enter, or double-click): applies it as a tracked change and moves to the next proposal. For "needs a
+  rewrite", the button reads **Rewrite…**: the AI rewrites that paragraph and shows you the result as marked-up text
+  first. **Accept all mechanical** applies every exact rule fix in the topic at once (one Ctrl+Z undoes them).
+- **Reject ▾** (Delete): pick why: *wrong*, *fine here*, or *rule doesn't apply*. It stays hidden for that text, and
+  the reason is recorded so the guide and the AI can be tuned. *Skip for now* just moves on.
+- **Edit…**: type the replacement yourself, then apply it. **Refine…**: tell the AI how to change this one proposal
+  ("keep the term SSO", "shorter").
+- **Re-analyze**: review that paragraph again after you edited it. Proposals whose text you already changed show
+  with ⚠ and can't be applied until you re-analyze.
+- **Guide ↗** opens the rule's page (company rules open in Flare). **Ignore rule…** turns a rule off for the whole
+  project — it writes to the project's `Content/Resources/StyleGuide/overrides.ini`, so your team gets the same decision.
+
+Fixes inside a snippet are applied in the snippet (Flare opens it so the change is tracked there) and the topic comes
+back to the front. AI reviews are saved, so reopening a topic you already reviewed shows its proposals immediately;
+click **Re-check** for a fresh review.
 
 ## Editing the company style guide
 It's a Flare project (`CompanyStyle`). Its `About` topic explains the format. After editing, run

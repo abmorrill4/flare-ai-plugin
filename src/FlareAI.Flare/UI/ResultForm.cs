@@ -28,6 +28,8 @@ namespace FlareAI.Flare.UI
         private readonly Label _status;
         private readonly ProgressBar _progress;
         private readonly TextBox _output;
+        private readonly RichTextBox _diff;
+        private readonly CheckBox _showXml;
         private readonly Button _apply, _close;
         private readonly BackgroundWorker _worker;
         private RewriteProposal _proposal;
@@ -53,11 +55,17 @@ namespace FlareAI.Flare.UI
             _status = new Label { Left = 12, Top = 12, Width = 736, Height = 20, Text = "Contacting model…", Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
             _progress = new ProgressBar { Left = 12, Top = 36, Width = 736, Height = 14, Style = ProgressBarStyle.Marquee, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
             _output = new TextBox { Left = 12, Top = 60, Width = 736, Height = 410, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, Font = new Font(FontFamily.GenericMonospace, 9f), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right };
+            _diff = DiffView.Create();
+            _diff.SetBounds(12, 60, 736, 410);
+            _diff.Anchor = _output.Anchor;
+            _diff.Visible = false;
+            _showXml = new CheckBox { Text = "Show XHTML", Left = 12, Top = 486, AutoSize = true, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
+            _showXml.CheckedChanged += (s, e) => { _output.Visible = _showXml.Checked; _diff.Visible = !_showXml.Checked; };
             _apply = new Button { Text = "Apply as tracked changes", Left = 540, Top = 482, Width = 160, Enabled = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
             _close = new Button { Text = "Cancel", Left = 706, Top = 482, Width = 42, DialogResult = DialogResult.Cancel, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
             _close.Width = 60; _close.Left = 688;
             _apply.Click += (s, e) => OnApply();
-            Controls.AddRange(new Control[] { _status, _progress, _output, _apply, _close });
+            Controls.AddRange(new Control[] { _status, _progress, _diff, _output, _showXml, _apply, _close });
             CancelButton = _close;
 
             _worker = new BackgroundWorker { WorkerSupportsCancellation = true };
@@ -100,6 +108,12 @@ namespace FlareAI.Flare.UI
                 if (_proposal.RemainingLint.Count > 0)
                     sb.AppendLine().AppendLine().AppendLine("--- still flagged by the linter ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));
                 _output.Text = sb.ToString();
+                // What the author reads: the text with word changes marked; the XHTML is one click away.
+                var diff = ReadableDiff.Of(_proposal.View ?? _proposal.OriginalBlocks, _proposal.ProposedBlocks);
+                DiffView.Render(_diff, diff, true);
+                if (_proposal.RemainingLint.Count > 0)
+                    _diff.AppendText("\nStill flagged by the linter:\n" + ActionRunner.Summarize(_proposal.RemainingLint));
+                _output.Visible = false; _diff.Visible = true; _showXml.Visible = true;
                 _apply.Enabled = true;
                 if (_proposal.WordPlan != null && _proposal.WordPlan.Count == 0)
                 {
