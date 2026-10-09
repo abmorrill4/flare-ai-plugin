@@ -19,7 +19,7 @@ namespace FlareAI.Core.Llm
     /// Which model and effort each AI task uses. Tasks map to three tiers (fast / standard / deep); tiers map to a model
     /// and effort. Defaults are built in; Settings pick the tier models; a style guide can pin both for the whole team in
     /// FlareAI\models.json:
-    /// <code>{ "tiers": { "fast": { "model": "claude-haiku-5-5", "effort": "low" } }, "tasks": { "review": "fast" }, "review_unit": "block" }</code>
+    /// <code>{ "tiers": { "fast": { "model": "claude-haiku-5-5", "effort": "low" } }, "tasks": { "review": "fast" }, "review_unit": "section" }</code>
     /// </summary>
     public sealed class Routing
     {
@@ -41,7 +41,7 @@ namespace FlareAI.Core.Llm
         private readonly Dictionary<string, Route> _tiers = new Dictionary<string, Route>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> _tasks = new Dictionary<string, string>(DefaultTasks, StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>How the review is split: "block" (one call per paragraph / item / row) or "section".</summary>
+        /// <summary>How the review is split: "section" (the default: a short topic whole, a long one by headings) or "block" (one call per paragraph, item or row).</summary>
         public string ReviewUnit { get; set; }
         /// <summary>Where the routing came from, for Diagnostics ("built-in", "settings", "team: …\models.json").</summary>
         public string Source { get; private set; }
@@ -51,7 +51,7 @@ namespace FlareAI.Core.Llm
             _tiers[Fast] = new Route { Tier = Fast, Model = fastModel ?? "claude-haiku-5-5", Effort = "medium" };
             _tiers[Standard] = new Route { Tier = Standard, Model = standardModel ?? "claude-sonnet-5-5", Effort = "medium" };
             _tiers[Deep] = new Route { Tier = Deep, Model = deepModel ?? "claude-opus-5-5", Effort = "high" };
-            ReviewUnit = "block";
+            ReviewUnit = "section";
             Source = fastModel == null && standardModel == null && deepModel == null ? "built-in" : "settings";
         }
 

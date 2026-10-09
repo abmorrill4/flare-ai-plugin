@@ -55,7 +55,7 @@ namespace FlareAI.Bench
 
     internal sealed class Options
     {
-        public string Corpus = "corpus", Model = "claude-sonnet-5-5", Effort = "medium", Unit = "block", Out;
+        public string Corpus = "corpus", Model = "claude-sonnet-5-5", Effort = "medium", Unit = "section", Out;
         public int Sample, Rewrites, Parallel = 3;
         public bool NoAi;
 

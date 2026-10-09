@@ -59,6 +59,7 @@ namespace FlareAI.Core.Tests
             foreach (System.Xml.XmlNode n in body.ChildNodes) blocks.Add(n);
             Assert.Single(ReviewOrder.Sections(blocks));                       // short topic: one review
             Assert.Equal(2, ReviewOrder.Sections(blocks, 5, 10).Count);       // long topic: split at headings
+            Assert.All(ReviewOrder.Sections(blocks, 1000000, 0, 1), s => Assert.Single(s)); // over the cap: split between blocks
         }
     }
 }

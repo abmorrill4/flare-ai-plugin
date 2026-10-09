@@ -326,7 +326,7 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>
-        /// Step 1 (reads the DOM): splits the blocks into review units — one block each ("block", the default), or one
+        /// Step 1 (reads the DOM): splits the blocks into review units — one section each ("section", the default), or one block each ("block"), or one
         /// section each — with each unit's prompt: the marked runs, the topic and section it's in, and the lint already
         /// found there. Units with fewer than <paramref name="minWords"/> words (a short heading) are skipped.
         /// </summary>

@@ -33,8 +33,9 @@ problems (288 lint-type, 87 judgment, 54 structure). Headless harness: `tools/Fl
 
 - Review and rewrites stay on Sonnet 5.5 at medium effort.
 - The fast tier (refine, assists) moves to Haiku 5.5 at **medium**: half the noise of low at the same price.
-- Per-section review is a team option (`review_unit: section`): 40% cheaper, 2.5× faster, less noise and the same recall
-  here. It stays off by default, per the "smallest units" principle, until real topics confirm it.
+- The review unit is now the **section** by default: a whole short topic, or a heading's worth of a long one, capped at
+  about 6,000 characters. Against one call per paragraph it was 40% cheaper, 2.5× faster and less noisy, with the same
+  recall. `review_unit: block` in `FlareAI/models.json` brings back per-paragraph review.
 
 **Simulated authors → Tune:**
 

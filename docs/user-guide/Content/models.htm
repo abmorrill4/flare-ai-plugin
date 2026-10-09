@@ -5,10 +5,10 @@
     </head>
     <body>
         <h1>Models and cost</h1>
-<p>The plugin splits AI work into small jobs, one paragraph or one proposal at a time, and sends each job to the smallest model that does it well. Every job has an output contract: the API returns structured data that the plugin checks before anything reaches your topic.</p>
+<p>The plugin splits AI work into small jobs, such as one topic section or one proposal at a time, and sends each job to the smallest model that does it well. Every job has an output contract: the API returns structured data that the plugin checks before anything reaches your topic.</p>
 <h2>Which model does what</h2>
 <table><thead><tr><th>Task</th><th>Tier</th><th>Default model and effort</th></tr></thead><tbody>
-<tr><td>Style review, paragraph by paragraph</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Style review, a topic or section at a time</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
 <tr><td>Rewrite selection, Ask, Rewrite…</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
 <tr><td>Restructure</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
 <tr><td>Alt text from the image</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
@@ -35,7 +35,7 @@
   "tasks": { "review": "standard" },
   "review_unit": "section"
 }</pre>
-<p><code>review_unit</code> is <code>block</code>, one call per paragraph and the default, or <code>section</code>, one call per heading's worth of text. Sections were cheaper and faster, with the same results, in the bench sample. One writer can choose models in <b>Settings</b>, but the team file wins.</p>
+<p><code>review_unit</code> is <code>section</code>, the default, or <code>block</code>. A section is a whole short topic, or a heading's worth of a long one. A block is one paragraph, list item or table row. In the bench sample, sections cost 40% less, ran 2.5 times faster, and gave less noise with the same results. One writer can choose models in <b>Settings</b>, but the team file wins.</p>
 <h2>See what you spend</h2>
 <p><b>AI &gt; Diagnostics</b> lists the routing in effect and, for this session, the calls, tokens and estimated cost per task and model. The API caches the style guide part of every request, so repeated checks cost less.</p>
     </body>
