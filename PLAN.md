@@ -206,10 +206,14 @@ deterministic rule vs. AI judgment; impact — "in snippet X (used by N topics)"
    (cached per section), so long topics show results in seconds.
    Done, verified in Flare: AI reviews are saved to `%APPDATA%\FlareAI\reviews.json` and reappear instantly after a
    restart; rejections (with reason) persist in `dismissed.json`; every decision is logged to `feedback.jsonl` for 2e;
-   the system prompt is sent with prompt caching. Known gap: a pending tracked deletion can show as "removed" in the
-   rewrite diff.
-7. `[ ]` **Bulk mode (optional).** "Propose as tracked changes": every accepted-in-principle proposal is written as a
+   the system prompt is sent with prompt caching. A reported diff glitch (a pending deletion shown as "removed") could not
+   be reproduced: Diagnostics now logs the live tracked-change XML, and Flare's in-memory changeData matches the reader
+   for both loaded and in-session changes.
+7. `[x]` **Bulk mode.** "Propose as tracked changes": every accepted-in-principle proposal is written as a
    tracked change with a Flare annotation carrying rule + why, for Flare's own Review tools and review packages.
+   Done as "Propose all as tracked changes": every exact proposal (rule fixes + AI wording) is written as tracked changes
+   in one step for review in Flare's Review tab or a review package. Annotations are left out: inserting MadCap
+   elements from the plugin is blocked by the validator and hits Flare 22's redo crash. Verified in Flare (9 changes).
 
 ### Phase 2e — Team sync + feedback loop (strict ownership) `[~]`
 

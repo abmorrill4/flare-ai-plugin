@@ -15,6 +15,14 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void SelectAll_BodyElementSelected_ReturnsAllBodyChildren()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            doc.SelectXPath("//body");    // what Flare reports for Ctrl+A
+            Assert.Equal(8, BlockSelector.SelectBlocks(doc.Document, doc.SelectionNodes).Count);
+        }
+
+        [Fact]
         public void TextNodeInsideParagraph_ReturnsThatParagraph()
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");

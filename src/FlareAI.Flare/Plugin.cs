@@ -391,8 +391,15 @@ namespace FlareAI.Flare
                     if (adapter.IsEditableTopic)
                     {
                         sb.AppendLine("Blocks BlockSelector would pick:");
-                        foreach (var b in Core.Editing.BlockSelector.SelectBlocks(adapter.Document, adapter.SelectionNodes))
+                        var picked = Core.Editing.BlockSelector.SelectBlocks(adapter.Document, adapter.SelectionNodes);
+                        foreach (var b in picked)
                             sb.AppendLine("  <" + b.Name + "> " + Shorten(b.InnerText, 60));
+                        // How Flare holds pending tracked changes in memory (for the tracked-change readers).
+                        var ns = new System.Xml.XmlNamespaceManager(adapter.Document.NameTable);
+                        ns.AddNamespace("MadCap", Core.Editing.BlockSelector.MadCapNs);
+                        var data = adapter.Document.SelectSingleNode("//MadCap:changeData", ns);
+                        Diagnostics.Log("DIAG changeData: " + (data == null ? "(none)" : Shorten(data.OuterXml, 1500)));
+                        if (picked.Count > 0) Diagnostics.Log("DIAG first block XML: " + Shorten(picked[0].OuterXml, 3000));
                     }
                 }
                 Diagnostics.Log("DIAG\n" + sb);

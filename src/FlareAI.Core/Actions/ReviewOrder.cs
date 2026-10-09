@@ -23,10 +23,11 @@ namespace FlareAI.Core.Actions
             {
                 var current = "";
                 var i = 0;
+                var removed = TrackedChanges.RemoveIds(doc);
                 foreach (XmlNode c in body.ChildNodes)
                 {
                     if (c.NodeType != XmlNodeType.Element) continue;
-                    if (IsHeading(c)) current = Clean(c.InnerText);
+                    if (IsHeading(c)) current = Clean(VisibleText(c, removed));
                     index[c] = i++;
                     heading[c] = current;
                 }
@@ -51,6 +52,16 @@ namespace FlareAI.Core.Actions
                     : long.MaxValue / 4;
                 f.IsStale = !found && !f.IsFixed;
             }
+        }
+
+        /// <summary>Text as the author reads it: pending tracked deletions left out.</summary>
+        private static string VisibleText(XmlNode n, HashSet<string> removed)
+        {
+            if (n is XmlText || n.NodeType == XmlNodeType.Whitespace || n.NodeType == XmlNodeType.SignificantWhitespace) return n.Value;
+            if (n.NodeType != XmlNodeType.Element || TrackedChanges.IsDeleted(n, removed)) return "";
+            var sb = new System.Text.StringBuilder();
+            foreach (XmlNode c in n.ChildNodes) sb.Append(VisibleText(c, removed));
+            return sb.ToString();
         }
 
         public static bool IsHeading(XmlNode n)

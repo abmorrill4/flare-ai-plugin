@@ -26,7 +26,10 @@ namespace FlareAI.Core.Editing
             var result = new List<XmlNode>();
             if (body == null) return result;
 
-            if (selectionNodes == null || selectionNodes.Count == 0)
+            // Select all (Ctrl+A) hands us the body (or html) element itself: that's the whole topic.
+            var whole = selectionNodes == null || selectionNodes.Count == 0;
+            if (!whole) foreach (var n in selectionNodes) if (n == body || n == doc.DocumentElement) whole = true;
+            if (whole)
             {
                 foreach (XmlNode child in body.ChildNodes)
                     if (child.NodeType == XmlNodeType.Element) result.Add(child);

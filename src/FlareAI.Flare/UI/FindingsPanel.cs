@@ -25,7 +25,7 @@ namespace FlareAI.Flare.UI
         private readonly Label _status;
         private readonly ProgressBar _progress;
         private readonly ListView _list;
-        private readonly Button _acceptAll, _recheck, _ignore;
+        private readonly Button _acceptAll, _bulk, _recheck, _ignore;
         // card
         private readonly Label _cardHead;
         private readonly RichTextBox _cardDiff, _cardWhy;
@@ -88,6 +88,7 @@ namespace FlareAI.Flare.UI
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
             _acceptAll = Btn(triage, "Accept all mechanical", (s, e) => AcceptAllMechanical());
+            _bulk = Btn(triage, "Propose all as tracked changes", (s, e) => ProposeAll());
 
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable };
             _list.Columns.Add("Proposal");
@@ -144,6 +145,7 @@ namespace FlareAI.Flare.UI
             tips.SetToolTip(_edit, "Change the proposed text yourself, then apply it.");
             tips.SetToolTip(_refine, "Ask the AI again for this one proposal, with your instruction (\"keep SSO\", \"shorter\").");
             tips.SetToolTip(_reanalyze, "Review this paragraph again (after you edited it).");
+            tips.SetToolTip(_bulk, "Write every proposal that has exact text (rule fixes and AI wording) into the topic as tracked changes, then review them with Flare's own Accept/Reject (Review tab) or in a review package.");
             tips.SetToolTip(_acceptAll, "Apply every exact rule fix in this topic as one tracked change (one Ctrl+Z undoes it).");
             tips.SetToolTip(_ignore, "Turn the selected rule off for this whole project (written to the project's StyleGuide folder, shared with your team).");
 
@@ -535,6 +537,19 @@ namespace FlareAI.Flare.UI
             Next();
         }
 
+        /// <summary>Bulk mode: every exact proposal in the topic becomes a tracked change, for review in Flare's own tools.</summary>
+        private void ProposeAll()
+        {
+            var todo = _findings.FindAll(f => f.CanFix && (f.Kind == "mechanical" || f.Kind == "wording") && f.DocumentPath == null);
+            if (todo.Count == 0) return;
+            if (MessageBox.Show(this, "Write " + todo.Count + " proposal(s) into the topic as tracked changes?\n\nReview them in Flare's Review tab (Accept / Reject change), " +
+                    "or send the topic out in a review package. One Ctrl+Z removes them all.", "FlareAI — Propose all", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            var n = Apply(todo, "FlareAI: " + todo.Count + " proposals");
+            foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "proposed", "bulk");
+            _status.Text = Summary() + "  Wrote " + n + " tracked change(s) — review them in the Review tab. Proposals that need a rewrite or a manual fix are still listed.";
+            Next();
+        }
+
         /// <summary>
         /// Applies exact replacements as tracked changes, one undo step per document. Snippet fixes open the snippet
         /// (that is where they must be tracked), then the topic is brought back to the front.
@@ -835,6 +850,9 @@ namespace FlareAI.Flare.UI
             var mech = _findings.FindAll(x => x.CanFix && x.Kind == "mechanical" && (x.DocumentPath == null || _files != null)).Count;
             _acceptAll.Text = "Accept all mechanical (" + mech + ")";
             _acceptAll.Enabled = mech > 0;
+            var exact = _findings.FindAll(x => x.CanFix && (x.Kind == "mechanical" || x.Kind == "wording") && x.DocumentPath == null).Count;
+            _bulk.Text = "Propose all as tracked changes (" + exact + ")";
+            _bulk.Enabled = exact > 0 && _files == null;
             _recheck.Enabled = !_reviewing;
             _ignore.Enabled = f != null;
         }
