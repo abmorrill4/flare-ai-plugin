@@ -31,6 +31,10 @@ namespace FlareAI.Core.Style
     {
         public HashSet<string> Content = new HashSet<string>();
         public string Text = "";
+        /// <summary>Packs every call carries in the long-lived cached block (Routing.AlwaysPacks).</summary>
+        public HashSet<string> Always = new HashSet<string>();
+        /// <summary>True when several calls share these packs (one check of a multi-section topic): worth a cache write.</summary>
+        public bool SharedPacks;
         public static GuideScope Of(IEnumerable<string> content, string text = "") { return new GuideScope { Content = new HashSet<string>(content ?? new string[0]), Text = text ?? "" }; }
     }
 

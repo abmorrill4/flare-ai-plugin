@@ -12,7 +12,23 @@ namespace FlareAI.Core.Style
     /// </summary>
     public static class ContentTags
     {
-        public static readonly string[] All = { "Code", "Steps", "Lists", "Numbers", "Tables", "Links", "Headings", "Images", "UI", "Notes", "Examples", "Math", "API", "Footnotes", "Emphasis" };
+        public static readonly string[] All = { "Code", "Steps", "Lists", "Numbers", "Tables", "Links", "Headings", "Images", "UI", "Notes", "Examples", "Math", "API", "Footnotes", "Emphasis",
+                                                "Quotes", "Ellipses", "Slashes", "Semicolons", "Parentheses", "Dashes", "Colons", "Apostrophes", "Hyphens", "Abbreviations" };
+
+        // What the text itself shows: punctuation rules matter only where the punctuation is.
+        private static readonly KeyValuePair<string, Regex>[] TextTags =
+        {
+            new KeyValuePair<string, Regex>("Quotes", new Regex("[\"“”‘’]|(?<!\\w)'|'(?!\\w)", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Ellipses", new Regex(@"\.\.\.|…", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Slashes", new Regex(@"/|\\", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Semicolons", new Regex(";", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Parentheses", new Regex(@"[()]", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Dashes", new Regex(@"[—–]| - | -- ", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Colons", new Regex(":", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Apostrophes", new Regex(@"\w['’]\w|s['’](?!\w)", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Hyphens", new Regex(@"\w-\w", RegexOptions.Compiled)),
+            new KeyValuePair<string, Regex>("Abbreviations", new Regex(@"\b[A-Z][A-Z0-9]+s?\b|\b(?:e\.g|i\.e|etc|vs)\b\.?", RegexOptions.Compiled)),
+        };
 
         private static readonly Regex Digit = new Regex(@"\d", RegexOptions.Compiled);
         private static readonly Regex Domainish = new Regex(@"\b[\w.-]+\.(?:com|org|net|io|dev|example|test)\b|[\w.+-]+@[\w-]+\.\w+|\bhttps?://", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -59,6 +75,7 @@ namespace FlareAI.Core.Style
                 if (Mathish.IsMatch(text)) tags.Add("Math");
                 if (NoteStart.IsMatch(text)) tags.Add("Notes");
                 if (tags.Contains("Code") && Apiish.IsMatch(text)) tags.Add("API");
+                foreach (var t in TextTags) if (t.Value.IsMatch(text)) tags.Add(t.Key);
             }
             return tags;
         }

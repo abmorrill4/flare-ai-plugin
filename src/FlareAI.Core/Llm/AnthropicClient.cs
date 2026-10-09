@@ -54,7 +54,9 @@ namespace FlareAI.Core.Llm
             // reviews and repeat checks pay for it once. The rule packs for the unit's content are a second cached block.
             if (!string.IsNullOrEmpty(req.System))
             {
-                var system = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
+                // The always-on block lives an hour: writers check a topic every few minutes, not every few seconds, and a
+                // 5-minute cache would be rewritten (1.25x) on nearly every check. An hour costs 2x once, then 0.1x per read.
+                var system = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral", ["ttl"] = "1h" } });
                 if (!string.IsNullOrEmpty(req.SystemPacks))
                     system.Add(new JObject { ["type"] = "text", ["text"] = req.SystemPacks, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
                 if (!string.IsNullOrEmpty(req.SystemTerms))
@@ -153,7 +155,8 @@ namespace FlareAI.Core.Llm
                 InputTokens = usage != null ? (int?)usage["input_tokens"] ?? 0 : 0,
                 OutputTokens = usage != null ? (int?)usage["output_tokens"] ?? 0 : 0,
                 CacheReadTokens = usage != null ? (int?)usage["cache_read_input_tokens"] ?? 0 : 0,
-                CacheWriteTokens = usage != null ? (int?)usage["cache_creation_input_tokens"] ?? 0 : 0
+                CacheWriteTokens = usage != null ? (int?)usage["cache_creation_input_tokens"] ?? 0 : 0,
+                CacheWrite1hTokens = usage != null && usage["cache_creation"] is JObject cc ? (int?)cc["ephemeral_1h_input_tokens"] ?? 0 : 0
             };
         }
 

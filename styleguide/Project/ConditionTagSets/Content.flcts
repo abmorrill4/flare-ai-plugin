@@ -15,4 +15,14 @@
     <ConditionTag Name="API" BackgroundColor="#eceff1" Comment="Rule applies to sections with API reference text." />
     <ConditionTag Name="Footnotes" BackgroundColor="#f9fbe7" Comment="Rule applies to sections with footnotes." />
     <ConditionTag Name="Emphasis" BackgroundColor="#e0f7fa" Comment="Rule applies to sections with italic terms." />
+    <ConditionTag Name="Quotes" BackgroundColor="#f5f5f5" Comment="Rule applies to text with quotation marks." />
+    <ConditionTag Name="Ellipses" BackgroundColor="#f5f5f5" Comment="Rule applies to text with ellipses." />
+    <ConditionTag Name="Slashes" BackgroundColor="#f5f5f5" Comment="Rule applies to text with slashes." />
+    <ConditionTag Name="Semicolons" BackgroundColor="#f5f5f5" Comment="Rule applies to text with semicolons." />
+    <ConditionTag Name="Parentheses" BackgroundColor="#f5f5f5" Comment="Rule applies to text with parentheses." />
+    <ConditionTag Name="Dashes" BackgroundColor="#f5f5f5" Comment="Rule applies to text with dashes." />
+    <ConditionTag Name="Colons" BackgroundColor="#f5f5f5" Comment="Rule applies to text with colons." />
+    <ConditionTag Name="Apostrophes" BackgroundColor="#f5f5f5" Comment="Rule applies to text with possessives or contractions." />
+    <ConditionTag Name="Hyphens" BackgroundColor="#f5f5f5" Comment="Rule applies to text with hyphenated words." />
+    <ConditionTag Name="Abbreviations" BackgroundColor="#f5f5f5" Comment="Rule applies to text with abbreviations or acronyms." />
 </CatapultConditionTagSet>

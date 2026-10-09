@@ -30,13 +30,24 @@ ran in three steps, each with its own tool:
 ## How the AI gets it
 
 Each review call carries three blocks:
-1. **Always-on rules:** about 41k tokens, cached once and read at a tenth of the price after that.
-2. **Content packs** for what the section contains, such as steps, code, numbers or UI. These are cached per combination
-   of packs.
-3. **Word-list rules** for words the section uses. Not cached, because they're specific to that text.
+1. **Always-on (cached for 1 hour):**
+   - instructions;
+   - untagged rules;
+   - the packs nearly every section needs: Headings, UI, Lists and Steps. Measured on 262 sections, they appear in
+     58–100%; every other pack appears in 22% or less.
 
-Lint rows never go to the AI: the linter enforces them, and its findings for the section are in the prompt. The model
-may cite only the rules it was given.
+   This block is about 32k tokens, written once and then read at a tenth of the price. A team changes the list in
+   `FlareAI/models.json` (`"always_packs"`).
+2. **Other packs** for what the topic contains, such as numbers, code, tables, images, punctuation or abbreviations.
+   Every section in one check gets the same set, so the block is cached for 5 minutes and shared by the topic's
+   sections. A one-section topic gets them uncached, because a cache write would never be read.
+3. **Word-list rules** for words the section uses. Not cached.
+
+Two other rules for what gets sent:
+- Lint rows never go to the AI: the linter enforces them, and its findings are in the prompt.
+- The output schema is the same on every call. **The schema is part of the cached prefix:** per-call enums of run ids
+  and rule ids had made almost every call write the cache instead of reading it. Run ids and rule ids are now checked
+  in code, and the model may cite only the rules it was sent.
 
 ## Results
 
@@ -56,13 +67,17 @@ How to read the misses:
 **Synthetic corpus.** 45-topic sample, 76 planted problems: both guides catch 100%, because this corpus is too easy to
 tell them apart. Findings now cite specific Google rules (for example a word-list entry) instead of broad buckets.
 
-**Cost and speed:**
-- About 4 s per topic. A fix in this round made parallel calls actually run in parallel: .NET Framework allows 2
-  connections per host by default, so before the fix only 2 calls ran at a time.
-- Input per call grows from about 5k to 35–60k tokens, mostly cached. Cold runs cost noticeably more, about $0.04 per
-  topic against $0.008 before.
-- Steady use costs less: the always-on block is read from cache, and the first call of each check runs alone to warm
-  the cache before the rest go in parallel.
+**Cost and speed** (Sonnet 5.5, medium effort): about 3.5 s per topic.
+
+| Run, 45 topics, cold cache | Review cost | Per topic |
+|---|---|---|
+| 27-bullet summary (before) | $0.34 | $0.008 |
+| Full guide, first version | $2.07 | $0.046 |
+| Full guide, after the caching fixes | $1.28 | $0.028 |
+
+A warm session costs about $0.02 per topic check: roughly $0.60 a day for a writer checking 30 topics. Parallel calls
+now really run in parallel. .NET Framework allows 2 connections per host by default, so before the fix only 2 ran at a
+time. The first call of a check also runs alone, so the rest read the cache it writes.
 
 ## Known limitations
 

@@ -6,22 +6,22 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/dashes">Dashes</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>Em dashes</h2>
         <ul>
-            <li>To indicate a break in the flow of a sentence—or an interruption—use an em dash, also known as a long dash.</li>
-            <li>Don&apos;t use an en dash (the shorter dash) or a hyphen in place of an em dash; only use the em dash.</li>
+            <li MadCap:conditions="Content.Dashes">To indicate a break in the flow of a sentence—or an interruption—use an em dash, also known as a long dash.</li>
+            <li MadCap:conditions="Content.Dashes">Don&apos;t use an en dash (the shorter dash) or a hyphen in place of an em dash; only use the em dash.</li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr><td>[ \u00A0]\u2014|\u2014[ \u00A0]</td><td></td><td>warning</td><td>Em dashes are closed up with no surrounding spaces.</td><td>The update is complete — restart the app.</td></tr>
+            <tr MadCap:conditions="Content.Dashes"><td>[ \u00A0]\u2014|\u2014[ \u00A0]</td><td></td><td>warning</td><td>Em dashes are closed up with no surrounding spaces.</td><td>The update is complete — restart the app.</td></tr>
         </table>
         <h2>En dashes</h2>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr><td>\u2013</td><td></td><td>warning</td><td>Google style doesn&apos;t use en dashes.</td><td>Choose a value from 1–10.</td></tr>
+            <tr MadCap:conditions="Content.Dashes"><td>\u2013</td><td></td><td>warning</td><td>Google style doesn&apos;t use en dashes.</td><td>Choose a value from 1–10.</td></tr>
         </table>
         <h2>Colons instead of dashes in description lists</h2>
         <ul>
-            <li>Don&apos;t use an em dash, an en dash, or a hyphen surrounded by spaces to separate an item and its description; instead, use a colon or a period.<ul><li>Bad: Example - This is an example.</li><li>Good: Example: This is an example.</li></ul></li>
-            <li MadCap:conditions="Content.Lists">For a series of items and their descriptions, use an HTML description list (&lt;dl&gt;).<ul><li>Good: &lt;dl&gt; &lt;dt&gt;Example&lt;/dt&gt; &lt;dd&gt;This is an example.&lt;/dd&gt; &lt;dt&gt;Another example&lt;/dt&gt; &lt;dd&gt;This is another example.&lt;/dd&gt; &lt;/dl&gt;</li></ul></li>
+            <li MadCap:conditions="Content.Dashes">Don&apos;t use an em dash, an en dash, or a hyphen surrounded by spaces to separate an item and its description; instead, use a colon or a period.<ul><li>Bad: Example - This is an example.</li><li>Good: Example: This is an example.</li></ul></li>
+            <li MadCap:conditions="Content.Dashes,Content.Lists">For a series of items and their descriptions, use an HTML description list (&lt;dl&gt;).<ul><li>Good: &lt;dl&gt; &lt;dt&gt;Example&lt;/dt&gt; &lt;dd&gt;This is an example.&lt;/dd&gt; &lt;dt&gt;Another example&lt;/dt&gt; &lt;dd&gt;This is another example.&lt;/dd&gt; &lt;/dl&gt;</li></ul></li>
         </ul>
     </body>
 </html>

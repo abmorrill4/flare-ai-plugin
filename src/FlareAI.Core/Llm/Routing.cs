@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
 
@@ -43,6 +44,11 @@ namespace FlareAI.Core.Llm
 
         /// <summary>How the review is split: "section" (the default: a short topic whole, a long one by headings) or "block" (one call per paragraph, item or row).</summary>
         public string ReviewUnit { get; set; }
+        /// <summary>
+        /// Rule packs sent with every call, in the long-lived cached block, because most sections need them (measured on
+        /// 262 sections: Headings 100%, UI 90%, Lists 59%, Steps 58%; every other pack 22% or less). Team: "always_packs".
+        /// </summary>
+        public List<string> AlwaysPacks { get; set; }
         /// <summary>Where the routing came from, for Diagnostics ("built-in", "settings", "team: …\models.json").</summary>
         public string Source { get; private set; }
 
@@ -52,6 +58,7 @@ namespace FlareAI.Core.Llm
             _tiers[Standard] = new Route { Tier = Standard, Model = standardModel ?? "claude-sonnet-5-5", Effort = "medium" };
             _tiers[Deep] = new Route { Tier = Deep, Model = deepModel ?? "claude-opus-5-5", Effort = "high" };
             ReviewUnit = "section";
+            AlwaysPacks = new List<string> { "Headings", "UI", "Lists", "Steps" };
             Source = fastModel == null && standardModel == null && deepModel == null ? "built-in" : "settings";
         }
 
@@ -81,6 +88,7 @@ namespace FlareAI.Core.Llm
                 foreach (var t in (o["tasks"] as JObject ?? new JObject()).Properties())
                     if (_tiers.ContainsKey((string)t.Value)) _tasks[t.Name] = (string)t.Value;
                 if (o["review_unit"] != null) ReviewUnit = (string)o["review_unit"];
+                if (o["always_packs"] is JArray ap) AlwaysPacks = ap.Select(x => (string)x).ToList();
                 Source = "team: " + path;
             }
             catch (Exception ex) { Diagnostics.Log("models.json", ex); }
@@ -89,7 +97,7 @@ namespace FlareAI.Core.Llm
 
         public string Describe()
         {
-            var sb = new StringBuilder("Routing (" + Source + "), review unit: " + ReviewUnit + "\n");
+            var sb = new StringBuilder("Routing (" + Source + "), review unit: " + ReviewUnit + ", always-on packs: " + string.Join(", ", AlwaysPacks.ToArray()) + "\n");
             foreach (var t in DefaultTasks.Keys) sb.Append("  ").Append(t).Append(" → ").Append(For(t)).Append('\n');
             return sb.ToString();
         }
@@ -97,7 +105,7 @@ namespace FlareAI.Core.Llm
 
     /// <summary>
     /// Token use and estimated cost per task and model, for this session (Diagnostics) and for the stress harness.
-    /// Prices are list prices per million tokens (input, output, cache read); cache writes are billed at 1.25× input.
+    /// Prices are list prices per million tokens (input, output, cache read); cache writes are billed at 1.25× input (5-minute) or 2× (1-hour).
     /// </summary>
     public static class Usage
     {
@@ -117,7 +125,8 @@ namespace FlareAI.Core.Llm
         {
             double[] p;
             if (model == null || !Prices.TryGetValue(model, out p)) p = new[] { 0.0, 0.0, 0.0 };
-            var usd = (r.InputTokens * p[0] + r.CacheWriteTokens * p[0] * 1.25 + r.CacheReadTokens * p[2] + r.OutputTokens * p[1]) / 1e6;
+            var write1h = Math.Min(r.CacheWrite1hTokens, r.CacheWriteTokens);
+            var usd = (r.InputTokens * p[0] + (r.CacheWriteTokens - write1h) * p[0] * 1.25 + write1h * p[0] * 2 + r.CacheReadTokens * p[2] + r.OutputTokens * p[1]) / 1e6;
             lock (Gate)
             {
                 Line l;

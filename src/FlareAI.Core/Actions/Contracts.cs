@@ -74,18 +74,27 @@ namespace FlareAI.Core.Actions
 
         // ---- review ------------------------------------------------------------------------------
 
-        /// <summary>Findings for one unit: each names a run of the unit and a rule of the guide (or "general").</summary>
-        public static JObject Review(IList<string> runIds, IEnumerable<string> ruleIds)
-        {
-            var rules = new List<string>(ruleIds ?? new string[0]) { "general" };
-            return Obj(P("findings", Arr(Obj(
-                P("run_id", Enum(runIds, "The run the problem is in.")),
+        /// <summary>
+        /// Findings for one unit: each names a run of the unit and a rule of the guide (or "general"). The schema is the
+        /// same for every call: it is part of the cached prompt prefix, so per-unit enums (run ids, rule ids) would make
+        /// every call write the cache instead of reading it. Run and rule ids are checked in code instead
+        /// (<see cref="ReadReview"/>, <see cref="KeepCitable"/>).
+        /// </summary>
+        public static readonly JObject ReviewSchema = Obj(P("findings", Arr(Obj(
+                P("run_id", Str("The run the problem is in, for example r3.")),
                 P("excerpt", Str("Exact text copied from that run: the shortest unique span that has the problem.")),
-                P("rule_id", Enum(rules, "The style-guide rule applied; \"general\" only when no rule covers it.")),
+                P("rule_id", Str("The id of the style-guide rule applied, from the [brackets] in the guide; \"general\" only when no rule covers it.")),
                 P("rule", Str("2-4 word name of the problem.")),
                 P("severity", Enum(Severities)),
                 P("replacement", NullableStr("Exact plain text to put in place of the excerpt, or null if it needs a rewrite.")),
                 P("why", Str("At most 15 words."))))));
+
+        /// <summary>A rule id the model wasn't given (or made up) is cleared: the finding stays, uncited.</summary>
+        public static void KeepCitable(List<StyleFinding> findings, ICollection<string> allowed)
+        {
+            if (allowed == null) return;
+            foreach (var f in findings)
+                if (f.RuleId != null && !allowed.Contains(f.RuleId)) { Diagnostics.Log("Review: cleared rule id " + f.RuleId + " (not sent for this text)"); f.RuleId = null; }
         }
 
         /// <summary>Anchors the model's findings in the unit's runs; drops what breaks the contract (logged).</summary>
@@ -121,12 +130,14 @@ namespace FlareAI.Core.Actions
 
         // ---- rewrite -----------------------------------------------------------------------------
 
-        /// <summary>A rewrite as new text for changed runs only; structure can't change on this path.</summary>
-        public static JObject Rewrite(IList<string> runIds)
+        /// <summary>A rewrite as new text for changed runs only; structure can't change on this path. Same schema every call (cache); run ids are checked in <see cref="ReadRewrite"/>.</summary>
+        public static readonly JObject RewriteSchema = Rewrite();
+
+        private static JObject Rewrite()
         {
             return Obj(
                 P("changes", Arr(Obj(
-                    P("run_id", Enum(runIds)),
+                    P("run_id", Str("The run to change, for example r3.")),
                     P("text", Str("The complete new text of that run: plain text, no markup, no run markers."))))),
                 P("needs_restructure", Bool("True only if the task can't be done by changing run text (for example splitting one step into two).")),
                 P("note", Str("Empty, or one sentence: what restructuring is needed, or what information only the author can supply.")));

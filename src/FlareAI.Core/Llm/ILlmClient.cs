@@ -47,6 +47,8 @@ namespace FlareAI.Core.Llm
         public int OutputTokens { get; set; }
         public int CacheReadTokens { get; set; }
         public int CacheWriteTokens { get; set; }
+        /// <summary>The part of <see cref="CacheWriteTokens"/> written to the 1-hour cache (billed at 2x input, 5-minute writes at 1.25x).</summary>
+        public int CacheWrite1hTokens { get; set; }
         /// <summary>The response parsed as JSON when the request had a schema.</summary>
         public JObject Json { get; set; }
     }

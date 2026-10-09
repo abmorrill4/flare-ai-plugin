@@ -92,7 +92,10 @@ namespace FlareAI.Core.Tests
         public void AnthropicBody_HasSystemAndUser()
         {
             var body = AnthropicClient.BuildBody("m", new LlmRequest { System = "S", User = "U", MaxTokens = 10 });
-            Assert.Contains("\"system\":[{\"type\":\"text\",\"text\":\"S\",\"cache_control\":{\"type\":\"ephemeral\"}}]", body);
+            Assert.Contains("\"system\":[{\"type\":\"text\",\"text\":\"S\",\"cache_control\":{\"type\":\"ephemeral\",\"ttl\":\"1h\"}}]", body);
+            // Packs: their own 5-minute cache block; word rules: last, uncached.
+            var three = AnthropicClient.BuildBody("m", new LlmRequest { System = "S", SystemPacks = "P", SystemTerms = "T", User = "U" });
+            Assert.Contains("{\"type\":\"text\",\"text\":\"P\",\"cache_control\":{\"type\":\"ephemeral\"}},{\"type\":\"text\",\"text\":\"T\"}]", three);
             Assert.Contains("\"role\":\"user\"", body);
             Assert.Contains("\"max_tokens\":10", body);
         }

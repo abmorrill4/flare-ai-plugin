@@ -85,6 +85,9 @@ namespace FlareAI.Core.Actions
         private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null, GuideScope scope = null)
         {
             var route = Routing.For(task);
+            // Every task carries the same always-on block (same prefix → one cache entry for refine, assists, review…).
+            scope = scope ?? new GuideScope();
+            if (scope.Always.Count == 0) scope.Always = new HashSet<string>(Routing.AlwaysPacks ?? new List<string>());
             var system = _prompts.BuildSystemParts(scope);
             var req = new LlmRequest
             {
@@ -361,19 +364,36 @@ namespace FlareAI.Core.Actions
                 var context = (title.Length > 0 ? "Topic: " + title + "\n" : "") + (SectionOf(g[0]).Length > 0 ? "Section: " + SectionOf(g[0]) : "");
                 units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)), Scope = ScopeOf(g) });
             }
+            ShareScope(units.Select(u => u.Scope).ToList());
             return units;
+        }
+
+        /// <summary>
+        /// The units of one check carry the same packs (the union of what they contain) and the team's always-on packs, so
+        /// the pack block is written to the cache once and read by the rest. Each unit keeps its own text for word rules.
+        /// </summary>
+        private void ShareScope(List<GuideScope> scopes)
+        {
+            var union = new HashSet<string>(scopes.SelectMany(s => s.Content));
+            foreach (var s in scopes)
+            {
+                s.Content = new HashSet<string>(union);
+                s.Always = new HashSet<string>(Routing.AlwaysPacks ?? new List<string>());
+                s.SharedPacks = scopes.Count > 1;
+            }
         }
 
         /// <summary>Step 2 (no DOM access; runs off the UI thread, several at once): the model's findings for one unit.</summary>
         public List<StyleFinding> CallReview(ReviewUnit unit)
         {
-            // The model may cite only the rules it was given for this unit.
-            IEnumerable<string> ids = GuideRules().Keys;
-            if (_style != null) try { ids = _style.RuleIdsFor(_project, unit.Scope); } catch (Exception ex) { Diagnostics.Log("rule ids", ex); }
-            var resp = Ask("review", unit.Prompt, Contracts.Review(unit.Runs.Ids, ids), null, unit.Scope);
+            var resp = Ask("review", unit.Prompt, Contracts.ReviewSchema, null, unit.Scope);
             int dropped;
             var raw = Contracts.ReadReview(resp.Json, unit.Runs, out dropped);
             if (dropped > 0) Diagnostics.Log("Review: dropped " + dropped + " finding(s) that broke the contract");
+            // The model may cite only the rules it was given for this unit.
+            HashSet<string> allowed = null;
+            if (_style != null) try { allowed = new HashSet<string>(_style.RuleIdsFor(_project, unit.Scope), StringComparer.OrdinalIgnoreCase); } catch (Exception ex) { Diagnostics.Log("rule ids", ex); }
+            Contracts.KeepCitable(raw, allowed);
             return raw;
         }
 
@@ -732,6 +752,7 @@ namespace FlareAI.Core.Actions
                 RemainingLint = new List<StyleFinding>(), WordPlan = new List<StyleFinding>()
             };
             var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }), Scope = ScopeOf(new List<XmlNode> { b }) }).ToList();
+            ShareScope(units.Select(u => u.Scope).ToList());
             var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()))).ToList();
             var changes = new Dictionary<string, string>[units.Count];
             var restructure = new bool[units.Count];
@@ -739,7 +760,7 @@ namespace FlareAI.Core.Actions
             Each(units.Count, i =>
             {
                 if (units[i].Map.Ids.Count == 0) { changes[i] = new Dictionary<string, string>(); return; }
-                var schema = Contracts.Rewrite(units[i].Map.Ids);
+                var schema = Contracts.RewriteSchema;
                 var errors = new List<string>();
                 changes[i] = Contracts.ReadRewrite(Ask(task, prompts[i], schema, null, units[i].Scope).Json, units[i].Map, errors, out restructure[i], out restructureNotes[i]);
                 if (errors.Count > 0)

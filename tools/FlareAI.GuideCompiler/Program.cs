@@ -29,12 +29,14 @@ namespace FlareAI.GuideCompiler
     /// </summary>
     internal static class Program
     {
-        public static readonly string[] ContentTags = { "Code", "Steps", "Lists", "Numbers", "Tables", "Links", "Headings", "Images", "UI", "Notes", "Examples", "Math", "API", "Footnotes", "Emphasis" };
+        public static readonly string[] ContentTags = FlareAI.Core.Style.ContentTags.All;
         public static readonly string[] ProductTags = { "Android", "GoogleCloud", "GoogleWorkspace" };
         private static readonly Dictionary<string, string> TriggerTag = new Dictionary<string, string>
         {
             { "code", "Code" }, { "steps", "Steps" }, { "lists", "Lists" }, { "numbers", "Numbers" }, { "table", "Tables" }, { "links", "Links" }, { "headings", "Headings" },
             { "images", "Images" }, { "ui", "UI" }, { "notes", "Notes" }, { "examples", "Examples" }, { "math", "Math" }, { "api", "API" }, { "footnotes", "Footnotes" }, { "emphasis", "Emphasis" },
+            { "quotes", "Quotes" }, { "ellipses", "Ellipses" }, { "slashes", "Slashes" }, { "semicolons", "Semicolons" }, { "parentheses", "Parentheses" }, { "dashes", "Dashes" },
+            { "colons", "Colons" }, { "apostrophes", "Apostrophes" }, { "hyphens", "Hyphens" }, { "abbreviations", "Abbreviations" },
         };
 
         private static int Main(string[] args)

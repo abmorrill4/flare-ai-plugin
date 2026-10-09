@@ -128,10 +128,13 @@ namespace FlareAI.Core.Style
         private static void Selectors(Composition comp, GuideScope scope, out Func<GuideRule, bool> core, out Func<GuideRule, bool> packs)
         {
             scope = scope ?? new GuideScope();
-            Func<GuideRule, bool> applies = r => r.Applies.Count == 0 || r.Applies.Any(scope.Content.Contains);
+            var always = scope.Always;
+            Func<GuideRule, bool> applies = r => r.Applies.Count == 0 || r.Applies.Any(scope.Content.Contains) || r.Applies.Any(always.Contains);
             Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products);
-            core = r => eligible(r) && r.Applies.Count == 0 && r.Triggers.Count == 0;
-            packs = r => eligible(r) && (r.Triggers.Count > 0 ? applies(r) && r.TriggeredBy(scope.Text) : r.Applies.Count > 0 && applies(r));
+            // Always-on: untagged rules plus the packs nearly every section needs; one block, cached for an hour.
+            core = r => eligible(r) && r.Triggers.Count == 0 && (r.Applies.Count == 0 || r.Applies.Any(always.Contains));
+            packs = r => eligible(r) && (r.Triggers.Count > 0 ? applies(r) && r.TriggeredBy(scope.Text)
+                                                              : r.Applies.Count > 0 && !r.Applies.Any(always.Contains) && r.Applies.Any(scope.Content.Contains));
         }
 
         public IList<GuideRule> Rules(string project) { return Compose(project).Items; }

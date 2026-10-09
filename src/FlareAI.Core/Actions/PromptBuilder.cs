@@ -48,12 +48,11 @@ namespace FlareAI.Core.Actions
             catch (Exception ex) { Diagnostics.Log("style guide", ex); }
             var system = BuildSystem(parts == null ? null : parts[0]);
             Func<int, string, string> part = (i, intro) => parts != null && parts.Length > i && !string.IsNullOrEmpty(parts[i]) ? intro + "\n\n" + parts[i].Trim() : null;
-            return new[]
-            {
-                system,
-                part(1, "These rules also apply, because of what this text contains (same precedence: a later layer overrides an earlier one):"),
-                part(2, "These rules also apply, because this text uses the words they're about:")
-            };
+            var packs = part(1, "These rules also apply, because of what this text contains (same precedence: a later layer overrides an earlier one):");
+            var terms = part(2, "These rules also apply, because this text uses the words they're about:");
+            // Packs shared by several calls get their own cache block; for a single call a cache write would never be read.
+            if (scope != null && !scope.SharedPacks && packs != null) { terms = terms == null ? packs : packs + "\n\n" + terms; packs = null; }
+            return new[] { system, packs, terms };
         }
 
         public string BuildSystem()
