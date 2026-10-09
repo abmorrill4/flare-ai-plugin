@@ -1,0 +1,277 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using FlareAI.Core;
+using FlareAI.Core.Actions;
+using FlareAI.Core.Editing;
+using FlareAI.Core.Style;
+
+namespace FlareAI.Flare.UI
+{
+    /// <summary>
+    /// "Build style guide": proposes rules from evidence instead of asking anyone to write a guide. Mines the open
+    /// project (spelling variants, competing words, capitalization, heading case — with counts and real sentences)
+    /// and extracts rules from pasted notes, an old guide, or another tool's prompt. The owner checks the ones to
+    /// keep, picks the preferred form where the team was split, and adds them to the guide; Validate style guide
+    /// then tests each new row against its example.
+    /// </summary>
+    public sealed class BuildGuideForm : Form
+    {
+        private readonly Team _team;
+        private readonly McpStyleService _style;
+        private readonly string _project;
+        private readonly Func<ActionRunner> _runner;
+        private readonly Func<string, IDocumentAdapter> _open;
+        private readonly Label _head;
+        private readonly ListView _list;
+        private readonly RichTextBox _detail;
+        private readonly ComboBox _prefer;
+        private readonly Label _preferLabel;
+        private readonly Button _mine, _notes, _add;
+        private readonly ProgressBar _progress;
+
+        public BuildGuideForm(Team team, McpStyleService style, string project, Func<ActionRunner> runner, Func<string, IDocumentAdapter> open)
+        {
+            _team = team; _style = style; _project = project; _runner = runner; _open = open;
+            Text = "FlareAI — Build style guide";
+            StartPosition = FormStartPosition.CenterParent;
+            ClientSize = new Size(940, 640);
+            MinimumSize = new Size(640, 420);
+            Font = SystemFonts.MessageBoxFont;
+
+            _head = new Label { Dock = DockStyle.Top, Height = 46, Padding = new Padding(8, 8, 8, 0) };
+            _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee, Visible = false };
+            var tools = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 38, Padding = new Padding(6, 4, 6, 0) };
+            _mine = new Button { Text = "Mine this project", AutoSize = true, Enabled = project != null && style != null };
+            _notes = new Button { Text = "Add notes or an old guide…", AutoSize = true };
+            _mine.Click += (s, e) => Mine();
+            _notes.Click += (s, e) => Notes();
+            tools.Controls.AddRange(new Control[] { _mine, _notes });
+
+            _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, CheckBoxes = true };
+            _list.Columns.Add("Proposed rule", 430); _list.Columns.Add("Becomes", 110); _list.Columns.Add("Evidence", 330);
+            _list.Groups.Add("content", "From your content");
+            _list.Groups.Add("notes", "From your notes");
+            _list.SelectedIndexChanged += (s, e) => ShowDetail();
+            _list.ItemChecked += (s, e) => UpdateAdd();
+
+            var detail = new Panel { Dock = DockStyle.Bottom, Height = 200 };
+            var pick = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 32, Padding = new Padding(4, 4, 4, 0) };
+            _preferLabel = new Label { Text = "Preferred form:", AutoSize = true, Padding = new Padding(0, 6, 0, 0), Visible = false };
+            _prefer = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 260, Visible = false };
+            _prefer.SelectedIndexChanged += (s, e) => { var c = Current(); if (c != null && _prefer.SelectedItem != null) { c.Choose((string)_prefer.SelectedItem); Refresh(c); } };
+            pick.Controls.AddRange(new Control[] { _preferLabel, _prefer });
+            _detail = DiffView.Create();
+            _detail.Dock = DockStyle.Fill; _detail.BackColor = SystemColors.Control;
+            detail.Controls.Add(_detail);
+            detail.Controls.Add(pick);
+
+            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
+            var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
+            _add = new Button { Text = "Add checked rules to the guide", AutoSize = true, Enabled = false };
+            _add.Click += (s, e) => AddToGuide();
+            bar.Controls.AddRange(new Control[] { close, _add });
+
+            Controls.Add(_list);
+            Controls.Add(detail);
+            Controls.Add(bar);
+            Controls.Add(tools);
+            Controls.Add(_progress);
+            Controls.Add(_head);
+            CancelButton = close;
+            _head.Text = "Proposes rules from what your team already writes and from your notes. Check the ones to keep, then add them to the guide." +
+                         (IsOwner ? "" : "\nRead-only: only the style guide owners (" + string.Join(", ", _team.Owners.ToArray()) + ") can add rules.");
+        }
+
+        private bool IsOwner { get { return _team == null || _team.IsOwner; } }
+
+        private void Mine()
+        {
+            Busy(true, "Reading every topic and snippet in the project…");
+            var worker = new BackgroundWorker();
+            int files = 0;
+            worker.DoWork += (s, e) => e.Result = _style.Mine(_project, out files);
+            worker.RunWorkerCompleted += (s, e) =>
+            {
+                if (IsDisposed) return;
+                Busy(false, null);
+                if (e.Error != null) { Diagnostics.Log("Build guide: mine", e.Error); _head.Text = "Could not mine the project: " + e.Error.Message; return; }
+                var found = (List<RuleCandidate>)e.Result;
+                Add(found, "content");
+                _head.Text = files + " topic(s) and snippet(s) read: " + found.Count + " proposed rule(s) the guide doesn't cover yet." +
+                             (found.Count == 0 ? " Your content is consistent with the guide." : " Where the team was split, pick the preferred form.");
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private void Notes()
+        {
+            var text = NotesDialog.Ask(this);
+            if (string.IsNullOrEmpty(text)) return;
+            var runner = _runner();
+            if (runner == null) return;
+            Busy(true, "Reading your notes…");
+            var worker = new BackgroundWorker();
+            var skipped = 0;
+            worker.DoWork += (s, e) =>
+            {
+                var found = runner.ExtractRules(text);
+                // Like mining: drop rows whose words the guide already flags (the validator would report the duplicate).
+                if (_style != null)
+                {
+                    var rows = found.Where(c => c.IsRow).ToList();
+                    var words = rows.SelectMany(c => Split(c.Avoid)).Distinct().ToList();
+                    if (words.Count > 0)
+                    {
+                        var flagged = new HashSet<string>(_style.Lint(words, new List<int>(), _project).Select(h => words[h.Index]));
+                        foreach (var c in rows) if (Split(c.Avoid).All(flagged.Contains)) { found.Remove(c); skipped++; }
+                    }
+                }
+                e.Result = found;
+            };
+            worker.RunWorkerCompleted += (s, e) =>
+            {
+                if (IsDisposed) return;
+                Busy(false, null);
+                if (e.Error != null) { Diagnostics.Log("Build guide: notes", e.Error); _head.Text = "Could not read the notes: " + e.Error.Message; return; }
+                var found = (List<RuleCandidate>)e.Result;
+                Add(found, "notes");
+                _head.Text = found.Count + " rule(s) found in your notes. Each shows the words it came from; check the ones to keep." +
+                             (skipped > 0 ? " " + skipped + " more are already in the guide." : "");
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private void Add(List<RuleCandidate> found, string group)
+        {
+            foreach (var c in found)
+            {
+                var item = new ListViewItem(new[] { c.Title, Becomes(c), Evidence(c) }) { Tag = c, Group = _list.Groups[group] };
+                _list.Items.Add(item);
+            }
+            if (_list.SelectedItems.Count == 0 && _list.Items.Count > 0) _list.Items[0].Selected = true;
+            UpdateAdd();
+        }
+
+        private static IEnumerable<string> Split(string list)
+        {
+            return (list ?? "").Split(',').Select(x => x.Trim()).Where(x => x.Length > 0);
+        }
+
+        private static string Becomes(RuleCandidate c) { return c.IsRow ? "Avoid/Use row" : "Prose rule"; }
+
+        private static string Evidence(RuleCandidate c)
+        {
+            if (c.Forms.Count > 0) return string.Join(" · ", c.Forms.Select(f => "“" + f.Text + "” " + f.Count + "×").ToArray());
+            return string.IsNullOrEmpty(c.Quote) ? "" : "“" + c.Quote + "”";
+        }
+
+        private RuleCandidate Current() { return _list.SelectedItems.Count == 1 ? (RuleCandidate)_list.SelectedItems[0].Tag : null; }
+
+        private void ShowDetail()
+        {
+            var c = Current();
+            var terms = c != null && c.Forms.Count > 1 && c.Kind != "heading";
+            _prefer.Visible = _preferLabel.Visible = terms;
+            if (terms)
+            {
+                _prefer.Items.Clear();
+                foreach (var f in c.Forms) _prefer.Items.Add(f.Text);
+                _prefer.SelectedItem = c.Prefer;
+            }
+            if (c != null) Refresh(c); else _detail.Clear();
+        }
+
+        private void Refresh(RuleCandidate c)
+        {
+            _detail.Clear();
+            Write(c.Title, FontStyle.Bold);
+            if (c.Forms.Count > 0) Write("Your content: " + Evidence(c), FontStyle.Regular);
+            if (!string.IsNullOrEmpty(c.Quote)) Write("From your notes: “" + c.Quote + "”", FontStyle.Italic);
+            foreach (var e in c.Examples.Take(4)) Write("• " + e.Text + (string.IsNullOrEmpty(e.File) ? "" : "  (" + e.File + ")"), FontStyle.Regular);
+            Write("", FontStyle.Regular);
+            if (c.IsRow)
+                Write("Adds a table row  ·  Avoid: " + c.Avoid + "  ·  Use: " + (string.IsNullOrEmpty(c.Use) ? "(flag only)" : c.Use) + "  ·  " + c.Severity +
+                      "\nWhy: " + c.Why + "\nExample (must break the rule): " + c.Example, FontStyle.Italic);
+            else
+                Write("Adds a prose rule: " + c.Text + (string.IsNullOrEmpty(c.Bad) ? "" : "\nBad: " + c.Bad) + (string.IsNullOrEmpty(c.Good) ? "" : "\nGood: " + c.Good), FontStyle.Italic);
+            _detail.Select(0, 0);
+            foreach (ListViewItem item in _list.Items) if (item.Tag == c) item.SubItems[2].Text = Evidence(c);
+        }
+
+        private void Write(string text, FontStyle style)
+        {
+            _detail.SelectionStart = _detail.TextLength;
+            _detail.SelectionFont = new Font(_detail.Font, style);
+            _detail.AppendText((_detail.TextLength > 0 ? "\n" : "") + text);
+        }
+
+        private void UpdateAdd()
+        {
+            _add.Enabled = IsOwner && _team != null && _team.GuideRoot != null && _list.CheckedItems.Count > 0;
+            _add.Text = "Add " + (_list.CheckedItems.Count > 0 ? _list.CheckedItems.Count + " " : "") + "checked rule(s) to the guide";
+        }
+
+        private void AddToGuide()
+        {
+            var accepted = _list.CheckedItems.Cast<ListViewItem>().Select(i => (RuleCandidate)i.Tag).ToList();
+            var root = _team.GuideRoot;
+            var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
+            var topic = Path.Combine(folder, "From-our-content.htm");
+            try
+            {
+                var n = GuideBuilder.Write(topic, accepted, "From our content");
+                foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
+                _head.Text = "Added " + n + " rule(s) to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example), then commit the guide.";
+                if (_open != null) _open(topic);
+            }
+            catch (Exception ex) { Diagnostics.Log("Build guide: write", ex); MessageBox.Show(this, "Could not write " + topic + ": " + ex.Message, "FlareAI"); }
+            UpdateAdd();
+        }
+
+        private void Busy(bool on, string text)
+        {
+            _progress.Visible = on;
+            _mine.Enabled = !on && _project != null && _style != null;
+            _notes.Enabled = !on;
+            if (on) _head.Text = text;
+        }
+    }
+
+    /// <summary>A large box for pasting notes, an old guide, or another tool's prompt (or loading a text file).</summary>
+    internal static class NotesDialog
+    {
+        public static string Ask(IWin32Window owner)
+        {
+            using (var form = new Form { Text = "FlareAI — Notes for the style guide", StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(680, 460), MinimumSize = new Size(480, 300), Font = SystemFonts.MessageBoxFont })
+            {
+                var label = new Label { Dock = DockStyle.Top, Height = 44, Padding = new Padding(8, 8, 8, 0),
+                    Text = "Paste or dictate (Win+H) anything: how the team writes, words you never use, an old style guide, or the prompt you used with another AI tool. Or load a .txt, .md or .htm file." };
+                var box = new TextBox { Dock = DockStyle.Fill, Multiline = true, AcceptsReturn = true, ScrollBars = ScrollBars.Vertical, WordWrap = true };
+                var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
+                var ok = new Button { Text = "Find rules", AutoSize = true, DialogResult = DialogResult.OK };
+                var cancel = new Button { Text = "Cancel", AutoSize = true, DialogResult = DialogResult.Cancel };
+                var load = new Button { Text = "Load file…", AutoSize = true };
+                load.Click += (s, e) =>
+                {
+                    using (var dlg = new OpenFileDialog { Filter = "Text, Markdown, HTML|*.txt;*.md;*.htm;*.html|All files|*.*" })
+                        if (dlg.ShowDialog(form) == DialogResult.OK)
+                        {
+                            var text = File.ReadAllText(dlg.FileName);
+                            if (dlg.FileName.EndsWith("htm", StringComparison.OrdinalIgnoreCase) || dlg.FileName.EndsWith("html", StringComparison.OrdinalIgnoreCase))
+                                text = System.Text.RegularExpressions.Regex.Replace(System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", " "), @"[ \t]+", " ");
+                            box.Text = text;
+                        }
+                };
+                bar.Controls.AddRange(new Control[] { cancel, ok, load });
+                form.Controls.Add(box); form.Controls.Add(bar); form.Controls.Add(label);
+                form.AcceptButton = null; form.CancelButton = cancel;
+                return form.ShowDialog(owner) == DialogResult.OK ? box.Text.Trim() : null;
+            }
+        }
+    }
+}

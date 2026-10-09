@@ -65,9 +65,15 @@ The linter and the AI read `Content/Resources/StyleGuide/*.htm`, the project's v
 - `FlareAI/layer.txt` names the layer (`company`): rule ids stay the same in every clone.
 - Settings → Team feedback folder: a shared folder (OneDrive/SharePoint-synced, network share, or a repo writers can
   push to). Each writer's review decisions append to their own file there; no merge conflicts.
+- **AI ▸ Build style guide** (for owners) proposes rules from evidence: **Mine this project** finds spelling variants,
+  competing words, inconsistent capitalization and heading case in your topics (with counts and real sentences; pick the
+  preferred form); **Add notes or an old guide** turns pasted or dictated notes, an old guide, or another AI tool's
+  prompt into rules that quote their source. Checked rules go into `StyleGuide/From-our-content.htm`; run Validate.
 - **AI ▸ Tune style guide** (for owners) pools everyone's decisions: rules writers disagree on, rules that are often
   rejected, repeated hand edits (a better replacement), and requests to turn rules off — each with counts, reasons,
-  real excerpts and who; **Open rule in the guide** goes straight to the rule in Flare.
+  real excerpts and who; **Open rule in the guide** goes straight to the rule in Flare, and **Draft a change with AI**
+  rewrites the rule from that evidence as tracked changes. **Customize AI prompts** puts the AI's instructions in the
+  guide (`FlareAI/prompts`) so the team tunes them like rules.
 
 - Claude Code: `.mcp.json` registers the server; the `docstyle` skill (`.claude/skills/docstyle`) applies it.
 - Needs `uv` (`winget install astral-sh.uv`); Vale and the MCP SDK are fetched by `uv` on first run.

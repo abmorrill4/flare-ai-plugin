@@ -15,6 +15,7 @@ $icons = [ordered]@{
     validate = 0xE82D  # Dictionary
     diag     = 0xE9D9  # Diagnostic
     tune     = 0xE9E9  # Equalizer (tuning)
+    build    = 0xE70B  # QuickNote
 }
 $color = [System.Drawing.Color]::FromArgb(255, 14, 124, 134)  # FlareAI teal; reads on Flare's light ribbon
 

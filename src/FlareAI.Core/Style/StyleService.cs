@@ -172,6 +172,14 @@ namespace FlareAI.Core.Style
             return list;
         }
 
+        /// <summary>Candidate rules mined from a Flare project's own content (docstyle mine_style).</summary>
+        public List<RuleCandidate> Mine(string project, out int files)
+        {
+            var json = Client().CallTool("mine_style", new JObject { ["project"] = project });
+            files = (int?)json["files"] ?? 0;
+            return GuideBuilder.ParseMined((JObject)json);
+        }
+
         private McpStdioClient Client()
         {
             lock (_gate)

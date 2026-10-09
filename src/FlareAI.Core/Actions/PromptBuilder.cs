@@ -74,6 +74,12 @@ namespace FlareAI.Core.Actions
             return Embedded("action-repair.md").Replace("{{LINT}}", lint).Replace("{{FRAGMENT}}", revisedXml);
         }
 
+        /// <summary>Notes, an old guide, or another tool's prompt → candidate rules (JSON array).</summary>
+        public string BuildExtract(string notes)
+        {
+            return Embedded("action-extract.md").Replace("{{NOTES}}", notes ?? "");
+        }
+
         /// <summary>One proposal, re-asked with the author's instruction ("keep SSO", "shorter").</summary>
         public string BuildRefine(string context, string excerpt, string proposal, string instruction)
         {
@@ -91,7 +97,7 @@ namespace FlareAI.Core.Actions
         public string OverrideFolder { get; set; }
 
         /// <summary>Names of the templates a team can override.</summary>
-        public static readonly string[] Templates = { "system-base.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md" };
+        public static readonly string[] Templates = { "system-base.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md", "action-extract.md" };
 
         private string Embedded(string name)
         {

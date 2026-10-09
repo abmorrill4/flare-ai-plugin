@@ -79,6 +79,7 @@ namespace FlareAI.Flare
             tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings"));
             tools.AddRibbonButton(Button("Validate style guide", "V", OnValidateGuide, "validate"));
             tools.AddRibbonButton(Button("Tune style guide", "T", OnTuneGuide, "tune"));
+            tools.AddRibbonButton(Button("Build style guide", "B", OnBuildGuide, "build"));
             tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag"));
         }
 
@@ -198,6 +199,26 @@ namespace FlareAI.Flare
                 });
             }
             catch (Exception ex) { Diagnostics.Log("Team", ex); }
+        }
+
+        /// <summary>Proposes style-guide rules from the open project's content and from notes.</summary>
+        private void OnBuildGuide()
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                var style = StyleService(settings);
+                var adapter = ActiveAdapter();
+                var project = adapter == null ? null : adapter.SourcePath;
+                using (var f = new BuildGuideForm(Team.Current, style, project,
+                           () => adapter == null ? NewRunnerWithoutTopic(settings, style, null) : NewRunner(adapter, false), OpenAdapter))
+                    f.ShowDialog(_nav.GetParentForm());
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Build style guide", ex);
+                MessageBox.Show(ex.Message, "FlareAI — Build style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>The owner's report: what the team's review decisions say about each rule.</summary>

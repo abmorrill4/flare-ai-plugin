@@ -467,6 +467,26 @@ class Docstyle:
                 kept.append(h)
         return kept
 
+    def mine(self, project):
+        """Candidate rules mined from the project's content, minus what the composed guide already flags."""
+        sys.path.insert(0, str(HERE))
+        import mine as miner
+        root = flare_project_root(project)
+        if root is None:
+            raise ValueError(f"not inside a Flare project: {project}")
+        result = miner.mine(root)
+        comp = self.compose(project)
+        forms = sorted({f["text"] for c in result["candidates"] for f in c["forms"]})
+        flagged = {forms[h["index"]] for h in self.lint(forms, comp=comp)} if forms else set()
+        keep = []
+        for c in result["candidates"]:
+            others = [f["text"] for f in c["forms"] if f["text"] != c["prefer"]]
+            if c["kind"] == "heading" or not all(o in flagged for o in others):
+                keep.append(c)
+        result["candidates"] = keep
+        result["project"] = str(root)
+        return result
+
     def glossary(self, project=None):
         return [dict(e, layer=l.name) for l in self.compose(project).layers for e in l.glossary]
 
@@ -619,6 +639,14 @@ def build_server(ds: Docstyle):
         return {"examples": [{k: it[k] for k in ("id", "layer", "section", "text", "bad", "good")}
                              for it in ds.compose(project).items() if it["bad"] or it["good"]]}
 
+    @mcp.tool()
+    def mine_style(project: str) -> dict:
+        """What a Flare project's own content says its style is: spelling variants, competing words for one
+        concept, inconsistent capitalization, heading case. Each candidate has counts, example sentences, the
+        most-used form, and a ready guide entry (row: Avoid/Use/Severity/Why/Example, or bullet: text/bad/good).
+        Rules the layered guide already enforces are left out."""
+        return ds.mine(project)
+
     return mcp
 
 
@@ -717,7 +745,30 @@ def _selftest():
         assert moved.name == "company", moved.name
         assert any(r["id"].startswith("company:") for r in moved.items), "declared layer name not used in rule ids"
 
-    print("selftest ok:", len(hits), "hits; layers, tables, validation ok")
+    # Mining a project's own conventions.
+    with tempfile.TemporaryDirectory() as tmp:
+        proj = Path(tmp) / "Docs"
+        (proj / "Content").mkdir(parents=True)
+        (proj / "Docs.flprj").write_text("<CatapultProject />", encoding="utf-8")
+        topic = ('<?xml version="1.0" encoding="utf-8"?><html><body><h1>Set up alerts for your account</h1>'
+                 "<p>Turn on autopay for bills. Autopay runs monthly. Autopay stops when you cancel.</p>"
+                 "<p>You can also set up auto-pay here. Edit auto-pay later.</p>"
+                 "<p>To start, sign in to the app. Then sign in again and log in to the console. Sign in daily. Log in to see statements.</p>"
+                 "<p>Open the app and go to Online Banking now. From there, go to Online Banking settings and then online banking help, and online banking alerts.</p>"
+                 "<h2>Change Your Alert Settings</h2><h2>View Your Account History</h2><h2>Delete an alert from the list</h2><h2>Reset Your Online Password</h2></body></html>")
+        (proj / "Content" / "Alerts.htm").write_text(topic, encoding="utf-8")
+        mined = ds.mine(str(proj / "Content" / "Alerts.htm"))
+        kinds = {c["kind"]: c for c in mined["candidates"]}
+        assert mined["files"] == 1, mined
+        spelling = next(c for c in mined["candidates"] if c["kind"] == "spelling" and "autopay" in c["prefer"])
+        assert spelling["prefer"] == "autopay" and spelling["row"]["avoid"] == "auto-pay", spelling
+        assert "auto-pay" in spelling["row"]["example"], spelling["row"]
+        signin = next((c for c in mined["candidates"] if c["kind"] == "synonym" and "sign" in c["prefer"]), None)
+        assert signin and signin["prefer"] == "sign in" and signin["row"]["avoid"] == "log in", signin
+        assert "capitalization" in kinds, [c["title"] for c in mined["candidates"]]
+        assert "heading" in kinds and kinds["heading"]["prefer"] == "title case", kinds.get("heading")
+
+    print("selftest ok:", len(hits), "hits; layers, tables, validation, mining ok")
 
 
 if __name__ == "__main__":

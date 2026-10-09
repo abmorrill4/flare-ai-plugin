@@ -351,6 +351,14 @@ namespace FlareAI.Core.Actions
             };
         }
 
+        /// <summary>Candidate style-guide rules the AI finds in an author's notes, an old guide, or another tool's prompt.</summary>
+        public List<RuleCandidate> ExtractRules(string notes)
+        {
+            var resp = _llm.Complete(new LlmRequest { System = _prompts.BuildSystem(), User = _prompts.BuildExtract(notes), MaxTokens = _maxTokens });
+            Diagnostics.Log("Extract rules: in=" + resp.InputTokens + " out=" + resp.OutputTokens + " stop=" + resp.StopReason);
+            return GuideBuilder.ParseExtracted(resp.Text);
+        }
+
         private static readonly Dictionary<string, int> SnippetUses = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>How many topics and snippets in the project include this snippet (by file name). Cached per session.</summary>

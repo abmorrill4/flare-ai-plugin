@@ -232,8 +232,12 @@ runs docstyle locally. Shared rules change only through the guide owner(s); git 
    applies as tracked changes (no lint on guide topics). Verified in Flare on a disputed rule.
 6. `[x]` **Prompts as files**: `<guide>/FlareAI/prompts/*.md` overrides the built-in templates for everyone using the
    guide; Tune ▸ Customize AI prompts seeds them.
-7. `[ ]` **Style-guide builder**: mine Flare projects (term variants, UI verbs, heading case, typed variable values)
-   and pasted notes/old guides into proposal cards; accepted rules are written into the guide.
+7. `[x]` **Style-guide builder** (AI ▸ Build style guide): docstyle `mine_style` reads every topic/snippet and proposes
+   rules for spelling variants, competing words (plurals paired), inconsistent capitalization and heading case, with
+   counts and real sentences, minus what the guide already enforces; the owner picks the preferred form (the
+   "interview"). Notes, an old guide or another tool's prompt → AI-extracted rules quoting their source. Checked rules
+   are written to `StyleGuide/From-our-content.htm` (Avoid/Use table + Conventions bullets). Verified in Flare: 7 rules
+   added, Validate passed all 22 table rows, and caught a duplicate from the notes (now filtered).
 
 Next phases (agreed order): **2e** feedback loop (rejection reasons → per-rule precision; teach actions that edit
 the company guide; prompts as overridable files in the guide project) · **2f** accessibility, white-label and
