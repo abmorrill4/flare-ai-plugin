@@ -244,6 +244,13 @@ the company guide; prompts as overridable files in the guide project) · **2f** 
 snippet-impact checks · **2g** LLM-ready output on build (per-topic Markdown + llms.txt via CompileComplete / build
 events) · **2h** authoring assists (alt text, micro content, search synonyms, glossary, meta descriptions).
 
+### Phase 2f — Accessibility, structure, white-label `[x]`
+
+Deterministic DOM checks in the review pane and Check project (Kind "manual": Go to, fix in the editor, Re-analyze):
+images without alt text, skipped heading levels, a second h1, tables without a header row, vague link text, and
+hard-coded phone numbers / email addresses / URLs (white-label docs put them in variables; typed variable values were
+already flagged). Snippet impact: proposal cards show how many files use the snippet.
+
 ### Phase 3 — Tester handoff `[ ]`
 
 - [x] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.

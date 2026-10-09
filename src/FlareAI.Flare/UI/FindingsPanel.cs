@@ -204,6 +204,8 @@ namespace FlareAI.Flare.UI
                 List<StyleFinding> lint;
                 try { lint = _runner.Lint(blocks); }
                 catch (Exception ex) { Diagnostics.Log("docstyle", ex); lint = new List<StyleFinding>(); _lintNote = "Style linter unavailable (" + ex.Message + ") — showing AI review only."; }
+                try { lint.AddRange(FlareAI.Core.Style.StructureCheck.Of(blocks)); }
+                catch (Exception ex) { Diagnostics.Log("structure", ex); }
                 try { lint.AddRange(_runner.LintSnippets(blocks, _doc.SourcePath)); }
                 catch (Exception ex) { Diagnostics.Log("snippets", ex); }
                 foreach (var f in lint)
@@ -341,6 +343,7 @@ namespace FlareAI.Flare.UI
             {
                 case "variable": return mark + "\"" + f.Excerpt + "\" → variable " + f.Variable;
                 case "restructure": return mark + "\"" + Shorten(f.Excerpt, 48) + "\" — rewrite";
+                case "manual": return mark + f.Rule.Substring(f.Rule.IndexOf('.') + 1) + ": \"" + Shorten(f.Excerpt, 36) + "\"";
                 default: return mark + (f.Replacement.Length == 0 ? "delete \"" + f.Excerpt + "\"" : "\"" + Shorten(f.Excerpt, 30) + "\" → \"" + Shorten(f.Replacement, 30) + "\"");
             }
         }
@@ -370,15 +373,15 @@ namespace FlareAI.Flare.UI
         {
             var open = Open();
             if (open.Count == 0) return "No open proposals.";
-            int mech = 0, wording = 0, rewrite = 0;
+            int mech = 0, wording = 0, rewrite = 0, manual = 0;
             var sections = new HashSet<string>();
             foreach (var f in open)
             {
                 sections.Add(f.Section ?? "");
-                if (f.Kind == "mechanical") mech++; else if (f.Kind == "wording") wording++; else rewrite++;
+                if (f.Kind == "mechanical") mech++; else if (f.Kind == "wording") wording++; else if (f.Kind == "manual") manual++; else rewrite++;
             }
             return open.Count + " proposal(s)" + (sections.Count > 1 ? " in " + sections.Count + " sections" : "") + ": "
-                   + mech + " mechanical · " + wording + " wording · " + rewrite + " need a rewrite.";
+                   + mech + " mechanical · " + wording + " wording · " + rewrite + " need a rewrite" + (manual > 0 ? " · " + manual + " to fix by hand" : "") + ".";
         }
 
         // ---- the card ----------------------------------------------------------------------------
@@ -446,6 +449,7 @@ namespace FlareAI.Flare.UI
                 case "mechanical": return "rule fix";
                 case "wording": return "AI wording";
                 case "variable": return "use the variable";
+                case "manual": return "fix in the editor";
                 default: return "needs a rewrite";
             }
         }
@@ -464,6 +468,12 @@ namespace FlareAI.Flare.UI
                 return;
             }
             if (f.Kind == "restructure") { RewriteParagraph(f); return; }
+            if (f.Kind == "manual")
+            {
+                GoTo(f, true);
+                _status.Text = "Fix it in the editor (" + f.Suggestion + "), then Re-analyze.";
+                return;
+            }
             if (Apply(new List<StyleFinding> { f }, "FlareAI: " + f.Rule) > 0)
             {
                 FeedbackLog.Record(f, _doc.SourcePath, "accepted");
@@ -776,9 +786,9 @@ namespace FlareAI.Flare.UI
             var f = Current();
             var open = f != null && !f.IsFixed && !f.IsStale;
             _accept.Enabled = open;
-            _accept.Text = f == null ? "Accept" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" ? "Select text" : "Accept";
+            _accept.Text = f == null ? "Accept" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Accept";
             _reject.Enabled = f != null && !f.IsFixed;
-            _edit.Enabled = open && f.Kind != "variable";
+            _edit.Enabled = open && f.Kind != "variable" && f.Kind != "manual";
             _refine.Enabled = open && !_reviewing;
             _reanalyze.Enabled = f != null && f.DocumentPath == null && !_reviewing && _files == null;
             _rule.Enabled = f != null && !string.IsNullOrEmpty(f.Link);

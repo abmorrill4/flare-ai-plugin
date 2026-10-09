@@ -203,6 +203,7 @@ namespace FlareAI.Core.Actions
                     var blocks = new List<XmlNode>();
                     foreach (XmlNode c in body.ChildNodes) if (c.NodeType == XmlNodeType.Element) blocks.Add(c);
                     foreach (var l in TextLines.Of(blocks, VariableValue)) { lines.Add(l); owners.Add(path); }
+                    foreach (var s in StructureCheck.Of(blocks)) { s.DocumentPath = path; s.Block = null; findings.Add(s); }
                 }
                 catch (Exception ex) { Diagnostics.Log("project lint: " + path, ex); }
                 if (progress != null && (done % 25 == 0 || done == paths.Count)) progress(done, paths.Count);

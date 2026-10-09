@@ -49,12 +49,13 @@ namespace FlareAI.Core.Actions
 
         /// <summary>
         /// What deciding on it takes: "mechanical" (exact rule fix), "wording" (AI-proposed exact text), "restructure"
-        /// (needs a rewrite), or "variable" (insert a variable).
+        /// (needs a rewrite), "variable" (insert a variable), or "manual" (a structure/accessibility fix in the editor).
         /// </summary>
         public string Kind
         {
             get
             {
+                if (Source == "structure") return "manual";
                 if (Variable != null) return "variable";
                 if (Replacement == null) return "restructure";
                 return Source == "ai" ? "wording" : "mechanical";
