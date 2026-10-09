@@ -1,0 +1,2 @@
+# Style guide owners, one git user.email (or Windows user name) per line.
+# Listing anyone here turns on strict mode: only owners change shared rules; other writers propose.

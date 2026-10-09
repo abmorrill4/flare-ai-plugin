@@ -43,6 +43,20 @@ namespace FlareAI.Core.Settings
         public string StyleLayers { get; set; }
         /// <summary>Add the open Flare project's variables, glossary and Resources/StyleGuide folder as the last layer.</summary>
         public bool UseProjectLayer { get; set; }
+        /// <summary>
+        /// Shared team feedback folder (a synced OneDrive/SharePoint folder, network share, or repo writers can push to);
+        /// each writer appends to their own file there. Empty = decisions stay in the personal log only.
+        /// </summary>
+        public string FeedbackFolder { get; set; }
+
+        /// <summary>The company style guide: the last configured layer, or the bundled company layer.</summary>
+        public string GuideRoot(string pluginDir)
+        {
+            string last = null;
+            foreach (var line in (StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
+                if (line.Trim().Length > 0) last = line.Trim().Replace("{PluginDir}", pluginDir);
+            return last ?? System.IO.Path.Combine(pluginDir, @"docstyle\layers\company");
+        }
 
         /// <summary>Server arguments with {PluginDir} expanded and one --layer per configured folder.</summary>
         public string StyleServerArgsFor(string pluginDir)

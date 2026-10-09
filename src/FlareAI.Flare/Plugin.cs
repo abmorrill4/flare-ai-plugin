@@ -41,6 +41,7 @@ namespace FlareAI.Flare
                 Diagnostics.Enabled = PluginSettings.Load().WriteDiagnostics;
                 Diagnostics.Log("FlareAI starting in " + _host.GetName() + " (" + _host.GetCompany() + "), plugin dir " + PluginDirectory);
                 _nav = _host.GetNavContext();
+                RefreshTeam();
                 CreateRibbon();
                 CreateToolStrip();
                 try { _host.GetEditorContext().DocumentSwitched += OnDocumentSwitched; } catch (Exception ex) { Diagnostics.Log("subscribe", ex); }
@@ -77,6 +78,7 @@ namespace FlareAI.Flare
             IRibbonGroup tools = tab.AddNewRibbonGroup("Plugin");
             tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings"));
             tools.AddRibbonButton(Button("Validate style guide", "V", OnValidateGuide, "validate"));
+            tools.AddRibbonButton(Button("Tune style guide", "T", OnTuneGuide, "tune"));
             tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag"));
         }
 
@@ -172,7 +174,48 @@ namespace FlareAI.Flare
 
         private void OnSettings()
         {
-            using (var f = new SettingsForm()) f.ShowDialog();
+            using (var f = new SettingsForm()) if (f.ShowDialog() == DialogResult.OK) RefreshTeam();
+        }
+
+        /// <summary>
+        /// Who is writing, who owns the guide, where shared feedback goes; then (in the background) whether the guide
+        /// checkout is behind the team's latest.
+        /// </summary>
+        private void RefreshTeam()
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                FeedbackLog.PersonalPath = Path.Combine(PluginSettings.SettingsDirectory, "feedback.jsonl");
+                var team = Team.Load(settings.GuideRoot(PluginDirectory), settings.FeedbackFolder);
+                Team.Current = team;
+                Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
+                System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    try { team.Status = Team.ReadStatus(team.GuideRoot, true); if (team.Status != null) Diagnostics.Log(team.Status.ToString()); }
+                    catch (Exception ex) { Diagnostics.Log("guide status", ex); }
+                });
+            }
+            catch (Exception ex) { Diagnostics.Log("Team", ex); }
+        }
+
+        /// <summary>The owner's report: what the team's review decisions say about each rule.</summary>
+        private void OnTuneGuide()
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                var style = StyleService(settings);
+                var adapter = ActiveAdapter();
+                var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
+                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter))
+                    f.ShowDialog(_nav.GetParentForm());
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Tune style guide", ex);
+                MessageBox.Show(ex.Message, "FlareAI — Tune style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>Tests the layered style guide (tables against examples; optionally prose rules against the AI).</summary>

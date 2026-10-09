@@ -8,7 +8,7 @@ namespace FlareAI.Flare.UI
     /// <summary>Provider, base URL, model, key. The key is DPAPI-protected on save and never shown back.</summary>
     public sealed class SettingsForm : Form
     {
-        private readonly TextBox _styleCmd, _styleArgs, _layers;
+        private readonly TextBox _styleCmd, _styleArgs, _layers, _feedback;
         private readonly CheckBox _projectLayer;
         private readonly ComboBox _provider;
         private readonly TextBox _baseUrl, _model, _key, _mcpTools, _timeout;
@@ -24,7 +24,7 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 470);
+            ClientSize = new Size(520, 530);
             Font = SystemFonts.MessageBoxFont;
 
             var y = 12;
@@ -50,6 +50,8 @@ namespace FlareAI.Flare.UI
             Controls.Add(new Label { Text = "One folder per line, applied after Google in order (later wins). Empty = bundled company layer.", Left = 140, Top = y - 4, Width = 368, Height = 18, ForeColor = SystemColors.GrayText }); y += 18;
             _projectLayer = new CheckBox { Text = "Also use the open project's variables, glossary and Resources\\StyleGuide", Left = 140, Top = y, Width = 368, Checked = _settings.UseProjectLayer };
             Controls.Add(_projectLayer); y += 28;
+            _feedback = AddRow("Team feedback folder", y, out y, new TextBox { Text = _settings.FeedbackFolder ?? "" });
+            Controls.Add(new Label { Text = "Shared folder (synced or network) where each writer's review decisions are pooled. Empty = personal only.", Left = 140, Top = y - 4, Width = 368, Height = 30, ForeColor = SystemColors.GrayText }); y += 30;
             _timeout = AddRow("Timeout (s)", y, out y, new TextBox { Text = _settings.TimeoutSeconds.ToString(), Width = 60 });
             _diag = new CheckBox { Text = "Write diagnostics log", Left = 140, Top = y, Width = 300, Checked = _settings.WriteDiagnostics };
             Controls.Add(_diag); y += 30;
@@ -103,6 +105,7 @@ namespace FlareAI.Flare.UI
             _settings.StyleServerArgs = _styleArgs.Text.Trim();
             _settings.StyleLayers = _layers.Text.Trim();
             _settings.UseProjectLayer = _projectLayer.Checked;
+            _settings.FeedbackFolder = _feedback.Text.Trim();
             if (_key.Text.Trim().Length > 0) _settings.SetApiKey(_key.Text.Trim());
             try
             {

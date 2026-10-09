@@ -34,7 +34,6 @@ namespace FlareAI.Flare.UI
 
         private static readonly string SettingsDir = FlareAI.Core.Settings.PluginSettings.SettingsDirectory;
         private static readonly Dismissals Dismissed = Dismissals.Load(System.IO.Path.Combine(SettingsDir, "dismissed.json"));
-        private static readonly string Feedback = System.IO.Path.Combine(SettingsDir, "feedback.jsonl");
         private HashSet<string> _ignoredAi;
         private readonly List<StyleFinding> _findings = new List<StyleFinding>();
         private readonly Dictionary<string, int> _usage = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -252,6 +251,8 @@ namespace FlareAI.Flare.UI
                 else if (!_aiOnStart && !cachedAny) _status.Text = Summary() + "  Linter only — click Re-check for the AI review.";
                 else _status.Text = Open().Count == 0 ? "No open proposals." : Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
+                var team = Team.Current;
+                if (team != null && team.Status != null && team.Status.Behind > 0) _status.Text += "  " + team.Status;
                 if (_list.SelectedItems.Count == 0) Next();
                 UpdateButtons();
             };
@@ -465,7 +466,7 @@ namespace FlareAI.Flare.UI
             if (f.Kind == "restructure") { RewriteParagraph(f); return; }
             if (Apply(new List<StyleFinding> { f }, "FlareAI: " + f.Rule) > 0)
             {
-                FeedbackLog.Record(Feedback, f, _doc.SourcePath, "accepted");
+                FeedbackLog.Record(f, _doc.SourcePath, "accepted");
                 Next();
             }
         }
@@ -478,7 +479,7 @@ namespace FlareAI.Flare.UI
             if (files > 3 && MessageBox.Show(this, "Apply " + todo.Count + " fixes in " + files + " files?\n\nEach file opens in Flare and gets the fixes as tracked changes (one undo step per file). Nothing is saved automatically.",
                     "FlareAI", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
             var n = Apply(todo, todo.Count == 1 ? "FlareAI: " + todo[0].Rule : "FlareAI: " + todo.Count + " style fixes");
-            foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(Feedback, f, _doc.SourcePath, "accepted");
+            foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "accepted");
             var inSnippets = _findings.FindAll(f => f.CanFix && f.DocumentPath != null && _files == null).Count;
             if (inSnippets > 0) _status.Text += "  " + inSnippets + " more in snippets: select one to apply it there.";
             Next();
@@ -516,7 +517,7 @@ namespace FlareAI.Flare.UI
             var f = Current();
             if (f == null) return;
             Dismissed.Dismiss(f, _doc.SourcePath);
-            FeedbackLog.Record(Feedback, f, _doc.SourcePath, "rejected", reason);
+            FeedbackLog.Record(f, _doc.SourcePath, "rejected", reason);
             var next = NextAfter(f);
             _findings.Remove(f);
             Rebuild();
@@ -535,7 +536,7 @@ namespace FlareAI.Flare.UI
             if (Apply(new List<StyleFinding> { edited }, "FlareAI: " + f.Rule + " (edited)") > 0)
             {
                 f.IsFixed = true;
-                FeedbackLog.Record(Feedback, edited, _doc.SourcePath, "edited", f.Replacement);
+                FeedbackLog.Record(edited, _doc.SourcePath, "edited", f.Replacement);
                 Rebuild();
                 Next();
             }
@@ -559,7 +560,7 @@ namespace FlareAI.Flare.UI
                 Busy(false, null);
                 if (e.Error != null) { Diagnostics.Log("Refine", e.Error); _status.Text = "Refine failed: " + e.Error.Message; return; }
                 var refined = (StyleFinding)e.Result;
-                FeedbackLog.Record(Feedback, f, _doc.SourcePath, "refined", instruction);
+                FeedbackLog.Record(f, _doc.SourcePath, "refined", instruction);
                 if (refined.Replacement != null && refined.Replacement == f.Excerpt)
                 {
                     // The author's instruction amounts to "keep it": nothing to apply.
@@ -621,7 +622,7 @@ namespace FlareAI.Flare.UI
                 if (form.ShowDialog(this) != DialogResult.OK) return;
                 applied = form.AppliedSummary;
             }
-            foreach (var x in related) { x.IsFixed = true; FeedbackLog.Record(Feedback, x, _doc.SourcePath, "accepted", "rewrite"); }
+            foreach (var x in related) { x.IsFixed = true; FeedbackLog.Record(x, _doc.SourcePath, "accepted", "rewrite"); }
             Rebuild();
             _status.Text = Summary() + "  " + applied;
             Next();
@@ -631,6 +632,16 @@ namespace FlareAI.Flare.UI
         {
             var f = Current();
             if (f == null) { _status.Text = "Select a proposal whose rule you want to turn off."; return; }
+            var team = Team.Current;
+            if (team != null && !team.IsOwner)
+            {
+                // Strict ownership: writers propose, the style-guide owner decides (Tune style guide shows the requests).
+                var why = TextPrompt.Ask(this, "Propose turning off a rule", "Ask the style guide owner (" + string.Join(", ", new List<string>(team.Owners).ToArray()) + ") to turn off \"" + f.Rule + "\". Why?", "", true);
+                if (why == null) return;
+                FeedbackLog.Record(f, _doc.SourcePath, "propose-ignore", why.Trim());
+                _status.Text = Summary() + "  Sent to the style guide owner" + (team.FeedbackFolder == null ? " (set a team feedback folder in Settings so they receive it)." : ".");
+                return;
+            }
             var file = ProjectRules.OverridesPath(f.DocumentPath ?? _doc.SourcePath);
             if (file == null) { _status.Text = "This topic is not inside a Flare project."; return; }
             if (MessageBox.Show(this, "Turn off \"" + f.Rule + "\" for this whole project?\n\nThis writes to\n" + file +
@@ -640,7 +651,7 @@ namespace FlareAI.Flare.UI
             {
                 ProjectRules.Ignore(f.DocumentPath ?? _doc.SourcePath, f);
                 if (f.Layer == "ai") _ignoredAi.Add(f.Rule);
-                FeedbackLog.Record(Feedback, f, _doc.SourcePath, "rule ignored");
+                FeedbackLog.Record(f, _doc.SourcePath, "rule ignored");
                 _findings.RemoveAll(x => x.Rule == f.Rule);
                 Rebuild();
                 _status.Text = Summary() + "  \"" + f.Rule + "\" is off for this project.";

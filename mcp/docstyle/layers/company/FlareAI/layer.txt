@@ -1,0 +1,2 @@
+# Layer name: the prefix of every rule id (company:terminology/1). Keep it stable; team feedback is keyed on it.
+company

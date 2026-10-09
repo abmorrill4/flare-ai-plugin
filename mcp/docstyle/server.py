@@ -80,6 +80,12 @@ class Layer:
     def load(path, name=None):
         path = Path(path)
         root = path if path.is_dir() and any(path.glob("*.flprj")) else None
+        # Rule ids start with the layer name, and team feedback is keyed on them: a guide names itself in
+        # FlareAI/layer.txt so every writer's clone gets the same ids, wherever the folder lives.
+        declared = path / "FlareAI" / "layer.txt"
+        if not name and declared.is_file():
+            lines = [l.split("#")[0].strip() for l in declared.read_text(encoding="utf-8-sig").splitlines()]
+            name = next((l for l in lines if l), None)
         layer = Layer(name or (root.name if root else path.name), path)
         folder = root / "Content" / "Resources" / "StyleGuide" if root else path
         if folder.is_dir():
@@ -703,6 +709,14 @@ def _selftest():
         assert any("Unknown severity" in m for m in msgs), msgs
         ex = [it for it in comp.items() if it["bad"] and it["layer"] == "project"]
         assert ex and ex[0]["good"] == "Tap the button."
+    # A guide cloned into a differently named folder keeps its declared name, so rule ids match across writers.
+    with tempfile.TemporaryDirectory() as tmp:
+        clone = Path(tmp) / "Some-Writers-Clone"
+        shutil.copytree(HERE / "layers" / "company", clone)
+        moved = Layer.load(clone)
+        assert moved.name == "company", moved.name
+        assert any(r["id"].startswith("company:") for r in moved.items), "declared layer name not used in rule ids"
+
     print("selftest ok:", len(hits), "hits; layers, tables, validation ok")
 
 

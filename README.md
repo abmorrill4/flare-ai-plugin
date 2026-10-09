@@ -57,6 +57,18 @@ The linter and the AI read `Content/Resources/StyleGuide/*.htm`, the project's v
 - **AI ▸ Validate style guide** tests the guide itself: each table row against its Example (free), then, on request,
   each prose rule's Bad/Good examples against the AI ("AI applies 5 of 5 prose rules as written").
 
+### Teams: one guide, strict ownership
+- Keep the company guide (a Flare project) in git; every writer clones it and points Settings → Style layers at the
+  clone. The pane warns when a writer's clone is behind ("Style guide … 2 change(s) behind: pull it").
+- `FlareAI/owners.txt` in the guide lists the owners (git `user.email`, one per line). With owners listed, only they
+  change shared rules (enforce it with branch protection); other writers' "Ignore rule…" becomes a request to them.
+- `FlareAI/layer.txt` names the layer (`company`): rule ids stay the same in every clone.
+- Settings → Team feedback folder: a shared folder (OneDrive/SharePoint-synced, network share, or a repo writers can
+  push to). Each writer's review decisions append to their own file there; no merge conflicts.
+- **AI ▸ Tune style guide** (for owners) pools everyone's decisions: rules writers disagree on, rules that are often
+  rejected, repeated hand edits (a better replacement), and requests to turn rules off — each with counts, reasons,
+  real excerpts and who; **Open rule in the guide** goes straight to the rule in Flare.
+
 - Claude Code: `.mcp.json` registers the server; the `docstyle` skill (`.claude/skills/docstyle`) applies it.
 - Needs `uv` (`winget install astral-sh.uv`); Vale and the MCP SDK are fetched by `uv` on first run.
   Check it: `uv run --script mcp/docstyle/server.py --selftest`.

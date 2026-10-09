@@ -211,6 +211,25 @@ deterministic rule vs. AI judgment; impact — "in snippet X (used by N topics)"
 7. `[ ]` **Bulk mode (optional).** "Propose as tracked changes": every accepted-in-principle proposal is written as a
    tracked change with a Flare annotation carrying rule + why, for Flare's own Review tools and review packages.
 
+### Phase 2e — Team sync + feedback loop (strict ownership) `[~]`
+
+No hosted server: the company guide is a Flare project in git (Flare's own source control); each writer's plugin
+runs docstyle locally. Shared rules change only through the guide owner(s); git branch protection enforces it.
+
+1. `[x]` **Team context.** Owners listed in the guide (`<guide>/FlareAI/owners.txt`); writer = git `user.email`
+   (fallback: Windows user). Owners file present = strict mode: non-owners' "Ignore rule…" becomes a proposal to the owner.
+2. `[x]` **Shared feedback.** Every decision also goes to `<Feedback folder>/<writer>.jsonl` (setting; a OneDrive/
+   SharePoint-synced folder, network share, or repo writers can push to). Append-only per writer = no merge conflicts.
+3. `[x]` **Guide version.** The guide's commit and "N changes behind origin" (background fetch), shown in the pane.
+4. `[x]` **Tune style guide** (owner report): per-rule acceptance across writers; rules to review (threshold: many
+   decisions, several writers, high rejection); disputed rules (writers split); repeated identical edits (candidate
+   Avoid/Use rows); ignore requests; evidence = counts, reasons, real excerpts, who.
+   Verified in Flare with a git clone of the guide one commit behind, an owners file, and seeded feedback from two
+   writers: report items, evidence, Open rule, behind-notice, and a non-owner's ignore request landing in the shared
+   folder. A guide names itself in `FlareAI/layer.txt` so rule ids match across clones.
+5. `[ ]` Next: AI-drafted guide edits from a report item, written as tracked changes into the guide topic; style-guide
+   builder mining Flare projects into the same cards; prompts as overridable files in the guide.
+
 Next phases (agreed order): **2e** feedback loop (rejection reasons → per-rule precision; teach actions that edit
 the company guide; prompts as overridable files in the guide project) · **2f** accessibility, white-label and
 snippet-impact checks · **2g** LLM-ready output on build (per-topic Markdown + llms.txt via CompileComplete / build
