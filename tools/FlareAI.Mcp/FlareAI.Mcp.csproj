@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Optional: the plugin's style guide and linter as an MCP stdio server, for AI tools outside Flare. -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>FlareAI.Mcp</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+  </ItemGroup>
+
+</Project>

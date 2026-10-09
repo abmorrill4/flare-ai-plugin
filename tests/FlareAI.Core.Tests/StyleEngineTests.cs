@@ -94,10 +94,11 @@ namespace FlareAI.Core.Tests
                       <tr><td>swipe</td><td>swipe</td><td>bogus</td><td></td><td>Swipe left.</td></tr>
                       <tr MadCap:conditions=""Content.Headings""><td>How To</td><td>how to</td><td>warning</td><td>Sentence case.</td><td>How To Pay</td></tr>
                       <tr MadCap:conditions=""Product.Android""><td>tablet</td><td>device</td><td>warning</td><td></td><td>Use a tablet.</td></tr>
+                      <tr><td>prior to</td><td>before</td><td>warning</td><td></td><td>Do it prior to noon.</td></tr>
                     </table>
                     <table><tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
                       <tr><td>\d+MB\b</td><td>(rewrite)</td><td>suggestion</td><td>Space before the unit.</td><td>Files up to 10MB.</td></tr></table>
-                    <table><tr><th>Rule</th><th>Setting</th><th>Reason</th></tr><tr><td>Company.PlainLanguage1</td><td>off</td><td>Release notes.</td></tr></table>
+                    <table><tr><th>Rule</th><th>Setting</th><th>Reason</th></tr><tr><td>Company.PlainLanguage1</td><td>off</td><td>Release notes.</td></tr><tr><td>google:nothing/9</td><td>off</td><td>Typo.</td></tr></table>
                     </body></html>");
                 Write(r, @"Content\Topic.htm", "<html/>");
             });
@@ -127,8 +128,68 @@ namespace FlareAI.Core.Tests
                 var msgs = e.Validate(topic).Issues.Where(i => i.Layer == "project").Select(i => i.Message).ToList();
                 Assert.Contains(msgs, m => m.Contains("Avoid and Use are the same"));   // swipe → swipe
                 Assert.Contains(msgs, m => m.Contains("Unknown severity"));
+                Assert.Contains(msgs, m => m.StartsWith("Duplicates company:plain-language/"));   // same word, same fix as a company rule
+                Assert.Contains(msgs, m => m.StartsWith("No rule 'google:nothing/9'"));
                 Assert.Equal(new[] { "google", "company", "project" }, e.Compose(topic).Layers.Select(l => l.Name).ToArray());
             }
+            finally { Directory.Delete(root, true); }
+        }
+
+        [Fact]
+        public void GuideFor_SendsAlwaysOnRules_PlusOnlyThePacksTheTextNeeds_AndOnlyOurProducts()
+        {
+            var root = TempProject(r =>
+            {
+                Write(r, @"Content\Resources\StyleGuide\Google\Rules.htm", @"<html xmlns:MadCap=""http://www.madcapsoftware.com/Schemas/MadCap.xsd""><body><h1>Rules</h1>
+                    <ul><li>Use active voice.</li>
+                        <li MadCap:conditions=""Content.Steps"">Start each step with a verb.</li>
+                        <li MadCap:conditions=""Content.Code"">Put code in code font.</li>
+                        <li MadCap:conditions=""Product.Android"">Say tap, not click.</li>
+                        <li MadCap:conditions=""Product.Payments"">Say payee, not recipient.</li></ul>
+                    <table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr MadCap:conditions=""Product.Android""><td>click</td><td>tap</td><td>Click OK.</td></tr></table>
+                    <table><tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr><tr><td>admin</td><td>Write out administrator unless admin is a UI label.</td><td>Ask your admin.</td><td>Ask your administrator.</td></tr></table>
+                    </body></html>");
+                Write(r, @"Project\ConditionTagSets\Product.flcts", "<CatapultConditionTagSet><ConditionTag Name=\"Payments\" /></CatapultConditionTagSet>");
+            });
+            try
+            {
+                var e = new StyleEngine(new[] { root }, root);
+                var plain = e.GuideFor(null, GuideScope.Of(new string[0], "Save the file."));
+                Assert.Contains("Use active voice.", plain[0]);
+                Assert.DoesNotContain("Start each step", plain[0] + plain[1]);
+                Assert.Contains("Say payee", plain[0]);              // our product: always on
+                Assert.DoesNotContain("Say tap", plain[0] + plain[1]); // not our product: never loaded
+                var steps = e.GuideFor(null, GuideScope.Of(new[] { "Steps" }, "Ask your admin to save it."));
+                Assert.Contains("Start each step with a verb.", steps[1]);
+                Assert.DoesNotContain("code font", steps[1]);
+                Assert.DoesNotContain("Start each step", steps[0]);  // packs travel separately (their own cache block)
+                Assert.DoesNotContain("Write out administrator", plain[0] + plain[1] + plain[2]);   // word-list rule: only when the text uses the word
+                Assert.Contains("(admin) Write out administrator", steps[2]);   // word rules travel in their own, uncached block
+                Assert.DoesNotContain(e.Lint(new[] { "Click OK." }, null, null), h => h.Match == "Click");   // product-gated lint row is off
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
+        [Fact]
+        public void ContentTags_DescribeWhatASectionContains()
+        {
+            var doc = new System.Xml.XmlDocument();
+            doc.LoadXml("<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\"><body><h2>Set up</h2><ol><li>Select <b>Save</b>.</li></ol>" +
+                        "<p>Run <code>setup.exe</code> with the API key parameter. See <MadCap:xref href=\"x.htm\">Keys</MadCap:xref>. It takes 5 minutes.</p></body></html>");
+            var tags = ContentTags.Of(doc.DocumentElement["body"].ChildNodes.Cast<System.Xml.XmlNode>().ToList());
+            foreach (var t in new[] { "Headings", "Steps", "Lists", "UI", "Code", "API", "Links", "Numbers" }) Assert.Contains(t, tags);
+            Assert.DoesNotContain("Tables", tags);
+            Assert.DoesNotContain("Images", tags);
+        }
+
+        [Fact]
+        public void Validate_RowWithOverlappingMatches_DoesNotCrash()
+        {
+            // Flare: "Could not validate: startIndex cannot be larger than length of string" (one row matched overlapping spans).
+            var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Words.htm",
+                "<html><body><h1>Words</h1><table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr>" +
+                "<tr><td>please note that, note that, please</td><td>(delete)</td><td>Please note that it works.</td></tr></table></body></html>"));
+            try { Assert.DoesNotContain(new StyleEngine(new[] { root }, Guide).Validate(null).Issues, i => i.Message.Contains("doesn't resolve")); }
             finally { Directory.Delete(root, true); }
         }
 
@@ -136,17 +197,17 @@ namespace FlareAI.Core.Tests
         public void EditingTheGuide_IsPickedUpWithoutRestart()
         {
             var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Words.htm",
-                "<html><body><h1>Words</h1><table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr><td>foo</td><td>bar</td><td>A foo.</td></tr></table></body></html>"));
+                "<html><body><h1>Words</h1><table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr><td>wibble</td><td>wobble</td><td>A wibble.</td></tr></table></body></html>"));
             try
             {
                 var e = new StyleEngine(new[] { root }, Guide);
-                Assert.Contains(e.Lint(new[] { "A foo and a baz." }, null, null), h => h.Match == "foo");
+                Assert.Contains(e.Lint(new[] { "A wibble and a zonk." }, null, null), h => h.Match == "wibble");
                 System.Threading.Thread.Sleep(20);
                 Write(root, @"Content\Resources\StyleGuide\Words.htm",
-                    "<html><body><h1>Words</h1><table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr><td>baz</td><td>qux</td><td>A baz.</td></tr></table></body></html>");
-                var hits = e.Lint(new[] { "A foo and a baz." }, null, null);
-                Assert.Contains(hits, h => h.Match == "baz");
-                Assert.DoesNotContain(hits, h => h.Match == "foo");
+                    "<html><body><h1>Words</h1><table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr><td>zonk</td><td>plonk</td><td>A zonk.</td></tr></table></body></html>");
+                var hits = e.Lint(new[] { "A wibble and a zonk." }, null, null);
+                Assert.Contains(hits, h => h.Match == "zonk");
+                Assert.DoesNotContain(hits, h => h.Match == "wibble");
             }
             finally { Directory.Delete(root, true); }
         }
@@ -187,10 +248,8 @@ namespace FlareAI.Core.Tests
                 Assert.Equal("autopay", spelling.Prefer);
                 Assert.Equal("auto-pay", spelling.Avoid);
                 Assert.StartsWith("At Acme Financial you", spelling.Example);
-                var signin = mined.FirstOrDefault(c => c.Kind == "synonym" && c.Prefer.Contains("sign"));
-                Assert.NotNull(signin);
-                Assert.Equal("sign in", signin.Prefer);
-                Assert.Equal("log in", signin.Avoid);
+                // "log in" vs "sign in": the Google word list already enforces it, so it isn't proposed again.
+                Assert.DoesNotContain(mined, c => c.Kind == "synonym" && c.Forms.Any(f => f.Text == "log in"));
                 Assert.Contains(mined, c => c.Kind == "capitalization");
                 Assert.Contains(mined, c => c.Kind == "heading" && c.Prefer == "title case");
             }

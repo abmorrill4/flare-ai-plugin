@@ -24,6 +24,9 @@ Get-ChildItem $src -File | Where-Object { $_.Name -ne "B3.PluginAPIKit.dll" } | 
 # Remove what older versions shipped (the Python docstyle helper).
 Remove-Item "$target\rules", "$target\docstyle", "$target\StyleGuide" -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item "$repo\styleguide" -Destination "$target\StyleGuide" -Recurse -Force
+# The same engine as a command-line/MCP program (LLM export in madbuild post-build events; style tools for AI agents).
+$mcp = Join-Path $repo "tools\FlareAI.Mcp\bin\$Configuration\net48\FlareAI.Mcp.exe"
+if (Test-Path $mcp) { Copy-Item $mcp, "$mcp.config" -Destination $target -Force -ErrorAction SilentlyContinue }
 if (Test-Path "$repo\src\FlareAI.Flare\Icons") { Copy-Item "$repo\src\FlareAI.Flare\Icons" -Destination $target -Recurse -Force }
 
 # Mark of the Web: Windows silently blocks .NET assemblies that came from a downloaded zip, and Flare then just

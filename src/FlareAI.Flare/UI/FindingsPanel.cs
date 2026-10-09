@@ -218,9 +218,10 @@ namespace FlareAI.Flare.UI
                 _lint = lint;
                 _worker.ReportProgress(0, new object[] { lint, null, 0, units.Count });  // from here the author may edit while we wait
                 var done = 0;
-                System.Threading.Tasks.Parallel.For(0, units.Count, new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = _runner.Parallelism }, (i, loop) =>
+                // The first unit alone warms the prompt cache; the rest then read it (see ActionRunner.WarmThenParallel).
+                ActionRunner.WarmThenParallel(units.Count, _runner.Parallelism, i =>
                 {
-                    if (_worker.CancellationPending) { loop.Stop(); return; }
+                    if (_worker.CancellationPending) return;
                     var raw = _cache == null ? null : _cache.Get(units[i].Prompt);
                     if (raw != null) cachedAny = true;
                     else if (_aiOnStart)

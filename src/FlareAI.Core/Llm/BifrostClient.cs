@@ -30,12 +30,14 @@ namespace FlareAI.Core.Llm
             _timeoutMs = Math.Max(10, timeoutSeconds) * 1000;
             _mcpIncludeTools = mcpIncludeTools;
             try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072; } catch (Exception) { }
+            AnthropicClient.AllowParallelCalls();
         }
 
         public static string BuildBody(string model, LlmRequest req)
         {
             var messages = new JArray();
-            if (!string.IsNullOrEmpty(req.System)) messages.Add(new JObject { ["role"] = "system", ["content"] = req.System });
+            if (!string.IsNullOrEmpty(req.System))
+                messages.Add(new JObject { ["role"] = "system", ["content"] = req.System + (string.IsNullOrEmpty(req.SystemPacks) ? "" : "\n\n" + req.SystemPacks) + (string.IsNullOrEmpty(req.SystemTerms) ? "" : "\n\n" + req.SystemTerms) });
             JToken content = req.User ?? "";
             if (req.Images != null && req.Images.Count > 0)
             {

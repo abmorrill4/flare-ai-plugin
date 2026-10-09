@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Command-line syntax</title></head>
+    <body>
+        <h1>Command-line syntax</h1>
+        <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/code-syntax">Command-line syntax</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
+        <h2>Best practices</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Provide an inline link to the command reference, for example in the text that introduces the command or a series of steps.<ul><li>Good: To connect to the instance, use the gcloud compute ssh command: gcloud compute ssh</li></ul></li>
+            <li MadCap:conditions="Content.Code">Determine which arguments are needed to complete each task in the recommended way, and use as few optional arguments as possible.</li>
+            <li MadCap:conditions="Content.Code">Provide a click-to-copy command example that the reader doesn&apos;t need to edit after they copy it, including only runnable code and placeholder variables if possible.</li>
+        </ul>
+        <h2>Optional arguments in click-to-copy commands</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Avoid using optional arguments, mutually exclusive arguments, or repeated arguments (square brackets, curly braces, pipes, and ellipses) in click-to-copy commands.</li>
+            <li MadCap:conditions="Content.Code">Remove optional arguments from click-to-copy commands if possible, using only the arguments necessary to complete the task for the most common use case, and always provide a link to the command reference.<ul><li>Good: To get an aggregate list of all virtual machine (VM) instances in all zones for a project, use the gcloud compute instances list command: gcloud compute instances list If you want to narrow the list of VMs to a specific zone, use the previous command with the --zones flag.</li></ul></li>
+            <li MadCap:conditions="Content.Code">Use separate code blocks for each option instead of optional-argument syntax in a click-to-copy command.<ul><li>Good: To create a bootable Compute Engine image, use the gcloud compute images import command: gcloud compute images import IMAGE_NAME \ --source-file=SOURCE_FILE If you&apos;re importing an image with an existing license, specify the --byol flag: gcloud compute images import IMAGE_NAME \ --source-file=SOURCE_FILE \ --byol</li></ul></li>
+            <li MadCap:conditions="Content.Code">Document optional arguments in separate tasks when it&apos;s best to treat different options in separate sections.<ul><li>Good: Import a bootable virtual disk: If your virtual disk has a bootable operating system installed on it, run the following command: gcloud compute images import IMAGE_NAME \ --source-file=SOURCE_FILE Import a non-bootable virtual disk: If your virtual disk doesn&apos;t have a bootable operating system installed on it, include the --data-disk flag: gcloud compute images import IMAGE_NAME \ --source-file=SOURCE_FILE \ --data-disk</li></ul></li>
+            <li MadCap:conditions="Content.Code">If you must include special characters to indicate optional arguments, let the reader know that the command contains optional arguments when you introduce the command.<ul><li>Good: In the following example, you optionally specify the auto-delete subflag to keep or discard each disk when the VM is permanently deleted: gcloud compute instance-groups managed create-instance NAME \ --instance=VM_NAME \ --stateful-disk=device-name=DEVICE_NAME,source=DISK[,auto-delete=DELETE_RULE]</li></ul></li>
+        </ul>
+        <h2>Format a command</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">To mark a block of code such as a lengthy command or a code sample, use the pre element.</li>
+            <li MadCap:conditions="Content.Code">When a command line exceeds 80 characters, add a line break before a character such as a single hyphen, double hyphen, underscore, or quotation marks.</li>
+            <li MadCap:conditions="Content.Code">After the first line of a split command, indent each line by four spaces to vertically align each line that follows a line break.</li>
+            <li MadCap:conditions="Content.Code">When you split a command line with a line break, end each line except the last line with the command-continuation character: a backslash preceded by a space ( \) for Linux or Cloud Shell, or a caret preceded by a space ( ^) for Windows.<ul><li>Good: gcloud compute images import IMAGE_NAME \ --source-file=SOURCE_FILE</li></ul></li>
+            <li MadCap:conditions="Content.Code">Format placeholder text in a command with placeholders.</li>
+            <li MadCap:conditions="Content.Code">Follow the command line with a descriptive list of the placeholders used in the command line.</li>
+            <li MadCap:conditions="Content.Code">When documenting a command-line option or argument, use end punctuation for complete sentences.</li>
+            <li MadCap:conditions="Content.Code">Don&apos;t use end punctuation for single words or noun phrases that document a command-line option or argument, unless there is a mix of sentences and noun phrases.</li>
+            <li MadCap:conditions="Content.Code">When you&apos;re documenting a bash or sh command, follow the quotation mark style in Google&apos;s shell style guide.</li>
+        </ul>
+        <h2>Command prompt</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">If your command-line instructions show multiple lines of input in one block, start each line of input with the prompt symbol.<ul><li>Good: $ adb shell shell@ $ screencap /sdcard/screen.png shell@ $ exit $ adb pull /sdcard/screen.png</li></ul></li>
+            <li MadCap:conditions="Content.Code">If you don&apos;t want users to copy the prompt symbol when they copy the command, turn off text selection for the symbol if you can, for example by using CSS.</li>
+            <li MadCap:conditions="Content.Code">Don&apos;t show the current directory path before the prompt, even if part of the instruction includes changing directories.</li>
+            <li MadCap:conditions="Content.Code">If the overall context of the command interface changes, such as from the local machine to a remote machine, add an additional prompt indicator for the new context.<ul><li>Good: $ adb shell shell@ $ screencap /sdcard/screen.png shell@ $ exit $ adb pull /sdcard/screen.png</li></ul></li>
+            <li MadCap:conditions="Content.Code">If your document includes both multi-line and one-line commands, use the command prompt ($) for all of the commands in the document for consistency.</li>
+            <li MadCap:conditions="Content.Code">If your command-line instructions include a combination of input and output lines, use separate code blocks for input and output.<ul><li>Good: $ cat ~/.ssh/my-ssh-key.pub The output is similar to the following: ssh-rsa KEY_VALUE USERNAME</li></ul></li>
+        </ul>
+        <h2>Optional arguments</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Use square brackets around an argument to indicate that it&apos;s optional.<ul><li>Good: gcloud dns GROUP [GLOBAL_FLAG] [FILENAME]</li></ul></li>
+            <li MadCap:conditions="Content.Code">If there&apos;s more than one optional argument, enclose each item in its own set of square brackets.<ul><li>Good: gcloud dns GROUP [GLOBAL_FLAG] [FILENAME]</li></ul></li>
+        </ul>
+        <h2>Mutually exclusive arguments</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Use curly braces to indicate that the reader must choose one and only one of the items inside the braces, and use a pipe ( | ) to separate each choice.<ul><li>Good: {FILE_1 | FILE_2}</li></ul></li>
+        </ul>
+        <h2>Arguments that can repeat</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Use three dots and no spaces ( ... ) to indicate that the reader can specify multiple values for the argument.<ul><li>Good: gcloud dns GROUP [GLOBAL_FLAG ...]</li></ul></li>
+        </ul>
+        <h2>Output from commands</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Add output only if it adds value, for example if the reader needs to copy a value from the output or verify a value in the output.</li>
+            <li MadCap:conditions="Content.Code">If you are showing output, separate the command from the output with an introductory phrase such as &quot;The output is similar to the following:&quot; or &quot;The output is the following:&quot;, customized if you want to call out something about the output.<ul><li>Good: The output is similar to the following, in which the IP column shows the IP address for each resource:</li></ul></li>
+            <li MadCap:conditions="Content.Code">To indicate that one or more lines of output are omitted from sample output, use three dots and no spaces ( ... ) on a separate line.<ul><li>Good: Reading file status Upload done, resetting board... ... Wakeup reason: 0</li></ul></li>
+            <li MadCap:conditions="Content.Code">Do not use the ellipsis character ( … ) to indicate omitted lines of output; use three dots ( ... ).</li>
+        </ul>
+        <h2>Command-line terminology</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Avoid mapping nomenclature of the gcloud CLI&apos;s commands to Linux commands; Linux commands use options, parameters, arguments, and specialized syntax elements rather than the gcloud catchall terms flag and option.</li>
+            <li MadCap:conditions="Content.Code">Describe what the entire command does rather than what its individual elements are called, unless the reader must know the name of the command-line element.</li>
+        </ul>
+        <h2>gcloud commands</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">In docs, refer to gcloud command-line contents generally as commands, even though the gcloud CLI&apos;s syntax distinguishes between a command and a command group.</li>
+            <li MadCap:conditions="Content.Code,Product.GoogleCloud">In the gcloud CLI, call any element other than the command or group name itself a flag, and call a value that a command or flag takes, such as a region value, an argument.</li>
+        </ul>
+        <h2>Example command with multiple elements</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Use option as a catchall term, in addition to flag, when you don&apos;t want to mire the reader in specialized nomenclature.</li>
+        </ul>
+        <h2>Linux commands</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Refer to an argument that specifies a path in a Linux command as only a path.</li>
+        </ul>
+        <h2>Linux signals</h2>
+        <ul>
+            <li MadCap:conditions="Content.Code">Use the vocabulary of Linux signals, such as kill, only in the context of process control.</li>
+            <li MadCap:conditions="Content.Code">When describing SIGKILL, a signal sent to kill a process, do not substitute cancel, end, exit, quit, stop, or terminate.</li>
+            <li MadCap:conditions="Content.Code">When describing SIGTERM, a signal sent as a request to terminate a process, do not substitute cancel, end, exit, quit, or stop.</li>
+            <li MadCap:conditions="Content.Code">When describing SIGQUIT, a signal sent from a keyboard to quit a process, do not substitute cancel, end, exit, quit, or stop.</li>
+            <li MadCap:conditions="Content.Code">When describing SIGINT, a signal sent to interrupt a process immediately, do not substitute suspend, end, exit, pause, or terminate.</li>
+            <li MadCap:conditions="Content.Code">When describing SIGPAUSE, a signal that tells a process to pause, or sleep, do not substitute cancel or interrupt.</li>
+            <li MadCap:conditions="Content.Code">When describing SIGSUSPEND, a signal sent to temporarily suspend execution of a process, do not substitute pause or exit.</li>
+            <li MadCap:conditions="Content.Code">When describing SIGSTOP, a signal sent to stop execution of a process for later continuation, do not substitute cancel, end, exit, interrupt, quit, or terminate.</li>
+        </ul>
+    </body>
+</html>

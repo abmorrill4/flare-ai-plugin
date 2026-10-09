@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-        <title>Maintain the company style guide</title>
+        <title>Maintain the style guide</title>
     </head>
     <body>
-        <h1>Maintain the company style guide</h1>
-<p>The company style guide is a Flare project in source control. Each topic holds rules as short sentences with Bad and Good examples, and rule tables of words to avoid with their replacements. The <b>About</b> topic in the guide explains the format.</p>
-<p>After you edit the guide, select <b>AI &gt; Validate style guide</b>. It checks every rule table against its examples, and <b>Check prose rules with AI…</b> shows which written rules the AI applies.</p>
+        <h1>Maintain the style guide</h1>
+<p>The style guide is a Flare project that your team keeps in source control. It has two folders under <code>Content/Resources/StyleGuide</code>:</p>
+<ul>
+<li><b>Google</b>: the Google developer documentation style guide, compiled into rules, one topic for each Google page. The plugin updates this folder when Google changes its guide. Don't edit it.</li>
+<li><b>Company</b>: your team's rules. Where they disagree with Google, your rules win.</li>
+</ul>
+<p>Both folders use the same format. Each topic holds rules as short sentences with Bad and Good examples, and rule tables of words to avoid with their replacements. The <b>About</b> topic in the Company folder explains the format.</p>
+<h2>Change a Google rule</h2>
+<p>To turn a Google rule off or change how strict it is, add a row to the table in the Company topic <b>Changes to the Google guide</b>: the rule's ID, such as <code>google:numbers/3</code>, and the new setting. To replace it, also write your own rule in a Company topic.</p>
+<h2>Say where a rule applies</h2>
+<p>A rule applies to every topic unless you tag it. Tag a rule with Flare condition tags, the same way you tag any content:</p>
+<ul>
+<li><b>Content</b> tags limit a rule to sections with that kind of content, such as Steps, Code, Numbers or UI. The AI gets the rule only when a section contains that content.</li>
+<li><b>Product</b> tags limit a rule to products. The Product tag set in the style guide project lists the products your guide covers. Rules for other products, such as Google's rules for Android documentation, never apply until you add that product to the list.</li>
+</ul>
+<h2>Check the guide</h2>
+<p>After you edit the guide, select <b>AI &gt; Validate style guide</b>. It tests every rule table against its examples, finds rules that contradict or repeat each other, including between the Company and Google folders, and flags changes to Google rules that name a rule that doesn't exist. <b>Check prose rules with AI…</b> shows which written rules the AI applies.</p>
 <h2>Build rules from evidence</h2>
 <p>Select <b>AI &gt; Build style guide</b>:</p>
 <ul>
-<li><b>Mine this project</b> finds where topics disagree with each other, such as competing spellings or terms, with counts and example sentences. Pick the form to keep.</li>
+<li><b>Mine this project</b> finds where topics disagree with each other, such as competing spellings or terms, and shows counts and example sentences. Pick the form to keep.</li>
 <li><b>Add notes or an old guide…</b> turns notes, an old style guide, or another tool's prompt into rules that quote where they came from.</li>
 </ul>
 <h2>Tune rules from review decisions</h2>
-<p>Select <b>AI &gt; Tune style guide</b>. It pools the team's accept and reject decisions and lists rules that writers disagree on, rules that are often rejected, edits several writers keep making, and requests to turn a rule off, each with its evidence. <b>Draft a change with AI</b> rewrites a rule from that evidence as tracked changes in the guide.</p>
-<p>Tune lists a rule only when enough writers decided on it, so one writer's taste doesn't change a shared rule.</p>
+<p>Select <b>AI &gt; Tune style guide</b>. It collects the team's accept and reject decisions. It lists rules that writers disagree on, rules that writers often reject, edits several writers keep making, and requests to turn a rule off, each with its evidence. <b>Draft a change with AI</b> rewrites a rule from that evidence as tracked changes in the guide.</p>
+<p>Tune lists a rule only when enough writers made decisions on it, so one writer's taste doesn't change a shared rule.</p>
     </body>
 </html>

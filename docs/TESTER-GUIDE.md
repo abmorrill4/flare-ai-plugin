@@ -17,8 +17,7 @@ undoes it in one step.
 3. Start Flare → **File > Options > Plugins** → select FlareAI → **Enable** → restart Flare.
 4. Switch to Ribbon UI mode if you use the tool strip (View > Interface).
 
-Also install **uv** once (it runs the style checker; no admin needed):
-`winget install astral-sh.uv`. The first Check style downloads the checker (about a minute).
+Nothing else to install: the style guide, the linter and the LLM export run inside the plugin.
 
 ## First run
 **AI > Settings** → paste the API key you were given → Save. The key is encrypted to your Windows

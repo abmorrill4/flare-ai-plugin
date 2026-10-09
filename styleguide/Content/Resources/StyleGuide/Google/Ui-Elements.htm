@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>UI elements and interaction</title></head>
+    <body>
+        <h1>UI elements and interaction</h1>
+        <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/ui-elements">UI elements and interaction</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
+        <h2>Focus on the task</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">When practical, state instructions in terms of what the reader should accomplish, rather than focusing on the widgets and gestures.<ul><li>Good: Refresh the page.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Know the audience and provide the level of detail about UI elements and gestures that seems useful for the intended audience.<ul><li>Good: To expand the Advanced options section, click the arrow_right expander arrow.</li></ul></li>
+        </ul>
+        <h2>Format names of UI elements</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">When referring to any UI element by name, put its name in bold.<ul><li>Bad: In the New Project window, select &quot;New Activity&quot;, and then click the &quot;Next&quot; button.</li><li>Good: In the New project window, select the New activity checkbox, and then click Next.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Don&apos;t use code font for UI elements, unless it&apos;s an element that meets the requirements for code font; in that case, use both code font and bold.</li>
+            <li MadCap:conditions="Content.UI">Don&apos;t make an official feature name or product name bold, except when it directly refers to an element on the page that uses the name, such as a window title or button name.</li>
+            <li MadCap:conditions="Content.UI">If you document a UI element outside the context of a procedure, try to provide context for the element.<ul><li>Bad: The service lets you check the status of all jobs in the Current jobs section.</li><li>Good: The service lets you check the status of all jobs in the Current jobs section of the service console.</li></ul></li>
+        </ul>
+        <h2>Use appropriate capitalization</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">In most cases, follow the capitalization of UI labels as it appears on the page.</li>
+            <li MadCap:conditions="Content.UI">When a label is all uppercase, use sentence case.<ul><li>Bad: Click REFRESH.</li><li>Good: Click Refresh.</li></ul></li>
+            <li MadCap:conditions="Content.UI">When referring to multiple labels that are inconsistently cased, use sentence case for all of the labels.<ul><li>Bad: Click NEW PROJECT, and then click New Activity.</li><li>Good: Click New project, and then click New activity.</li></ul></li>
+        </ul>
+        <h2>Refer to UI elements</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Don&apos;t use UI elements as if they were English verbs or nouns.<ul><li>Bad: Save the settings.</li><li>Good: To save the settings, click Save.</li></ul></li>
+        </ul>
+        <h2>Terminology and usage</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">In general, focus on the feature and its functionality, not the UI element; use the name of the UI element only if it adds clarity for the reader.<ul><li>Good: Go to File &gt; Tools.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Don&apos;t use slang terms for UI elements—for example, hamburger icon or zippy.<ul><li>Bad: To expand the Advanced options section, click the zippy.</li><li>Good: Expand Advanced options.</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.UI"><td>hamburger icon, zippy, expando</td><td></td><td>warning</td><td>Slang terms for UI elements aren&apos;t clear.</td><td>To expand the Advanced options section, click the zippy.</td></tr>
+        </table>
+        <h2>Windows, pages, dialogs, panes, and sections</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Use window for the entire application window in a desktop environment or for modular application elements that you can open and close, not page.<ul><li>Bad: In the MyApp page, click Edit.</li><li>Good: In the MyApp window, click Edit.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Use page when referring to a web page in general and to a subpage of a console in particular.<ul><li>Bad: In the Google Cloud console, go to the Deployments window.</li><li>Good: In the Google Cloud console, go to the Deployments page.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Use dialog for a smaller window that is usually detached from the main application window and appears in front of it.<ul><li>Bad: In the Welcome pop-up window, click OK.</li><li>Good: In the Welcome dialog, click OK.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Do not use terms such as window, section, area, or column to refer to a pane or panel.<ul><li>Bad: In the Create service account section, click New.</li><li>Good: In the Create service account pane, click New.</li></ul></li>
+        </ul>
+        <h2>Menus and menu bars</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To refer to an item in a menu, use the term command, not choice, menu item, or option, unless you&apos;re documenting how to build an interface.</li>
+            <li MadCap:conditions="Content.UI">To refer to a menu, use the form the LABEL_NAME menu.</li>
+            <li MadCap:conditions="Content.UI">To tell the reader where to find a command in a menu or submenu, use a phrase like In the File menu, select Open.<ul><li>Good: In the File menu, select Open.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Don&apos;t use drop-down as a synonym for menu.</li>
+        </ul>
+        <h2>Use angle brackets</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">If you use angle brackets (&gt;) for a menu sequence, put a nonbreaking space (&amp;nbsp;) before each angle bracket.</li>
+            <li MadCap:conditions="Content.UI">Don&apos;t bold each menu name separately; instead, enclose the entire angle-bracket sequence in a single bold tag.</li>
+            <li MadCap:conditions="Content.UI">Wrap each angle bracket with a span tag and add an aria-label attribute with and then text, for example &lt;span aria-label=&quot;and then&quot;&gt;&gt;&lt;/span&gt;.</li>
+        </ul>
+        <h2>Markdown</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Use angle-bracket notation only for menu items; don&apos;t use it to describe a combination of different UI elements.<ul><li>Bad: Select MyApp &gt; Preferences &gt; Languages &gt; + &gt; CSS.</li><li>Good: Select MyApp &gt; Preferences, and then select the Languages preference pane.</li></ul></li>
+        </ul>
+        <h2>Navigation menu</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Use navigation menu for a control that contains a list of items to go to pages in an application or website; don&apos;t use the terms navigation bar, navigation pane, navigation panel, or navigation window for such a control.<ul><li>Good: In the BigQuery navigation menu, click Scheduled queries.</li></ul></li>
+        </ul>
+        <h2>Toolbar</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Refer to the toolbar by name if you think that the user needs help finding a button.<ul><li>Good: On the Google Cloud console toolbar, click notifications_none Notifications.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Call a toolbar button that includes a menu a menu button.</li>
+        </ul>
+        <h2>Buttons and icons</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To refer to a button, use the button&apos;s label.<ul><li>Bad: Click the &quot;OK&quot; button.</li><li>Good: Click OK.</li></ul></li>
+            <li MadCap:conditions="Content.UI">If the button includes an icon, write the name of the button as shown in the tooltip, and add the button icon before the name.<ul><li>Bad: Click more_vert.</li><li>Good: Click more_vert Settings and utilities.</li></ul></li>
+            <li MadCap:conditions="Content.UI">If you need to use a space between the icon and the button name for readability, use a nonbreaking space.</li>
+            <li MadCap:conditions="Content.UI,Content.Images">If the icon tooltip is identical to the name of the icon, use an empty alt attribute.</li>
+            <li MadCap:conditions="Content.UI">If a UI element name ends with an ellipsis (...), leave out the ellipsis.<ul><li>Bad: Click Browse....</li><li>Good: Click Browse.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Don&apos;t use directional language to orient the reader, such as above, below, or right-hand side.<ul><li>Bad: In the left-side panel, click the button with three lines.</li><li>Good: Click menu Menu.</li></ul></li>
+        </ul>
+        <h2>Difficult-to-find UI elements</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">If a UI element is hard to find, provide a screenshot.<ul><li>Good: In the list of services, click view_column Column display options.</li></ul></li>
+            <li MadCap:conditions="Content.UI">For difficult-to-find UI elements, use the button icon along with its name as shown in the button tooltip instead of directional language.<ul><li>Good: Click refresh Refresh.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Add context to help the user find a difficult-to-find element.<ul><li>Good: On the Cloud Run toolbar, click refresh Refresh.</li></ul></li>
+        </ul>
+        <h2>Tab</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To refer to a tab, use the form the LABEL_NAME tab.<ul><li>Good: Select Tools &gt; Options, and then click the Edit tab.</li></ul></li>
+        </ul>
+        <h2>Text box</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To refer to a text box, use box and the form the LABEL_NAME box.<ul><li>Good: In the Owner box, enter your name.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Format the text that the user types by using the code element in HTML, or by using code formatting (monospace) in other markup.<ul><li>Good: In the Name box, enter wsfc-1.</li></ul></li>
+            <li MadCap:conditions="Content.UI,Product.GoogleCloud,Product.GoogleWorkspace">In Google Cloud and Google Workspace documentation, use field instead of box.<ul><li>Good: In the Instance field, specify a value less than 64 characters long.</li></ul></li>
+        </ul>
+        <h2>List box, combo box, and spin box</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To refer to a list box, use the form the LABEL_NAME list or the LABEL_NAME box, whichever is clearer.<ul><li>Good: In the Item list, select Desktop.</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to a combo box, use the form the LABEL_NAME box.<ul><li>Good: In the Font box, type or select the font that you want to use.</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to entering a value into a combo box, use the verbs type or select or enter.<ul><li>Good: In the Font box, type or select the font that you want to use.</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to a spin box, use the form the LABEL_NAME box.<ul><li>Good: In the Font Size box, enter a font size.</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to entering a value into a spin box, use the verb enter.<ul><li>Good: In the Font Size box, enter a font size.</li></ul></li>
+        </ul>
+        <h2>Checkbox</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To refer to a checkbox, use the form the LABEL_NAME checkbox.<ul><li>Good: Select the Automatically check for updates checkbox.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Be wary of using the verbs check and uncheck for checkboxes; it&apos;s often best to use select and clear instead.<ul><li>Good: Clear the Bookmarks checkbox.</li></ul></li>
+            <li MadCap:conditions="Content.UI">If you need to refer to the state of a checkbox, refer to it as selected or not selected.<ul><li>Good: Make sure that the Bookmarks checkbox isn&apos;t selected.</li></ul></li>
+        </ul>
+        <h2>Radio button</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To refer to a radio button, use the radio button&apos;s label, or refer to the group of buttons by its label.<ul><li>Good: For Startup mode, select an option.</li></ul></li>
+        </ul>
+        <h2>Expander arrow</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Avoid referring to expander arrows explicitly, but when you do, use the terms expander arrow and expandable section rather than terms like expando or zippy.<ul><li>Bad: To expand the Advanced options section, click the zippy.</li><li>Good: To expand the Advanced options section, click the arrow_right expander arrow.</li></ul></li>
+        </ul>
+        <h2>Toggle</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Don&apos;t use the word toggle as a verb; describe the action that you want the user to take.<ul><li>Good: To turn on the setting, click the Wi-Fi toggle.</li></ul></li>
+            <li MadCap:conditions="Content.UI">If you might not know what state the toggle is in before the user interacts with it, be clear what position the toggle should be in.<ul><li>Good: In Settings, click the Magic mode toggle to the on position.</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.UI"><td>\b[Tt]oggl(?:ed|ing)\b</td><td></td><td>warning</td><td>Describe the action the user takes instead.</td><td>Toggling the setting turns on Wi-Fi.</td></tr>
+        </table>
+        <h2>Press and type keyboard keys</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To indicate that the user should press a given keyboard key or combination, use the kbd element.<ul><li>Good: Press &lt;kbd&gt;Control+C&lt;/kbd&gt;.</li></ul></li>
+            <li MadCap:conditions="Content.UI">If you&apos;re working with non-HTML markup, use monospace formatting for keys, which is how the kbd element renders.</li>
+            <li MadCap:conditions="Content.UI">To refer to a letter key, use uppercase instead of lowercase.<ul><li>Bad: To save, press Control+s.</li><li>Good: To save, press Control+S.</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to a key that the user types to enter that key&apos;s value as text input, use the code element, not the kbd element.</li>
+            <li MadCap:conditions="Content.UI">To refer to a keyboard key, use the key&apos;s name; if that&apos;s ambiguous, use the form the KEY_NAME key.<ul><li>Good: Press the Esc key.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Spell out the names of modifier keys such as Command, Control, Option, and Shift, and don&apos;t use symbols for those keys.<ul><li>Bad: To copy, press Ctrl+C (⌘+C).</li><li>Good: To copy, press Control+C (or Command+C on macOS).</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to a key combination, use the form MODIFIER+KEY_NAME.<ul><li>Good: Press Control+V.</li></ul></li>
+            <li MadCap:conditions="Content.UI">When you provide shortcuts for multiple operating systems, put the macOS shortcut in parentheses after the Windows and Linux shortcut.<ul><li>Bad: To copy, press Ctrl+C (⌘+C).</li><li>Good: To copy, press Control+C (or Command+C on macOS).</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to a key or combination that uses the Shift key, use the form MODIFIER+Shift+KEY_NAME.<ul><li>Good: Press Control+Shift+?.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Spell out the names of characters that could be confusing in a keyboard shortcut, such as comma, hyphen, period, and plus.</li>
+            <li MadCap:conditions="Content.UI">To refer to a keyboard shortcut, use either keyboard shortcut or key combination.</li>
+            <li MadCap:conditions="Content.UI">To refer to pressing a key or combination to cause an action to occur, use the verb press.<ul><li>Good: Press Esc.</li></ul></li>
+            <li MadCap:conditions="Content.UI">To refer to typing a key or combination as part of text, use the verbs enter or type.</li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.UI"><td>Ctrl</td><td>Control</td><td>warning</td><td>Spell out modifier key names.</td><td>To copy, press Ctrl+C.</td></tr>
+        </table>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.UI"><td>\b(?:Control|Ctrl|Command|Option|Alt|Shift)\+[a-z]\b</td><td></td><td>warning</td><td>Letter keys are written in uppercase.</td><td>To save, press Control+s.</td></tr>
+            <tr MadCap:conditions="Content.UI"><td>[⌘⌥⇧⌃]</td><td></td><td>warning</td><td>Spell out modifier key names.</td><td>To copy, press Ctrl+C (⌘+C).</td></tr>
+            <tr MadCap:conditions="Content.UI"><td>\b(?:Control|Command|Option|Shift)(?: \+|\+ )</td><td></td><td>warning</td><td>Key combinations use the form MODIFIER+KEY_NAME.</td><td>Press Control + V.</td></tr>
+            <tr MadCap:conditions="Content.UI"><td>\bShift\+(?:Control|Ctrl|Command|Option|Alt)\b</td><td></td><td>warning</td><td>Shift goes after the other modifier.</td><td>Press Shift+Control+?.</td></tr>
+        </table>
+        <h2>Prepositions</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">Use the preposition in with dialogs, fields, lists, menus, panes, and windows.<ul><li>Good: In the Alert dialog, click OK.</li></ul></li>
+            <li MadCap:conditions="Content.UI">Use the preposition on with pages, tabs, and toolbars.<ul><li>Good: On the Create an instance page, click Add.</li></ul></li>
+        </ul>
+        <h2>Verbs in procedures</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">To describe an action on the page, use the following verbs: click, choose, drag, enable, enter, type, go to, hold the pointer over, press, select, tap, turn on, and turn off.</li>
+        </ul>
+    </body>
+</html>

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Maintainer tool: compiles the Google style guide snapshot into rule topics of the bundled style guide. -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>FlareAI.GuideCompiler</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+
+</Project>

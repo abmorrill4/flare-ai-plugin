@@ -50,10 +50,17 @@ namespace FlareAI.Core.Llm
                 ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : DefaultMaxTokens,
                 ["messages"] = new JArray(new JObject { ["role"] = "user", ["content"] = UserContent(req) })
             };
-            // The system prompt (instructions + the whole layered style guide) is identical across calls: cache it,
-            // so per-block reviews and repeat checks pay for it once.
+            // The system prompt (instructions + the always-on rules) is identical across calls: cache it, so per-section
+            // reviews and repeat checks pay for it once. The rule packs for the unit's content are a second cached block.
             if (!string.IsNullOrEmpty(req.System))
-                body["system"] = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
+            {
+                var system = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
+                if (!string.IsNullOrEmpty(req.SystemPacks))
+                    system.Add(new JObject { ["type"] = "text", ["text"] = req.SystemPacks, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
+                if (!string.IsNullOrEmpty(req.SystemTerms))
+                    system.Add(new JObject { ["type"] = "text", ["text"] = req.SystemTerms });   // unique per text: caching it would only cost
+                body["system"] = system;
+            }
             var output = new JObject();
             if (!string.IsNullOrEmpty(req.Effort)) output["effort"] = req.Effort;
             if (req.Schema != null) output["format"] = new JObject { ["type"] = "json_schema", ["schema"] = req.Schema };
@@ -161,6 +168,16 @@ namespace FlareAI.Core.Llm
         {
             // net40 has no SecurityProtocolType.Tls12 constant; the runtime (4.5+) honours the raw value.
             try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072; } catch (Exception) { }
+            AllowParallelCalls();
+        }
+
+        /// <summary>
+        /// .NET Framework allows 2 connections per host by default, which silently serializes parallel model calls
+        /// (6 per-section reviews ran 2 at a time). Raise it once for the process.
+        /// </summary>
+        public static void AllowParallelCalls()
+        {
+            if (ServicePointManager.DefaultConnectionLimit < 32) ServicePointManager.DefaultConnectionLimit = 32;
         }
     }
 }

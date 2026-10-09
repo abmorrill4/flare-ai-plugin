@@ -26,12 +26,47 @@ namespace FlareAI.Core.Actions
             OverrideFolder = DefaultOverrideFolder;
         }
 
+        /// <summary>Prompts over the layered guide: each call gets the always-on rules plus the packs its text needs.</summary>
+        public static PromptBuilder For(FlareAI.Core.Style.IStyleService style, string project)
+        {
+            if (style == null) return new PromptBuilder(null);
+            return new PromptBuilder(() => style.Guide(project)) { GuideFor = scope => style.GuideFor(project, scope) };
+        }
+
+        /// <summary>
+        /// The guide for one unit: [0] always-on rules, [1] packs for the unit's content (Content tags). When set, it
+        /// replaces the whole-guide supplier, so each call carries only the rules that can apply to its text.
+        /// </summary>
+        public Func<FlareAI.Core.Style.GuideScope, string[]> GuideFor { get; set; }
+
+        /// <summary>The system prompt for a unit: [0] instructions + always-on rules, [1] content packs, [2] rules for words it uses (null when empty).</summary>
+        public string[] BuildSystemParts(FlareAI.Core.Style.GuideScope scope)
+        {
+            if (GuideFor == null) return new[] { BuildSystem(), null, null };
+            string[] parts = null;
+            try { parts = GuideFor(scope ?? new FlareAI.Core.Style.GuideScope()); }
+            catch (Exception ex) { Diagnostics.Log("style guide", ex); }
+            var system = BuildSystem(parts == null ? null : parts[0]);
+            Func<int, string, string> part = (i, intro) => parts != null && parts.Length > i && !string.IsNullOrEmpty(parts[i]) ? intro + "\n\n" + parts[i].Trim() : null;
+            return new[]
+            {
+                system,
+                part(1, "These rules also apply, because of what this text contains (same precedence: a later layer overrides an earlier one):"),
+                part(2, "These rules also apply, because this text uses the words they're about:")
+            };
+        }
+
         public string BuildSystem()
         {
-            var sb = new StringBuilder(Embedded("system-base.md"));
             string guide = null;
             try { if (_guide != null) guide = _guide(); }
             catch (Exception ex) { Diagnostics.Log("style guide", ex); }
+            return BuildSystem(guide);
+        }
+
+        private string BuildSystem(string guide)
+        {
+            var sb = new StringBuilder(Embedded("system-base.md"));
             sb.AppendLine().AppendLine();
             if (!string.IsNullOrEmpty(guide))
             {

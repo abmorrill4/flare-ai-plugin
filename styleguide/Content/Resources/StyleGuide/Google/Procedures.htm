@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Procedures</title></head>
+    <body>
+        <h1>Procedures</h1>
+        <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/procedures">Procedures</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
+        <h2>Introductory sentences</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">In most cases, introduce a procedure with an introductory sentence that provides context to the reader that isn&apos;t part of the section heading.</li>
+            <li MadCap:conditions="Content.Steps">Don&apos;t simply repeat the heading: if the heading explains what the procedure is, and no additional context is needed, then don&apos;t include an introductory statement.</li>
+            <li MadCap:conditions="Content.Steps">End the introductory sentence with a colon if it immediately precedes the procedure.<ul><li>Good: To customize the buttons, follow these steps:</li></ul></li>
+            <li MadCap:conditions="Content.Steps">End the introductory sentence with a period if there&apos;s more material (such as a note paragraph) between the introduction and the procedure.</li>
+            <li MadCap:conditions="Content.Steps">Don&apos;t introduce a procedure with a partial sentence that&apos;s completed by the numbered steps; you can use an imperative statement or a complete sentence instead.<ul><li>Bad: To customize the buttons:</li><li>Good: To customize the buttons, follow these steps:</li></ul></li>
+        </ul>
+        <h2>Single-step procedures</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">When a procedure consists of only one step, write the step in one sentence and format it as a bulleted list.<ul><li>Bad: To clear (flush) the entire log, follow this step: 1. Click Clear logcat.</li><li>Good: To clear (flush) the entire log, click Clear logcat.</li></ul></li>
+        </ul>
+        <h2>Sub-steps in numbered procedures</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps,Content.Lists">In a numbered procedure, label sub-steps with lowercase letters, and label sub-sub-steps with lowercase Roman numerals.</li>
+            <li MadCap:conditions="Content.Steps">When a step has sub-steps, treat the step like an introductory sentence: put a colon or a period at the end of the step, as appropriate.<ul><li>Good: For Name, enter a name for the VM instance, and then do the following:</li></ul></li>
+        </ul>
+        <h2>Order of multiple components in a step</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps,Content.Code">To document a complex procedural step, use the following order: describe the action to take; list a command, if necessary; explain any placeholders used in the command; explain the command in more detail, if necessary; list the output of the command, if necessary; in a separate paragraph, explain the result of an action, or any output, if necessary.</li>
+        </ul>
+        <h2>Multi-action procedures</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">In general, use one step for each action.</li>
+            <li MadCap:conditions="Content.Steps">You can combine small actions into one step by using angle brackets (&gt;) for sequential menu selections.<ul><li>Good: Click File &gt; New &gt; Document.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">Don&apos;t make the steps too long; if they feel too long, consider splitting them into multiple steps.</li>
+        </ul>
+        <h2>Multiple procedures for the same task</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">If there&apos;s more than one way to complete a task, then document one procedure that&apos;s accessible for all readers.</li>
+            <li MadCap:conditions="Content.Steps">Choose a procedure that lets readers do all the steps by using only a keyboard.</li>
+            <li MadCap:conditions="Content.Steps">If all methods are accessible, pick the shortest and simplest approach if possible.</li>
+            <li MadCap:conditions="Content.Steps">Choose a procedure that uses a programming language that most of your audience is familiar with.</li>
+            <li MadCap:conditions="Content.Steps">If you need to document multiple ways to complete a task, then separate them in different pages, headings, or tabs.</li>
+        </ul>
+        <h2>Repetitive procedures</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">Avoid repeating procedures; instead, reference those procedures and link to them.<ul><li>Good: Create a user as you did in the previous step.</li></ul></li>
+        </ul>
+        <h2>Optional steps</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">For an optional step, at the beginning of the step, type Optional followed by a colon.<ul><li>Bad: (Optional) Type an arbitrary string ...</li><li>Good: Optional: Type an arbitrary string ...</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Steps"><td>(Optional)</td><td></td><td>warning</td><td>Optional steps start with &quot;Optional:&quot;.</td><td>(Optional) Type an arbitrary string ...</td></tr>
+        </table>
+        <h2>Steps that say where to complete a task</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">Tell the reader where to complete an action—for example, in a particular tool or UI field—before you state the action.<ul><li>Bad: Go to the Monitoring page in the Google Cloud console.</li><li>Good: In the Google Cloud console, go to the Monitoring page.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">If a set of procedures is split across multiple headings, then in each procedure, restate where the reader completes the action, even if the context is the same as in the previous procedure.<ul><li>Good: In the Google Cloud console, go to the BigQuery page.</li></ul></li>
+        </ul>
+        <h2>Summary of guidelines for writing procedures</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">Set the context (such as a tool or an environment) in which the reader performs a procedure.<ul><li>Good: In Cloud Shell, connect to the development cluster.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">Write in the order that the reader needs to follow.</li>
+            <li MadCap:conditions="Content.Steps">Make sure that the first sentence in a procedural step includes an imperative verb.<ul><li>Bad: You need the project ID later in this document. Retrieve the project ID.</li><li>Good: Clone the repository that contains the sample data.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">Use complete sentences.</li>
+            <li MadCap:conditions="Content.Steps">Use parallel structure and consistent verb form.<ul><li>Bad: Download the service account key to your local machine by clicking More and then clicking Download file.</li><li>Good: Download the service account key to your local machine. Click More, and then click Download.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">Don&apos;t use directional language to orient the reader, such as above, below, or right-hand side.<ul><li>Bad: In the above diagram, ...</li><li>Good: In the preceding diagram,...</li></ul></li>
+            <li MadCap:conditions="Content.Steps">If a UI element is hard to find, provide a screenshot instead of describing its position or appearance.<ul><li>Bad: Click the button with three lines.</li><li>Good: Click menu Menu.</li></ul></li>
+            <li MadCap:conditions="Content.Steps,Content.Code">Avoid using &quot;run the following command&quot; to introduce code; instead, focus on what the command does.<ul><li>Bad: In Cloud Shell, deploy the load generator by running the following command:...</li><li>Good: In Cloud Shell, deploy the load generator:...</li></ul></li>
+            <li MadCap:conditions="Content.Steps">If the reader must press Enter after a step, then include that instruction as part of the step.<ul><li>Bad: Click the search box and type custom function. Press Enter.</li><li>Good: Click the search box, type custom function, and then press Enter.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">Don&apos;t include keyboard shortcuts.<ul><li>Bad: Press Ctrl+C, and then press Ctrl+V...</li><li>Good: Copy the command, and then paste it...</li></ul></li>
+            <li MadCap:conditions="Content.Steps">When there&apos;s more than one way to do something, give only the best way.</li>
+            <li MadCap:conditions="Content.Steps">Ensure that the reader has the information that they need in order to prepare for the task ahead of time.<ul><li>Good: The following hardware and software are required:...</li></ul></li>
+            <li MadCap:conditions="Content.Steps">Include as few steps as possible to complete the task.</li>
+            <li MadCap:conditions="Content.Steps">Limit interruptions in the path.</li>
+            <li MadCap:conditions="Content.Steps">Focus on one reader decision at a time.</li>
+            <li MadCap:conditions="Content.Steps">Separate each instruction by making each instruction a separate list item.</li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Steps"><td>please, Please</td><td>(delete)</td><td>warning</td><td>Don&apos;t use please in procedures.</td><td>To open a document, please click File &gt; Open.</td></tr>
+        </table>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Steps"><td>(?i)\b(?:the\s+above\b|(?:diagram|image|figure|screenshot|table|example|list|steps?)\s+below\b|(?:right|left)-hand\s+side\b)</td><td></td><td>warning</td><td>Directional language fails accessibility and localization.</td><td>In the diagram below, ...</td></tr>
+            <tr MadCap:conditions="Content.Steps,Content.Code"><td>(?i)\brun(?:ning)?\s+the\s+following\s+commands?\b</td><td></td><td>warning</td><td>Focus on what the command does.</td><td>Run the following command:...</td></tr>
+            <tr MadCap:conditions="Content.Steps"><td>\b(?:Ctrl|Control|Cmd|Command|Alt|Option|Shift)\+\w</td><td></td><td>warning</td><td>Don&apos;t include keyboard shortcuts in procedures.</td><td>Press Ctrl+C, and then press Ctrl+V...</td></tr>
+        </table>
+        <h2>Steps with goals</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">When a step includes a goal, state the goal before the action.<ul><li>Bad: Click File &gt; New &gt; Document to start a new document.</li><li>Good: To start a new document, click File &gt; New &gt; Document.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">If the &quot;To ...&quot; format can imply that a required step is optional, state the goal followed by a colon and then the action; otherwise prefer the more natural &quot;To ...&quot; format.<ul><li>Good: Start a new document: click File &gt; New &gt; Document.</li></ul></li>
+        </ul>
+        <h2>Steps with results or justifications</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">State the action first and the result second, and keep the result in the same paragraph as the action.<ul><li>Good: Click Run. The query results appear after the query runs.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">Consider whether you can avoid repetitiveness and overwhelming the reader with too much bolding of UI elements when stating results.<ul><li>Bad: Click Enter. The New file dialog appears. In the New file dialog, click Next.</li><li>Good: Click Enter. In the New file dialog that appears, click Next.</li></ul></li>
+            <li MadCap:conditions="Content.Steps">When a step includes a justification for why the step is important, state the action first and the justification second.<ul><li>Good: Store the private key in a secure location. You need it later.</li></ul></li>
+        </ul>
+    </body>
+</html>

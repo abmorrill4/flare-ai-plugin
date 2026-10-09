@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Dates and times</title></head>
+    <body>
+        <h1>Dates and times</h1>
+        <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/dates-times">Dates and times</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
+        <h2>Express times</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">Use the 12-hour clock, except if required to use a 24-hour time, such as when documenting features that use 24-hour time.</li>
+            <li MadCap:conditions="Content.Numbers">If the UI, a command, or a code sample uses the 24-hour format, use that format throughout the page for consistency.</li>
+            <li MadCap:conditions="Content.Numbers">Use exact times when possible, but noon and midnight are OK.</li>
+            <li MadCap:conditions="Content.Numbers">Use hyphens in time ranges, and don&apos;t add spaces before or after the hyphens.<ul><li>Good: 5-10 minutes ago</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">Capitalize AM and PM, and leave one space between it and the time.<ul><li>Good: 3:45 PM</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">Remove the minutes from round hours.<ul><li>Good: 3 PM</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b\d+(?:\s+-\s*|\s*-\s+|\s*[–—]\s*)\d+\s+(?:seconds|minutes|hours|days|weeks|months|years)\b</td><td></td><td>warning</td><td></td><td>Wait 5 - 10 minutes before you retry.</td></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b\d{1,2}(?::\d{2})?\s?(?:[ap]\.?m\b\.?|[AP]\.M\.)</td><td></td><td>warning</td><td></td><td>The backup runs at 3:45 pm.</td></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b\d{1,2}(?::\d{2})?(?:AM|PM)\b</td><td></td><td>warning</td><td></td><td>The backup runs at 3:45PM.</td></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b\d{1,2}:00\s?(?:AM|PM)\b</td><td></td><td>warning</td><td></td><td>The job runs at 3:00 PM.</td></tr>
+        </table>
+        <h2>Express time zones</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">Avoid using time zones unless absolutely necessary, such as when describing real events at real times.</li>
+            <li MadCap:conditions="Content.Numbers">Let the reader know if the time is local to their time.<ul><li>Good: 10 AM your local time</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">If a time zone is necessary, use the timestamp format as seen in the user interface (if available).</li>
+            <li MadCap:conditions="Content.Numbers">If using a specific time zone, spell out the region and include the UTC offset as a parenthetical.<ul><li>Good: US and Canadian Pacific Standard Time (UTC-8)</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">Don&apos;t abbreviate the name of the time zone.<ul><li>Good: US and Canadian Pacific Daylight Time (UTC-7)</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">In the rare event where the time of an event doesn&apos;t change for daylight saving time, use the specific time zone, without reference to UTC.</li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b\d{1,2}(?::\d{2})?\s?(?:AM|PM)\s+(?:PST|PDT|PT|EST|EDT|ET|CST|CDT|CT|MST|MDT|MT|GMT|BST|CET|CEST|IST|JST|AEST)\b</td><td></td><td>warning</td><td></td><td>Maintenance starts at 10 AM PST.</td></tr>
+        </table>
+        <h2>Express dates</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">In general, spell out the names of months and days of the week in full.<ul><li>Good: January 19, 2017</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">Give the full four-digit year, not a two-digit abbreviation.<ul><li>Good: January 19, 2017</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">If including the day of the week, add it before the month as follows: DAY_OF_WEEK, MONTH DAY, YEAR.<ul><li>Good: Tuesday, April 27, 2021</li></ul></li>
+        </ul>
+        <h2>Partial dates and abbreviations</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">When giving only the month and year, don&apos;t use a comma.<ul><li>Good: She was hired in January 2017.</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">In most cases, don&apos;t abbreviate the day of the week or the month; when conserving space, such as in a heading or table, it&apos;s okay to abbreviate them to their three-letter abbreviations.<ul><li>Good: Mon, Sep 3, 2018</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">When you abbreviate a month or day of the week, capitalize the first letter and do not add a period at the end of the abbreviation.<ul><li>Good: Mon, Sep 3, 2018</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">If you abbreviate, do so for the entire date; don&apos;t mix written-out forms with abbreviated forms in the same date.<ul><li>Bad: Mon, September 3, 2018</li><li>Good: Mon, Sep 3, 2018</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">Be consistent in where you apply abbreviations throughout your documentation; for example, if you choose to abbreviate in table cells, do so in all table cells.</li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b(?:January|February|March|April|May|June|July|August|September|October|November|December),\s\d{4}\b</td><td></td><td>warning</td><td></td><td>She was hired in January, 2017.</td></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b(?:(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\.\s?\d{1,2}\b|(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\.,)</td><td></td><td>warning</td><td></td><td>Mon., Sep. 3, 2018</td></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s(?:January|February|March|April|June|July|August|September|October|November|December)\b|\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b</td><td></td><td>warning</td><td></td><td>Mon, September 3, 2018</td></tr>
+        </table>
+        <h2>Dates in the middle of a sentence</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">When a MONTH DAY, YEAR date appears in the middle of a sentence, add a comma after the year.<ul><li>Good: The January 19, 2017, release of ...</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">If the date in the middle of the sentence consists of the month and year only, don&apos;t use a comma.<ul><li>Good: The January 2017 release of ...</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4} (?=[a-z])</td><td></td><td>warning</td><td></td><td>The January 19, 2017 release of the API added new methods.</td></tr>
+        </table>
+        <h2>Why we prefer dates written out</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">Use words to express dates; don&apos;t express months as numbers unless you don&apos;t have the option.<ul><li>Bad: 02.12.2017</li><li>Good: February 12, 2017</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b\d{1,2}/\d{1,2}/(?:\d{4}|\d{2})\b|\b\d{1,2}\.\d{1,2}\.\d{4}\b|\b\d{1,2}-\d{1,2}-\d{4}\b</td><td></td><td>warning</td><td>Numeric date order differs by region.</td><td>The release shipped on 12/02/2017.</td></tr>
+        </table>
+        <h2>Numeric-only date format</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">If you must express a date in numerical date format, use the format YYYY-MM-DD, and separate the elements by using hyphens.<ul><li>Bad: 04/06/2017</li><li>Good: 2017-04-15</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">If you have a choice of what date to write (such as in a fictional example), choose a calendar day greater than 12 to differentiate it from the month.<ul><li>Bad: 04/06/2017</li><li>Good: 2017-04-15</li></ul></li>
+        </ul>
+        <h2>Express dates and times together</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">If you must express a date and a time together, mention the date first and then the time.<ul><li>Good: May 4, 2009, at 6 PM</li></ul></li>
+        </ul>
+        <h2>Express divisions of the year</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">Avoid referring to seasons; instead, use the month, quarter, or temperature (if relevant).<ul><li>Bad: Changes are released in the Fall of each year.</li><li>Good: Changes are released in October of each year.</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Numbers"><td>\b(?:in|during) (?:the )?(?:spring|summer|fall|autumn|winter)\b|\b(?:in|during) the (?:Summer|Fall|Autumn|Winter)\b|\b(?:summer|winter) months\b</td><td></td><td>suggestion</td><td>Seasons differ between hemispheres.</td><td>Changes are released in the Fall of each year.</td></tr>
+        </table>
+    </body>
+</html>

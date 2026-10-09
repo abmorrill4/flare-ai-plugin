@@ -362,7 +362,7 @@ namespace FlareAI.Flare
             ILlmClient llm;
             try { llm = LlmClientFactory.Create(settings); }
             catch (LlmException lex) { MessageBox.Show(lex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
-            return new ActionRunner(llm, new PromptBuilder(() => style.Guide(project)), settings.MaxTokens, style, project, RoutingFor(settings))
+            return new ActionRunner(llm, PromptBuilder.For(style, project), settings.MaxTokens, style, project, RoutingFor(settings))
             { Parallelism = settings.Parallelism > 0 ? settings.Parallelism : 6 };
         }
 
@@ -462,7 +462,7 @@ namespace FlareAI.Flare
             }
             var style = StyleService(settings);
             var project = settings.UseProjectLayer && projectLayer ? topicPath : null;
-            return new ActionRunner(llm, new PromptBuilder(style == null ? (Func<string>)null : () => style.Guide(project)), settings.MaxTokens, style, project, RoutingFor(settings))
+            return new ActionRunner(llm, PromptBuilder.For(style, project), settings.MaxTokens, style, project, RoutingFor(settings))
             {
                 Parallelism = settings.Parallelism > 0 ? settings.Parallelism : 6,
                 VariableValue = adapter.VariableValue

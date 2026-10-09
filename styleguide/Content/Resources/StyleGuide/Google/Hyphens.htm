@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Hyphens</title></head>
+    <body>
+        <h1>Hyphens</h1>
+        <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/hyphens">Hyphens</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
+        <h2>Hyphens</h2>
+        <ul>
+            <li>Use a hyphen when needed for clarity, to separate parts of words to avoid misreadings or to combine terms that should be read as a unit.</li>
+        </ul>
+        <h2>General guidelines</h2>
+        <ul>
+            <li>If there&apos;s an established convention for hyphenating a term in the documentation set that you&apos;re working with, follow that convention.</li>
+            <li>If you&apos;re not sure whether to hyphenate a term, check the word list in this style guide, and then the Merriam-Webster dictionary.</li>
+        </ul>
+        <h2>Prefixes</h2>
+        <ul>
+            <li>In general, don&apos;t use a hyphen between a prefix and the main noun.<ul><li>Good: infrastructure, megabyte, metadata, preprocessing, pseudocode, semiconductor</li></ul></li>
+        </ul>
+        <h2>Exceptions</h2>
+        <ul>
+            <li>Add a hyphen after a prefix if the prefix is self or cross.<ul><li>Good: self-managing, cross-region</li></ul></li>
+            <li>Add a hyphen after a prefix if the noun is capitalized or is a number.<ul><li>Good: non-Google, post-2000</li></ul></li>
+            <li>Add a hyphen after a prefix to avoid confusion or difficulty in reading.<ul><li>Good: de-energize, intra-index, re-mark, re-sign</li></ul></li>
+            <li>Add a hyphen after a prefix if the prefix is for a term that already has hyphens or spaces.<ul><li>Good: un-Google-like, non-twentieth-century</li></ul></li>
+            <li>Add a hyphen after a prefix to be consistent within a document.<ul><li>Good: pre-processing, post-processing</li></ul></li>
+            <li>Follow the word list for well-established terms that commonly use a hyphen or a space, such as multi-region and style sheet, including where noun, verb, and adjective versions are treated differently.<ul><li>Good: multi-region, style sheet</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">When the components of a unit of measurement are multiplied by each other, hyphenate them.<ul><li>Good: 5 vCPU-hours</li></ul></li>
+            <li>Don&apos;t hyphenate adverbs that end in -ly except when needed for clarity.<ul><li>Bad: Publicly-available implementations</li><li>Good: Publicly available implementations</li></ul></li>
+            <li>Don&apos;t use hyphens in compounds that are conventionally not hyphenated; follow the word list or the convention in the documentation that you&apos;re working with.<ul><li>Good: A machine learning model</li></ul></li>
+            <li>Hyphenate compound terms that are always hyphenated even if they follow a verb, checking the word list, then the Merriam-Webster dictionary, and the convention in your documentation.<ul><li>Good: You can deploy the app on-premises.</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>\b(?:[A-Za-z]{2,}(?:ically|ally|ently|antly|ously|ively|ately|edly|licly)|[A-Za-z]*fully)-[a-z]+</td><td></td><td>warning</td><td>-ly adverbs don&apos;t need a hyphen.</td><td>Publicly-available implementations</td></tr>
+        </table>
+        <h2>The non prefix</h2>
+        <ul>
+            <li>For the non prefix, use your best judgment about hyphenating, because it can easily form words that are hard to parse, taking into account consistency within your documentation.<ul><li>Good: noncurrent, nonempty, noninteractive, nonpublic; non-existence, non-integer, non-key, non-managed, non-negative</li></ul></li>
+            <li>When using non as a prefix, add a hyphen before hyphenated compound words.<ul><li>Good: non-KSA-based, non-self-sustaining</li></ul></li>
+        </ul>
+        <h2>Compound nouns</h2>
+        <ul>
+            <li>In general, write compound nouns in their closed (one-word, unhyphenated) form, including when the closed form is the predominant convention in your context even if Merriam-Webster uses another form.<ul><li>Good: webpage</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>web page, host name, trade-off, work-around</td><td>webpage, hostname, tradeoff, workaround</td><td>warning</td><td>Use the closed form of compound nouns.</td><td>Open the web page in a browser.</td></tr>
+        </table>
+        <h2>Compound modifiers before a noun</h2>
+        <ul>
+            <li>If needed for clarity, hyphenate compound modifiers that come before a noun.<ul><li>Good: A well-designed app</li></ul></li>
+            <li>Use a hyphen after more or most if you need to clarify what those words modify.<ul><li>Good: Edge locations with more-reliable internet links</li></ul></li>
+            <li>In general, avoid writing compound modifiers that have more than two words; instead, move some words after the noun.<ul><li>Bad: edition-2023-specific test cases</li><li>Good: test cases that are specific to the 2023 edition</li></ul></li>
+            <li>If you must use a compound modifier of more than two words, use a hyphen between each word as needed for clarity.<ul><li>Good: cross-data-center replication</li></ul></li>
+        </ul>
+        <h2>Numbers and units of measurement</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">Hyphenate a number and a spelled-out unit of measurement when they combine to modify a noun.<ul><li>Good: a 64-bit system</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">Don&apos;t hyphenate if the unit of measurement is abbreviated unless the hyphen is needed for clarity; instead, use a nonbreaking space between the number and unit of measurement.<ul><li>Good: 200 GB disk</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>\b\d+-(?:KB|MB|GB|TB|PB|Kbps|Mbps|Gbps|KiB|MiB|GiB|TiB|MHz|GHz)\b</td><td></td><td>warning</td><td>Abbreviated units take a nonbreaking space, not a hyphen.</td><td>Attach a 200-GB disk to the instance.</td></tr>
+        </table>
+        <h2>Compound terms after a verb</h2>
+        <ul>
+            <li>In general, don&apos;t add a hyphen to a compound that follows a verb.<ul><li>Good: The app is well designed.</li></ul></li>
+        </ul>
+        <h2>Range of numbers</h2>
+        <ul>
+            <li MadCap:conditions="Content.Numbers">Use a hyphen, not an en dash, to indicate a range of numbers.<ul><li>Good: 8-20 files</li></ul></li>
+            <li MadCap:conditions="Content.Numbers">If a hyphen in a range of numbers introduces ambiguity, use words such as from, to, and through for clarity.<ul><li>Good: from 8 to 20 files</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>(?&lt;=\d)(?:–|&amp;ndash;)(?=\d)</td><td>-</td><td>warning</td><td>Ranges of numbers use a hyphen.</td><td>Upload 8–20 files.</td></tr>
+            <tr><td>\b(?:[Ff]rom|[Bb]etween) \d[\d,.]*\s?-\s?\d</td><td></td><td>warning</td><td>Use from…to, not from with a hyphen.</td><td>Upload from 8-20 files.</td></tr>
+        </table>
+        <h2>Spaces around hyphens</h2>
+        <ul>
+            <li>Never place a space on either side of a hyphen except when using a suspended hyphen, in which case you can leave a space after (but not before) the hyphen.</li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>(?&lt;=[a-z]) - (?=[a-z])</td><td></td><td>warning</td><td>Hyphens never have spaces on both sides.</td><td>The app is fast - and secure.</td></tr>
+        </table>
+        <h2>Suspended hyphens</h2>
+        <ul>
+            <li>When two or more compound modifiers have a common base, you can keep the hyphens but leave out the base for all except the last modifier.<ul><li>Good: You can set up the system to scan for new files at one- or two-hour intervals.</li></ul></li>
+        </ul>
+    </body>
+</html>

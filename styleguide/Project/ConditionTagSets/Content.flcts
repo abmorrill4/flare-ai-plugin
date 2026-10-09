@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultConditionTagSet>
+    <ConditionTag Name="Code" BackgroundColor="#e1f5fe" Comment="Rule applies to sections with code, commands, file names, placeholders." />
+    <ConditionTag Name="Steps" BackgroundColor="#e8f5e9" Comment="Rule applies to sections with numbered steps." />
+    <ConditionTag Name="Lists" BackgroundColor="#f1f8e9" Comment="Rule applies to sections with bulleted or numbered lists." />
+    <ConditionTag Name="Numbers" BackgroundColor="#fff8e1" Comment="Rule applies to sections with numbers, dates, times, units." />
+    <ConditionTag Name="Tables" BackgroundColor="#fce4ec" Comment="Rule applies to sections with tables." />
+    <ConditionTag Name="Links" BackgroundColor="#ede7f6" Comment="Rule applies to sections with links and cross-references." />
+    <ConditionTag Name="Headings" BackgroundColor="#e0f2f1" Comment="Rule applies to sections with heading text (lint rows: headings only)." />
+    <ConditionTag Name="Images" BackgroundColor="#fbe9e7" Comment="Rule applies to sections with images and figures." />
+    <ConditionTag Name="UI" BackgroundColor="#e3f2fd" Comment="Rule applies to sections with UI labels and interaction." />
+    <ConditionTag Name="Notes" BackgroundColor="#fffde7" Comment="Rule applies to sections with notes, tips, warnings." />
+    <ConditionTag Name="Examples" BackgroundColor="#f3e5f5" Comment="Rule applies to sections with example domains, names, email addresses." />
+    <ConditionTag Name="Math" BackgroundColor="#efebe9" Comment="Rule applies to sections with math notation." />
+    <ConditionTag Name="API" BackgroundColor="#eceff1" Comment="Rule applies to sections with API reference text." />
+    <ConditionTag Name="Footnotes" BackgroundColor="#f9fbe7" Comment="Rule applies to sections with footnotes." />
+    <ConditionTag Name="Emphasis" BackgroundColor="#e0f7fa" Comment="Rule applies to sections with italic terms." />
+</CatapultConditionTagSet>

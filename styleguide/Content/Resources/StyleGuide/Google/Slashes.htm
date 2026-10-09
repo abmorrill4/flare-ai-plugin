@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Slashes</title></head>
+    <body>
+        <h1>Slashes</h1>
+        <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/slashes">Slashes</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
+        <h2>Slashes</h2>
+        <ul>
+            <li>Avoid using slashes, except in code.</li>
+        </ul>
+        <h2>Slashes with dates</h2>
+        <ul>
+            <li>Don&apos;t use date formats that rely on slashes.</li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>(?&lt;![\w/.])\d{1,2}/\d{1,2}/(?:\d{4}|\d{2})(?![\w/])</td><td></td><td>warning</td><td></td><td>The release is scheduled for 03/15/2024.</td></tr>
+        </table>
+        <h2>Slashes with alternatives</h2>
+        <ul>
+            <li>Don&apos;t use slashes to separate alternatives.<ul><li>Bad: For example, a disaster relief map is not subject to the usage limits even if it has been developed/hosted by a commercial entity.</li><li>Good: For example, a disaster relief map is not subject to the usage limits even if it has been developed or is hosted by a commercial entity.</li></ul></li>
+            <li>Don&apos;t use slashes to separate alternatives.<ul><li>Bad: Call this method 5/6 times.</li><li>Good: Call this method five or six times.</li></ul></li>
+        </ul>
+        <h2>And/or</h2>
+        <ul>
+            <li>Avoid writing and/or except when space is limited, such as in tables; often, and implies or, so you don&apos;t need to write both words.<ul><li>Bad: You can view and/or edit your own data.</li><li>Good: You can view and edit your own data.</li></ul></li>
+            <li>If you need to specify both and and or, write it out instead of using and/or.<ul><li>Bad: You can export raw and/or processed events.</li><li>Good: You can export raw events, processed events, or both.</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>and/or, And/or</td><td></td><td>suggestion</td><td>And often implies or.</td><td>You can view and/or edit your own data.</td></tr>
+        </table>
+        <h2>Slashes with file paths and URLs</h2>
+        <ul>
+            <li>Use forward slashes, as appropriate, in computer file paths and URLs.<ul><li>Good: https://developers.google.com/cardboard/</li></ul></li>
+            <li MadCap:conditions="Content.Links">Where very long URLs extend beyond a line, add a line break immediately after a slash.<ul><li>Good: https://developers.google.com/ cardboard/</li></ul></li>
+            <li MadCap:conditions="Content.Links">Don&apos;t ever insert an extraneous hyphen into a URL to break it between two lines.</li>
+        </ul>
+        <h2>Slashes with fractions</h2>
+        <ul>
+            <li>Don&apos;t use slashes with fractions because they can be ambiguous.<ul><li>Bad: 3/4</li><li>Good: 0.75</li></ul></li>
+        </ul>
+        <h2>Slashes with abbreviations</h2>
+        <ul>
+            <li>Don&apos;t use abbreviations that rely on slashes; instead, spell the words out.<ul><li>Bad: c/o, w/</li><li>Good: care of, with</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>c/o</td><td>care of</td><td>warning</td><td></td><td>Send the form c/o the site administrator.</td></tr>
+        </table>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>(?&lt;![\w/])[Ww]/(?=\s)</td><td>with</td><td>warning</td><td></td><td>Run the command w/ administrator rights.</td></tr>
+        </table>
+    </body>
+</html>

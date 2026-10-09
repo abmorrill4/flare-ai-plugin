@@ -56,6 +56,8 @@ namespace FlareAI.Core.Style
         public List<GlossaryEntry> Glossary = new List<GlossaryEntry>();
         public List<KeyValuePair<string, string>> Variables = new List<KeyValuePair<string, string>>();   // "Set.Name" → value
         public List<GuideIssue> Problems = new List<GuideIssue>();
+        /// <summary>The products this guide covers: the tags of its Product condition tag set (Project\ConditionTagSets\Product.flcts).</summary>
+        public List<string> ProductTags = new List<string>();
         private readonly List<Section> _sections = new List<Section>();
 
         private sealed class Section { public string Title, Source; public List<string> Lines = new List<string>(); }
@@ -210,7 +212,26 @@ namespace FlareAI.Core.Style
             var tableConditions = s.HeadingConditions.Concat(Conditions(table)).ToList();
             var file = System.IO.Path.GetFileName(s.Path);
 
-            if ((avoidC >= 0 || patternC >= 0) && useC >= 0)
+            int termC = col(new[] { "term", "when" }), proseC = col(new[] { "rule", "guidance" });
+            if (termC >= 0 && proseC >= 0 && termC != proseC)
+            {
+                // Term / Rule tables: prose rules about one word or phrase, sent to the AI only when the text uses it.
+                int badC = col(new[] { "bad" }), goodC = col(new[] { "good" });
+                for (var r = 1; r < keep.Count; r++)
+                {
+                    var row = keep[r].r;
+                    Func<int, string> cell = c => c >= 0 && c < row.Count ? row[c].Trim() : "";
+                    var terms = Regex.Split(cell(termC), @"\s*[,;]\s*").Select(t => t.Trim()).Where(t => t.Length > 0).ToList();
+                    if (terms.Count == 0 || cell(proseC).Length == 0) { Problem("error", file, "table row " + (r + 1), "Row needs a Term and a Rule."); continue; }
+                    var item = AddItem(s.Topic + "/" + (++s.N), s.Heading, cell(proseC), s.Link, s.Path, cell(badC), cell(goodC));
+                    item.Triggers.AddRange(terms);
+                    Scope(item, tableConditions.Concat(Conditions(keep[r].tr)));
+                    s.Section.Lines.Add("- [" + item.Id + "] (" + string.Join(", ", terms.ToArray()) + ") " + item.Text +
+                                        Scope(item.Applies.Select(a => "Content." + a).Concat(item.Products.Select(p => "Product." + p)).ToList()) +
+                                        (item.Bad.Length > 0 ? "\n    Bad: " + item.Bad : "") + (item.Good.Length > 0 ? "\n    Good: " + item.Good : ""));
+                }
+            }
+            else if ((avoidC >= 0 || patternC >= 0) && useC >= 0)
             {
                 int sevC = col(new[] { "severity", "level" }), whyC = col(new[] { "why", "reason", "note" }), exC = col(new[] { "example" });
                 for (var r = 1; r < keep.Count; r++)
@@ -230,6 +251,7 @@ namespace FlareAI.Core.Style
                     var shown = isPattern ? "the pattern " + avoid[0] : string.Join(", ", avoid.Select(a => "'" + a + "'").ToArray());
                     var text = "Avoid " + shown + (IsDelete(use) ? " (delete it)." : IsFlagOnly(use) ? " (rewrite)." : " → use '" + use + "'.") + (why.Length > 0 ? " " + why : "");
                     var item = AddItem(s.Topic + "/" + s.N, s.Heading, text, s.Link, s.Path, "", "");
+                    item.IsLint = true;
                     Scope(item, tableConditions.Concat(Conditions(keep[r].tr)));
                     LintRule rule;
                     try { rule = BuildRule(avoid, use, sev, why, isPattern); }
@@ -267,6 +289,15 @@ namespace FlareAI.Core.Style
 
         private void LoadFlareProject(string root)
         {
+            var products = System.IO.Path.Combine(root, @"Project\ConditionTagSets\Product.flcts");
+            if (File.Exists(products))
+                try
+                {
+                    var x = new XmlDocument(); x.Load(products);
+                    foreach (XmlElement t in x.GetElementsByTagName("ConditionTag"))
+                        if (t.GetAttribute("Name").Length > 0) ProductTags.Add(t.GetAttribute("Name"));
+                }
+                catch (XmlException e) { Problem("error", "Product.flcts", "", "Not well-formed XML: " + e.Message); }
             foreach (var f in Files(System.IO.Path.Combine(root, @"Project\VariableSets"), "*.flvar"))
             {
                 try
@@ -400,7 +431,10 @@ namespace FlareAI.Core.Style
             var parts = new List<string>();
             foreach (var s in _sections)
             {
-                var lines = include == null ? s.Lines : s.Lines.Where(l => Included(l, include)).ToList();
+                // Filtered (for the AI): rules and the headings above them only; context paragraphs stay in the topics.
+                var lines = include == null ? s.Lines : s.Lines.Where(l => (l.StartsWith("- [") || l.StartsWith("### ") || l.StartsWith("    ")) && Included(l, include)).ToList();
+                if (include != null)   // drop headings left with no rule under them
+                    lines = lines.Where((l, i) => !l.StartsWith("### ") || (i + 1 < lines.Count && !lines[i + 1].StartsWith("### "))).ToList();
                 var body = string.Join("\n", lines.ToArray()).Trim();
                 if (body.Length > 0 && (include == null || lines.Any(l => l.StartsWith("- [")))) parts.Add("## " + s.Title + "  (" + s.Source + ")\n" + body);
             }

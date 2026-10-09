@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Accessibility</title></head>
+    <body>
+        <h1>Accessibility</h1>
+        <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/accessibility">Accessibility</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
+        <h2>General dos and don&apos;ts</h2>
+        <ul>
+            <li>Don&apos;t use ableist language; avoid bias and harm when discussing disability and accessibility.</li>
+            <li>Ensure that readers can reach all parts of the document, including tabs, form-submission buttons, and interactive elements, by using only a keyboard.</li>
+            <li>Use a screen reader to test your documentation.</li>
+            <li>In HTML, use semantic tagging; for example, use the em element only to indicate emphasis, not to indicate italics.</li>
+            <li>In HTML, prefer native elements over custom styles.</li>
+            <li>Avoid unnecessary font formatting.</li>
+            <li>If you&apos;re documenting a product that includes specialized accessibility features, then explicitly document those features.</li>
+            <li>Don&apos;t force line breaks (hard returns) within sentences and paragraphs.</li>
+            <li>Avoid when possible camel case and all caps, and follow capitalization guidelines.</li>
+            <li>Make sure that the same meaning is conveyed without punctuation marks, and avoid when possible exclamation marks, question marks, and semicolons.</li>
+            <li>Don&apos;t use &amp; instead of and in headings, text, navigation, or tables of contents; it&apos;s OK when referencing UI elements that use &amp;, in space-constrained table headings and diagram labels, or in code.</li>
+        </ul>
+        <h2>Ease of reading</h2>
+        <ul>
+            <li>Break up walls of text to aid in scannability; for example, separate paragraphs, create headings, and use lists.</li>
+            <li>Use shorter sentences; try to use fewer than 26 words per sentence.</li>
+            <li>Define acronyms and abbreviations on first usage and if they&apos;re used infrequently.</li>
+            <li>Use parallel writing structures for similar things; for example, start each list in the same format.</li>
+            <li>Place distinguishing and important information of a paragraph in the first sentence.</li>
+            <li>Use clear and direct language; avoid double negatives and exceptions for exceptions.<ul><li>Bad: A missing path won&apos;t prevent you from continuing.</li><li>Good: You can continue without a path.</li></ul></li>
+            <li>Left-align text; don&apos;t center or full-justify text.</li>
+        </ul>
+        <h2>Headings and titles</h2>
+        <ul>
+            <li MadCap:conditions="Content.Headings">Use descriptive and unique headings and titles.</li>
+            <li MadCap:conditions="Content.Headings">Use a heading hierarchy.</li>
+            <li MadCap:conditions="Content.Headings">Don&apos;t skip levels of the heading hierarchy; for example, put an h3 element only after an h2 element.</li>
+            <li MadCap:conditions="Content.Headings">To change the visual formatting of a heading, use CSS rather than using a heading level that doesn&apos;t fit the hierarchy.</li>
+            <li MadCap:conditions="Content.Headings">Don&apos;t have empty headings or headings with no associated content.</li>
+            <li MadCap:conditions="Content.Headings">Tag headings using heading elements (h1, h2, and so on).</li>
+            <li MadCap:conditions="Content.Headings">Use a level-1 heading for the page title or main content heading.</li>
+        </ul>
+        <h2>Links</h2>
+        <ul>
+            <li MadCap:conditions="Content.Links">Use meaningful link text; links should make sense when read out of context.</li>
+            <li MadCap:conditions="Content.Links">Use see to refer to links and cross-references.</li>
+            <li MadCap:conditions="Content.Links">When a link does anything that the reader might not expect, such as downloading a file, opening in a new tab, or jumping to another section on the same page, explain that behavior when you link.</li>
+            <li MadCap:conditions="Content.Links">When possible, avoid adjacent links; instead, put a character in between to separate them.</li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr MadCap:conditions="Content.Links"><td>click here, read this document</td><td></td><td>warning</td><td>Screen reader users need to know what a link contains.</td><td>To download the SDK, click here.</td></tr>
+        </table>
+        <h2>Lists</h2>
+        <ul>
+            <li MadCap:conditions="Content.Steps">In a procedure, make each instruction a list item.</li>
+        </ul>
+        <h2>Images</h2>
+        <ul>
+            <li MadCap:conditions="Content.Images">For every image, provide an alt attribute.</li>
+            <li MadCap:conditions="Content.Images">Use alt text that adequately summarizes the intent of each image.</li>
+            <li MadCap:conditions="Content.Images">If the image is purely decorative, use empty alt text.</li>
+            <li MadCap:conditions="Content.Images">Don&apos;t present new information in images; always provide an equivalent text explanation with the image.</li>
+            <li MadCap:conditions="Content.Images">Don&apos;t repeat images unless absolutely necessary.</li>
+            <li MadCap:conditions="Content.Images">Don&apos;t use images of text, code samples, or terminal output; use actual text.</li>
+            <li MadCap:conditions="Content.Images">Use SVG instead of PNG if available.</li>
+        </ul>
+        <h2>Videos, recordings, and GIFs</h2>
+        <ul>
+            <li>Provide captions, transcripts, or descriptions of audio and video content.</li>
+            <li>Ensure that captions can be translated into major languages.</li>
+            <li>Don&apos;t use flickering or flashing elements.</li>
+        </ul>
+        <h2>Buttons and icons</h2>
+        <ul>
+            <li>For form-submission buttons, use the native HTML button element.</li>
+        </ul>
+        <h2>UI navigation</h2>
+        <ul>
+            <li MadCap:conditions="Content.UI">When you use angle brackets (&gt;) to document menu paths, add an aria-label attribute so screen readers interpret the brackets as &quot;and then&quot;.</li>
+        </ul>
+        <h2>Tables</h2>
+        <ul>
+            <li MadCap:conditions="Content.Tables">Introduce tables in the text preceding the table.</li>
+            <li MadCap:conditions="Content.Tables">Use table headings for the first column and the first row only.</li>
+            <li MadCap:conditions="Content.Tables">Use the th element for table headings.</li>
+            <li MadCap:conditions="Content.Tables">If your tables include both row and column headings, then mark heading cells with the scope attribute.</li>
+            <li MadCap:conditions="Content.Tables">If your tables have more than one row containing column headings, then use the headers attribute and make sure that the headings have unique IDs.</li>
+            <li MadCap:conditions="Content.Tables">Avoid when possible tables in the middle of a numbered procedure.</li>
+            <li MadCap:conditions="Content.Tables">Don&apos;t merge cells; don&apos;t use colspan or rowspan attributes.</li>
+            <li MadCap:conditions="Content.Tables">Don&apos;t use tables unless it&apos;s the best method to present your information.</li>
+            <li MadCap:conditions="Content.Tables">Don&apos;t present new information in tables through images or symbols alone; always provide a descriptive alt attribute for the image or symbol.</li>
+        </ul>
+        <h2>Interactive elements</h2>
+        <ul>
+            <li>Introduce an interactive element, such as a button that expands and collapses, in the text preceding the element.<ul><li>Good: To see a list of requirements, expand the Requirements section.</li></ul></li>
+        </ul>
+        <h2>Forms</h2>
+        <ul>
+            <li>Label every input field by using a label element.</li>
+            <li>Place labels outside of fields.</li>
+            <li>When you&apos;re creating an error message for form validation, clearly state what went wrong and how to fix it.<ul><li>Good: Name is a required field.</li></ul></li>
+        </ul>
+        <h2>Custom CSS and JavaScript</h2>
+        <ul>
+            <li>Try to use your site&apos;s standard styles and standard JavaScript code as much as possible.</li>
+            <li>Pick colors that respect accessible color contrast ratios (4.5:1 for text).</li>
+            <li>Avoid when possible using mouseover events; if you do use them, add alternate focus and blur events for keyboard users.</li>
+            <li>Ensure that any ordering and positioning defined in styles reflects the DOM and the reading order of your page.</li>
+        </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr><td>(?i)\b(visibility\s*:\s*hidden|display\s*:\s*none)\b</td><td></td><td>warning</td><td>Both styles hide information from screen readers.</td><td>&lt;p style=&quot;display:none&quot;&gt;Optional settings&lt;/p&gt;</td></tr>
+        </table>
+        <h2>Document rendering</h2>
+        <ul>
+            <li>Make sure that your document conveys all the information that you intended when viewed without sound, using only sound, without images or animation, without color, using a keyboard, with screen magnification, and without punctuation.</li>
+            <li>Don&apos;t use color, size, location, or other visual cues as the primary way of communicating information.</li>
+            <li>If you&apos;re using color, an icon, or outline thickness to convey state, then also provide a secondary cue, such as a change in the text label.</li>
+            <li MadCap:conditions="Content.UI">Refer to buttons and other elements by their label; for visual elements that have no text, don&apos;t describe the element but use its aria-label if possible.<ul><li>Bad: Click the bell icon.</li><li>Good: Click Notifications.</li></ul></li>
+            <li>Don&apos;t use directional language, such as above, below, or right-hand side, to orient the reader or refer to a position in a document; instead, use earlier, preceding, or following.<ul><li>Bad: In the diagram above, clients run jobs on multi-team or single-team clusters.</li><li>Good: In the preceding diagram, clients run jobs on multi-team or single-team clusters.</li></ul></li>
+            <li MadCap:conditions="Content.UI">If a UI element is hard to find, provide a screenshot instead of describing its location.<ul><li>Bad: In the left-side panel, click the button with three lines.</li><li>Good: Click Menu.</li></ul></li>
+        </ul>
+    </body>
+</html>

@@ -100,6 +100,40 @@ namespace FlareAI.Core.Style
 
         public string Guide(string project) { return Compose(project).Guide(); }
 
+        /// <summary>
+        /// [0] the rules that always apply; [1] the rules this unit calls for: packs for its content, and Term/Rule rows
+        /// for words it uses. Rules for products the guide doesn't cover are in neither.
+        /// </summary>
+        public string[] GuideFor(string project, GuideScope scope)
+        {
+            var comp = Compose(project);
+            Func<GuideRule, bool> core, packs;
+            Selectors(comp, scope, out core, out packs);
+            // [1] content packs repeat across sections (worth caching); [2] word rules are particular to this text.
+            return new[] { comp.Guide(core), comp.Guide(r => packs(r) && r.Triggers.Count == 0, packsOnly: true), comp.Guide(r => packs(r) && r.Triggers.Count > 0, packsOnly: true) };
+        }
+
+        public IList<string> RuleIdsFor(string project, GuideScope scope)
+        {
+            var comp = Compose(project);
+            Func<GuideRule, bool> core, packs;
+            Selectors(comp, scope, out core, out packs);
+            return comp.Items.Where(r => core(r) || packs(r)).Select(r => r.Id).ToList();
+        }
+
+        /// <summary>
+        /// Always-on: untagged prose rules. Packs: rules tagged for content the unit has, and Term rows for words it uses.
+        /// Never: lint rows (the linter enforces them) and rules for products the guide doesn't cover.
+        /// </summary>
+        private static void Selectors(Composition comp, GuideScope scope, out Func<GuideRule, bool> core, out Func<GuideRule, bool> packs)
+        {
+            scope = scope ?? new GuideScope();
+            Func<GuideRule, bool> applies = r => r.Applies.Count == 0 || r.Applies.Any(scope.Content.Contains);
+            Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products);
+            core = r => eligible(r) && r.Applies.Count == 0 && r.Triggers.Count == 0;
+            packs = r => eligible(r) && (r.Triggers.Count > 0 ? applies(r) && r.TriggeredBy(scope.Text) : r.Applies.Count > 0 && applies(r));
+        }
+
         public IList<GuideRule> Rules(string project) { return Compose(project).Items; }
 
         public IList<GuideExample> Examples(string project)
@@ -157,17 +191,29 @@ namespace FlareAI.Core.Style
             }
             Items = layers.SelectMany(l => l.Items).ToList();
             Rules = layers.SelectMany(l => l.Rules).ToList();
+            OurProducts = new HashSet<string>(layers.Skip(1).SelectMany(l => l.ProductTags), StringComparer.OrdinalIgnoreCase);
         }
 
-        public string Guide(Func<GuideRule, bool> include = null)
+        /// <param name="include">Which rules to include (null = all).</param>
+        /// <param name="packsOnly">Label the result as the rule packs for this text (the always-on rules come separately).</param>
+        public string Guide(Func<GuideRule, bool> include = null, bool packsOnly = false)
         {
             var parts = new List<string>();
             for (var i = 0; i < Layers.Count; i++)
             {
                 var g = Layers[i].Guide(include).Trim();
-                if (g.Length > 0) parts.Add("# Layer: " + Layers[i].Name + " (" + (i == 0 ? "baseline" : "overrides the layers above") + ")\n\n" + g);
+                if (g.Length > 0) parts.Add("# " + (packsOnly ? "Rules for what this text contains, layer: " : "Layer: ") + Layers[i].Name + " (" + (i == 0 ? "baseline" : "overrides the layers above") + ")\n\n" + g);
             }
-            return string.Join("\n\n---\n\n", parts.ToArray()) + "\n";
+            return parts.Count == 0 ? "" : string.Join("\n\n---\n\n", parts.ToArray()) + "\n";
+        }
+
+        /// <summary>Products the guide covers: the Product condition tags its own projects define (the Google layer defines none).</summary>
+        public HashSet<string> OurProducts { get; private set; }
+
+        /// <summary>A rule tagged for products applies only when the guide covers one of them.</summary>
+        public bool ForOurProducts(ICollection<string> products)
+        {
+            return products == null || products.Count == 0 || products.Any(OurProducts.Contains);
         }
 
         /// <summary>"off", a severity, or null: what the layers above say about this rule.</summary>
@@ -181,13 +227,14 @@ namespace FlareAI.Core.Style
         // ---- lint --------------------------------------------------------------------------------------------------
 
         /// <summary>Exact findings in plain-text runs. Rules scoped to headings (Content.Headings) run on heading runs only.</summary>
-        public List<LintHit> Lint(IList<string> texts, IList<int> headings)
+        /// <param name="all">Every rule's hits, overlapping ones included (validation tests each rule on its own).</param>
+        public List<LintHit> Lint(IList<string> texts, IList<int> headings, bool all = false)
         {
             var heads = new HashSet<int>(headings ?? new int[0]);
             var rank = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             for (var i = 0; i < Layers.Count; i++) rank[Layers[i].Name] = i;
             var hits = new List<LintHit>();
-            var active = Rules.Select(r => new { r, o = Override(r) }).Where(x => x.o != "off").ToList();
+            var active = Rules.Where(r => ForOurProducts(r.Products)).Select(r => new { r, o = Override(r) }).Where(x => x.o != "off").ToList();
             for (var i = 0; i < texts.Count; i++)
             {
                 var text = (texts[i] ?? "").Replace('\r', ' ').Replace('\n', ' ');
@@ -206,6 +253,7 @@ namespace FlareAI.Core.Style
                         }
                 }
             }
+            if (all) return hits;
             // Same span flagged by several layers: keep the latest layer (it overrides), then a citable rule, then a fixable one.
             var kept = new List<LintHit>();
             var seen = new HashSet<string>();
@@ -213,7 +261,8 @@ namespace FlareAI.Core.Style
                          .ThenBy(h => -(rank.ContainsKey(h.Layer) ? rank[h.Layer] : 0)).ThenBy(h => h.RuleId == null).ThenBy(h => h.Replacement == null)
                          .ThenBy(h => Rank.ContainsKey(h.Severity) ? Rank[h.Severity] : 3))
                 if (seen.Add(h.Index + ":" + h.Start + ":" + h.Length)) kept.Add(h);
-            return kept;
+            // A hit inside a longer one ("Please" inside "Please note that") is the same problem: show the longer only.
+            return kept.Where(h => !kept.Any(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length)).ToList();
         }
 
         private static LintHit Hit(LintRule r, string use, string text, int start, int end, string severity)
@@ -277,7 +326,7 @@ namespace FlareAI.Core.Style
             if (withEx.Count > 0)
             {
                 var heads = Enumerable.Range(0, withEx.Count).Where(i => withEx[i].Applies.Contains("Headings")).ToList();
-                var hits = Lint(withEx.Select(r => r.Example).ToList(), heads);
+                var hits = Lint(withEx.Select(r => r.Example).ToList(), heads, true);
                 var fixedTexts = new List<string>(); var fixedRows = new List<LintRule>();
                 for (var i = 0; i < withEx.Count; i++)
                 {
@@ -287,14 +336,19 @@ namespace FlareAI.Core.Style
                     if (mine.All(h => h.Replacement != null))
                     {
                         var t = r.Example;
-                        foreach (var h in mine.OrderByDescending(h => h.Start)) t = t.Substring(0, h.Start) + h.Replacement + t.Substring(h.Start + h.Length);
+                        // One rule can match overlapping spans ("please note that", "please"): keep the longest, then apply right to left.
+                        var chosen = new List<LintHit>();
+                        foreach (var h in mine.OrderByDescending(h => h.Length))
+                            if (!chosen.Any(c => h.Start < c.Start + c.Length && c.Start < h.Start + h.Length)) chosen.Add(h);
+                        foreach (var h in chosen.OrderByDescending(h => h.Start))
+                            t = t.Substring(0, h.Start) + h.Replacement + t.Substring(h.Start + h.Length);
                         fixedTexts.Add(t); fixedRows.Add(r);
                     }
                 }
                 if (fixedTexts.Count > 0)
                 {
                     var heads2 = Enumerable.Range(0, fixedRows.Count).Where(i => fixedRows[i].Applies.Contains("Headings")).ToList();
-                    var again = Lint(fixedTexts, heads2);
+                    var again = Lint(fixedTexts, heads2, true);
                     for (var i = 0; i < fixedRows.Count; i++)
                         if (again.Any(h => h.Index == i && h.RuleId == fixedRows[i].Id)) issue("error", fixedRows[i], "Applying the fix doesn't resolve the rule: '" + fixedTexts[i] + "'.");
                 }
@@ -317,6 +371,28 @@ namespace FlareAI.Core.Style
                     LintRule a = rows[i], b = rows[j];
                     if (b.Avoid.Any(x => string.Equals(x, a.Use, StringComparison.OrdinalIgnoreCase)) && a.Avoid.Any(x => string.Equals(x, b.Use, StringComparison.OrdinalIgnoreCase)))
                         issue("error", a, "Contradicts " + b.Id + " (" + b.File + " row " + b.Row + "): each replaces the other.");
+                }
+            // Where a later layer meets an earlier one: the same word with the same fix is redundant; with a different fix
+            // the later layer wins (worth knowing, not an error).
+            for (var i = 0; i < rows.Count; i++)
+                for (var j = i + 1; j < rows.Count; j++)
+                {
+                    LintRule a = rows[i], b = rows[j];
+                    if (a.Layer == b.Layer) continue;
+                    var shared = b.Avoid.Where(x => a.Avoid.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase))).ToList();
+                    if (shared.Count == 0) continue;
+                    var same = string.Equals(a.Use ?? "", b.Use ?? "", StringComparison.OrdinalIgnoreCase);
+                    issue("warning", b, same ? "Duplicates " + a.Id + " ('" + shared[0] + "'): the " + a.Layer + " rule already does this; remove one."
+                                             : "Overrides " + a.Id + " for '" + shared[0] + "': " + b.Layer + " says '" + b.Use + "', " + a.Layer + " says '" + a.Use + "'. The " + b.Layer + " rule wins.");
+                }
+            // Override tables must name rules that exist.
+            var known = new HashSet<string>(Rules.Select(r => r.Id).Where(x => x != null).Concat(Rules.Select(r => r.Name)).Concat(Items.Select(x => x.Id)), StringComparer.OrdinalIgnoreCase);
+            foreach (var l in Layers)
+                foreach (var o in l.Overrides)
+                {
+                    var key = o.Key.IndexOf('.') < 0 && o.Key.IndexOf(':') < 0 ? "Google." + o.Key : o.Key;
+                    if (!known.Contains(key))
+                        report.Issues.Add(new GuideIssue { Level = "error", Layer = l.Name, File = "", Location = "override " + o.Key, Message = "No rule '" + o.Key + "': use a rule id from the guide, for example google:numbers/3." });
                 }
             report.TableRules = rows.Count;
             report.TestedByExample = withEx.Count;

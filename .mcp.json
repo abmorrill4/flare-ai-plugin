@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "docstyle": {
+      "command": "tools/FlareAI.Mcp/bin/Debug/net48/FlareAI.Mcp.exe",
+      "args": []
+    }
+  }
+}

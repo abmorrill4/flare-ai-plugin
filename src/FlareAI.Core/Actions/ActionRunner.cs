@@ -42,6 +42,8 @@ namespace FlareAI.Core.Actions
         public List<XmlNode> Blocks { get; set; }
         public RunMap Runs { get; set; }
         public string Prompt { get; set; }
+        /// <summary>What the unit contains and the words it uses: selects the rules sent with it.</summary>
+        public GuideScope Scope { get; set; }
     }
 
     /// <summary>
@@ -79,12 +81,14 @@ namespace FlareAI.Core.Actions
         /// One model call for a task: its route (model, effort), the system prompt, and the output contract. The token
         /// ceiling is a safety net only; a cut-off answer is retried once with more room.
         /// </summary>
-        private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null)
+        /// <param name="scope">The text's content and words: the rules to send besides the always-on ones (null = none).</param>
+        private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null, GuideScope scope = null)
         {
             var route = Routing.For(task);
+            var system = _prompts.BuildSystemParts(scope);
             var req = new LlmRequest
             {
-                Task = task, System = _prompts.BuildSystem(), User = user, Schema = schema, Model = route.Model, Effort = route.Effort,
+                Task = task, System = system[0], SystemPacks = system[1], SystemTerms = system[2], User = user, Schema = schema, Model = route.Model, Effort = route.Effort,
                 Images = images, MaxTokens = Math.Max(_maxTokens, AnthropicClient.DefaultMaxTokens)
             };
             var sw = Stopwatch.StartNew();
@@ -110,7 +114,18 @@ namespace FlareAI.Core.Actions
         /// <summary>Runs one job per item, a few at a time; the first failure is rethrown as itself.</summary>
         private void Each(int count, Action<int> job)
         {
-            try { Parallel.For(0, count, new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, Parallelism) }, job); }
+            WarmThenParallel(count, Parallelism, job);
+        }
+
+        /// <summary>
+        /// Runs job 0 alone, then the rest in parallel. The first call writes the prompt cache (the guide's always-on
+        /// rules); the others then read it at a tenth of the price instead of each writing it at 1.25×.
+        /// </summary>
+        public static void WarmThenParallel(int count, int parallelism, Action<int> job)
+        {
+            if (count == 0) return;
+            job(0);
+            try { Parallel.For(1, count, new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, parallelism) }, job); }
             catch (AggregateException ae) { throw ae.Flatten().InnerExceptions[0]; }
         }
 
@@ -344,7 +359,7 @@ namespace FlareAI.Core.Actions
                 if (map.Ids.Count == 0 || WordCount(map) < minWords) continue;
                 var unitLint = (lint ?? new List<StyleFinding>()).Where(f => f.DocumentPath == null && g.Exists(b => Contains(b, f))).ToList();
                 var context = (title.Length > 0 ? "Topic: " + title + "\n" : "") + (SectionOf(g[0]).Length > 0 ? "Section: " + SectionOf(g[0]) : "");
-                units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)) });
+                units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)), Scope = ScopeOf(g) });
             }
             return units;
         }
@@ -352,7 +367,10 @@ namespace FlareAI.Core.Actions
         /// <summary>Step 2 (no DOM access; runs off the UI thread, several at once): the model's findings for one unit.</summary>
         public List<StyleFinding> CallReview(ReviewUnit unit)
         {
-            var resp = Ask("review", unit.Prompt, Contracts.Review(unit.Runs.Ids, GuideRules().Keys));
+            // The model may cite only the rules it was given for this unit.
+            IEnumerable<string> ids = GuideRules().Keys;
+            if (_style != null) try { ids = _style.RuleIdsFor(_project, unit.Scope); } catch (Exception ex) { Diagnostics.Log("rule ids", ex); }
+            var resp = Ask("review", unit.Prompt, Contracts.Review(unit.Runs.Ids, ids), null, unit.Scope);
             int dropped;
             var raw = Contracts.ReadReview(resp.Json, unit.Runs, out dropped);
             if (dropped > 0) Diagnostics.Log("Review: dropped " + dropped + " finding(s) that broke the contract");
@@ -380,6 +398,12 @@ namespace FlareAI.Core.Actions
                 if (!Duplicates(f, lint ?? new List<StyleFinding>())) kept.Add(f);
             }
             return kept;
+        }
+
+        /// <summary>The unit's content tags and its visible text (reads the DOM: call on the thread that owns it).</summary>
+        private static GuideScope ScopeOf(IList<XmlNode> blocks)
+        {
+            return GuideScope.Of(ContentTags.Of(blocks), string.Join(" ", AcceptedView.Of(blocks).Select(b => b.InnerText).ToArray()));
         }
 
         private static bool Contains(XmlNode block, StyleFinding f)
@@ -454,7 +478,10 @@ namespace FlareAI.Core.Actions
         public StyleFinding Refine(StyleFinding f, string context, string instruction)
         {
             var proposal = (f.Replacement == null ? "(no exact text proposed — needs a rewrite)" : "\"" + f.Replacement + "\"") + " — " + f.Suggestion;
-            var json = Ask("refine", _prompts.BuildRefine(context, f.Excerpt, proposal, instruction), Contracts.Refine()).Json;
+            GuideRule rule = null;
+            var known = f.RuleId != null && GuideRules().TryGetValue(f.RuleId, out rule);   // the rule's own pack and words come along
+            var json = Ask("refine", _prompts.BuildRefine(context, f.Excerpt, proposal, instruction), Contracts.Refine(), null,
+                           GuideScope.Of(known ? rule.Applies : null, context)).Json;
             var r = json["replacement"];
             var replacement = r == null || r.Type == JTokenType.Null ? null : (string)r;
             if (replacement != null && replacement.IndexOf('<') >= 0) replacement = null;
@@ -580,6 +607,8 @@ namespace FlareAI.Core.Actions
             doc.LoadXml("<html><body><p>" + System.Security.SecurityElement.Escape(text) + "</p></body></html>");
             var units = PrepareReview(new List<XmlNode> { doc.DocumentElement["body"].FirstChild }, null, 1);
             if (units.Count == 0) return false;
+            GuideRule rule;
+            if (rules.TryGetValue(id, out rule)) units[0].Scope.Content.UnionWith(rule.Applies);   // the rule under test must be in the prompt
             foreach (var f in CallReview(units[0]))
             {
                 Ground(f, rules);
@@ -702,7 +731,7 @@ namespace FlareAI.Core.Actions
                 OriginalBlocks = blocks, View = AcceptedView.Of(blocks), Validation = new ValidationResult(), Notes = new List<string>(),
                 RemainingLint = new List<StyleFinding>(), WordPlan = new List<StyleFinding>()
             };
-            var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }) }).ToList();
+            var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }), Scope = ScopeOf(new List<XmlNode> { b }) }).ToList();
             var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()))).ToList();
             var changes = new Dictionary<string, string>[units.Count];
             var restructure = new bool[units.Count];
@@ -712,13 +741,13 @@ namespace FlareAI.Core.Actions
                 if (units[i].Map.Ids.Count == 0) { changes[i] = new Dictionary<string, string>(); return; }
                 var schema = Contracts.Rewrite(units[i].Map.Ids);
                 var errors = new List<string>();
-                changes[i] = Contracts.ReadRewrite(Ask(task, prompts[i], schema).Json, units[i].Map, errors, out restructure[i], out restructureNotes[i]);
+                changes[i] = Contracts.ReadRewrite(Ask(task, prompts[i], schema, null, units[i].Scope).Json, units[i].Map, errors, out restructure[i], out restructureNotes[i]);
                 if (errors.Count > 0)
                 {
                     // One retry with the contract breaches spelled out; then keep what was valid.
                     Diagnostics.Log(task + ": contract breaches, retrying: " + string.Join(" ", errors.ToArray()));
                     var retryErrors = new List<string>();
-                    var retry = Contracts.ReadRewrite(Ask(task, prompts[i] + "\n\nYour previous answer broke the format: " + string.Join(" ", errors.ToArray()) + " Answer again.", schema).Json,
+                    var retry = Contracts.ReadRewrite(Ask(task, prompts[i] + "\n\nYour previous answer broke the format: " + string.Join(" ", errors.ToArray()) + " Answer again.", schema, null, units[i].Scope).Json,
                                                       units[i].Map, retryErrors, out restructure[i], out restructureNotes[i]);
                     if (retryErrors.Count <= errors.Count) changes[i] = retry;
                     if (retryErrors.Count > 0) Diagnostics.Log(task + ": still " + retryErrors.Count + " breach(es); kept the valid changes");
@@ -772,7 +801,7 @@ namespace FlareAI.Core.Actions
 
         private RewriteProposal Propose(IDocumentAdapter doc, IList<XmlNode> blocks, IList<XmlNode> view, string user, string task)
         {
-            var resp = Ask(task, user, null);
+            var resp = Ask(task, user, null, null, ScopeOf(blocks));
             var proposal = new RewriteProposal { OriginalBlocks = blocks, View = view, Raw = resp, Validation = new ValidationResult(), Notes = new List<string>(), RemainingLint = new List<StyleFinding>() };
             try
             {

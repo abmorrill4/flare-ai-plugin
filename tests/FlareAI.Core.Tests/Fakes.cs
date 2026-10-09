@@ -117,6 +117,8 @@ namespace FlareAI.Core.Tests
         }
 
         public string Guide(string project) { return GuideText; }
+        public string[] GuideFor(string project, FlareAI.Core.Style.GuideScope scope) { return new[] { GuideText, "" }; }
+        public IList<string> RuleIdsFor(string project, FlareAI.Core.Style.GuideScope scope) { return GuideRules.ConvertAll(r => r.Id); }
 
         public List<FlareAI.Core.Style.GuideRule> GuideRules = new List<FlareAI.Core.Style.GuideRule>
         {

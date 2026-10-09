@@ -55,8 +55,9 @@ namespace FlareAI.Bench
 
     internal sealed class Options
     {
-        public string Corpus = "corpus", Model = "claude-sonnet-5-5", Effort = "medium", Unit = "section", Out;
-        public int Sample, Rewrites, Parallel = 3;
+        public string Corpus = "corpus", Model = "claude-sonnet-5-5", Effort = "medium", Unit = "section", Out, Guide;
+        public int Sample, Rewrites, Parallel = 3, Examples;
+        public string ExamplesFrom;
         public bool NoAi;
 
         public static Options Parse(string[] a)
@@ -75,7 +76,10 @@ namespace FlareAI.Bench
                     case "--rewrites": o.Rewrites = int.Parse(next()); break;
                     case "--parallel": o.Parallel = int.Parse(next()); break;
                     case "--no-ai": o.NoAi = true; break;
+                    case "--examples": o.Examples = int.Parse(next()); break;
+                    case "--examples-from": o.ExamplesFrom = next(); break;
                     case "--out": o.Out = next(); break;
+                    case "--guide": o.Guide = next(); break;
                     default: throw new ArgumentException("Unknown option " + a[i]);
                 }
             }
@@ -187,7 +191,7 @@ namespace FlareAI.Bench
             Usage.Reset();
 
             var repo = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\.."));
-            var guide = Path.Combine(repo, "styleguide");
+            var guide = _o.Guide != null ? Path.GetFullPath(_o.Guide) : Path.Combine(repo, "styleguide");
             var style = new StyleEngine(new[] { guide }, guide);
             ILlmClient llm = null;
             if (!_o.NoAi)
@@ -199,6 +203,7 @@ namespace FlareAI.Bench
             routing.For("review").Effort = _o.Effort;
             var vars = Variables();
 
+            if (_o.Examples > 0) return GuideExamples(llm, style, routing);
             var files = _authorOf.Keys.OrderBy(f => f, StringComparer.Ordinal).ToList();
             if (_o.Sample > 0)
             {
@@ -218,7 +223,7 @@ namespace FlareAI.Bench
                 try
                 {
                     var doc = new FileDoc(path, vars);
-                    var runner = new ActionRunner(llm, new PromptBuilder(() => style.Guide(path)), 16000, style, path, routing) { Parallelism = 6, VariableValue = doc.VariableValue };
+                    var runner = new ActionRunner(llm, PromptBuilder.For(style, path), 16000, style, path, routing) { Parallelism = 6, VariableValue = doc.VariableValue };
                     var blocks = runner.PickCheckBlocks(doc);
                     var lint = runner.Lint(blocks);
                     var snippets = runner.LintSnippets(blocks, path);
@@ -254,6 +259,73 @@ namespace FlareAI.Bench
             return 0;
         }
 
+        // ---- Google's own examples ----------------------------------------------------------------------------
+
+        /// <summary>
+        /// Does the reviewer apply the whole Google guide? Takes N prose rules with a Bad example from the compiled Google
+        /// layer (spread across pages), reviews each Bad and Good sentence with the guide under test (--guide), and counts:
+        /// Bad flagged (by lint or AI), Bad flagged citing that exact rule, Good left clean.
+        /// </summary>
+        private int GuideExamples(ILlmClient llm, StyleEngine style, Routing routing)
+        {
+            var source = new StyleEngine(new[] { Path.GetFullPath(_o.ExamplesFrom ?? Path.Combine(_root, @"..\styleguide")) }, Path.GetFullPath(_o.ExamplesFrom ?? Path.Combine(_root, @"..\styleguide")));
+            var all = source.Rules(null).Where(r => r.Layer == "google" && !r.IsLint && r.Bad.Length > 0 && r.Products.Count == 0).ToList();
+            var byPage = all.GroupBy(r => r.Id.Split('/')[0]).ToList();
+            var picks = new List<GuideRule>();
+            for (var round = 0; picks.Count < _o.Examples && round < 50; round++)   // round-robin over pages: every page gets a say
+                foreach (var g in byPage) { var l = g.ToList(); if (round < l.Count && picks.Count < _o.Examples) picks.Add(l[(round * 7) % l.Count]); }
+            Console.WriteLine("Examples: " + picks.Count + " Google rules from " + picks.Select(p => p.Id.Split('/')[0]).Distinct().Count() + " pages, guide " + (_o.Guide ?? "styleguide"));
+            var rows = new List<JObject>();
+            Parallel.ForEach(picks, new ParallelOptions { MaxDegreeOfParallelism = _o.Parallel * 2 }, rule =>
+            {
+                var r = new JObject { ["rule"] = rule.Id, ["text"] = rule.Text, ["bad"] = rule.Bad, ["good"] = rule.Good };
+                try
+                {
+                    var bad = Review(rule, rule.Bad, llm, style, routing);
+                    r["bad_flagged"] = bad.Count > 0;
+                    r["bad_cited"] = bad.Any(f => string.Equals(f.RuleId, rule.Id, StringComparison.OrdinalIgnoreCase));
+                    r["bad_findings"] = new JArray(bad.Select(f => (f.RuleId ?? f.Rule) + ": " + f.Excerpt).ToArray());
+                    if (rule.Good.Length > 0)
+                    {
+                        var good = Review(rule, rule.Good, llm, style, routing);
+                        r["good_clean"] = good.Count == 0;
+                        r["good_findings"] = new JArray(good.Select(f => (f.RuleId ?? f.Rule) + ": " + f.Excerpt).ToArray());
+                    }
+                }
+                catch (Exception ex) { r["error"] = ex.Message; }
+                lock (rows) rows.Add(r);
+            });
+            Directory.CreateDirectory(_o.Out);
+            int n = rows.Count, flagged = rows.Count(x => (bool?)x["bad_flagged"] == true), cited = rows.Count(x => (bool?)x["bad_cited"] == true);
+            var withGood = rows.Where(x => x["good_clean"] != null).ToList();
+            var clean = withGood.Count(x => (bool)x["good_clean"]);
+            var usd = Usage.Snapshot().Sum(u => u.Usd);
+            var summary = string.Format("{0} Google rules: Bad example flagged {1:P0}, flagged citing that rule {2:P0}; Good example left clean {3:P0} (of {4}). Errors {5}. ${6:0.00}.",
+                n, (double)flagged / n, (double)cited / n, withGood.Count == 0 ? 0 : (double)clean / withGood.Count, withGood.Count, rows.Count(x => x["error"] != null), usd);
+            File.WriteAllText(Path.Combine(_o.Out, "examples.json"), new JArray(rows.OrderBy(x => (string)x["rule"])).ToString());
+            File.WriteAllText(Path.Combine(_o.Out, "metrics.json"), new JObject { ["examples"] = n, ["bad_flagged"] = Ratio(flagged, n), ["bad_cited"] = Ratio(cited, n), ["good_clean"] = Ratio(clean, withGood.Count), ["usd"] = Math.Round(usd, 4) }.ToString());
+            Console.WriteLine(summary);
+            return 0;
+        }
+
+        /// <summary>Lint + AI review of one sentence, as if it sat in a section with the content the rule is about.</summary>
+        private List<StyleFinding> Review(GuideRule rule, string text, ILlmClient llm, StyleEngine style, Routing routing)
+        {
+            var doc = new XmlDocument();
+            doc.LoadXml("<html><body><p>" + System.Security.SecurityElement.Escape(text) + "</p></body></html>");
+            var blocks = new List<XmlNode> { doc.DocumentElement["body"].FirstChild };
+            var runner = new ActionRunner(llm, PromptBuilder.For(style, null), 16000, style, null, routing) { Parallelism = 1 };
+            var lint = runner.Lint(blocks);
+            var units = runner.PrepareReview(blocks, lint, 1);
+            var found = new List<StyleFinding>(lint);
+            if (units.Count > 0)
+            {
+                units[0].Scope.Content.UnionWith(rule.Applies);
+                found.AddRange(runner.AnchorReview(runner.CallReview(units[0]), units[0], lint));
+            }
+            return found;
+        }
+
         private void Add(string rel, string origin, StyleFinding f)
         {
             _found.Add(new Found
@@ -279,7 +351,7 @@ namespace FlareAI.Bench
             if (d.Sentence == null) return false;
             string fe = Norm(f.Excerpt), de = Norm(d.Excerpt), se = Norm(d.Sentence);
             if (fe.Length == 0) return false;
-            return fe.Contains(de) || (de.Contains(fe) && fe.Length >= 2) || (fe.Length >= 6 && se.Contains(fe));
+            return fe.Contains(de) || (de.Contains(fe) && (fe.Length >= 2 || !char.IsLetterOrDigit(fe[0]))) || (fe.Length >= 6 && se.Contains(fe));
         }
 
         private void Score(List<Defect> scope)
@@ -336,7 +408,7 @@ namespace FlareAI.Bench
                 {
                     var path = Path.Combine(_project, d.File.Replace('/', '\\'));
                     var doc = new FileDoc(path, vars);
-                    var runner = new ActionRunner(llm, new PromptBuilder(() => style.Guide(path)), 16000, style, path, routing) { Parallelism = 6, VariableValue = doc.VariableValue };
+                    var runner = new ActionRunner(llm, PromptBuilder.For(style, path), 16000, style, path, routing) { Parallelism = 6, VariableValue = doc.VariableValue };
                     var block = TextRuns.Of(new List<XmlNode> { BlockSelector.FindBody(doc.Document) }).Select(TextRuns.BlockOf)
                         .First(b => b != null && Norm(b.InnerText).Contains(Norm(d.Sentence).Substring(0, Math.Min(20, d.Sentence.Length))));
                     var before = block.InnerText;

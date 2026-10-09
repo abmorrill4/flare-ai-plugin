@@ -10,6 +10,13 @@ namespace FlareAI.Core.Llm
         /// <summary>Which task this is ("review", "rewrite", …): selects the route and labels logs and usage.</summary>
         public string Task { get; set; }
         public string System { get; set; }
+        /// <summary>
+        /// Optional second part of the system prompt: the rule packs for this unit's content. Sent as its own cached block
+        /// after <see cref="System"/>, so the always-on part stays cached across units whose packs differ.
+        /// </summary>
+        public string SystemPacks { get; set; }
+        /// <summary>Optional last part of the system prompt, particular to this text (rules for words it uses): not cached.</summary>
+        public string SystemTerms { get; set; }
         public string User { get; set; }
         /// <summary>A safety ceiling, not the control: output size is governed by <see cref="Schema"/>. 0 = route default.</summary>
         public int MaxTokens { get; set; }

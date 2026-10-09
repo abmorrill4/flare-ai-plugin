@@ -109,7 +109,7 @@ selection inside a `<p>`/`<h1>` yields that element; inside an `<li>` maps to th
 
 Exit criteria: tester can run all three on their own project for a day without a crash.
 
-### Phase 2b — docstyle: layered style guide + linter over MCP `[x]`
+### Phase 2b — docstyle: layered style guide + linter over MCP `[x]` (superseded by 2i: now in process)
 
 - [x] `mcp/docstyle`: Python MCP stdio server (official SDK, run via `uv`) with `lint`, `style_lookup`,
       `glossary_lookup`. Layers: Google developer documentation style guide (baseline: condensed guide +
@@ -273,6 +273,31 @@ command is documented in the README for madbuild/CI.
   a Copy button. Copy, not write: Flare's head metadata, index markers, synonym and micro-content files aren't safely
   writable through the plugin API.
 - LLM clients send images (Anthropic image blocks; Bifrost/OpenAI image_url data URIs).
+
+### Phase 2i — Everything inside the plugin `[x]`
+
+Install is "copy the plugin folder, paste the key": no Python, uv or Vale.
+- `StyleEngine` (Core) replaces the Python docstyle server: layered guide from Flare-project topics, lint rules compiled
+  from guide tables (Avoid/Use and Pattern rows), override tables, variables and glossary rules, validation (examples,
+  contradictions, Company↔Google duplicates and overrides, unknown override ids), mining, LLM export. Linting the
+  250-topic corpus: 94 s → 0.3 s.
+- One style guide project (`styleguide/`, installs as `Plugins\FlareAI\StyleGuide`): `Google/` (generated) and
+  `Company/`. Teams copy it and point Settings at their clone.
+- `tools/FlareAI.Mcp`: the same engine as an MCP stdio server and the `--llm-export` command for madbuild post-builds.
+- Fixed on the way: .NET Framework's 2-connections-per-host default had serialized every "parallel" model call.
+
+### Phase 2j — The full Google guide, routed by content `[x]`
+
+- [x] `tools/google-style/snapshot.py`: all 70 pages of developers.google.com/style (CC BY 4.0) as Markdown with
+      hashes; 3,855 citable source units. Google's AI-generated page summaries excluded.
+- [x] `coverage.json`: each page core / pack (by content trigger) / word list / reference (with reasons).
+- [x] `tools/FlareAI.GuideCompiler`: per page, a strict output contract (prose rules with Bad/Good, Avoid/Use rows,
+      patterns; units covered; units not applicable with reasons), coverage enforced (retry naming missing units), every
+      lint row through the real validator (retry with errors, then dropped and reported). `coverage.md` is the report.
+- [x] Condition tags scope rules: Content.* (what a section must contain) and Product.* (products the guide's Product
+      tag set lists). Each AI call gets the always-on rules plus only the packs its section needs, as two cache blocks.
+- [x] Full compile (2,023 rules, $12) and test on Google's own examples: Bad flagged 65% → 98%, cited exactly 0% → 64%,
+      Good left alone 60% → 81%. Word-list judgment rules load only when the text uses the word. `docs/testing/GOOGLE-GUIDE-REPORT.md`.
 
 ### Phase 3 — Tester handoff `[ ]`
 

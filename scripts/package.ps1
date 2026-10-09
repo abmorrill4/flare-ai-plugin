@@ -11,6 +11,8 @@ New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
 Get-ChildItem "src\FlareAI.Flare\bin\Release\net48" -File | Where-Object { $_.Name -ne "B3.PluginAPIKit.dll" -and $_.Extension -in ".dll", ".pdb", ".json" } | Copy-Item -Destination $stage
 Copy-Item "styleguide" -Destination "$stage\StyleGuide" -Recurse -Force
+dotnet build tools\FlareAI.Mcp\FlareAI.Mcp.csproj -c Release
+Copy-Item "tools\FlareAI.Mcp\bin\Release\net48\FlareAI.Mcp.exe", "tools\FlareAI.Mcp\bin\Release\net48\FlareAI.Mcp.exe.config" -Destination $stage -ErrorAction SilentlyContinue
 if (Test-Path "src\FlareAI.Flare\Icons") { Copy-Item "src\FlareAI.Flare\Icons" -Destination $stage -Recurse }
 Copy-Item "docs\TESTER-GUIDE.md" -Destination "$repo\dist\stage\README-INSTALL.md" -ErrorAction SilentlyContinue
 

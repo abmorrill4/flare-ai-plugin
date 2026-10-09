@@ -6,12 +6,13 @@ plan is how to check them.
 
 ## Setup (once)
 
-1. Install the plugin and uv (user guide: *Install the plugin*). In **AI > Settings**, paste your API key.
-2. Build the test corpus: `uv run --script scripts/make-corpus.py corpus`. It writes `corpus/DigitalBanking` (a Flare
+1. Install the plugin (user guide: *Install the plugin*). In **AI > Settings**, paste your API key.
+2. The test corpus is in the repository: `corpus/DigitalBanking` (a Flare
    project: 25 feature areas × 10 topics, snippets, variables, conditions, images, a TOC and an HTML5 target) and
    `corpus/ground-truth.json`, which lists every problem planted in it: file, the exact words, and which check should
    catch it. Five simulated authors wrote it, each with their own habits (see `authors` in the ground truth).
-3. To start over at any point, close the project in Flare and run the command again (delete `corpus` first).
+3. To start over at any point, close the project in Flare and restore the folder from git (`git checkout -- corpus`),
+   or regenerate it: `uv run --script scripts/make-corpus.py corpus` (needs uv; delete `corpus` first).
 
 Planted problems by kind (429 in all): banned or wordy words (`utilize`, `in order to`, `please`…), legacy terms
 (`customers`, `bank`, `whitelist`, `Single Sign-On`…), claims (`coming soon`, `guaranteed`…), typed product and

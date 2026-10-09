@@ -12,7 +12,8 @@ See `PLAN.md`.
 - User guide: `docs/user-guide` (a Flare project — open `FlareAI-Guide.flprj`).
 - Testers: `docs/TESTER-GUIDE.md` (quickstart), `docs/testing/TEST-PLAN.md`, `docs/testing/BUG-TEMPLATE.md`.
 - Stress test, model bake-off and routing decisions: `docs/testing/STRESS-REPORT.md`.
-- Test corpus: `uv run --script scripts/make-corpus.py corpus` (250 topics + ground truth); headless bench:
+- The full Google guide in the plugin (compile, coverage, results): `docs/testing/GOOGLE-GUIDE-REPORT.md`.
+- Test corpus: `corpus/` (250 topics + ground truth; regenerate with `uv run --script scripts/make-corpus.py corpus`); headless bench:
   `tools/FlareAI.Bench`.
 
 ## Quick start (Windows box with Flare installed)
@@ -31,61 +32,73 @@ Then in Flare: **File > Options > Plugins > FlareAI > Enable**, restart Flare, l
 
 ## Prerequisites
 
-- MadCap Flare Desktop (any recent version; plugin targets .NET Framework 4.0 as required)
+- MadCap Flare Desktop 2026 (22)
 - .NET SDK 8+ (`dotnet --version`) — builds the net40/net48 projects via reference assemblies
 - Git
 - `.env` at the repo root (git-ignored) with `ANTHROPIC_API_KEY=...`
-- `uv` for the docstyle linter
 
-## Style guide and linter (docstyle)
+Writers need nothing but the plugin folder and an API key: the style guide, the linter and the LLM export all run
+inside the plugin.
 
-One source of style truth, used by the plugin, Claude Code, and (later) the Bifrost gateway:
-`mcp/docstyle`, an MCP server with `lint`, `style_lookup`, `glossary_lookup`.
+## The style guide
 
-Layers apply in order, later wins:
-- **Google developer documentation style guide** (built in): `layers/google` — condensed, linked guide plus the
-  vendored errata-ai/Google Vale package.
-- **Your layers** (Settings → Style layers, one path per line; default `layers/company`): a **Flare project**
-  (folder containing a `.flprj`) or a plain folder. Put it on a network share or in a git checkout so everyone
-  points at the same copy — where the company guide lives is a setting, not a code change.
-- **This project** (Settings toggle, on by default): generated from the open Flare project — variable values
-  ("insert the variable instead of typing it"), glossary terms (canonical casing; definitions go to the AI), and
-  `Content/Resources/StyleGuide/` if the project has one.
+One style guide project, used by the plugin, Claude Code (through the optional MCP program) and the test bench:
+`styleguide/`, a Flare project that installs as `Plugins\FlareAI\StyleGuide`.
 
-### The company style guide is a Flare project
-`layers/company` is a starter project (`CompanyStyle.flprj`) — open it in Flare and replace the placeholder rules.
-The linter and the AI read `Content/Resources/StyleGuide/*.htm`, the project's variable sets and its glossary:
+- `Content/Resources/StyleGuide/Google/` — the Google developer documentation style guide, compiled into rules (one
+  topic per Google page). Generated: don't edit; change Google rules from the Company folder.
+- `Content/Resources/StyleGuide/Company/` — the team's rules. Company wins over Google.
+- The open documentation project adds its own layer: variable values ("insert the variable instead of typing it"),
+  glossary terms, and its own `Content/Resources/StyleGuide/` if it has one. It wins over both.
+
+A team copies the starter project, keeps it in git, and points Settings → Style guide project at their clone.
+
+### Writing rules (same format in both folders)
 - **Bullets** are prose rules for the AI. Nest `Bad: …` / `Good: …` items under a bullet so the rule can be tested.
   Paragraphs are context, not rules.
 - **Avoid / Use / Severity / Why / Example tables** become lint rules with one-click fixes. `Use` = `(delete)`
-  deletes the text; empty `Use` only flags it. Comma-separated `Avoid` entries pair with the same number of `Use` entries.
-- **Rule / Setting / Reason tables** switch Google rules off or change their level (`off`, `error`, `warning`, `suggestion`).
-- Every rule gets a stable ID (`company:terminology/1`). The AI must cite one, so findings read
-  "[AI · Company: Terminology]" and **Guide ↗** opens the rule's topic in Flare.
-- **AI ▸ Validate style guide** tests the guide itself: each table row against its Example (free), then, on request,
-  each prose rule's Bad/Good examples against the AI ("AI applies 5 of 5 prose rules as written").
+  deletes the text; empty `Use` only flags it. Comma-separated `Avoid` entries pair with the same number of `Use`
+  entries. A table with **Pattern** instead of Avoid takes a regular expression, for formats words can't express.
+- **Rule / Setting / Reason tables** turn rules off or change their level (`off`, `error`, `warning`, `suggestion`);
+  name the rule by its id (`google:numbers/3`).
+- **Condition tags scope a rule** (a bullet, a table row, or the heading above a group): **Content** tags (Code, Steps,
+  Lists, Numbers, Tables, Links, Headings, Images, UI, Notes, Examples, Math, API, Footnotes, Emphasis) send the rule
+  to the AI only for sections with that content — a row tagged Headings is linted in headings only. **Product** tags
+  limit a rule to products; the guide's Product tag set lists the products it covers, and rules for any other product
+  (including Google's Android, Google Cloud and Google Workspace entries) never load.
+- Every rule has an id (`company:terminology/1`, `google:procedures/12`); the AI must cite one.
+- **AI ▸ Validate style guide** tests the guide: each table row against its Example, contradictions, duplicates and
+  overrides between Company and Google, override tables that name missing rules, and (on request) each prose rule's
+  Bad/Good examples against the AI.
+
+### What the AI gets per section
+Each review call carries the instructions, the always-on rules (untagged), and only the rule packs the section's
+content calls for (a procedure gets Steps, Lists and UI; a section with code gets the code pages). The always-on part
+and the packs are separate cached blocks, so repeated checks pay for the guide once.
+
+### Keeping the Google rules current
+`tools/google-style/snapshot.py` copies developers.google.com/style (CC BY 4.0) into `tools/google-style/source`
+with a hash per page; `git diff` shows what Google changed. `tools/FlareAI.GuideCompiler` recompiles changed pages
+into `Google/` topics: every source unit must be covered by a rule or marked not applicable with a reason, and every
+lint row must pass the validator. `tools/google-style/coverage.md` is the report.
 
 ### Teams: one guide, strict ownership
-- Keep the company guide (a Flare project) in git; every writer clones it and points Settings → Style layers at the
-  clone. The pane warns when a writer's clone is behind ("Style guide … 2 change(s) behind: pull it").
+- Keep the guide in git; every writer clones it and points Settings → Style guide project at the clone. The pane warns
+  when a writer's clone is behind ("Style guide … 2 change(s) behind: pull it").
 - `FlareAI/owners.txt` in the guide lists the owners (git `user.email`, one per line). With owners listed, only they
   change shared rules (enforce it with branch protection); other writers' "Ignore rule…" becomes a request to them.
-- `FlareAI/layer.txt` names the layer (`company`): rule ids stay the same in every clone.
-- Settings → Team feedback folder: a shared folder (OneDrive/SharePoint-synced, network share, or a repo writers can
-  push to). Each writer's review decisions append to their own file there; no merge conflicts.
-- **AI ▸ Build style guide** (for owners) proposes rules from evidence: **Mine this project** finds spelling variants,
-  competing words, inconsistent capitalization and heading case in your topics (with counts and real sentences; pick the
-  preferred form); **Add notes or an old guide** turns pasted or dictated notes, an old guide, or another AI tool's
-  prompt into rules that quote their source. Checked rules go into `StyleGuide/From-our-content.htm`; run Validate.
-- **AI ▸ Tune style guide** (for owners) pools everyone's decisions: rules writers disagree on, rules that are often
-  rejected, repeated hand edits (a better replacement), and requests to turn rules off — each with counts, reasons,
-  real excerpts and who; **Open rule in the guide** goes straight to the rule in Flare, and **Draft a change with AI**
-  rewrites the rule from that evidence as tracked changes. **Customize AI prompts** puts the AI's instructions in the
-  guide (`FlareAI/prompts`) so the team tunes them like rules.
+- `FlareAI/layer.txt` names the company layer (`company`): rule ids stay the same in every clone.
+- `FlareAI/models.json` sets models, effort and the review unit for the team.
+- Settings → Team feedback folder: a shared folder where each writer's review decisions append to their own file.
+- **AI ▸ Build style guide** (owners) proposes rules from evidence: **Mine this project** (spelling variants,
+  competing words, capitalization, heading case, with counts and sentences) and **Add notes or an old guide**.
+- **AI ▸ Tune style guide** (owners) pools everyone's decisions: disputed rules, often-rejected rules, repeated hand
+  edits, requests to turn rules off — with evidence; **Draft a change with AI** edits the rule as tracked changes.
 
-- Claude Code: `.mcp.json` registers the server; the `docstyle` skill (`.claude/skills/docstyle`) applies it.
-- Needs `uv` (`winget install astral-sh.uv`); Vale and the MCP SDK are fetched by `uv` on first run.
-  Check it: `uv run --script mcp/docstyle/server.py --selftest`.
+### Outside Flare
+`tools/FlareAI.Mcp` is the same engine as an MCP stdio server (`lint`, `style_lookup`, `glossary_lookup`,
+`validate_guide`, `guide_examples`, `mine_style`). `.mcp.json` registers it for Claude Code, and the `docstyle` skill
+(`.claude/skills/docstyle`) applies it.
 
 ## LLM-ready output
 AI ▸ **Export for LLMs** turns built HTML5 or Clean XHTML output into one Markdown file per topic (`llm/…`, with
@@ -95,7 +108,7 @@ HTML build…" does it automatically when you build in Flare. For `madbuild` / C
 (Target Editor ▸ Build Events):
 
 ```
-uv run --quiet --script "C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins\FlareAI\docstyle\server.py" --llm-export "$(OutputDirectory)" --url https://docs.example.com
+"C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins\FlareAI\FlareAI.Mcp.exe" --llm-export "$(OutputDirectory)" --url https://docs.example.com
 ```
 
 ## Where things live
