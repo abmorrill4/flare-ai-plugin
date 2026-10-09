@@ -251,6 +251,14 @@ images without alt text, skipped heading levels, a second h1, tables without a h
 hard-coded phone numbers / email addresses / URLs (white-label docs put them in variables; typed variable values were
 already flagged). Snippet impact: proposal cards show how many files use the snippet.
 
+### Phase 2g — LLM-ready output `[x]`
+
+docstyle `--llm-export` (llm_export.py, stdlib): built HTML5 / Clean XHTML → Markdown per topic (main content only;
+skin, nav, scripts dropped; lists, tables, links rewritten to .md) + `llms.txt` + `llms-full.txt` in the output.
+Plugin: AI ▸ Export for LLMs, and an automatic export on Flare's CompileComplete (setting). Verified: madbuild output
+and an in-app build exported automatically (trial-mode output is scrambled by Flare itself). The post-build event
+command is documented in the README for madbuild/CI.
+
 ### Phase 3 — Tester handoff `[ ]`
 
 - [x] `scripts\package.ps1` → `dist\FlareAI-<ver>.zip` with install instructions.

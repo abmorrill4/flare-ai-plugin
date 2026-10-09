@@ -79,6 +79,17 @@ The linter and the AI read `Content/Resources/StyleGuide/*.htm`, the project's v
 - Needs `uv` (`winget install astral-sh.uv`); Vale and the MCP SDK are fetched by `uv` on first run.
   Check it: `uv run --script mcp/docstyle/server.py --selftest`.
 
+## LLM-ready output
+AI ▸ **Export for LLMs** turns built HTML5 or Clean XHTML output into one Markdown file per topic (`llm/…`, with
+title/source/URL front matter) plus `llms.txt` (index) and `llms-full.txt` (everything) at the output root, so they
+publish with the site. Built output already has snippets, variables and conditions resolved. Settings → "After each
+HTML build…" does it automatically when you build in Flare. For `madbuild` / CI, add a post-build event to the target
+(Target Editor ▸ Build Events):
+
+```
+uv run --quiet --script "C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins\FlareAI\docstyle\server.py" --llm-export "$(OutputDirectory)" --url https://docs.example.com
+```
+
 ## Where things live
 
 | Thing | Path |

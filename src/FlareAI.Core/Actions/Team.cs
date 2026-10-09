@@ -125,7 +125,7 @@ namespace FlareAI.Core.Actions
         }
 
         // net40 has no ReadToEndAsync on StreamReader: read on a pool thread so a slow fetch can't deadlock the pipe.
-        private static Func<string> ReadToEndAsyncCompat(this StreamReader reader)
+        public static Func<string> ReadToEndAsyncCompat(this StreamReader reader)
         {
             string result = null;
             var done = new System.Threading.ManualResetEvent(false);

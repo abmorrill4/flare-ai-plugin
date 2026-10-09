@@ -768,13 +768,46 @@ def _selftest():
         assert "capitalization" in kinds, [c["title"] for c in mined["candidates"]]
         assert "heading" in kinds and kinds["heading"]["prefer"] == "title case", kinds.get("heading")
 
-    print("selftest ok:", len(hits), "hits; layers, tables, validation, mining ok")
+    # LLM-ready export of built HTML.
+    sys.path.insert(0, str(HERE))
+    import llm_export
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "HTML5"
+        (out / "Content").mkdir(parents=True)
+        (out / "Skins").mkdir()
+        (out / "Skins" / "nav.htm").write_text("<html><body>skin</body></html>", encoding="utf-8")
+        page = ('<html><head><title>Pay a bill</title><script>var x=1;</script></head><body>'
+                '<nav class="sidenav"><a href="other.htm">Menu item</a></nav>'
+                '<div id="mc-main-content"><h1>Pay a bill</h1><p>To pay a bill, select <b>Pay</b> in Digital Banking.</p>'
+                '<ol><li>Choose the payee.</li><li>Enter the amount. See <a href="limits.htm#daily">Payment limits</a>.</li></ol>'
+                '<table><tr><th>Limit</th><th>Amount</th></tr><tr><td>Daily</td><td>$5,000</td></tr></table></div>'
+                '<footer>Copyright</footer></body></html>')
+        (out / "Content" / "pay.htm").write_text(page, encoding="utf-8")
+        res = llm_export.export(str(out), base_url="https://docs.example.com")
+        md = (out / "llm" / "Content" / "pay.md").read_text(encoding="utf-8")
+        assert res["topics"] == 1, res
+        assert "title: Pay a bill" in md and "url: https://docs.example.com/Content/pay.htm" in md, md
+        assert "# Pay a bill" in md and "select **Pay** in Digital Banking" in md, md
+        assert "1. Choose the payee." in md and "2. Enter the amount. See [Payment limits](limits.md)" in md, md
+        assert "| Limit | Amount |" in md and "| Daily | $5,000 |" in md, md
+        assert "Menu item" not in md and "Copyright" not in md and "var x" not in md, md
+        llms = (out / "llms.txt").read_text(encoding="utf-8")
+        assert "- [Pay a bill](llm/Content/pay.md)" in llms, llms
+        assert "Pay a bill" in (out / "llms-full.txt").read_text(encoding="utf-8")
+
+    print("selftest ok:", len(hits), "hits; layers, tables, validation, mining, llm export ok")
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     layers = [args[i + 1] for i, a in enumerate(args) if a == "--layer" and i + 1 < len(args)]
+    def opt(flag):
+        return args[args.index(flag) + 1] if flag in args and args.index(flag) + 1 < len(args) else None
     if "--selftest" in args:
         _selftest()
+    elif "--llm-export" in args:
+        sys.path.insert(0, str(HERE))
+        import llm_export
+        print(json.dumps(llm_export.export(opt("--llm-export"), opt("--to"), opt("--url"))))
     else:
         build_server(Docstyle(layers or [BUILTIN / "company"])).run()

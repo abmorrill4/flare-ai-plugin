@@ -43,6 +43,8 @@ namespace FlareAI.Core.Settings
         public string StyleLayers { get; set; }
         /// <summary>Add the open Flare project's variables, glossary and Resources/StyleGuide folder as the last layer.</summary>
         public bool UseProjectLayer { get; set; }
+        /// <summary>After each build of an HTML target, add Markdown per topic + llms.txt to the output (docstyle --llm-export).</summary>
+        public bool LlmExportAfterBuild { get; set; }
         /// <summary>
         /// Shared team feedback folder (a synced OneDrive/SharePoint folder, network share, or repo writers can push to);
         /// each writer appends to their own file there. Empty = decisions stay in the personal log only.

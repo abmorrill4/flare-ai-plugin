@@ -9,7 +9,7 @@ namespace FlareAI.Flare.UI
     public sealed class SettingsForm : Form
     {
         private readonly TextBox _styleCmd, _styleArgs, _layers, _feedback;
-        private readonly CheckBox _projectLayer;
+        private readonly CheckBox _projectLayer, _llmExport;
         private readonly ComboBox _provider;
         private readonly TextBox _baseUrl, _model, _key, _mcpTools, _timeout;
         private readonly CheckBox _diag;
@@ -24,7 +24,7 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 530);
+            ClientSize = new Size(520, 556);
             Font = SystemFonts.MessageBoxFont;
 
             var y = 12;
@@ -53,6 +53,8 @@ namespace FlareAI.Flare.UI
             _feedback = AddRow("Team feedback folder", y, out y, new TextBox { Text = _settings.FeedbackFolder ?? "" });
             Controls.Add(new Label { Text = "Shared folder (synced or network) where each writer's review decisions are pooled. Empty = personal only.", Left = 140, Top = y - 4, Width = 368, Height = 30, ForeColor = SystemColors.GrayText }); y += 30;
             _timeout = AddRow("Timeout (s)", y, out y, new TextBox { Text = _settings.TimeoutSeconds.ToString(), Width = 60 });
+            _llmExport = new CheckBox { Text = "After each HTML build, add LLM-ready Markdown and llms.txt to the output", Left = 140, Top = y, Width = 368, Checked = _settings.LlmExportAfterBuild };
+            Controls.Add(_llmExport); y += 26;
             _diag = new CheckBox { Text = "Write diagnostics log", Left = 140, Top = y, Width = 300, Checked = _settings.WriteDiagnostics };
             Controls.Add(_diag); y += 30;
 
@@ -106,6 +108,7 @@ namespace FlareAI.Flare.UI
             _settings.StyleLayers = _layers.Text.Trim();
             _settings.UseProjectLayer = _projectLayer.Checked;
             _settings.FeedbackFolder = _feedback.Text.Trim();
+            _settings.LlmExportAfterBuild = _llmExport.Checked;
             if (_key.Text.Trim().Length > 0) _settings.SetApiKey(_key.Text.Trim());
             try
             {

@@ -45,6 +45,7 @@ namespace FlareAI.Flare
                 CreateRibbon();
                 CreateToolStrip();
                 try { _host.GetEditorContext().DocumentSwitched += OnDocumentSwitched; } catch (Exception ex) { Diagnostics.Log("subscribe", ex); }
+                try { _host.GetCompilerContext().CompileComplete += OnCompileComplete; } catch (Exception ex) { Diagnostics.Log("subscribe compile", ex); }
                 _activated = true;
             }
             catch (Exception ex)
@@ -57,6 +58,7 @@ namespace FlareAI.Flare
         public void Stop()
         {
             try { _host.GetEditorContext().DocumentSwitched -= OnDocumentSwitched; } catch (Exception) { }
+            try { _host.GetCompilerContext().CompileComplete -= OnCompileComplete; } catch (Exception) { }
             ResetStyleService();
             try { _host.Dispose(); } catch (Exception ex) { Diagnostics.Log("Stop", ex); }
             _activated = false;
@@ -80,6 +82,9 @@ namespace FlareAI.Flare
             tools.AddRibbonButton(Button("Validate style guide", "V", OnValidateGuide, "validate"));
             tools.AddRibbonButton(Button("Tune style guide", "T", OnTuneGuide, "tune"));
             tools.AddRibbonButton(Button("Build style guide", "B", OnBuildGuide, "build"));
+
+            IRibbonGroup output = tab.AddNewRibbonGroup("Output");
+            output.AddRibbonButton(Button("Export for LLMs", "L", OnExportLlm, "llm"));
             tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag"));
         }
 
@@ -199,6 +204,89 @@ namespace FlareAI.Flare
                 });
             }
             catch (Exception ex) { Diagnostics.Log("Team", ex); }
+        }
+
+        // ---- LLM-ready output ------------------------------------------------------------------
+
+        /// <summary>After a build: when enabled, add Markdown + llms.txt to the output that was just built (in the background).</summary>
+        private void OnCompileComplete(object sender, EventArgs e)
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                if (!settings.LlmExportAfterBuild) return;
+                var adapter = ActiveAdapter();
+                var output = NewestOutput(adapter == null ? null : adapter.SourcePath, TimeSpan.FromMinutes(10));
+                if (output == null) { Diagnostics.Log("LLM export: no fresh HTML output found after the build"); return; }
+                System.Threading.ThreadPool.QueueUserWorkItem(_ => { try { Diagnostics.Log("LLM export after build: " + RunLlmExport(settings, output)); } catch (Exception ex) { Diagnostics.Log("LLM export", ex); } });
+            }
+            catch (Exception ex) { Diagnostics.Log("CompileComplete", ex); }
+        }
+
+        /// <summary>Exports the newest HTML output of the open project (or a folder the author picks) as Markdown + llms.txt.</summary>
+        private void OnExportLlm()
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                var adapter = ActiveAdapter();
+                var output = NewestOutput(adapter == null ? null : adapter.SourcePath, TimeSpan.MaxValue);
+                using (var dlg = new FolderBrowserDialog { Description = "Built HTML5 or Clean XHTML output to export (Markdown per topic + llms.txt are added to it):", SelectedPath = output ?? "" })
+                {
+                    if (dlg.ShowDialog(_nav.GetParentForm()) != DialogResult.OK) return;
+                    output = dlg.SelectedPath;
+                }
+                var summary = RunLlmExport(settings, output);
+                Diagnostics.Log("LLM export: " + summary);
+                if (MessageBox.Show(summary + "\n\nOpen the folder?", "FlareAI — Export for LLMs", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    System.Diagnostics.Process.Start("explorer.exe", "\"" + output + "\"");
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Export for LLMs", ex);
+                MessageBox.Show(ex.Message, "FlareAI — Export for LLMs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>Runs docstyle --llm-export; returns a one-line summary.</summary>
+        private string RunLlmExport(PluginSettings settings, string output)
+        {
+            var args = (settings.StyleServerArgs ?? PluginSettings.DefaultStyleServerArgs).Replace("{PluginDir}", PluginDirectory) + " --llm-export \"" + output.TrimEnd('\\') + "\"";
+            var psi = new System.Diagnostics.ProcessStartInfo(string.IsNullOrEmpty(settings.StyleServerCommand) ? PluginSettings.DefaultStyleServerCommand : settings.StyleServerCommand, args)
+            { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true, WorkingDirectory = PluginDirectory };
+            using (var p = System.Diagnostics.Process.Start(psi))
+            {
+                var stderr = p.StandardError.ReadToEndAsyncCompat();
+                var stdout = p.StandardOutput.ReadToEnd();
+                p.WaitForExit(300000);
+                if (p.ExitCode != 0) throw new InvalidOperationException("LLM export failed: " + stderr());
+                var json = Newtonsoft.Json.Linq.JObject.Parse(stdout.Trim());
+                return (int)json["topics"] + " topic(s) exported as Markdown to " + (string)json["markdown"] + ", with llms.txt and llms-full.txt in " + output + ".";
+            }
+        }
+
+        /// <summary>The most recently built output folder of the project (Output\user\Target or Output\Target), or null.</summary>
+        private static string NewestOutput(string anyProjectPath, TimeSpan maxAge)
+        {
+            if (string.IsNullOrEmpty(anyProjectPath)) return null;
+            var dir = Path.GetDirectoryName(anyProjectPath);
+            while (dir != null && Directory.GetFiles(dir, "*.flprj").Length == 0) dir = Path.GetDirectoryName(dir);
+            if (dir == null || !Directory.Exists(Path.Combine(dir, "Output"))) return null;
+            DirectoryInfo best = null;
+            foreach (var d in new DirectoryInfo(Path.Combine(dir, "Output")).GetDirectories("*", SearchOption.AllDirectories))
+            {
+                if (d.Name.Equals("Temporary", StringComparison.OrdinalIgnoreCase) || d.FullName.IndexOf("\\Temporary\\", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                if (d.GetFiles("*.htm").Length == 0 && d.GetFiles("*.html").Length == 0) continue;     // a target root holds Default.htm / index files
+                if (d.Parent != null && best != null && d.FullName.StartsWith(best.FullName + "\\", StringComparison.OrdinalIgnoreCase)) continue;
+                if (best == null || d.LastWriteTimeUtc > best.LastWriteTimeUtc) best = d;
+            }
+            if (best == null || DateTime.UtcNow - best.LastWriteTimeUtc > maxAge) return null;
+            // Walk up to the target folder (the one directly under Output or Output\user).
+            var root = new DirectoryInfo(Path.Combine(dir, "Output")).FullName;
+            var t = best;
+            while (t.Parent != null && t.Parent.Parent != null && !t.Parent.FullName.Equals(root, StringComparison.OrdinalIgnoreCase)
+                   && !t.Parent.Parent.FullName.Equals(root, StringComparison.OrdinalIgnoreCase)) t = t.Parent;
+            return t.FullName;
         }
 
         /// <summary>Proposes style-guide rules from the open project's content and from notes.</summary>
