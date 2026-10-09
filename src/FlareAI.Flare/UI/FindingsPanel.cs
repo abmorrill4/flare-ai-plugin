@@ -45,7 +45,7 @@ namespace FlareAI.Flare.UI
         /// <summary>Raised when the author clicks Close; the host hides its pane or window.</summary>
         public event EventHandler CloseRequested;
 
-        /// <summary>"FlareAI — topic.htm" — for the host's title.</summary>
+        /// <summary>"House Style — topic.htm" — for the host's title.</summary>
         public string Title { get; private set; }
 
         private readonly bool _wholeTopic;
@@ -56,7 +56,7 @@ namespace FlareAI.Flare.UI
                                                Func<string, IDocumentAdapter> open, IList<string> files, string projectName)
         {
             var panel = new FindingsPanel(runner, activeDoc, newRunner, open, null, false) { _files = files };
-            panel.Title = "FlareAI — project " + projectName + " (" + files.Count + " files)";
+            panel.Title = "House Style — project " + projectName + " (" + files.Count + " files)";
             return panel;
         }
 
@@ -79,7 +79,7 @@ namespace FlareAI.Flare.UI
             _runner = runner; _doc = doc; _newRunner = newRunner; _open = open; _cache = cache; _aiOnStart = aiOnStart;
             // Keep the first check's scope: Go to selects text in the editor, which must not shrink a Re-check.
             _wholeTopic = string.IsNullOrEmpty(doc.SelectionText);
-            Title = "FlareAI — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
+            Title = "House Style — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
             Padding = new Padding(6);
             MinimumSize = new Size(260, 320);
@@ -518,7 +518,7 @@ namespace FlareAI.Flare.UI
                 _status.Text = "Fix it in the editor (" + f.Suggestion + "), then Re-analyze.";
                 return;
             }
-            if (Apply(new List<StyleFinding> { f }, "FlareAI: " + f.Rule) > 0)
+            if (Apply(new List<StyleFinding> { f }, "House Style: " + f.Rule) > 0)
             {
                 FeedbackLog.Record(f, _doc.SourcePath, "accepted");
                 Next();
@@ -574,8 +574,8 @@ namespace FlareAI.Flare.UI
             var files = GroupByDocument(todo).Count;
             if (files > 3 && MessageBox.Show(this, "Apply " + todo.Count + " fixes in " + files + " files?\n\nEach file gets the fixes as tracked changes. Files that aren't open now are saved and closed after their fixes " +
                     "(the changes stay tracked: review them with Review > Accept / Reject). Files you have open are left open and unsaved.",
-                    "FlareAI", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
-            var n = Apply(todo, todo.Count == 1 ? "FlareAI: " + todo[0].Rule : "FlareAI: " + todo.Count + " style fixes");
+                    "House Style", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            var n = Apply(todo, todo.Count == 1 ? "House Style: " + todo[0].Rule : "House Style: " + todo.Count + " style fixes");
             foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "accepted");
             var inSnippets = _findings.FindAll(f => f.CanFix && f.DocumentPath != null && _files == null).Count;
             if (inSnippets > 0) _status.Text += "  " + inSnippets + " more in snippets: select one to apply it there.";
@@ -588,8 +588,8 @@ namespace FlareAI.Flare.UI
             var todo = _findings.FindAll(f => f.CanFix && (f.Kind == "mechanical" || f.Kind == "wording") && f.DocumentPath == null);
             if (todo.Count == 0) return;
             if (MessageBox.Show(this, "Write " + todo.Count + " proposal(s) into the topic as tracked changes?\n\nReview them in Flare's Review tab (Accept / Reject change), " +
-                    "or send the topic out in a review package. One Ctrl+Z removes them all.", "FlareAI — Propose all", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
-            var n = Apply(todo, "FlareAI: " + todo.Count + " proposals");
+                    "or send the topic out in a review package. One Ctrl+Z removes them all.", "House Style — Propose all", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            var n = Apply(todo, "House Style: " + todo.Count + " proposals");
             foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "proposed", "bulk");
             _status.Text = Summary() + "  Wrote " + n + " tracked change(s) — review them in the Review tab. Proposals that need a rewrite or a manual fix are still listed.";
             Next();
@@ -649,7 +649,7 @@ namespace FlareAI.Flare.UI
             if (text == null || text == f.Excerpt) return;
             var edited = Clone(f);
             edited.Replacement = text;
-            if (Apply(new List<StyleFinding> { edited }, "FlareAI: " + f.Rule + " (edited)") > 0)
+            if (Apply(new List<StyleFinding> { edited }, "House Style: " + f.Rule + " (edited)") > 0)
             {
                 f.IsFixed = true;
                 FeedbackLog.Record(edited, _doc.SourcePath, "edited", f.Replacement);
@@ -923,7 +923,7 @@ namespace FlareAI.Flare.UI
     {
         public static string Ask(IWin32Window owner, string title, string label, string initial, bool multiline)
         {
-            using (var form = new Form { Text = "FlareAI — " + title, StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ClientSize = new Size(520, multiline ? 190 : 150), Font = SystemFonts.MessageBoxFont })
+            using (var form = new Form { Text = "House Style — " + title, StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ClientSize = new Size(520, multiline ? 190 : 150), Font = SystemFonts.MessageBoxFont })
             {
                 var text = new Label { Text = label, Left = 12, Top = 12, Width = 496, Height = 34 };
                 var box = new TextBox { Left = 12, Top = 50, Width = 496, Height = multiline ? 84 : 24, Multiline = multiline, AcceptsReturn = false, Text = initial ?? "", ScrollBars = multiline ? ScrollBars.Vertical : ScrollBars.None };

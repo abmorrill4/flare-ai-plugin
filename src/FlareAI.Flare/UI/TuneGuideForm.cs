@@ -44,7 +44,7 @@ namespace FlareAI.Flare.UI
         public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open, Func<IDocumentAdapter, ActionRunner> runnerFor)
         {
             _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor;
-            Text = "FlareAI — Tune style guide";
+            Text = "House Style — Tune style guide";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 600);
             MinimumSize = new Size(600, 400);
@@ -155,9 +155,9 @@ namespace FlareAI.Flare.UI
             try
             {
                 var doc = _open == null ? null : _open(new Uri(rule.Link).LocalPath);
-                if (doc == null) { MessageBox.Show(this, "Could not open " + rule.Link, "FlareAI"); return; }
+                if (doc == null) { MessageBox.Show(this, "Could not open " + rule.Link, "House Style"); return; }
                 var block = GuideEdits.Locate(doc.Document, rule.Text);
-                if (block == null) { MessageBox.Show(this, "Could not find this rule in " + System.IO.Path.GetFileName(doc.SourcePath) + ". Open it and edit the rule there.", "FlareAI"); return; }
+                if (block == null) { MessageBox.Show(this, "Could not find this rule in " + System.IO.Path.GetFileName(doc.SourcePath) + ". Open it and edit the rule there.", "House Style"); return; }
                 var runner = _runnerFor == null ? null : _runnerFor(doc);
                 if (runner == null) return;
                 var instruction = GuideEdits.Instruction(it, rule, block.LocalName == "tr");
@@ -167,7 +167,7 @@ namespace FlareAI.Flare.UI
                     _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ": review, save and commit the guide, then run Validate style guide.";
                 }
             }
-            catch (Exception ex) { Diagnostics.Log("tune: draft", ex); MessageBox.Show(this, ex.Message, "FlareAI — Draft change"); }
+            catch (Exception ex) { Diagnostics.Log("tune: draft", ex); MessageBox.Show(this, ex.Message, "House Style — Draft change"); }
         }
 
         /// <summary>Seeds the guide's FlareAI\prompts folder with the built-in templates (missing ones only) and opens it.</summary>
@@ -194,7 +194,7 @@ namespace FlareAI.Flare.UI
                 _head.Text = (added > 0 ? "Copied " + added + " prompt template(s) to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
                 System.Diagnostics.Process.Start("explorer.exe", "\"" + dir + "\"");
             }
-            catch (Exception ex) { Diagnostics.Log("tune: prompts", ex); MessageBox.Show(this, ex.Message, "FlareAI — Customize AI prompts"); }
+            catch (Exception ex) { Diagnostics.Log("tune: prompts", ex); MessageBox.Show(this, ex.Message, "House Style — Customize AI prompts"); }
         }
 
         private static string Advice(string kind)
@@ -231,7 +231,7 @@ namespace FlareAI.Flare.UI
                 }
                 else if (rule.Link.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) System.Diagnostics.Process.Start(rule.Link);
             }
-            catch (Exception ex) { Diagnostics.Log("tune: open rule", ex); MessageBox.Show(this, "Could not open " + rule.Link + ": " + ex.Message, "FlareAI"); }
+            catch (Exception ex) { Diagnostics.Log("tune: open rule", ex); MessageBox.Show(this, "Could not open " + rule.Link + ": " + ex.Message, "House Style"); }
         }
     }
 }

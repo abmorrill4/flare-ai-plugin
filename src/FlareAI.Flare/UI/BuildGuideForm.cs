@@ -37,7 +37,7 @@ namespace FlareAI.Flare.UI
         public BuildGuideForm(Team team, StyleEngine style, string project, Func<ActionRunner> runner, Func<string, IDocumentAdapter> open)
         {
             _team = team; _style = style; _project = project; _runner = runner; _open = open;
-            Text = "FlareAI — Build style guide";
+            Text = "House Style — Build style guide";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(940, 640);
             MinimumSize = new Size(640, 420);
@@ -229,7 +229,7 @@ namespace FlareAI.Flare.UI
                 _head.Text = "Added " + n + " rule(s) to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example), then commit the guide.";
                 if (_open != null) _open(topic);
             }
-            catch (Exception ex) { Diagnostics.Log("Build guide: write", ex); MessageBox.Show(this, "Could not write " + topic + ": " + ex.Message, "FlareAI"); }
+            catch (Exception ex) { Diagnostics.Log("Build guide: write", ex); MessageBox.Show(this, "Could not write " + topic + ": " + ex.Message, "House Style"); }
             UpdateAdd();
         }
 
@@ -247,7 +247,7 @@ namespace FlareAI.Flare.UI
     {
         public static string Ask(IWin32Window owner)
         {
-            using (var form = new Form { Text = "FlareAI — Notes for the style guide", StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(680, 460), MinimumSize = new Size(480, 300), Font = SystemFonts.MessageBoxFont })
+            using (var form = new Form { Text = "House Style — Notes for the style guide", StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(680, 460), MinimumSize = new Size(480, 300), Font = SystemFonts.MessageBoxFont })
             {
                 var label = new Label { Dock = DockStyle.Top, Height = 44, Padding = new Padding(8, 8, 8, 0),
                     Text = "Paste or dictate (Win+H) anything: how the team writes, words you never use, an old style guide, or the prompt you used with another AI tool. Or load a .txt, .md or .htm file." };

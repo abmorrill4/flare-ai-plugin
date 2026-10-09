@@ -22,7 +22,7 @@ namespace FlareAI.Flare.UI
 
         public AssistForm(ActionRunner runner, IDocumentAdapter doc)
         {
-            Text = "FlareAI — Topic assists: " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
+            Text = "House Style — Topic assists: " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(760, 620);
             MinimumSize = new Size(520, 360);

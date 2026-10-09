@@ -1,4 +1,4 @@
-# Builds Release and zips a tester-ready plugin folder into dist\FlareAI-<version>.zip
+# Builds Release and zips a tester-ready plugin folder into dist\HouseStyle-<version>.zip
 param([string]$Version = "0.1.0")
 $ErrorActionPreference = "Stop"
 $repo = Split-Path $PSScriptRoot -Parent
@@ -16,7 +16,7 @@ Copy-Item "tools\FlareAI.Mcp\bin\Release\net48\FlareAI.Mcp.exe", "tools\FlareAI.
 if (Test-Path "src\FlareAI.Flare\Icons") { Copy-Item "src\FlareAI.Flare\Icons" -Destination $stage -Recurse }
 Copy-Item "docs\TESTER-GUIDE.md" -Destination "$repo\dist\stage\README-INSTALL.md" -ErrorAction SilentlyContinue
 
-$zip = Join-Path $repo "dist\FlareAI-$Version.zip"
+$zip = Join-Path $repo "dist\HouseStyle-$Version.zip"
 Remove-Item $zip -Force -ErrorAction SilentlyContinue
 Compress-Archive -Path "$repo\dist\stage\*" -DestinationPath $zip
 Write-Host "Packaged: $zip"

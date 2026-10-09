@@ -30,7 +30,7 @@ namespace FlareAI.Flare.UI
         public GuideReportForm(IStyleService style, Func<ActionRunner> runner, string project)
         {
             _style = style; _runner = runner; _project = project;
-            Text = "FlareAI — Validate style guide";
+            Text = "House Style — Validate style guide";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(820, 560);
             MinimumSize = new Size(520, 320);
@@ -105,7 +105,7 @@ namespace FlareAI.Flare.UI
             var calls = 0;
             foreach (var ex in _examples) calls += (string.IsNullOrEmpty(ex.Bad) ? 0 : 1) + (string.IsNullOrEmpty(ex.Good) ? 0 : 1);
             if (MessageBox.Show(this, "Check " + _examples.Count + " prose rule(s) against the AI reviewer?\n\nThis makes " + calls + " model call(s).",
-                    "FlareAI", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+                    "House Style", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
             var runner = _runner();
             if (runner == null) return;
             _ai.Enabled = false;

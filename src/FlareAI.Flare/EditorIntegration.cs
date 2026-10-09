@@ -76,12 +76,12 @@ namespace FlareAI.Flare
             try
             {
                 var items = doc.GetUserPendingContextMenuItems();
-                if (items != null && !items.Any(i => i.Text == "FlareAI: Check style"))
+                if (items != null && !items.Any(i => i.Text == "House Style: Check style"))
                 {
                     items.Add(new ToolStripSeparator());
-                    items.Add(Item("FlareAI: Check style", _checkStyle));
-                    items.Add(Item("FlareAI: Rewrite selection", _rewrite));
-                    items.Add(Item("FlareAI: Ask…", _ask));
+                    items.Add(Item("House Style: Check style", _checkStyle));
+                    items.Add(Item("House Style: Rewrite selection", _rewrite));
+                    items.Add(Item("House Style: Ask…", _ask));
                 }
             }
             catch (Exception ex) { Diagnostics.Log("context menu", ex); }

@@ -20,7 +20,7 @@ namespace FlareAI.Flare.UI
         {
             _settings = PluginSettings.Load();
 
-            Text = "FlareAI — Settings";
+            Text = "House Style — Settings";
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
@@ -130,7 +130,7 @@ namespace FlareAI.Flare.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not save settings: " + ex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Could not save settings: " + ex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

@@ -55,7 +55,7 @@ namespace FlareAI.Flare.UI
         {
             _runner = runner; _doc = doc; _kind = kind; _instruction = instruction; _title = title; _blocks = blocks;
 
-            Text = "FlareAI — " + title;
+            Text = "House Style — " + title;
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(760, 520);
             MinimumSize = new Size(500, 300);
@@ -162,14 +162,14 @@ namespace FlareAI.Flare.UI
         {
             try
             {
-                AppliedSummary = _runner.Apply(_doc, _proposal, "FlareAI " + _title);
+                AppliedSummary = _runner.Apply(_doc, _proposal, "House Style: " + _title);
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Apply", ex);
-                MessageBox.Show("Could not apply the change: " + ex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Could not apply the change: " + ex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

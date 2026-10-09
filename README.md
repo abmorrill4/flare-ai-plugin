@@ -1,6 +1,6 @@
-# FlareAI — AI assistant plugin for MadCap Flare Desktop
+# House Style — AI style checking for MadCap Flare Desktop
 
-Adds an **AI** ribbon tab to Flare Desktop with *Check style*, *Rewrite selection*, and
+Adds a **House Style** ribbon tab to Flare Desktop with *Check style*, *Rewrite selection*, and
 *Ask…* actions. Edits come back as Flare tracked changes so the author accepts or rejects
 with the normal review tools.
 
@@ -27,8 +27,8 @@ dotnet test
 .\scripts\run-flare.ps1          # launches Flare with ANTHROPIC_API_KEY from .env
 ```
 
-Then in Flare: **File > Options > Plugins > FlareAI > Enable**, restart Flare, look for the
-**AI** tab (ribbon UI mode only).
+Then in Flare: **File > Options > Plugins > House Style > Enable**, restart Flare, look for the
+**House Style** tab (ribbon UI mode only).
 
 ## Prerequisites
 
@@ -74,7 +74,7 @@ A team copies the starter project, keeps it in git, and points Settings → Styl
   when Google rewrites a page (matching rules by the source text they cover) and retires keys it never reuses.
   Feedback also records a fingerprint of the rule's wording, so Tune doesn't count decisions about an earlier
   wording against a rewritten rule.
-- **AI ▸ Validate style guide** tests the guide: each table row against its Example, contradictions, duplicates and
+- **House Style ▸ Validate style guide** tests the guide: each table row against its Example, contradictions, duplicates and
   overrides between Company and Google, override tables that name missing rules, and (on request) each prose rule's
   Bad/Good examples against the AI.
 
@@ -97,9 +97,9 @@ lint row must pass the validator. `tools/google-style/coverage.md` is the report
 - `FlareAI/layer.txt` names the company layer (`company`): rule ids stay the same in every clone.
 - `FlareAI/models.json` sets models, effort and the review unit for the team.
 - Settings → Team feedback folder: a shared folder where each writer's review decisions append to their own file.
-- **AI ▸ Build style guide** (owners) proposes rules from evidence: **Mine this project** (spelling variants,
+- **House Style ▸ Build style guide** (owners) proposes rules from evidence: **Mine this project** (spelling variants,
   competing words, capitalization, heading case, with counts and sentences) and **Add notes or an old guide**.
-- **AI ▸ Tune style guide** (owners) pools everyone's decisions: disputed rules, often-rejected rules, repeated hand
+- **House Style ▸ Tune style guide** (owners) pools everyone's decisions: disputed rules, often-rejected rules, repeated hand
   edits, requests to turn rules off — with evidence; **Draft a change with AI** edits the rule as tracked changes.
 
 ### In the editor

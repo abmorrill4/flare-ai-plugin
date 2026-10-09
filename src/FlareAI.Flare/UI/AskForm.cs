@@ -12,7 +12,7 @@ namespace FlareAI.Flare.UI
 
         public AskForm()
         {
-            Text = "FlareAI — Ask";
+            Text = "House Style — Ask";
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;

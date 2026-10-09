@@ -14,7 +14,7 @@ using FlareAI.Flare.UI;
 namespace FlareAI.Flare
 {
     /// <summary>
-    /// Entry point Flare discovers in Flare.app\Plugins\FlareAI. Adds an "AI" ribbon tab.
+    /// Entry point Flare discovers in Flare.app\Plugins\FlareAI. Adds a "House Style" ribbon tab.
     /// Everything interesting lives in FlareAI.Core; this class only wires Flare to it.
     /// </summary>
     public class Plugin : IPlugin
@@ -27,7 +27,7 @@ namespace FlareAI.Flare
         public string GetVersion() { return "0.1.0"; }
         public string GetAuthor() { return "Alkami Enterprise Technology"; }
         public string GetDescription() { return "AI editing assistant: check style, rewrite, ask. Edits arrive as tracked changes."; }
-        public string GetName() { return "FlareAI"; }
+        public string GetName() { return "House Style"; }
 
         public void Initialize(IHost host)
         {
@@ -54,7 +54,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Execute", ex);
-                MessageBox.Show("FlareAI failed to start: " + ex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("House Style failed to start: " + ex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -74,7 +74,7 @@ namespace FlareAI.Flare
         {
             // Per the Ribbon Example: ribbon.AddNewRibbonTab(label, keyTip) → tab.AddNewRibbonGroup(label) → group.AddRibbonButton(RibbonControlData)
             IRibbon ribbon = _nav.GetRibbon();
-            IRibbonTab tab = ribbon.AddNewRibbonTab("AI", "Q");
+            IRibbonTab tab = ribbon.AddNewRibbonTab("House Style", "Q");
             IRibbonGroup actions = tab.AddNewRibbonGroup("Assist");
             actions.AddRibbonButton(Button("Check style", "C", OnCheckStyle, "check"));
             actions.AddRibbonButton(Button("Rewrite selection", "R", OnRewrite, "rewrite"));
@@ -94,14 +94,14 @@ namespace FlareAI.Flare
         }
 
         /// <summary>
-        /// Same actions for Flare's Tool Strip UI mode, where the ribbon tab is invisible: an "AI" menu and toolbar.
+        /// Same actions for Flare's Tool Strip UI mode, where the ribbon tab is invisible: a "House Style" menu and toolbar.
         /// Failures are logged only — the ribbon is the primary surface.
         /// </summary>
         private void CreateToolStrip()
         {
             try
             {
-                var menu = _nav.CreateToolStripMenu("AI", "Q");
+                var menu = _nav.CreateToolStripMenu("House Style", "Q");
                 menu.AddMenuItem("Check style", new DelegateCommand(OnCheckStyle), null, IconPath("check-16.png"));
                 menu.AddMenuItem("Rewrite selection", new DelegateCommand(OnRewrite), null, IconPath("rewrite-16.png"));
                 menu.AddMenuItem("Ask…", new DelegateCommand(OnAsk), null, IconPath("ask-16.png"));
@@ -111,7 +111,7 @@ namespace FlareAI.Flare
                 menu.AddMenuItem("Validate style guide", new DelegateCommand(OnValidateGuide), null, IconPath("validate-16.png"));
                 menu.AddMenuItem("Diagnostics", new DelegateCommand(OnDiagnostics), null, IconPath("diag-16.png"));
 
-                var bar = _nav.CreateCustomToolBar("FlareAI");
+                var bar = _nav.CreateCustomToolBar("House Style");
                 bar.AddButton("Check style", new DelegateCommand(OnCheckStyle), null, IconPath("check-16.png"), RibbonIconSize.Small);
                 bar.AddButton("Rewrite", new DelegateCommand(OnRewrite), null, IconPath("rewrite-16.png"), RibbonIconSize.Small);
                 bar.AddButton("Ask…", new DelegateCommand(OnAsk), null, IconPath("ask-16.png"), RibbonIconSize.Small);
@@ -166,7 +166,7 @@ namespace FlareAI.Flare
                 var files = ActionRunner.ProjectFiles(adapter == null ? null : adapter.SourcePath);
                 if (adapter == null || files.Count == 0)
                 {
-                    MessageBox.Show("Open any topic of the project first (Check project scans that project's Content folder).", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Open any topic of the project first (Check project scans that project's Content folder).", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 var runner = NewRunner(adapter);
@@ -179,7 +179,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Check project", ex);
-                MessageBox.Show(ex.Message, "FlareAI — Check project", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "House Style — Check project", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -217,7 +217,7 @@ namespace FlareAI.Flare
             try
             {
                 var adapter = ActiveAdapter();
-                if (adapter == null || !adapter.IsEditableTopic) { MessageBox.Show("Open a topic in the XML Editor first.", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+                if (adapter == null || !adapter.IsEditableTopic) { MessageBox.Show("Open a topic in the XML Editor first.", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
                 var runner = NewRunner(adapter);
                 if (runner == null) return;
                 using (var f = new AssistForm(runner, adapter)) f.ShowDialog(_nav.GetParentForm());
@@ -225,7 +225,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Topic assists", ex);
-                MessageBox.Show(ex.Message, "FlareAI — Topic assists", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "House Style — Topic assists", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -261,13 +261,13 @@ namespace FlareAI.Flare
                 }
                 var summary = RunLlmExport(settings, output);
                 Diagnostics.Log("LLM export: " + summary);
-                if (MessageBox.Show(summary + "\n\nOpen the folder?", "FlareAI — Export for LLMs", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                if (MessageBox.Show(summary + "\n\nOpen the folder?", "House Style — Export for LLMs", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                     System.Diagnostics.Process.Start("explorer.exe", "\"" + output + "\"");
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Export for LLMs", ex);
-                MessageBox.Show(ex.Message, "FlareAI — Export for LLMs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "House Style — Export for LLMs", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -318,7 +318,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Build style guide", ex);
-                MessageBox.Show(ex.Message, "FlareAI — Build style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "House Style — Build style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -337,7 +337,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Tune style guide", ex);
-                MessageBox.Show(ex.Message, "FlareAI — Tune style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "House Style — Tune style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -348,7 +348,7 @@ namespace FlareAI.Flare
             {
                 var settings = PluginSettings.Load();
                 var style = StyleService(settings);
-                if (style == null) { MessageBox.Show("The style linter is turned off in Settings.", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+                if (style == null) { MessageBox.Show("The style linter is turned off in Settings.", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
                 var adapter = ActiveAdapter();
                 var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
                 using (var f = new GuideReportForm(style, () => adapter == null ? NewRunnerWithoutTopic(settings, style, project) : NewRunner(adapter), project))
@@ -357,7 +357,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Validate style guide", ex);
-                MessageBox.Show(ex.Message, "FlareAI — Validate style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "House Style — Validate style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -365,7 +365,7 @@ namespace FlareAI.Flare
         {
             ILlmClient llm;
             try { llm = LlmClientFactory.Create(settings); }
-            catch (LlmException lex) { MessageBox.Show(lex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
+            catch (LlmException lex) { MessageBox.Show(lex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
             return new ActionRunner(llm, PromptBuilder.For(style, project), settings.MaxTokens, style, project, RoutingFor(settings))
             { Parallelism = settings.Parallelism > 0 ? settings.Parallelism : 6 };
         }
@@ -412,7 +412,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Diagnostics", ex);
-                MessageBox.Show(ex.ToString(), "FlareAI diagnostics error");
+                MessageBox.Show(ex.ToString(), "House Style diagnostics error");
             }
         }
 
@@ -423,7 +423,7 @@ namespace FlareAI.Flare
                 var adapter = ActiveAdapter();
                 if (adapter == null || !adapter.IsEditableTopic)
                 {
-                    MessageBox.Show("Open a topic in the XML Editor first.", "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Open a topic in the XML Editor first.", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 var runner = NewRunner(adapter);
@@ -440,7 +440,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log(title, ex);
-                MessageBox.Show(ex.Message, "FlareAI — " + title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "House Style — " + title, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -460,7 +460,7 @@ namespace FlareAI.Flare
             try { llm = LlmClientFactory.Create(settings); }
             catch (LlmException lex)
             {
-                MessageBox.Show(lex.Message, "FlareAI", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(lex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 OnSettings();
                 return null;
             }

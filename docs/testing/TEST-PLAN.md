@@ -1,4 +1,4 @@
-# FlareAI test plan
+# House Style test plan
 
 For testers. Each case says what to do and what you should see. Mark it pass/fail; for a fail, file a report with
 [BUG-TEMPLATE.md](BUG-TEMPLATE.md). The user guide (`docs/user-guide`, a Flare project) explains every feature; this
@@ -6,7 +6,7 @@ plan is how to check them.
 
 ## Setup (once)
 
-1. Install the plugin (user guide: *Install the plugin*). In **AI > Settings**, paste your API key.
+1. Install the plugin (user guide: *Install the plugin*). In **House Style > Settings**, paste your API key.
 2. The test corpus is in the repository: `corpus/DigitalBanking` (a Flare
    project: 25 feature areas × 10 topics, snippets, variables, conditions, images, a TOC and an HTML5 target) and
    `corpus/ground-truth.json`, which lists every problem planted in it: file, the exact words, and which check should
@@ -51,7 +51,7 @@ numbers and URLs). One shared snippet (`LegacyApp.flsnp`, used by 9 topics) says
 
 | # | Do | Expect |
 |---|---|---|
-| E1a | Right-click in a topic. | Flare's menu has **FlareAI: Check style**, **Rewrite selection**, **Ask…** once each; each works on the text you right-clicked. |
+| E1a | Right-click in a topic. | Flare's menu has **House Style: Check style**, **Rewrite selection**, **Ask…** once each; each works on the text you right-clicked. |
 | E1b | Type "Please utilize the customer list." at the end of a paragraph and stop. | About a second later the paragraph gets an amber margin bar; the review pane (if open on the topic) lists the new issues. |
 | E1c | Open the pane (**Check style**) and accept or reject proposals. | Markers follow: a paragraph loses its bar when its last proposal is resolved; AI findings mark their paragraphs too. |
 | E1d | Save (Ctrl+S) a topic with issues. | A notice at the bottom right: "N style issue(s) in topic.htm. Saved anyway." with *Show them*. The saved file has no stylesheet or marker in it. |

@@ -19,7 +19,7 @@ namespace FlareAI.Flare.UI
 
         public RuleSettingForm(string ruleText, bool canChangeTeamGuide)
         {
-            Text = "FlareAI — Turn off / change rule";
+            Text = "House Style — Turn off / change rule";
             StartPosition = FormStartPosition.CenterParent; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
             ClientSize = new Size(520, 270); Font = SystemFonts.MessageBoxFont;
             Controls.Add(new Label { Text = ruleText, Left = 12, Top = 12, Width = 496, Height = 48, AutoEllipsis = true });
