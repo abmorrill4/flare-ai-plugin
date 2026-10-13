@@ -79,11 +79,18 @@ namespace FlareAI.Core.Actions
             return plan;
         }
 
+        /// <summary>The path inside the project's Content folder ("accounts\about.htm"): many topics share a file name.</summary>
+        public static string ProjectPath(string path)
+        {
+            var i = path.IndexOf("\\Content\\", StringComparison.OrdinalIgnoreCase);
+            return i >= 0 ? path.Substring(i + 9) : Path.GetFileName(path);
+        }
+
         private static bool IsOpenTopic(string path, string open) { return open != null && string.Equals(path, open, StringComparison.OrdinalIgnoreCase); }
 
         private static string FileLabel(string path, Func<string, int> snippetUses)
         {
-            var name = path == null ? "this topic" : Path.GetFileName(path);
+            var name = path == null ? "this topic" : ProjectPath(path);
             if (path != null && string.Equals(Path.GetExtension(path), ".flsnp", StringComparison.OrdinalIgnoreCase) && snippetUses != null)
             {
                 var n = snippetUses(path);
