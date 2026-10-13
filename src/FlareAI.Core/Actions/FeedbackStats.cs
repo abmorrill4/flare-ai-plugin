@@ -73,6 +73,31 @@ namespace FlareAI.Core.Actions
             return list;
         }
 
+        /// <summary>
+        /// For <c>attribution = counts</c>: replaces every writer id (including emails in older records, or in a legacy file's name)
+        /// with "Writer 1", "Writer 2"… so views and reports can count writers without naming anyone.
+        /// </summary>
+        public static List<Decision> Anonymize(IEnumerable<Decision> decisions)
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var result = new List<Decision>();
+            foreach (var d in decisions)
+            {
+                var key = d.Writer ?? "";
+                string alias;
+                if (!map.TryGetValue(key, out alias)) { alias = "Writer " + (map.Count + 1); map[key] = alias; }
+                result.Add(new Decision
+                {
+                    At = d.At, Writer = alias, Verdict = d.Verdict, Reason = d.Reason, Rule = d.Rule, RuleId = d.RuleId, RuleHash = d.RuleHash,
+                    Layer = d.Layer, Excerpt = d.Excerpt, Replacement = d.Replacement, File = d.File
+                });
+            }
+            return result;
+        }
+
+        /// <summary>"3 writers" / "1 writer".</summary>
+        public static string WriterCount(int n) { return n + (n == 1 ? " writer" : " writers"); }
+
         /// <summary>The feedback files of a shared folder (one per writer).</summary>
         public static IEnumerable<string> FilesIn(string folder)
         {

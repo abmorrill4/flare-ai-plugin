@@ -39,6 +39,7 @@ namespace FlareAI.Core.Tests
             {
                 Assert.False(Team.Load(root, null, "pat@example.com").IsStrict);
                 File.WriteAllText(Path.Combine(root, "FlareAI", "owners.txt"), "# style guide owners\nlead@example.com  # docs lead\n");
+                File.WriteAllText(Path.Combine(root, "FlareAI", "attribution.txt"), "attribution = names");
                 var writer = Team.Load(root, @"\\share\feedback", "pat@example.com");
                 Assert.True(writer.IsStrict);
                 Assert.False(writer.IsOwner);
