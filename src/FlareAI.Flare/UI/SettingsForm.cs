@@ -73,6 +73,9 @@ namespace FlareAI.Flare.UI
             save.Location = new Point(cancel.Left - 8 - Math.Max(80, save.PreferredSize.Width), _y);
             save.Click += (s, e) => OnSave();
             AcceptButton = save; CancelButton = cancel;
+            // ponytail: scroll when taller than the screen; the grouped redesign (#13) removes the need.
+            var room = Screen.FromPoint(Cursor.Position).WorkingArea.Height - 80;
+            if (ClientSize.Height > room) { AutoScroll = true; ClientSize = new Size(ClientSize.Width + SystemInformation.VerticalScrollBarWidth, room); }
 
             A11y.Name(_deepModel, "Deep model");
             A11y.Name(_fastModel, "Fast model");
