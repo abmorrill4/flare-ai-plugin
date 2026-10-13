@@ -74,19 +74,22 @@ namespace FlareAI.Core.Style
                 foreach (XmlNode c in body.ChildNodes) if (c.NodeType == XmlNodeType.Element) blocks.Add(c);
             }
 
-            XmlText fallback = null; var fallbackAt = -1;
+            XmlText fallback = null; var fallbackAt = -1; var occurrences = 0;
             foreach (var r in TextRuns.Of(blocks))
             {
                 for (var i = r.Value.IndexOf(f.Excerpt, StringComparison.Ordinal); i >= 0;
                      i = r.Value.IndexOf(f.Excerpt, i + 1, StringComparison.Ordinal))
                 {
                     if (Tail(r.Value.Substring(0, i)) == (f.Before ?? "")) { run = r; start = i; return true; }
+                    occurrences++;
                     if (fallback == null) { fallback = r; fallbackAt = i; }
                 }
             }
-            // Earlier fixes in the same run change the context; the first occurrence in the block is the best guess.
+            // The context may have changed (the writer edited nearby, or an earlier fix in a batch). The text is still
+            // safe to act on only when it occurs exactly once: with several occurrences we can't tell which one the
+            // finding meant, and applying it to the wrong one is worse than reporting it stale.
             // Rewrite pieces are often single words, so for them only an exact context match is safe.
-            if (f.Source == "rewrite") return false;
+            if (f.Source == "rewrite" || occurrences != 1) return false;
             run = fallback; start = fallbackAt;
             return run != null;
         }

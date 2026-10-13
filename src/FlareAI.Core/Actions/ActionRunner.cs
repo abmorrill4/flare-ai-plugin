@@ -679,8 +679,10 @@ namespace FlareAI.Core.Actions
             foreach (var f in findings)
             {
                 XmlText run; int start; int pos;
-                if (f.CanFix && FindingLocator.TryLocate(doc.Document, f, out run, out start) && order.TryGetValue(run, out pos))
+                if (!f.CanFix) continue;
+                if (FindingLocator.TryLocate(doc.Document, f, out run, out start) && order.TryGetValue(run, out pos))
                     todo.Add(new KeyValuePair<StyleFinding, long>(f, (long)pos * 1000000 + start));
+                else f.IsStale = true; // can't be placed safely: surface "Text changed", don't skip silently
             }
             todo.Sort((a, b) => b.Value.CompareTo(a.Value));
             if (todo.Count == 0) return 0;
@@ -694,7 +696,7 @@ namespace FlareAI.Core.Actions
                     {
                         var f = item.Key;
                         XmlText run; int start;
-                        if (!FindingLocator.TryLocate(doc.Document, f, out run, out start)) continue;
+                        if (!FindingLocator.TryLocate(doc.Document, f, out run, out start)) { f.IsStale = true; continue; }
                         if (doc.ReplaceSpan(run, start, f.Excerpt.Length, f.Replacement)) { f.IsFixed = true; applied++; }
                     }
                 });

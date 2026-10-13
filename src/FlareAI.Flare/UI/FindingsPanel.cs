@@ -436,7 +436,7 @@ namespace FlareAI.Flare.UI
             var where = f.DocumentPath == null ? "" : "In snippet " + System.IO.Path.GetFileNameWithoutExtension(f.DocumentPath);
             int uses;
             if (f.DocumentPath != null && _usage.TryGetValue(f.DocumentPath, out uses)) where += " — changes " + uses + " file(s) that use it";
-            _cardHead.Text = LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  accepted" : f.IsStale ? "  ·  text changed — Re-analyze" : "")
+            _cardHead.Text = LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  accepted" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
 
             // What: the words around it, and the change marked.
@@ -503,7 +503,7 @@ namespace FlareAI.Flare.UI
         {
             var f = Current();
             if (f == null || f.IsFixed) return;
-            if (f.IsStale) { _status.Text = "That text changed since the review. Re-analyze the paragraph."; return; }
+            if (f.IsStale) { _status.Text = "Text changed: check again. Re-analyze the paragraph."; return; }
             if (f.Kind == "variable")
             {
                 GoTo(f, true);
