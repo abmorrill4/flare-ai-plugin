@@ -21,4 +21,9 @@
     <None Include="..\fixtures\**\*" Link="fixtures\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The command table has no Flare dependencies, so the tests can check it directly. -->
+    <Compile Include="..\..\src\FlareAI.Flare\Commands.cs" Link="Commands.cs" />
+  </ItemGroup>
+
 </Project>

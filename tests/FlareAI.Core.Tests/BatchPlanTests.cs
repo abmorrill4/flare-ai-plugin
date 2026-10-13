@@ -111,5 +111,13 @@ namespace FlareAI.Core.Tests
             Assert.Equal("AI this session: 1 call (under $0.01)", AiCost.Session(1, 0.004));
             Assert.Equal("AI this session: 12 calls (about $0.37)", AiCost.Session(12, 0.372));
         }
+
+        [Fact]
+        public void FilesWithTheSameNameStayApart()
+        {
+            Assert.Equal(@"accounts\about.htm", BatchPlan.ProjectPath(@"C:\p\Content\accounts\about.htm"));
+            Assert.Equal(@"ach\about.htm", BatchPlan.ProjectPath(@"C:\p\Content\ach\about.htm"));
+            Assert.Equal("x.htm", BatchPlan.ProjectPath(@"C:\elsewhere\x.htm"));
+        }
     }
 }

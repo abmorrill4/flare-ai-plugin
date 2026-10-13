@@ -24,73 +24,97 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 780);
+            ClientSize = new Size(520, 600);   // height is set from the content below
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
-            var y = 12;
-            _provider = AddRow("Provider", y, out y, new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList });
+            // Layout: a label column and a field column. Everything that holds prose is AutoSize with a maximum width and
+            // the next control is placed below its measured height, so nothing is cut off at 100% or higher DPI.
+            _y = 12;
+            _provider = AddRow("Provider", new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList });
             _provider.Items.AddRange(new object[] { "Anthropic (direct)", "Bifrost gateway" });
             _provider.SelectedIndex = (int)_settings.Provider;
             _provider.SelectedIndexChanged += (s, e) => OnProviderChanged();
 
-            _baseUrl = AddRow("Base URL", y, out y, new TextBox { Text = _settings.BaseUrl });
-            _model = AddRow("Model (standard)", y, out y, new TextBox { Text = _settings.Model });
-            _fastModel = AddRow("Fast / deep models", y, out y, new TextBox { Text = _settings.FastModel ?? "", Width = 180 });
-            _deepModel = new TextBox { Text = _settings.DeepModel ?? "", Left = 328, Top = _fastModel.Top, Width = 180 };
-            Controls.Add(_deepModel);
-            Controls.Add(new Label { Text = "Empty = claude-haiku-5-5 / claude-opus-5-5. A style guide's FlareAI\\models.json overrides these for the team.", Left = 140, Top = y - 4, Width = 368, Height = 30, ForeColor = SystemColors.GrayText }); y += 30;
-            _key = AddRow("API / virtual key", y, out y, new TextBox { UseSystemPasswordChar = true });
-            _keyStatus = new Label { Left = 140, Top = y - 4, Width = 290, Height = 18, ForeColor = SystemColors.GrayText };
-            var clearKey = new LinkLabel { Text = "Clear stored key", Left = 430, Top = y - 4, Width = 90, Height = 18 };
+            _baseUrl = AddRow("Base URL", new TextBox { Text = _settings.BaseUrl });
+            _model = AddRow("Model (standard)", new TextBox { Text = _settings.Model });
+            _fastModel = AddRow("Fast model", new TextBox { Text = _settings.FastModel ?? "" });
+            _deepModel = AddRow("Deep model", new TextBox { Text = _settings.DeepModel ?? "" });
+            Note("Empty = claude-haiku-5-5 (fast) and claude-opus-5-5 (deep). A style guide's FlareAI\\models.json overrides these for the team.");
+            _key = AddRow("API / virtual key", new TextBox { UseSystemPasswordChar = true });
+            _keyStatus = new LiveLabel { Text = "No key configured.", AutoSize = true, MaximumSize = new Size(FieldWidth, 0), Left = FieldLeft, Top = _y, ForeColor = SystemColors.GrayText };
+            Controls.Add(_keyStatus); _y += _keyStatus.PreferredHeight + 2;
+            var clearKey = new LinkLabel { Text = "Clear stored key", AutoSize = true, Left = FieldLeft, Top = _y };
             clearKey.LinkClicked += (s, e) => { _settings.SetApiKey(null); _key.Text = ""; RefreshKeyStatus(); };
-            Controls.Add(_keyStatus); Controls.Add(clearKey); y += 18;
-            Controls.Add(new Label
-            {
-                Text = "The key is used only when you ask for AI: Check style's wording review, Rewrite, Ask, Topic assists, and Validate style guide's AI check. " +
-                       "Checking as you type, on save, before a build, and Check project never use AI and cost nothing.",
-                Left = 140, Top = y, Width = 368, Height = 58, ForeColor = SystemColors.GrayText
-            });
-            y += 62;
-            _mcpTools = AddRow("MCP include tools", y, out y, new TextBox { Text = _settings.McpIncludeTools });
-            _layers = AddRow("Style guide project", y, out y, new TextBox { Text = (_settings.StyleLayers ?? "").Replace(";", Environment.NewLine), Multiline = true, Height = 40, ScrollBars = ScrollBars.Vertical });
-            y += 14;
-            Controls.Add(new Label { Text = "Folder of your team's style guide (a Flare project). Empty = the guide bundled with the plugin.", Left = 140, Top = y - 4, Width = 368, Height = 18, ForeColor = SystemColors.GrayText }); y += 18;
-            _projectLayer = new CheckBox { Text = "Also use the open project's variables, glossary and Resources\\StyleGuide", Left = 140, Top = y, Width = 368, Checked = _settings.UseProjectLayer };
-            Controls.Add(_projectLayer); y += 28;
-            _feedback = AddRow("Team feedback folder", y, out y, new TextBox { Text = _settings.FeedbackFolder ?? "" });
-            Controls.Add(new Label { Text = "Shared folder (synced or network) where review decisions are pooled. Empty = personal only. The guide owner sees each decision, its rule and the text; who made it only if the guide sets attribution = names (default: anonymous, counted).", Left = 140, Top = y - 4, Width = 368, Height = 56, ForeColor = SystemColors.GrayText }); y += 56;
-            _timeout = AddRow("Timeout (s)", y, out y, new TextBox { Text = _settings.TimeoutSeconds.ToString(), Width = 60 });
-            _llmExport = new CheckBox { Text = "After each HTML build, add LLM-ready Markdown and llms.txt to the output", Left = 140, Top = y, Width = 368, Checked = _settings.LlmExportAfterBuild };
-            Controls.Add(_llmExport); y += 26;
-            _markers = new CheckBox { Text = "Mark paragraphs with suggestions in the editor", Left = 140, Top = y, Width = 368, Checked = _settings.ShowMarkers };
-            Controls.Add(_markers); y += 22;
-            _live = new CheckBox { Text = "Check as I type (style rules only, no AI)", Left = 140, Top = y, Width = 368, Checked = _settings.LiveCheck };
-            Controls.Add(_live); y += 22;
-            _onSave = new CheckBox { Text = "After saving, tell me how many style issues the topic has", Left = 140, Top = y, Width = 368, Checked = _settings.CheckOnSave };
-            Controls.Add(_onSave); y += 22;
-            _beforeBuild = new CheckBox { Text = "When a build starts, report the project's style issues", Left = 140, Top = y, Width = 368, Checked = _settings.ReportBeforeBuild };
-            Controls.Add(_beforeBuild); y += 26;
-            _diag = new CheckBox { Text = "Write diagnostics log", Left = 140, Top = y, Width = 300, Checked = _settings.WriteDiagnostics };
-            Controls.Add(_diag); y += 30;
+            Controls.Add(clearKey); _y += clearKey.PreferredHeight + 8;
+            Note("The key is used only when you ask for AI: Check style's wording review, Rewrite, Ask, Topic assists, and Validate style guide's AI check. " +
+                 "Checking as you type, on save, before a build, and Check project never use AI and cost nothing.");
+            _mcpTools = AddRow("MCP include tools", new TextBox { Text = _settings.McpIncludeTools });
+            _layers = AddRow("Style guide project", new TextBox { Text = (_settings.StyleLayers ?? "").Replace(";", Environment.NewLine), Multiline = true, Height = 40, ScrollBars = ScrollBars.Vertical });
+            _y += 14;
+            Note("Folder of your team's style guide (a Flare project). Empty = the guide bundled with the plugin.");
+            _projectLayer = AddCheck("Also use the open project's variables, glossary and Resources\\StyleGuide", _settings.UseProjectLayer);
+            _feedback = AddRow("Team feedback folder", new TextBox { Text = _settings.FeedbackFolder ?? "" });
+            Note("Shared folder (synced or network) where review decisions are pooled. Empty = personal only. The guide owner sees each decision, its rule and the text; who made it only if the guide sets attribution = names (default: anonymous, counted).");
+            _timeout = AddRow("Timeout (s)", new TextBox { Text = _settings.TimeoutSeconds.ToString(), Width = 60 });
+            _llmExport = AddCheck("After each HTML build, add LLM-ready Markdown and llms.txt to the output", _settings.LlmExportAfterBuild);
+            _markers = AddCheck("Mark paragraphs with suggestions in the editor", _settings.ShowMarkers);
+            _live = AddCheck("Check as I type (style rules only, no AI)", _settings.LiveCheck);
+            _onSave = AddCheck("After saving, tell me how many suggestions the topic has", _settings.CheckOnSave);
+            _beforeBuild = AddCheck("When a build starts, report the project's style issues", _settings.ReportBeforeBuild);
+            _diag = AddCheck("Write diagnostics log", _settings.WriteDiagnostics);
+            _y += 6;
 
-            var save = new Button { Text = "Save", Left = 352, Top = ClientSize.Height - 36, Width = 75 };
-            var cancel = new Button { Text = "Cancel", Left = 433, Top = ClientSize.Height - 36, Width = 75, DialogResult = DialogResult.Cancel };
-            save.Click += (s, e) => OnSave();
+            var save = new Button { Text = "Save", AutoSize = true, MinimumSize = new Size(80, 26) };
+            var cancel = new Button { Text = "Cancel", AutoSize = true, MinimumSize = new Size(80, 26), DialogResult = DialogResult.Cancel };
             Controls.AddRange(new Control[] { save, cancel });
+            ClientSize = new Size(FieldLeft + FieldWidth + 12, _y + 26 + 14);
+            cancel.Location = new Point(ClientSize.Width - 12 - Math.Max(80, cancel.PreferredSize.Width), _y);
+            save.Location = new Point(cancel.Left - 8 - Math.Max(80, save.PreferredSize.Width), _y);
+            save.Click += (s, e) => OnSave();
             AcceptButton = save; CancelButton = cancel;
 
+            A11y.Name(_deepModel, "Deep model");
+            A11y.Name(_fastModel, "Fast model");
+            A11y.Name(_key, "API or virtual key", "Write only: a stored key is never shown back. Leave blank to keep the stored key.");
+            A11y.Name(clearKey, "Clear stored key");
+            A11y.Name(_layers, "Style guide project folder", "Folder of your team's style guide. Empty uses the guide bundled with the plugin.");
+            A11y.Name(_timeout, "Timeout in seconds");
             RefreshKeyStatus();
             OnProviderChanged();
+            A11y.Apply(this);
         }
 
-        private T AddRow<T>(string label, int top, out int next, T control) where T : Control
+        private const int LabelLeft = 12, FieldLeft = 166, FieldWidth = 420;
+        private int _y;
+
+        /// <summary>A label and its field on one row; the label wraps if it needs to and the row grows with it.</summary>
+        private T AddRow<T>(string label, T control) where T : Control
         {
-            Controls.Add(new Label { Text = label, Left = 12, Top = top + 3, Width = 124 });
-            control.Left = 140; control.Top = top;
-            if (control.Width == 100 || control.Width == 0) control.Width = 368; // default width unless explicitly set
+            var l = new Label { Text = label, AutoSize = true, MaximumSize = new Size(FieldLeft - LabelLeft - 6, 0), Left = LabelLeft, Top = _y + 3 };
+            Controls.Add(l);
+            control.Left = FieldLeft; control.Top = _y;
+            if (control.Width == 100 || control.Width == 0) control.Width = FieldWidth;   // default width unless explicitly set
             Controls.Add(control);
-            next = top + 30;
+            _y += Math.Max(control.Height, l.PreferredHeight + 6) + 3;
             return control;
+        }
+
+        /// <summary>Grey explanatory text under a field: wraps at the field width and pushes the next control down.</summary>
+        private void Note(string text)
+        {
+            var n = new Label { Text = text, AutoSize = true, MaximumSize = new Size(FieldWidth, 0), Left = FieldLeft, Top = _y, ForeColor = SystemColors.GrayText };
+            Controls.Add(n);
+            _y += n.PreferredHeight + 8;
+        }
+
+        /// <summary>A check box whose text wraps at the field width instead of being cut off.</summary>
+        private CheckBox AddCheck(string text, bool isChecked)
+        {
+            var c = new CheckBox { Text = text, AutoSize = true, MaximumSize = new Size(FieldWidth, 0), Left = FieldLeft, Top = _y, Checked = isChecked };
+            Controls.Add(c);
+            _y += c.PreferredSize.Height + 1;
+            return c;
         }
 
         private void OnProviderChanged()

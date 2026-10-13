@@ -18,7 +18,7 @@ Tested with MadCap Flare 2026 (22). The style checker is free; AI review costs a
 
 ## Privacy
 
-Linting runs locally. When you ask for an AI review, rewrite or answer, the text of the sections being checked (and, for alt text, the image) and the
+Style checks run locally. When you ask for an AI review, rewrite or answer, the text of the sections being checked (and, for alt text, the image) and the
 relevant style rules go to the Anthropic API under your key, and nothing else (no telemetry; nothing goes to the
 authors). Your key is stored with Windows DPAPI in `%APPDATA%\FlareAI\settings.json` and never logged.
 
@@ -112,15 +112,15 @@ lint row must pass the validator. `tools/google-style/coverage.md` is the report
 - `FlareAI/layer.txt` names the company layer (`company`): rule ids stay the same in every clone.
 - `FlareAI/models.json` sets models, effort and the review unit for the team.
 - Settings → Team feedback folder: a shared folder where each writer's review decisions append to their own file.
-- **House Style ▸ Build style guide** (owners) proposes rules from evidence: **Mine this project** (spelling variants,
+- **House Style ▸ Build style guide** (owners) suggests rules from evidence: **Mine this project** (spelling variants,
   competing words, capitalization, heading case, with counts and sentences) and **Add notes or an old guide**.
 - **House Style ▸ Tune style guide** (owners) pools everyone's decisions: disputed rules, often-rejected rules, repeated hand
   edits, requests to turn rules off — with evidence; **Draft a change with AI** edits the rule as tracked changes.
 
 ### In the editor
 Right-click items (Check style, Rewrite selection, Ask…) in Flare's own context menu; margin markers on paragraphs with
-open proposals (a stylesheet applied to the editor view only, never saved; blocks addressed by CSS2 sibling chains
-because Flare's CSS engine has no `:nth-of-type`); live lint a second after typing stops; an issue count after save;
+open suggestions (a stylesheet applied to the editor view only, never saved; blocks addressed by CSS2 sibling chains
+because Flare's CSS engine has no `:nth-of-type`); a live style check a second after typing stops; an issue count after save;
 and a project report when a build starts. All non-blocking, each with a setting.
 
 ### Outside Flare
@@ -129,7 +129,7 @@ and a project report when a build starts. All non-blocking, each with a setting.
 (`.claude/skills/docstyle`) applies it.
 
 ## LLM-ready output
-AI ▸ **Export for LLMs** turns built HTML5 or Clean XHTML output into one Markdown file per topic (`llm/…`, with
+**House Style ▸ Export for LLMs** turns built HTML5 or Clean HTML output into one Markdown file per topic (`llm/…`, with
 title/source/URL front matter) plus `llms.txt` (index) and `llms-full.txt` (everything) at the output root, so they
 publish with the site. Built output already has snippets, variables and conditions resolved. Settings → "After each
 HTML build…" does it automatically when you build in Flare. For `madbuild` / CI, add a post-build event to the target

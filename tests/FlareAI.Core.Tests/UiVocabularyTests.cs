@@ -62,6 +62,49 @@ namespace FlareAI.Core.Tests
             Assert.True(violations.Count == 0, "Banned UI terms (use the glossary, docs/plans/ux/review-deliberate.md 5.1):\n" + string.Join("\n", violations.ToArray()));
         }
 
+        // ---- the command table (issue #9) ----------------------------------------------------------------------
+
+        [Fact]
+        public void EveryCommandHasOneLabelTooltipKeyTipAndIcon()
+        {
+            var all = FlareAI.Flare.Commands.All;
+            Assert.Equal(all.Count, all.Select(c => c.Label).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+            Assert.Equal(all.Count, all.Select(c => c.KeyTip).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+            foreach (var c in all)
+            {
+                Assert.False(string.IsNullOrWhiteSpace(c.Label), c.Id + " has no label");
+                Assert.False(string.IsNullOrWhiteSpace(c.Tooltip), c.Id + " has no tooltip");
+                Assert.False(string.IsNullOrWhiteSpace(c.KeyTip), c.Id + " has no key tip");
+                Assert.False(string.IsNullOrWhiteSpace(c.Icon), c.Id + " has no icon");
+                Assert.False(string.IsNullOrWhiteSpace(c.Group), c.Id + " has no group");
+            }
+            // Every menu, toolbar and right-click entry is a command from the table.
+            foreach (var c in FlareAI.Flare.Commands.Menu.Concat(FlareAI.Flare.Commands.Toolbar).Concat(FlareAI.Flare.Commands.Context))
+                Assert.True(c == null || all.Contains(c));
+            // Every command is reachable from the Tool Strip menu too.
+            foreach (var c in all) Assert.Contains(c, FlareAI.Flare.Commands.Menu);
+        }
+
+        [Fact]
+        public void CommandLabelsAreNotRetypedOutsideTheTable()
+        {
+            var root = RepoRoot();
+            var labels = FlareAI.Flare.Commands.All.SelectMany(c => new[] { c.Label, c.ContextLabel }).ToList();
+            var bad = new List<string>();
+            foreach (var file in new[] { "src/FlareAI.Flare/Plugin.cs", "src/FlareAI.Flare/EditorIntegration.cs" })
+                foreach (var lit in Literals(File.ReadAllText(Path.Combine(root, file))))
+                    if (labels.Contains(lit.Text)) bad.Add(file + ":" + lit.Line + "  \"" + lit.Text + "\" (use Commands.*)");
+            Assert.True(bad.Count == 0, string.Join("\n", bad.ToArray()));
+        }
+
+        [Fact]
+        public void EveryCommandIsInTheUserGuide()
+        {
+            var guide = string.Join("\n", Directory.GetFiles(Path.Combine(RepoRoot(), "docs/user-guide/Content"), "*.htm").Select(File.ReadAllText).ToArray());
+            var missing = FlareAI.Flare.Commands.All.Where(c => guide.IndexOf(c.Label.TrimEnd('…'), StringComparison.OrdinalIgnoreCase) < 0).Select(c => c.Label).ToList();
+            Assert.True(missing.Count == 0, "Not in docs/user-guide/Content: " + string.Join(", ", missing.ToArray()));
+        }
+
         [Fact]
         public void ScannerFindsLiteralsAndSkipsCommentsAndLogs()
         {

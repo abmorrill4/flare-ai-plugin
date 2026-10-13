@@ -8,14 +8,14 @@
 <p>The style guide is a Flare project that your team keeps in source control. It has two folders under <code>Content/Resources/StyleGuide</code>:</p>
 <ul>
 <li><b>Google</b>: the Google developer documentation style guide, compiled into rules, one topic for each Google page. The plugin updates this folder when Google changes its guide. Don't edit it.</li>
-<li><b>Company</b>: your team's rules. Where they disagree with Google, your rules win.</li>
+<li><b>Company</b>: your team's rules, shown in the pane as <b>Our rules</b>. Where they disagree with Google, your rules win.</li>
 </ul>
 <p>Both folders use the same format. Each topic holds rules as short sentences with Bad and Good examples, and rule tables of words to avoid with their replacements. The <b>About</b> topic in the Company folder explains the format.</p>
 <h2>Change a Google rule</h2>
-<p>To turn a rule off or change how strict it is, select a proposal that uses the rule in the review pane, and then select <b>Turn off rule…</b>. Choose whether the change is for the whole team or this project only, the new level, and why. For the team, the plugin writes the change into the style guide's <b>Changes to the Google guide</b> topic; commit it so everyone gets it. A rule that's off is used by neither the checker nor the AI. To replace a Google rule, also write your own rule in a Company topic.</p>
-<p>Writers who aren't style guide owners see <b>Turn off rule…</b> as a request: it asks the owners, with the reason.</p>
-<h2>Rule IDs</h2>
-<p>Every rule has a permanent ID that the team's review decisions are tied to. You never type or manage it. When you validate the guide, the plugin gives new rules, and copies of rules, an ID of their own. Adding, moving or rewording rules doesn't move decisions from one rule to another.</p>
+<p>To turn a rule off or change how strict it is, select a suggestion that uses the rule in the review pane, and then select <b>Turn off this rule…</b>. Choose whether the change is for the whole team or this project only, the new level, and why. For the team, the plugin writes the change into the style guide's <b>Changes to the Google guide</b> topic; commit it so everyone gets it. A rule that's off is used by neither the checker nor the AI. To replace a Google rule, also write your own rule in a Company topic.</p>
+<p>Writers who aren't style guide owners see <b>Suggest changing this rule…</b> instead: it is a request: it asks the owners, with the reason.</p>
+<h2>Rule references</h2>
+<p>Every rule has a permanent reference that the team's review decisions are tied to. You never type or manage it. When you validate the guide, the plugin gives new rules, and copies of rules, a reference of their own. Adding, moving or rewording rules doesn't move decisions from one rule to another.</p>
 <h2>Say where a rule applies</h2>
 <p>A rule applies to every topic unless you tag it. Tag a rule with Flare condition tags, the same way you tag any content:</p>
 <ul>

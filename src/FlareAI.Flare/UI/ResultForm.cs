@@ -60,8 +60,9 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(760, 520);
             MinimumSize = new Size(500, 300);
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
-            _status = new Label { Left = 12, Top = 12, Width = 736, Height = 20, Text = "Contacting model…", Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            _status = new LiveLabel { Left = 12, Top = 12, Width = 736, Height = 20, Text = "Contacting model…", Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
             _progress = new ProgressBar { Left = 12, Top = 36, Width = 736, Height = 14, Style = ProgressBarStyle.Marquee, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
             _output = new TextBox { Left = 12, Top = 60, Width = 736, Height = 410, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, Font = new Font(FontFamily.GenericMonospace, 9f), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right };
             _diff = DiffView.Create();
@@ -85,6 +86,10 @@ namespace FlareAI.Flare.UI
             _apply.Click += (s, e) => OnApply();
             Controls.AddRange(new Control[] { _status, _progress, _diff, _output, _showXml, _restructure, _apply, _close });
             CancelButton = _close;
+            A11y.Name(_output, "Suggested markup", "Read-only view of the suggested markup.");
+            A11y.Name(_diff, "Suggested change", "Read-only view of the text with removed words struck through and added words underlined.");
+            A11y.Name(_progress, "Progress");
+            A11y.Apply(this);
 
             _worker = new BackgroundWorker { WorkerSupportsCancellation = true };
             _worker.DoWork += Work;

@@ -6,27 +6,27 @@
     <body>
         <h1>Check a topic</h1>
 <p>Open a topic and select <b>House Style &gt; Check style</b>. With text selected, the plugin checks only the paragraphs that contain the selection. With nothing selected, it checks the whole topic.</p>
-<p>The review pane opens. Linter and structure findings appear at once. AI findings follow, paragraph by paragraph, usually within 15 seconds.</p>
-<h2>Read a proposal</h2>
-<p>The pane lists proposals in reading order under the topic's headings. Select one to see its card:</p>
+<p>The review pane opens. Suggestions from the style rules and the structure rules appear at once. Suggestions from the AI follow, paragraph by paragraph, usually within 15 seconds.</p>
+<h2>Read a suggestion</h2>
+<p>The pane lists suggestions in reading order under the topic's headings. Select one to see its card:</p>
 <ul>
 <li><b>What changes</b>: the words around the problem, with removed text struck through in red and added text in green.</li>
 <li><b>Why</b>: the reason, the rule it applies, and the rule's example when the guide has one.</li>
-<li><b>Source</b>: [Google], [Company], or [AI] with the rule the AI applied.</li>
+<li><b>Source</b>: Google, Our rules, or AI, with the rule the AI applied.</li>
 <li><b>Impact</b>: for text in a snippet, how many files use that snippet.</li>
 </ul>
 <h2>Decide</h2>
 <table><thead><tr><th>Button</th><th>What happens</th></tr></thead><tbody>
-<tr><td>Accept, or Enter</td><td>Applies the fix as a tracked change and moves to the next proposal. For a proposal that needs a rewrite, the button reads <b>Rewrite…</b>.</td></tr>
-<tr><td>Reject, or Delete</td><td>Hides the proposal for that text and records why: wrong, fine here, or the rule doesn't apply.</td></tr>
+<tr><td>Apply, or Enter</td><td>Writes the suggestion into the topic as a tracked change and moves to the next one. For a suggestion that needs a rewrite, the button reads <b>Rewrite…</b>.</td></tr>
+<tr><td>Reject, or Delete</td><td>Hides the suggestion for that text and records why: wrong, fine here, or the rule doesn't apply.</td></tr>
 <tr><td>Edit…</td><td>Type the replacement yourself.</td></tr>
-<tr><td>Refine…</td><td>Tell the AI how to change this one proposal, for example, keep the term SSO.</td></tr>
-<tr><td>Turn off rule…</td><td>For style guide owners: turns the rule off, or changes its level, for the team or this project. For other writers: asks the owners to.</td></tr>
-<tr><td>Re-analyze</td><td>Checks the paragraph again after you edit it. Proposals marked ⚠ refer to text that changed since the check.</td></tr>
-<tr><td>Accept all mechanical</td><td>Applies every exact rule fix in the topic at once. One Ctrl+Z undoes them.</td></tr>
-<tr><td>Propose all as tracked changes</td><td>Writes every proposal with exact text into the topic, for review with Flare's own <b>Review</b> tab or a review package.</td></tr>
+<tr><td>Refine…</td><td>Tell the AI how to change this one suggestion, for example, keep the term SSO.</td></tr>
+<tr><td>Turn off this rule…</td><td>For style guide owners: turns the rule off, or changes its level, for the team or this project. For other writers the button reads <b>Suggest changing this rule…</b> and asks the owners to.</td></tr>
+<tr><td>Check this paragraph again</td><td>Checks the paragraph again after you edit it. Suggestions marked ⚠ refer to text that changed since the check.</td></tr>
+<tr><td>Apply all fixes</td><td>Applies every fix in the topic at once. A fix is an exact change that a rule defines; a reword is the AI's new wording. One Ctrl+Z undoes them.</td></tr>
+<tr><td>Write all as tracked changes</td><td>Writes every suggestion with exact text into the topic, for review with Flare's own <b>Review</b> tab or a review package.</td></tr>
 </tbody></table>
-<p>You fix structure findings, such as a missing alt text, in the editor: select <b>Go to</b>, fix the problem, and then select <b>Re-analyze</b>. For a missing alt text, <b>Suggest alt text…</b> asks the AI to look at the image and draft the text.</p>
-<p>The plugin saves reviews. When you reopen a topic, its proposals appear at once. Select <b>Re-check</b> for a fresh review.</p>
+<p>Some suggestions say <b>Needs you</b>, such as a missing alt text: select <b>Go to</b>, fix the problem in the editor, and then select <b>Check this paragraph again</b>. For a missing alt text, <b>Suggest alt text…</b> asks the AI to look at the image and draft the text.</p>
+<p>The plugin saves reviews. When you reopen a topic, its suggestions appear at once. Select <b>Check again</b> for a fresh review.</p>
     </body>
 </html>

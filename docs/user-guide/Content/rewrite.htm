@@ -7,7 +7,7 @@
         <h1>Rewrite text</h1>
 <p>Select the paragraphs to rewrite, and then select <b>House Style &gt; Rewrite selection</b>. To give an instruction, such as shorten to two sentences, select <b>House Style &gt; Ask…</b> instead.</p>
 <p>The AI changes only the wording. It can't change variables, cross-references, snippets, conditions, or formatting, because the AI never gets or writes markup: it gets the text pieces of each paragraph and returns new text for the pieces it changes. The result arrives as word-level tracked changes in one undo step.</p>
-<p>Before it applies anything, the plugin checks the AI's result with the linter. If the rewrite still breaks a rule, the AI gets one more try, with the remaining problems listed.</p>
+<p>Before it applies anything, the plugin checks the AI's result against the style rules. If the rewrite still breaks a rule, the AI gets one more try, with the remaining problems listed.</p>
 <h2>When the structure must change</h2>
 <p>Some edits need new structure, such as splitting one step into two or turning a paragraph into a list. When the AI says the instruction needs that, the result window offers <b>Restructure instead…</b>. A restructure returns new markup, which the plugin validates: the plugin rejects anything that drops or changes a variable, cross-reference, snippet, or condition, and nothing changes.</p>
 <p>The plugin can reword a paragraph with pending tracked changes, but it can't restructure it. Accept or reject those changes first.</p>

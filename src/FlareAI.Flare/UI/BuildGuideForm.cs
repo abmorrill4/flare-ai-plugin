@@ -42,8 +42,9 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(940, 640);
             MinimumSize = new Size(640, 420);
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
-            _head = new Label { Dock = DockStyle.Top, Height = 46, Padding = new Padding(8, 8, 8, 0) };
+            _head = new LiveLabel { Dock = DockStyle.Top, Height = 46, Padding = new Padding(8, 8, 8, 0) };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee, Visible = false };
             var tools = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 38, Padding = new Padding(6, 4, 6, 0) };
             _mine = new Button { Text = "Mine this project", AutoSize = true, Enabled = project != null && style != null };
@@ -83,6 +84,11 @@ namespace FlareAI.Flare.UI
             Controls.Add(_progress);
             Controls.Add(_head);
             CancelButton = close;
+            A11y.Name(_list, "Suggested rules", "Tick the rules to add to the guide. Columns: suggested rule, becomes, evidence.");
+            A11y.Name(_detail, "Details for the selected rule");
+            A11y.Name(_prefer, "Preferred form", "Pick which form the guide should prefer where the team was split.");
+            A11y.Name(detail, "Rule details"); A11y.Name(bar, "Dialog buttons");
+            A11y.Apply(this);
             _head.Text = "Proposes rules from what your team already writes and from your notes. Check the ones to keep, then add them to the guide." +
                          (IsOwner ? "" : "\nRead-only: only the style guide owners (" + string.Join(", ", _team.Owners.ToArray()) + ") can add rules.");
         }
@@ -247,7 +253,7 @@ namespace FlareAI.Flare.UI
     {
         public static string Ask(IWin32Window owner)
         {
-            using (var form = new Form { Text = "House Style — Notes for the style guide", StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(680, 460), MinimumSize = new Size(480, 300), Font = SystemFonts.MessageBoxFont })
+            using (var form = new Form { Text = "House Style — Notes for the style guide", StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(680, 460), MinimumSize = new Size(480, 300), Font = SystemFonts.MessageBoxFont, AutoScaleMode = AutoScaleMode.Font })
             {
                 var label = new Label { Dock = DockStyle.Top, Height = 44, Padding = new Padding(8, 8, 8, 0),
                     Text = "Paste or dictate (Win+H) anything: how the team writes, words you never use, an old style guide, or the prompt you used with another AI tool. Or load a .txt, .md or .htm file." };
@@ -268,6 +274,8 @@ namespace FlareAI.Flare.UI
                         }
                 };
                 bar.Controls.AddRange(new Control[] { cancel, ok, load });
+                A11y.Name(box, "Notes", "Paste or type notes about how the team writes, or load a file.");
+                A11y.Name(bar, "Dialog buttons");
                 form.Controls.Add(box); form.Controls.Add(bar); form.Controls.Add(label);
                 form.AcceptButton = null; form.CancelButton = cancel;
                 return form.ShowDialog(owner) == DialogResult.OK ? box.Text.Trim() : null;
