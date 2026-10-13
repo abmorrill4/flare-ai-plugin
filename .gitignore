@@ -34,3 +34,6 @@ docs/user-guide/Analyzer/
 docs/user-guide/Output/
 **/Project/Users/
 *.flprjuser
+
+# agent worktrees
+.claude/worktrees/
