@@ -1,3 +1,5 @@
+> **Shelved 2026-10-13:** House Style supports the current Flare version only; older versions cannot be tested without installs. Kept for reference.
+
 # Gap 4: Support Flare 2020 (v16) through 2026 (v22) from one build
 
 Status: plan, amended after the design gate. Author: planning agent, 2026-10-12.
