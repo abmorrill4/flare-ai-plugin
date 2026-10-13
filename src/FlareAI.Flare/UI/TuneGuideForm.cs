@@ -88,6 +88,7 @@ namespace FlareAI.Flare.UI
                 var files = new List<string>(FeedbackStats.FilesIn(_team == null ? null : _team.FeedbackFolder));
                 if (files.Count == 0 && FeedbackLog.PersonalPath != null) files.Add(FeedbackLog.PersonalPath);
                 var decisions = FeedbackStats.Load(files);
+                if (!ShowNames) decisions = FeedbackStats.Anonymize(decisions); // counts: never show names, even from older records
                 var rules = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
                 if (_style != null) try { foreach (var r in _style.Rules(_project)) rules[r.Id] = r; } catch (Exception ex) { Diagnostics.Log("tune: rules", ex); }
                 e.Result = new object[] { decisions, FeedbackStats.Analyze(decisions), rules };
@@ -103,7 +104,7 @@ namespace FlareAI.Flare.UI
                 Header(decisions, items);
                 foreach (var it in items)
                 {
-                    var row = new ListViewItem(new[] { it.Title, it.Accepted.ToString(), it.Rejected.ToString(), string.Join(", ", it.Writers.ToArray()) })
+                    var row = new ListViewItem(new[] { it.Title, it.Accepted.ToString(), it.Rejected.ToString(), ShowNames ? string.Join(", ", it.Writers.ToArray()) : FeedbackStats.WriterCount(it.Writers.Count) })
                     { Tag = it, Group = _list.Groups[it.Kind] };
                     _list.Items.Add(row);
                 }
@@ -121,10 +122,12 @@ namespace FlareAI.Flare.UI
             var role = _team == null || !_team.IsStrict ? "No owners file: anyone can change the guide."
                      : _team.IsOwner ? "You are a style guide owner." : "Read-only: the owners are " + string.Join(", ", _team.Owners.ToArray()) + ".";
             var actionable = items.Count(i => i.Kind != "working");
-            _head.Text = decisions.Count + " decision(s) from " + writers + " writer(s)" + range + ". Source: " + source + ".\n"
+            _head.Text = decisions.Count + " decision(s) from " + FeedbackStats.WriterCount(writers) + range + ". Source: " + source + ".\n"
                          + (actionable == 0 ? "Nothing needs attention yet. " : actionable + " item(s) to look at. ") + role
                          + (_team != null && _team.Status != null ? "  " + _team.Status : "");
         }
+
+        private bool ShowNames { get { return _team != null && _team.ShareNames; } }
 
         private TuneItem Current() { return _list.SelectedItems.Count == 1 ? (TuneItem)_list.SelectedItems[0].Tag : null; }
 

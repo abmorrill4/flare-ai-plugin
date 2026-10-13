@@ -8,6 +8,8 @@ namespace FlareAI.Core.Actions
     /// Every accept / reject / edit / refine decision, one JSON line each: in the writer's personal file
     /// (%APPDATA%\FlareAI\feedback.jsonl) and, when the team has a shared feedback folder, in that writer's own file
     /// there (append-only per writer, so syncing never conflicts). The raw material for tuning the style guide.
+    /// Identity: with the guide's default <c>attribution = counts</c> a record carries only an anonymous per-machine id; only
+    /// <c>attribution = names</c> writes the writer's email (see <see cref="Team.FeedbackWriter"/>).
     /// </summary>
     public static class FeedbackLog
     {
@@ -22,7 +24,7 @@ namespace FlareAI.Core.Actions
             var team = Team.Current;
             var line = JsonConvert.SerializeObject(new
             {
-                at = DateTime.UtcNow.ToString("o"), writer = team == null ? Environment.UserName : team.Writer, decision, reason,
+                at = DateTime.UtcNow.ToString("o"), writer = team == null ? Team.AnonymousId() : team.FeedbackWriter, decision, reason,
                 kind = f.Kind, source = f.Source, layer = f.Layer, rule = f.Rule, rule_id = f.RuleId, rule_hash = WordingHash(f.RuleText),
                 excerpt = f.Excerpt, replacement = f.Replacement, file = f.DocumentPath ?? topicPath
             }, Formatting.None);

@@ -1,0 +1,5 @@
+# Who the shared feedback folder says made each decision. Copy to attribution.txt in this folder to change it.
+#   attribution = counts   (default) no names: each writer is an anonymous random id, and Tune shows "3 writers".
+#   attribution = names    each decision carries the writer's git user.email, and Tune shows who rejected what.
+# Decisions are shared only when a team feedback folder is set in Settings.
+attribution = counts

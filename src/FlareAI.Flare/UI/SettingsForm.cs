@@ -24,7 +24,7 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 692);
+            ClientSize = new Size(520, 718);
             Font = SystemFonts.MessageBoxFont;
 
             var y = 12;
@@ -51,7 +51,7 @@ namespace FlareAI.Flare.UI
             _projectLayer = new CheckBox { Text = "Also use the open project's variables, glossary and Resources\\StyleGuide", Left = 140, Top = y, Width = 368, Checked = _settings.UseProjectLayer };
             Controls.Add(_projectLayer); y += 28;
             _feedback = AddRow("Team feedback folder", y, out y, new TextBox { Text = _settings.FeedbackFolder ?? "" });
-            Controls.Add(new Label { Text = "Shared folder (synced or network) where each writer's review decisions are pooled. Empty = personal only.", Left = 140, Top = y - 4, Width = 368, Height = 30, ForeColor = SystemColors.GrayText }); y += 30;
+            Controls.Add(new Label { Text = "Shared folder (synced or network) where review decisions are pooled. Empty = personal only. The guide owner sees each decision, its rule and the text; who made it only if the guide sets attribution = names (default: anonymous, counted).", Left = 140, Top = y - 4, Width = 368, Height = 56, ForeColor = SystemColors.GrayText }); y += 56;
             _timeout = AddRow("Timeout (s)", y, out y, new TextBox { Text = _settings.TimeoutSeconds.ToString(), Width = 60 });
             _llmExport = new CheckBox { Text = "After each HTML build, add LLM-ready Markdown and llms.txt to the output", Left = 140, Top = y, Width = 368, Checked = _settings.LlmExportAfterBuild };
             Controls.Add(_llmExport); y += 26;

@@ -19,6 +19,13 @@ namespace FlareAI.Core.Actions
         public IList<string> Owners { get; private set; }
         /// <summary>Shared feedback folder (each writer appends to their own file), or null for personal-only.</summary>
         public string FeedbackFolder { get; private set; }
+        /// <summary>
+        /// What the shared feedback folder records about who made each decision (the guide's FlareAI/attribution.txt):
+        /// false = "counts" (the default: no identity, only an anonymous per-machine id), true = "names" (the writer's email).
+        /// </summary>
+        public bool ShareNames { get; private set; }
+        /// <summary>The identity written into feedback records and used to name the shared file, per the attribution setting.</summary>
+        public string FeedbackWriter { get { return ShareNames ? Writer : AnonymousId(); } }
         public bool IsStrict { get { return Owners.Count > 0; } }
         /// <summary>The guide's git state, filled in by a background check (null until then, or when not in git).</summary>
         public GuideStatus Status { get; set; }
@@ -47,13 +54,65 @@ namespace FlareAI.Core.Actions
                     }
             }
             catch (Exception ex) { Diagnostics.Log("owners.txt", ex); }
+            t.ShareNames = ReadAttribution(t.GuideRoot);
             return t;
+        }
+
+        /// <summary>True when the guide's FlareAI/attribution.txt says <c>attribution = names</c>; anything else (or no file) is counts.</summary>
+        public static bool ReadAttribution(string guideRoot)
+        {
+            if (string.IsNullOrEmpty(guideRoot)) return false;
+            try
+            {
+                var file = Path.Combine(guideRoot, Path.Combine("FlareAI", "attribution.txt"));
+                if (!File.Exists(file)) return false;
+                foreach (var raw in File.ReadAllLines(file))
+                {
+                    var line = raw.Split('#')[0].Trim();
+                    var eq = line.IndexOf('=');
+                    if (eq > 0 && line.Substring(0, eq).Trim().Equals("attribution", StringComparison.OrdinalIgnoreCase))
+                        return line.Substring(eq + 1).Trim().Equals("names", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch (Exception ex) { Diagnostics.Log("attribution.txt", ex); }
+            return false;
+        }
+
+        /// <summary>Where the anonymous writer id lives; the host may override (tests do). Default %APPDATA%\FlareAI\writer-id.txt.</summary>
+        public static string AnonymousIdPath { get; set; }
+
+        private static readonly object IdGate = new object();
+        private static readonly string SessionId = "writer-" + Guid.NewGuid().ToString("N").Substring(0, 12);
+
+        /// <summary>
+        /// A random id for this machine, created once and stored locally. It is not derived from the email or user name,
+        /// so it can't be reversed to a person; it only lets the owner count distinct writers.
+        /// </summary>
+        public static string AnonymousId()
+        {
+            lock (IdGate)
+            {
+                var path = AnonymousIdPath ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Path.Combine("FlareAI", "writer-id.txt"));
+                try
+                {
+                    if (File.Exists(path))
+                    {
+                        var existing = File.ReadAllText(path).Trim();
+                        if (existing.Length > 0) return existing;
+                    }
+                    var id = "writer-" + Guid.NewGuid().ToString("N").Substring(0, 12);
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    File.WriteAllText(path, id);
+                    return id;
+                }
+                catch (Exception ex) { Diagnostics.Log("writer-id", ex); return SessionId; }
+            }
         }
 
         /// <summary>The writer's file in the shared feedback folder, or null.</summary>
         public string SharedFeedbackFile
         {
-            get { return FeedbackFolder == null ? null : Path.Combine(FeedbackFolder, Safe(Writer) + ".jsonl"); }
+            get { return FeedbackFolder == null ? null : Path.Combine(FeedbackFolder, Safe(FeedbackWriter) + ".jsonl"); }
         }
 
         private static string WriterId()
