@@ -18,6 +18,7 @@ namespace FlareAI.Flare.UI
             MaximizeBox = false; MinimizeBox = false;
             ClientSize = new Size(520, 200);
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
             var label = new Label { Text = "What should I do with the selected text? (whole topic if nothing is selected)", Left = 12, Top = 12, Width = 496, Height = 32 };
             _text = new TextBox { Left = 12, Top = 48, Width = 496, Height = 96, Multiline = true, AcceptsReturn = true, ScrollBars = ScrollBars.Vertical };
@@ -27,6 +28,9 @@ namespace FlareAI.Flare.UI
 
             Controls.AddRange(new Control[] { label, _text, ok, cancel });
             AcceptButton = ok; CancelButton = cancel;
+            A11y.Name(_text, "Instruction", "Describe what to do with the selected text, or the whole topic if nothing is selected.");
+            A11y.Name(ok, "Run", "Sends the instruction.");
+            A11y.Apply(this);
         }
     }
 }

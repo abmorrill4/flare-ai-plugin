@@ -26,6 +26,7 @@ namespace FlareAI.Flare.UI
             MaximizeBox = false; MinimizeBox = false;
             ClientSize = new Size(520, 780);
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
             var y = 12;
             _provider = AddRow("Provider", y, out y, new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList });
@@ -40,7 +41,7 @@ namespace FlareAI.Flare.UI
             Controls.Add(_deepModel);
             Controls.Add(new Label { Text = "Empty = claude-haiku-5-5 / claude-opus-5-5. A style guide's FlareAI\\models.json overrides these for the team.", Left = 140, Top = y - 4, Width = 368, Height = 30, ForeColor = SystemColors.GrayText }); y += 30;
             _key = AddRow("API / virtual key", y, out y, new TextBox { UseSystemPasswordChar = true });
-            _keyStatus = new Label { Left = 140, Top = y - 4, Width = 290, Height = 18, ForeColor = SystemColors.GrayText };
+            _keyStatus = new LiveLabel { Left = 140, Top = y - 4, Width = 290, Height = 18, ForeColor = SystemColors.GrayText };
             var clearKey = new LinkLabel { Text = "Clear stored key", Left = 430, Top = y - 4, Width = 90, Height = 18 };
             clearKey.LinkClicked += (s, e) => { _settings.SetApiKey(null); _key.Text = ""; RefreshKeyStatus(); };
             Controls.Add(_keyStatus); Controls.Add(clearKey); y += 18;
@@ -79,8 +80,15 @@ namespace FlareAI.Flare.UI
             Controls.AddRange(new Control[] { save, cancel });
             AcceptButton = save; CancelButton = cancel;
 
+            A11y.Name(_deepModel, "Deep model");
+            A11y.Name(_fastModel, "Fast model");
+            A11y.Name(_key, "API or virtual key", "Write only: a stored key is never shown back. Leave blank to keep the stored key.");
+            A11y.Name(clearKey, "Clear stored key");
+            A11y.Name(_layers, "Style guide project folder", "Folder of your team's style guide. Empty uses the guide bundled with the plugin.");
+            A11y.Name(_timeout, "Timeout in seconds");
             RefreshKeyStatus();
             OnProviderChanged();
+            A11y.Apply(this);
         }
 
         private T AddRow<T>(string label, int top, out int next, T control) where T : Control

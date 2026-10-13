@@ -64,8 +64,23 @@ namespace FlareAI.Core.Tests
             Assert.Equal("body > h1 + p + ol > li + li", FlareAI.Core.Editing.MarkerCss.SelectorFor(li2));
             Assert.Equal("body > h1 + p + ol + MadCap|dropDown > p", FlareAI.Core.Editing.MarkerCss.SelectorFor(blocks[3].FirstChild));
             var css = FlareAI.Core.Editing.MarkerCss.Css(new[] { new KeyValuePair<XmlNode, string>(blocks[1], "suggestion"), new KeyValuePair<XmlNode, string>(blocks[1], "error") });
-            Assert.Contains("body > h1 + p { border-left: 3px solid #c62828;", css);   // worst severity wins
+            Assert.Contains("body > h1 + p { border-left: 4px solid #c62828;", css);   // worst severity wins
             Assert.Single(css.Split('\n'), l => l.StartsWith("body"));
+        }
+
+        [Fact]
+        public void MarkerCss_SeverityHasNonColourBorderStyle()
+        {
+            var blocks = Body("<p>One</p><p>Two</p><p>Three</p>");
+            var css = FlareAI.Core.Editing.MarkerCss.Css(new[]
+            {
+                new KeyValuePair<XmlNode, string>(blocks[0], "error"),
+                new KeyValuePair<XmlNode, string>(blocks[1], "warning"),
+                new KeyValuePair<XmlNode, string>(blocks[2], "suggestion")
+            });
+            Assert.Contains("border-left: 4px solid #c62828;", css);
+            Assert.Contains("border-left: 4px dashed #e8a33d;", css);
+            Assert.Contains("border-left: 4px dotted #5b8def;", css);
         }
 
         [Fact]

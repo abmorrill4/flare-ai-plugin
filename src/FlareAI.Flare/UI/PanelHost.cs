@@ -45,7 +45,7 @@ namespace FlareAI.Flare.UI
             var form = new Form
             {
                 Text = panel.Title, StartPosition = FormStartPosition.Manual, Size = new Size(720, 460),
-                MinimumSize = new Size(320, 260), ShowInTaskbar = false, KeyPreview = true, Font = SystemFonts.MessageBoxFont
+                MinimumSize = new Size(320, 260), ShowInTaskbar = false, KeyPreview = true, Font = SystemFonts.MessageBoxFont, AutoScaleMode = AutoScaleMode.Font, AccessibleName = panel.Title
             };
             form.Location = new Point(area.Right - form.Width - 24, area.Bottom - form.Height - 24);
             panel.Dock = DockStyle.Fill;

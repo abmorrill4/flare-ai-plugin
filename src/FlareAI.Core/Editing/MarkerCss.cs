@@ -14,6 +14,8 @@ namespace FlareAI.Core.Editing
     {
         private static readonly Dictionary<string, int> Rank = new Dictionary<string, int> { { "error", 0 }, { "warning", 1 }, { "suggestion", 2 } };
         private static readonly string[] Bar = { "#c62828", "#e8a33d", "#5b8def" };
+        // Non-colour cue: solid = error, dashed = warning, dotted = tip.
+        private static readonly string[] Style = { "solid", "dashed", "dotted" };
         private static readonly string[] Tint = { "#fdecea", "#fff8e8", "#eef3fd" };
 
         /// <summary>The selector for one block, or null when it isn't under the body (snippet text, head).</summary>
@@ -45,7 +47,7 @@ namespace FlareAI.Core.Editing
                 var sel = SelectorFor(g.Key);
                 if (sel == null) continue;
                 var r = g.Select(b => { int v; return Rank.TryGetValue((b.Value ?? "").ToLowerInvariant(), out v) ? v : 2; }).Min();
-                sb.Append(sel).Append(" { border-left: 3px solid ").Append(Bar[r]).Append("; padding-left: 4px; background-color: ").Append(Tint[r]).Append("; }\n");
+                sb.Append(sel).Append(" { border-left: 4px ").Append(Style[r]).Append(' ').Append(Bar[r]).Append("; padding-left: 4px; background-color: ").Append(Tint[r]).Append("; }\n");
             }
             return sb.ToString();
         }

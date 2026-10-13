@@ -49,8 +49,9 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(900, 600);
             MinimumSize = new Size(600, 400);
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
-            _head = new Label { Dock = DockStyle.Top, Height = 54, Padding = new Padding(8, 8, 8, 0), Text = "Reading the team's review decisions…" };
+            _head = new LiveLabel { Dock = DockStyle.Top, Height = 54, Padding = new Padding(8, 8, 8, 0), Text = "Reading the team's review decisions…" };
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false };
             _list.Columns.Add("Item", 420); _list.Columns.Add("Accepted", 70); _list.Columns.Add("Rejected", 70); _list.Columns.Add("Writers", 200);
             foreach (var g in Groups) _list.Groups.Add(g.Key, g.Value);
@@ -76,6 +77,10 @@ namespace FlareAI.Flare.UI
             Controls.Add(bar);
             Controls.Add(_head);
             CancelButton = close;
+            A11y.Name(_list, "Rules and the team's review decisions", "Columns: item, accepted, rejected, writers.");
+            A11y.Name(_detail, "Details for the selected item");
+            A11y.Name(bar, "Dialog buttons");
+            A11y.Apply(this);
             Shown += (s, e) => Load();
         }
 

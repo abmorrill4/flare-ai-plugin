@@ -27,7 +27,8 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(760, 620);
             MinimumSize = new Size(520, 360);
             Font = SystemFonts.MessageBoxFont;
-            _status = new Label { Dock = DockStyle.Top, Height = 40, Padding = new Padding(8, 8, 8, 0), Text = "Reading the topic…" };
+            AutoScaleMode = AutoScaleMode.Font;
+            _status = new LiveLabel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(8, 8, 8, 0), Text = "Reading the topic…" };
             _sections = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, Padding = new Padding(8) };
             _sections.Resize += (s, e) => { foreach (Control c in _sections.Controls) c.Width = _sections.ClientSize.Width - 24; };
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
@@ -35,6 +36,9 @@ namespace FlareAI.Flare.UI
             bar.Controls.Add(close);
             Controls.Add(_sections); Controls.Add(bar); Controls.Add(_status);
             CancelButton = close;
+            A11y.Name(_sections, "Drafted topic details");
+            A11y.Name(bar, "Dialog buttons");
+            A11y.Apply(this);
 
             var blocks = runner.PickAllBlocks(doc); // DOM read on the UI thread
             var worker = new BackgroundWorker();
@@ -63,6 +67,8 @@ namespace FlareAI.Flare.UI
             var copy = new Button { Text = "Copy", Dock = DockStyle.Right, Width = 70 };
             copy.Click += (s, e) => { try { Clipboard.SetText(copyText ?? box.Text); copy.Text = "Copied"; } catch (Exception ex) { Diagnostics.Log("copy", ex); } };
             panel.Controls.Add(box); panel.Controls.Add(copy); panel.Controls.Add(head);
+            A11y.Name(panel, title); A11y.Name(box, title, "Editable draft. Select the text or use the Copy button.");
+            A11y.Name(copy, "Copy " + title, "Copies this draft to the clipboard.");
             _sections.Controls.Add(panel);
         }
     }
