@@ -22,8 +22,8 @@ namespace FlareAI.Core.Llm
 
         public BifrostClient(string gatewayBaseUrl, string virtualKey, string model, int timeoutSeconds, string mcpIncludeTools)
         {
-            if (string.IsNullOrEmpty(gatewayBaseUrl)) throw new LlmException("No gateway URL configured. Open AI > Settings.");
-            if (string.IsNullOrEmpty(virtualKey)) throw new LlmException("No virtual key configured. Open AI > Settings.");
+            if (string.IsNullOrEmpty(gatewayBaseUrl)) throw new LlmException("No gateway URL configured. Open House Style > Settings.");
+            if (string.IsNullOrEmpty(virtualKey)) throw new LlmException("No virtual key configured. Open House Style > Settings.");
             _baseUrl = gatewayBaseUrl.TrimEnd('/');
             _virtualKey = virtualKey;
             _model = model;

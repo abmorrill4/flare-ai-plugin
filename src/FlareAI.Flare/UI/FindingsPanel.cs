@@ -11,11 +11,11 @@ using FlareAI.Core.Editing;
 namespace FlareAI.Flare.UI
 {
     /// <summary>
-    /// A review as discrete pieces of work. The list shows every proposal in reading order, grouped by section;
+    /// A review as discrete pieces of work. The list shows every suggestion in reading order, grouped by section;
     /// the card below shows the selected one — what changes (word diff), why (the cited rule, its text and
-    /// example), and its impact — with Accept / Reject / Edit / Refine / Re-analyze. Accepting writes a tracked
-    /// change and moves to the next proposal; the editor never switches away from the topic on its own.
-    /// Lint results show at once; the AI review arrives section by section.
+    /// example), and its impact — with Apply / Reject / Edit / Refine / Check this paragraph again. Applying writes
+    /// a tracked change and moves to the next suggestion; the editor never switches away from the topic on its own.
+    /// Style-rule results show at once; the AI review arrives section by section.
     /// </summary>
     public sealed class FindingsPanel : UserControl
     {
@@ -35,6 +35,7 @@ namespace FlareAI.Flare.UI
         private readonly RichTextBox _cardDiff, _cardWhy;
         private readonly Button _accept, _reject, _edit, _refine, _reanalyze, _rule;
         private readonly ContextMenuStrip _rejectMenu;
+        private readonly ToolTip _ignoreTip;
 
         private static readonly string SettingsDir = FlareAI.Core.Settings.PluginSettings.SettingsDirectory;
         private static readonly Dismissals Dismissed = Dismissals.Load(System.IO.Path.Combine(SettingsDir, "dismissed.json"));
@@ -55,7 +56,7 @@ namespace FlareAI.Flare.UI
         private readonly bool _wholeTopic;
         private IList<string> _files; // project mode: lint these files (no AI), group by file
 
-        /// <summary>A project-wide check: every topic and snippet, linter only, grouped by file.</summary>
+        /// <summary>A project-wide check: every topic and snippet, style rules only, grouped by file.</summary>
         public static FindingsPanel ForProject(ActionRunner runner, IDocumentAdapter activeDoc, Func<ActionRunner> newRunner,
                                                Func<string, IDocumentAdapter> open, IList<string> files, string projectName)
         {
@@ -76,29 +77,29 @@ namespace FlareAI.Flare.UI
         /// <param name="open">Opens another file (a snippet) in Flare and returns its adapter, or null.</param>
         /// <param name="cache">Shared AI review cache (same content = same review, across topics, renames and sessions).</param>
         /// <param name="aiOnStart">False when the panel opens because the author switched topics: only a cached AI
-        /// review is shown automatically; a new one runs on Re-check (no surprise cost).</param>
+        /// review is shown automatically; a new one runs on Check again (no surprise cost).</param>
         public FindingsPanel(ActionRunner runner, IDocumentAdapter doc, Func<ActionRunner> newRunner, Func<string, IDocumentAdapter> open,
                              ReviewCache cache, bool aiOnStart)
         {
             _runner = runner; _doc = doc; _newRunner = newRunner; _open = open; _cache = cache; _aiOnStart = aiOnStart;
-            // Keep the first check's scope: Go to selects text in the editor, which must not shrink a Re-check.
+            // Keep the first check's scope: Go to selects text in the editor, which must not shrink a Check again.
             _wholeTopic = string.IsNullOrEmpty(doc.SelectionText);
             Title = "House Style — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
             Padding = new Padding(6);
             MinimumSize = new Size(260, 320);
 
-            _status = new Label { Dock = DockStyle.Top, AutoSize = false, Height = 36, Text = "Linting…" };
+            _status = new Label { Dock = DockStyle.Top, AutoSize = false, Height = 36, Text = "Checking…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
-            _acceptAll = Btn(triage, "Accept all mechanical", (s, e) => AcceptAllMechanical());
-            _bulk = Btn(triage, "Propose all as tracked changes", (s, e) => ProposeAll());
+            _acceptAll = Btn(triage, "Apply all fixes", (s, e) => AcceptAllMechanical());
+            _bulk = Btn(triage, "Write all as tracked changes", (s, e) => ProposeAll());
             _stop = Btn(triage, "Stop AI review", (s, e) => StopReview());
             _stop.Visible = false;
 
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable };
-            _list.Columns.Add("Proposal");
-            _list.Columns.Add("Rule");
+            _list.Columns.Add("Suggestion");
+            _list.Columns.Add("Source");
             _list.Resize += (s, e) => FitColumns();
             _list.SelectedIndexChanged += (s, e) => { ShowCard(); var f = Current(); if (f != null && f.DocumentPath == null) GoTo(f, false); };
             _list.DoubleClick += (s, e) => Accept();
@@ -112,14 +113,14 @@ namespace FlareAI.Flare.UI
             _cardWhy = DiffView.Create();
             _cardWhy.Dock = DockStyle.Fill; _cardWhy.BackColor = SystemColors.Control;
             var actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
-            _accept = Btn(actions, "Accept", (s, e) => Accept());
+            _accept = Btn(actions, "Apply", (s, e) => Accept());
             _reject = Btn(actions, "Reject ▾", (s, e) => _rejectMenu.Show(_reject, new Point(0, _reject.Height)));
             _edit = Btn(actions, "Edit…", (s, e) => EditAndAccept());
             _refine = Btn(actions, "Refine…", (s, e) => Refine());
-            _reanalyze = Btn(actions, "Re-analyze", (s, e) => Reanalyze());
+            _reanalyze = Btn(actions, "Check this paragraph again", (s, e) => Reanalyze());
             _rule = Btn(actions, "Guide ↗", (s, e) => { var f = Current(); if (f != null && !string.IsNullOrEmpty(f.Link)) OpenLink(f.Link); });
             _rejectMenu = new ContextMenuStrip();
-            _rejectMenu.Items.Add("Wrong — the proposal is incorrect", null, (s, e) => Reject("wrong"));
+            _rejectMenu.Items.Add("Wrong — this suggestion is incorrect", null, (s, e) => Reject("wrong"));
             _rejectMenu.Items.Add("Fine here — correct in this context", null, (s, e) => Reject("fine here"));
             _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Reject("rule doesn't apply"));
             _rejectMenu.Items.Add(new ToolStripSeparator());
@@ -144,20 +145,20 @@ namespace FlareAI.Flare.UI
             };
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
-            _recheck = Btn(bar, "Re-check", (s, e) => { _aiOnStart = true; Start(); });
-            _ignore = Btn(bar, "Turn off rule…", (s, e) => IgnoreRule());
+            _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; Start(); });
+            _ignore = Btn(bar, "Turn off this rule…", (s, e) => IgnoreRule());
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
 
             var tips = new ToolTip();
-            tips.SetToolTip(_accept, "Apply this proposal as a tracked change and go to the next one (Enter or double-click).");
-            tips.SetToolTip(_reject, "Not applying it: say why, so the guide and the AI can be tuned (Delete).");
-            tips.SetToolTip(_edit, "Change the proposed text yourself, then apply it.");
-            tips.SetToolTip(_refine, "Ask the AI again for this one proposal, with your instruction (\"keep SSO\", \"shorter\").");
-            tips.SetToolTip(_reanalyze, "Review this paragraph again (after you edited it).");
-            tips.SetToolTip(_bulk, "Write every proposal that has exact text (rule fixes and AI wording) into the topic as tracked changes, then review them with Flare's own Accept/Reject (Review tab) or in a review package.");
-            tips.SetToolTip(_acceptAll, "Apply every exact rule fix as tracked changes. In this topic only, one Ctrl+Z undoes it; if it reaches other files you see a preview first.");
+            tips.SetToolTip(_accept, "Write this suggestion into the topic as a tracked change and go to the next one (Enter or double-click).");
+            tips.SetToolTip(_reject, "Don't apply it: say why, so the style guide and the AI can be tuned (Delete).");
+            tips.SetToolTip(_edit, "Change the suggested text yourself, then apply it.");
+            tips.SetToolTip(_refine, "Ask the AI again for this one suggestion, with your instruction (\"keep SSO\", \"shorter\").");
+            tips.SetToolTip(_reanalyze, "Check this paragraph again, for example after you edited it.");
+            tips.SetToolTip(_bulk, "Write every suggestion that has exact text (fixes and rewords) into the topic as tracked changes, then review them with Flare's own Accept and Reject (Review tab) or in a review package.");
+            tips.SetToolTip(_acceptAll, "Apply every fix as a tracked change. In this topic only, one Ctrl+Z undoes it; if it reaches other files you see a preview first.");
             tips.SetToolTip(_stop, "Stop asking the AI. Results so far are kept; the rest of the paragraphs are not reviewed.");
-            tips.SetToolTip(_ignore, "Turn the selected rule off for this whole project (written to the project's StyleGuide folder, shared with your team).");
+            _ignoreTip = tips;
 
             Controls.Add(split);      // Fill must be added first so docked bars take their space
             Controls.Add(bar);
@@ -218,7 +219,7 @@ namespace FlareAI.Flare.UI
                 var blocks = _wholeTopic ? _runner.PickAllBlocks(_doc) : _runner.PickCheckBlocks(_doc);
                 List<StyleFinding> lint;
                 try { lint = _runner.Lint(blocks); }
-                catch (Exception ex) { Diagnostics.Log("docstyle", ex); lint = new List<StyleFinding>(); _lintNote = "Style linter unavailable (" + ex.Message + ") — showing AI review only."; }
+                catch (Exception ex) { Diagnostics.Log("docstyle", ex); lint = new List<StyleFinding>(); _lintNote = "The style rules couldn't be loaded, so only the AI review is shown. See Diagnostics for details."; }
                 try { lint.AddRange(FlareAI.Core.Style.StructureCheck.Of(blocks)); }
                 catch (Exception ex) { Diagnostics.Log("structure", ex); }
                 try { lint.AddRange(_runner.LintSnippets(blocks, _doc.SourcePath)); }
@@ -272,7 +273,7 @@ namespace FlareAI.Flare.UI
                 _cost.Text = AiCost.Session();
                 if (e.Cancelled)
                 {
-                    _status.Text = Summary() + "  Stopped: " + _doneUnits + " of " + _unitCount + " paragraphs were reviewed with AI. Results so far are kept. Re-check reviews the rest.";
+                    _status.Text = Summary() + "  Stopped: " + _doneUnits + " of " + _unitCount + " paragraphs were reviewed with AI. Results so far are kept. Check again reviews the rest.";
                     UpdateButtons();
                     return;
                 }
@@ -282,8 +283,8 @@ namespace FlareAI.Flare.UI
                     _status.Text = Summary() + "  AI review failed: " + e.Error.Message;
                 }
                 else if (!_aiOnStart && !cachedAny)
-                    _status.Text = Summary() + "  These come from style rules only (free, no AI used). Re-check" + (_unitCount > 0 ? " reviews " + _unitCount + " paragraphs with AI." : " adds the AI wording review.");
-                else _status.Text = Open().Count == 0 ? "No open proposals." : Summary();
+                    _status.Text = Summary() + "  These come from style rules only (free, no AI used). Check again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
+                else _status.Text = Open().Count == 0 ? "No open suggestions." : Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
                 var team = Team.Current;
                 if (team != null && team.Status != null && team.Status.Behind > 0) _status.Text += "  " + team.Status;
@@ -304,9 +305,9 @@ namespace FlareAI.Flare.UI
 
         private void StartProject()
         {
-            _status.Text = "Linting " + _files.Count + " files…";
+            _status.Text = "Checking " + Plural.Of(_files.Count, "file") + "…";
             _worker.DoWork += (s, e) => e.Result = _runner.LintFiles(_files, (done, total) => _worker.ReportProgress(done * 100 / Math.Max(1, total), done + "/" + total));
-            _worker.ProgressChanged += (s, e) => { if (!IsDisposed) _status.Text = "Linting " + e.UserState + " files…"; };
+            _worker.ProgressChanged += (s, e) => { if (!IsDisposed) _status.Text = "Checking " + e.UserState + " files…"; };
             _worker.RunWorkerCompleted += (s, e) =>
             {
                 if (IsDisposed || e.Cancelled) return;
@@ -318,7 +319,7 @@ namespace FlareAI.Flare.UI
                     Add(found);
                     var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     foreach (var f in found) files.Add(f.DocumentPath);
-                    _status.Text = found.Count + " issue(s) in " + files.Count + " of " + _files.Count + " files (linter only). Accept opens the file.";
+                    _status.Text = Plural.Of(found.Count, "issue") + " in " + files.Count + " of " + Plural.Of(_files.Count, "file") + " (style rules only, no AI). Apply opens the file.";
                 }
                 UpdateButtons();
             };
@@ -371,7 +372,7 @@ namespace FlareAI.Flare.UI
             if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
         }
 
-        /// <summary>Raised whenever the list changes (new findings, accept, reject, refresh): the editor markers follow it.</summary>
+        /// <summary>Raised whenever the list changes (new findings, apply, reject, check again): the editor markers follow it.</summary>
         public static event Action<FindingsPanel> Changed;
 
         /// <summary>The topic this panel shows.</summary>
@@ -381,7 +382,7 @@ namespace FlareAI.Flare.UI
         public List<StyleFinding> OpenTopicFindings() { return _findings.FindAll(f => !f.IsFixed && !f.IsStale && f.DocumentPath == null); }
 
         /// <summary>
-        /// Live check: replaces the topic's linter and structure findings with fresh ones (the author typed); AI findings
+        /// Live check: replaces the topic's style-rule and structure findings with fresh ones (the author typed); AI findings
         /// stay, and any whose text changed show as stale. Skipped while a review is running.
         /// </summary>
         public void RefreshLint(List<StyleFinding> lint)
@@ -427,10 +428,23 @@ namespace FlareAI.Flare.UI
 
         private static string LayerLabel(StyleFinding f)
         {
-            if (f.RuleLayer != null) return "AI · " + Cap(f.RuleLayer) + ": " + f.RuleSection;
+            if (f.RuleLayer != null) return "AI · " + SourceName(f.RuleLayer) + ": " + f.RuleSection;
             if (string.IsNullOrEmpty(f.Layer) || f.Layer == "ai") return "AI";
-            if (!string.IsNullOrEmpty(f.RuleSection)) return Cap(f.Layer) + " · " + f.RuleSection;
-            return Cap(f.Layer) + (string.IsNullOrEmpty(f.Rule) ? "" : " · " + f.Rule.Substring(f.Rule.IndexOf('.') + 1));
+            if (!string.IsNullOrEmpty(f.RuleSection)) return SourceName(f.Layer) + " · " + f.RuleSection;
+            return SourceName(f.Layer) + (string.IsNullOrEmpty(f.Rule) ? "" : " · " + f.Rule.Substring(f.Rule.IndexOf('.') + 1));
+        }
+
+        /// <summary>Where a rule comes from, in the writer's words: Google, Our rules, This project, AI.</summary>
+        internal static string SourceName(string layer)
+        {
+            switch ((layer ?? "").ToLowerInvariant())
+            {
+                case "google": return "Google";
+                case "company": return "Our rules";
+                case "project": return "This project";
+                case "ai": return "AI";
+                default: return Cap(layer ?? "");
+            }
         }
 
         private static string Cap(string s) { return s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s.Substring(1); }
@@ -440,16 +454,16 @@ namespace FlareAI.Flare.UI
         private string Summary()
         {
             var open = Open();
-            if (open.Count == 0) return "No open proposals.";
-            int mech = 0, wording = 0, rewrite = 0, manual = 0;
+            if (open.Count == 0) return "No open suggestions.";
+            int fixes = 0, rewords = 0, needsYou = 0;
             var sections = new HashSet<string>();
             foreach (var f in open)
             {
                 sections.Add(f.Section ?? "");
-                if (f.Kind == "mechanical") mech++; else if (f.Kind == "wording") wording++; else if (f.Kind == "manual") manual++; else rewrite++;
+                if (f.Kind == "mechanical") fixes++; else if (f.Kind == "manual" || f.Kind == "variable") needsYou++; else rewords++;
             }
-            return open.Count + " proposal(s)" + (sections.Count > 1 ? " in " + sections.Count + " sections" : "") + ": "
-                   + mech + " mechanical · " + wording + " wording · " + rewrite + " need a rewrite" + (manual > 0 ? " · " + manual + " to fix by hand" : "") + ".";
+            return Plural.Of(open.Count, "suggestion") + (sections.Count > 1 ? " in " + sections.Count + " sections" : "") + ": "
+                   + fixes + " Fix · " + rewords + " Reword" + (needsYou > 0 ? " · " + needsYou + " Needs you" : "") + ".";
         }
 
         // ---- the card ----------------------------------------------------------------------------
@@ -465,12 +479,12 @@ namespace FlareAI.Flare.UI
             _cardDiff.Clear(); _cardWhy.Clear();
             if (f == null)
             {
-                _cardHead.Text = _findings.Count == 0 ? "" : "Select a proposal to see what changes and why.";
+                _cardHead.Text = _findings.Count == 0 ? "" : "Select a suggestion to see what changes and why.";
                 UpdateButtons();
                 return;
             }
             var where = f.DocumentPath == null ? "" : "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(SnippetUses(f.DocumentPath)) + "; applying changes all of them";
-            _cardHead.Text = LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  accepted" : f.IsStale ? "  ·  Text changed: check again" : "")
+            _cardHead.Text = LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  applied" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
 
             // What: the words around it, and the change marked.
@@ -488,7 +502,7 @@ namespace FlareAI.Flare.UI
             Line(_cardWhy, f.Suggestion, FontStyle.Regular);
             var rule = _runner.RuleFor(f.RuleId);
             // The rule by what it says and where it lives; the id is only a reference for owners (Validate, Tune).
-            if (rule != null) Line(_cardWhy, (rule.Layer == "google" ? "Google" : rule.Layer == "project" ? "This project" : "Company") + " · " + rule.Section + ": " + rule.Text, FontStyle.Italic);
+            if (rule != null) Line(_cardWhy, SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text, FontStyle.Italic);
             var ex = _runner.ExampleFor(f.RuleId);
             if (ex != null)
             {
@@ -496,7 +510,7 @@ namespace FlareAI.Flare.UI
                 if (!string.IsNullOrEmpty(ex.Good)) Line(_cardWhy, "✓ " + ex.Good, FontStyle.Regular);
             }
             if (rule == null && f.Source == "ai") Line(_cardWhy, "General editing judgment (not tied to a guide rule).", FontStyle.Italic);
-            if (rule != null) Ref(_cardWhy, "Rule id " + rule.Id);
+            if (rule != null && Team.Current != null && Team.Current.IsOwner) Ref(_cardWhy, "Reference: " + rule.Id);   // for the guide owner (Validate, Tune); writers don't need it
             _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
             UpdateButtons();
         }
@@ -514,8 +528,7 @@ namespace FlareAI.Flare.UI
         private bool ConfirmSnippet(StyleFinding f)
         {
             if (f.DocumentPath == null || !f.DocumentPath.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)) return true;
-            return MessageBox.Show(this, BatchPlan.SnippetQuestion(f.DocumentPath, SnippetUses(f.DocumentPath)) + "\n\nThe change is tracked.",
-                "House Style", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK;
+            return Notify.Confirm(this, BatchPlan.SnippetQuestion(f.DocumentPath, SnippetUses(f.DocumentPath)) + "\n\nThe change is tracked.");
         }
 
         private static void Line(RichTextBox box, string text, FontStyle style)
@@ -527,7 +540,7 @@ namespace FlareAI.Flare.UI
             box.AppendText((box.TextLength > 0 ? "\n" : "") + text);
         }
 
-        /// <summary>A small grey reference line (rule ids: for owners, not something writers need to read).</summary>
+        /// <summary>A small grey reference line (the rule's reference: for owners, not something writers need to read).</summary>
         private static void Ref(RichTextBox box, string text)
         {
             box.SelectionStart = box.TextLength;
@@ -540,11 +553,11 @@ namespace FlareAI.Flare.UI
         {
             switch (f.Kind)
             {
-                case "mechanical": return "rule fix";
-                case "wording": return "AI wording";
-                case "variable": return "use the variable";
-                case "manual": return "fix in the editor";
-                default: return "needs a rewrite";
+                case "mechanical": return "Fix";
+                case "wording": return "Reword";
+                case "variable": return "Needs you — use the variable";
+                case "manual": return "Needs you";
+                default: return "Reword";
             }
         }
 
@@ -554,7 +567,7 @@ namespace FlareAI.Flare.UI
         {
             var f = Current();
             if (f == null || f.IsFixed) return;
-            if (f.IsStale) { _status.Text = "Text changed: check again. Re-analyze the paragraph."; return; }
+            if (f.IsStale) { _status.Text = "Text changed: check this paragraph again."; return; }
             if (f.Kind == "variable")
             {
                 GoTo(f, true);
@@ -566,7 +579,7 @@ namespace FlareAI.Flare.UI
             if (f.Kind == "manual")
             {
                 GoTo(f, true);
-                _status.Text = "Fix it in the editor (" + f.Suggestion + "), then Re-analyze.";
+                _status.Text = "Fix it in the editor (" + f.Suggestion + "), then check this paragraph again.";
                 return;
             }
             if (!ConfirmSnippet(f)) return;
@@ -582,7 +595,7 @@ namespace FlareAI.Flare.UI
         {
             var block = _runner.LocateBlock(_doc, f) ?? f.Block;
             var img = AltText.MissingIn(block);
-            if (img == null) { _status.Text = "That image already has alt text (or is gone). Re-analyze."; return; }
+            if (img == null) { _status.Text = "That image already has alt text (or is gone). Check this paragraph again."; return; }
             var inside = false;
             for (XmlNode n = img; n != null && !inside; n = n.ParentNode) inside = n == block;
             if (!inside) block = img.ParentNode; // the finding sits on the text next to an image-only paragraph
@@ -640,16 +653,16 @@ namespace FlareAI.Flare.UI
             Next();
         }
 
-        /// <summary>Bulk mode: every exact proposal in the topic becomes a tracked change, for review in Flare's own tools.</summary>
+        /// <summary>Bulk mode: every exact suggestion in the topic becomes a tracked change, for review in Flare's own tools.</summary>
         private void ProposeAll()
         {
             var todo = _findings.FindAll(f => f.CanFix && (f.Kind == "mechanical" || f.Kind == "wording") && f.DocumentPath == null);
             if (todo.Count == 0) return;
-            if (MessageBox.Show(this, "Write " + todo.Count + " proposal(s) into the topic as tracked changes?\n\nReview them in Flare's Review tab (Accept / Reject change), " +
-                    "or send the topic out in a review package. One Ctrl+Z removes them all.", "House Style — Propose all", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
-            var n = Apply(todo, "House Style: " + todo.Count + " proposals");
+            if (!Notify.Confirm(this, "Write " + Plural.Of(todo.Count, "suggestion") + " into the topic as tracked changes?\n\nReview them in Flare's Review tab (Accept / Reject change), " +
+                    "or send the topic out in a review package. One Ctrl+Z removes them all.", "Write all as tracked changes")) return;
+            var n = Apply(todo, "House Style: " + Plural.Of(todo.Count, "suggestion"));
             foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "proposed", "bulk");
-            _status.Text = Summary() + "  Wrote " + n + " tracked change(s) — review them in the Review tab. Proposals that need a rewrite or a manual fix are still listed.";
+            _status.Text = Summary() + "  Wrote " + Plural.Of(n, "tracked change") + " — review them in the Review tab. Suggestions that need a rewrite or your attention are still listed.";
             Next();
         }
 
@@ -744,7 +757,7 @@ namespace FlareAI.Flare.UI
         {
             var f = Current();
             if (f == null || f.IsFixed || f.IsStale) return;
-            var text = TextPrompt.Ask(this, "Edit proposal", "Replace \"" + Shorten(f.Excerpt, 80) + "\" with:", f.Replacement ?? f.Excerpt, false);
+            var text = TextPrompt.Ask(this, "Edit suggestion", "Replace \"" + Shorten(f.Excerpt, 80) + "\" with:", f.Replacement ?? f.Excerpt, false);
             if (text == null || text == f.Excerpt) return;
             var edited = Clone(f);
             edited.Replacement = text;
@@ -762,7 +775,7 @@ namespace FlareAI.Flare.UI
         {
             var f = Current();
             if (f == null || f.IsFixed || f.IsStale) return;
-            var instruction = TextPrompt.Ask(this, "Refine proposal", "How should the AI change this proposal? (for example: keep the term SSO; make it shorter; keep the passive voice here)", "", true);
+            var instruction = TextPrompt.Ask(this, "Refine suggestion", "How should the AI change this suggestion? (for example: keep the term SSO; make it shorter; keep the passive voice here)", "", true);
             if (string.IsNullOrEmpty(instruction)) return;
             var block = f.DocumentPath == null ? _runner.LocateBlock(_doc, f) : null;
             var context = block != null ? block.InnerText : (f.Before ?? "") + f.Excerpt;
@@ -787,20 +800,20 @@ namespace FlareAI.Flare.UI
                 _findings[_findings.IndexOf(f)] = refined;
                 Rebuild();
                 Select(refined);
-                _status.Text = Summary() + "  Refined. Accept, edit, or refine again.";
+                _status.Text = Summary() + "  Refined. Apply, edit, or refine again.";
             };
             worker.RunWorkerAsync();
         }
 
-        /// <summary>Reviews the selected proposal's paragraph again (lint + AI) and replaces its proposals.</summary>
+        /// <summary>Checks the selected suggestion's paragraph again (style rules + AI) and replaces its suggestions.</summary>
         private void Reanalyze()
         {
             var f = Current();
-            if (f == null || f.DocumentPath != null) { _status.Text = "Re-analyze works on the topic's paragraphs."; return; }
+            if (f == null || f.DocumentPath != null) { _status.Text = "Check this paragraph again works on the topic's paragraphs."; return; }
             var block = _runner.LocateBlock(_doc, f) ?? f.Block;
-            if (block == null || block.ParentNode == null) { _status.Text = "That paragraph is gone. Re-check the topic."; return; }
+            if (block == null || block.ParentNode == null) { _status.Text = "That paragraph is gone. Use Check again for the topic."; return; }
             var blocks = new List<XmlNode> { block };
-            Busy(true, "Re-analyzing the paragraph…");
+            Busy(true, "Checking the paragraph again…");
             var worker = new BackgroundWorker();
             worker.DoWork += (s, e) =>
             {
@@ -813,7 +826,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Re-analyze", e.Error); _status.Text = "Re-analyze failed: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Re-analyze", e.Error); _status.Text = "Couldn't check the paragraph again: " + e.Error.Message; return; }
                 var parts = (object[])e.Result;
                 var lint = (List<StyleFinding>)parts[0];
                 var fresh = new List<StyleFinding>(lint);
@@ -821,7 +834,7 @@ namespace FlareAI.Flare.UI
                 _findings.RemoveAll(x => !x.IsFixed && x.DocumentPath == null && (x.Block == block || (x.IsStale && x.Block == f.Block)));
                 Add(fresh);
                 Select(fresh.Count > 0 ? fresh[0] : null);
-                _status.Text = Summary() + "  Paragraph re-analyzed: " + fresh.Count + " proposal(s).";
+                _status.Text = Summary() + "  Paragraph checked again: " + Plural.Of(fresh.Count, "suggestion") + ".";
             };
             worker.RunWorkerAsync();
         }
@@ -830,7 +843,7 @@ namespace FlareAI.Flare.UI
         {
             if (f.DocumentPath != null) { _status.Text = "Open the snippet and use Rewrite selection there."; return; }
             var block = _runner.LocateBlock(_doc, f);
-            if (block == null) { _status.Text = "That text is no longer in the topic. Re-analyze or Re-check."; return; }
+            if (block == null) { _status.Text = "That text is no longer in the topic. Check this paragraph again, or use Check again."; return; }
             var related = _findings.FindAll(x => !x.IsFixed && x.DocumentPath == null && _runner.LocateBlock(_doc, x) == block);
             var instruction = "Resolve these review findings and change nothing else:\n" + ActionRunner.Summarize(related);
             string applied;
@@ -848,12 +861,12 @@ namespace FlareAI.Flare.UI
         private void IgnoreRule()
         {
             var f = Current();
-            if (f == null) { _status.Text = "Select a proposal whose rule you want to turn off."; return; }
+            if (f == null) { _status.Text = "Select a suggestion whose rule you want to change."; return; }
             var team = Team.Current;
             if (team != null && !team.IsOwner)
             {
-                // Strict ownership: writers propose, the style-guide owner decides (Tune style guide shows the requests).
-                var why = TextPrompt.Ask(this, "Propose turning off a rule", "Ask the style guide owner (" + string.Join(", ", new List<string>(team.Owners).ToArray()) + ") to turn off \"" + f.Rule + "\". Why?", "", true);
+                // Strict ownership: writers suggest, the style-guide owner decides (Tune style guide shows the requests).
+                var why = TextPrompt.Ask(this, "Suggest changing this rule", "Ask the style guide owner (" + string.Join(", ", new List<string>(team.Owners).ToArray()) + ") to change or turn off \"" + f.Rule + "\". Why?", "", true);
                 if (why == null) return;
                 FeedbackLog.Record(f, _doc.SourcePath, "propose-ignore", why.Trim());
                 _status.Text = Summary() + "  Sent to the style guide owner" + (team.FeedbackFolder == null ? " (set a team feedback folder in Settings so they receive it)." : ".");
@@ -862,7 +875,7 @@ namespace FlareAI.Flare.UI
             // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
             var rule = _runner.RuleFor(f.RuleId);
             var guide = team != null ? team.GuideRoot : null;
-            var described = rule != null ? (rule.Layer == "google" ? "Google" : "Company") + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : f.Layer) + ")";
+            var described = rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
             using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null))
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;
@@ -945,7 +958,7 @@ namespace FlareAI.Flare.UI
             if (doc == null) { if (report) _status.Text = "Could not open " + f.DocumentPath; return; }
             var ok = false;
             try { ok = _runner.GoTo(doc, f); } catch (Exception ex) { Diagnostics.Log("GoTo", ex); }
-            if (!ok && report) _status.Text = "That text is no longer in the topic (it was edited). Re-analyze to refresh.";
+            if (!ok && report) _status.Text = "That text is no longer in the topic (it was edited). Check this paragraph again.";
         }
 
         private static List<List<StyleFinding>> GroupByDocument(List<StyleFinding> findings)
@@ -1002,20 +1015,25 @@ namespace FlareAI.Flare.UI
             var f = Current();
             var open = f != null && !f.IsFixed && !f.IsStale;
             _accept.Enabled = open;
-            _accept.Text = f == null ? "Accept" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Suggest alt text…" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Accept";
+            _accept.Text = f == null ? "Apply" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Suggest alt text…" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Apply";
             _reject.Enabled = f != null && !f.IsFixed;
             _edit.Enabled = open && f.Kind != "variable" && f.Kind != "manual";
             _refine.Enabled = open && !_reviewing;
             _reanalyze.Enabled = f != null && f.DocumentPath == null && !_reviewing && _files == null;
             _rule.Enabled = f != null && !string.IsNullOrEmpty(f.Link);
             var mech = _findings.FindAll(x => x.CanFix && x.Kind == "mechanical" && (x.DocumentPath == null || _files != null)).Count;
-            _acceptAll.Text = "Accept all mechanical (" + mech + ")";
+            _acceptAll.Text = "Apply all fixes (" + mech + ")";
             _acceptAll.Enabled = mech > 0;
             var exact = _findings.FindAll(x => x.CanFix && (x.Kind == "mechanical" || x.Kind == "wording") && x.DocumentPath == null).Count;
-            _bulk.Text = "Propose all as tracked changes (" + exact + ")";
+            _bulk.Text = "Write all as tracked changes (" + exact + ")";
             _bulk.Enabled = exact > 0 && _files == null;
             _recheck.Enabled = !_reviewing;
             _ignore.Enabled = f != null;
+            var writer = Team.Current != null && !Team.Current.IsOwner;
+            _ignore.Text = writer ? "Suggest changing this rule…" : "Turn off this rule…";
+            _ignoreTip.SetToolTip(_ignore, writer
+                ? "Send the style guide owner a request to change or turn off the selected rule, with your reason."
+                : "Turn the selected rule off, or change its level, for the whole team or just this project.");
         }
     }
 

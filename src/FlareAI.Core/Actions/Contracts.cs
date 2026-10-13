@@ -121,7 +121,7 @@ namespace FlareAI.Core.Actions
                 list.Add(new StyleFinding
                 {
                     Source = "ai", Layer = "ai", RunId = runId, RuleId = rid == "general" ? null : rid, Rule = (string)f["rule"] ?? "",
-                    Severity = ((string)f["severity"] ?? "suggestion").ToLowerInvariant(), Excerpt = excerpt, Replacement = replacement,
+                    Severity = Severity.Normalize((string)f["severity"] ?? "suggestion"), Excerpt = excerpt, Replacement = replacement,
                     Suggestion = (string)f["why"] ?? ""
                 });
             }

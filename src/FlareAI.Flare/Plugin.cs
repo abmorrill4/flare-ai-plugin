@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -39,7 +40,7 @@ namespace FlareAI.Flare
             try
             {
                 Diagnostics.Enabled = PluginSettings.Load().WriteDiagnostics;
-                Diagnostics.Log("FlareAI starting in " + _host.GetName() + " (" + _host.GetCompany() + "), plugin dir " + PluginDirectory);
+                Diagnostics.Log("House Style starting in " + _host.GetName() + " (" + _host.GetCompany() + "), plugin dir " + PluginDirectory);
                 _nav = _host.GetNavContext();
                 RefreshTeam();
                 CreateRibbon();
@@ -54,7 +55,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Execute", ex);
-                MessageBox.Show("House Style failed to start: " + ex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Error(Owner, "House Style didn't start.", "Restart Flare. If it happens again, choose Copy details and send them to support.", ex);
             }
         }
 
@@ -74,23 +75,15 @@ namespace FlareAI.Flare
         {
             // Per the Ribbon Example: ribbon.AddNewRibbonTab(label, keyTip) → tab.AddNewRibbonGroup(label) → group.AddRibbonButton(RibbonControlData)
             IRibbon ribbon = _nav.GetRibbon();
-            IRibbonTab tab = ribbon.AddNewRibbonTab("House Style", "Q");
-            IRibbonGroup actions = tab.AddNewRibbonGroup("Assist");
-            actions.AddRibbonButton(Button("Check style", "C", OnCheckStyle, "check"));
-            actions.AddRibbonButton(Button("Rewrite selection", "R", OnRewrite, "rewrite"));
-            actions.AddRibbonButton(Button("Ask…", "A", OnAsk, "ask"));
-            actions.AddRibbonButton(Button("Check project", "P", OnCheckProject, "project"));
-            actions.AddRibbonButton(Button("Topic assists", "I", OnAssist, "assist"));
-
-            IRibbonGroup tools = tab.AddNewRibbonGroup("Plugin");
-            tools.AddRibbonButton(Button("Settings", "S", OnSettings, "settings"));
-            tools.AddRibbonButton(Button("Validate style guide", "V", OnValidateGuide, "validate"));
-            tools.AddRibbonButton(Button("Tune style guide", "T", OnTuneGuide, "tune"));
-            tools.AddRibbonButton(Button("Build style guide", "B", OnBuildGuide, "build"));
-
-            IRibbonGroup output = tab.AddNewRibbonGroup("Output");
-            output.AddRibbonButton(Button("Export for LLMs", "L", OnExportLlm, "llm"));
-            tools.AddRibbonButton(Button("Diagnostics", "D", OnDiagnostics, "diag"));
+            IRibbonTab tab = ribbon.AddNewRibbonTab(Notify.Product, "Q");
+            var groups = new Dictionary<string, IRibbonGroup>();
+            foreach (var c in Commands.All)
+            {
+                IRibbonGroup group;
+                if (!groups.TryGetValue(c.Group, out group)) groups[c.Group] = group = tab.AddNewRibbonGroup(c.Group);
+                var button = group.AddRibbonButton(Button(c));
+                try { if (button != null) button.ToolTip = c.Tooltip; } catch (Exception ex) { Diagnostics.Log("ribbon tooltip " + c.Id, ex); }
+            }
         }
 
         /// <summary>
@@ -101,31 +94,50 @@ namespace FlareAI.Flare
         {
             try
             {
-                var menu = _nav.CreateToolStripMenu("House Style", "Q");
-                menu.AddMenuItem("Check style", new DelegateCommand(OnCheckStyle), null, IconPath("check-16.png"));
-                menu.AddMenuItem("Rewrite selection", new DelegateCommand(OnRewrite), null, IconPath("rewrite-16.png"));
-                menu.AddMenuItem("Ask…", new DelegateCommand(OnAsk), null, IconPath("ask-16.png"));
-                menu.AddMenuItem("Check project", new DelegateCommand(OnCheckProject), null, IconPath("project-16.png"));
-                menu.AddSeparator();
-                menu.AddMenuItem("Settings", new DelegateCommand(OnSettings), null, IconPath("settings-16.png"));
-                menu.AddMenuItem("Validate style guide", new DelegateCommand(OnValidateGuide), null, IconPath("validate-16.png"));
-                menu.AddMenuItem("Diagnostics", new DelegateCommand(OnDiagnostics), null, IconPath("diag-16.png"));
+                var menu = _nav.CreateToolStripMenu(Notify.Product, "Q");
+                foreach (var c in Commands.Menu)
+                {
+                    if (c == null) { menu.AddSeparator(); continue; }
+                    menu.AddMenuItem(c.Label, new DelegateCommand(HandlerFor(c)), null, IconPath(c.Icon + "-16.png"), c.Label, c.Tooltip, c.KeyTip);
+                }
 
-                var bar = _nav.CreateCustomToolBar("House Style");
-                bar.AddButton("Check style", new DelegateCommand(OnCheckStyle), null, IconPath("check-16.png"), RibbonIconSize.Small);
-                bar.AddButton("Rewrite", new DelegateCommand(OnRewrite), null, IconPath("rewrite-16.png"), RibbonIconSize.Small);
-                bar.AddButton("Ask…", new DelegateCommand(OnAsk), null, IconPath("ask-16.png"), RibbonIconSize.Small);
+                var bar = _nav.CreateCustomToolBar(Notify.Product);
+                foreach (var c in Commands.Toolbar)
+                    bar.AddButton(c.Label, new DelegateCommand(HandlerFor(c)), null, IconPath(c.Icon + "-16.png"), RibbonIconSize.Small, c.Label, c.Tooltip);
             }
             catch (Exception ex) { Diagnostics.Log("Tool Strip entries", ex); }
         }
 
-        private RibbonControlData Button(string label, string keyTip, Action onClick, string icon)
+        private RibbonControlData Button(CommandInfo c)
         {
             return new RibbonControlData
             {
-                Label = label, KeyTip = keyTip, Command = new DelegateCommand(onClick),
-                LargeImage = Image(icon + ".png"), SmallImage = Image(icon + "-16.png")
+                Label = c.Label, KeyTip = c.KeyTip, Command = new DelegateCommand(HandlerFor(c)),
+                LargeImage = Image(c.Icon + ".png"), SmallImage = Image(c.Icon + "-16.png")
             };
+        }
+
+        /// <summary>The handler for a command in the table (ribbon, Tool Strip and right-click all call the same one).</summary>
+        private Action HandlerFor(CommandInfo c)
+        {
+            if (c == Commands.CheckStyle) return OnCheckStyle;
+            if (c == Commands.Rewrite) return OnRewrite;
+            if (c == Commands.Ask) return OnAsk;
+            if (c == Commands.CheckProject) return OnCheckProject;
+            if (c == Commands.TopicAssists) return OnAssist;
+            if (c == Commands.ValidateGuide) return OnValidateGuide;
+            if (c == Commands.TuneGuide) return OnTuneGuide;
+            if (c == Commands.BuildGuide) return OnBuildGuide;
+            if (c == Commands.ExportLlm) return OnExportLlm;
+            if (c == Commands.Settings) return OnSettings;
+            if (c == Commands.Diagnostics) return OnDiagnostics;
+            throw new ArgumentException("No handler for command " + c.Id);
+        }
+
+        /// <summary>Owner for dialogs: Flare's main window (null if it isn't available).</summary>
+        private IWin32Window Owner
+        {
+            get { try { return _nav == null ? null : _nav.GetParentForm(); } catch (Exception) { return null; } }
         }
 
         /// <summary>Full path of a bundled icon (Icons\*.png, made by scripts\make-icons.ps1), or null if missing.</summary>
@@ -145,15 +157,15 @@ namespace FlareAI.Flare
 
         // ---- actions -----------------------------------------------------------------
 
-        private void OnCheckStyle() { RunAction("Check style", ActionKind.CheckStyle, null); }
-        private void OnRewrite() { RunAction("Rewrite selection", ActionKind.Rewrite, null); }
+        private void OnCheckStyle() { RunAction(Commands.CheckStyle.Label, ActionKind.CheckStyle, null); }
+        private void OnRewrite() { RunAction(Commands.Rewrite.Label, ActionKind.Rewrite, null); }
 
         private void OnAsk()
         {
             using (var f = new AskForm())
             {
                 if (f.ShowDialog() != DialogResult.OK || string.IsNullOrEmpty(f.Instruction)) return;
-                RunAction("Ask", ActionKind.Ask, f.Instruction);
+                RunAction("Ask", ActionKind.Ask, f.Instruction);   // title of the result window
             }
         }
 
@@ -166,7 +178,7 @@ namespace FlareAI.Flare
                 var files = ActionRunner.ProjectFiles(adapter == null ? null : adapter.SourcePath);
                 if (adapter == null || files.Count == 0)
                 {
-                    MessageBox.Show("Open any topic of the project first (Check project scans that project's Content folder).", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Notify.Info(Owner, "Open any topic of the project first. Check project looks at every topic and snippet in that project.", Commands.CheckProject.Label);
                     return;
                 }
                 var runner = NewRunner(adapter);
@@ -179,7 +191,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Check project", ex);
-                MessageBox.Show(ex.Message, "House Style — Check project", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(Owner, "check the project", ex, Commands.CheckProject.Label);
             }
         }
 
@@ -217,7 +229,7 @@ namespace FlareAI.Flare
             try
             {
                 var adapter = ActiveAdapter();
-                if (adapter == null || !adapter.IsEditableTopic) { MessageBox.Show("Open a topic in the XML Editor first.", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+                if (adapter == null || !adapter.IsEditableTopic) { Notify.Info(Owner, "Open a topic in the XML Editor first.", Commands.TopicAssists.Label); return; }
                 var runner = NewRunner(adapter);
                 if (runner == null) return;
                 using (var f = new AssistForm(runner, adapter)) f.ShowDialog(_nav.GetParentForm());
@@ -225,7 +237,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Topic assists", ex);
-                MessageBox.Show(ex.Message, "House Style — Topic assists", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(Owner, "draft topic assists", ex, Commands.TopicAssists.Label);
             }
         }
 
@@ -254,20 +266,20 @@ namespace FlareAI.Flare
                 var settings = PluginSettings.Load();
                 var adapter = ActiveAdapter();
                 var output = NewestOutput(adapter == null ? null : adapter.SourcePath, TimeSpan.MaxValue);
-                using (var dlg = new FolderBrowserDialog { Description = "Built HTML5 or Clean XHTML output to export (Markdown per topic + llms.txt are added to it):", SelectedPath = output ?? "" })
+                using (var dlg = new FolderBrowserDialog { Description = "Built HTML5 or Clean HTML output to export. Markdown for each topic, plus llms.txt, is added to it.", SelectedPath = output ?? "" })
                 {
                     if (dlg.ShowDialog(_nav.GetParentForm()) != DialogResult.OK) return;
                     output = dlg.SelectedPath;
                 }
                 var summary = RunLlmExport(settings, output);
                 Diagnostics.Log("LLM export: " + summary);
-                if (MessageBox.Show(summary + "\n\nOpen the folder?", "House Style — Export for LLMs", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                if (Notify.AskYesNo(Owner, summary + "\n\nOpen the folder?", Commands.ExportLlm.Label))
                     System.Diagnostics.Process.Start("explorer.exe", "\"" + output + "\"");
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Export for LLMs", ex);
-                MessageBox.Show(ex.Message, "House Style — Export for LLMs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(Owner, "export for LLMs", ex, Commands.ExportLlm.Label);
             }
         }
 
@@ -318,7 +330,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Build style guide", ex);
-                MessageBox.Show(ex.Message, "House Style — Build style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(Owner, "build the style guide", ex, Commands.BuildGuide.Label);
             }
         }
 
@@ -337,7 +349,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Tune style guide", ex);
-                MessageBox.Show(ex.Message, "House Style — Tune style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(Owner, "open the guide report", ex, Commands.TuneGuide.Label);
             }
         }
 
@@ -348,7 +360,6 @@ namespace FlareAI.Flare
             {
                 var settings = PluginSettings.Load();
                 var style = StyleService(settings);
-                if (style == null) { MessageBox.Show("The style linter is turned off in Settings.", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
                 var adapter = ActiveAdapter();
                 var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
                 using (var f = new GuideReportForm(style, () => adapter == null ? NewRunnerWithoutTopic(settings, style, project) : NewRunner(adapter), project))
@@ -357,7 +368,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log("Validate style guide", ex);
-                MessageBox.Show(ex.Message, "House Style — Validate style guide", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(Owner, "validate the style guide", ex, Commands.ValidateGuide.Label);
             }
         }
 
@@ -365,7 +376,7 @@ namespace FlareAI.Flare
         {
             ILlmClient llm;
             try { llm = LlmClientFactory.Create(settings); }
-            catch (LlmException lex) { MessageBox.Show(lex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Warning); return null; }
+            catch (LlmException lex) { Notify.Warn(Owner, lex.Message); return null; }
             return new ActionRunner(llm, PromptBuilder.For(style, project), settings.MaxTokens, style, project, RoutingFor(settings))
             { Parallelism = settings.Parallelism > 0 ? settings.Parallelism : 6 };
         }
@@ -407,12 +418,12 @@ namespace FlareAI.Flare
                         sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + u.Calls + " call(s), " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
                 }
                 Diagnostics.Log("DIAG\n" + sb);
-                MessageBox.Show(sb + "\n(written to " + Diagnostics.LogPath + ")", "FlareAI diagnostics");
+                Notify.Report(Owner, Commands.Diagnostics.Label, sb + "\n(The same text is in the log: " + Diagnostics.LogPath + ")");
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Diagnostics", ex);
-                MessageBox.Show(ex.ToString(), "House Style diagnostics error");
+                Notify.Failed(Owner, "collect diagnostics", ex, Commands.Diagnostics.Label);
             }
         }
 
@@ -423,7 +434,7 @@ namespace FlareAI.Flare
                 var adapter = ActiveAdapter();
                 if (adapter == null || !adapter.IsEditableTopic)
                 {
-                    MessageBox.Show("Open a topic in the XML Editor first.", "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Notify.Info(Owner, "Open a topic in the XML Editor first.", title);
                     return;
                 }
                 var runner = NewRunner(adapter);
@@ -440,7 +451,7 @@ namespace FlareAI.Flare
             catch (Exception ex)
             {
                 Diagnostics.Log(title, ex);
-                MessageBox.Show(ex.Message, "House Style — " + title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(Owner, "finish \"" + title + "\"", ex, title);
             }
         }
 
@@ -460,7 +471,7 @@ namespace FlareAI.Flare
             try { llm = LlmClientFactory.Create(settings); }
             catch (LlmException lex)
             {
-                MessageBox.Show(lex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Notify.Warn(Owner, lex.Message);
                 OnSettings();
                 return null;
             }

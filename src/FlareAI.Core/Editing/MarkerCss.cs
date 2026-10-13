@@ -39,7 +39,7 @@ namespace FlareAI.Core.Editing
         /// <summary>One rule per marked block, colored by its most severe open proposal.</summary>
         public static string Css(IEnumerable<KeyValuePair<XmlNode, string>> blocks)
         {
-            var sb = new StringBuilder("/* FlareAI proposal markers: editor view only */\n");
+            var sb = new StringBuilder("/* House Style suggestion markers: editor view only */\n");
             foreach (var g in blocks.Where(b => b.Key != null).GroupBy(b => b.Key))
             {
                 var sel = SelectorFor(g.Key);

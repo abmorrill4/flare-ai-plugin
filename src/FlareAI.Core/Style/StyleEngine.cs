@@ -414,7 +414,7 @@ namespace FlareAI.Core.Style
                 {
                     var key = o.Key.IndexOf('.') < 0 && o.Key.IndexOf(':') < 0 ? "Google." + o.Key : o.Key;
                     if (!known.Contains(key))
-                        report.Issues.Add(new GuideIssue { Level = "error", Layer = l.Name, File = "", Location = "override " + o.Key, Message = "No rule '" + o.Key + "': use a rule id from the guide, for example google:numbers/3." });
+                        report.Issues.Add(new GuideIssue { Level = "error", Layer = l.Name, File = "", Location = "override " + o.Key, Message = "No rule '" + o.Key + "': use a rule's reference from the guide, for example google:numbers/3." });
                 }
             // Rules without a permanent key: their ids would shift when rules are added or moved.
             foreach (var l in Layers)

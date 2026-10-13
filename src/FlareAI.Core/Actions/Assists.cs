@@ -95,7 +95,7 @@ namespace FlareAI.Core.Actions
             target.SetAttribute("alt", alt);
             var check = XhtmlValidator.Validate(new List<XmlNode> { block }, new List<XmlNode> { copy });
             if (!check.IsValid) throw new InvalidOperationException("Rejected: " + check);
-            doc.ReplaceBlocks("FlareAI: alt text", new List<XmlNode> { block }, new List<XmlNode> { copy });
+            doc.ReplaceBlocks("House Style: alt text", new List<XmlNode> { block }, new List<XmlNode> { copy });
         }
     }
 

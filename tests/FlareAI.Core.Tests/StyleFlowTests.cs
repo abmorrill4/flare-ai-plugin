@@ -117,7 +117,7 @@ namespace FlareAI.Core.Tests
             doc.SelectXPath("//body/p[2]/text()");
             var proposal = Runner(new FakeLlmClient(FakeLlmClient.EchoRevised), new BrokenStyleService()).Rewrite(doc, null);
             Assert.True(proposal.Validation.IsValid);
-            Assert.Contains(proposal.Notes, n => n.Contains("linter unavailable"));
+            Assert.Contains(proposal.Notes, n => n.Contains("style rules couldn't be loaded"));
         }
 
         private sealed class BrokenStyleService : IStyleService

@@ -46,7 +46,7 @@ namespace FlareAI.Flare.UI
             Controls.Add(_keyStatus); Controls.Add(clearKey); y += 18;
             Controls.Add(new Label
             {
-                Text = "The key is used only when you ask for AI: Check topic's wording review, Rewrite, Ask, Topic details, and Validate's AI check. " +
+                Text = "The key is used only when you ask for AI: Check style's wording review, Rewrite, Ask, Topic assists, and Validate style guide's AI check. " +
                        "Checking as you type, on save, before a build, and Check project never use AI and cost nothing.",
                 Left = 140, Top = y, Width = 368, Height = 58, ForeColor = SystemColors.GrayText
             });
@@ -62,7 +62,7 @@ namespace FlareAI.Flare.UI
             _timeout = AddRow("Timeout (s)", y, out y, new TextBox { Text = _settings.TimeoutSeconds.ToString(), Width = 60 });
             _llmExport = new CheckBox { Text = "After each HTML build, add LLM-ready Markdown and llms.txt to the output", Left = 140, Top = y, Width = 368, Checked = _settings.LlmExportAfterBuild };
             Controls.Add(_llmExport); y += 26;
-            _markers = new CheckBox { Text = "Mark paragraphs with proposals in the editor", Left = 140, Top = y, Width = 368, Checked = _settings.ShowMarkers };
+            _markers = new CheckBox { Text = "Mark paragraphs with suggestions in the editor", Left = 140, Top = y, Width = 368, Checked = _settings.ShowMarkers };
             Controls.Add(_markers); y += 22;
             _live = new CheckBox { Text = "Check as I type (style rules only, no AI)", Left = 140, Top = y, Width = 368, Checked = _settings.LiveCheck };
             Controls.Add(_live); y += 22;
@@ -111,7 +111,7 @@ namespace FlareAI.Flare.UI
         private void OnSave()
         {
             int timeout;
-            if (!int.TryParse(_timeout.Text, out timeout) || timeout < 10) { MessageBox.Show("Timeout must be a number ≥ 10."); return; }
+            if (!int.TryParse(_timeout.Text, out timeout) || timeout < 10) { Notify.Warn(this, "Timeout must be a number of seconds, 10 or more.", "Settings"); _timeout.Focus(); return; }
             _settings.Provider = (LlmProvider)_provider.SelectedIndex;
             _settings.BaseUrl = _baseUrl.Text.Trim();
             _settings.Model = _model.Text.Trim();
@@ -137,7 +137,7 @@ namespace FlareAI.Flare.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not save settings: " + ex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Error(this, "House Style couldn't save your settings.", "Check that the settings folder isn't read-only, then try again.", ex, "Settings");
             }
         }
     }

@@ -53,7 +53,7 @@ namespace FlareAI.Flare.UI
             tools.Controls.AddRange(new Control[] { _mine, _notes });
 
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, CheckBoxes = true };
-            _list.Columns.Add("Proposed rule", 430); _list.Columns.Add("Becomes", 110); _list.Columns.Add("Evidence", 330);
+            _list.Columns.Add("Suggested rule", 430); _list.Columns.Add("Becomes", 110); _list.Columns.Add("Evidence", 330);
             _list.Groups.Add("content", "From your content");
             _list.Groups.Add("notes", "From your notes");
             _list.SelectedIndexChanged += (s, e) => ShowDetail();
@@ -99,10 +99,10 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Build guide: mine", e.Error); _head.Text = "Could not mine the project: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Build guide: mine", e.Error); _head.Text = "Couldn't look through the project: " + e.Error.Message; return; }
                 var found = (List<RuleCandidate>)e.Result;
                 Add(found, "content");
-                _head.Text = files + " topic(s) and snippet(s) read: " + found.Count + " proposed rule(s) the guide doesn't cover yet." +
+                _head.Text = files + " topics and snippets read: " + Plural.Of(found.Count, "suggested rule") + " the guide doesn't cover yet." +
                              (found.Count == 0 ? " Your content is consistent with the guide." : " Where the team was split, pick the preferred form.");
             };
             worker.RunWorkerAsync();
@@ -226,10 +226,10 @@ namespace FlareAI.Flare.UI
             {
                 var n = GuideBuilder.Write(topic, accepted, "From our content");
                 foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
-                _head.Text = "Added " + n + " rule(s) to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example), then commit the guide.";
+                _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example), then commit the guide.";
                 if (_open != null) _open(topic);
             }
-            catch (Exception ex) { Diagnostics.Log("Build guide: write", ex); MessageBox.Show(this, "Could not write " + topic + ": " + ex.Message, "House Style"); }
+            catch (Exception ex) { Diagnostics.Log("Build guide: write", ex); Notify.Error(this, "House Style couldn't write to " + System.IO.Path.GetFileName(topic) + ".", "Check that the file isn't read-only, then try again.", ex, "Build style guide"); }
             UpdateAdd();
         }
 

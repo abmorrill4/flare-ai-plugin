@@ -83,7 +83,7 @@ namespace FlareAI.Flare.UI
 
         private void Write(GuideReport r)
         {
-            _report.AppendLine("Layers (later wins): " + string.Join(" → ", r.Layers.ToArray()));
+            _report.AppendLine("Sources (later wins): " + string.Join(" → ", r.Layers.ToArray()));
             _report.AppendLine(r.TableRules + " table rule(s), " + r.TestedByExample + " tested by their Example. " +
                                r.ProseRules + " prose rule(s), " + r.ProseRulesWithExamples + " with Bad/Good examples.");
             _report.AppendLine(r.Errors + " error(s), " + r.Warnings + " warning(s).").AppendLine();
@@ -104,8 +104,7 @@ namespace FlareAI.Flare.UI
         {
             var calls = 0;
             foreach (var ex in _examples) calls += (string.IsNullOrEmpty(ex.Bad) ? 0 : 1) + (string.IsNullOrEmpty(ex.Good) ? 0 : 1);
-            if (MessageBox.Show(this, "Check " + _examples.Count + " prose rule(s) against the AI reviewer?\n\nThis makes " + calls + " model call(s).",
-                    "House Style", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            if (!Notify.Confirm(this, "Check " + Plural.Of(_examples.Count, "prose rule") + " against the AI reviewer?\n\nThis makes " + Plural.Of(calls, "model call") + ".", "Validate style guide")) return;
             var runner = _runner();
             if (runner == null) return;
             _ai.Enabled = false;

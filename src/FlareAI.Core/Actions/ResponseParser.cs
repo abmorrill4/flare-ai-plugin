@@ -86,7 +86,7 @@ namespace FlareAI.Core.Actions
                 {
                     Source = "ai", Layer = "ai", RuleId = (string)item["rule_id"],
                     Rule = (string)item["rule"] ?? "",
-                    Severity = ((string)item["severity"] ?? "suggestion").ToLowerInvariant(),
+                    Severity = Severity.Normalize((string)item["severity"] ?? "suggestion"),
                     Excerpt = (string)item["excerpt"] ?? "",
                     Suggestion = (string)item["why"] ?? (string)item["suggestion"] ?? "",
                     Replacement = replacement == null || replacement.Type == JTokenType.Null ? null : (string)replacement

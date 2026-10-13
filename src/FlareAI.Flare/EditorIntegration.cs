@@ -16,11 +16,11 @@ namespace FlareAI.Flare
 {
     /// <summary>
     /// The plugin inside Flare's editor, not only in its pane:
-    ///   - right-click items (Check style, Rewrite, Ask…) in Flare's own context menu;
-    ///   - a margin bar on paragraphs with open proposals (a stylesheet on the editor view: never saved into the topic);
-    ///   - live checking: a moment after typing stops, the topic is re-linted (no AI) and the pane and markers refresh;
-    ///   - check on save: a quiet notice with the topic's issue count;
-    ///   - report before build: when a build starts, the project is linted and a notice offers the report.
+    ///   - right-click items (the commands in <see cref="Commands.Context"/>) in Flare's own context menu;
+    ///   - a margin bar on paragraphs with open suggestions (a stylesheet on the editor view: never saved into the topic);
+    ///   - live checking: a moment after typing stops, the topic is checked again (style rules only, no AI) and the pane and markers refresh;
+    ///   - check on save: a quiet notice with the topic's suggestion count;
+    ///   - report before build: when a build starts, the project is checked and a notice offers the report.
     /// Each feature has its own setting. None of them ever blocks typing, saving or building.
     /// </summary>
     internal sealed class EditorIntegration
@@ -76,12 +76,10 @@ namespace FlareAI.Flare
             try
             {
                 var items = doc.GetUserPendingContextMenuItems();
-                if (items != null && !items.Any(i => i.Text == "House Style: Check style"))
+                if (items != null && !items.Any(i => i.Text == Commands.Context[0].ContextLabel))
                 {
                     items.Add(new ToolStripSeparator());
-                    items.Add(Item("House Style: Check style", _checkStyle));
-                    items.Add(Item("House Style: Rewrite selection", _rewrite));
-                    items.Add(Item("House Style: Ask…", _ask));
+                    foreach (var c in Commands.Context) items.Add(Item(c, c == Commands.CheckStyle ? _checkStyle : c == Commands.Rewrite ? _rewrite : _ask));
                 }
             }
             catch (Exception ex) { Diagnostics.Log("context menu", ex); }
@@ -98,10 +96,10 @@ namespace FlareAI.Flare
             UpdateMarkers(doc);
         }
 
-        private static ToolStripMenuItem Item(string text, Action action)
+        private static ToolStripMenuItem Item(CommandInfo command, Action action)
         {
-            var mi = new ToolStripMenuItem(text);
-            mi.Click += (s, e) => { try { action(); } catch (Exception ex) { Diagnostics.Log(text, ex); } };
+            var mi = new ToolStripMenuItem(command.ContextLabel) { ToolTipText = command.Tooltip };
+            mi.Click += (s, e) => { try { action(); } catch (Exception ex) { Diagnostics.Log(command.Label, ex); } };
             return mi;
         }
 
@@ -116,7 +114,7 @@ namespace FlareAI.Flare
 
         // ---- live check and save ------------------------------------------------------------------------------
 
-        /// <summary>Linter + structure check of the whole topic, from the editor's current DOM. Free and fast (no AI).</summary>
+        /// <summary>Style rules + structure check of the whole topic, from the editor's current DOM. Free and fast (no AI).</summary>
         private List<StyleFinding> Lint(IDocument doc, out FlareDocumentAdapter adapter)
         {
             adapter = new FlareDocumentAdapter(doc);
@@ -156,7 +154,7 @@ namespace FlareAI.Flare
                 state.Lint = lint;
                 if (lint.Count == 0) return;   // nothing to say
                 var errors = lint.Count(f => f.Severity == "error");
-                Toast.Show(_owner(), lint.Count + " style issue(s) in " + Path.GetFileName(adapter.SourcePath) + (errors > 0 ? " (" + errors + " error(s))" : "") + ". Saved anyway.",
+                Toast.Show(_owner(), Plural.Of(lint.Count, "suggestion") + " in " + Path.GetFileName(adapter.SourcePath) + (errors > 0 ? " (" + Plural.Of(errors, "error") + ")" : "") + ". Saved anyway.",
                            "Show them", _checkStyle);
                 UpdateMarkers(doc);
             }
@@ -176,7 +174,7 @@ namespace FlareAI.Flare
                 var show = PluginSettings.Load().ShowMarkers;
                 List<StyleFinding> findings = null;
                 var panel = PanelHost.Current;
-                if (show && panel != null && !panel.IsProjectReport && SamePath(panel.TopicPath, adapter.SourcePath)) findings = panel.OpenTopicFindings();   // lint + AI
+                if (show && panel != null && !panel.IsProjectReport && SamePath(panel.TopicPath, adapter.SourcePath)) findings = panel.OpenTopicFindings();   // style rules + AI
                 else if (show) findings = state.Lint;
                 var marks = new List<KeyValuePair<XmlNode, string>>();
                 foreach (var f in findings ?? new List<StyleFinding>())
@@ -209,7 +207,7 @@ namespace FlareAI.Flare
 
         // ---- report before build -------------------------------------------------------------------------------
 
-        /// <summary>When a build starts: lint the project in the background and offer the report. The build isn't held up.</summary>
+        /// <summary>When a build starts: check the project in the background and offer the report. The build isn't held up.</summary>
         public void OnCompileStart(string anyProjectPath)
         {
             try
@@ -227,10 +225,10 @@ namespace FlareAI.Flare
                 {
                     if (e.Error != null) { Diagnostics.Log("report before build", e.Error); return; }
                     var found = (List<StyleFinding>)e.Result;
-                    if (found.Count == 0) { Toast.Show(owner, "Building. No style issues in the project's " + files.Count + " topics and snippets."); return; }
+                    if (found.Count == 0) { Toast.Show(owner, "Building. No style issues in the project's " + Plural.Of(files.Count, "file") + "."); return; }
                     var inFiles = found.Select(f => f.DocumentPath).Distinct(StringComparer.OrdinalIgnoreCase).Count();
                     var errors = found.Count(f => f.Severity == "error");
-                    Toast.Show(owner, "Building. " + found.Count + " style issue(s) in " + inFiles + " file(s)" + (errors > 0 ? ", " + errors + " error(s)" : "") + ".",
+                    Toast.Show(owner, "Building. " + Plural.Of(found.Count, "style issue") + " in " + Plural.Of(inFiles, "file") + (errors > 0 ? ", " + Plural.Of(errors, "error") : "") + ".",
                                "Open the report", _checkProject);
                 };
                 worker.RunWorkerAsync();

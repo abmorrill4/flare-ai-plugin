@@ -252,7 +252,7 @@ namespace FlareAI.Core.Style
                     var use = cell(useC);
                     var rowNo = r + 1;
                     if (avoid.Count == 0) { Problem("error", file, "table row " + rowNo, "Row has no " + (isPattern ? "Pattern" : "Avoid") + " text."); continue; }
-                    var sev = (cell(sevC).Length > 0 ? cell(sevC) : "warning").ToLowerInvariant();
+                    var sev = Severity.Normalize(cell(sevC).Length > 0 ? cell(sevC) : "warning");
                     if (!Severities.Contains(sev)) { Problem("warning", file, "table row " + rowNo, "Unknown severity '" + sev + "'; using warning."); sev = "warning"; }
                     var why = cell(whyC);
                     var shown = isPattern ? "the pattern " + avoid[0] : string.Join(", ", avoid.Select(a => "'" + a + "'").ToArray());
@@ -281,7 +281,7 @@ namespace FlareAI.Core.Style
                     var value = Setting(setting);
                     if (value == null) { Problem("error", file, "table row " + (r + 1), "Setting '" + setting + "' should be off, error, warning, or suggestion."); continue; }
                     Overrides.Add(new KeyValuePair<string, string>(rule, value));
-                    s.Section.Lines.Add("- " + rule + ": " + value + " in this layer");
+                    s.Section.Lines.Add("- " + rule + ": " + value + " in this guide");
                 }
             }
         }
@@ -289,7 +289,7 @@ namespace FlareAI.Core.Style
         /// <summary>"off" or a severity; null when it's neither.</summary>
         private static string Setting(string s)
         {
-            s = (s ?? "").Trim().ToLowerInvariant();
+            s = Severity.Normalize(s);
             if (s == "off" || s == "no" || s == "disabled" || s == "disable" || s == "false") return "off";
             return Severities.Contains(s) ? s : null;
         }

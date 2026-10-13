@@ -68,7 +68,7 @@ namespace FlareAI.Flare.UI
             _diff.SetBounds(12, 60, 736, 410);
             _diff.Anchor = _output.Anchor;
             _diff.Visible = false;
-            _showXml = new CheckBox { Text = "Show XHTML", Left = 12, Top = 486, AutoSize = true, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
+            _showXml = new CheckBox { Text = "Show the markup", Left = 12, Top = 486, AutoSize = true, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
             _showXml.CheckedChanged += (s, e) => { _output.Visible = _showXml.Checked; _diff.Visible = !_showXml.Checked; };
             _apply = new Button { Text = "Apply as tracked changes", Left = 540, Top = 482, Width = 160, Enabled = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
             _close = new Button { Text = "Cancel", Left = 706, Top = 482, Width = 42, DialogResult = DialogResult.Cancel, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
@@ -118,20 +118,20 @@ namespace FlareAI.Flare.UI
             {
                 var notes = new List<string>(_proposal.Validation.Warnings);
                 notes.AddRange(_proposal.Notes);
-                _status.Text = (_proposal.RemainingLint.Count == 0 ? "Proposed edit passes the style linter." : "Proposed edit — " + _proposal.RemainingLint.Count + " linter issue(s) remain (listed below).")
+                _status.Text = (_proposal.RemainingLint.Count == 0 ? "The suggested edit passes the style rules." : "The suggested edit still has " + Plural.Of(_proposal.RemainingLint.Count, "issue") + " (listed below).")
                                + (notes.Count > 0 ? "  " + string.Join("  ", notes.ToArray()) : "")
                                + (_proposal.WordPlan != null ? "  Applies as " + _proposal.WordPlan.Count + " word-level tracked change(s)." : "  Applies as a paragraph-level tracked change (structure changes).")
                                + (_proposal.WordPlan == null && _proposal.ProposedXml != null && _proposal.ProposedXml.Contains("MadCap:variable")
                                    ? "  Note: Flare 22 can undo this edit but not redo it (Ctrl+Y) because the text contains a variable." : "");
                 var sb = new StringBuilder(_proposal.ProposedXml);
                 if (_proposal.RemainingLint.Count > 0)
-                    sb.AppendLine().AppendLine().AppendLine("--- still flagged by the linter ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));
+                    sb.AppendLine().AppendLine().AppendLine("--- still flagged by the style rules ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));
                 _output.Text = sb.ToString();
                 // What the author reads: the text with word changes marked; the XHTML is one click away.
                 var diff = ReadableDiff.Of(_proposal.View ?? _proposal.OriginalBlocks, _proposal.ProposedBlocks);
                 DiffView.Render(_diff, diff, true);
                 if (_proposal.RemainingLint.Count > 0)
-                    _diff.AppendText("\nStill flagged by the linter:\n" + ActionRunner.Summarize(_proposal.RemainingLint));
+                    _diff.AppendText("\nStill flagged by the style rules:\n" + ActionRunner.Summarize(_proposal.RemainingLint));
                 _output.Visible = false; _diff.Visible = true; _showXml.Visible = true;
                 _apply.Enabled = true;
                 if (_proposal.NeedsRestructure)
@@ -169,7 +169,7 @@ namespace FlareAI.Flare.UI
             catch (Exception ex)
             {
                 Diagnostics.Log("Apply", ex);
-                MessageBox.Show("Could not apply the change: " + ex.Message, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Notify.Failed(this, "apply the change", ex);
             }
         }
     }

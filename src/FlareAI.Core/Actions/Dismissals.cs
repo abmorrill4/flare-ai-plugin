@@ -87,7 +87,7 @@ namespace FlareAI.Core.Actions
             var line = f.RuleId != null ? f.RuleId + " = " + setting
                      : IsLinterRule(f) ? f.Rule + " = " + (setting == "off" ? "NO" : setting)
                      : "# ai-ignore: " + f.Rule;
-            var existing = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8).TrimStart('﻿') : "# Rules turned off for this project (FlareAI \"Ignore rule\"). Vale syntax: Style.Rule = NO\r\n";
+            var existing = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8).TrimStart('﻿') : "# Rules turned off for this project (House Style, \"Turn off this rule\"). Vale syntax: Style.Rule = NO\r\n";
             if (existing.IndexOf(line, StringComparison.OrdinalIgnoreCase) >= 0) return;
             File.WriteAllText(path, existing.TrimEnd() + "\r\n" + line + "\r\n", NoBom); // ini readers choke on a BOM
         }

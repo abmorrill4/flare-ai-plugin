@@ -158,9 +158,9 @@ namespace FlareAI.Flare.UI
             try
             {
                 var doc = _open == null ? null : _open(new Uri(rule.Link).LocalPath);
-                if (doc == null) { MessageBox.Show(this, "Could not open " + rule.Link, "House Style"); return; }
+                if (doc == null) { Notify.Warn(this, "House Style couldn't open " + rule.Link + ". Open it from the Content pane instead."); return; }
                 var block = GuideEdits.Locate(doc.Document, rule.Text);
-                if (block == null) { MessageBox.Show(this, "Could not find this rule in " + System.IO.Path.GetFileName(doc.SourcePath) + ". Open it and edit the rule there.", "House Style"); return; }
+                if (block == null) { Notify.Warn(this, "House Style couldn't find this rule in " + System.IO.Path.GetFileName(doc.SourcePath) + ". Open that topic and edit the rule there."); return; }
                 var runner = _runnerFor == null ? null : _runnerFor(doc);
                 if (runner == null) return;
                 var instruction = GuideEdits.Instruction(it, rule, block.LocalName == "tr");
@@ -170,7 +170,7 @@ namespace FlareAI.Flare.UI
                     _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ": review, save and commit the guide, then run Validate style guide.";
                 }
             }
-            catch (Exception ex) { Diagnostics.Log("tune: draft", ex); MessageBox.Show(this, ex.Message, "House Style — Draft change"); }
+            catch (Exception ex) { Diagnostics.Log("tune: draft", ex); Notify.Failed(this, "draft the change", ex, "Draft change"); }
         }
 
         /// <summary>Seeds the guide's FlareAI\prompts folder with the built-in templates (missing ones only) and opens it.</summary>
@@ -197,14 +197,14 @@ namespace FlareAI.Flare.UI
                 _head.Text = (added > 0 ? "Copied " + added + " prompt template(s) to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
                 System.Diagnostics.Process.Start("explorer.exe", "\"" + dir + "\"");
             }
-            catch (Exception ex) { Diagnostics.Log("tune: prompts", ex); MessageBox.Show(this, ex.Message, "House Style — Customize AI prompts"); }
+            catch (Exception ex) { Diagnostics.Log("tune: prompts", ex); Notify.Failed(this, "copy the prompt templates", ex, "Customize AI prompts"); }
         }
 
         private static string Advice(string kind)
         {
             switch (kind)
             {
-                case "disputed": return "Most splits are about scope: the rule is right for some content and wrong for other. Scope it (a project layer or a separate section), or reword it to say when it applies.";
+                case "disputed": return "Most splits are about scope: the rule is right for some content and wrong for other. Scope it (a project rule or a separate section), or reword it to say when it applies.";
                 case "review": return "Read the rejected excerpts: if the rule is wrong there, narrow its wording or make it a prose rule with an example of the exception.";
                 case "edit": return "Writers agree on a better replacement: update the rule's Use column (or add an Avoid/Use row), then run Validate style guide.";
                 case "ignore": return "Decide for the team: turn the rule off (Google overrides table), scope it, or answer the writers.";
@@ -234,7 +234,7 @@ namespace FlareAI.Flare.UI
                 }
                 else if (rule.Link.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) System.Diagnostics.Process.Start(rule.Link);
             }
-            catch (Exception ex) { Diagnostics.Log("tune: open rule", ex); MessageBox.Show(this, "Could not open " + rule.Link + ": " + ex.Message, "House Style"); }
+            catch (Exception ex) { Diagnostics.Log("tune: open rule", ex); Notify.Failed(this, "open " + rule.Link, ex); }
         }
     }
 }

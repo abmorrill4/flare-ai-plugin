@@ -135,7 +135,7 @@ namespace FlareAI.Core.Style
                     Avoid = avoid.Length > 0 ? avoid : null, Use = (string)c["use"] ?? "", Why = (string)c["why"], Example = (string)c["example"],
                     Text = Empty((string)c["text"]), Bad = Empty((string)c["bad"]), Good = Empty((string)c["good"]), Quote = (string)c["quote"]
                 };
-                var sev = ((string)c["severity"] ?? "warning").ToLowerInvariant();
+                var sev = Severity.Normalize((string)c["severity"] ?? "warning");
                 rc.Severity = sev == "error" || sev == "suggestion" ? sev : "warning";
                 if (rc.IsRow || !string.IsNullOrEmpty(rc.Text)) list.Add(rc);
             }

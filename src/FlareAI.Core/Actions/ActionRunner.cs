@@ -857,7 +857,7 @@ namespace FlareAI.Core.Actions
         public string Apply(IDocumentAdapter doc, RewriteProposal proposal, string operationName)
         {
             if (proposal == null || !proposal.Validation.IsValid)
-                throw new InvalidOperationException("Cannot apply: proposal failed validation.");
+                throw new InvalidOperationException("Cannot apply: the suggestion failed validation.");
 
             var plan = proposal.WordPlan;
             if (plan != null)
@@ -890,7 +890,7 @@ namespace FlareAI.Core.Actions
             catch (Exception ex)
             {
                 Diagnostics.Log("docstyle", ex);
-                notes.Add("Style linter unavailable: " + ex.Message);
+                notes.Add("The style rules couldn't be loaded: " + ex.Message);
                 return new List<StyleFinding>();
             }
         }

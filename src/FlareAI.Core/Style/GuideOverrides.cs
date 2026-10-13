@@ -18,7 +18,7 @@ namespace FlareAI.Core.Style
         /// <summary>Sets <paramref name="ruleId"/> to off / suggestion / warning / error for the whole team. Returns the topic written.</summary>
         public static string Set(string guideRoot, string ruleId, string setting, string reason)
         {
-            if (string.IsNullOrEmpty(ruleId)) throw new ArgumentException("This finding has no rule id to change.");
+            if (string.IsNullOrEmpty(ruleId)) throw new ArgumentException("This suggestion isn't tied to a rule, so there is nothing to change.");
             var folder = Path.Combine(guideRoot, @"Content\Resources\StyleGuide");
             var google = Path.Combine(folder, "Google") + Path.DirectorySeparatorChar;
             // The first topic with a Rule/Setting table (the starter's "Changes to the Google guide"), else a new one.

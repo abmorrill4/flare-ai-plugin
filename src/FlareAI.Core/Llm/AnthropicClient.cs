@@ -26,7 +26,7 @@ namespace FlareAI.Core.Llm
 
         public AnthropicClient(string baseUrl, string apiKey, string model, int timeoutSeconds)
         {
-            if (string.IsNullOrEmpty(apiKey)) throw new LlmException("No API key configured. Open AI > Settings.");
+            if (string.IsNullOrEmpty(apiKey)) throw new LlmException("No API key configured. Open House Style > Settings.");
             _baseUrl = (baseUrl ?? "https://api.anthropic.com").TrimEnd('/');
             _apiKey = apiKey;
             _model = model;
