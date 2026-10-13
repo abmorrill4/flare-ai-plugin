@@ -35,8 +35,9 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(820, 560);
             MinimumSize = new Size(520, 320);
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
-            _status = new Label { Dock = DockStyle.Top, Height = 34, Padding = new Padding(8, 8, 8, 0), Text = "Testing the guide's rule tables…" };
+            _status = new LiveLabel { Dock = DockStyle.Top, Height = 34, Padding = new Padding(8, 8, 8, 0), Text = "Testing the guide's rule tables…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             _text = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, Font = new Font(FontFamily.GenericMonospace, 9f) };
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
@@ -50,6 +51,10 @@ namespace FlareAI.Flare.UI
             Controls.Add(_progress);
             Controls.Add(_status);
             CancelButton = close;
+            A11y.Name(_text, "Style guide validation report", "Read-only report. Use the arrow keys or Page Down to read it.");
+            A11y.Name(bar, "Dialog buttons");
+            A11y.Name(_progress, "Progress");
+            A11y.Apply(this);
             Shown += (s, e) => Validate();
         }
 

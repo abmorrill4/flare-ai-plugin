@@ -26,6 +26,7 @@ namespace FlareAI.Flare.UI
             MaximizeBox = false; MinimizeBox = false; ShowInTaskbar = false;
             ClientSize = new Size(560, 460);
             Font = SystemFonts.MessageBoxFont;
+            AutoScaleMode = AutoScaleMode.Font;
 
             var intro = new Label
             {
@@ -48,12 +49,15 @@ namespace FlareAI.Flare.UI
             var cancel = new Button { Text = "Cancel", Left = 478, Top = 424, Width = 70, Height = 26, DialogResult = DialogResult.Cancel };
             Controls.AddRange(new Control[] { intro, _rules, _details, skipped, _apply, cancel });
             AcceptButton = _apply; CancelButton = cancel;
+            A11y.Name(_rules, "Rules to apply", "Untick a rule to leave it out. Columns: rule, number of fixes, number of files.");
+            A11y.Name(_details, "Examples for the selected rule");
 
             _rules.ItemChecked += (s, e) => { if (_loading) return; ((RuleGroup)e.Item.Tag).Selected = e.Item.Checked; Refresh2(); };
             _rules.SelectedIndexChanged += (s, e) => ShowDetails();
             _loading = false;
             if (_rules.Items.Count > 0) _rules.Items[0].Selected = true;
             Refresh2();
+            A11y.Apply(this);
         }
 
         private string SkippedText()
@@ -74,6 +78,7 @@ namespace FlareAI.Flare.UI
             var n = _plan.SelectedCount;
             _apply.Text = n == 0 ? "Apply" : "Apply " + n;
             _apply.Enabled = n > 0;
+            _apply.AccessibleName = n == 0 ? "Apply" : "Apply " + n + " fixes";
             Text = "House Style — " + BatchPlan.Counts(n, _plan.SelectedFileCount);
         }
     }

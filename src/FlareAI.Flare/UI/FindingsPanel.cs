@@ -27,6 +27,7 @@ namespace FlareAI.Flare.UI
         private readonly ListView _list;
         private readonly Button _acceptAll, _bulk, _recheck, _ignore, _stop;
         private readonly Label _cost;
+        private readonly NoticeLink _notice;   // the last toast, kept here so a keyboard user can still reach its action
         private readonly TextBox _result;
         private int _unitCount, _doneUnits;
         private bool _stopped;
@@ -88,7 +89,7 @@ namespace FlareAI.Flare.UI
             Padding = new Padding(6);
             MinimumSize = new Size(260, 320);
 
-            _status = new Label { Dock = DockStyle.Top, AutoSize = false, Height = 36, Text = "Linting…" };
+            _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, Height = 36, Text = "Linting…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
             _acceptAll = Btn(triage, "Accept all mechanical", (s, e) => AcceptAllMechanical());
@@ -159,15 +160,63 @@ namespace FlareAI.Flare.UI
             tips.SetToolTip(_stop, "Stop asking the AI. Results so far are kept; the rest of the paragraphs are not reviewed.");
             tips.SetToolTip(_ignore, "Turn the selected rule off for this whole project (written to the project's StyleGuide folder, shared with your team).");
 
+            // The last notice (a toast vanishes by itself) stays reachable here, with its action as a focusable link.
+            _notice = new NoticeLink { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, AccessibleRole = AccessibleRole.Link };
+            _notice.LinkClicked += (s, e) => { var n = Toast.Last; if (n != null && n.Action != null) n.Action(); };
+            Toast.LastChanged += OnNoticeChanged;
+            HandleDestroyed += (s, e) => Toast.LastChanged -= OnNoticeChanged;
+            OnNoticeChanged();
+
             Controls.Add(split);      // Fill must be added first so docked bars take their space
             Controls.Add(bar);
             _cost = new Label { Dock = DockStyle.Bottom, AutoSize = false, Height = 18, ForeColor = SystemColors.GrayText, Text = AiCost.Session() };
             Controls.Add(_cost);
             Controls.Add(triage);
             Controls.Add(_progress);
+            Controls.Add(_notice);
             Controls.Add(_status);
+            NameControls();
             HandleDestroyed += (s, e) => { if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); };
             ShowCard();
+        }
+
+        private void OnNoticeChanged()
+        {
+            if (IsDisposed) return;
+            if (InvokeRequired) { BeginInvoke((Action)OnNoticeChanged); return; }
+            var n = Toast.Last;
+            _notice.Visible = n != null;
+            if (n == null) return;
+            _notice.Links.Clear();
+            _notice.Text = n.Action == null ? n.Text : n.Text + "  " + n.ActionLabel;
+            if (n.Action != null) _notice.Links.Add(n.Text.Length + 2, n.ActionLabel.Length);
+            _notice.AccessibleName = "Last notice: " + n.Text + (n.Action != null ? ". " + n.ActionLabel : "");
+            _notice.Announce();
+        }
+
+        /// <summary>Accessible names, descriptions and a reading-order tab sequence (status, triage, list, card, bar).</summary>
+        private void NameControls()
+        {
+            A11y.Name(this, "House Style findings", "Style proposals for the open topic, with a card for the selected one.");
+            A11y.Name(_progress, "Progress");
+            A11y.Name(_list, "Style proposals", "List of proposals in reading order. Each row starts with its severity: filled circle is an error, triangle a warning, open circle a tip. Enter accepts, Delete rejects.");
+            A11y.Name(_result, "Result of the last batch");
+            A11y.Name(_cardDiff, "What changes", "The text around the change, with removed words struck through and added words underlined.");
+            A11y.Name(_cardWhy, "Why", "The reason, the guide rule and its example.");
+            A11y.Name(_accept, "Accept", "Applies this proposal as a tracked change and goes to the next one.");
+            A11y.Name(_reject, "Reject", "Opens a menu of reasons for not applying it.");
+            A11y.Name(_edit, "Edit", "Change the proposed text yourself, then apply it. Opens a dialog.");
+            A11y.Name(_refine, "Refine", "Ask the AI again for this proposal with your instruction. Opens a dialog.");
+            A11y.Name(_rule, "Open guide page", "Opens the guide page for this rule in your browser.");
+            A11y.Name(_recheck, "Re-check");
+            A11y.Name(_ignore, "Turn off rule", "Turns the selected rule off or changes its level. Opens a dialog.");
+            // Tab order: notice, triage buttons, list, decision buttons, card text, bottom bar.
+            var top = new Control[] { _status, _notice, _acceptAll.Parent, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
+            for (var i = 0; i < top.Length; i++) top[i].TabIndex = i;
+            A11y.Name(_acceptAll.Parent, "Bulk actions"); A11y.Name(_recheck.Parent, "Panel actions"); A11y.Name(_accept.Parent, "Decision for the selected proposal");
+            var order = new Control[] { _notice, _acceptAll, _bulk, _stop, _list, _result, _accept, _reject, _edit, _refine, _reanalyze, _rule, _cardDiff, _cardWhy, _recheck, _ignore };
+            for (var i = 0; i < order.Length; i++) order[i].TabIndex = i;
+            A11y.Apply(this);
         }
 
         /// <summary>Starts the first check. Hosts call this once the panel is placed (it needs a window handle).</summary>
@@ -359,8 +408,8 @@ namespace FlareAI.Flare.UI
             _list.Items.Clear(); _list.Groups.Clear();
             foreach (var f in _findings)
             {
-                var item = new ListViewItem(new[] { ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
-                item.ToolTipText = LayerLabel(f) + " · " + f.Rule + "\n" + f.Suggestion;
+                var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
+                item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + f.Rule + "\n" + f.Suggestion;
                 Restyle(item);
                 _list.Items.Add(item);
                 if (f == keep) item.Selected = true;
@@ -470,8 +519,9 @@ namespace FlareAI.Flare.UI
                 return;
             }
             var where = f.DocumentPath == null ? "" : "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(SnippetUses(f.DocumentPath)) + "; applying changes all of them";
-            _cardHead.Text = LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  accepted" : f.IsStale ? "  ·  Text changed: check again" : "")
+            _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  accepted" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
+            _list.AccessibleDescription = (_cardHead.Text + ". " + f.Suggestion).Replace("\n", " ");   // what a screen reader says for the selected row
 
             // What: the words around it, and the change marked.
             if (!string.IsNullOrEmpty(f.Before)) DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = "…" + f.Before } }, true);
@@ -1024,13 +1074,15 @@ namespace FlareAI.Flare.UI
     {
         public static string Ask(IWin32Window owner, string title, string label, string initial, bool multiline)
         {
-            using (var form = new Form { Text = "House Style — " + title, StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ClientSize = new Size(520, multiline ? 190 : 150), Font = SystemFonts.MessageBoxFont })
+            using (var form = new Form { Text = "House Style — " + title, StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ClientSize = new Size(520, multiline ? 190 : 150), Font = SystemFonts.MessageBoxFont, AutoScaleMode = AutoScaleMode.Font })
             {
                 var text = new Label { Text = label, Left = 12, Top = 12, Width = 496, Height = 34 };
                 var box = new TextBox { Left = 12, Top = 50, Width = 496, Height = multiline ? 84 : 24, Multiline = multiline, AcceptsReturn = false, Text = initial ?? "", ScrollBars = multiline ? ScrollBars.Vertical : ScrollBars.None };
                 var ok = new Button { Text = "OK", Left = 352, Top = form.ClientSize.Height - 36, Width = 75, DialogResult = DialogResult.OK };
                 var cancel = new Button { Text = "Cancel", Left = 433, Top = form.ClientSize.Height - 36, Width = 75, DialogResult = DialogResult.Cancel };
                 form.Controls.AddRange(new Control[] { text, box, ok, cancel });
+                A11y.Name(box, label);
+                A11y.Apply(form);
                 form.AcceptButton = ok; form.CancelButton = cancel;
                 return form.ShowDialog(owner) == DialogResult.OK ? box.Text : null;
             }
