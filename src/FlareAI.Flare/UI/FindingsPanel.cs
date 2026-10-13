@@ -25,7 +25,11 @@ namespace FlareAI.Flare.UI
         private readonly Label _status;
         private readonly ProgressBar _progress;
         private readonly ListView _list;
-        private readonly Button _acceptAll, _bulk, _recheck, _ignore;
+        private readonly Button _acceptAll, _bulk, _recheck, _ignore, _stop;
+        private readonly Label _cost;
+        private readonly TextBox _result;
+        private int _unitCount, _doneUnits;
+        private bool _stopped;
         // card
         private readonly Label _cardHead;
         private readonly RichTextBox _cardDiff, _cardWhy;
@@ -89,6 +93,8 @@ namespace FlareAI.Flare.UI
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
             _acceptAll = Btn(triage, "Accept all mechanical", (s, e) => AcceptAllMechanical());
             _bulk = Btn(triage, "Propose all as tracked changes", (s, e) => ProposeAll());
+            _stop = Btn(triage, "Stop AI review", (s, e) => StopReview());
+            _stop.Visible = false;
 
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable };
             _list.Columns.Add("Proposal");
@@ -125,6 +131,9 @@ namespace FlareAI.Flare.UI
 
             var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterWidth = 6, FixedPanel = FixedPanel.Panel2 };
             split.Panel1.Controls.Add(_list);
+            // What the last batch did (changed, skipped with the reason, failed) stays here until the next check.
+            _result = new TextBox { Dock = DockStyle.Bottom, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Height = 90, Visible = false, BackColor = SystemColors.Window };
+            split.Panel1.Controls.Add(_result);
             split.Panel2.Controls.Add(card);
             // The pane is laid out small first and grows; keep the card at a readable height whenever it does.
             const int CardHeight = 250;
@@ -146,11 +155,14 @@ namespace FlareAI.Flare.UI
             tips.SetToolTip(_refine, "Ask the AI again for this one proposal, with your instruction (\"keep SSO\", \"shorter\").");
             tips.SetToolTip(_reanalyze, "Review this paragraph again (after you edited it).");
             tips.SetToolTip(_bulk, "Write every proposal that has exact text (rule fixes and AI wording) into the topic as tracked changes, then review them with Flare's own Accept/Reject (Review tab) or in a review package.");
-            tips.SetToolTip(_acceptAll, "Apply every exact rule fix in this topic as one tracked change (one Ctrl+Z undoes it).");
+            tips.SetToolTip(_acceptAll, "Apply every exact rule fix as tracked changes. In this topic only, one Ctrl+Z undoes it; if it reaches other files you see a preview first.");
+            tips.SetToolTip(_stop, "Stop asking the AI. Results so far are kept; the rest of the paragraphs are not reviewed.");
             tips.SetToolTip(_ignore, "Turn the selected rule off for this whole project (written to the project's StyleGuide folder, shared with your team).");
 
             Controls.Add(split);      // Fill must be added first so docked bars take their space
             Controls.Add(bar);
+            _cost = new Label { Dock = DockStyle.Bottom, AutoSize = false, Height = 18, ForeColor = SystemColors.GrayText, Text = AiCost.Session() };
+            Controls.Add(_cost);
             Controls.Add(triage);
             Controls.Add(_progress);
             Controls.Add(_status);
@@ -194,7 +206,8 @@ namespace FlareAI.Flare.UI
         {
             if (_worker != null && _worker.IsBusy) return;
             _findings.Clear(); _list.Items.Clear(); _list.Groups.Clear(); _lintNote = null;
-            _reviewing = true; _progress.Visible = true; _progress.Style = ProgressBarStyle.Marquee; _status.Text = "Linting…";
+            _reviewing = true; _progress.Visible = true; _progress.Style = ProgressBarStyle.Marquee; _status.Text = "Checking style rules (free, no AI)…";
+            _result.Visible = false; _stop.Visible = false; _stop.Enabled = true; _stopped = false; _unitCount = 0; _doneUnits = 0;
             ShowCard();
 
             _worker = new BackgroundWorker { WorkerReportsProgress = true, WorkerSupportsCancellation = true };
@@ -242,20 +255,34 @@ namespace FlareAI.Flare.UI
                 var unit = p[1] as ReviewUnit;
                 int doneUnits = (int)p[2], total = (int)p[3];
                 Add(unit == null ? found : _runner.AnchorReview(found, unit, _lint)); // DOM work on the UI thread
-                if (_aiOnStart && doneUnits < total)
-                    _status.Text = Summary() + "  Reviewing with AI — " + doneUnits + " of " + total + " paragraphs… (you can work on these now)";
+                _unitCount = total; _doneUnits = doneUnits;
+                if (_aiOnStart && doneUnits < total && !_stopped)
+                {
+                    // Style-rule results are already in the list, and they cost nothing; only this phase spends.
+                    _status.Text = Summary() + "  Style rules are free. Reviewing wording with AI: " + doneUnits + " of " + total + " paragraphs (you can work on these now).";
+                    _stop.Visible = true;
+                }
                 else _status.Text = Summary();
+                _cost.Text = AiCost.Session();
             };
             _worker.RunWorkerCompleted += (s, e) =>
             {
-                if (IsDisposed || e.Cancelled) return;
-                _reviewing = false; _progress.Visible = false;
+                if (IsDisposed) return;
+                _reviewing = false; _progress.Visible = false; _stop.Visible = false;
+                _cost.Text = AiCost.Session();
+                if (e.Cancelled)
+                {
+                    _status.Text = Summary() + "  Stopped: " + _doneUnits + " of " + _unitCount + " paragraphs were reviewed with AI. Results so far are kept. Re-check reviews the rest.";
+                    UpdateButtons();
+                    return;
+                }
                 if (e.Error != null)
                 {
                     Diagnostics.Log("Check style", e.Error);
                     _status.Text = Summary() + "  AI review failed: " + e.Error.Message;
                 }
-                else if (!_aiOnStart && !cachedAny) _status.Text = Summary() + "  Linter only — click Re-check for the AI review.";
+                else if (!_aiOnStart && !cachedAny)
+                    _status.Text = Summary() + "  These come from style rules only (free, no AI used). Re-check" + (_unitCount > 0 ? " reviews " + _unitCount + " paragraphs with AI." : " adds the AI wording review.");
                 else _status.Text = Open().Count == 0 ? "No open proposals." : Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
                 var team = Team.Current;
@@ -264,6 +291,15 @@ namespace FlareAI.Flare.UI
                 UpdateButtons();
             };
             _worker.RunWorkerAsync();
+        }
+
+        private void StopReview()
+        {
+            if (_worker == null || !_worker.IsBusy) return;
+            _stopped = true;
+            _stop.Enabled = false;
+            _status.Text = "Stopping after the paragraphs already being reviewed…";
+            _worker.CancelAsync();
         }
 
         private void StartProject()
@@ -433,9 +469,7 @@ namespace FlareAI.Flare.UI
                 UpdateButtons();
                 return;
             }
-            var where = f.DocumentPath == null ? "" : "In snippet " + System.IO.Path.GetFileNameWithoutExtension(f.DocumentPath);
-            int uses;
-            if (f.DocumentPath != null && _usage.TryGetValue(f.DocumentPath, out uses)) where += " — changes " + uses + " file(s) that use it";
+            var where = f.DocumentPath == null ? "" : "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(SnippetUses(f.DocumentPath)) + "; applying changes all of them";
             _cardHead.Text = LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  accepted" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
 
@@ -465,6 +499,23 @@ namespace FlareAI.Flare.UI
             if (rule != null) Ref(_cardWhy, "Rule id " + rule.Id);
             _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
             UpdateButtons();
+        }
+
+        private int SnippetUses(string path)
+        {
+            int uses;
+            if (!_usage.TryGetValue(path, out uses)) _usage[path] = uses = ActionRunner.SnippetUsage(path);
+            return uses;
+        }
+
+        private static string UsesLabel(int n) { return n + (n == 1 ? " topic" : " topics"); }
+
+        /// <summary>One question before a snippet changes: it is shared, so every topic that includes it changes too.</summary>
+        private bool ConfirmSnippet(StyleFinding f)
+        {
+            if (f.DocumentPath == null || !f.DocumentPath.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)) return true;
+            return MessageBox.Show(this, BatchPlan.SnippetQuestion(f.DocumentPath, SnippetUses(f.DocumentPath)) + "\n\nThe change is tracked.",
+                "House Style", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK;
         }
 
         private static void Line(RichTextBox box, string text, FontStyle style)
@@ -518,6 +569,7 @@ namespace FlareAI.Flare.UI
                 _status.Text = "Fix it in the editor (" + f.Suggestion + "), then Re-analyze.";
                 return;
             }
+            if (!ConfirmSnippet(f)) return;
             if (Apply(new List<StyleFinding> { f }, "House Style: " + f.Rule) > 0)
             {
                 FeedbackLog.Record(f, _doc.SourcePath, "accepted");
@@ -571,12 +623,18 @@ namespace FlareAI.Flare.UI
         {
             var todo = _findings.FindAll(f => f.CanFix && f.Kind == "mechanical" && (f.DocumentPath == null || _files != null));
             if (todo.Count == 0) return;
-            var files = GroupByDocument(todo).Count;
-            if (files > 3 && MessageBox.Show(this, "Apply " + todo.Count + " fixes in " + files + " files?\n\nEach file gets the fixes as tracked changes. Files that aren't open now are saved and closed after their fixes " +
-                    "(the changes stay tracked: review them with Review > Accept / Reject). Files you have open are left open and unsaved.",
-                    "House Style", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
-            var n = Apply(todo, todo.Count == 1 ? "House Style: " + todo[0].Rule : "House Style: " + todo.Count + " style fixes");
-            foreach (var f in todo) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "accepted");
+            // One policy for every batch: anything that reaches a file other than the open topic is previewed first;
+            // a batch only in the open topic writes directly (one Ctrl+Z).
+            var plan = BatchPlan.Build(todo, _doc.SourcePath, BatchPlan.WhyNotWritable, ActionRunner.SnippetUsage);
+            if ((plan.NeedsPreview || plan.Skipped.Count > 0) && plan.Groups.Count > 0)
+            {
+                using (var form = new BatchPreviewForm(plan))
+                    if (form.ShowDialog(this) != DialogResult.OK) return;
+            }
+            var chosen = plan.SelectedFindings;
+            if (chosen.Count == 0 && plan.Skipped.Count == 0) return;
+            ApplyBatch(chosen, chosen.Count == 1 ? "House Style: " + chosen[0].Rule : "House Style: " + chosen.Count + " style fixes", plan);
+            foreach (var f in chosen) if (f.IsFixed) FeedbackLog.Record(f, _doc.SourcePath, "accepted");
             var inSnippets = _findings.FindAll(f => f.CanFix && f.DocumentPath != null && _files == null).Count;
             if (inSnippets > 0) _status.Text += "  " + inSnippets + " more in snippets: select one to apply it there.";
             Next();
@@ -595,37 +653,78 @@ namespace FlareAI.Flare.UI
             Next();
         }
 
-        /// <summary>
-        /// Applies exact replacements as tracked changes, one undo step per document. Snippet fixes open the snippet
-        /// (that is where they must be tracked), then the topic is brought back to the front.
-        /// </summary>
+        /// <summary>Applies exact replacements as tracked changes; returns how many were applied.</summary>
         private int Apply(List<StyleFinding> todo, string operation)
         {
-            var n = 0;
+            return ApplyBatch(todo, operation, null).FixesApplied;
+        }
+
+        /// <summary>
+        /// Applies exact replacements as tracked changes, one undo step per document, and reports what happened to each
+        /// file. Files that can't be written (read-only, missing) are skipped, not attempted. Snippet fixes open the
+        /// snippet (that is where they must be tracked), then the topic is brought back to the front.
+        /// </summary>
+        private BatchResult ApplyBatch(List<StyleFinding> todo, string operation, BatchPlan plan)
+        {
+            var result = new BatchResult();
+            if (plan != null) foreach (var sk in plan.Skipped) result.AddSkipped(sk.Path, sk.Fixes, sk.Reason);
             try
             {
                 foreach (var group in GroupByDocument(todo))
                 {
-                    var doc = DocOf(group[0], true);
-                    if (doc == null) { Diagnostics.Log("Apply: could not open " + group[0].DocumentPath); continue; }
-                    n += _runner.ApplyFixes(doc, group, operation);
-                    // Project-wide: a file opened just for this is saved and closed (one tab per file crashes Flare at ~100).
-                    var fa = doc as FlareAI.Flare.FlareDocumentAdapter;
-                    if (_files != null && fa != null && fa.OpenedByPlugin && doc != _doc)
+                    var path = group[0].DocumentPath ?? _doc.SourcePath;
+                    var elsewhere = group[0].DocumentPath != null && !string.Equals(path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase);
+                    if (elsewhere)
                     {
-                        try { fa.SaveAndClose(); } catch (Exception ex) { Diagnostics.Log("Apply: save/close " + doc.SourcePath, ex); }
+                        var why = BatchPlan.WhyNotWritable(path);
+                        if (why != null) { result.AddSkipped(path, group.Count, why); continue; }
+                    }
+                    try
+                    {
+                        var doc = DocOf(group[0], true);
+                        if (doc == null) { Diagnostics.Log("Apply: could not open " + path); result.AddFailed(path, group.Count, "could not open it in Flare"); continue; }
+                        var n = _runner.ApplyFixes(doc, group, operation);
+                        var saved = false;
+                        // Project-wide: a file opened just for this is saved and closed (one tab per file crashes Flare at ~100).
+                        var fa = doc as FlareAI.Flare.FlareDocumentAdapter;
+                        if (_files != null && fa != null && fa.OpenedByPlugin && doc != _doc)
+                        {
+                            try { fa.SaveAndClose(); saved = true; }
+                            catch (Exception ex) { Diagnostics.Log("Apply: save/close " + doc.SourcePath, ex); }
+                        }
+                        if (n > 0) result.AddChanged(path, n, saved);
+                        if (n < group.Count) result.AddSkipped(path, group.Count - n, "text changed");
+                    }
+                    catch (Exception ex)
+                    {
+                        Diagnostics.Log("Apply " + path, ex);
+                        result.AddFailed(path, group.Count, ex.Message);
                     }
                 }
                 if (_files == null && todo.Exists(f => f.DocumentPath != null) && _open != null) _open(_doc.SourcePath); // back to the topic
                 Rebuild();
-                _status.Text = Summary() + "  Applied " + n + " as tracked change(s)" + (n < todo.Count ? "; " + (todo.Count - n) + " skipped because the text changed." : ".") + " Ctrl+Z undoes them.";
+                _status.Text = Summary() + "  " + result.Status();
+                if (_files == null && result.Changed.Exists(e => !string.Equals(e.Path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase)))
+                    _status.Text += " The snippet stays open in its own tab, unsaved.";
+                ShowResult(result);
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Apply", ex);
                 _status.Text = "Could not apply: " + ex.Message;
             }
-            return n;
+            return result;
+        }
+
+        /// <summary>Keeps the per-file outcome in the pane when it has more to say than the status line.</summary>
+        private void ShowResult(BatchResult result)
+        {
+            var many = result.Changed.Count + result.Skipped.Count + result.Failed.Count > 1;
+            if (!many && result.Skipped.Count == 0 && result.Failed.Count == 0) return;
+            var text = result.Report().Replace("\r\n", "\n").Replace("\n", "\r\n");
+            _result.Text = text;
+            _result.Height = Math.Min(140, 18 * (text.Split('\n').Length + 1));
+            _result.Visible = true;
         }
 
         private void Reject(string reason)
@@ -649,6 +748,7 @@ namespace FlareAI.Flare.UI
             if (text == null || text == f.Excerpt) return;
             var edited = Clone(f);
             edited.Replacement = text;
+            if (!ConfirmSnippet(f)) return;
             if (Apply(new List<StyleFinding> { edited }, "House Style: " + f.Rule + " (edited)") > 0)
             {
                 f.IsFixed = true;
@@ -821,6 +921,7 @@ namespace FlareAI.Flare.UI
         {
             _reviewing = on; _progress.Visible = on;
             if (on) { _progress.Style = ProgressBarStyle.Marquee; _status.Text = text; }
+            _cost.Text = AiCost.Session();
             UpdateButtons();
         }
 

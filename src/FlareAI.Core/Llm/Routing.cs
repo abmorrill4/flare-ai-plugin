@@ -137,6 +137,13 @@ namespace FlareAI.Core.Llm
             }
         }
 
+        /// <summary>Calls and estimated dollars across every task so far this session.</summary>
+        public static void Totals(out int calls, out double usd)
+        {
+            calls = 0; usd = 0;
+            lock (Gate) foreach (var l in Lines.Values) { calls += l.Calls; usd += l.Usd; }
+        }
+
         public static List<Line> Snapshot() { lock (Gate) return new List<Line>(Lines.Values); }
         public static void Reset() { lock (Gate) Lines.Clear(); }
     }

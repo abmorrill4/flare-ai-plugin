@@ -24,7 +24,7 @@ namespace FlareAI.Flare.UI
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false;
-            ClientSize = new Size(520, 718);
+            ClientSize = new Size(520, 780);
             Font = SystemFonts.MessageBoxFont;
 
             var y = 12;
@@ -44,6 +44,13 @@ namespace FlareAI.Flare.UI
             var clearKey = new LinkLabel { Text = "Clear stored key", Left = 430, Top = y - 4, Width = 90, Height = 18 };
             clearKey.LinkClicked += (s, e) => { _settings.SetApiKey(null); _key.Text = ""; RefreshKeyStatus(); };
             Controls.Add(_keyStatus); Controls.Add(clearKey); y += 18;
+            Controls.Add(new Label
+            {
+                Text = "The key is used only when you ask for AI: Check topic's wording review, Rewrite, Ask, Topic details, and Validate's AI check. " +
+                       "Checking as you type, on save, before a build, and Check project never use AI and cost nothing.",
+                Left = 140, Top = y, Width = 368, Height = 58, ForeColor = SystemColors.GrayText
+            });
+            y += 62;
             _mcpTools = AddRow("MCP include tools", y, out y, new TextBox { Text = _settings.McpIncludeTools });
             _layers = AddRow("Style guide project", y, out y, new TextBox { Text = (_settings.StyleLayers ?? "").Replace(";", Environment.NewLine), Multiline = true, Height = 40, ScrollBars = ScrollBars.Vertical });
             y += 14;
