@@ -99,6 +99,7 @@ namespace FlareAI.Flare.UI
             control.Left = FieldLeft; control.Top = _y;
             if (control.Width == 100 || control.Width == 0) control.Width = FieldWidth;   // default width unless explicitly set
             Controls.Add(control);
+            control.Tag = l;   // the row's label, so a row can be shown or hidden as a unit
             _y += Math.Max(control.Height, l.PreferredHeight + 6) + 3;
             return control;
         }
@@ -114,16 +115,19 @@ namespace FlareAI.Flare.UI
         /// <summary>A check box whose text wraps at the field width instead of being cut off.</summary>
         private CheckBox AddCheck(string text, bool isChecked)
         {
-            var c = new CheckBox { Text = text, AutoSize = true, MaximumSize = new Size(FieldWidth, 0), Left = FieldLeft, Top = _y, Checked = isChecked };
+            // CheckBox.AutoSize never wraps; size it from the measured, wrapped text instead.
+            var h = TextRenderer.MeasureText(text, Font, new Size(FieldWidth - 22, 0), TextFormatFlags.WordBreak).Height + 6;
+            var c = new CheckBox { Text = text, AutoSize = false, Width = FieldWidth, Height = Math.Max(22, h), Left = FieldLeft, Top = _y, Checked = isChecked, TextAlign = ContentAlignment.TopLeft, CheckAlign = ContentAlignment.TopLeft };
             Controls.Add(c);
-            _y += c.PreferredSize.Height + 1;
+            _y += c.Height + 1;
             return c;
         }
 
         private void OnProviderChanged()
         {
             var bifrost = _provider.SelectedIndex == 1;
-            _mcpTools.Enabled = bifrost;
+            // Gateway-only option: shown only for the gateway, so it never looks like a missing field.
+            _mcpTools.Visible = bifrost; ((Control)_mcpTools.Tag).Visible = bifrost;
             if (!bifrost && string.IsNullOrEmpty(_baseUrl.Text)) _baseUrl.Text = PluginSettings.DefaultAnthropicBaseUrl;
             if (!bifrost && _baseUrl.Text.Contains("/v1")) _baseUrl.Text = PluginSettings.DefaultAnthropicBaseUrl;
         }
