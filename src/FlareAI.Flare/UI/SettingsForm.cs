@@ -192,7 +192,7 @@ namespace FlareAI.Flare.UI
         private int _loadSeq;
         private bool _closed;
 
-        private ComboBox NewModelCombo() { return new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, DropDownWidth = 480 }; }
+        private ComboBox NewModelCombo() { return new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, DropDownWidth = 480, Width = FieldWidth }; }
 
         private bool Gateway { get { return _provider.SelectedIndex == 1; } }
 
