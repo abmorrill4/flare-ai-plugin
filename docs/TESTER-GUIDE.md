@@ -8,14 +8,28 @@ arrives as a **tracked change**, so you accept or reject it exactly like a revie
 undoes it in one step.
 
 ## Install (needs admin, or ask IT)
+**Main path:** unzip the whole download, close Flare, double-click **`Install.cmd`** and accept the administrator
+prompt. It unblocks the files, finds Flare, copies the plugin and prints the next steps. Then start Flare →
+**File > Options > Plugins > House Style > Enable** → **restart Flare again** (two restarts in total).
+
+Several Flare versions? The installer picks the newest; run `.\Install.ps1 -Flare 21` to choose another.
+
+| Install folder | Flare version |
+|---|---|
+| `MadCap Flare 22` | Flare 2026 |
+| `MadCap Flare 21` | Flare 2025 (including 2025 R2) |
+| `MadCap Flare 20` | Flare 2024 |
+
+**Fallback (manual):**
 1. Close Flare.
-2. Before unzipping a downloaded copy: right-click the zip → **Properties** → tick **Unblock** → OK.
-   (Otherwise Windows blocks the plugin and Flare silently won't list it. Already unzipped? Run
+2. **Unblock first:** right-click the zip → **Properties** → tick **Unblock** → OK, then unzip. (Otherwise Windows
+   blocks the DLLs and Flare silently won't list the plugin. Already unzipped? Run
    `Get-ChildItem <folder> -Recurse | Unblock-File` in PowerShell.)
-   Unzip. Copy the `FlareAI` folder into
-   `C:\Program Files\MadCap Software\MadCap Flare <version>\Flare.app\Plugins\`
-3. Start Flare → **File > Options > Plugins** → select House Style → **Enable** → restart Flare.
-4. Switch to Ribbon UI mode if you use the tool strip (View > Interface).
+3. Copy the `FlareAI` folder into `C:\Program Files\MadCap Software\MadCap Flare <folder number>\Flare.app\Plugins\`.
+4. **No wrapper folder:** `...\Plugins\FlareAI\FlareAI.Flare.dll` must exist. If your unzip tool made
+   `Plugins\HouseStyle-0.1.3\FlareAI\...`, move the inner `FlareAI` up into `Plugins`.
+5. Start Flare → **File > Options > Plugins** → House Style → **Enable** → **restart Flare**.
+6. Switch to Ribbon UI mode if you use the tool strip (View > Interface).
 
 Nothing else to install: the style guide, the linter and the LLM export run inside the plugin.
 
@@ -23,8 +37,9 @@ Nothing else to install: the style guide, the linter and the LLM export run insi
 **House Style > Settings** → paste your Anthropic API key (or the one you were given) → Save. The key is encrypted to your Windows
 account; nobody else on the machine can read it.
 
-Given a Bifrost virtual key instead? Set **Provider** to *Bifrost gateway*, **Base URL** to the gateway address you
-were given, and paste the virtual key. The models are set for you.
+Given a Bifrost gateway virtual key instead of an Anthropic key? Set **Provider** to *Bifrost gateway*, **Base URL** to the
+gateway address you were given, and paste the virtual key. The models are set for you. If it fails, check the
+"Gateway key checklist" in `docs/bifrost-migration.md` and use **Settings > Test connection**.
 
 ## The actions
 | Button | What it does | Writes to the topic? |
