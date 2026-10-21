@@ -1,9 +1,9 @@
-# FlareAI — tester guide (proof of concept)
+# House Style — tester guide
 
 > Quickstart. The full user guide is a Flare project in `docs/user-guide` (open `FlareAI-Guide.flprj`); the test plan
 > with expected results, the test corpus and the bug template are in `docs/testing`.
 
-Thanks for trying this. It adds an **AI** tab to Flare Desktop with three actions. Every edit it makes
+Thanks for trying this. It adds a **House Style** tab to Flare Desktop with three actions. Every edit it makes
 arrives as a **tracked change**, so you accept or reject it exactly like a reviewer's edit, and Ctrl+Z
 undoes it in one step.
 
@@ -14,13 +14,13 @@ undoes it in one step.
    `Get-ChildItem <folder> -Recurse | Unblock-File` in PowerShell.)
    Unzip. Copy the `FlareAI` folder into
    `C:\Program Files\MadCap Software\MadCap Flare <version>\Flare.app\Plugins\`
-3. Start Flare → **File > Options > Plugins** → select FlareAI → **Enable** → restart Flare.
+3. Start Flare → **File > Options > Plugins** → select House Style → **Enable** → restart Flare.
 4. Switch to Ribbon UI mode if you use the tool strip (View > Interface).
 
 Nothing else to install: the style guide, the linter and the LLM export run inside the plugin.
 
 ## First run
-**AI > Settings** → paste the API key you were given → Save. The key is encrypted to your Windows
+**House Style > Settings** → paste your Anthropic API key (or the one you were given) → Save. The key is encrypted to your Windows
 account; nobody else on the machine can read it.
 
 ## The actions
@@ -71,7 +71,7 @@ click **Re-check** for a fresh review.
 
 ## Editing the company style guide
 It's a Flare project (`CompanyStyle`). Its `About` topic explains the format. After editing, run
-**AI > Validate style guide**: it checks every rule table against its examples, and **Check prose rules with AI…**
+**House Style > Validate style guide**: it checks every rule table against its examples, and **Check prose rules with AI…**
 shows which written rules the AI actually applies.
 
 If your team has style guide owners (listed in the guide's `FlareAI/owners.txt`), only they change shared rules.
@@ -100,7 +100,7 @@ text is selected) and use Insert ▸ Variable — Flare replaces the selection.
 
 ## When something goes wrong
 - `%APPDATA%\FlareAI\diag.log` has timings and errors (no document text, no key). Attach it to your report.
-- **AI > Diagnostics** shows what the plugin thinks is selected — useful if an action picked the wrong blocks.
+- **House Style > Diagnostics** shows what the plugin thinks is selected — useful if an action picked the wrong blocks.
 - Flare itself should never crash or freeze. If it does, that is bug #1 — tell us what you clicked.
 
 ## Please note as you go
