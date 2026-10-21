@@ -210,7 +210,10 @@ namespace FlareAI.Flare
             {
                 var settings = PluginSettings.Load();
                 FeedbackLog.PersonalPath = Path.Combine(PluginSettings.SettingsDirectory, "feedback.jsonl");
+                // With no team guide, rule changes go to the writer's own guide in %APPDATA% (created from the bundled one on
+                // first need), never to the plugin folder: standard users can't write under Program Files.
                 var team = Team.Load(settings.GuideRoot(PluginDirectory), settings.FeedbackFolder);
+                team.SeedFrom = settings.ReadOnlyGuide(PluginDirectory);
                 Team.Current = team;
                 PromptBuilder.DefaultOverrideFolder = team.GuideRoot == null ? null : Path.Combine(team.GuideRoot, Path.Combine("FlareAI", "prompts"));
                 Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
@@ -343,7 +346,11 @@ namespace FlareAI.Flare
                 var style = StyleService(settings);
                 var adapter = ActiveAdapter();
                 var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
-                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false)))
+                // Turned-off rules: the guides the writer can change (not the read-only one in the plugin folder) and the open project.
+                var pluginDir = PluginDirectory;
+                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir).FindAll(r => !PluginSettings.IsUnder(r, pluginDir));
+                var openProject = adapter != null ? adapter.SourcePath : null;
+                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)
@@ -492,14 +499,17 @@ namespace FlareAI.Flare
         private StyleEngine _style;
         private string _styleKey;
 
-        /// <summary>The in-process style guide and linter; rebuilt when the configured guide projects change.</summary>
+        /// <summary>
+        /// The in-process style guide and linter; rebuilt when the configured guide projects change. It asks for the guide
+        /// roots before each use (the writer's own guide joins once created) and reloads when any guide file changes.
+        /// </summary>
         private StyleEngine StyleService(PluginSettings settings)
         {
-            var roots = settings.GuideRoots(PluginDirectory);
-            var key = string.Join("|", roots.ToArray());
+            var key = settings.StyleLayers ?? "";
             if (_style == null || _styleKey != key)
             {
-                _style = new StyleEngine(roots, PluginSettings.BundledGuide(PluginDirectory));
+                var pluginDir = PluginDirectory;
+                _style = new StyleEngine(() => settings.GuideRoots(pluginDir), PluginSettings.BundledGuide(pluginDir));
                 _styleKey = key;
             }
             return _style;

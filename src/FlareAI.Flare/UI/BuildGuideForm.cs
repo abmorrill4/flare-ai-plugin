@@ -226,16 +226,25 @@ namespace FlareAI.Flare.UI
         {
             var accepted = _list.CheckedItems.Cast<ListViewItem>().Select(i => (RuleCandidate)i.Tag).ToList();
             var root = _team.GuideRoot;
-            var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
-            var topic = Path.Combine(folder, "From-our-content.htm");
+            var topic = Path.Combine(root, @"Content\Resources\StyleGuide\From-our-content.htm");
             try
             {
+                // The team guide, or the writer's own guide (created on first use): never the read-only guide in the plugin folder.
+                root = _team.WritableGuide();
+                var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
+                topic = Path.Combine(folder, "From-our-content.htm");
                 var n = GuideBuilder.Write(topic, accepted, "From our content");
                 foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
-                _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example), then commit the guide.";
+                _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example)" +
+                             (_team.IsPersonal ? "." : ", then commit the guide.");
                 if (_open != null) _open(topic);
             }
-            catch (Exception ex) { Diagnostics.Log("Build guide: write", ex); Notify.Error(this, "House Style couldn't write to " + System.IO.Path.GetFileName(topic) + ".", "Check that the file isn't read-only, then try again.", ex, "Build style guide"); }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Build guide: write", ex);
+                Notify.Error(this, "House Style couldn't add the rules: it couldn't write to " + topic + ".",
+                             ex.Message + "\n\nNothing was added. Check that you can write to that folder and the file isn't read-only, then try again.", ex, "Build style guide");
+            }
             UpdateAdd();
         }
 

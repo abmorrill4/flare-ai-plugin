@@ -18,14 +18,16 @@ namespace FlareAI.Flare.UI
         public string Setting { get { return FlareAI.Core.Severity.Normalize((string)_setting.SelectedItem); } }
         public string Reason { get { return _reason.Text.Trim(); } }
 
-        public RuleSettingForm(string ruleText, bool canChangeTeamGuide)
+        /// <param name="personalGuide">True when there is no team guide: the change goes to the writer's own style guide.</param>
+        public RuleSettingForm(string ruleText, bool canChangeTeamGuide, bool personalGuide = false)
         {
             Text = "House Style — Turn off this rule";
             StartPosition = FormStartPosition.CenterParent; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
             ClientSize = new Size(520, 270); Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(new Label { Text = ruleText, Left = 12, Top = 12, Width = 496, Height = 48, AutoEllipsis = true });
-            _team = new RadioButton { Text = "For the whole team (writes it into the style guide)", Left = 12, Top = 66, Width = 496, Checked = canChangeTeamGuide, Enabled = canChangeTeamGuide };
+            _team = new RadioButton { Text = personalGuide ? "For all my projects (writes it into my style guide)" : "For the whole team (writes it into the style guide)",
+                                      Left = 12, Top = 66, Width = 496, Checked = canChangeTeamGuide, Enabled = canChangeTeamGuide };
             _project = new RadioButton { Text = "For this project only", Left = 12, Top = 90, Width = 496, Checked = !canChangeTeamGuide };
             Controls.Add(_team); Controls.Add(_project);
             Controls.Add(new Label { Text = "Set the rule to:", Left = 12, Top = 124, Width = 110 });
@@ -40,6 +42,8 @@ namespace FlareAI.Flare.UI
             var cancel = new Button { Text = "Cancel", Left = 433, Top = 228, Width = 75, DialogResult = DialogResult.Cancel };
             Controls.Add(ok); Controls.Add(cancel);
             AcceptButton = ok; CancelButton = cancel;
+            A11y.Name(_team, _team.Text);
+            A11y.Name(_project, "For this project only");
             A11y.Name(_setting, "Set the rule to");
             A11y.Name(_reason, "Why", "The team sees this reason in the guide.");
             A11y.Apply(this);
