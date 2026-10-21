@@ -34,7 +34,7 @@ namespace FlareAI.Flare.UI
         // card
         private readonly Label _cardHead;
         private readonly RichTextBox _cardDiff, _cardWhy;
-        private readonly Button _accept, _reject, _edit, _refine, _reanalyze, _rule;
+        private readonly Button _accept, _goTo, _reject, _edit, _refine, _reanalyze, _rule;
         private readonly ContextMenuStrip _rejectMenu;
         private readonly ToolTip _ignoreTip;
 
@@ -102,9 +102,9 @@ namespace FlareAI.Flare.UI
             _list.Columns.Add("Suggestion");
             _list.Columns.Add("Source");
             _list.Resize += (s, e) => FitColumns();
-            _list.SelectedIndexChanged += (s, e) => { ShowCard(); var f = Current(); if (f != null && f.DocumentPath == null) GoTo(f, false); };
-            _list.DoubleClick += (s, e) => Accept();
-            _list.KeyDown += OnListKey;
+            _list.SelectedIndexChanged += (s, e) => Safe.Run("Select finding", () => { ShowCard(); var f = Current(); if (f != null && f.DocumentPath == null) GoTo(f, false); });
+            _list.DoubleClick += (s, e) => Safe.Run("Apply", Accept);
+            _list.KeyDown += (s, e) => Safe.Run("List key", () => OnListKey(s, e));
 
             // The card: what, why, impact, and the decision.
             var card = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0) };
@@ -115,17 +115,18 @@ namespace FlareAI.Flare.UI
             _cardWhy.Dock = DockStyle.Fill; _cardWhy.BackColor = SystemColors.Control;
             var actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             _accept = Btn(actions, "Apply", (s, e) => Accept());
+            _goTo = Btn(actions, "Go to", (s, e) => GoToCurrent());
             _reject = Btn(actions, "Reject ▾", (s, e) => _rejectMenu.Show(_reject, new Point(0, _reject.Height)));
             _edit = Btn(actions, "Edit…", (s, e) => EditAndAccept());
             _refine = Btn(actions, "Refine…", (s, e) => Refine());
             _reanalyze = Btn(actions, "Check this paragraph again", (s, e) => Reanalyze());
             _rule = Btn(actions, "Guide ↗", (s, e) => { var f = Current(); if (f != null && !string.IsNullOrEmpty(f.Link)) OpenLink(f.Link); });
             _rejectMenu = new ContextMenuStrip();
-            _rejectMenu.Items.Add("Wrong — this suggestion is incorrect", null, (s, e) => Reject("wrong"));
-            _rejectMenu.Items.Add("Fine here — correct in this context", null, (s, e) => Reject("fine here"));
-            _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Reject("rule doesn't apply"));
+            _rejectMenu.Items.Add("Wrong — this suggestion is incorrect", null, (s, e) => Safe.Run("Reject", () => Reject("wrong")));
+            _rejectMenu.Items.Add("Fine here — correct in this context", null, (s, e) => Safe.Run("Reject", () => Reject("fine here")));
+            _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Safe.Run("Reject", () => Reject("rule doesn't apply")));
             _rejectMenu.Items.Add(new ToolStripSeparator());
-            _rejectMenu.Items.Add("Skip for now", null, (s, e) => Next());
+            _rejectMenu.Items.Add("Skip for now", null, (s, e) => Safe.Run("Skip", Next));
             card.Controls.Add(_cardWhy);
             card.Controls.Add(_cardDiff);
             card.Controls.Add(_cardHead);
@@ -232,7 +233,7 @@ namespace FlareAI.Flare.UI
         private static Button Btn(FlowLayoutPanel bar, string text, EventHandler click)
         {
             var b = new Button { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Height = 26, Margin = new Padding(0, 0, 4, 4) };
-            b.Click += click;
+            b.Click += (s, e) => Safe.Run(text, () => click(s, e));
             bar.Controls.Add(b);
             return b;
         }
@@ -246,7 +247,8 @@ namespace FlareAI.Flare.UI
 
         private void OnListKey(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) { Accept(); e.Handled = true; }
+            if (e.KeyCode == Keys.Enter && e.Control) { GoToCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
+            else if (e.KeyCode == Keys.Enter) { Accept(); e.Handled = true; }
             else if (e.KeyCode == Keys.Delete) { _rejectMenu.Show(_reject, new Point(0, _reject.Height)); e.Handled = true; }
         }
 
@@ -1003,6 +1005,13 @@ namespace FlareAI.Flare.UI
             return f.DocumentPath == null ? _doc : null;
         }
 
+        /// <summary>Go to button and Ctrl+Enter: open the topic or snippet in Flare's editor and select the flagged text.</summary>
+        private void GoToCurrent()
+        {
+            var f = Current();
+            if (f != null) GoTo(f, true);
+        }
+
         private void GoTo(StyleFinding f, bool report)
         {
             if (f.IsFixed) return;
@@ -1067,6 +1076,7 @@ namespace FlareAI.Flare.UI
             var f = Current();
             var open = f != null && !f.IsFixed && !f.IsStale;
             _accept.Enabled = open;
+            _goTo.Enabled = f != null && !f.IsFixed;
             _accept.Text = f == null ? "Apply" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Suggest alt text…" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Apply";
             _reject.Enabled = f != null && !f.IsFixed;
             _edit.Enabled = open && f.Kind != "variable" && f.Kind != "manual";
