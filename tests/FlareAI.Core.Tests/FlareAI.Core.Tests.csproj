@@ -14,6 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
   </ItemGroup>
 
