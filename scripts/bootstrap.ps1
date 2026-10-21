@@ -22,7 +22,7 @@ foreach ($d in "B3.AppKit", "B3.CoreKit", "B3.CommonInterfacesKit", "B3.CssKit",
 }
 Write-Host "lib   : copied B3.PluginAPIKit.dll + B3 internals for the sidebar"
 
-# Flare's own runtime — tells us what CLR the host actually runs on
+# Flare's own runtime: tells us what CLR the host actually runs on
 $flareExe = [System.Reflection.AssemblyName]::GetAssemblyName($flare.Exe)
 try {
     $rt = [System.Reflection.Assembly]::ReflectionOnlyLoadFrom($flare.Exe).ImageRuntimeVersion

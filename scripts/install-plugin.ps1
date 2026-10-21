@@ -6,7 +6,7 @@ $repo = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot\Find-Flare.ps1"
 
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-if (-not $isAdmin -and (Get-FlareInstall).Root -like "$env:ProgramFiles*") { throw "Plugins folder lives under Program Files — re-run as Administrator, or set FLARE_ROOT to a writable copy." }
+if (-not $isAdmin -and (Get-FlareInstall).Root -like "$env:ProgramFiles*") { throw "Plugins folder lives under Program Files: re-run as Administrator, or set FLARE_ROOT to a writable copy." }
 
 if (Get-Process -Name "Flare" -ErrorAction SilentlyContinue) { throw "Flare is running. Close it first (Flare only scans Plugins at startup)." }
 
@@ -18,7 +18,7 @@ $src    = Join-Path $repo "src\FlareAI.Flare\bin\$Configuration\net48"
 if (-not (Test-Path $src)) { throw "Build output not found at $src" }
 
 New-Item -ItemType Directory -Force -Path $target | Out-Null
-# Do NOT copy B3.PluginAPIKit.dll into the plugin folder — Flare already loads its own copy.
+# Do NOT copy B3.PluginAPIKit.dll into the plugin folder: Flare already loads its own copy.
 Get-ChildItem $src -File | Where-Object { $_.Name -ne "B3.PluginAPIKit.dll" } | Copy-Item -Destination $target -Force
 # Ship the bundled style guide (a Flare project: Google rules + starter company rules) and icons alongside.
 # Remove what older versions shipped (the Python docstyle helper).
