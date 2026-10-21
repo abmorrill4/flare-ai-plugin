@@ -99,7 +99,7 @@ namespace FlareAI.Flare
         private static ToolStripMenuItem Item(CommandInfo command, Action action)
         {
             var mi = new ToolStripMenuItem(command.ContextLabel) { ToolTipText = command.Tooltip };
-            mi.Click += (s, e) => { try { action(); } catch (Exception ex) { Diagnostics.Log(command.Label, ex); } };
+            mi.Click += (s, e) => Safe.Run(command.Label, action);
             return mi;
         }
 

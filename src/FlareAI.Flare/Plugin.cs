@@ -120,6 +120,11 @@ namespace FlareAI.Flare
         /// <summary>The handler for a command in the table (ribbon, Tool Strip and right-click all call the same one).</summary>
         private Action HandlerFor(CommandInfo c)
         {
+            return Safe.Wrap(c.Label, RawHandlerFor(c));
+        }
+
+        private Action RawHandlerFor(CommandInfo c)
+        {
             if (c == Commands.CheckStyle) return OnCheckStyle;
             if (c == Commands.Rewrite) return OnRewrite;
             if (c == Commands.Ask) return OnAsk;
@@ -521,8 +526,12 @@ namespace FlareAI.Flare
 
         private void OnCompileStart(object sender, EventArgs e)
         {
-            var active = ActiveAdapter();
-            _editor.OnCompileStart(active != null ? active.SourcePath : _lastTopic);
+            try
+            {
+                var active = ActiveAdapter();
+                _editor.OnCompileStart(active != null ? active.SourcePath : _lastTopic);
+            }
+            catch (Exception ex) { Diagnostics.Log("CompileStart", ex); }
         }
 
         /// <summary>A runner for the linter only (live check, check on save, report before build): no API key needed.</summary>
