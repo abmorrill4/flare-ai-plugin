@@ -18,7 +18,7 @@ Every signing request is approved by hand. Maintainers use multi-factor authenti
 ## Privacy
 This program transfers data to other networked systems only when the user asks for an AI action: the text being
 checked (and, for alt text, the image) and the relevant style rules go to the Anthropic API, using the user's own API
-key. It sends no telemetry. See the Privacy section of the README.
+key, or to a Bifrost gateway the user configures. It sends no telemetry. See the Privacy section of the README.
 
 ---
 

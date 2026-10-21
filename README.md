@@ -19,7 +19,8 @@ Tested with MadCap Flare 2026 (22). The style checker is free; AI review costs a
 ## Privacy
 
 Style checks run locally. When you ask for an AI review, rewrite or answer, the text of the sections being checked (and, for alt text, the image) and the
-relevant style rules go to the Anthropic API under your key, and nothing else (no telemetry; nothing goes to the
+relevant style rules go to the Anthropic API under your key, or, if you choose the Bifrost gateway provider in Settings,
+to the gateway URL you enter under its virtual key. Nothing else is sent (no telemetry; nothing goes to the
 authors). Your key is stored with Windows DPAPI in `%APPDATA%\FlareAI\settings.json` and never logged.
 
 ## Docs
