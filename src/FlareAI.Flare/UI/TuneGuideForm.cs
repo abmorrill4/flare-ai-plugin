@@ -24,7 +24,9 @@ namespace FlareAI.Flare.UI
         private readonly string _project;
         private readonly Func<string, IDocumentAdapter> _open;
         private readonly Func<IDocumentAdapter, ActionRunner> _runnerFor;
-        private readonly Button _draft, _prompts;
+        private readonly Func<IList<string>> _guideRoots;
+        private readonly string _openProject;
+        private readonly Button _draft, _prompts, _turnedOff;
         private readonly Label _head;
         private readonly ListView _list;
         private readonly RichTextBox _detail;
@@ -41,9 +43,12 @@ namespace FlareAI.Flare.UI
         };
 
         /// <param name="runnerFor">An action runner for a style-guide topic opened in Flare (drafts guide edits).</param>
-        public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open, Func<IDocumentAdapter, ActionRunner> runnerFor)
+        /// <param name="guideRoots">The guides whose turned-off rules can be reviewed (writable ones only).</param>
+        /// <param name="openProject">A path in the open Flare project, for its own turned-off rules.</param>
+        public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open, Func<IDocumentAdapter, ActionRunner> runnerFor,
+                             Func<IList<string>> guideRoots = null, string openProject = null)
         {
-            _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor;
+            _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor; _guideRoots = guideRoots; _openProject = openProject;
             Text = "House Style — Tune style guide";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 600);
@@ -64,12 +69,15 @@ namespace FlareAI.Flare.UI
             _openRule = new Button { Text = "Open rule in the guide", AutoSize = true, Enabled = false };
             _draft = new Button { Text = "Draft a change with AI…", AutoSize = true, Enabled = false };
             _prompts = new Button { Text = "Customize AI prompts…", AutoSize = true, Enabled = IsOwner };
+            _turnedOff = new Button { Text = "Turned-off rules…", AutoSize = true };
             refresh.Click += (s, e) => Load();
             _openRule.Click += (s, e) => OpenRule();
             _draft.Click += (s, e) => DraftChange();
             _prompts.Click += (s, e) => CustomizePrompts();
-            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts });
+            _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject)) f.ShowDialog(this); };
+            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff });
             var tips = new ToolTip();
+            tips.SetToolTip(_turnedOff, "Every rule turned off or changed in the style guide and this project: who, when and why. Turn rules back on here.");
             tips.SetToolTip(_draft, "The AI rewrites this rule in the guide from the team's evidence; you review the change and apply it as tracked changes (owners only).");
             tips.SetToolTip(_prompts, @"Copy the AI's instructions into the guide (FlareAI\prompts) so the team can tune them, versioned with the rules (owners only).");
             Controls.Add(_list);
@@ -149,7 +157,8 @@ namespace FlareAI.Flare.UI
             Write(Advice(it.Kind), FontStyle.Italic);
             _detail.Select(0, 0);
             _openRule.Enabled = known && !string.IsNullOrEmpty(rule.Link);
-            _draft.Enabled = _openRule.Enabled && IsOwner && it.Kind != "working" && rule.Link.StartsWith("file:", StringComparison.OrdinalIgnoreCase);
+            // Google rules are generated (and ship read-only with the plugin): change them with an override, not an edit.
+            _draft.Enabled = _openRule.Enabled && IsOwner && it.Kind != "working" && rule.Link.StartsWith("file:", StringComparison.OrdinalIgnoreCase) && rule.Layer != "google";
         }
 
         private bool IsOwner { get { return _team == null || _team.IsOwner; } }
@@ -162,6 +171,13 @@ namespace FlareAI.Flare.UI
             if (it == null || !_rules.TryGetValue(it.Rule ?? "", out rule)) return;
             try
             {
+                if (_team != null && _team.IsPersonal)
+                {
+                    // Edit the writer's own copy of the rule (created on first use), not the read-only one in the plugin folder.
+                    _team.WritableGuide();
+                    var mine = _style == null ? null : _style.Rules(_project).FirstOrDefault(r => string.Equals(r.Id, rule.Id, StringComparison.OrdinalIgnoreCase));
+                    if (mine != null) rule = mine;
+                }
                 var doc = _open == null ? null : _open(new Uri(rule.Link).LocalPath);
                 if (doc == null) { Notify.Warn(this, "House Style couldn't open " + rule.Link + ". Open it from the Content pane instead."); return; }
                 var block = GuideEdits.Locate(doc.Document, rule.Text);
@@ -175,6 +191,7 @@ namespace FlareAI.Flare.UI
                     _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ": review, save and commit the guide, then run Validate style guide.";
                 }
             }
+            catch (GuideWriteException ex) { Diagnostics.Log("tune: draft", ex); Notify.Error(this, "House Style couldn't set up your style guide for the change.", ex.Message + "\n\nNothing was changed.", ex, "Draft change"); }
             catch (Exception ex) { Diagnostics.Log("tune: draft", ex); Notify.Failed(this, "draft the change", ex, "Draft change"); }
         }
 
@@ -182,9 +199,10 @@ namespace FlareAI.Flare.UI
         private void CustomizePrompts()
         {
             if (_team == null || _team.GuideRoot == null) return;
+            var dir = System.IO.Path.Combine(_team.GuideRoot, System.IO.Path.Combine("FlareAI", "prompts"));
             try
             {
-                var dir = System.IO.Path.Combine(_team.GuideRoot, System.IO.Path.Combine("FlareAI", "prompts"));
+                _team.WritableGuide();   // the writer's own guide is created on first need
                 System.IO.Directory.CreateDirectory(dir);
                 var added = 0;
                 foreach (var name in PromptBuilder.Templates)
@@ -202,7 +220,11 @@ namespace FlareAI.Flare.UI
                 _head.Text = (added > 0 ? "Copied " + added + " prompt template(s) to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
                 System.Diagnostics.Process.Start("explorer.exe", "\"" + dir + "\"");
             }
-            catch (Exception ex) { Diagnostics.Log("tune: prompts", ex); Notify.Failed(this, "copy the prompt templates", ex, "Customize AI prompts"); }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("tune: prompts", ex);
+                Notify.Error(this, "House Style couldn't copy the prompt templates to " + dir + ".", ex.Message + "\n\nNothing was copied. Check that you can write to that folder, then try again.", ex, "Customize AI prompts");
+            }
         }
 
         private static string Advice(string kind)

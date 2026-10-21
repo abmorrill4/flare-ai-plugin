@@ -407,6 +407,7 @@ namespace FlareAI.Core.Actions
             var rules = GuideRules();
             foreach (var f in raw)
             {
+                if (IsTurnedOff(f.RuleId)) continue;   // turned off since the review was cached
                 XmlText run;
                 if (f.RunId == null || !unit.Runs.Runs.TryGetValue(f.RunId, out run) || run.ParentNode == null) continue;
                 var at = run.Value.IndexOf(f.Excerpt, StringComparison.Ordinal);
@@ -468,6 +469,13 @@ namespace FlareAI.Core.Actions
             try { foreach (var r in _style.Rules(_project)) map[r.Id] = r; _rules = map; }
             catch (Exception ex) { Diagnostics.Log("guide rules", ex); }
             return map;
+        }
+
+        private bool IsTurnedOff(string ruleId)
+        {
+            if (ruleId == null || _style == null) return false;
+            try { return _style.IsOff(_project, ruleId); }
+            catch (Exception ex) { Diagnostics.Log("rule off?", ex); return false; }
         }
 
         /// <summary>The guide rule with this id (for the proposal card), or null.</summary>

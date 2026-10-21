@@ -125,6 +125,8 @@ namespace FlareAI.Core.Tests
             new FlareAI.Core.Style.GuideRule { Id = "company:terminology/1", Layer = "company", Section = "Audience", Text = "Say members.", Link = "file:///C:/guide/Terminology.htm" }
         };
         public IList<FlareAI.Core.Style.GuideRule> Rules(string project) { return GuideRules; }
+        public HashSet<string> Off = new HashSet<string>();
+        public bool IsOff(string project, string ruleId) { return ruleId != null && Off.Contains(ruleId); }
         public FlareAI.Core.Style.GuideReport Validate(string project) { return new FlareAI.Core.Style.GuideReport(); }
         public IList<FlareAI.Core.Style.GuideExample> Examples(string project) { return new List<FlareAI.Core.Style.GuideExample>(); }
     }

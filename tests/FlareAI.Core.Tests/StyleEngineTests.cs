@@ -359,10 +359,15 @@ namespace FlareAI.Core.Tests
         public void Settings_GuideRoots_DefaultToTheBundledGuide()
         {
             var s = new FlareAI.Core.Settings.PluginSettings();
-            Assert.Equal(new[] { @"C:\p\StyleGuide" }, s.GuideRoots(@"C:\p").ToArray());
+            var mine = @"C:\no-such-user\FlareAI\StyleGuide";
+            Assert.Equal(new[] { @"C:\p\StyleGuide" }, s.GuideRoots(@"C:\p", mine).ToArray());
+            Assert.Equal(mine, s.GuideRoot(@"C:\p", mine));                       // writes never go to the plugin folder
             s.StyleLayers = "\\\\share\\style\r\n\r\n{PluginDir}\\team\\";
-            Assert.Equal(new[] { @"\\share\style", @"C:\p\team" }, s.GuideRoots(@"C:\p").ToArray());
-            Assert.Equal(@"C:\p\team", s.GuideRoot(@"C:\p"));
+            Assert.Equal(new[] { @"\\share\style", @"C:\p\team" }, s.GuideRoots(@"C:\p", mine).ToArray());
+            Assert.Equal(mine, s.GuideRoot(@"C:\p", mine));                       // a guide shipped in the plugin folder is read-only too
+            s.StyleLayers = @"C:\p\team" + "\r\n" + @"\\share\style";
+            Assert.Equal(@"\\share\style", s.GuideRoot(@"C:\p", mine));
+            Assert.Null(s.ReadOnlyGuide(@"C:\p"));
         }
     }
 }

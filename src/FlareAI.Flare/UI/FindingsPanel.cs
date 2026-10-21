@@ -922,32 +922,51 @@ namespace FlareAI.Flare.UI
                 // Strict ownership: writers suggest, the style-guide owner decides (Tune style guide shows the requests).
                 var why = TextPrompt.Ask(this, "Suggest changing this rule", "Ask the style guide owner (" + string.Join(", ", new List<string>(team.Owners).ToArray()) + ") to change or turn off \"" + f.Rule + "\". Why?", "", true);
                 if (why == null) return;
-                FeedbackLog.Record(f, _doc.SourcePath, "propose-ignore", why.Trim());
+                var unsent = FeedbackLog.Record(f, _doc.SourcePath, "propose-ignore", why.Trim());
+                if (unsent != null)
+                {
+                    Notify.Error(this, "House Style couldn't send your request: it couldn't write to " + unsent + ".",
+                                 "Check that the team feedback folder (Settings) is available, then try again.", null, "Suggest changing this rule");
+                    return;
+                }
                 _status.Text = Summary() + "  Sent to the style guide owner" + (team.FeedbackFolder == null ? " (set a team feedback folder in Settings so they receive it)." : ".");
                 return;
             }
             // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
             var rule = _runner.RuleFor(f.RuleId);
             var guide = team != null ? team.GuideRoot : null;
+            var personal = team != null && team.IsPersonal;
             var described = rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
-            using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null))
+            using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null, personal))
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;
+                var path = f.DocumentPath ?? _doc.SourcePath;
+                var target = form.ForTeam ? guide : ProjectRules.OverridesPath(path);
                 try
                 {
-                    string where;
-                    if (form.ForTeam) where = FlareAI.Core.Style.GuideOverrides.Set(guide, rule.Id, form.Setting, form.Reason);
-                    else { ProjectRules.Ignore(f.DocumentPath ?? _doc.SourcePath, f, form.Setting); where = ProjectRules.OverridesPath(f.DocumentPath ?? _doc.SourcePath); }
-                    FeedbackLog.Record(f, _doc.SourcePath, form.Setting == "off" ? "rule ignored" : "rule changed", form.Reason);
-                    if (form.Setting == "off")
-                    {
-                        if (f.Layer == "ai" && f.RuleId == null) _ignoredAi.Add(f.Rule);
-                        _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId : x.Rule == f.Rule);
-                        Rebuild();
-                    }
-                    _status.Text = Summary() + "  Rule set to " + form.Setting + (form.ForTeam ? " for the team (in " + System.IO.Path.GetFileName(where) + "; commit it so everyone gets it)." : " for this project.");
+                    // Owners only; records who and when; the writer's own guide is created on first use (never the plugin folder).
+                    if (form.ForTeam) target = FlareAI.Core.Style.GuideOverrides.Set(team, rule.Id, form.Setting, form.Reason);
+                    else ProjectRules.Ignore(path, f, form.Setting, form.Reason, team != null ? team.Writer : null);
                 }
-                catch (Exception ex) { Diagnostics.Log("Change rule", ex); _status.Text = "Could not change the rule: " + ex.Message; }
+                catch (Exception ex)
+                {
+                    Diagnostics.Log("Change rule", ex);
+                    Notify.Error(this, "House Style couldn't change the rule" + (target == null ? "." : " in " + target + "."),
+                                 ex.Message + "\n\nNothing was changed: the rule still applies.", ex, "Turn off this rule");
+                    _status.Text = Summary() + "  The rule was not changed.";
+                    return;
+                }
+                FeedbackLog.Record(f, _doc.SourcePath, form.Setting == "off" ? "rule ignored" : "rule changed", form.Reason);
+                if (form.Setting == "off")
+                {
+                    if (f.Layer == "ai" && f.RuleId == null) _ignoredAi.Add(f.Rule);
+                    _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId : x.Rule == f.Rule);
+                    Rebuild();
+                }
+                _status.Text = Summary() + "  Rule set to " + form.Setting +
+                               (!form.ForTeam ? " for this project (in " + target + ")."
+                                : personal ? " in your style guide (" + target + ")."
+                                : " for the team (in " + target + "; commit it so everyone gets it).");
             }
         }
 

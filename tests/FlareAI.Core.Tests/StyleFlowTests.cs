@@ -127,6 +127,7 @@ namespace FlareAI.Core.Tests
             public System.Collections.Generic.IList<string> RuleIdsFor(string project, GuideScope scope) { throw new InvalidOperationException("style engine failed"); }
             public string[] GuideFor(string project, GuideScope scope) { throw new InvalidOperationException("style engine failed"); }
             public System.Collections.Generic.IList<GuideRule> Rules(string project) { throw new InvalidOperationException("style engine failed"); }
+            public bool IsOff(string project, string ruleId) { throw new InvalidOperationException("style engine failed"); }
             public GuideReport Validate(string project) { throw new InvalidOperationException("style engine failed"); }
             public System.Collections.Generic.IList<GuideExample> Examples(string project) { throw new InvalidOperationException("style engine failed"); }
         }
