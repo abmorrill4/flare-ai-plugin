@@ -55,7 +55,7 @@ namespace FlareAI.Flare.UI
             _modelStatus = new LiveLabel { Text = "", AutoSize = true, MaximumSize = new Size(FieldWidth - 100, 0), Left = FieldLeft + 100, Top = _y + 4, ForeColor = SystemColors.GrayText };
             Controls.Add(_refreshModels); Controls.Add(_modelStatus);
             _y += Math.Max(_refreshModels.PreferredSize.Height, _modelStatus.PreferredHeight + 4) + 4;
-            Note("The lists come from your key. Default means the plugin's built-in model. A style guide's FlareAI\\models.json overrides these for the team.");
+            _modelsNote = Note("The lists come from your key. Default means the plugin's built-in model. A style guide's FlareAI\\models.json overrides these for the team.");
             _models = new ModelInfo[0];
             SetModel(_model, _settings.Model); SetModel(_fastModel, _settings.FastModel); SetModel(_deepModel, _settings.DeepModel);
             _key = AddRow("API / virtual key", new TextBox { UseSystemPasswordChar = true });
@@ -150,11 +150,12 @@ namespace FlareAI.Flare.UI
         }
 
         /// <summary>Grey explanatory text under a field: wraps at the field width and pushes the next control down.</summary>
-        private void Note(string text)
+        private Label Note(string text)
         {
             var n = new Label { Text = text, AutoSize = true, MaximumSize = new Size(FieldWidth, 0), Left = FieldLeft, Top = _y, ForeColor = SystemColors.GrayText };
             Controls.Add(n);
             _y += n.PreferredHeight + 8;
+            return n;
         }
 
         /// <summary>A check box whose text wraps at the field width instead of being cut off.</summary>
@@ -168,9 +169,21 @@ namespace FlareAI.Flare.UI
             return c;
         }
 
+        private Label _modelsNote;
+        private int _shownProvider = -1;
+        private string _otherBaseUrl;   // the other provider's URL, so switching back and forth restores it
+
         private void OnProviderChanged()
         {
             var bifrost = _provider.SelectedIndex == 1;
+            if (_shownProvider >= 0 && _shownProvider != _provider.SelectedIndex)
+            {
+                var url = _baseUrl.Text;
+                _baseUrl.Text = _otherBaseUrl ?? "";
+                _otherBaseUrl = url;
+            }
+            _shownProvider = _provider.SelectedIndex;
+            _modelsNote.Visible = !bifrost;
             ShowGatewayModels(bifrost);
             if (bifrost && _baseUrl.Text.Trim() == PluginSettings.DefaultAnthropicBaseUrl) _baseUrl.Text = "";   // the gateway's URL goes here
             if (!bifrost && string.IsNullOrEmpty(_baseUrl.Text)) _baseUrl.Text = PluginSettings.DefaultAnthropicBaseUrl;
