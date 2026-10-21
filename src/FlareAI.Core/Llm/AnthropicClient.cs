@@ -27,7 +27,9 @@ namespace FlareAI.Core.Llm
         public AnthropicClient(string baseUrl, string apiKey, string model, int timeoutSeconds)
         {
             if (string.IsNullOrEmpty(apiKey)) throw new LlmException("No API key configured. Open House Style > Settings.");
-            _baseUrl = (baseUrl ?? "https://api.anthropic.com").TrimEnd('/');
+            string url, err;
+            if (!LlmErrors.TryNormalizeBaseUrl(string.IsNullOrEmpty((baseUrl ?? "").Trim()) ? "https://api.anthropic.com" : baseUrl, out url, out err)) throw new LlmException(err);
+            _baseUrl = url;
             _apiKey = apiKey;
             _model = model;
             _timeoutMs = Math.Max(10, timeoutSeconds) * 1000;
@@ -109,11 +111,11 @@ namespace FlareAI.Core.Llm
             catch (WebException wex)
             {
                 var r = wex.Response as HttpWebResponse;
-                if (r == null) throw new LlmException("Network error: " + wex.Message, 0, wex, LlmFailure.Network);
+                if (r == null) throw LlmErrors.FromNetwork(wex, false, _baseUrl);
                 var text = ReadAll(r);
                 var detail = text;
                 try { detail = JObject.Parse(text)["error"]["message"].ToString(); } catch (Exception) { }
-                throw new LlmException("HTTP " + (int)r.StatusCode + ": " + detail, (int)r.StatusCode, wex);
+                throw LlmErrors.FromHttp((int)r.StatusCode, detail, false, _apiKey);
             }
             return Check(resp, request);
         }

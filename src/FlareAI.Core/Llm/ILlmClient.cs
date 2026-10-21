@@ -52,7 +52,7 @@ namespace FlareAI.Core.Llm
     }
 
     /// <summary>Why a request failed, so callers can react (retry with more room, tell the author, fall back).</summary>
-    public enum LlmFailure { Http, Network, Truncated, Refusal, Contract }
+    public enum LlmFailure { Http, Network, Truncated, Refusal, Contract, Auth, ModelDenied, Budget }
 
     public sealed class LlmException : Exception
     {
