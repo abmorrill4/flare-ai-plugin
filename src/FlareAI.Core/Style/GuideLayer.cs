@@ -93,12 +93,7 @@ namespace FlareAI.Core.Style
                     Glossary.Add(new GlossaryEntry { Term = (string)t["term"], Note = (string)t["note"], Abbr = (string)t["abbr"], Variants = (t["variants"] ?? new JArray()).Select(v => (string)v).ToList(), Layer = Name });
             var ini = System.IO.Path.Combine(folder, "overrides.ini");
             if (File.Exists(ini))
-                foreach (var line in File.ReadAllLines(ini))
-                {
-                    var l = line.Trim();
-                    if (l.Length == 0 || l.StartsWith("#") || l.IndexOf('=') < 0) continue;
-                    Overrides.Add(new KeyValuePair<string, string>(l.Substring(0, l.IndexOf('=')).Trim(), Setting(l.Substring(l.IndexOf('=') + 1).Trim())));
-                }
+                foreach (var o in RuleOverrides.ReadIni(ini)) if (!o.IsAiName) Overrides.Add(new KeyValuePair<string, string>(o.RuleId, o.Setting));
             var md = System.IO.Path.Combine(folder, "guide.md");
             if (File.Exists(md)) LoadMarkdown(md);
             var topics = Directory.GetFiles(folder, "*.htm", SearchOption.AllDirectories).Concat(Directory.GetFiles(folder, "*.html", SearchOption.AllDirectories))
@@ -287,7 +282,7 @@ namespace FlareAI.Core.Style
         }
 
         /// <summary>"off" or a severity; null when it's neither.</summary>
-        private static string Setting(string s)
+        internal static string Setting(string s)
         {
             s = Severity.Normalize(s);
             if (s == "off" || s == "no" || s == "disabled" || s == "disable" || s == "false") return "off";

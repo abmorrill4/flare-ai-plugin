@@ -124,6 +124,8 @@ namespace FlareAI.Core.Style
         IList<string> RuleIdsFor(string project, GuideScope scope);
         /// <summary>Every citable rule of the layered guide (same call as <see cref="Guide"/>, cached with it).</summary>
         IList<GuideRule> Rules(string project);
+        /// <summary>True when the guide (or the project) turns this rule off: its findings, cached ones included, are not shown.</summary>
+        bool IsOff(string project, string ruleId);
         /// <summary>Tests the guide itself (table rows against their examples, contradictions, unreadable topics).</summary>
         GuideReport Validate(string project);
         /// <summary>Prose rules that carry Bad/Good examples.</summary>

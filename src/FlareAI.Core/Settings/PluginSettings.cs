@@ -70,21 +70,67 @@ namespace FlareAI.Core.Settings
         /// <summary>The style guide shipped with the plugin: the starter project, and the Google rules for guides without them.</summary>
         public static string BundledGuide(string pluginDir) { return System.IO.Path.Combine(pluginDir, "StyleGuide"); }
 
-        /// <summary>The configured style guide projects, in order; the bundled guide when none is set.</summary>
-        public System.Collections.Generic.List<string> GuideRoots(string pluginDir)
+        /// <summary>
+        /// The writer's own style guide (%APPDATA%\FlareAI\StyleGuide): where rule changes go when no team guide is
+        /// configured, because the plugin folder (Program Files) is read-only for standard users.
+        /// </summary>
+        public static string UserGuidePath { get { return Path.Combine(SettingsDirectory, "StyleGuide"); } }
+
+        /// <summary>The style guide projects in effect, in order: the configured ones, or the bundled guide; the writer's own
+        /// guide replaces the read-only one it was copied from once it exists.</summary>
+        /// <param name="userGuide">The writer's own guide (default <see cref="UserGuidePath"/>; tests pass another).</param>
+        public System.Collections.Generic.List<string> GuideRoots(string pluginDir, string userGuide = null)
+        {
+            var list = Configured(pluginDir);
+            var readOnly = ReadOnlyGuide(pluginDir);
+            if (list.Count == 0) list.Add(readOnly);
+            if (readOnly != null && FlareAI.Core.Style.GuideSeed.IsSeeded(userGuide ?? UserGuidePath)) list[list.Count - 1] = userGuide ?? UserGuidePath;
+            return list;
+        }
+
+        /// <summary>
+        /// Where rule changes are written: the last configured team guide, or the writer's own guide when none is configured
+        /// (or the configured one is inside the plugin folder). Never the plugin folder.
+        /// </summary>
+        public string GuideRoot(string pluginDir, string userGuide = null)
+        {
+            var list = Configured(pluginDir);
+            return ReadOnlyGuide(pluginDir) == null ? list[list.Count - 1] : userGuide ?? UserGuidePath;
+        }
+
+        /// <summary>
+        /// The read-only guide the writer's own guide stands in for (and is first copied from): the bundled guide, or a
+        /// configured guide inside the plugin folder. Null when rule changes go to a team guide.
+        /// </summary>
+        public string ReadOnlyGuide(string pluginDir)
+        {
+            var list = Configured(pluginDir);
+            if (list.Count == 0) return BundledGuide(pluginDir);
+            return IsUnder(list[list.Count - 1], pluginDir) ? list[list.Count - 1] : null;
+        }
+
+        /// <summary>True when a team style guide (outside the plugin folder) is configured.</summary>
+        public bool HasTeamGuide(string pluginDir) { return ReadOnlyGuide(pluginDir) == null; }
+
+        private System.Collections.Generic.List<string> Configured(string pluginDir)
         {
             var list = new System.Collections.Generic.List<string>();
             foreach (var line in (StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
                 if (line.Trim().Length > 0) list.Add(line.Trim().Replace("{PluginDir}", pluginDir).TrimEnd('\\'));
-            if (list.Count == 0) list.Add(BundledGuide(pluginDir));
             return list;
         }
 
-        /// <summary>The team's style guide: the last configured project, or the bundled one.</summary>
-        public string GuideRoot(string pluginDir)
+        /// <summary>True when <paramref name="path"/> is <paramref name="folder"/> or inside it.</summary>
+        public static bool IsUnder(string path, string folder)
         {
-            var roots = GuideRoots(pluginDir);
-            return roots[roots.Count - 1];
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(folder)) return false;
+            try
+            {
+                var p = Path.GetFullPath(path).TrimEnd('\\', '/') + "\\";
+                var f = Path.GetFullPath(folder).TrimEnd('\\', '/') + "\\";
+                return p.StartsWith(f, StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception) { return false; }
         }
 
         public PluginSettings()
