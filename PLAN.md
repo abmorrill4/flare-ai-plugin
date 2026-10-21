@@ -322,7 +322,8 @@ virtual keys) needs the Bifrost host. Not needed for team sync (git + shared fee
 - [x] `BifrostClient : ILlmClient` → `POST {gateway}/v1/chat/completions`, header `x-bf-vk`, non-streaming.
 - [x] Settings dialog has a "Provider" switch (Anthropic direct / Bifrost); gateway models fixed to the 5.5 family.
 - [x] No gateway-side MCP: the style engine runs in the plugin, so the gateway only needs a virtual key.
-- [ ] Verify against a live gateway.
+- [x] Verified against a local gateway (`maximhq/bifrost:v2.3.2`): review, rewrite and vision on all three models.
+- [ ] Verify the Settings dialog's gateway mode inside Flare.
 
 See `docs\bifrost-migration.md`.
 

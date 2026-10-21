@@ -24,6 +24,7 @@ namespace FlareAI.Bench
     ///
     ///   FlareAI.Bench [--corpus corpus] [--model claude-sonnet-5-5] [--effort medium] [--unit block|section]
     ///                 [--sample 40] [--no-ai] [--rewrites 10] [--parallel 3] [--out bench-out\name]
+    ///                 [--gateway http://host:port]   (Bifrost; virtual key from BIFROST_VK)
     ///   FlareAI.Bench summarize bench-out
     /// </summary>
     internal static class Program
@@ -55,7 +56,7 @@ namespace FlareAI.Bench
 
     internal sealed class Options
     {
-        public string Corpus = "corpus", Model = "claude-sonnet-5-5", Effort = "medium", Unit = "section", Out, Guide;
+        public string Corpus = "corpus", Model = "claude-sonnet-5-5", Effort = "medium", Unit = "section", Out, Guide, Gateway;
         public int Sample, Rewrites, Parallel = 3, Examples;
         public string ExamplesFrom;
         public bool NoAi;
@@ -80,6 +81,7 @@ namespace FlareAI.Bench
                     case "--examples-from": o.ExamplesFrom = next(); break;
                     case "--out": o.Out = next(); break;
                     case "--guide": o.Guide = next(); break;
+                    case "--gateway": o.Gateway = next(); break;
                     default: throw new ArgumentException("Unknown option " + a[i]);
                 }
             }
@@ -197,7 +199,9 @@ namespace FlareAI.Bench
             if (!_o.NoAi)
             {
                 var key = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? DotEnv(repo, "ANTHROPIC_API_KEY");
-                llm = new AnthropicClient(null, key, _o.Model, 300);
+                llm = _o.Gateway != null
+                    ? (ILlmClient)new BifrostClient(_o.Gateway, Environment.GetEnvironmentVariable("BIFROST_VK"), _o.Model, 300)
+                    : new AnthropicClient(null, key, _o.Model, 300);
             }
             var routing = new Routing(null, _o.Model, null) { ReviewUnit = _o.Unit };
             routing.For("review").Effort = _o.Effort;
