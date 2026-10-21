@@ -30,8 +30,6 @@ namespace FlareAI.Core.Settings
         public int TimeoutSeconds { get; set; }
         /// <summary>DPAPI-protected, base64. Never the plaintext key.</summary>
         public string ProtectedApiKey { get; set; }
-        /// <summary>Bifrost only: comma-separated patterns for x-bf-mcp-include-tools.</summary>
-        public string McpIncludeTools { get; set; }
         public bool WriteDiagnostics { get; set; }
         /// <summary>
         /// The team's style guide project: a Flare project with Content\Resources\StyleGuide\Google and \Company. One per

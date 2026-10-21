@@ -10,7 +10,7 @@ namespace FlareAI.Core.Llm
             switch (s.Provider)
             {
                 case LlmProvider.Bifrost:
-                    return new BifrostClient(s.BaseUrl, key, s.Model, s.TimeoutSeconds, s.McpIncludeTools);
+                    return new BifrostClient(s.BaseUrl, key, s.Model, s.TimeoutSeconds);
                 default:
                     return new AnthropicClient(s.BaseUrl, key, s.Model, s.TimeoutSeconds);
             }

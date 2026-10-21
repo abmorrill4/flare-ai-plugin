@@ -8,9 +8,7 @@ using Newtonsoft.Json.Linq;
 namespace FlareAI.Core.Llm
 {
     /// <summary>
-    /// Phase 4 transport: POST {gateway}/v1/chat/completions (OpenAI-compatible) with x-bf-vk.
-    /// Non-streaming on purpose — Bifrost Agent Mode runs the MCP tool loop server-side only for
-    /// non-streaming requests. The tool loop therefore never touches this code.
+    /// Bifrost gateway transport: POST {gateway}/v1/chat/completions (OpenAI-compatible) with the virtual key in x-bf-vk.
     /// </summary>
     public sealed class BifrostClient : ILlmClient
     {
@@ -18,9 +16,16 @@ namespace FlareAI.Core.Llm
         private readonly string _virtualKey;
         private readonly string _model;
         private readonly int _timeoutMs;
-        private readonly string _mcpIncludeTools;
 
-        public BifrostClient(string gatewayBaseUrl, string virtualKey, string model, int timeoutSeconds, string mcpIncludeTools)
+        /// <summary>The gateway model for a requested model: the Claude 5.5 model of the same family, in Bifrost's provider/model form.</summary>
+        // ponytail: hard-coded to the 5.5 family for the trial; pass names through once gateway teams pick their own models.
+        public static string GatewayModel(string model)
+        {
+            var m = (model ?? "").ToLowerInvariant();
+            return m.Contains("haiku") ? "anthropic/claude-haiku-5-5" : m.Contains("opus") ? "anthropic/claude-opus-5-5" : "anthropic/claude-sonnet-5-5";
+        }
+
+        public BifrostClient(string gatewayBaseUrl, string virtualKey, string model, int timeoutSeconds)
         {
             if (string.IsNullOrEmpty(gatewayBaseUrl)) throw new LlmException("No gateway URL configured. Open House Style > Settings.");
             if (string.IsNullOrEmpty(virtualKey)) throw new LlmException("No virtual key configured. Open House Style > Settings.");
@@ -28,7 +33,6 @@ namespace FlareAI.Core.Llm
             _virtualKey = virtualKey;
             _model = model;
             _timeoutMs = Math.Max(10, timeoutSeconds) * 1000;
-            _mcpIncludeTools = mcpIncludeTools;
             try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072; } catch (Exception) { }
             AnthropicClient.AllowParallelCalls();
         }
@@ -50,7 +54,7 @@ namespace FlareAI.Core.Llm
             messages.Add(new JObject { ["role"] = "user", ["content"] = content });
             var body = new JObject
             {
-                ["model"] = string.IsNullOrEmpty(req.Model) ? model : req.Model,
+                ["model"] = GatewayModel(string.IsNullOrEmpty(req.Model) ? model : req.Model),
                 ["messages"] = messages,
                 ["max_tokens"] = req.MaxTokens > 0 ? req.MaxTokens : AnthropicClient.DefaultMaxTokens,
                 ["stream"] = false
@@ -75,8 +79,6 @@ namespace FlareAI.Core.Llm
             http.ReadWriteTimeout = _timeoutMs;
             http.UserAgent = "FlareAI/0.1 (MadCap Flare plugin)";
             http.Headers["x-bf-vk"] = _virtualKey;
-            var tools = string.IsNullOrEmpty(request.ToolsHint) ? _mcpIncludeTools : request.ToolsHint;
-            if (!string.IsNullOrEmpty(tools)) http.Headers["x-bf-mcp-include-tools"] = tools;
             http.ContentLength = payload.Length;
 
             LlmResponse result;

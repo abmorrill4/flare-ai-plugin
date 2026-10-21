@@ -58,5 +58,14 @@ namespace FlareAI.Core.Tests
             var bifrost = BifrostClient.BuildBody("m", new LlmRequest { User = "Describe", Images = new System.Collections.Generic.List<LlmImage> { new LlmImage { MediaType = "image/png", Base64 = "AAAA" } } });
             Assert.Contains("data:image/png;base64,AAAA", bifrost);
         }
+
+        [Fact]
+        public void GatewaySendsTheClaude55ModelOfTheSameFamily()
+        {
+            Assert.Equal("anthropic/claude-haiku-5-5", BifrostClient.GatewayModel("claude-haiku-4-5"));
+            Assert.Equal("anthropic/claude-opus-5-5", BifrostClient.GatewayModel("claude-opus-5-5"));
+            Assert.Equal("anthropic/claude-sonnet-5-5", BifrostClient.GatewayModel(null));
+            Assert.Contains("\"model\":\"anthropic/claude-sonnet-5-5\"", BifrostClient.BuildBody("claude-sonnet-5-5", new LlmRequest { User = "x" }));
+        }
     }
 }

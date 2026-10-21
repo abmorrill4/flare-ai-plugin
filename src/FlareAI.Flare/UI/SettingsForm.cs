@@ -21,7 +21,7 @@ namespace FlareAI.Flare.UI
         private readonly CheckBox _projectLayer, _llmExport, _markers, _live, _onSave, _beforeBuild;
         private readonly ComboBox _provider;
         private readonly ComboBox _model, _fastModel, _deepModel;
-        private readonly TextBox _baseUrl, _key, _mcpTools, _timeout;
+        private readonly TextBox _baseUrl, _key, _timeout;
         private readonly CheckBox _diag;
         private readonly Label _keyStatus;
         private readonly PluginSettings _settings;
@@ -67,7 +67,6 @@ namespace FlareAI.Flare.UI
             Controls.Add(clearKey); _y += clearKey.PreferredHeight + 8;
             Note("The key is used only when you ask for AI: Check style's wording review, Rewrite, Ask, Topic assists, and Validate style guide's AI check. " +
                  "Checking as you type, on save, before a build, and Check project never use AI and cost nothing.");
-            _mcpTools = AddRow("MCP include tools", new TextBox { Text = _settings.McpIncludeTools });
             _layers = AddRow("Style guide project", new ListBox { Height = 54, Width = FieldWidth - 90, IntegralHeight = false, HorizontalScrollbar = true });
             foreach (var line in (_settings.StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
                 if (line.Trim().Length > 0) _layers.Items.Add(line.Trim());
@@ -172,9 +171,8 @@ namespace FlareAI.Flare.UI
         private void OnProviderChanged()
         {
             var bifrost = _provider.SelectedIndex == 1;
-            SetEditable(bifrost);
-            // Gateway-only option: shown only for the gateway, so it never looks like a missing field.
-            _mcpTools.Visible = bifrost; ((Control)_mcpTools.Tag).Visible = bifrost;
+            ShowGatewayModels(bifrost);
+            if (bifrost && _baseUrl.Text.Trim() == PluginSettings.DefaultAnthropicBaseUrl) _baseUrl.Text = "";   // the gateway's URL goes here
             if (!bifrost && string.IsNullOrEmpty(_baseUrl.Text)) _baseUrl.Text = PluginSettings.DefaultAnthropicBaseUrl;
             if (!bifrost && _baseUrl.Text.Contains("/v1")) _baseUrl.Text = PluginSettings.DefaultAnthropicBaseUrl;
         }
@@ -211,7 +209,12 @@ namespace FlareAI.Flare.UI
         private void SetModel(ComboBox c, string value)
         {
             value = (value ?? "").Trim();
-            if (Gateway) { c.Items.Clear(); c.Text = value; return; }
+            if (Gateway)
+            {
+                var g = BifrostClient.GatewayModel(DefaultOf(c));
+                c.Items.Clear(); c.Items.Add(new ModelItem { Value = g, Text = g }); c.SelectedIndex = 0;
+                return;
+            }
             c.Items.Clear();
             var optional = c != _model;
             if (optional) c.Items.Add(new ModelItem { Value = "", Text = "Default (" + DefaultOf(c) + ")" });
@@ -222,14 +225,14 @@ namespace FlareAI.Flare.UI
             c.SelectedItem = pick;
         }
 
-        private void SetEditable(bool editable)
+        /// <summary>The gateway's models are fixed (see <see cref="BifrostClient.GatewayModel"/>): shown, not chosen.</summary>
+        private void ShowGatewayModels(bool gateway)
         {
-            var vals = new[] { GetModel(_model), GetModel(_fastModel), GetModel(_deepModel) };
-            foreach (var c in new[] { _model, _fastModel, _deepModel }) c.DropDownStyle = editable ? ComboBoxStyle.DropDown : ComboBoxStyle.DropDownList;
-            _refreshModels.Enabled = !editable;
-            if (editable) _modelStatus.Text = "Type the model names as your gateway knows them.";
-            SetModel(_model, vals[0]); SetModel(_fastModel, vals[1]); SetModel(_deepModel, vals[2]);
-            if (!editable && IsHandleCreated) LoadModels();
+            foreach (var c in new[] { _model, _fastModel, _deepModel }) c.Enabled = !gateway;
+            _refreshModels.Enabled = !gateway;
+            _modelStatus.Text = gateway ? "Fixed for the gateway." : "";
+            SetModel(_model, _settings.Model); SetModel(_fastModel, _settings.FastModel); SetModel(_deepModel, _settings.DeepModel);
+            if (!gateway && IsHandleCreated) LoadModels();
         }
 
         private string KeyForLoading()
@@ -351,10 +354,12 @@ namespace FlareAI.Flare.UI
             if (!int.TryParse(_timeout.Text, out timeout) || timeout < 10) { Notify.Warn(this, "Timeout must be a number of seconds, 10 or more.", "Settings"); _timeout.Focus(); return; }
             _settings.Provider = (LlmProvider)_provider.SelectedIndex;
             _settings.BaseUrl = _baseUrl.Text.Trim();
-            _settings.Model = GetModel(_model);
-            _settings.FastModel = GetModel(_fastModel);
-            _settings.DeepModel = GetModel(_deepModel);
-            _settings.McpIncludeTools = _mcpTools.Text.Trim();
+            if (!Gateway)   // the gateway's fixed models would overwrite the direct-key choices
+            {
+                _settings.Model = GetModel(_model);
+                _settings.FastModel = GetModel(_fastModel);
+                _settings.DeepModel = GetModel(_deepModel);
+            }
             _settings.TimeoutSeconds = timeout;
             _settings.WriteDiagnostics = _diag.Checked;
             _settings.StyleLayers = string.Join("\n", _layers.Items.Cast<string>().ToArray());

@@ -319,15 +319,10 @@ Install is "copy the plugin folder, paste the key": no Python, uv or Vale.
 Blocked on a running gateway: `BifrostClient` exists (now with image support); the gateway side (MCP registration,
 virtual keys) needs the Bifrost host. Not needed for team sync (git + shared feedback folder cover it).
 
-- [ ] `BifrostClient : ILlmClient` → `POST {gateway}/v1/chat/completions`, header `x-bf-vk`,
-      non-streaming, optional `x-bf-mcp-include-tools`.
-- [ ] Gateway side: register style-guide + linter MCP as a STDIO client on the gateway host;
-      mark its read-only tools `tools_to_auto_execute`; create a tester virtual key scoped to
-      the doc model + that MCP client.
-- [ ] Settings dialog gets a "Provider" switch (Anthropic direct / Bifrost).
-- [x] Rules move from embedded markdown to MCP tool calls (`style_lookup`, `lint`) — done locally in Phase 2b;
-      on Bifrost the same server is registered on the gateway instead of spawned by the plugin.
-- [ ] Remove the direct Anthropic path once Bifrost is stable (or keep behind a flag).
+- [x] `BifrostClient : ILlmClient` → `POST {gateway}/v1/chat/completions`, header `x-bf-vk`, non-streaming.
+- [x] Settings dialog has a "Provider" switch (Anthropic direct / Bifrost); gateway models fixed to the 5.5 family.
+- [x] No gateway-side MCP: the style engine runs in the plugin, so the gateway only needs a virtual key.
+- [ ] Verify against a live gateway.
 
 See `docs\bifrost-migration.md`.
 
@@ -358,7 +353,7 @@ flare-ai-plugin/
   tests/FlareAI.Core.Tests/    ← net48, xunit
   tests/fixtures/              ← real-shaped Flare topics
   scripts/                     ← PowerShell tooling
-  docs/                        ← api-dump.txt, flare-api-notes.md, bifrost-migration.md, manual tests
+  docs/                        ← api-dump.txt, flare-api-notes.md, bifrost-migration.md (gateway setup), manual tests
 ```
 
 ## 5. Risks

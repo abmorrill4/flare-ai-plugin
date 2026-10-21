@@ -23,6 +23,9 @@ Nothing else to install: the style guide, the linter and the LLM export run insi
 **House Style > Settings** → paste your Anthropic API key (or the one you were given) → Save. The key is encrypted to your Windows
 account; nobody else on the machine can read it.
 
+Given a Bifrost virtual key instead? Set **Provider** to *Bifrost gateway*, **Base URL** to the gateway address you
+were given, and paste the virtual key. The models are set for you.
+
 ## The actions
 | Button | What it does | Writes to the topic? |
 |---|---|---|
