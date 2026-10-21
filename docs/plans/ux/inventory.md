@@ -17,7 +17,7 @@ Compiled 2026-10-12 for UX review. Read-only pass: no source was changed.
 
 ### 1.1 Ribbon tab
 
-Tab label `"House Style"`, key tip `Q` (`Plugin.cs:77`). Plugin list description (`Plugin.cs:29`): `"AI editing assistant: check style, rewrite, ask. Edits arrive as tracked changes."`. Plugin name `"House Style"` (`Plugin.cs:30`), author `"Praeviderant Inc."` (`Plugin.cs:28`).
+Tab label `"House Style"`, key tip `Q` (`Plugin.cs:77`). Plugin list description (`Plugin.cs:29`): `"AI editing assistant: check style, rewrite, ask. Edits arrive as tracked changes."`. Plugin name `"House Style"` (`Plugin.cs:30`), author `"Arthur Morrill"` (`Plugin.cs:28`).
 
 Large icon = `Icons\<name>.png`, small icon = `Icons\<name>-16.png`. A missing icon leaves the button without an image; no error is shown (`Plugin.cs:138-144`).
 

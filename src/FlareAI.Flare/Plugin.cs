@@ -26,7 +26,7 @@ namespace FlareAI.Flare
 
         public bool IsActivated { get { return _activated; } }
         public string GetVersion() { return "0.1.0"; }
-        public string GetAuthor() { return "Praeviderant Inc."; }
+        public string GetAuthor() { return "Arthur Morrill"; }
         public string GetDescription() { return "AI editing assistant: check style, rewrite, ask. Edits arrive as tracked changes."; }
         public string GetName() { return "House Style"; }
 

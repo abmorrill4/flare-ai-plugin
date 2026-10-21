@@ -266,7 +266,7 @@ jobs:
       - name: Get House Style
         shell: pwsh
         run: |
-          gh release download --repo Praeviderant/house-style --pattern 'HouseStyle-cli-*.zip' --dir hs
+          gh release download --repo abmorrill4/flare-ai-plugin --pattern 'HouseStyle-cli-*.zip' --dir hs
           Expand-Archive hs\*.zip -DestinationPath hs\cli
         env: { GH_TOKEN: '${{ github.token }}' }
       - name: Check topics
@@ -356,5 +356,5 @@ Each item is cut from v1 and returns only when someone asks for it. Designs are 
 - **Env vars**: `HOUSESTYLE_FORMAT`, `HOUSESTYLE_FAIL_ON`, `ANTHROPIC_API_KEY`.
 - **AI review in CI** (`--ai`), with these guardrails kept as notes: key from `ANTHROPIC_API_KEY` or `--key-env NAME` only (no key-valued flag, no DPAPI, never echoed); runs only on files in scope, refuses an unscoped run over 25 topics unless `--ai-all`; cost cap `--ai-max-usd` (default 1.00) checked against `Usage.Snapshot()`, remaining files reported as "not AI-reviewed (budget)"; AI findings advisory (`suggestion`) unless `--ai-severity`; `--ai-cache` reuses `ReviewCache`; exit 3 only with `--ai-required`; topic text leaves the machine, so print "AI review sends topic text to {BaseUrl}" in `--verbose`. Estimated as a separate project of about 3 days after the deterministic gate is trusted.
 - **Cross-platform CLI**: normalise guide path building through one `GuidePaths` helper; multi-target Core to `netstandard2.0`; a `tools/FlareAI.Cli` net8 single-file publish for `win-x64;linux-x64;osx-arm64`. The `check` code lives in Core plus `Cli/`, so lifting it is a move. Effort L, about 8 to 12 days. Triggered by Linux CI demand.
-- **Public composite GitHub Action** (`praeviderant/house-style-action@v1`), a thin wrapper that downloads and runs the exe.
+- **Public composite GitHub Action** (`abmorrill4/house-style-action@v1`), a thin wrapper that downloads and runs the exe.
 - **Footer link in the findings pane** ("Use this in your pipeline"): cut because the pane toolbar is crowded; revisit only if the toast link proves insufficient.

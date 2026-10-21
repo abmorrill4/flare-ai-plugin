@@ -197,7 +197,7 @@ For each obtainable install (target 2020, 2021, 2022, 2024, 2025 in addition to 
 
 ### 6.2 Getting installs legitimately
 - Public trial: current version only, 30 days [V-web: https://madcapsoftware.com/trials/flare-free-trial]. Fine for 2026 re-tests, not for 2020.
-- Historic download pages and "a new licence lets you download older versions" are reported but not confirmed for 2020/2021 [V-web via search; secondary]. Action: **ask MadCap** (sales/partner contact) for previous-version downloads and evaluation or NFR licences for a third-party plugin vendor; MadCap lists third-party plugins itself [V-web: plugins-api-redistributables.aspx], so a vendor request is normal. Praeviderant should hold one commercial Flare licence regardless, which entitles older-version downloads per the reseller note. Do not try to re-arm expired trials.
+- Historic download pages and "a new licence lets you download older versions" are reported but not confirmed for 2020/2021 [V-web via search; secondary]. Action: **ask MadCap** (sales/partner contact) for previous-version downloads and evaluation or NFR licences for a third-party plugin vendor; MadCap lists third-party plugins itself [V-web: plugins-api-redistributables.aspx], so a vendor request is normal. The maintainer should hold one commercial Flare licence regardless, which entitles older-version downloads per the reseller note. Do not try to re-arm expired trials.
 - A tester community fallback: ask existing customers on 2020-2023 to run the harvest script (read-only, produces a text file) and the smoke checklist. Cheap, and finds real-world configurations.
 
 ### 6.3 VMs
