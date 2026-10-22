@@ -35,7 +35,8 @@ if (-not $SkipPolicy -and $env:GITHUB_EVENT_NAME -eq 'pull_request' -and $env:GI
     $base = "origin/$($env:GITHUB_BASE_REF)"
     $labels = @(($env:PR_LABELS -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })
     $changed = @(git diff --name-only "$base...HEAD")
-    $baselines = @($changed | Where-Object { $_ -like 'tests/baselines/bench-*.json' })
+    # Only baselines that already exist on the base branch count as changes; adding a new one needs no label.
+    $baselines = @($changed | Where-Object { $_ -like 'tests/baselines/bench-*.json' } | Where-Object { git cat-file -e "${base}:$_" 2>$null; $LASTEXITCODE -eq 0 })
     $labelFiles = @($changed | Where-Object { $_ -like 'corpus/*labels.jsonl' })
     $engine = @($changed | Where-Object { $_ -like 'styleguide/*' -or $_ -like 'src/FlareAI.Core/Style/*' -or $_ -like 'tools/FlareAI.GuideCompiler/*' })
 
@@ -53,7 +54,7 @@ if (-not $SkipPolicy -and $env:GITHUB_EVENT_NAME -eq 'pull_request' -and $env:GI
             if (-not $env:RUNNER_TEMP) { $old = Join-Path $repo 'bench-out\old-baseline.json' }
             New-Item -ItemType Directory -Force (Split-Path $old) | Out-Null
             git show "${base}:$b" 2>$null | Set-Content -Encoding utf8 $old
-            if ((Get-Item $old).Length -eq 0) { continue }   # new baseline file: nothing to compare
+            if (-not (Test-Path $old) -or (Get-Item $old).Length -eq 0) { continue }   # nothing to compare
             $rules = @(& $bench baseline-diff $old (Join-Path $repo $b))
             foreach ($r in $rules) {
                 if (-not ($env:PR_BODY -and $env:PR_BODY.Contains($r))) {
