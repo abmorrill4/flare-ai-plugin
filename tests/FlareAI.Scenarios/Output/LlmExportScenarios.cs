@@ -105,7 +105,7 @@ namespace FlareAI.Scenarios.Output
             return Read(Path.Combine(output, @"llm\Content\quirks.md"));
         }
 
-        [Fact(Skip = "Bug #115: a block quote exports as a lone \">\" line with its text in the next paragraph, so it is not a quote.")]
+        [Fact]
         public void Story31c_ABlockQuoteInATopic_StaysAQuote()
         {
             using (var ws = FakeWorkspace.FromCorpus("DigitalBanking"))
@@ -117,7 +117,7 @@ namespace FlareAI.Scenarios.Output
             }
         }
 
-        [Fact(Skip = "Bug #116: drop-down and toggler headings export as links to javascript:void(0), which are useless to a reader and to an LLM.")]
+        [Fact]
         public void Story31d_DropDownAndTogglerHeadings_AreTextNotLinks()
         {
             using (var ws = FakeWorkspace.FromCorpus("DigitalBanking"))
@@ -131,7 +131,7 @@ namespace FlareAI.Scenarios.Output
             }
         }
 
-        [Fact(Skip = "Bug #117: llms.txt takes a topic's first sentence as its summary with the topic's own relative links in it, which point at the wrong place from the folder llms.txt is in.")]
+        [Fact]
         public void Story31e_TheSummaryInLlmsTxt_HasNoLinksThatOnlyWorkInsideTheTopicsFolder()
         {
             using (var ws = FakeWorkspace.FromCorpus("DigitalBanking"))

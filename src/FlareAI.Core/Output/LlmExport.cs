@@ -48,7 +48,7 @@ namespace FlareAI.Core.Output
                 var target = Path.Combine(mdRoot, mdRel.Replace('/', '\\'));
                 Directory.CreateDirectory(Path.GetDirectoryName(target));
                 File.WriteAllText(target, front + body, new UTF8Encoding(false));
-                var first = body.Split('\n').FirstOrDefault(l => l.Length > 30 && "#|-!>".IndexOf(l[0]) < 0) ?? "";
+                var first = Regex.Replace(body.Split('\n').FirstOrDefault(l => l.Length > 30 && "#|-!>".IndexOf(l[0]) < 0) ?? "", @"\[([^\]]*)\]\([^)]*\)", "$1");   // links only work relative to the topic, not to llms.txt
                 pages.Add(new Page { Title = title, Md = "llm/" + mdRel, Summary = first.Length > 160 ? first.Substring(0, 160) : first, Body = body });
             }
             var project = new DirectoryInfo(output).Parent;
@@ -90,7 +90,8 @@ namespace FlareAI.Core.Output
         private readonly Stack<string> _open = new Stack<string>();
         private int _skip, _depth;
         private int? _mainDepth;
-        private bool _hasMain, _pre, _inTitle;
+        private bool _hasMain, _pre, _inTitle, _bareLink;
+        private int _quote;
         private List<List<string>> _table;
         private List<string> _cell;
         private string _href;
@@ -134,8 +135,8 @@ namespace FlareAI.Core.Output
             {
                 case "title": _inTitle = true; break;
                 case "h1": case "h2": case "h3": case "h4": case "h5": case "h6": Block(new string('#', tag[1] - '0') + " "); break;
-                case "p": case "div": case "dt": Block(""); break;
-                case "blockquote": Block("> "); break;
+                case "p": case "div": case "dt": Block(_quote > 0 && tag == "p" ? "> " : ""); break;
+                case "blockquote": _quote++; Block("> "); break;
                 case "dd": Block(": "); break;
                 case "ul": _lists.Add(new[] { 0, 0 }); break;
                 case "ol": _lists.Add(new[] { 1, 0 }); break;
@@ -149,7 +150,12 @@ namespace FlareAI.Core.Output
                 case "i": case "em": Emit("*"); break;
                 case "code": if (!_pre) Emit("`"); break;
                 case "pre": _pre = true; Block("```\n"); break;
-                case "a": string href; a.TryGetValue("href", out href); _href = _link(href ?? ""); Emit("["); break;
+                case "a":
+                    string href; a.TryGetValue("href", out href);
+                    // Drop-down heads, togglers and popups point at javascript:void(0): keep their text, not a dead link.
+                    _bareLink = (href ?? "").TrimStart().StartsWith("javascript:", StringComparison.OrdinalIgnoreCase);
+                    if (_bareLink) { _href = null; break; }
+                    _href = _link(href ?? ""); Emit("["); break;
                 case "img":
                     string alt, src; a.TryGetValue("alt", out alt); a.TryGetValue("src", out src);
                     if (!string.IsNullOrEmpty((alt ?? "").Trim())) Emit("![" + alt.Trim() + "](" + (src ?? "") + ")");
@@ -180,7 +186,7 @@ namespace FlareAI.Core.Output
                 case "i": case "em": Emit("*"); break;
                 case "code": if (!_pre) Emit("`"); break;
                 case "pre": Emit("\n```"); _pre = false; Block(""); break;
-                case "a": Emit(_href != null && _href.Length > 0 ? "](" + _href + ")" : "]"); _href = null; break;
+                case "a": if (_bareLink) { _bareLink = false; break; } Emit(_href != null && _href.Length > 0 ? "](" + _href + ")" : "]"); _href = null; break;
                 case "td": case "th":
                     if (_table != null && _cell != null && _table.Count > 0) _table[_table.Count - 1].Add(Regex.Replace(string.Concat(_cell.ToArray()), @"\s+", " ").Trim().Replace("|", "\\|"));
                     _cell = null;
@@ -227,6 +233,7 @@ namespace FlareAI.Core.Output
         {
             var text = string.Concat(_out.ToArray());
             text = Regex.Replace(text, @"[ \t]+\n", "\n");
+            text = Regex.Replace(text, @"(?m)^> *\n\n(?=> )", "> ");   // a quote's paragraph continues the quote line
             text = Regex.Replace(text, @"\n{3,}", "\n\n");
             text = Regex.Replace(text, @"\[\s*\]\([^)]*\)", "");   // empty links (icons)
             return text.Trim() + "\n";
