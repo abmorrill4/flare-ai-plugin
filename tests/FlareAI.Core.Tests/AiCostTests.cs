@@ -222,6 +222,91 @@ namespace FlareAI.Core.Tests
             Assert.Equal(llm.Requests.First(r => r.Task == "review").System, llm.Requests.First(r => r.Task == "rewrite").System);
         }
 
+        // ---- 5. Re-check after applying the review's own fixes: re-anchor, don't re-review --------------------------------
+
+        private const string TwoFindings = @"[
+            {""rule_id"":""general"",""rule"":""plain words"",""severity"":""warning"",""excerpt"":""utilize"",""replacement"":""use"",""why"":""Plain words.""},
+            {""rule_id"":""general"",""rule"":""wordy"",""severity"":""suggestion"",""excerpt"":""Please note that the fee"",""replacement"":""The fee"",""why"":""Wordy.""}]";
+
+        private static System.Xml.XmlNode Paragraph(FakeDocumentAdapter doc, string xml)
+        {
+            var p = FlareAI.Core.Editing.XhtmlFragment.ParseInto(xml, doc.Document)[0];
+            var body = doc.Document.SelectSingleNode("//body");
+            while (body.FirstChild != null) body.RemoveChild(body.FirstChild);
+            body.AppendChild(p);
+            return p;
+        }
+
+        private static List<StyleFinding> Check(ActionRunner runner, ReviewCache cache, System.Xml.XmlNode p, out ReviewUnit unit)
+        {
+            var blocks = new List<System.Xml.XmlNode> { p };
+            var lint = runner.Lint(blocks);
+            unit = runner.PrepareReview(blocks, lint)[0];
+            var raw = cache.Get(unit);
+            if (raw == null) { raw = runner.CallReview(unit); cache.Put(unit, raw); }
+            return runner.AnchorReview(raw, unit, lint);
+        }
+
+        [Fact]
+        public void RecheckAfterApplyingTheReviewsFix_ReanchorsTheRest_WithoutAModelCall()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>We utilize the <b>Transfers</b> page to move funds. Please note that the fee is waived for members.</p>");
+            var llm = new FakeLlmClient(r => TwoFindings);
+            var runner = new ActionRunner(llm, new PromptBuilder(null), 1024);
+            var cache = new ReviewCache();
+            ReviewUnit unit;
+            var first = Check(runner, cache, p, out unit);
+            Assert.Equal(2, first.Count);
+            Assert.Equal(1, runner.ApplyFixes(doc, first.Where(f => f.Excerpt == "utilize"), "fix"));
+
+            var again = Check(runner, cache, p, out unit);
+            Assert.Single(llm.Requests);                                         // no second review
+            var left = Assert.Single(again);
+            Assert.Equal("Please note that the fee", left.Excerpt);
+            Assert.True(left.CanFix);
+            Assert.Equal(1, runner.ApplyFixes(doc, again, "fix"));
+            Assert.Contains("We use the", p.InnerText);
+            Assert.Contains("The fee is waived", p.InnerText);
+            Assert.Empty(Check(runner, cache, p, out unit));                     // both applied: nothing left, still no call
+            Assert.Single(llm.Requests);
+        }
+
+        [Fact]
+        public void RecheckAfterAFixSplitsTheRun_AsATrackedChangeDoes_StillReanchors()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>We utilize the app. Please note that the fee is waived.</p>");
+            var llm = new FakeLlmClient(r => TwoFindings);
+            var runner = new ActionRunner(llm, new PromptBuilder(null), 1024);
+            var cache = new ReviewCache();
+            ReviewUnit unit;
+            Check(runner, cache, p, out unit);
+            // Flare writes the fix as a tracked change: the accepted view reads "We " + "use" + " the app. …" as three runs.
+            p.RemoveAll();
+            foreach (var t in new[] { "We ", "use", " the app. Please note that the fee is waived." }) p.AppendChild(doc.Document.CreateTextNode(t));
+
+            var again = Check(runner, cache, p, out unit);
+            Assert.Single(llm.Requests);
+            var left = Assert.Single(again);
+            Assert.Equal("r3", left.RunId);                                      // moved to the run that now holds it
+        }
+
+        [Fact]
+        public void RecheckAfterTheAuthorRewroteText_ReviewsAgain()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>We utilize the app. Please note that the fee is waived.</p>");
+            var llm = new FakeLlmClient(r => TwoFindings);
+            var runner = new ActionRunner(llm, new PromptBuilder(null), 1024);
+            var cache = new ReviewCache();
+            ReviewUnit unit;
+            Check(runner, cache, p, out unit);
+            ((System.Xml.XmlText)p.FirstChild).Value = "We utilize the app. The fee is waived for new members only.";
+            Check(runner, cache, p, out unit);
+            Assert.Equal(2, llm.Requests.Count);
+        }
+
         [Fact]
         public void TeamCanChangeACacheLifetime()
         {

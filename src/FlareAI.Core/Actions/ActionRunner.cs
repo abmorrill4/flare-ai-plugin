@@ -44,6 +44,8 @@ namespace FlareAI.Core.Actions
         public string Prompt { get; set; }
         /// <summary>What the unit contains and the words it uses: selects the rules sent with it.</summary>
         public GuideScope Scope { get; set; }
+        /// <summary>The lint findings in the unit when it was prepared: their fixes, once applied, don't call for a new review (<see cref="ReviewCache"/>).</summary>
+        public List<StyleFinding> Lint { get; set; }
     }
 
     /// <summary>
@@ -357,7 +359,7 @@ namespace FlareAI.Core.Actions
                 if (map.Ids.Count == 0 || WordCount(map) < minWords) continue;
                 var unitLint = (lint ?? new List<StyleFinding>()).Where(f => f.DocumentPath == null && g.Exists(b => Contains(b, f))).ToList();
                 var context = (title.Length > 0 ? "Topic: " + title + "\n" : "") + (SectionOf(g[0]).Length > 0 ? "Section: " + SectionOf(g[0]) : "");
-                units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)), Scope = ScopeOf(g) });
+                units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)), Scope = ScopeOf(g), Lint = unitLint });
             }
             ShareScope(units.Select(u => u.Scope).ToList());
             return units;

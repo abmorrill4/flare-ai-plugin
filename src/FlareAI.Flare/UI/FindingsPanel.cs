@@ -383,12 +383,12 @@ namespace FlareAI.Flare.UI
                 ActionRunner.WarmThenParallel(units.Count, _runner.Parallelism, i =>
                 {
                     if (_worker.CancellationPending) return;
-                    var raw = _cache == null ? null : _cache.Get(units[i].Prompt);
+                    var raw = _cache == null ? null : _cache.Get(units[i]);   // exact hit, or re-anchored after applied fixes
                     if (raw != null) cachedAny = true;
                     else if (_aiOnStart)
                     {
                         raw = _runner.CallReview(units[i]);
-                        if (_cache != null) _cache.Put(units[i].Prompt, raw);
+                        if (_cache != null) _cache.Put(units[i], raw);
                     }
                     var n = System.Threading.Interlocked.Increment(ref done);
                     if (raw != null) _worker.ReportProgress(n, new object[] { raw, units[i], n, units.Count });
