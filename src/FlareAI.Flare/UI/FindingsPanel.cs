@@ -73,6 +73,19 @@ namespace FlareAI.Flare.UI
 
         public bool IsProjectReport { get { return _files != null; } }
 
+        /// <summary>
+        /// Finds a file open in the editor without opening it (the host's): lets the pane notice a fix undone in another
+        /// file (Ctrl+Z there), on row selection and when that document changes.
+        /// </summary>
+        public Func<string, IDocumentAdapter> FindOpen { set { _session.OpenedDocument = value; } }
+
+        /// <summary>A document changed in the editor: applied fixes that were undone there are live again.</summary>
+        public void RecheckApplied()
+        {
+            if (_reviewing) return;
+            _session.RecheckApplied();
+        }
+
         /// <summary>Path of the topic this panel checks.</summary>
         public string TopicPath { get { return _doc.SourcePath; } }
 

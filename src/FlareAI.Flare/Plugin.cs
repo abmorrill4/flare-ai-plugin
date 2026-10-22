@@ -212,7 +212,9 @@ namespace FlareAI.Flare
                 var root = Path.GetDirectoryName(files[0]);
                 while (root != null && Directory.GetFiles(root, "*.flprj").Length == 0) root = Path.GetDirectoryName(root);
                 var name = root == null ? "" : Path.GetFileName(root);
-                PanelHost.Show(FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, files, name), _nav.GetParentForm());
+                var panel = FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, files, name);
+                panel.FindOpen = FindOpenAdapter;
+                PanelHost.Show(panel, _nav.GetParentForm());
             }
             catch (Exception ex)
             {
@@ -630,7 +632,7 @@ namespace FlareAI.Flare
 
         private void ShowFindings(FlareDocumentAdapter adapter, ActionRunner runner, bool aiOnStart)
         {
-            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart), _nav.GetParentForm());
+            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart) { FindOpen = FindOpenAdapter }, _nav.GetParentForm());
         }
 
         /// <summary>
@@ -700,6 +702,23 @@ namespace FlareAI.Flare
                 Diagnostics.Log("open " + path, ex);
                 return null;
             }
+        }
+
+        /// <summary>The document at <paramref name="path"/> if it is open in Flare (a fresh adapter: its current DOM), else null. Never opens or activates it.</summary>
+        private IDocumentAdapter FindOpenAdapter(string path)
+        {
+            try
+            {
+                var ctx = _host.GetEditorContext();
+                if (ctx == null) return null;
+                foreach (var d in ctx.GetDocuments())
+                {
+                    var open = d as IDocument;
+                    if (open != null && string.Equals(open.GetSourceUrl(), path, StringComparison.OrdinalIgnoreCase)) return new FlareDocumentAdapter(open);
+                }
+            }
+            catch (Exception ex) { Diagnostics.Log("find open " + path, ex); }
+            return null;
         }
 
         private FlareDocumentAdapter ActiveAdapter()
