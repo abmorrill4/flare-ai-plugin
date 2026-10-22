@@ -11,7 +11,7 @@ using Xunit;
 namespace FlareAI.Scenarios.Smoke
 {
     /// <summary>
-    /// Smoke: a writer checks transfers/about.htm, applies every mechanical fix, then presses Ctrl+Z once.
+    /// Smoke: a writer checks deposit/about.htm, applies every mechanical fix, then presses Ctrl+Z once.
     /// Drives ActionRunner (lint + AI review + ApplyFixes) through FlareSim, with a scripted review that finds nothing.
     /// </summary>
     public class CheckAcceptAllUndoScenario
@@ -22,7 +22,7 @@ namespace FlareAI.Scenarios.Smoke
             using (var ws = FakeWorkspace.FromCorpus("DigitalBanking"))
             {
                 // Given a writer with the topic open
-                var doc = ws.Open("Content/transfers/about.htm");
+                var doc = ws.Open("Content/deposit/about.htm");
                 var original = doc.Xml;
                 var style = new StyleEngine(new[] { Repo.StyleGuide }, Repo.StyleGuide);
                 var llm = ScriptedLlmClient.NoFindings();

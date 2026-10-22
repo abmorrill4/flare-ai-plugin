@@ -372,7 +372,7 @@ namespace FlareAI.Core.Style
         {
             var report = new GuideReport { Layers = Layers.Select(l => l.Name).ToList() };
             report.Issues.AddRange(Layers.SelectMany(l => l.Problems));
-            var rows = Rules.Where(r => r.Id != null).ToList();
+            var rows = Rules.Where(r => r.Id != null && Override(r) != "off").ToList();   // a rule the team turned off is not tested: it never fires
             Action<string, LintRule, string> issue = (level, r, msg) => report.Issues.Add(new GuideIssue { Level = level, Layer = r.Layer, File = r.File, Location = "table row " + r.Row + " (" + r.Id + ")", Message = msg });
 
             foreach (var r in rows.Where(r => r.Action == "replace" && r.Avoid.Any(a => string.Equals(a, r.Use, r.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))))
