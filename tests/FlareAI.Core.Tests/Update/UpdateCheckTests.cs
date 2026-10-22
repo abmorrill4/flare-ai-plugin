@@ -159,12 +159,20 @@ namespace FlareAI.Core.Tests.Update
         [Fact]
         public void Offline_IsSilent_AndStillCountsAsTheDailyCheck()
         {
-            var port = ClosedPort();
+            // A bound-but-never-accepting port: nobody else (another test, another test process) can claim it meanwhile,
+            // and a request to it still never gets an answer.
+            var held = new TcpListener(IPAddress.Loopback, 0);
+            held.Start(1);
+            var port = ((IPEndPoint)held.LocalEndpoint).Port;
+            try
+            {
             var state = new UpdateState();
             var check = new UpdateCheck("0.1.0", "http://localhost:" + port + "/releases/latest") { TimeoutMs = 3000 };
             Assert.Null(check.CheckIfDue(state, Now));
             Assert.Equal(Now, state.LastCheckUtc);
             Assert.NotEqual("ok", state.LastCheckResult);
+            }
+            finally { held.Stop(); }
         }
 
         [Fact]
@@ -212,15 +220,6 @@ namespace FlareAI.Core.Tests.Update
                 File.WriteAllText(t["s.json"], "not json");
                 Assert.Null(UpdateState.Load(t["s.json"]).LastCheckUtc);
             }
-        }
-
-        private static int ClosedPort()
-        {
-            var l = new TcpListener(IPAddress.Loopback, 0);
-            l.Start();
-            var port = ((IPEndPoint)l.LocalEndpoint).Port;
-            l.Stop();
-            return port;
         }
     }
 }
