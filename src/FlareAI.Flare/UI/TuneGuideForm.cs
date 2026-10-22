@@ -135,7 +135,7 @@ namespace FlareAI.Flare.UI
             worker.RunWorkerCompleted += (s, e) =>
             {
                 if (IsDisposed) return;
-                if (e.Error != null) { Diagnostics.Log("Tune style guide", e.Error); _head.Text = "Could not read feedback: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Tune style guide", e.Error); ErrorReporter.Background(this, "House Style couldn't read the team's decisions.", e.Error); _head.Text = "Could not read feedback: " + e.Error.Message; return; }
                 var parts = (object[])e.Result;
                 var decisions = (List<Decision>)parts[0];
                 var items = (List<TuneItem>)parts[1];

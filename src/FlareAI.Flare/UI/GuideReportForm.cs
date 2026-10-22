@@ -77,7 +77,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 _progress.Visible = false;
-                if (e.Error != null) { Diagnostics.Log("Validate guide", e.Error); _status.Text = "Could not validate: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Validate guide", e.Error); ErrorReporter.Background(this, "House Style couldn't test the rules.", e.Error); _status.Text = "Could not validate: " + e.Error.Message; return; }
                 var parts = (object[])e.Result;
                 var report = (GuideReport)parts[0];
                 _examples = (IList<GuideExample>)parts[1];
@@ -133,7 +133,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 _progress.Visible = false;
-                if (e.Error != null) { Diagnostics.Log("Verify examples", e.Error); _status.Text = "AI check failed: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Verify examples", e.Error); ErrorReporter.Background(this, "House Style couldn't check the examples with AI.", e.Error); _status.Text = "AI check failed: " + e.Error.Message; return; }
                 var results = (List<ExampleResult>)e.Result;
                 var passed = results.FindAll(x => x.Passed).Count;
                 _report.AppendLine("AI TEST. Does the reviewer apply the prose rules?");

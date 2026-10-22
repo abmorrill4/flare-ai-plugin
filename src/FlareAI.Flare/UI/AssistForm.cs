@@ -46,7 +46,7 @@ namespace FlareAI.Flare.UI
             worker.RunWorkerCompleted += (s, e) =>
             {
                 if (IsDisposed) return;
-                if (e.Error != null) { Diagnostics.Log("Topic assists", e.Error); _status.Text = "Failed: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Topic assists", e.Error); ErrorReporter.Background(this, "House Style couldn't suggest topic metadata.", e.Error); _status.Text = "Failed: " + e.Error.Message; return; }
                 var a = (TopicAssist)e.Result;
                 _status.Text = "Suggested from this topic only. Review each one, then copy it into Flare.";
                 Section("Meta description  (Topic Properties ▸ Description)", a.Description ?? "", a.Description ?? "");

@@ -69,6 +69,7 @@ namespace FlareAI.Flare
                 // Last update's result / What's new, then the daily update check (background; per-user install only).
                 _updates = new UpdateFlow(() => _nav.GetParentForm(), PluginDirectory, Version);
                 try { _updates.Start(); } catch (Exception ex) { Diagnostics.Log("updates", ex); }
+                HookDispatcher();
                 Welcome();
             }
             catch (Exception ex)
@@ -83,9 +84,58 @@ namespace FlareAI.Flare
             try { _host.GetEditorContext().DocumentSwitched -= OnDocumentSwitched; } catch (Exception) { }
             try { _host.GetCompilerContext().CompileComplete -= OnCompileComplete; } catch (Exception) { }
             try { _host.GetCompilerContext().CompileStart -= OnCompileStart; } catch (Exception) { }
+            try { if (_dispatcher != null) _dispatcher.UnhandledException -= OnDispatcherException; } catch (Exception) { }
             _style = null;
             try { _host.Dispose(); } catch (Exception ex) { Diagnostics.Log("Stop", ex); }
             _activated = false;
+        }
+
+        // ---- unhandled errors on the UI thread (issue #124) -------------------------------------------------------
+
+        private System.Windows.Threading.Dispatcher _dispatcher;
+
+        /// <summary>
+        /// The one process-wide hook House Style adds: WPF's dispatcher (Flare's ribbon runs on it). Its event lets a
+        /// handler leave an exception unhandled, so House Style takes only exceptions thrown by its own code and leaves
+        /// Flare's (and other plugins') to Flare. WinForms' Application.ThreadException is not hooked: a handler there
+        /// handles every exception in the process, so it can't let Flare's pass. Our WinForms entry points are wrapped
+        /// by <see cref="Safe"/> instead.
+        /// </summary>
+        private void HookDispatcher()
+        {
+            try
+            {
+                _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+                _dispatcher.UnhandledException += OnDispatcherException;
+            }
+            catch (Exception ex) { Diagnostics.Log("dispatcher hook", ex); }
+        }
+
+        private void OnDispatcherException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                if (e.Handled || !FlareAI.Core.Feedback.ErrorKinds.ThrownByUs(e.Exception)) return;   // Flare's own: not ours to handle
+                e.Handled = true;
+                Diagnostics.Log("Unhandled (dispatcher)", e.Exception);
+                if (FlareAI.Core.Feedback.ErrorKinds.IsBug(e.Exception))
+                    ErrorReporter.Show(Owner, "House Style couldn't finish what it was doing.", e.Exception, null);
+                else
+                    Notify.PlainError(Owner, "House Style couldn't finish what it was doing.", e.Exception.Message, e.Exception);
+            }
+            catch (Exception ex) { Diagnostics.Log("dispatcher exception", ex); }
+        }
+
+        /// <summary>Flare's main window as a control, for reports from background work (null if it isn't available).</summary>
+        private Form OwnerForm
+        {
+            get { try { return _nav == null ? null : _nav.GetParentForm(); } catch (Exception) { return null; } }
+        }
+
+        /// <summary>Help &gt; Report a Problem, and the same button in Settings.</summary>
+        private void OnReportProblem(IWin32Window owner)
+        {
+            using (var f = new ReportProblemForm(FeedbackService.Context())) f.ShowDialog(owner);
         }
 
         // ---- ribbon ------------------------------------------------------------------
@@ -186,7 +236,7 @@ namespace FlareAI.Flare
         {
             var raw = RawHandlerFor(c);
             // Settings, Help and the like open as they are; every other command offers first-run setup once.
-            var plain = c == Commands.Settings || c == Commands.Diagnostics || c == Commands.Help || c == Commands.WhatsNew || c == Commands.Tour;
+            var plain = c == Commands.Settings || c == Commands.Diagnostics || c == Commands.Help || c == Commands.WhatsNew || c == Commands.Tour || c == Commands.ReportProblem;
             return Safe.Wrap(c.Label, plain ? raw : WithSetup(raw));
         }
 
@@ -207,6 +257,7 @@ namespace FlareAI.Flare
             if (c == Commands.WhatsNew) return () => UpdateFlow.ShowAll(Owner, PluginDirectory, Version);
             if (c == Commands.Help) return OpenUserGuide;
             if (c == Commands.Tour) return StartTour;
+            if (c == Commands.ReportProblem) return () => OnReportProblem(Owner);
             throw new ArgumentException("No handler for command " + c.Id);
         }
 
@@ -283,7 +334,7 @@ namespace FlareAI.Flare
         {
             bool runSetup, tour;
             using (var f = new SettingsForm(PluginDirectory, _updates == null ? null : (Func<string>)_updates.WhyOff, _role,
-                                            owner => OnExportLlm(owner), owner => OnDiagnostics(owner)))
+                                            owner => OnExportLlm(owner), owner => OnDiagnostics(owner), owner => OnReportProblem(owner)))
             {
                 if (f.ShowDialog(Owner) == DialogResult.OK) RefreshTeam();
                 runSetup = f.RunSetupRequested;
@@ -448,7 +499,7 @@ namespace FlareAI.Flare
                 if (output == null) { Diagnostics.Log("LLM export: no fresh HTML output found after the build"); return; }
                 System.Threading.ThreadPool.QueueUserWorkItem(_ => { try { Diagnostics.Log("LLM export after build: " + RunLlmExport(settings, output)); } catch (Exception ex) { Diagnostics.Log("LLM export", ex); } });
             }
-            catch (Exception ex) { Diagnostics.Log("CompileComplete", ex); }
+            catch (Exception ex) { Diagnostics.Log("CompileComplete", ex); ErrorReporter.Background(OwnerForm, "House Style couldn't add the LLM-ready Markdown after the build.", ex); }
         }
 
         /// <summary>Exports the newest HTML output of the open project (or a folder the author picks) as Markdown + llms.txt.</summary>
@@ -777,7 +828,7 @@ namespace FlareAI.Flare
                 var active = ActiveAdapter();
                 _editor.OnCompileStart(active != null ? active.SourcePath : _lastTopic);
             }
-            catch (Exception ex) { Diagnostics.Log("CompileStart", ex); }
+            catch (Exception ex) { Diagnostics.Log("CompileStart", ex); ErrorReporter.Background(OwnerForm, "House Style couldn't lint the project before the build.", ex); }
         }
 
         /// <summary>A runner for the linter only (live check, check on save, report before build): no API key needed.</summary>
@@ -807,7 +858,7 @@ namespace FlareAI.Flare
                 var runner = NewRunner(adapter, true, true);
                 if (runner != null) ShowFindings(adapter, runner, false);
             }
-            catch (Exception ex) { Diagnostics.Log("DocumentSwitched", ex); }
+            catch (Exception ex) { Diagnostics.Log("DocumentSwitched", ex); ErrorReporter.Background(OwnerForm, "House Style couldn't lint the topic you opened.", ex); }
         }
 
         /// <summary>Opens (or activates) a file in Flare's editor and wraps it; null if Flare can't open it.</summary>

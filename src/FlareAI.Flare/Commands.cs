@@ -97,6 +97,11 @@ namespace FlareAI.Flare
             Id = "tour", Label = "Start the Tour Again", KeyTip = "O", Icon = "help", Group = GroupOptions,
             Tooltip = "Practice a first lint step by step."
         };
+        public static readonly CommandInfo ReportProblem = new CommandInfo
+        {
+            Id = "report", Label = "Report a Problem…", KeyTip = "B", Icon = "help", Group = GroupOptions,
+            Tooltip = "Tell the House Style team what went wrong."
+        };
 
         /// <summary>The user guide on the project site, opened by Help.</summary>
         public const string UserGuideUrl = "https://abmorrill4.github.io/flare-ai-plugin/";
@@ -108,14 +113,14 @@ namespace FlareAI.Flare
             Rewrite, Ask, TopicMetadata,
             RuleDecisions, ImportRules, TestRules,
             Settings, Help,
-            ExportLlm, Diagnostics, WhatsNew, Tour
+            ExportLlm, Diagnostics, WhatsNew, Tour, ReportProblem
         };
 
         /// <summary>The style guide owner's group, added to the ribbon for the Owner role.</summary>
         public static readonly IList<CommandInfo> OwnerOnly = new List<CommandInfo> { RuleDecisions, ImportRules, TestRules };
 
-        /// <summary>The items of the Help menu (Help itself opens the user guide).</summary>
-        public static readonly IList<CommandInfo> HelpMenu = new List<CommandInfo> { WhatsNew, Tour };
+        /// <summary>The items of the Help menu (Help itself opens the user guide). Report a Problem is also in Settings.</summary>
+        public static readonly IList<CommandInfo> HelpMenu = new List<CommandInfo> { WhatsNew, Tour, ReportProblem };
 
         /// <summary>
         /// The ribbon for a role, in order; groups appear in the order of their first command. A writer gets Lint Topic,
@@ -138,7 +143,7 @@ namespace FlareAI.Flare
         {
             var list = new List<CommandInfo> { LintTopic, LintProject, Rules, Rewrite, Ask, TopicMetadata, null };
             if (role == UserRole.Owner) { list.AddRange(OwnerOnly); list.Add(null); }
-            list.Add(Settings); list.Add(Help); list.Add(WhatsNew); list.Add(Tour);
+            list.Add(Settings); list.Add(Help); list.Add(WhatsNew); list.Add(Tour); list.Add(ReportProblem);
             return list;
         }
 

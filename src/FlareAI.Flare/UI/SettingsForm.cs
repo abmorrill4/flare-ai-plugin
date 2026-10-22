@@ -19,7 +19,7 @@ namespace FlareAI.Flare.UI
         private readonly TextBox _feedback;
         private readonly Button _addGuide, _removeGuide, _browseFeedback, _refreshModels, _test, _runSetup;
         private readonly Label _guideStatus, _feedbackStatus, _modelStatus, _testResult, _keyLabel, _keyStatus;
-        private readonly CheckBox _projectLayer, _llmExport, _markers, _live, _onSave, _beforeBuild, _diag, _autoUpdate;
+        private readonly CheckBox _projectLayer, _llmExport, _markers, _live, _onSave, _beforeBuild, _diag, _autoUpdate, _autoReports;
         private readonly Label _updateStatus;
         private readonly StackLayout _guide, _adv;
         private readonly StackLayout.Block _modelNoteBlock;
@@ -50,8 +50,9 @@ namespace FlareAI.Flare.UI
         /// <param name="role">The role the ribbon was built for (the one in effect until Flare restarts).</param>
         /// <param name="exportLlm">Export for LLMs, from the Advanced tab (null hides the button).</param>
         /// <param name="diagnostics">Diagnostics, from the Advanced tab (null hides the button).</param>
+        /// <param name="reportProblem">Report a Problem, from the Advanced tab (null hides the button).</param>
         public SettingsForm(string pluginDir = null, Func<string> whyUpdatesOff = null, UserRole role = UserRole.Writer,
-                            Action<IWin32Window> exportLlm = null, Action<IWin32Window> diagnostics = null)
+                            Action<IWin32Window> exportLlm = null, Action<IWin32Window> diagnostics = null, Action<IWin32Window> reportProblem = null)
         {
             _settings = PluginSettings.Load();
             _startRole = _settings.Role ?? role;
@@ -172,6 +173,8 @@ namespace FlareAI.Flare.UI
             _feedbackStatus = a.Status(1);
             a.Note("A shared folder where your team's decisions are collected. Leave it empty to keep them on this computer. Owners see each decision, its rule and the text, and names only if the style guide is set to show them.");
             _diag = a.Check("Write a diagnostics log (for support)", _settings.WriteDiagnostics);
+            _autoReports = a.Check("Send error reports automatically", _settings.SendErrorReportsAutomatically);
+            a.Note("House Style sends a report only when you choose Send, or by itself when this box is checked.");
             _llmExport = a.Check("After each HTML build, add LLM-ready Markdown and llms.txt to the output", _settings.LlmExportAfterBuild);
             _autoUpdate = a.Check("Keep House Style up to date (checks GitHub once a day)", _updatePolicy.Enabled);
             _autoUpdate.Enabled = !_updatePolicy.FromPolicyFile;   // the IT department's update-policy.json decides
@@ -185,6 +188,7 @@ namespace FlareAI.Flare.UI
             a.Add(tools);
             if (exportLlm != null) ToolButton(tools, Commands.ExportLlm.Label + "…", Commands.ExportLlm.Tooltip, () => exportLlm(this));
             if (diagnostics != null) ToolButton(tools, Commands.Diagnostics.Label + "…", Commands.Diagnostics.Tooltip, () => diagnostics(this));
+            if (reportProblem != null) ToolButton(tools, Commands.ReportProblem.Label, Commands.ReportProblem.Tooltip, () => reportProblem(this));
             ToolButton(tools, Commands.Tour.Label, Commands.Tour.Tooltip, () => { TourRequested = true; DialogResult = DialogResult.Cancel; Close(); });
             a.Y += tools.PreferredSize.Height + a.S(8);
 
@@ -248,6 +252,7 @@ namespace FlareAI.Flare.UI
             CheckGuides(); CheckFeedback(); ShowUpdateStatus();
             A11y.Name(_autoUpdate, "Keep House Style up to date", "Checks GitHub once a day for a newer release and offers to install it.");
             A11y.Name(_updateStatus, "Automatic update status");
+            A11y.Name(_autoReports, "Send error reports automatically", "When House Style hits an error, it sends the report in the background and shows a short notice.");
             Shown += (s, e) => LoadModels();
             FormClosed += (s, e) => _closed = true;
         }
@@ -545,6 +550,9 @@ namespace FlareAI.Flare.UI
             }
             _settings.TimeoutSeconds = timeout;
             _settings.WriteDiagnostics = _diag.Checked;
+            _settings.SendErrorReportsAutomatically = _autoReports.Checked;
+            // A report sent while Settings was open may have created this install's id: keep it.
+            if (string.IsNullOrEmpty(_settings.ClientId)) _settings.ClientId = PluginSettings.Load().ClientId;
             _settings.StyleLayers = string.Join("\n", _layers.Items.Cast<string>().ToArray());
             _settings.UseProjectLayer = _projectLayer.Checked;
             _settings.FeedbackFolder = _feedback.Text.Trim();

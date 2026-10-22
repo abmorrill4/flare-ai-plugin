@@ -121,7 +121,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Build guide: mine", e.Error); _head.Text = "Couldn't look through the project: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Build guide: mine", e.Error); ErrorReporter.Background(this, "House Style couldn't look through the project.", e.Error); _head.Text = "Couldn't look through the project: " + e.Error.Message; return; }
                 var found = (List<RuleCandidate>)e.Result;
                 Add(found, "content");
                 _head.Text = files + " topics and snippets read. " + Plural.Of(found.Count, "suggested rule") + " the guide doesn't cover yet." +
@@ -159,7 +159,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Build guide: notes", e.Error); _head.Text = "Could not read the notes: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Build guide: notes", e.Error); ErrorReporter.Background(this, "House Style couldn't read the notes.", e.Error); _head.Text = "Could not read the notes: " + e.Error.Message; return; }
                 var found = (List<RuleCandidate>)e.Result;
                 Add(found, "notes");
                 _head.Text = Plural.Of(found.Count, "rule") + " found in your notes. Each shows the words it came from. Select the ones to keep." +

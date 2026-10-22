@@ -112,7 +112,7 @@ namespace FlareAI.Flare.UI
 
             if (e.Error != null)
             {
-                Diagnostics.Log(_title, e.Error);
+                Diagnostics.Log(_title, e.Error); ErrorReporter.Background(this, "House Style couldn't finish \"" + _title + "\".", e.Error);
                 _status.Text = "Failed.";
                 _output.Text = e.Error is LlmException || e.Error is InvalidOperationException ? e.Error.Message : e.Error.ToString();
                 _close.Text = "Close";

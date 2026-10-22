@@ -236,6 +236,8 @@ namespace FlareAI.Flare.UI
             _rejectMenu.Items.Add("The rule doesn't apply here", null, (s, e) => Safe.Run("Ignore", () => _session.Reject("rule doesn't apply")));
             _rejectMenu.Items.Add(new ToolStripSeparator());
             _rejectMenu.Items.Add("Skip for Now", null, (s, e) => Safe.Run("Skip", _session.Skip));
+            _rejectMenu.Items.Add(new ToolStripSeparator());
+            _rejectMenu.Items.Add(ReportFalsePositiveLabel, null, (s, e) => Safe.Run("Report False Positive", ReportFalsePositive));
             card.Controls.Add(actions);   // in tab order: the decision first, then the text
             card.Controls.Add(_ruleActions);
             card.Controls.Add(_cardHead);
@@ -817,6 +819,8 @@ namespace FlareAI.Flare.UI
                 try { Clipboard.SetText(path); _status.Text = "Copied " + path; }
                 catch (Exception ex) { Diagnostics.Log("copy path", ex); _status.Text = "Could not copy the path: " + ex.Message; }
             }));
+            menu.Items.Add(new ToolStripSeparator());
+            var report = menu.Items.Add(ReportFalsePositiveLabel, null, (s, e) => Safe.Run("Report False Positive", ReportFalsePositive));
             menu.Opening += (s, e) =>
             {
                 var p = _list.PointToClient(Cursor.Position);
@@ -827,8 +831,28 @@ namespace FlareAI.Flare.UI
                 if (f == null) { e.Cancel = true; return; }
                 goTo.Enabled = !f.IsFixed;
                 open.Enabled = _session.FilePathOf(f) != null;
+                report.Enabled = !string.IsNullOrEmpty(f.Excerpt);
             };
             return menu;
+        }
+
+        public const string ReportFalsePositiveLabel = "Report False Positive…";
+
+        /// <summary>
+        /// Report False Positive (issue #124): the rule, the flagged words and the writer's reason go to the House Style
+        /// team, and the sentence around them only if the writer ticks it. The issue stays in the list.
+        /// </summary>
+        private void ReportFalsePositive()
+        {
+            var f = Current();
+            if (f == null) return;
+            var rule = _runner.RuleFor(f.RuleId);
+            var name = rule != null && !string.IsNullOrEmpty(rule.Display) ? rule.Display : f.Rule;
+            string sentence = null;
+            try { if (f.Block != null) sentence = FlareAI.Core.Feedback.ReportBuilder.SentenceAround(f.Block.InnerText, f.Excerpt); }
+            catch (Exception ex) { Diagnostics.Log("false positive sentence", ex); }
+            using (var form = new FalsePositiveForm(f.RuleId, name, f.Excerpt, sentence, FeedbackService.Context()))
+                if (form.ShowDialog(this) == DialogResult.OK) _status.Text = FalsePositiveForm.Sent;
         }
 
         private void OnListKey(object sender, KeyEventArgs e)
@@ -930,7 +954,7 @@ namespace FlareAI.Flare.UI
                 }
                 if (e.Error != null)
                 {
-                    Diagnostics.Log("Lint topic", e.Error);
+                    Diagnostics.Log("Lint topic", e.Error); ErrorReporter.Background(this, "House Style couldn't lint the topic.", e.Error);
                     _status.Text = Summary() + "  " + (e.Error.Message == FlareAI.Core.Llm.LlmClientFactory.AiOffMessage
                         ? "AI review is off. Turn it on in Settings."   // the writer chose No AI: not a failure
                         : "AI review failed. " + e.Error.Message);
@@ -983,7 +1007,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed || e.Cancelled) return;
                 _reviewing = false; _progress.Visible = false;
-                if (e.Error != null) { Diagnostics.Log("Lint project", e.Error); _status.Text = "Lint Project failed. " + e.Error.Message; }
+                if (e.Error != null) { Diagnostics.Log("Lint project", e.Error); ErrorReporter.Background(this, "House Style couldn't lint the project.", e.Error); _status.Text = "Lint Project failed. " + e.Error.Message; }
                 else
                 {
                     var found = (List<StyleFinding>)e.Result;
@@ -1419,7 +1443,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Alt text", e.Error); _status.Text = "Alt text failed. " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Alt text", e.Error); ErrorReporter.Background(this, "House Style couldn't suggest alt text.", e.Error); _status.Text = "Alt text failed. " + e.Error.Message; return; }
                 var suggestion = (string)e.Result;
                 var alt = TextPrompt.Ask(this, "Alt text", suggestion == null
                     ? "The AI thinks " + System.IO.Path.GetFileName(image.Path) + " is decorative. If it isn't, type alt text for screen readers."
@@ -1462,7 +1486,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Refine", e.Error); _status.Text = "Rewrite failed. " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Refine", e.Error); ErrorReporter.Background(this, "House Style couldn't rewrite the text.", e.Error); _status.Text = "Rewrite failed. " + e.Error.Message; return; }
                 _session.Refined(f, (StyleFinding)e.Result, instruction);
                 AiRewriteDone();
             };
@@ -1498,7 +1522,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Re-analyze", e.Error); _status.Text = "Couldn't lint the paragraph again. " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Re-analyze", e.Error); ErrorReporter.Background(this, "House Style couldn't lint the paragraph again.", e.Error); _status.Text = "Couldn't lint the paragraph again. " + e.Error.Message; return; }
                 var parts = (object[])e.Result;
                 var lint = (List<StyleFinding>)parts[0];
                 var fresh = new List<StyleFinding>(lint);

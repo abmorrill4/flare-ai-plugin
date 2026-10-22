@@ -45,10 +45,22 @@ namespace FlareAI.Flare.UI
         }
 
         /// <summary>
-        /// An error: what happened, then what to do. <paramref name="details"/> (an exception or any text) is not shown;
-        /// the Copy details button puts it on the clipboard for a support request.
+        /// An error: what happened, then what to do. When <paramref name="details"/> is an exception that is a bug in
+        /// House Style (not a locked file, no network or the like: <see cref="FlareAI.Core.Feedback.ErrorKinds.IsExpected"/>),
+        /// the writer gets "House Style ran into a problem" with Send instead (issue #124).
         /// </summary>
         public static void Error(IWin32Window owner, string whatHappened, string whatToDo, object details = null, string action = null)
+        {
+            var ex = details as Exception;
+            if (ex != null && FlareAI.Core.Feedback.ErrorKinds.IsBug(ex)) { ErrorReporter.Show(owner, whatHappened, ex, action, whatToDo); return; }
+            PlainError(owner, whatHappened, whatToDo, details, action);
+        }
+
+        /// <summary>
+        /// The plain error message: what happened, then what to do. <paramref name="details"/> (an exception or any text) is
+        /// not shown; the Copy details button puts it on the clipboard.
+        /// </summary>
+        public static void PlainError(IWin32Window owner, string whatHappened, string whatToDo, object details = null, string action = null)
         {
             var text = whatHappened + (string.IsNullOrEmpty(whatToDo) ? "" : "\n\n" + whatToDo);
             var copy = details == null ? null : details + "\n\nLog: " + Diagnostics.LogPath;

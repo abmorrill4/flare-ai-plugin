@@ -150,13 +150,13 @@ namespace FlareAI.Core.Tests
             var guide = owner.Where(c => c.Group == FlareAI.Flare.Commands.GroupGuide).Select(c => c.Label).ToArray();
             Assert.Equal(new[] { "Rule Decisions", "Import Rules", "Test Rules" }, guide);
             Assert.Equal("Style Guide", FlareAI.Flare.Commands.GroupGuide);
-            // Export for LLMs and Diagnostics live in Settings; What's New and the tour under Help.
+            // Export for LLMs and Diagnostics live in Settings; What's New, the tour and Report a Problem under Help.
             foreach (var role in new[] { FlareAI.Core.Settings.UserRole.Writer, FlareAI.Core.Settings.UserRole.Owner })
             {
                 Assert.DoesNotContain(FlareAI.Flare.Commands.ExportLlm, FlareAI.Flare.Commands.Ribbon(role));
                 Assert.DoesNotContain(FlareAI.Flare.Commands.Diagnostics, FlareAI.Flare.Commands.Ribbon(role));
             }
-            Assert.Equal(new[] { FlareAI.Flare.Commands.WhatsNew, FlareAI.Flare.Commands.Tour }, FlareAI.Flare.Commands.HelpMenu.ToArray());
+            Assert.Equal(new[] { FlareAI.Flare.Commands.WhatsNew, FlareAI.Flare.Commands.Tour, FlareAI.Flare.Commands.ReportProblem }, FlareAI.Flare.Commands.HelpMenu.ToArray());
             Assert.StartsWith("https://abmorrill4.github.io/flare-ai-plugin", FlareAI.Flare.Commands.UserGuideUrl);
         }
 

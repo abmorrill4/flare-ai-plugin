@@ -126,7 +126,7 @@ namespace FlareAI.Flare
             };
             worker.RunWorkerCompleted += (s, e) =>
             {
-                if (e.Error != null) { Diagnostics.Log("update check", e.Error); return; }
+                if (e.Error != null) { Diagnostics.Log("update check", e.Error); ErrorReporter.Background(_owner(), "House Style couldn't check for updates.", e.Error); return; }
                 var release = (ReleaseInfo)((object[])e.Result)[0];
                 var state = (UpdateState)((object[])e.Result)[1];
                 // Automatic: download, verify and queue the install for when Flare closes. Settings or update-policy.json turn it off.
@@ -154,6 +154,7 @@ namespace FlareAI.Flare
                 if (e.Error != null)
                 {
                     Diagnostics.Log("Update download " + release.Version, e.Error);
+                    ErrorReporter.Background(_owner(), "House Style couldn't download the update.", e.Error);
                     var why = e.Error is UpdateException ? e.Error.Message : "Something went wrong while downloading (" + e.Error.Message + ").";
                     Toast.Show(_owner(), "House Style couldn't download " + release.Version + ": " + why.TrimEnd('.') + ". You're still on " + _version + "; it tries again tomorrow.");
                     return;

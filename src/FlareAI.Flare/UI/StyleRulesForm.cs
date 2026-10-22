@@ -257,7 +257,7 @@ namespace FlareAI.Flare.UI
                 if (IsDisposed) return;
                 if (e.Error != null)
                 {
-                    Diagnostics.Log("Style rules", e.Error);
+                    Diagnostics.Log("Style rules", e.Error); ErrorReporter.Background(this, "House Style couldn't read the style guide.", e.Error);
                     _head.Text = "House Style couldn't read the style guide: " + e.Error.Message;
                     return;
                 }
