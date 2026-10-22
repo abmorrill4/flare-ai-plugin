@@ -1,0 +1,355 @@
+[
+  {
+    "Id": "company:terminology/3",
+    "Layer": "company",
+    "Page": "Terminology",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "customer",
+      "customers"
+    ],
+    "Use": "member, members",
+    "Example": "Customers can reset their PIN.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Customers can reset their PIN.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "customer",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Customer",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CUSTOMER",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "customers",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Customers",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CUSTOMERS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Member, members",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:terminology/6",
+    "Layer": "company",
+    "Page": "Terminology",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "single sign on",
+      "Single Sign-On",
+      "Single Sign On",
+      "single-sign-on"
+    ],
+    "Use": "single sign-on",
+    "Example": "Enable Single Sign-On first.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Enable Single Sign-On first.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "single sign on",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Single Sign-On",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Single Sign On",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Single sign-on",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:terminology/4",
+    "Layer": "company",
+    "Page": "Terminology",
+    "Row": 3,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "bank",
+      "credit union"
+    ],
+    "Use": "",
+    "Example": "Contact your bank.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Contact your bank.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "bank",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Bank",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "BANK",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "credit union",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Credit union",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CREDIT UNION",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "company:terminology/7",
+    "Layer": "company",
+    "Page": "Terminology",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "Identity Provider",
+      "identity-provider"
+    ],
+    "Use": "identity provider",
+    "Example": "Ask your Identity Provider for the metadata.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Ask your Identity Provider for the metadata.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "Identity Provider",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "identity-provider",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Identity provider",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:terminology/8",
+    "Layer": "company",
+    "Page": "Terminology",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "OpenId Connect",
+      "Open ID Connect",
+      "openID connect"
+    ],
+    "Use": "OpenID Connect",
+    "Example": "It supports OpenId Connect.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "It supports OpenId Connect.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "OpenId Connect",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Open ID Connect",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "openID connect",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "OpenID Connect",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:terminology/9",
+    "Layer": "company",
+    "Page": "Terminology",
+    "Row": 5,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "SAML2"
+    ],
+    "Use": "SAML 2.0",
+    "Example": "It supports SAML2.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "It supports SAML2.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "SAML2",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "SAML 2.0",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  }
+]

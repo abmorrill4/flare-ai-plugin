@@ -1,0 +1,306 @@
+[
+  {
+    "Id": "google:units-of-measure/4",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "(?<![\\w.])\\d+(?:\\.\\d+)?(?:kB|KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB|mm|cm|km)\\b"
+    ],
+    "Use": "",
+    "Example": "The disk has 64GB of storage.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The disk has 64GB of storage.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/12",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\d[ \\u00A0]?°[ \\u00A0]?K\\b"
+    ],
+    "Use": "",
+    "Example": "The sample is cooled to 300 °K.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The sample is cooled to 300 °K.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/15",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\d+[-–]\\d+[ \\u00A0]?(?:°[CF]|kB|KB|MB|GB|TB|KiB|MiB|GiB|TiB|%)"
+    ],
+    "Use": "",
+    "Example": "The operating range is -40-85 °C.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The operating range is -40-85 °C.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/18",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "(?<=\\d)[ \\u00A0]k\\b"
+    ],
+    "Use": "",
+    "Example": "You are limited to 55 k download operations.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "You are limited to 55 k download operations.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/23",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "Gb/s"
+    ],
+    "Use": "Gbps",
+    "Example": "The link supports 10 Gb/s.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The link supports 10 Gb/s.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "Gb/s",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Gbps",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:units-of-measure/5",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 3,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "(?<![\\w.])\\d+(?:\\.\\d+)? (?:kB|KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB|mm|cm|km)\\b"
+    ],
+    "Use": "",
+    "Example": "The disk has 64 GB of storage.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The disk has 64 GB of storage.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/6",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "(?<=\\d)[ \\u00A0]+%"
+    ],
+    "Use": "",
+    "Example": "Usage reached 65 % of the quota.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Usage reached 65 % of the quota.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/7",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 5,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "[$£€][ \\u00A0]+\\d"
+    ],
+    "Use": "",
+    "Example": "The plan costs $ 10 per month.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The plan costs $ 10 per month.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/8",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 6,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "(?<=\\d)°[CF]\\b"
+    ],
+    "Use": "",
+    "Example": "The device operates at 50°C.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The device operates at 50°C.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:units-of-measure/9",
+    "Layer": "google",
+    "Page": "Units-Of-Measure",
+    "Row": 7,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "°[ \\u00A0]+[CF]\\b"
+    ],
+    "Use": "",
+    "Example": "The device operates at 50 ° C.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The device operates at 50 ° C.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

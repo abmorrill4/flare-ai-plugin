@@ -1,0 +1,294 @@
+[
+  {
+    "Id": "google:ui-elements/13",
+    "Layer": "google",
+    "Page": "Ui-Elements",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "hamburger icon",
+      "zippy",
+      "expando"
+    ],
+    "Use": "",
+    "Example": "To expand the Advanced options section, click the zippy.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To expand the Advanced options section, click the zippy.",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "hamburger icon",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Hamburger icon",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "HAMBURGER ICON",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "zippy",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Zippy",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "ZIPPY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "expando",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Expando",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "EXPANDO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:ui-elements/54",
+    "Layer": "google",
+    "Page": "Ui-Elements",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "\\b[Tt]oggl(?:ed|ing)\\b"
+    ],
+    "Use": "",
+    "Example": "Toggling the setting turns on Wi-Fi.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Toggling the setting turns on Wi-Fi.",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:ui-elements/68",
+    "Layer": "google",
+    "Page": "Ui-Elements",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "Ctrl"
+    ],
+    "Use": "Control",
+    "Example": "To copy, press Ctrl+C.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To copy, press Ctrl+C.",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "Ctrl",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Control",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:ui-elements/69",
+    "Layer": "google",
+    "Page": "Ui-Elements",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "\\b(?:Control|Ctrl|Command|Option|Alt|Shift)\\+[a-z]\\b"
+    ],
+    "Use": "",
+    "Example": "To save, press Control+s.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To save, press Control+s.",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:ui-elements/70",
+    "Layer": "google",
+    "Page": "Ui-Elements",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "[⌘⌥⇧⌃]"
+    ],
+    "Use": "",
+    "Example": "To copy, press Ctrl+C (⌘+C).",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To copy, press Ctrl+C (⌘+C).",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:ui-elements/71",
+    "Layer": "google",
+    "Page": "Ui-Elements",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "\\b(?:Control|Command|Option|Shift)(?: \\+|\\+ )"
+    ],
+    "Use": "",
+    "Example": "Press Control + V.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Press Control + V.",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:ui-elements/72",
+    "Layer": "google",
+    "Page": "Ui-Elements",
+    "Row": 5,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "\\bShift\\+(?:Control|Ctrl|Command|Option|Alt)\\b"
+    ],
+    "Use": "",
+    "Example": "Press Shift+Control+?.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Press Shift+Control+?.",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

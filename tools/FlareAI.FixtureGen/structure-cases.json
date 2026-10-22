@@ -1,0 +1,91 @@
+{
+  "_note": "Hand-written cases for the structure checks (src/FlareAI.Core/Style/StructureCheck.cs). Each snippet is body XHTML. bad: StructureCheck must report the rule. good: it must report nothing at all. Copied to tests/fixtures/rules/structure by FlareAI.FixtureGen.",
+  "rules": [
+    {
+      "rule": "Structure.AltText",
+      "bad": [
+        { "context": "paragraph", "xhtml": "<p>Open the menu.</p><p><img src=\"menu.png\" /></p>" },
+        { "context": "paragraph-inline", "xhtml": "<p>The payee list: <img src=\"list.png\" /></p>" },
+        { "context": "step", "xhtml": "<ol><li>Click Save. <img src=\"save.png\" /></li></ol>" },
+        { "context": "table-cell", "xhtml": "<table><tr><th>Icon</th></tr><tr><td><img src=\"a.png\" /></td></tr></table>" },
+        { "context": "link", "xhtml": "<p><a href=\"x.htm\"><img src=\"x.png\" /></a> Open the page.</p>" },
+        { "context": "note", "xhtml": "<p class=\"note\">Tip: use the toolbar <img src=\"bar.png\" /></p>" },
+        { "context": "empty-alt", "xhtml": "<p>Choose the option. <img src=\"o.png\" alt=\"\" /></p>" }
+      ],
+      "good": [
+        { "context": "paragraph", "xhtml": "<p>Open the menu.</p><p><img src=\"menu.png\" alt=\"The File menu\" /></p>" },
+        { "context": "step", "xhtml": "<ol><li>Click Save. <img src=\"save.png\" alt=\"Save icon\" /></li></ol>" },
+        { "context": "table-cell", "xhtml": "<table><tr><th>Icon</th></tr><tr><td><img src=\"a.png\" alt=\"Warning\" /></td></tr></table>" },
+        { "context": "decorative", "xhtml": "<p>Rule below. <img src=\"line.png\" role=\"presentation\" /></p>" }
+      ]
+    },
+    {
+      "rule": "Structure.OneH1",
+      "bad": [
+        { "context": "heading", "xhtml": "<h1>Pay bills</h1><p>Intro.</p><h1>Second title</h1><p>More.</p>" }
+      ],
+      "good": [
+        { "context": "heading", "xhtml": "<h1>Pay bills</h1><p>Intro.</p><h2>Details</h2><p>More.</p>" }
+      ]
+    },
+    {
+      "rule": "Structure.HeadingOrder",
+      "bad": [
+        { "context": "heading", "xhtml": "<h1>Pay bills</h1><h3>Skipped a level</h3><p>Text.</p>" },
+        { "context": "heading-deep", "xhtml": "<h1>Title</h1><h2>One</h2><h4>Skips h3</h4><p>Text.</p>" }
+      ],
+      "good": [
+        { "context": "heading", "xhtml": "<h1>Pay bills</h1><h2>One</h2><h3>Two</h3><p>Text.</p>" },
+        { "context": "heading-back-up", "xhtml": "<h1>Title</h1><h2>One</h2><h3>Two</h3><h2>Three</h2><p>Text.</p>" }
+      ]
+    },
+    {
+      "rule": "Structure.TableHeader",
+      "bad": [
+        { "context": "table", "xhtml": "<table><tr><td>Name</td><td>Amount</td></tr><tr><td>Rent</td><td>900</td></tr></table>" },
+        { "context": "step", "xhtml": "<ol><li>Compare the options.<table><tr><td>A</td><td>B</td></tr></table></li></ol>" }
+      ],
+      "good": [
+        { "context": "table", "xhtml": "<table><tr><th>Name</th><th>Amount</th></tr><tr><td>Rent</td><td>900</td></tr></table>" },
+        { "context": "step", "xhtml": "<ol><li>Compare the options.<table><tr><th>A</th><th>B</th></tr><tr><td>1</td><td>2</td></tr></table></li></ol>" }
+      ]
+    },
+    {
+      "rule": "Structure.LinkText",
+      "bad": [
+        { "context": "paragraph", "xhtml": "<p>For details, <a href=\"x.htm\">click here</a>.</p>" },
+        { "context": "step", "xhtml": "<ol><li>To learn more, <a href=\"x.htm\">here</a>.</li></ol>" },
+        { "context": "table-cell", "xhtml": "<table><tr><th>Topic</th></tr><tr><td><a href=\"x.htm\">Read more</a></td></tr></table>" },
+        { "context": "note", "xhtml": "<p class=\"note\">See <a href=\"x.htm\">this link</a>.</p>" },
+        { "context": "xref", "xhtml": "<p>See <MadCap:xref href=\"x.htm\">here</MadCap:xref>.</p>" }
+      ],
+      "good": [
+        { "context": "paragraph", "xhtml": "<p>See <a href=\"y.htm\">Payee limits</a>.</p>" },
+        { "context": "step", "xhtml": "<ol><li>Review <a href=\"y.htm\">the transfer limits</a> first.</li></ol>" },
+        { "context": "table-cell", "xhtml": "<table><tr><th>Topic</th></tr><tr><td><a href=\"y.htm\">Payee limits</a></td></tr></table>" },
+        { "context": "xref", "xhtml": "<p>See <MadCap:xref href=\"y.htm\">Payee limits</MadCap:xref>.</p>" }
+      ]
+    },
+    {
+      "rule": "Structure.HardCoded",
+      "bad": [
+        { "context": "paragraph-phone", "xhtml": "<p>Call 800-555-0100 for help.</p>" },
+        { "context": "step-phone", "xhtml": "<ol><li>Call 800-555-0100 to confirm.</li></ol>" },
+        { "context": "table-cell-phone", "xhtml": "<table><tr><th>Contact</th></tr><tr><td>800-555-0100</td></tr></table>" },
+        { "context": "note-phone", "xhtml": "<p class=\"note\">Support: (800) 555-0100.</p>" },
+        { "context": "paragraph-email", "xhtml": "<p>Write to help@bank.example for access.</p>" },
+        { "context": "step-email", "xhtml": "<ol><li>Email help@bank.example with your name.</li></ol>" },
+        { "context": "paragraph-url", "xhtml": "<p>Visit www.bank.example/help for answers.</p>" },
+        { "context": "table-cell-url", "xhtml": "<table><tr><th>Site</th></tr><tr><td>https://www.bank.example/help</td></tr></table>" }
+      ],
+      "good": [
+        { "context": "variable", "xhtml": "<p>Call <MadCap:variable name=\"General.SupportPhone\" /> for help.</p>" },
+        { "context": "link-text", "xhtml": "<p>Visit <a href=\"https://www.bank.example/help\">https://www.bank.example/help</a>.</p>" },
+        { "context": "code", "xhtml": "<p>Send the request to <code>https://api.bank.example/v1</code>.</p>" },
+        { "context": "pre", "xhtml": "<pre>curl https://api.bank.example/v1/accounts</pre>" },
+        { "context": "kbd", "xhtml": "<p>Press <kbd>800-555-0100</kbd>.</p>" },
+        { "context": "numbers", "xhtml": "<p>The limit is 5,000 dollars between 2024 and 2026.</p>" }
+      ]
+    }
+  ]
+}

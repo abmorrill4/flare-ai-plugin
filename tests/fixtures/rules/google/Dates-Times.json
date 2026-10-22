@@ -1,0 +1,321 @@
+[
+  {
+    "Id": "google:dates-times/7",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d+(?:\\s+-\\s*|\\s*-\\s+|\\s*[–—]\\s*)\\d+\\s+(?:seconds|minutes|hours|days|weeks|months|years)\\b"
+    ],
+    "Use": "",
+    "Example": "Wait 5 - 10 minutes before you retry.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Wait 5 - 10 minutes before you retry.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/17",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d{1,2}(?::\\d{2})?\\s?(?:AM|PM)\\s+(?:PST|PDT|PT|EST|EDT|ET|CST|CDT|CT|MST|MDT|MT|GMT|BST|CET|CEST|IST|JST|AEST)\\b"
+    ],
+    "Use": "",
+    "Example": "Maintenance starts at 10 AM PST.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Maintenance starts at 10 AM PST.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/26",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b(?:January|February|March|April|May|June|July|August|September|October|November|December),\\s\\d{4}\\b"
+    ],
+    "Use": "",
+    "Example": "She was hired in January, 2017.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "She was hired in January, 2017.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/31",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b(?:January|February|March|April|May|June|July|August|September|October|November|December) \\d{1,2}, \\d{4} (?=[a-z])"
+    ],
+    "Use": "",
+    "Example": "The January 19, 2017 release of the API added new methods.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The January 19, 2017 release of the API added new methods.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/33",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})\\b|\\b\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\b|\\b\\d{1,2}-\\d{1,2}-\\d{4}\\b"
+    ],
+    "Use": "",
+    "Example": "The release shipped on 12/02/2017.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The release shipped on 12/02/2017.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/38",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b(?:in|during) (?:the )?(?:spring|summer|fall|autumn|winter)\\b|\\b(?:in|during) the (?:Summer|Fall|Autumn|Winter)\\b|\\b(?:summer|winter) months\\b"
+    ],
+    "Use": "",
+    "Example": "Changes are released in the Fall of each year.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Changes are released in the Fall of each year.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/8",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d{1,2}(?::\\d{2})?\\s?(?:[ap]\\.?m\\b\\.?|[AP]\\.M\\.)"
+    ],
+    "Use": "",
+    "Example": "The backup runs at 3:45 pm.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The backup runs at 3:45 pm.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/27",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b(?:(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\\.\\s?\\d{1,2}\\b|(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\.,)"
+    ],
+    "Use": "",
+    "Example": "Mon., Sep. 3, 2018",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Mon., Sep. 3, 2018",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/9",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d{1,2}(?::\\d{2})?(?:AM|PM)\\b"
+    ],
+    "Use": "",
+    "Example": "The backup runs at 3:45PM.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The backup runs at 3:45PM.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/28",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\\s(?:January|February|March|April|June|July|August|September|October|November|December)\\b|\\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\\s(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\b"
+    ],
+    "Use": "",
+    "Example": "Mon, September 3, 2018",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Mon, September 3, 2018",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dates-times/10",
+    "Layer": "google",
+    "Page": "Dates-Times",
+    "Row": 5,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d{1,2}:00\\s?(?:AM|PM)\\b"
+    ],
+    "Use": "",
+    "Example": "The job runs at 3:00 PM.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The job runs at 3:00 PM.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

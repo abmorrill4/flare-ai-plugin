@@ -1,0 +1,374 @@
+[
+  {
+    "Id": "google:abbreviations/18",
+    "Layer": "google",
+    "Page": "Abbreviations",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "Abbreviations"
+    ],
+    "Avoid": [
+      "i.e.",
+      "e.g."
+    ],
+    "Use": "that is, for example",
+    "Example": "Use a short name, e.g. myapp.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Use a short name, e.g. myapp.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "i.e.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "I.e.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "I.E.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "e.g.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "E.g.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "E.G.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "That is, for example",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:abbreviations/21",
+    "Layer": "google",
+    "Page": "Abbreviations",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Abbreviations"
+    ],
+    "Avoid": [
+      "\\b\\d+x\\b(?=\\s+(?:faster|slower|more|less|larger|smaller|better|worse|higher|lower|bigger|greater|as)\\b)"
+    ],
+    "Use": "",
+    "Example": "Updating the software made throughput 10x faster.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Updating the software made throughput 10x faster.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:abbreviations/24",
+    "Layer": "google",
+    "Page": "Abbreviations",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "Abbreviations"
+    ],
+    "Avoid": [
+      "U.S.",
+      "U.K.",
+      "D.C."
+    ],
+    "Use": "US, UK, DC",
+    "Example": "The service is available in the U.S. only.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The service is available in the U.S. only.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "U.S.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "U.K.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "D.C.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "US, UK, DC",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:abbreviations/25",
+    "Layer": "google",
+    "Page": "Abbreviations",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Abbreviations"
+    ],
+    "Avoid": [
+      "\\b(?!(?:U\\.S\\.|U\\.K\\.|D\\.C\\.))(?:[A-Z]\\.){2,}(?![A-Za-z])"
+    ],
+    "Use": "",
+    "Example": "Contact the I.T. team for access.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Contact the I.T. team for access.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:abbreviations/28",
+    "Layer": "google",
+    "Page": "Abbreviations",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "Abbreviations"
+    ],
+    "Avoid": [
+      "an SQL",
+      "An SQL",
+      "an FHIR",
+      "An FHIR",
+      "a SAP",
+      "A SAP"
+    ],
+    "Use": "a SQL, A SQL, a FHIR, A FHIR, an SAP, An SAP",
+    "Example": "Run an SQL query against the table.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Run an SQL query against the table.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "an SQL",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "An SQL",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "an FHIR",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "A SQL, A SQL, a FHIR, A FHIR, an SAP, An SAP",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:abbreviations/19",
+    "Layer": "google",
+    "Page": "Abbreviations",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Abbreviations"
+    ],
+    "Avoid": [
+      "tl",
+      "dr",
+      "TL",
+      "DR",
+      "ymmv",
+      "YMMV",
+      "RTFM"
+    ],
+    "Use": "",
+    "Example": "tl;dr: restart the server.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "tl;dr: restart the server.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "tl",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "dr",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "TL",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:abbreviations/20",
+    "Layer": "google",
+    "Page": "Abbreviations",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "Abbreviations"
+    ],
+    "Avoid": [
+      "approx."
+    ],
+    "Use": "approximately",
+    "Example": "The job takes approx. 10 minutes.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The job takes approx. 10 minutes.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "approx.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Approx.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "APPROX.",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Approximately",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  }
+]

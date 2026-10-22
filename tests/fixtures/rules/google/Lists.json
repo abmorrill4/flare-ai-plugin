@@ -1,0 +1,31 @@
+[
+  {
+    "Id": "google:lists/36",
+    "Layer": "google",
+    "Page": "Lists",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Lists"
+    ],
+    "Avoid": [
+      ",\\s+(?:etc\\.|and so on\\b)"
+    ],
+    "Use": "",
+    "Example": "The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.",
+        "Expect": {
+          "clean": "paragraph, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "step, step-p, list"
+        }
+      }
+    ],
+    "Good": []
+  }
+]
