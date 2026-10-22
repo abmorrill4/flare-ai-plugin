@@ -8,7 +8,9 @@ House Style adds a **House Style** tab to MadCap Flare Desktop. Every edit it ma
    anything from inside the zip.
 2. Close Flare.
 3. Double-click **Install.cmd**. Say yes to the administrator prompt.
-4. It unblocks the files, finds your Flare, copies the plugin and prints what to do next.
+4. It unblocks the files, copies the plugin to `%LOCALAPPDATA%\HouseStyle`, links your Flare to it and prints what to
+   do next. The administrator prompt is needed only this first time: updates install by themselves when you close
+   Flare (House Style checks GitHub once a day; see the privacy page).
 5. Start Flare > **File > Options > Plugins > House Style > Enable**, then **restart Flare again**.
 6. **House Style > Settings**: paste your Anthropic API key, or the gateway virtual key you were given (set
    **Provider** to *Bifrost gateway* and enter the Base URL). Save.
@@ -27,6 +29,8 @@ folder and run `.\Install.ps1 -Flare 21` (use the folder number from the table b
 House Style is tested on Flare 2026. The plugin loads per Flare version, so install it into the one you open.
 
 ## Manual install (if Install.cmd does not work)
+
+A manual copy doesn't update itself: install each new version the same way.
 
 1. **Unblock first.** Right-click the zip > **Properties** > tick **Unblock** > OK, then unzip. Already unzipped?
    Run this in PowerShell: `Get-ChildItem <unzipped folder> -Recurse | Unblock-File`. Windows silently stops Flare

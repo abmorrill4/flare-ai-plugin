@@ -91,5 +91,8 @@ jobs:
           $zip = "dist/HouseStyle-${{ steps.v.outputs.version }}.zip"
           Remove-Item $zip -ErrorAction SilentlyContinue
           Compress-Archive -Path "$src/*" -DestinationPath $zip
+          # checksums.txt (sha256sum format): the plugin's self-update refuses a zip whose SHA-256 doesn't match (#101).
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path dist/checksums.txt -Value "$hash  $(Split-Path $zip -Leaf)" -Encoding Ascii
           $note = if ($src -eq 'dist/signed') { 'Signed by SignPath Foundation.' } else { 'Unsigned build: right-click the zip > Properties > Unblock before installing.' }
-          gh release create $env:GITHUB_REF_NAME $zip --title "House Style ${{ steps.v.outputs.version }}" --notes "$note`n`nInstall: see the README." --verify-tag
+          gh release create $env:GITHUB_REF_NAME $zip dist/checksums.txt --title "House Style ${{ steps.v.outputs.version }}" --notes "$note`n`nInstall: see the README." --verify-tag

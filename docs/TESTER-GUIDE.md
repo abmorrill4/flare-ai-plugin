@@ -7,12 +7,21 @@ Thanks for trying this. It adds a **House Style** tab to Flare Desktop with thre
 arrives as a **tracked change**, so you accept or reject it exactly like a reviewer's edit, and Ctrl+Z
 undoes it in one step.
 
-## Install (needs admin, or ask IT)
+## Install (needs admin once, or ask IT)
 **Main path:** unzip the whole download, close Flare, double-click **`Install.cmd`** and accept the administrator
-prompt. It unblocks the files, finds Flare, copies the plugin and prints the next steps. Then start Flare →
+prompt. It unblocks the files, copies the plugin to `%LOCALAPPDATA%\HouseStyle`, links Flare's `Plugins\FlareAI`
+folder to it (the only step that needs admin, and only the first time) and prints the next steps. Then start Flare →
 **File > Options > Plugins > House Style > Enable** → **restart Flare again** (two restarts in total).
 
 Several Flare versions? The installer picks the newest; run `.\Install.ps1 -Flare 21` to choose another.
+
+**Updates are automatic.** Once a day House Style asks GitHub whether there's a newer release (no text, key or
+identifier is sent; offline, it stays quiet). A notice offers **Update now** or **Later**. Update now downloads it,
+checks it against the release's SHA-256 checksum, and installs it when you close Flare, with no admin prompt. The next
+start opens **What's new**; if the install failed you stay on your version and a notice says why. **House Style >
+What's new** shows the notes again; **Diagnostics** shows your version and the last check. IT options:
+`Install.ps1 -Silent`, `-NoAutoUpdate` (writes `update-policy.json` with `{"autoUpdate": false}`), or `-NoJunction`
+(the old all-users copy in Program Files, no self-update; use it on machines several people sign in to).
 
 | Install folder | Flare version |
 |---|---|

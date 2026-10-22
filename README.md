@@ -35,6 +35,13 @@ relevant style rules go to the Anthropic API under your key, or, if you choose t
 to the gateway URL you enter under its virtual key. Nothing else is sent (no telemetry; nothing goes to the
 authors). Your key is stored with Windows DPAPI in `%APPDATA%\FlareAI\settings.json` and never logged.
 
+**Update check.** A per-user install (the `Install.cmd` default) asks GitHub once a day for the latest release
+(`api.github.com/repos/abmorrill4/flare-ai-plugin/releases/latest`; no text, key or identifier is sent). An update is
+downloaded only when the writer chooses **Update now**, verified against the release's `checksums.txt` (SHA-256) and,
+for signed releases, its Authenticode signature, then installed when Flare closes, with the previous version kept for
+rollback. Offline, the check fails silently. IT can turn it off with `update-policy.json` (`{"autoUpdate": false}`) in
+the plugin folder, `Install.ps1 -NoAutoUpdate`, or the all-users layout `Install.ps1 -NoJunction` (no self-update).
+
 ## Docs
 
 - User guide: `docs/user-guide` (a Flare project — open `FlareAI-Guide.flprj`).
