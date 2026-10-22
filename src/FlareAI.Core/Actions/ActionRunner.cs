@@ -46,6 +46,8 @@ namespace FlareAI.Core.Actions
         public string Prompt { get; set; }
         /// <summary>What the unit contains and the words it uses: selects the rules sent with it.</summary>
         public GuideScope Scope { get; set; }
+        /// <summary>The ids of the rules sent with the unit (the only ones it may cite); null = not checked.</summary>
+        public HashSet<string> Allowed { get; set; }
         /// <summary>The lint findings in the unit when it was prepared: their fixes, once applied, don't call for a new review (<see cref="ReviewCache"/>).</summary>
         public List<StyleFinding> Lint { get; set; }
     }
@@ -392,6 +394,7 @@ namespace FlareAI.Core.Actions
             // The model may cite only the rules it was given for this unit.
             HashSet<string> allowed = null;
             if (_style != null) try { allowed = new HashSet<string>(_style.RuleIdsFor(_project, unit.Scope), StringComparer.OrdinalIgnoreCase); } catch (Exception ex) { Diagnostics.Log("rule ids", ex); }
+            unit.Allowed = allowed;
             Contracts.KeepCitable(raw, allowed);
             return raw;
         }
@@ -421,6 +424,7 @@ namespace FlareAI.Core.Actions
                 f.Before = anchor.Before;
                 f.Block = anchor.Block;
                 Ground(f, rules);
+                PreferOwnLayer(f, unit.Allowed);
                 if (!Duplicates(f, lint ?? new List<StyleFinding>())) kept.Add(f);
             }
             return kept;
@@ -479,12 +483,14 @@ namespace FlareAI.Core.Actions
         private Dictionary<string, GuideRule> _rules;
         private Dictionary<string, GuideExample> _examples;
 
+        private List<GuideRule> _ruleList = new List<GuideRule>();
+
         private Dictionary<string, GuideRule> GuideRules()
         {
             if (_rules != null) return _rules;
             var map = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
             if (_style == null) return map;
-            try { foreach (var r in _style.Rules(_project)) map[r.Id] = r; _rules = map; }
+            try { var list = _style.Rules(_project).ToList(); foreach (var r in list) map[r.Id] = r; _ruleList = list; _rules = map; }
             catch (Exception ex) { Diagnostics.Log("guide rules", ex); }
             return map;
         }
@@ -613,6 +619,57 @@ namespace FlareAI.Core.Actions
                 SnippetUses[snippetPath] = n;
                 return n;
             }
+        }
+
+        private static readonly HashSet<string> Generic = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "rule", "rules", "guide", "style", "google", "company", "team", "word", "words", "list", "general", "writing", "write", "overrides",
+            "changes", "text", "content", "about", "other", "avoid", "using", "instead", "don't", "make", "when", "that", "this", "with", "your",
+            "from", "they", "them", "their", "have", "more", "than", "only", "such", "also", "each", "which", "what", "language", "documentation", "docs"
+        };
+
+        /// <summary>Content words of a title or rule, crudely stemmed ("claims" → "claim"), generic words left out.</summary>
+        private static HashSet<string> Stems(string text)
+        {
+            var set = new HashSet<string>(StringComparer.Ordinal);
+            foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches((text ?? "").ToLowerInvariant(), @"[a-z][a-z']{3,}"))
+            {
+                var w = m.Value;
+                if (Generic.Contains(w)) continue;
+                if (w.EndsWith("ies") && w.Length > 5) w = w.Substring(0, w.Length - 3) + "y";
+                else if (w.EndsWith("es") && w.Length > 5 && !w.EndsWith("ses")) w = w.Substring(0, w.Length - 2);
+                else if (w.EndsWith("s") && !w.EndsWith("ss")) w = w.Substring(0, w.Length - 1);
+                set.Add(w);
+            }
+            return set;
+        }
+
+        /// <summary>
+        /// A finding that cites a Google rule cites the team's rule instead when a later layer (company, team, personal,
+        /// project) has a rule on the same subject that was sent with the unit: that rule overrides Google's, and it is the
+        /// one the team wants named. Measured: 15 of 15 marketing claims cited Google's excessive-claims rule, not the team's
+        /// Claims rule. "Same subject": the two rules' pages or sections share a content word ("Excessive claims" / "Claims").
+        /// </summary>
+        private void PreferOwnLayer(StyleFinding f, ICollection<string> allowed)
+        {
+            GuideRule cited;
+            if (f.RuleId == null || !string.Equals(f.RuleLayer, GoogleLayer, StringComparison.OrdinalIgnoreCase) || !GuideRules().TryGetValue(f.RuleId, out cited)) return;
+            var subject = Stems(cited.Page + " " + cited.Section);
+            if (subject.Count == 0) return;
+            var rank = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var r in _ruleList) if (r.Layer != null && !rank.ContainsKey(r.Layer)) rank[r.Layer] = rank.Count;
+            GuideRule best = null;
+            foreach (var r in _ruleList)
+            {
+                if (r.IsLint || string.Equals(r.Layer, GoogleLayer, StringComparison.OrdinalIgnoreCase)) continue;
+                if (allowed != null && !allowed.Contains(r.Id)) continue;
+                if (!Stems(r.Page + " " + r.Section).Overlaps(subject)) continue;
+                if (IsTurnedOff(r.Id)) continue;
+                if (best == null || rank[r.Layer] > rank[best.Layer]) best = r;
+            }
+            if (best == null) return;
+            Diagnostics.Log("Review: cites " + best.Id + " (overrides " + f.RuleId + ")");
+            f.RuleId = best.Id; f.RuleLayer = best.Layer; f.RuleSection = best.Section; f.Link = best.Link;
         }
 
         /// <summary>Keeps a cited rule only if it exists in the guide; attaches its layer, section, and link.</summary>

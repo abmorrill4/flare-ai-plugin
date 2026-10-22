@@ -362,6 +362,24 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void Review_CitingGooglesRule_CitesTheCompanyRuleThatOverridesIt()
+        {
+            var engine = Bundled();
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>Our best-in-class transfer experience delights members, and you can choose the members who see your transfers.</p>");
+            var second = engine.Rules(null).First(r => r.Page == "Second person" && !r.IsLint && r.Applies.Count == 0 && r.Triggers.Count == 0).Id;
+            var llm = new FakeLlmClient(r => (@"[
+                {""rule_id"":""google:excessive-claims/5"",""rule"":""marketing claim"",""severity"":""warning"",""excerpt"":""best-in-class"",""replacement"":null,""why"":""Unverifiable claim.""},
+                {""rule_id"":""SECOND"",""rule"":""audience"",""severity"":""suggestion"",""excerpt"":""choose the members"",""replacement"":null,""why"":""x""}]").Replace("SECOND", second));
+            var runner = new ActionRunner(llm, PromptBuilder.For(engine, null), 1024, engine);
+            var found = runner.Review(new List<System.Xml.XmlNode> { p }, new List<StyleFinding>());
+            var claim = found.Single(f => f.Rule == "marketing claim");
+            Assert.Equal("company:claims/1", claim.RuleId);
+            Assert.Equal("company", claim.RuleLayer);
+            Assert.Equal(second, found.Single(f => f.Rule == "audience").RuleId);   // no team rule on that subject
+        }
+
+        [Fact]
         public void TeamCanChangeACacheLifetime()
         {
             var dir = Path.Combine(Path.GetTempPath(), "flareai-cache-" + Guid.NewGuid().ToString("N"));
