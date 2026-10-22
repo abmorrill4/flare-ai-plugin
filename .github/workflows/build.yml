@@ -32,7 +32,8 @@ jobs:
 
       - name: Guide publisher tests (mock Confluence, Windows PowerShell 5.1)
         shell: powershell
-        run: Invoke-Pester tests/publish-guide -EnableExit
+        # The tests use Pester 3.x syntax; runners also have Pester 5, which Invoke-Pester would pick by default.
+        run: Import-Module Pester -MaximumVersion 3.99 -Force; Invoke-Pester tests/publish-guide -EnableExit
 
       - name: Bench gate (lint only, offline)
         shell: pwsh
