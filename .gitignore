@@ -35,8 +35,11 @@ docs/user-guide/Output/
 **/Project/Users/
 *.flprjuser
 
-# agent worktrees
+# agent worktrees, per-machine Claude settings, chat handoff notes (see .claude/skills/handoff)
 .claude/worktrees/
+.claude/settings.local.json
+.claude/handoff/
+!.claude/settings.json
 
 # design tool working files
 .taste-skill/
