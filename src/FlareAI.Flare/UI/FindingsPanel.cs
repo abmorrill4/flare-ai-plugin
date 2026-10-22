@@ -184,15 +184,23 @@ namespace FlareAI.Flare.UI
             _list.ContextMenuStrip = BuildRowMenu();
 
             // The card: what, why, impact, and the decision.
-            var card = _card = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0) };
-            _cardHead = new Label { Dock = DockStyle.Top, AutoSize = false, Height = 34, Font = new Font(SystemFonts.MessageBoxFont, FontStyle.Bold) };
+            // Laid out by LayoutCard (not docking): heading, what changes, why, then the buttons, each measured at the card's
+            // width; when the pane is too short for all of it the card scrolls instead of stacking controls on each other.
+            var card = _card = new Panel { Dock = DockStyle.Fill };
+            // Vertical scrolling only: the parts are laid out to the card's width, so a horizontal bar is never needed (and
+            // left to AutoScroll the two bars can keep each other on screen).
+            card.HorizontalScroll.Maximum = 0;
+            card.HorizontalScroll.Enabled = false;
+            card.HorizontalScroll.Visible = false;
+            card.AutoScroll = true;
+            _cardHead = new Label { AutoSize = false, Height = 34, Font = new Font(SystemFonts.MessageBoxFont, FontStyle.Bold) };
             _cardDiff = DiffView.Create();
-            _cardDiff.Dock = DockStyle.Top; _cardDiff.Height = 64; _cardDiff.BackColor = SystemColors.Window;
+            _cardDiff.Height = 64; _cardDiff.BackColor = SystemColors.Window;
             _cardWhy = DiffView.Create();
-            _cardWhy.Dock = DockStyle.Fill; _cardWhy.BackColor = SystemColors.Control;
-            var actions = _actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
+            _cardWhy.BackColor = SystemColors.Control;
+            var actions = _actions = new FlowLayoutPanel { AutoSize = false, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             // A rule row's card: fix it everywhere, step through it, turn it off, or put it aside for now.
-            _ruleActions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0), Visible = false };
+            _ruleActions = new FlowLayoutPanel { AutoSize = false, WrapContents = true, Padding = new Padding(0, 4, 0, 0), Visible = false };
             _fixRule = Btn(_ruleActions, "Fix all…", (s, e) => _session.FixRule(CurrentRule()));
             _reviewRule = Btn(_ruleActions, "Review one by one", (s, e) => ReviewRule());
             _turnOffRule = Btn(_ruleActions, "Turn off rule…", (s, e) => _session.TurnOffRule(CurrentRule()));
@@ -211,11 +219,11 @@ namespace FlareAI.Flare.UI
             _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Safe.Run("Reject", () => _session.Reject("rule doesn't apply")));
             _rejectMenu.Items.Add(new ToolStripSeparator());
             _rejectMenu.Items.Add("Skip for now", null, (s, e) => Safe.Run("Skip", _session.Skip));
-            card.Controls.Add(_cardWhy);
-            card.Controls.Add(_cardDiff);
-            card.Controls.Add(_cardHead);
-            card.Controls.Add(actions);
+            card.Controls.Add(actions);   // in tab order: the decision first, then the text
             card.Controls.Add(_ruleActions);
+            card.Controls.Add(_cardHead);
+            card.Controls.Add(_cardDiff);
+            card.Controls.Add(_cardWhy);
 
             var split = _split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterWidth = 6, FixedPanel = FixedPanel.Panel2 };
             split.Panel1.Controls.Add(_list);
@@ -223,13 +231,13 @@ namespace FlareAI.Flare.UI
             _result = new TextBox { Dock = DockStyle.Bottom, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Height = 90, Visible = false, BackColor = SystemColors.Window };
             split.Panel1.Controls.Add(_result);
             split.Panel2.Controls.Add(card);
-            // The pane is laid out small first and grows; keep the card tall enough for its wrapped buttons whenever it does.
-            split.SizeChanged += (s, e) => FitCard();
-            actions.SizeChanged += (s, e) => { FitCard(); FitCardHead(); };
-            _ruleActions.SizeChanged += (s, e) => { FitCard(); FitCardHead(); };
-            actions.VisibleChanged += (s, e) => FitCardHead();
-            _ruleActions.VisibleChanged += (s, e) => FitCardHead();
-            card.SizeChanged += (s, e) => FitCardHead();
+            // The pane is laid out small first and grows: the card gets the height it needs (or the writer's, once they drag
+            // the splitter) and the list what's left; the card is laid out again whenever its size or content changes.
+            split.SizeChanged += (s, e) => SizeCard();
+            split.SplitterMoving += (s, e) => _draggingSplitter = true;
+            split.SplitterMoved += (s, e) => { if (_draggingSplitter && !_settingSplitter) _cardByWriter = split.Panel2.Height; _draggingSplitter = false; };
+            card.ClientSizeChanged += (s, e) => LayoutCard();
+            card.VisibleChanged += (s, e) => LayoutCard();
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; Start(); });
@@ -376,14 +384,15 @@ namespace FlareAI.Flare.UI
             foreach (var b in _buttons) FitButton(b);
             FitLabel(_status, 2); FitLabel(_notice, 0); FitLabel(_aiOffNote, 0); FitLabel(_cost, 0);
             UpdateWidthTip();
-            FitCardHead();
+            LayoutCard();
         }
 
         /// <summary>One line when it fits, else the full width with the text wrapped: a button never runs past the pane's edge.</summary>
         private void FitButton(Button b)
         {
             var bar = b.Parent;
-            var width = ClientSize.Width - Padding.Horizontal - (bar != null ? bar.Padding.Horizontal : 0);
+            var outer = _card != null && bar != null && bar.Parent == _card && _cardWidth > 0 ? _cardWidth : ClientSize.Width - Padding.Horizontal;
+            var width = outer - (bar != null ? bar.Padding.Horizontal : 0);
             var available = width - b.Margin.Horizontal;
             const TextFormatFlags Flags = TextFormatFlags.NoPrefix;
             var text = (b.Text ?? "").Replace("&&", "\u0001").Replace("&", "").Replace("\u0001", "&");
@@ -402,7 +411,7 @@ namespace FlareAI.Flare.UI
             var text = string.IsNullOrEmpty(label.Text) ? " " : label.Text;
             var measured = TextRenderer.MeasureText(text, label.Font, new Size(w, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height;
             // A very long status ends with … (full text in its tooltip and for screen readers) so the list keeps its room.
-            var max = label == _status && Height > 0 ? Math.Min(Height / 4, label.Font.Height * 6) : 0;
+            var max = label == _status && Height > 0 ? Math.Min(Height / 5, label.Font.Height * 4) : 0;
             var h = PaneRows.LabelHeight(measured, label.Font.Height, minLines, max, Dpi) + label.Padding.Vertical;
             if (label.Height != h) label.Height = h;
         }
@@ -438,32 +447,107 @@ namespace FlareAI.Flare.UI
             _list.Focus();
         }
 
-        /// <summary>Grows the card (never shrinks it: the writer may have dragged it taller) to fit its heading, text and buttons.</summary>
-        private void FitCard()
-        {
-            if (_split == null || _card == null || _split.Height <= 0) return;
-            var buttons = (_actions.Visible ? _actions.Height : 0) + (_ruleActions.Visible ? _ruleActions.Height : 0);
-            var want = _card.Padding.Vertical + _cardHead.Height + S(DiffHeight) + S(70) + buttons;
-            var list = Math.Max(S(140), _split.Height / 3);   // the list keeps room for a few rows
-            var target = Math.Min(want, _split.Height - _split.SplitterWidth - list);
-            if (target < S(100) || _split.Panel2.Height >= target) return;
-            try { _split.SplitterDistance = _split.Height - target - _split.SplitterWidth; } catch (Exception) { }
-        }
-
-        /// <summary>The card's heading wraps at the card's width; the snippet line ("used in N topics") is never cut off.</summary>
-        private void FitCardHead()
-        {
-            if (_cardHead == null || _card == null || _actions == null || _ruleActions == null || _cardHead.Width <= 0) return;
-            var measured = TextRenderer.MeasureText(_cardHead.Text ?? "", _cardHead.Font, new Size(Math.Max(50, _cardHead.Width - S(4)), 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height;
-            var h = Math.Max(S(34), measured + S(6));
-            if (_cardHead.Height != h) _cardHead.Height = h;
-            // A short card (narrow pane, wrapped buttons) gives up diff height first, so the buttons are never covered.
-            var buttons = (_actions.Visible ? _actions.Height : 0) + (_ruleActions.Visible ? _ruleActions.Height : 0);
-            var diff = Math.Max(S(28), Math.Min(S(DiffHeight), _card.ClientSize.Height - _card.Padding.Vertical - h - buttons - S(24)));
-            if (_cardDiff.Height != diff) _cardDiff.Height = diff;
-        }
+        private bool _layingOutCard, _settingSplitter, _draggingSplitter;
+        private int _cardWanted;      // the height the card needs to show everything without scrolling
+        private int _cardByWriter;    // the card height the writer chose by dragging the splitter (0 = not yet)
 
         private const int DiffHeight = 64;   // logical px: the "what changes" box at full size
+
+        /// <summary>The buttons the card shows now: a suggestion's decision, a rule row's actions, or none.</summary>
+        private FlowLayoutPanel CardButtons()
+        {
+            if (!RuleRows) return _actions;
+            return CurrentRule() != null ? _ruleActions : null;
+        }
+
+        /// <summary>
+        /// Places the card's parts top to bottom at the card's width: the heading (wrapped), what changes (at least two
+        /// lines), the buttons (wrapped) and why (the rest, at least three lines). Nothing overlaps; a card too short for
+        /// all of it scrolls. Then asks the splitter for the height the card needs.
+        /// </summary>
+        private void LayoutCard()
+        {
+            if (_card == null || _actions == null || _ruleActions == null || _cardWhy == null || _layingOutCard) return;
+            // Sized from the card's outer width, not its client width: whether the scroll bar shows depends on the height, and
+            // the height the card asks for must not depend on the scroll bar (or the two would chase each other).
+            var full = _card.Width;
+            if (full <= 0) return;
+            var total = 0;
+            _layingOutCard = true;
+            try
+            {
+                var flow = CardButtons();
+                var diffMin = 2 * _cardDiff.Font.Height + S(8);
+                var diffFull = Math.Max(diffMin, S(DiffHeight));
+                var whyMin = 3 * _cardWhy.Font.Height + S(6);
+                var top = S(6); var gap = S(4);
+                int head, buttons;
+                MeasureCard(flow, full, out head, out buttons);
+                var whyText = TextRenderer.MeasureText(string.IsNullOrEmpty(_cardWhy.Text) ? " " : _cardWhy.Text, _cardWhy.Font, new Size(Math.Max(20, full - S(10)), 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height + S(8);
+                _cardWanted = top + head + diffFull + PaneRows.Clamp(whyText, whyMin, S(160)) + buttons + 3 * gap;
+                var w = full;
+                var parts = PaneRows.CardLayout(_card.Height, top, head, buttons, diffMin, diffFull, whyMin, gap);
+                if (parts[2] > _card.Height)   // it will scroll: lay out beside the scroll bar
+                {
+                    w = Math.Max(20, full - SystemInformation.VerticalScrollBarWidth);
+                    MeasureCard(flow, w, out head, out buttons);
+                    parts = PaneRows.CardLayout(_card.Height, top, head, buttons, diffMin, diffFull, whyMin, gap);
+                }
+                int diff = parts[0], why = parts[1];
+                var y = top + _card.AutoScrollPosition.Y;   // ≤ 0 when the card is scrolled
+                // The decision comes right after what changes: in a short pane the why text is what scrolls, not the buttons.
+                _cardHead.SetBounds(0, y, w, head); y += head + gap;
+                _cardDiff.SetBounds(0, y, w, diff); y += diff + gap;
+                if (flow != null) { flow.SetBounds(0, y, w, buttons); y += buttons + gap; }
+                _cardWhy.SetBounds(0, y, w, why);
+                total = parts[2];
+            }
+            finally { _layingOutCard = false; }
+            // Tell the card how tall its content is: it shows the scroll bar exactly when that is more than it has.
+            if (total > 0 && _card.AutoScrollMinSize.Height != total) _card.AutoScrollMinSize = new Size(0, total);
+            if (total > 0 && (total > _card.Height) != _card.VerticalScroll.Visible) _card.PerformLayout();
+            // Not now: this often runs inside the card's own resize, where a new splitter position doesn't resize the card.
+            if (!_sizeCardPosted && IsHandleCreated && !IsDisposed)
+            {
+                _sizeCardPosted = true;
+                BeginInvoke((Action)(() => { _sizeCardPosted = false; if (!IsDisposed) SizeCard(); }));
+            }
+        }
+
+        private bool _sizeCardPosted;
+        private int _cardWidth;   // the width the card's buttons were last fitted to
+
+        /// <summary>Fits the card's buttons to <paramref name="w"/> and measures the heading and the button rows at that width.</summary>
+        private void MeasureCard(FlowLayoutPanel flow, int w, out int head, out int buttons)
+        {
+            _cardWidth = w;
+            if (flow != null) foreach (Control c in flow.Controls) { var b = c as Button; if (b != null) FitButton(b); }
+            var headText = string.IsNullOrEmpty(_cardHead.Text) ? " " : _cardHead.Text;
+            head = TextRenderer.MeasureText(headText, _cardHead.Font, new Size(Math.Max(20, w - S(4)), 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height + S(6);
+            buttons = flow == null ? 0 : flow.GetPreferredSize(new Size(w, 0)).Height;
+        }
+
+        /// <summary>The card gets the height it needs (or the writer's, once they dragged the splitter); the list gets what's left, at least a row.</summary>
+        private void SizeCard()
+        {
+            if (_split == null || _split.Height <= 0 || _cardWanted <= 0 || _settingSplitter) return;
+            // Moving the splitter re-lays the card out, which can change what it needs (a new width wraps the buttons
+            // differently): go again until it settles.
+            for (var pass = 0; pass < 3; pass++)
+            {
+                var wanted = _cardWanted;
+                var row = _list.SmallImageList != null ? _list.SmallImageList.ImageSize.Height : _list.Font.Height + S(6);
+                var listMin = _list.Font.Height + S(10) + row + S(4);   // the header and one row
+                var target = PaneRows.CardHeight(wanted, _cardByWriter, _split.Height, _split.SplitterWidth, listMin);
+                var distance = _split.Height - target - _split.SplitterWidth;
+                if (distance < _split.Panel1MinSize || Math.Abs(_split.SplitterDistance - distance) <= 1) return;
+                _settingSplitter = true;
+                try { _split.SplitterDistance = distance; _split.Panel2.PerformLayout(); }
+                catch (Exception) { return; }
+                finally { _settingSplitter = false; }
+                if (_cardWanted == wanted) return;
+            }
+        }
 
         /// <summary>
         /// One column of wrapped rows when the list is narrow, two one-line columns when it is wide; the row height follows
@@ -841,7 +925,6 @@ namespace FlareAI.Flare.UI
         private void ShowRuleCard(BacklogRule r)
         {
             _cardHead.Text = A11y.SeverityLabel(r.Severity) + "  ·  " + r.Title + "\n" + r.Counts();
-            FitCardHead();
             var shown = 0;
             foreach (var f in r.Findings)
             {
@@ -1036,7 +1119,7 @@ namespace FlareAI.Flare.UI
                     : "In " + System.IO.Path.GetFileName(f.DocumentPath);
             _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  applied" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
-            FitCardHead();   // grow to fit: the snippet line ("used in N topics") must never be cut off
+
             _list.AccessibleDescription = (_cardHead.Text + ". " + f.Suggestion).Replace("\n", " ");   // what a screen reader says for the selected row
 
             // What: the words around it, and the change marked.
@@ -1327,6 +1410,7 @@ namespace FlareAI.Flare.UI
             _ignoreTip.SetToolTip(_ignore, request
                 ? "Ask the style guide owners to turn off or change the selected rule, or to make an exception for this project. They decide; you see the answer on your next check."
                 : "Turn the selected rule off, or change its level, for the whole team or just this project.");
+            LayoutCard();   // the selection, the card's text or a button's label changed
         }
 
         // ---- IReviewHost: dialogs and documents for the session ---------------------------------

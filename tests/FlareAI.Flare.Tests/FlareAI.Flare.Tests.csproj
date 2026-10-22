@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The plugin's WinForms panes driven for real (a hidden window, a scripted LLM, the fake Flare editor): layout checks
+    that need the actual controls, such as the review pane at Flare's narrow docked width. Nothing here touches Flare's
+    own DLLs (B3.*): only the plugin's UI classes that don't use them.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>FlareAI.Flare.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+    <ProjectReference Include="..\..\src\FlareAI.Flare\FlareAI.Flare.csproj" />
+    <ProjectReference Include="..\FlareAI.TestKit\FlareAI.TestKit.csproj" />
+  </ItemGroup>
+
+</Project>

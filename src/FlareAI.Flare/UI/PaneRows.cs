@@ -79,6 +79,32 @@ namespace FlareAI.Flare.UI
             return h;
         }
 
+        public static int Clamp(int value, int min, int max) { return Math.Max(min, Math.Min(max, value)); }
+
+        /// <summary>
+        /// The card's parts in a card <paramref name="cardHeight"/> tall: what changes gets its full height when there is room,
+        /// shrinking to <paramref name="diffMin"/> (two lines) before why goes under <paramref name="whyMin"/>; why takes the rest.
+        /// Returns { diff, why, total }: the parts stack heading, diff, buttons, why with <paramref name="gap"/> between them, so
+        /// nothing overlaps; a total above <paramref name="cardHeight"/> means the card scrolls.
+        /// </summary>
+        public static int[] CardLayout(int cardHeight, int top, int head, int buttons, int diffMin, int diffFull, int whyMin, int gap)
+        {
+            var remaining = cardHeight - top - head - buttons - 3 * gap;
+            var diff = Clamp(remaining - whyMin, diffMin, Math.Max(diffMin, diffFull));
+            var why = Math.Max(whyMin, remaining - diff);
+            return new[] { diff, why, top + head + gap + diff + gap + why + gap + buttons };
+        }
+
+        /// <summary>
+        /// The card's height under the list: what it needs (<paramref name="wanted"/>) or what the writer dragged it to
+        /// (<paramref name="byWriter"/>, 0 = never), leaving the list at least <paramref name="listMin"/>; never under 25 px.
+        /// </summary>
+        public static int CardHeight(int wanted, int byWriter, int splitHeight, int splitterWidth, int listMin)
+        {
+            var room = splitHeight - splitterWidth - listMin;
+            return Math.Max(25, Math.Min(byWriter > 0 ? byWriter : wanted, room));
+        }
+
         /// <summary>
         /// Wraps <paramref name="text"/> into at most <paramref name="maxLines"/> lines no wider than <paramref name="maxWidth"/>
         /// (as <paramref name="measure"/> says): breaks between words, splits a word only when it is wider than a line, and ends
