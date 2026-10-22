@@ -460,7 +460,7 @@ namespace FlareAI.Core.Actions
             return _host.Confirm(BatchPlan.SnippetQuestion(f.DocumentPath, SnippetUses(f.DocumentPath)) + "\n\nThe change is tracked.", null);
         }
 
-        /// <summary>Make Automatic Changes: exact rule fixes as tracked changes; a batch that reaches another file is previewed first.</summary>
+        /// <summary>Fix All: exact rule fixes as tracked changes; a batch that reaches another file is previewed first.</summary>
         public void FixAll()
         {
             FixBatch(FixAllCandidates(), false);
@@ -623,7 +623,7 @@ namespace FlareAI.Core.Actions
             var todo = WriteAllCandidates();
             if (todo.Count == 0) return;
             if (!_host.Confirm("Make " + Plural.Of(todo.Count, "change") + " in the topic as tracked changes?\n\n" +
-                    "You can accept them on the Review tab. One Ctrl+Z undoes them all.", "Make All Changes")) return;
+                    "You can accept them on the Review tab. One Ctrl+Z undoes them all.", "Change All Issues")) return;
             var n = Apply(todo, "House Style: " + Plural.Of(todo.Count, "change"));
             foreach (var f in todo) if (f.IsFixed) RecordFeedback(f, _doc.SourcePath, "proposed", "bulk");
             Status = Summary() + "  Made " + Plural.Of(n, "tracked change") + ". Accept them on the Review tab. Issues that need you are still listed.";
@@ -832,7 +832,7 @@ namespace FlareAI.Core.Actions
         public string RuleChangeLabel()
         {
             var team = CurrentTeam();
-            return team != null && team.ChangesNeedRequest ? "Request Change…" : "Disable Rule…";
+            return team != null && team.ChangesNeedRequest ? "Request Rule Change…" : "Disable Rule…";
         }
 
         /// <summary>
@@ -953,7 +953,7 @@ namespace FlareAI.Core.Actions
             catch (Exception ex)
             {
                 Diagnostics.Log("Send request", ex);
-                _host.ShowError("House Style couldn't send your request.", ex.Message + Environment.NewLine + Environment.NewLine + "Your reason: " + reason, ex, "Request Change");
+                _host.ShowError("House Style couldn't send your request.", ex.Message + Environment.NewLine + Environment.NewLine + "Your reason: " + reason, ex, "Request Rule Change");
                 return;
             }
             RecordFeedback(f, _doc.SourcePath, "request", reason);
@@ -965,7 +965,7 @@ namespace FlareAI.Core.Actions
             if (problem != null)
             {
                 _host.ShowError("Your request is saved but not sent yet (" + problem + ").",
-                                "House Style sends it the next time you lint, once the requests folder is available. Check the team feedback folder in Settings.", null, "Request Change");
+                                "House Style sends it the next time you lint, once the requests folder is available. Check the team feedback folder in Settings.", null, "Request Rule Change");
                 Status = Summary() + "  Request saved. It's sent the next time you lint.";
                 return;
             }

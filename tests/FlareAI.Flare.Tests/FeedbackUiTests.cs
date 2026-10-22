@@ -212,7 +212,7 @@ namespace FlareAI.Flare.Tests
                 {
                     var list = All(panel).OfType<ListView>().Single();
                     var rowMenu = list.ContextMenuStrip.Items.Cast<ToolStripItem>().Select(i => i.Text).ToList();
-                    Assert.Equal(new[] { "Go to", "Open file", "Copy file path", "", FindingsPanel.ReportFalsePositiveLabel }, rowMenu.ToArray());
+                    Assert.Equal(new[] { "Go To", "Open File", "Copy File Path", "", FindingsPanel.ReportFalsePositiveLabel }, rowMenu.ToArray());
                     var ignore = (ContextMenuStrip)typeof(FindingsPanel).GetField("_rejectMenu", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(panel);
                     Assert.Equal(FindingsPanel.ReportFalsePositiveLabel, ignore.Items.Cast<ToolStripItem>().Last().Text);
                     Assert.Equal("Report False Positive…", FindingsPanel.ReportFalsePositiveLabel);

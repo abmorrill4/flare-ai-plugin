@@ -254,7 +254,7 @@ namespace FlareAI.Scenarios.Rules
                 var before = Files.Snapshot(t.Guide);
                 t.Fx.Check();
                 var f = t.Choose(EMail);
-                Assert.Equal("Request Change…", t.Fx.Session.RuleChangeLabel());
+                Assert.Equal("Request Rule Change…", t.Fx.Session.RuleChangeLabel());
                 t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Members write e-mail." };
 
                 t.Fx.Session.TurnOffRule();

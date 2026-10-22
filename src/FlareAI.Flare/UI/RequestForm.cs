@@ -32,7 +32,7 @@ namespace FlareAI.Flare.UI
 
         private RequestForm(RequestQuestion q, bool choices)
         {
-            Text = "House Style — Request Change";
+            Text = "House Style — Request Rule Change";
             StartPosition = FormStartPosition.CenterParent; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
             Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;

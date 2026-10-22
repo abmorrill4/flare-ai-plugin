@@ -89,7 +89,7 @@ namespace FlareAI.Flare.UI
             _prompts.Click += (s, e) => CustomizePrompts();
             _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject, _isDefault)) f.ShowDialog(this); };
             bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff, rules, _withdraw, _decide });
-            if (Requesting) _draft.Text = "Request Change…";
+            if (Requesting) _draft.Text = "Request Rule Change…";
             var tips = new ToolTip();
             tips.SetToolTip(rules, Commands.Rules.Tooltip);
             tips.SetToolTip(_turnedOff, "See every disabled or changed rule, with who changed it, when and why.");

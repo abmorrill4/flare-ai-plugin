@@ -156,8 +156,8 @@ namespace FlareAI.Flare.UI
             _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, Height = 36, Text = "Linting…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
-            _acceptAll = Btn(triage, "Make Automatic Changes", (s, e) => { if (_files != null) _session.FixAllAutomatic(); else _session.FixAll(); });
-            _bulk = Btn(triage, "Make All Changes", (s, e) => _session.WriteAll());
+            _acceptAll = Btn(triage, "Fix All", (s, e) => { if (_files != null) _session.FixAllAutomatic(); else _session.FixAll(); });
+            _bulk = Btn(triage, "Change All Issues", (s, e) => _session.WriteAll());
             _stop = Btn(triage, "Stop AI Review", (s, e) => StopReview());
             _stop.Visible = false;
             _batchStop = Btn(triage, "Stop after this file", (s, e) =>
@@ -283,10 +283,10 @@ namespace FlareAI.Flare.UI
             tips.SetToolTip(_refine, "Ask the AI for a different suggestion.");
             tips.SetToolTip(_reanalyze, "Lint this paragraph again.");
             tips.SetToolTip(_rule, "Open this rule's page in the style guide.");
-            tips.SetToolTip(_bulk, "Make every change that has exact text, including AI wording.");
+            tips.SetToolTip(_bulk, "Make every change in this topic, including AI rewording.");
             tips.SetToolTip(_acceptAll, "Make every automatic change in this topic.");
             tips.SetToolTip(_stop, "Stop the AI review. The issues found so far stay.");
-            if (files != null) tips.SetToolTip(_acceptAll, "Make every automatic change in every file. You see the files first.");
+            if (files != null) tips.SetToolTip(_acceptAll, "Make every automatic change in this project.");
             tips.SetToolTip(_batchStop, "Stop before the next file.");
             tips.SetToolTip(_byRule, "List one row per rule, most frequent first.");
             tips.SetToolTip(_byFile, "List every issue, file by file.");
@@ -843,9 +843,9 @@ namespace FlareAI.Flare.UI
         private ContextMenuStrip BuildRowMenu()
         {
             var menu = new ContextMenuStrip();
-            var goTo = menu.Items.Add("Go to", null, (s, e) => Safe.Run("Go to", () => _session.GoToCurrent()));
-            var open = menu.Items.Add("Open file", null, (s, e) => Safe.Run("Open file", () => _session.OpenFileOfCurrent()));
-            menu.Items.Add("Copy file path", null, (s, e) => Safe.Run("Copy file path", () =>
+            var goTo = menu.Items.Add("Go To", null, (s, e) => Safe.Run("Go To", () => _session.GoToCurrent()));
+            var open = menu.Items.Add("Open File", null, (s, e) => Safe.Run("Open File", () => _session.OpenFileOfCurrent()));
+            menu.Items.Add("Copy File Path", null, (s, e) => Safe.Run("Copy File Path", () =>
             {
                 var path = _session.FilePathOf(Current());
                 if (path == null) return;
@@ -1425,11 +1425,11 @@ namespace FlareAI.Flare.UI
         {
             switch (f.Kind)
             {
-                case "mechanical": return "Automatic";
-                case "wording": return "Wording";
+                case "mechanical": return "Auto-fix";
+                case "wording": return "Needs you";
                 case "variable": return "Needs you";
                 case "manual": return "Needs you";
-                default: return "Wording";
+                default: return "Needs you";
             }
         }
 
@@ -1675,18 +1675,18 @@ namespace FlareAI.Flare.UI
             if (_files != null)
             {
                 var auto = _session.AutomaticCandidates().Count;
-                _acceptAll.Text = "Make Automatic Changes (" + auto + ")…";
+                _acceptAll.Text = "Fix All (" + auto + ")…";
                 _acceptAll.Enabled = auto > 0 && !busy;
                 _bulk.Visible = false;
             }
             else
             {
                 var mech = _session.FixAllCandidates().Count;
-                _acceptAll.Text = "Make Automatic Changes (" + mech + ")";
+                _acceptAll.Text = "Fix All (" + mech + ")";
                 _acceptAll.Enabled = mech > 0;
             }
             var exact = _session.WriteAllCandidates().Count;
-            _bulk.Text = "Make All Changes (" + exact + ")";
+            _bulk.Text = "Change All Issues (" + exact + ")";
             _bulk.Enabled = exact > 0 && _files == null;
             _recheck.Enabled = !_reviewing && !busy;
             var r = CurrentRule();
@@ -1702,11 +1702,11 @@ namespace FlareAI.Flare.UI
                 _fixRule.AccessibleName = n == 0 ? "Change All" : "Change All " + n;
             }
             var request = Team.Current != null && Team.Current.ChangesNeedRequest;
-            _turnOffRule.Text = request ? "Request Change…" : "Disable Rule…";
+            _turnOffRule.Text = request ? "Request Rule Change…" : "Disable Rule…";
             _turnOffRule.AccessibleName = _turnOffRule.Text.TrimEnd('…');
             _ignore.Text = _session.RuleChangeLabel();
             _ignore.AccessibleName = _ignore.Text.TrimEnd('…');
-            var ruleTip = request ? "Ask the style guide owners to disable or change this rule." : "Stop linting for this rule.";
+            var ruleTip = request ? "Ask the style guide owners to change this rule." : "Stop linting for this rule.";
             _ignoreTip.SetToolTip(_ignore, ruleTip);
             _ignoreTip.SetToolTip(_turnOffRule, ruleTip);
             LayoutCard();   // the selection, the card's text or a button's label changed

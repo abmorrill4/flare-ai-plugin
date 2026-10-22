@@ -18,7 +18,7 @@ namespace FlareAI.Core.Settings
     {
         /// <summary>A topic was linted (Lint Topic, or the pane following the open topic).</summary>
         TopicLinted,
-        /// <summary>An issue was changed in the topic (Change, Change All, Make Automatic Changes).</summary>
+        /// <summary>An issue was changed in the topic (Change, Change All, Fix All).</summary>
         Changed,
         /// <summary>A change was undone in the editor (Ctrl+Z) and its issue is back.</summary>
         Undone,

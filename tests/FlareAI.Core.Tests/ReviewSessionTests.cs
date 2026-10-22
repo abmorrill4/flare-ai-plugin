@@ -347,7 +347,7 @@ namespace FlareAI.Core.Tests
 
             s.WriteAll();
 
-            Assert.Equal("Make All Changes", _host.ConfirmActions.Single());
+            Assert.Equal("Change All Issues", _host.ConfirmActions.Single());
             Assert.Empty(_topic.TextOperations);
         }
 

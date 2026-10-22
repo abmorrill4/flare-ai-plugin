@@ -195,7 +195,7 @@ namespace FlareAI.Flare.Tests
         {
             where += "(card " + card.ClientSize + ", split " + split.Height + ", list " + list.Height + ", head " + head.Bounds + ", diff " + diff.Bounds +
                      ", buttons " + decision.Bounds + ", why " + why.Bounds + ") ";
-            Assert.Contains("Wording", head.Text);
+            Assert.Contains("Needs you", head.Text);
             Assert.True(head.Top >= 0 && head.Height >= head.Font.Height, where + "the heading is hidden");
             Assert.True(head.Bottom <= diff.Top, where + "the heading overlaps what changes");
             Assert.True(diff.Height >= 2 * diff.Font.Height, where + "what changes is " + diff.Height + " px");
