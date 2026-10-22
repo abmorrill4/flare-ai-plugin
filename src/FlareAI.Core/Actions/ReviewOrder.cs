@@ -50,7 +50,7 @@ namespace FlareAI.Core.Actions
                 f.Order = block != null && index.TryGetValue(block, out bi)
                     ? bi * 100000000L + (found && runOrder.TryGetValue(run, out ri) ? ri * 10000L + start : 0)
                     : long.MaxValue / 4;
-                f.IsStale = !found && !f.IsFixed;
+                f.IsStale = (!found && !f.IsFixed) || f.ContextChanged;
             }
         }
 

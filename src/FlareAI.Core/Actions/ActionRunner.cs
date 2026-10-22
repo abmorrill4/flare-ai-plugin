@@ -695,7 +695,7 @@ namespace FlareAI.Core.Actions
                         var f = item.Key;
                         XmlText run; int start;
                         if (!FindingLocator.TryLocate(doc.Document, f, out run, out start)) { f.IsStale = true; continue; }
-                        if (doc.ReplaceSpan(run, start, f.Excerpt.Length, f.Replacement)) { f.IsFixed = true; applied++; }
+                        if (doc.ReplaceSpan(run, start, f.Excerpt.Length, f.Replacement)) { f.IsFixed = true; f.Written = true; applied++; }
                     }
                 });
             Diagnostics.Log("Applied " + operationName + ": " + applied + "/" + todo.Count + " text fix(es)");

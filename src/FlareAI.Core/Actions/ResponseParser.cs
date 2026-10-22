@@ -52,6 +52,10 @@ namespace FlareAI.Core.Actions
         [Newtonsoft.Json.JsonIgnore] public long Order { get; set; }
         /// <summary>The text the finding quotes is no longer in the document (edited since the review).</summary>
         [Newtonsoft.Json.JsonIgnore] public bool IsStale { get; set; }
+        /// <summary>An applied fix was taken back (Ctrl+Z) but the text around it changed too: stays stale until the paragraph is checked again.</summary>
+        [Newtonsoft.Json.JsonIgnore] public bool ContextChanged { get; set; }
+        /// <summary>Its replacement was written into the document by Apply (so the document can take it back).</summary>
+        [Newtonsoft.Json.JsonIgnore] public bool Written { get; set; }
         /// <summary>The writer asked the style guide owners to change this finding's rule and is waiting for an answer ("Request sent").</summary>
         [Newtonsoft.Json.JsonIgnore] public bool RequestSent { get; set; }
 

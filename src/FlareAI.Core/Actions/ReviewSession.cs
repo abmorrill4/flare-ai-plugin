@@ -144,6 +144,7 @@ namespace FlareAI.Core.Actions
         public void RefreshLint(List<StyleFinding> lint)
         {
             if (_project) return;
+            RecheckApplied();   // an undone fix is live again, so the fresh lint below replaces it instead of duplicating it
             _findings.RemoveAll(f => f.Source != "ai" && f.DocumentPath == null && !f.IsFixed);
             Add(lint);
         }
@@ -216,6 +217,7 @@ namespace FlareAI.Core.Actions
         /// <summary>The author selected a row: a suggestion in the topic is selected in the editor too (quietly).</summary>
         public void OnSelected(StyleFinding f)
         {
+            if (f != null && f.IsFixed) RecheckApplied();
             Current = f;
             if (f != null && f.DocumentPath == null) GoTo(f, false);
         }
@@ -244,6 +246,65 @@ namespace FlareAI.Core.Actions
             return null;
         }
 
+        /// <summary>
+        /// Applied fixes the editor took back (Ctrl+Z, or Reject change in the Review tab): when the original text is
+        /// back where it was, the suggestion is live again; when it is back but its surroundings changed too, it shows
+        /// "Text changed: check this paragraph again". A fix whose text just isn't found stays applied (accepted, or
+        /// edited away on purpose), and so does one the writer left alone while editing elsewhere. One locate per applied
+        /// suggestion; called when the document changes, a row is selected or Apply is pressed. Returns how many changed.
+        /// </summary>
+        public int RecheckApplied()
+        {
+            var revived = 0; var stale = 0;
+            foreach (var f in _findings)
+            {
+                if (!f.IsFixed || !f.Written || f.Replacement == null || string.IsNullOrEmpty(f.Excerpt)) continue;
+                if (f.DocumentPath != null && !string.Equals(f.DocumentPath, _doc.SourcePath, StringComparison.OrdinalIgnoreCase)) continue;   // another file: not our DOM
+                XmlText run; int start; bool exact;
+                if (!FindingLocator.TryLocate(_doc.Document, f, out run, out start, out exact)) continue;
+                if (!exact && AppliedTextPresent(f)) continue;   // the same words elsewhere; our fix is still in place
+                f.IsFixed = false; f.Written = false;
+                f.IsStale = f.ContextChanged = !exact;
+                if (exact) revived++; else stale++;
+            }
+            if (revived + stale == 0) return 0;
+            Sort();
+            Status = stale > 0 ? "Text changed: check this paragraph again." : "That change was undone: the suggestion is back.";
+            return revived + stale;
+        }
+
+        /// <summary>The fix's new text, preceded by a few characters of its old context, is in the finding's paragraph.</summary>
+        private bool AppliedTextPresent(StyleFinding f)
+        {
+            var scope = new List<XmlNode>();
+            if (f.Block != null && TextRuns.BlockOf(f.Block) == f.Block) scope.Add(f.Block);
+            else { var body = BlockSelector.FindBody(_doc.Document); if (body != null) scope.Add(body); }
+            var sb = new System.Text.StringBuilder();
+            foreach (var r in TextRuns.Of(scope)) sb.Append(r.Value);
+            var before = f.Before ?? "";
+            var context = before.Length <= 12 ? before : before.Substring(before.Length - 12);
+            return sb.ToString().IndexOf(context + f.Replacement, StringComparison.Ordinal) >= 0;
+        }
+
+        // ---- files ------------------------------------------------------------------------------
+
+        /// <summary>The file a suggestion lives in: its snippet or topic, or the checked topic.</summary>
+        public string FilePathOf(StyleFinding f) { return f == null ? null : f.DocumentPath ?? _doc.SourcePath; }
+
+        /// <summary>Open file button and Shift+Enter: opens the selected suggestion's file in Flare without selecting text.</summary>
+        public IDocumentAdapter OpenFileOfCurrent() { return OpenFile(Current); }
+
+        /// <summary>Opens (or brings to the front) the file a suggestion lives in, without selecting text.</summary>
+        public IDocumentAdapter OpenFile(StyleFinding f)
+        {
+            var path = FilePathOf(f);
+            if (path == null) return null;
+            IDocumentAdapter doc = null;
+            try { doc = _host.OpenDocument(path); } catch (Exception ex) { Diagnostics.Log("OpenFile", ex); }
+            Status = doc == null ? "Could not open " + path : "Opened " + System.IO.Path.GetFileName(path) + ".";
+            return doc;
+        }
+
         /// <summary>Go to button and Ctrl+Enter: open the topic or snippet and select the flagged text.</summary>
         public void GoToCurrent()
         {
@@ -268,6 +329,7 @@ namespace FlareAI.Core.Actions
         public AcceptOutcome Accept()
         {
             var f = Current;
+            if (f != null && f.IsFixed) RecheckApplied();   // Ctrl+Z since: it may be live again
             if (f == null || f.IsFixed) return AcceptOutcome.None;
             if (f.IsStale) { Status = "Text changed: check this paragraph again."; return AcceptOutcome.Stale; }
             if (f.Kind == "variable")

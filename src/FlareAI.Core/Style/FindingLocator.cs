@@ -64,7 +64,17 @@ namespace FlareAI.Core.Style
         /// <summary>Finds the finding's text in the current DOM, preferring its original block and context.</summary>
         public static bool TryLocate(XmlDocument doc, StyleFinding f, out XmlText run, out int start)
         {
-            run = null; start = -1;
+            bool exact;
+            return TryLocate(doc, f, out run, out start, out exact);
+        }
+
+        /// <summary>
+        /// As the overload without it; <paramref name="exactContext"/> says the text before the excerpt is still what it was
+        /// (false: only the excerpt matched, once).
+        /// </summary>
+        public static bool TryLocate(XmlDocument doc, StyleFinding f, out XmlText run, out int start, out bool exactContext)
+        {
+            run = null; start = -1; exactContext = false;
             var blocks = new List<XmlNode>();
             if (f.Block != null && TextRuns.BlockOf(f.Block) == f.Block) blocks.Add(f.Block); // still attached
             else
@@ -80,7 +90,7 @@ namespace FlareAI.Core.Style
                 for (var i = r.Value.IndexOf(f.Excerpt, StringComparison.Ordinal); i >= 0;
                      i = r.Value.IndexOf(f.Excerpt, i + 1, StringComparison.Ordinal))
                 {
-                    if (Tail(r.Value.Substring(0, i)) == (f.Before ?? "")) { run = r; start = i; return true; }
+                    if (Tail(r.Value.Substring(0, i)) == (f.Before ?? "")) { run = r; start = i; exactContext = true; return true; }
                     occurrences++;
                     if (fallback == null) { fallback = r; fallbackAt = i; }
                 }
