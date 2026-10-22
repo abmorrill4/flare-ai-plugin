@@ -50,11 +50,15 @@ namespace FlareAI.Core.Tests
         {
             var style = new FakeStyleService();
             int now = 0, peak = 0;
+            var overlapped = new ManualResetEventSlim(false);
             var llm = new FakeLlmClient(r =>
             {
                 var n = Interlocked.Increment(ref now);
                 lock (style) peak = Math.Max(peak, n);
-                Thread.Sleep(60);
+                if (n > 1) overlapped.Set();
+                // Wait for a second call to be in flight, not a fixed sleep: CI runners have 2 cores and a thread pool that
+                // ramps up slowly, so a short sleep can finish before the next call starts. Sequential calls time out here.
+                overlapped.Wait(5000);
                 Interlocked.Decrement(ref now);
                 return r.User.Contains("Customers")
                     ? @"[{""rule_id"":""company:terminology/1"",""rule"":""members"",""severity"":""warning"",""excerpt"":""Customers"",""replacement"":""Members"",""why"":""x""}]"
