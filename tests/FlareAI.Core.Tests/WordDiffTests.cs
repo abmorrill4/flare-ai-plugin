@@ -71,11 +71,26 @@ namespace FlareAI.Core.Tests
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             doc.SelectXPath("//body/p[2]/text()");
-            var runner = Runner(new FakeLlmClient(r => "<revised><ul MadCap:conditions=\"Default.Print\"><li>Only in print.</li></ul></revised>"));
+            var runner = Runner(new FakeLlmClient(r => "<revised><p MadCap:conditions=\"Default.Print\">Only in print:</p><ul MadCap:conditions=\"Default.Print\"><li>output.</li></ul></revised>"));
             var proposal = runner.Restructure(doc, runner.PickBlocks(doc), null);
             Assert.Null(proposal.WordPlan);
+            Assert.Null(proposal.ApplyBlocked);
             Assert.Contains("paragraph-level", runner.Apply(doc, proposal, "x"));
             Assert.Single(doc.Replacements);
+        }
+
+        [Fact]
+        public void Restructure_ThatChangesTheElement_IsRefused()
+        {
+            // ReplaceDocumentNode keeps the target's element name (flare-api-notes), so p → ul would leave a <p> around the list (#111).
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            doc.SelectXPath("//body/p[2]/text()");
+            var runner = Runner(new FakeLlmClient(r => "<revised><ul MadCap:conditions=\"Default.Print\"><li>Only in print.</li></ul></revised>"));
+            var proposal = runner.Restructure(doc, runner.PickBlocks(doc), null);
+            Assert.True(proposal.Validation.IsValid);
+            Assert.Contains("turns a paragraph into a bulleted list", proposal.ApplyBlocked);
+            Assert.Throws<System.InvalidOperationException>(() => runner.Apply(doc, proposal, "x"));
+            Assert.Empty(doc.Replacements);
         }
 
         [Fact]

@@ -165,34 +165,49 @@ namespace FlareAI.Scenarios.Safety
             {
                 var proposal = fx.Runner.Restructure(fx.Doc, Blocks(fx, 1), "Make this a table.");
 
-                Assert.True(proposal.Validation.IsValid);
+                Assert.True(proposal.Validation.IsValid);                           // the condition stays on its row (#109)
                 Assert.Null(proposal.WordPlan);   // the structure changed: a paragraph-level change, not word edits
-
-                var summary = fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite");
-
-                Assert.Contains("paragraph-level", summary);
-                Assert.Equal(1, fx.Doc.UndoCount);
-                fx.Doc.AcceptAll();
-                var rows = fx.Doc.Document.SelectNodes("//tr").Cast<XmlElement>().ToList();
-                Assert.Equal(3, rows.Count);
+                var rows = proposal.ProposedBlocks[0].SelectNodes(".//tr").Cast<XmlElement>().ToList();
                 Assert.Equal(new[] { "", "Default.Print", "" }, rows.Select(r => r.GetAttribute("conditions", BlockSelector.MadCapNs)).ToArray());
                 Assert.Equal("Beta step", rows[1].InnerText);
+
+                // …but Flare can't turn a list into a table as a tracked change (#111): a clear refusal, never a broken topic.
+                Assert.Equal("House Style can't apply this edit: it turns a bulleted list into a table, and Flare can't make that change as a tracked change. " +
+                             "Make this change yourself, or ask for an edit that keeps a bulleted list.", proposal.ApplyBlocked);
+                Assert.Throws<InvalidOperationException>(() => fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite"));
+                Assert.Equal(fx.Original, fx.Doc.Xml);
+                Assert.Equal(0, fx.Doc.UndoCount);
             }
         }
 
-        [Fact(Skip = "Bug #111: a restructure that changes the block's element (list to table, paragraph to list) leaves the old tag around the new content, because ReplaceDocumentNode keeps the target element and copies only content and attributes.")]
-        public void Story13c_TheRestructuredListIsATopLevelTable_NotATableInsideTheOldList()
+        [Theory]
+        [InlineData("<h1>Steps</h1><ul><li>Alpha step</li><li>Beta step</li></ul>", "<table><tbody><tr><td>Alpha step</td></tr><tr><td>Beta step</td></tr></tbody></table>", "Make this a table.")]
+        [InlineData("<h1>Steps</h1><p>Open the app, then choose Settings.</p>", "<ul><li>Open the app.</li><li>Choose Settings.</li></ul>", "Make this a list.")]
+        [InlineData("<h1>Steps</h1><p>Open the app, then choose Settings.</p>", "<p>Do this:</p><ul><li>Open the app.</li><li>Choose Settings.</li></ul>", "Make this a list.")]
+        public void Story13c_ARestructureThatChangesTheElement_NeverLeavesTheOldTagAroundTheNewContent(string body, string answer, string instruction)
         {
-            var table = "<table><tbody><tr><td>Alpha step</td></tr><tr MadCap:conditions=\"Default.Print\"><td>Beta step</td></tr><tr><td>Gamma step</td></tr></tbody></table>";
-            var llm = new ScriptedLlmClient().When(r => r.Task == "restructure", ScriptedReview.Revised(table));
-            using (var fx = ReviewFixture.Scratch(ConditionalList, llm))
+            // #111: ReplaceDocumentNode keeps the target's element name (flare-api-notes). A changed first element is refused;
+            // a restructure that keeps it (p → p + ul) is applied, and every new block has its own element.
+            var llm = new ScriptedLlmClient().When(r => r.Task == "restructure", ScriptedReview.Revised(answer));
+            using (var fx = ReviewFixture.Scratch(body, llm))
             {
-                var proposal = fx.Runner.Restructure(fx.Doc, Blocks(fx, 1), "Make this a table.");
+                var proposal = fx.Runner.Restructure(fx.Doc, Blocks(fx, 1), instruction);
+                Assert.True(proposal.Validation.IsValid);
+                var keepsElement = proposal.ProposedBlocks[0].LocalName == Block(fx, 1).LocalName;
+
+                if (!keepsElement)
+                {
+                    Assert.Contains("Flare can't make that change as a tracked change", proposal.ApplyBlocked);
+                    Assert.Throws<InvalidOperationException>(() => fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite"));
+                    Assert.Equal(fx.Original, fx.Doc.Xml);
+                    return;
+                }
+                Assert.Null(proposal.ApplyBlocked);
                 fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite");
                 fx.Doc.AcceptAll();
-
-                Assert.Empty(fx.Doc.Document.SelectNodes("//ul").Cast<XmlNode>());
-                Assert.Equal("body", fx.Doc.Document.SelectSingleNode("//table").ParentNode.LocalName);
+                var top = BlockSelector.FindBody(fx.Doc.Document).ChildNodes.OfType<XmlElement>().Select(e => e.LocalName).ToArray();
+                Assert.Equal(new[] { "h1", "p", "ul" }, top);
+                Assert.Empty(fx.Doc.Document.SelectNodes("//p//ul").Cast<XmlNode>());
             }
         }
 

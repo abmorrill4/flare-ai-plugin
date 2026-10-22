@@ -54,7 +54,7 @@ header row, "click here", typed phone numbers and URLs). One shared snippet (`Le
 | B1 | Select a paragraph with `In order to` and `prior to`, **Rewrite selection**. | Result window with the changes marked; **Apply** gives word-level tracked changes; both phrases gone. |
 | B2 | Select a paragraph that contains a variable and a bold UI label, **Rewrite selection**. | The variable and the bold label are untouched. |
 | B3 | Select one step, **Ask…** "split this into two steps". | The result offers **Restructure instead…**; the restructured result is validated before you can apply it. |
-| B4 | Select a step list, **Ask…** "make this a table". | Either a valid restructure or a clear refusal; never a broken topic. |
+| B4 | Select a step list, **Ask…** "make this a table". | A clear refusal (Flare can't turn a list into a table as a tracked change; Apply is off and the window says why); never a broken topic. An answer that moves a condition to another item is "Rejected". |
 | B5 | Select a sentence with "should", **Ask…** "make this stronger". | A change from "should" to "must" isn't applied for you. |
 
 ## E. In the editor
