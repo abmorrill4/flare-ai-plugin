@@ -128,7 +128,7 @@ namespace FlareAI.Flare.Tests
                     Assert.True(list.Items[0].Font.Strikeout, where + "the applied row isn't struck through");
                     Assert.True(list.Items[1].Selected, where + "Change should move to the next issue");
                     Assert.True(apply.Enabled, where + "the next suggestion can be applied");
-                    Assert.Contains("In order to", list.Items[1].Text);
+                    Assert.Contains("Delete \"In order\"", list.Items[1].Text);   // "In order to" to "To" deletes two words
 
                     sim.Undo();                                                     // Ctrl+Z in the editor
                     panel.RecheckApplied();

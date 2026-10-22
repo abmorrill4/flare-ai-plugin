@@ -537,7 +537,7 @@ namespace FlareAI.Flare.UI
             {
                 var result = RuleChanges.Restore(_team, r, also, reason);
                 Reload(result.Requested ? Describe(result, true, null)
-                       : (toDefault ? "Back to the default" : "Enabled") + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "") + " (in " + result.File + "). It applies the next time you lint." +
+                       : (toDefault ? "Back to the default" : "Enabled") + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "") + ". It applies the next time you lint." +
                          (result.Incomplete != null ? " " + result.Incomplete : ""), r.Key);
             }
             catch (GuideWriteException ex) when (!r.ChangeIsProject && _team != null && _team.IsStrict && !_team.IsPersonal)
@@ -557,9 +557,10 @@ namespace FlareAI.Flare.UI
                     ? "Request sent to the style guide owners (" + _team.OwnerNames + "). The rule stays as it is until they decide."
                     : "Request saved but not sent yet (" + result.Problem + "). House Style sends it the next time you lint.";
             var what = (setting == "off" ? "Disabled" : "Set to " + Severity.Label(setting)) + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "");
-            var where = !forTeam ? " for this project (in " + result.File + ")."
-                      : _team != null && _team.IsPersonal ? " in your style guide (" + result.File + ")."
-                      : " for the team (in " + result.File + "). Commit it so everyone gets it.";
+            FlareAI.Core.Diagnostics.Log("Rules: " + setting + " written to " + result.File);
+            var where = !forTeam ? " for this project."
+                      : _team != null && _team.IsPersonal ? "."
+                      : " for the team. Commit the style guide so everyone gets it.";
             return what + where + " It applies the next time you lint." + (result.Incomplete != null ? " " + result.Incomplete : "");
         }
 

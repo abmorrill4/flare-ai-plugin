@@ -785,7 +785,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "google:words/2=off" }, _guideWrites);
             Assert.Equal(new[] { other }, s.Findings);
             Assert.Equal("rule ignored|We say it.|Google.WordList", _feedback.Single());
-            Assert.EndsWith("Rule disabled for the team (in " + Path.Combine(_root, "guide.htm") + "). Commit it so everyone gets it.", s.Status);
+            Assert.EndsWith("Rule disabled for the team. Commit the style guide so everyone gets it.", s.Status);
         }
 
         [Fact]
@@ -801,7 +801,7 @@ namespace FlareAI.Core.Tests
             s.TurnOffRule();
 
             Assert.True(_host.RulePersonal);
-            Assert.EndsWith("Rule disabled in your style guide (" + Path.Combine(_root, "guide.htm") + ").", s.Status);
+            Assert.EndsWith("Rule disabled.", s.Status);
         }
 
         [Fact]
@@ -818,7 +818,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Equal(new[] { "google:words/2=off by owner@example.com" }, _projectWrites);
             Assert.Empty(_guideWrites);
-            Assert.EndsWith("Rule disabled for this project (in " + ProjectRules.OverridesPath(_topicPath) + ").", s.Status);
+            Assert.EndsWith("Rule disabled for this project.", s.Status);
         }
 
         [Fact]
@@ -922,7 +922,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "google:words/2" }, _guideWrites);
             Assert.Equal("House Style couldn't change \"Our rules · Audience: Say members.\" in guide.htm.", _host.Errors.Single());
             Assert.Empty(s.Findings);
-            Assert.EndsWith("Rule disabled for the team (in guide.htm). Commit it so everyone gets it. 2 could not be changed.", s.Status);
+            Assert.EndsWith("Rule disabled for the team. Commit the style guide so everyone gets it. 2 could not be changed.", s.Status);
         }
 
         [Fact]

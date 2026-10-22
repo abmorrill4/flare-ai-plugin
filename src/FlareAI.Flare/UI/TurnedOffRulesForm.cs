@@ -123,7 +123,8 @@ namespace FlareAI.Flare.UI
             try
             {
                 var file = RuleOverrides.TurnBackOn(o, guide ? _team : null);   // a project's own exception: no owner needed
-                Reload((o.IsTurnOn ? "Back to the default " : "Enabled ") + o.RuleId + " (in " + file + "). It applies the next time you lint.");
+                FlareAI.Core.Diagnostics.Log("Disabled Rules: " + o.RuleId + " enabled in " + file);
+                Reload((o.IsTurnOn ? "Back to the default. " : "Enabled. ") + "It applies the next time you lint.");
             }
             catch (GuideWriteException ex) when (guide && _team != null && _team.IsStrict && !_team.IsPersonal)
             {

@@ -296,7 +296,9 @@ namespace FlareAI.Flare.UI
             _notice.TextChanged += (s, e) => FitLabel(_notice, 0);
             _notice.VisibleChanged += (s, e) => FitLabel(_notice, 0);
             _notice.LinkClicked += (s, e) => { var n = Toast.Last; if (n != null && n.Action != null) n.Action(); };
-            Toast.LastChanged += OnNoticeChanged;
+            // Static events: subscribed while the pane has a window. Flare can destroy and recreate the handle when it
+            // moves or re-docks the pane, so a subscription made once in the constructor would be lost.
+            HandleCreated += (s, e) => { Toast.LastChanged -= OnNoticeChanged; Toast.LastChanged += OnNoticeChanged; OnNoticeChanged(); };
             HandleDestroyed += (s, e) => Toast.LastChanged -= OnNoticeChanged;
             OnNoticeChanged();
 
@@ -323,8 +325,12 @@ namespace FlareAI.Flare.UI
                                          Padding = new Padding(4, 4, 4, 4), AccessibleRole = AccessibleRole.Link, AccessibleName = "Practice" };
             _tourStrip.LinkClicked += (s, e) => Safe.Run("Tour", () => OnTourLink(e.Link.LinkData as string));
             Controls.Add(_tourStrip);   // added last: the topmost line
-            GuidedTour.Changed += OnGettingStartedChanged;
-            GettingStarted.Changed += OnGettingStartedChanged;
+            HandleCreated += (s, e) =>
+            {
+                GuidedTour.Changed -= OnGettingStartedChanged; GettingStarted.Changed -= OnGettingStartedChanged;
+                GuidedTour.Changed += OnGettingStartedChanged; GettingStarted.Changed += OnGettingStartedChanged;
+                OnGettingStartedChanged();
+            };
             HandleDestroyed += (s, e) => { GuidedTour.Changed -= OnGettingStartedChanged; GettingStarted.Changed -= OnGettingStartedChanged; };
             _status.TextChanged += (s, e) => { FitLabel(_status, 2); _ignoreTip.SetToolTip(_status, _status.Text); };
             _aiOffNote.VisibleChanged += (s, e) => FitLabel(_aiOffNote, 0);
@@ -347,6 +353,9 @@ namespace FlareAI.Flare.UI
             if (InvokeRequired) { BeginInvoke((Action)OnGettingStartedChanged); return; }
             UpdateTourStrip();
             UpdateChecklist();
+            var n = Toast.Last;
+            var tour = GuidedTour.Current;
+            _notice.Visible = n != null && !(tour != null && n.Text == tour.Hint);
         }
 
         /// <summary>What the writer did in the session: the tour and the checklist follow; the first Change gets its note.</summary>
@@ -466,7 +475,9 @@ namespace FlareAI.Flare.UI
             if (IsDisposed) return;
             if (InvokeRequired) { BeginInvoke((Action)OnNoticeChanged); return; }
             var n = Toast.Last;
-            _notice.Visible = n != null;
+            // A tour notice the hint strip already shows isn't repeated here.
+            var tour = GuidedTour.Current;
+            _notice.Visible = n != null && !(tour != null && n.Text == tour.Hint);
             if (n == null) return;
             _notice.Links.Clear();
             _notice.Text = n.Action == null ? n.Text : n.Text + "  " + n.ActionLabel;
@@ -1134,7 +1145,7 @@ namespace FlareAI.Flare.UI
                 if (shown == 3) break;
                 if (shown++ > 0) _cardDiff.AppendText("\n");
                 DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = BatchPlan.ProjectPath(f.DocumentPath ?? "") + ":  …" + Tail(f.Before, 30) } }, true);
-                if (f.Replacement != null) DiffView.Segments(_cardDiff, ReadableDiff.OfText(f.Excerpt, f.Replacement), false);
+                if (f.Replacement != null) DiffView.Segments(_cardDiff, ChangeText.Diff(f.Excerpt, f.Replacement), false);
                 else DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = f.Excerpt } }, false);
             }
             Line(_cardWhy, r.Reason, FontStyle.Regular);
@@ -1252,7 +1263,7 @@ namespace FlareAI.Flare.UI
                 case "variable": return mark + "Use variable " + f.Variable + " for \"" + f.Excerpt + "\"";
                 case "restructure": return mark + "Rewrite \"" + Shorten(f.Excerpt, 48) + "\"";
                 case "manual": return mark + FlareAI.Core.Style.RuleWording.FromName(f.Rule) + " in \"" + Shorten(f.Excerpt, 36) + "\"";
-                default: return mark + (f.Replacement.Length == 0 ? "Delete \"" + f.Excerpt + "\"" : "Change \"" + Shorten(f.Excerpt, 30) + "\" to \"" + Shorten(f.Replacement, 30) + "\"");
+                default: return mark + ChangeText.Row(f.Excerpt, f.Replacement);
             }
         }
 
@@ -1327,7 +1338,7 @@ namespace FlareAI.Flare.UI
 
             // What: the words around it, and the change marked.
             if (!string.IsNullOrEmpty(f.Before)) DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = "…" + f.Before } }, true);
-            if (f.Replacement != null) DiffView.Segments(_cardDiff, ReadableDiff.OfText(f.Excerpt, f.Replacement), false);
+            if (f.Replacement != null) DiffView.Segments(_cardDiff, ChangeText.Diff(f.Excerpt, f.Replacement), false);
             else
             {
                 _cardDiff.SelectionStart = _cardDiff.TextLength;
@@ -1348,7 +1359,6 @@ namespace FlareAI.Flare.UI
                 if (!string.IsNullOrEmpty(ex.Good)) Line(_cardWhy, "✓ " + ex.Good, FontStyle.Regular);
             }
             if (rule == null && f.Source == "ai") Line(_cardWhy, "General editing judgment (not tied to a guide rule).", FontStyle.Italic);
-            if (rule != null && Team.Current != null && Team.Current.IsOwner) Ref(_cardWhy, "Reference: " + rule.Id);   // for the guide owner (Test Rules, Rule Decisions); writers don't need it
             _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
             UpdateButtons();
         }
@@ -1364,14 +1374,6 @@ namespace FlareAI.Flare.UI
             box.AppendText((box.TextLength > 0 ? "\n" : "") + text);
         }
 
-        /// <summary>A small grey reference line (the rule's reference: for owners, not something writers need to read).</summary>
-        private static void Ref(RichTextBox box, string text)
-        {
-            box.SelectionStart = box.TextLength;
-            box.SelectionFont = new Font(box.Font.FontFamily, box.Font.Size - 1.5f, FontStyle.Regular);
-            box.SelectionColor = SystemColors.GrayText;
-            box.AppendText((box.TextLength > 0 ? "\n" : "") + text);
-        }
 
         private static string KindLabel(StyleFinding f)
         {

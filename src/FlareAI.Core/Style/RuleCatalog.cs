@@ -90,7 +90,7 @@ namespace FlareAI.Core.Style
         {
             get
             {
-                if (State == RuleState.Off) return "Off";
+                if (State == RuleState.Off) return "Disabled";
                 if (!IsTable) return "AI review";
                 return FlareAI.Core.Severity.Label(Level ?? DefaultLevel ?? "warning");
             }

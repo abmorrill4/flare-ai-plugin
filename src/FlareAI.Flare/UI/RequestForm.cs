@@ -51,7 +51,7 @@ namespace FlareAI.Flare.UI
                 Controls.Add(_team); Controls.Add(_project); y += 56;
                 Controls.Add(new Label { Text = "Set the rule to:", Left = 12, Top = y + 4, Width = 110 });
                 _setting = new ComboBox { Left = 124, Top = y, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
-                _setting.Items.AddRange(new object[] { "Off", "Suggestion", "Warning", "Error" });
+                _setting.Items.AddRange(new object[] { "Disabled", "Suggestion", "Warning", "Error" });
                 _setting.SelectedItem = FlareAI.Core.Severity.Label(q.Setting ?? "off");
                 if (_setting.SelectedIndex < 0) _setting.SelectedIndex = 0;
                 Controls.Add(_setting); y += 34;

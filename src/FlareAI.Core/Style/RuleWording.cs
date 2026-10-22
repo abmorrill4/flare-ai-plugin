@@ -22,13 +22,34 @@ namespace FlareAI.Core.Style
         /// </summary>
         public static string Display(string text, string example, string bad)
         {
-            if (!IsPatternText(text)) return text ?? "";
+            if (!IsPatternText(text)) return Plain(text);
             var m = PatternRule.Match(text);
             var rest = m.Success ? text.Substring(m.Length).Trim() : "";
             if (rest.Length > 0) return rest;
             var sample = Clean(example);
             if (sample.Length == 0) sample = Clean(bad);
             return sample.Length == 0 ? Generic : "Avoid this wording pattern (for example: " + sample + ")";
+        }
+
+        private static readonly Regex AvoidUse = new Regex(@"^Avoid (.+?) → use '([^']*)'\.", RegexOptions.Singleline);
+        private static readonly Regex AvoidDelete = new Regex(@"^Avoid (.+?) \(delete it\)\.", RegexOptions.Singleline);
+        private static readonly Regex AvoidRewrite = new Regex(@"^Avoid (.+?) \(rewrite\)\.", RegexOptions.Singleline);
+
+        /// <summary>
+        /// A table rule's compiled text in plain words for writers: "Avoid 'in order to' → use 'to'. Shorter." reads
+        /// "Use 'to' instead of 'in order to'. Shorter."; "(delete it)" reads "Leave out …"; "(rewrite)" is dropped. The
+        /// stored text (sent to the AI, parsed by Rule Decisions) keeps its form. Other text is returned as it is.
+        /// </summary>
+        public static string Plain(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            var m = AvoidUse.Match(text);
+            if (m.Success) return ("Use '" + m.Groups[2].Value + "' instead of " + m.Groups[1].Value + "." + text.Substring(m.Length)).Trim();
+            m = AvoidDelete.Match(text);
+            if (m.Success) return ("Leave out " + m.Groups[1].Value + "." + text.Substring(m.Length)).Trim();
+            m = AvoidRewrite.Match(text);
+            if (m.Success) return ("Avoid " + m.Groups[1].Value + "." + text.Substring(m.Length)).Trim();
+            return text;
         }
 
         /// <summary>

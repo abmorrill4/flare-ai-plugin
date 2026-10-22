@@ -30,7 +30,8 @@ namespace FlareAI.Flare.UI
             l.Heading("Practice your first lint");
             l.Note("Follow five short steps to lint a topic and work through its issues.", true, false);
             var sample = l.Add(new Button { Text = "Practice on a sample project", AutoSize = true, Left = l.LabelLeft, Top = l.Y, MinimumSize = new Size(l.S(240), l.S(28)) });
-            l.Y += sample.PreferredSize.Height + l.S(6);
+            l.Y += sample.PreferredSize.Height + l.S(4);
+            l.Note("The practice topic isn't part of your project, so Flare shows a note about that.", true);
             Button open = null;
             if (topicOpen)
             {
@@ -48,6 +49,9 @@ namespace FlareAI.Flare.UI
             sample.Click += (s, e) => { Choice = TourChoice.Sample; DialogResult = DialogResult.OK; };
             if (open != null) open.Click += (s, e) => { Choice = TourChoice.OpenTopic; DialogResult = DialogResult.OK; };
             skip.Click += (s, e) => Choice = TourChoice.Skip;
+            // Opened from Flare's start-up or right after setup closes: take the focus, so the first click is a click on a
+            // button and not the click that activates the window.
+            Shown += (s, e) => { Activate(); BringToFront(); sample.Focus(); };
             A11y.Name(skip, "Skip", "Closes this without the practice. Start it later from Help.");
             A11y.Apply(this);
         }

@@ -72,7 +72,7 @@ namespace FlareAI.Core.Tests
         {
             Assert.Equal("Avoid exclamation points in general.", RuleBacklog.PlainReason("Avoid the pattern (?<=[A-Za-z])!(?=\\s|$) (rewrite). Avoid exclamation points in general."));
             Assert.Null(RuleBacklog.PlainReason("Avoid the pattern \\bfoo\\b (delete it)."));
-            Assert.Equal("Avoid 'e-mail' → use 'email'.", RuleBacklog.PlainReason("Avoid 'e-mail' → use 'email'."));
+            Assert.Equal("Use 'email' instead of 'e-mail'.", RuleBacklog.PlainReason("Avoid 'e-mail' → use 'email'."));
         }
 
         [Fact]

@@ -179,7 +179,7 @@ namespace FlareAI.Core.Actions
         {
             if (string.IsNullOrEmpty(text)) return null;
             var m = PatternRule.Match(text);
-            if (!m.Success) return text.Trim();
+            if (!m.Success) return RuleWording.Plain(text.Trim());   // "Use 'to' instead of 'in order to'.", never an arrow
             var rest = text.Substring(m.Length).Trim();
             return rest.Length == 0 ? null : rest;
         }

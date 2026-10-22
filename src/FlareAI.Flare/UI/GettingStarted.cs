@@ -16,6 +16,35 @@ namespace FlareAI.Flare.UI
 
         public static Onboarding Load() { return Onboarding.Load(); }
 
+        /// <summary>Flare's main window, for notices (set by the plugin at start).</summary>
+        public static Func<Form> Owner { get; set; }
+
+        private static bool _watching;
+
+        /// <summary>Follows the tour from now on (the plugin calls this once at start).</summary>
+        public static void WatchTour()
+        {
+            if (_watching) return;
+            _watching = true;
+            GuidedTour.Changed += OnTourChanged;
+        }
+
+        /// <summary>
+        /// Notices follow the tour: step 1's hint (a notice, because the pane isn't open yet) is taken back once step 1 is
+        /// done, and the last line comes as a notice with Done too, so the writer sees it even if the pane is closed.
+        /// </summary>
+        private static void OnTourChanged()
+        {
+            var t = GuidedTour.Current;
+            if (t == null || t.Step != TourStep.LintTopic) Toast.Withdraw(GuidedTour.HintFor(TourStep.LintTopic));
+            if (t == null) { Toast.Withdraw(GuidedTour.FinishedText); return; }
+            if (t.Step == TourStep.Finished)
+            {
+                var owner = Owner == null ? null : Owner();
+                if (owner != null) Toast.Show(owner, GuidedTour.FinishedText, "Done", EndTour);
+            }
+        }
+
         /// <summary>Ticks a checklist item (saved once).</summary>
         public static void Mark(ChecklistItem item)
         {

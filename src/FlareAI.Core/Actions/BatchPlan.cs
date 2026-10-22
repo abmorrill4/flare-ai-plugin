@@ -140,9 +140,9 @@ namespace FlareAI.Core.Actions
 
         private static string Example(StyleFinding f)
         {
-            var from = "\"" + (f.Excerpt ?? "") + "\"";
-            if (string.IsNullOrEmpty(f.Replacement)) return "delete " + from;
-            return "change " + from + " to \"" + f.Replacement + "\"";
+            var deleted = FlareAI.Core.Editing.ChangeText.Deleted(f.Excerpt, f.Replacement ?? "");
+            if (deleted != null) return "delete \"" + deleted + "\"";
+            return "change \"" + (f.Excerpt ?? "") + "\" to \"" + f.Replacement + "\"";
         }
 
         public List<StyleFinding> SelectedFindings
