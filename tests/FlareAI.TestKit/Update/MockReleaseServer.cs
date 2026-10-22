@@ -17,7 +17,7 @@ namespace FlareAI.TestKit.Update
     /// </summary>
     public sealed class MockReleaseServer : IDisposable
     {
-        private readonly HttpListener _listener = new HttpListener();
+        private HttpListener _listener;
         private readonly Dictionary<string, Func<HttpListenerResponse, bool>> _routes = new Dictionary<string, Func<HttpListenerResponse, bool>>(StringComparer.OrdinalIgnoreCase);
         private readonly List<string> _hits = new List<string>();
         private readonly object _gate = new object();
@@ -29,10 +29,11 @@ namespace FlareAI.TestKit.Update
             {
                 Port = FreePort();
                 BaseUrl = "http://localhost:" + Port;
-                _listener.Prefixes.Clear();
+                // A fresh listener per attempt: a failed Start() disposes the listener, so retrying on the same one throws ObjectDisposedException.
+                _listener = new HttpListener();
                 _listener.Prefixes.Add(BaseUrl + "/");
                 try { _listener.Start(); break; }
-                catch (HttpListenerException) { if (attempt >= 20) throw; }   // another test grabbed the port first
+                catch (HttpListenerException) { try { _listener.Close(); } catch (Exception) { } if (attempt >= 20) throw; }   // another test grabbed the port first
             }
             _thread = new Thread(Loop) { IsBackground = true, Name = "MockReleaseServer" };
             _thread.Start();
