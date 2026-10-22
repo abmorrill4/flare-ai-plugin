@@ -178,7 +178,7 @@ namespace FlareAI.Flare.UI
             _list.FontChanged += (s, e) => { _rowLines = -1; FitColumns(); };
             _list.GotFocus += (s, e) => _list.Invalidate();   // the selected row: highlighted when the list has focus, grey when not
             _list.LostFocus += (s, e) => _list.Invalidate();
-            _list.SelectedIndexChanged += (s, e) => Safe.Run("Select finding", () => { _session.Current = Current(); ShowCard(); _session.OnSelected(Current()); });
+            _list.SelectedIndexChanged += (s, e) => QueueSelectionChanged();
             _list.DoubleClick += (s, e) => Safe.Run("Apply", Accept);
             _list.KeyDown += (s, e) => Safe.Run("List key", () => OnListKey(s, e));
             _list.ContextMenuStrip = BuildRowMenu();
@@ -654,8 +654,9 @@ namespace FlareAI.Flare.UI
             {
                 var p = _list.PointToClient(Cursor.Position);
                 var hit = _list.GetItemAt(p.X, p.Y);
-                if (hit != null) hit.Selected = true;
+                if (hit != null && !hit.Selected) hit.Selected = true;
                 var f = Current();
+                _session.Current = f;   // the menu's commands act on the session's current row; the selection handler runs later
                 if (f == null) { e.Cancel = true; return; }
                 goTo.Enabled = !f.IsFixed;
                 open.Enabled = _session.FilePathOf(f) != null;
@@ -843,19 +844,22 @@ namespace FlareAI.Flare.UI
             var keep = Current();
             var focus = _session.FocusRule;
             _list.BeginUpdate();
-            _list.Items.Clear(); _list.Groups.Clear();
-            foreach (var f in _session.Findings)
+            try
             {
-                if (focus != null && RuleBacklog.KeyOf(f) != focus) continue;
-                var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
-                item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + ReadableRule(f) + "\n" + f.Suggestion;
-                Restyle(item);
-                _list.Items.Add(item);
-                if (f == keep) item.Selected = true;
+                _list.Items.Clear(); _list.Groups.Clear();
+                foreach (var f in new List<StyleFinding>(_session.Findings))   // a snapshot: the session's list is never read while it changes
+                {
+                    if (focus != null && RuleBacklog.KeyOf(f) != focus) continue;
+                    var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
+                    item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + ReadableRule(f) + "\n" + f.Suggestion;
+                    Restyle(item);
+                    _list.Items.Add(item);
+                    if (f == keep) item.Selected = true;
+                }
             }
-            _list.EndUpdate();
+            finally { _list.EndUpdate(); }   // never leave the list frozen (it would look empty)
             _session.Current = Current();
-            UpdateButtons();
+            ShowCard();   // the selection handler is deferred (QueueSelectionChanged): show the kept row's card now
             var changed = Changed;
             if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
         }
@@ -877,20 +881,23 @@ namespace FlareAI.Flare.UI
             var cur = CurrentRule();
             var keep = cur != null ? cur.Key : _lastRule;
             _list.BeginUpdate();
-            _list.Items.Clear(); _list.Groups.Clear();
-            ListViewItem selected = null;
-            foreach (var r in _session.Backlog())
+            try
             {
-                var counts = r.Counts() + (r.Snippets.Count > 0 ? " · in " + Plural.Of(r.Snippets.Count, "snippet") : "");
-                var item = new ListViewItem(new[] { A11y.SeverityGlyph(r.Severity) + " " + Shorten(r.Reason, 160), counts }) { Tag = r };
-                item.ToolTipText = r.Title + "\n" + r.Reason + "\n" + counts;
-                item.ForeColor = r.Severity == "error" ? Color.Firebrick : SystemColors.WindowText;
-                _list.Items.Add(item);
-                if (r.Key == keep) selected = item;
+                _list.Items.Clear(); _list.Groups.Clear();
+                ListViewItem selected = null;
+                foreach (var r in _session.Backlog())
+                {
+                    var counts = r.Counts() + (r.Snippets.Count > 0 ? " · in " + Plural.Of(r.Snippets.Count, "snippet") : "");
+                    var item = new ListViewItem(new[] { A11y.SeverityGlyph(r.Severity) + " " + Shorten(r.Reason, 160), counts }) { Tag = r };
+                    item.ToolTipText = r.Title + "\n" + r.Reason + "\n" + counts;
+                    item.ForeColor = r.Severity == "error" ? Color.Firebrick : SystemColors.WindowText;
+                    _list.Items.Add(item);
+                    if (r.Key == keep) selected = item;
+                }
+                if (selected == null && _list.Items.Count > 0 && keep != null) selected = _list.Items[0];   // the rule is done: on to the next biggest
+                if (selected != null) { selected.Selected = true; selected.Focused = true; selected.EnsureVisible(); }
             }
-            if (selected == null && _list.Items.Count > 0 && keep != null) selected = _list.Items[0];   // the rule is done: on to the next biggest
-            if (selected != null) { selected.Selected = true; selected.Focused = true; selected.EnsureVisible(); }
-            _list.EndUpdate();
+            finally { _list.EndUpdate(); }
             _lastRule = null;
             _list.AccessibleDescription = "Rules, most frequent first, with how many suggestions and files each has. Enter reviews the selected rule one by one; Delete skips it.";
             _session.Current = null;
@@ -1316,13 +1323,46 @@ namespace FlareAI.Flare.UI
         private void Select(StyleFinding f)
         {
             if (RuleRows) return;   // rule rows: the rule stays selected (Rebuild picks the next rule when one is done)
-            foreach (ListViewItem item in _list.Items)
+            var items = new ListViewItem[_list.Items.Count];
+            _list.Items.CopyTo(items, 0);
+            foreach (var item in items)
             {
+                if (item.ListView == null) continue;   // the list was rebuilt meanwhile
                 var on = item.Tag == f;
-                item.Selected = on;
+                if (item.Selected != on) item.Selected = on;
                 if (on) { item.Focused = true; item.EnsureVisible(); }
             }
-            if (f == null) ShowCard();
+            ShowCard();   // now; the deferred selection handler only tells the session (and moves the editor) if the row changed
+        }
+
+        // ---- selection ---------------------------------------------------------------------------
+
+        private bool _selectionQueued;
+        private object _lastSelected;   // the finding or rule the session was last told about
+
+        /// <summary>
+        /// The ListView raises SelectedIndexChanged from inside ListViewItem.Selected. Telling the session there can rebuild
+        /// the list (an undone fix revived, the editor's document event after Go to) while the ListView is still selecting
+        /// a row, which ends in a NullReferenceException in ListViewItem.set_Selected and a list frozen in BeginUpdate.
+        /// So the reaction runs once, after the selection has settled.
+        /// </summary>
+        private void QueueSelectionChanged()
+        {
+            if (_selectionQueued || IsDisposed) return;
+            if (!IsHandleCreated) { Safe.Run("Select finding", OnSelectionChanged); return; }
+            _selectionQueued = true;
+            BeginInvoke((Action)(() => { _selectionQueued = false; if (!IsDisposed) Safe.Run("Select finding", OnSelectionChanged); }));
+        }
+
+        private void OnSelectionChanged()
+        {
+            var f = Current();
+            _session.Current = f;
+            ShowCard();
+            var selected = (object)f ?? CurrentRule();
+            if (ReferenceEquals(selected, _lastSelected)) return;   // the same row again (a rebuild kept it): nothing new to say
+            _lastSelected = selected;
+            _session.OnSelected(f);
         }
 
         private void Busy(bool on, string text)

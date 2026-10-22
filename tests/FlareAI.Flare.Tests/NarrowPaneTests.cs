@@ -82,6 +82,108 @@ namespace FlareAI.Flare.Tests
             });
         }
 
+        [Theory]
+        [InlineData(180, 640)]
+        [InlineData(500, 800)]
+        public void ApplyingTheReword_MovesToTheNext_KeepsTheRowStruckThrough_AndCtrlZ_BringsItBack(int width, int height)
+        {
+            Sta(() =>
+            {
+                // Two rewords; the editor answers every Go to with a document event that rebuilds the list (Flare's live
+                // check / undo recheck), as Flare does while the pane is still selecting the next row after Apply.
+                var sim = FlareSimDocument.FromXml(TwoParagraphs);
+                var doc = new ReactingEditor(sim);
+                var runner = new ActionRunner(new ScriptedLlmClient().When(r => true, r => ScriptedLlmClient.Reply.Text(Rewords(r))(r)), new PromptBuilder(null), 1024);
+                var panel = new FindingsPanel(runner, doc, () => runner, p => null, null, true);
+                using (var form = new Form { StartPosition = FormStartPosition.Manual, Location = new Point(-20000, -20000), ShowInTaskbar = false,
+                                             FormBorderStyle = FormBorderStyle.None, ClientSize = new Size(width, height), Font = SystemFonts.MessageBoxFont })
+                {
+                    panel.Dock = DockStyle.Fill;
+                    form.Controls.Add(panel);
+                    form.Show();
+                    panel.Begin();
+                    var list = All(panel).OfType<ListView>().Single();
+                    Func<string> labels = () => string.Join(" | ", All(panel).OfType<Label>().Select(l => l.Text).Where(t => !string.IsNullOrEmpty(t)));
+                    Pump(() => list.Items.Count == 2 && All(panel).OfType<ProgressBar>().All(p => !p.Visible), 15000, labels);
+                    doc.OnSelect = () => panel.RefreshLint(new List<StyleFinding>());
+                    list.Focus();
+                    list.Items[0].Selected = true;
+                    list.Items[0].Focused = true;
+                    Pump(null, 200);
+
+                    var apply = All(panel).OfType<Button>().Single(b => b.Parent.AccessibleName == "Decision for the selected suggestion" && b.Text == "Apply");
+                    apply.PerformClick();   // the button's own path: ReviewSession.Accept → Apply → FinishBatch → Sort → Rebuild, then Next
+                    Pump(null, 300);
+
+                    var where = width + "x" + height + ": " + labels() + " ";
+                    Assert.Contains("The fee is waived", sim.Document.InnerText);
+                    Assert.DoesNotContain("Could not", labels());
+                    Assert.True(list.Items.Count == 2, where + "after Apply the list has " + list.Items.Count + " rows");
+                    Assert.True(list.Items[0].Font.Strikeout, where + "the applied row isn't struck through");
+                    Assert.True(list.Items[1].Selected, where + "Apply should move to the next suggestion");
+                    Assert.True(apply.Enabled, where + "the next suggestion can be applied");
+                    Assert.Contains("In order to", list.Items[1].Text);
+
+                    sim.Undo();                                                     // Ctrl+Z in the editor
+                    panel.RecheckApplied();
+                    Pump(null, 300);
+                    Assert.Contains("Please note that the fee", sim.Document.InnerText);
+                    Assert.Equal(2, list.Items.Count);
+                    Assert.False(list.Items[0].Font.Strikeout, where + "the undone fix should be live again");
+                    list.Items[0].Selected = true;
+                    Pump(null, 200);
+                    Assert.True(apply.Enabled, where + "Apply works again after Ctrl+Z");
+                    apply.PerformClick();
+                    Pump(null, 300);
+                    Assert.Contains("The fee is waived", sim.Document.InnerText);
+                    Assert.True(list.Items[0].Font.Strikeout, where + "applied again");
+                    Assert.DoesNotContain("Could not", labels());
+                }
+            });
+        }
+
+        private const string TwoParagraphs = "<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\"><body><h1>Transfers</h1>" +
+                                             "<p>Please note that the fee is waived for members who move money between their own accounts.</p>" +
+                                             "<p>In order to move money, open the Transfers page.</p></body></html>";
+
+        /// <summary>The model's answer: a reword for each paragraph, on the run that holds its text.</summary>
+        private static string Rewords(FlareAI.Core.Llm.LlmRequest r)
+        {
+            var found = new List<string>();
+            foreach (var pair in new[] { new[] { "Please note that the fee", "The fee" }, new[] { "In order to", "To" } })
+            {
+                var run = Regex.Matches(r.User ?? "", @"⟦(r\d+)⟧(.*?)⟦/\1⟧", RegexOptions.Singleline).Cast<Match>().FirstOrDefault(m => m.Groups[2].Value.Contains(pair[0]));
+                if (run != null)
+                    found.Add("{\"run_id\":\"" + run.Groups[1].Value + "\",\"excerpt\":\"" + pair[0] + "\",\"rule_id\":\"general\",\"rule\":\"wordy\"," +
+                              "\"severity\":\"suggestion\",\"replacement\":\"" + pair[1] + "\",\"why\":\"Say it directly.\"}");
+            }
+            return "{\"findings\":[" + string.Join(",", found) + "]}";
+        }
+
+        /// <summary>The fake Flare editor, which (like Flare) raises a document event when the plugin selects text in it.</summary>
+        private sealed class ReactingEditor : FlareAI.Core.Editing.IDocumentAdapter
+        {
+            private readonly FlareSimDocument _inner;
+            public Action OnSelect;
+            public ReactingEditor(FlareSimDocument inner) { _inner = inner; }
+            public string SourcePath { get { return _inner.SourcePath; } }
+            public bool IsEditableTopic { get { return _inner.IsEditableTopic; } }
+            public System.Xml.XmlDocument Document { get { return _inner.Document; } }
+            public string SelectionText { get { return _inner.SelectionText; } }
+            public IList<System.Xml.XmlNode> SelectionNodes { get { return _inner.SelectionNodes; } }
+            public void ReplaceBlocks(string operationName, IList<System.Xml.XmlNode> oldNodes, IList<System.Xml.XmlNode> newNodes) { _inner.ReplaceBlocks(operationName, oldNodes, newNodes); }
+            public bool SelectText(System.Xml.XmlText run, int start, int length)
+            {
+                var ok = _inner.SelectText(run, start, length);
+                var h = OnSelect;
+                if (h != null) h();
+                return ok;
+            }
+            public void Edit(string operationName, Action body) { _inner.Edit(operationName, body); }
+            public bool ReplaceSpan(System.Xml.XmlText run, int start, int length, string replacement) { return _inner.ReplaceSpan(run, start, length, replacement); }
+            public string VariableValue(string qualifiedName) { return _inner.VariableValue(qualifiedName); }
+        }
+
         /// <summary>The card's parts stack without overlapping, nothing is cut off, and what doesn't fit scrolls.</summary>
         private static void Check(string where, int height, ListView list, Panel card, Label head, RichTextBox diff, RichTextBox why, FlowLayoutPanel decision, SplitContainer split)
         {
