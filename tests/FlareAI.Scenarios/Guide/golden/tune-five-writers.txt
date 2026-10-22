@@ -1,0 +1,19 @@
+disputed | company:terminology/3 | Writers disagree on company:terminology/3 | +10 -10 | 4 writers
+    Writer 1 accepts it (100% of 5)
+    Writer 2 accepts it (100% of 5)
+    Writer 3 rejects it (100% of 5)
+    Writer 4 rejects it (100% of 5)
+    Reason "fine here": 5×
+    Reason "wrong": 5×
+    "customer" (Writer 3, topic-5.htm)
+review | company:plain-language/5 | Often rejected: company:plain-language/5 (60% of 10) | +4 -6 | 5 writers
+    Reason "rule doesn't apply": 6×
+    "Please select" (Writer 1, topic-2.htm)
+    "Please click" (Writer 3, topic-5.htm)
+edit | company:plain-language/1 | Writers keep editing "utilize" to "make use of" (3×) | +3 -0 | 3 writers
+    Rule: company:plain-language/1
+    Candidate Avoid/Use row: utilize → make use of
+ignore | google:word-list/251 | Asked to turn off: google:word-list/251 (2 request(s)) | +0 -2 | 2 writers
+    Writer 4: We write e-mail in legal copy. — topic-0.htm
+    Writer 5: Contracts spell it e-mail. — topic-1.htm
+working | google:tone/22 | Working well: google:tone/22 (100% accepted of 12) | +12 -0 | 5 writers

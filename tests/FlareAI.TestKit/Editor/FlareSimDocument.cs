@@ -328,6 +328,17 @@ namespace FlareAI.TestKit.Editor
             _untracked.Add(what);
         }
 
+        /// <summary>
+        /// The author types or edits in the editor (not the plugin): the DOM changes, nothing is listed in
+        /// <see cref="UntrackedWrites"/>, and it is not an undo step of the plugin's operations.
+        /// </summary>
+        public void AuthorEdits(Action edit)
+        {
+            if (_current != null) throw new FlareSimException("The author cannot type during a plugin operation.");
+            Internal(edit);
+            IsDirty = true;
+        }
+
         private void Internal(Action a)
         {
             _internal++;
