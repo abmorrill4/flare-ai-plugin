@@ -75,19 +75,38 @@ namespace FlareAI.Core.Actions
         // ---- review ------------------------------------------------------------------------------
 
         /// <summary>
-        /// Findings for one unit: each names a run of the unit and a rule of the guide (or "general"). The schema is the
-        /// same for every call: it is part of the cached prompt prefix, so per-unit enums (run ids, rule ids) would make
-        /// every call write the cache instead of reading it. Run and rule ids are checked in code instead
-        /// (<see cref="ReadReview"/>, <see cref="KeepCitable"/>).
+        /// The one output contract of the editing tasks (review, rewrite, restructure, draft). The structured-output schema is
+        /// part of the cached prompt prefix (it sits ahead of the system prompt), so a schema per task meant a 35k-token cache
+        /// write per task: measured, review 35,075 tokens, rewrite 34,891, restructure 34,440, each its own entry. With one
+        /// schema and the same system prompt, the tasks share one cache entry; what differs (the task's instructions and
+        /// which fields to fill) comes after it, in the user message. Each task fills its own fields and leaves the others
+        /// empty (a few output tokens). The schema is the same for every call: per-unit enums (run ids, rule ids) would make
+        /// every call write the cache instead of reading it, so run and rule ids are checked in code instead
+        /// (<see cref="ReadReview"/>, <see cref="KeepCitable"/>, <see cref="ReadRewrite"/>).
         /// </summary>
-        public static readonly JObject ReviewSchema = Obj(P("findings", Arr(Obj(
+        public static readonly JObject EditSchema = Obj(
+            P("findings", Arr(Obj(
                 P("run_id", Str("The run the problem is in, for example r3.")),
                 P("excerpt", Str("Exact text copied from that run: the shortest unique span that has the problem.")),
                 P("rule_id", Str("The id of the style-guide rule applied, from the [brackets] in the guide; \"general\" only when no rule covers it.")),
                 P("rule", Str("2-4 word name of the problem.")),
                 P("severity", Enum(Severities)),
                 P("replacement", NullableStr("Exact plain text to put in place of the excerpt, or null if it needs a rewrite.")),
-                P("why", Str("At most 15 words."))))));
+                P("why", Str("At most 15 words."))))),
+            P("changes", Arr(Obj(
+                P("run_id", Str("The run to change, for example r3.")),
+                P("text", Str("The complete new text of that run: plain text, no markup, no run markers."))))),
+            P("needs_restructure", Bool("True only if the task can't be done by changing run text (for example splitting one step into two).")),
+            P("note", Str("Empty, or one sentence: what restructuring is needed, or what information only the author can supply.")),
+            P("revised", Str("The revised XHTML fragment, when the request asks for one; otherwise empty.")));
+
+        /// <summary>Which fields of <see cref="EditSchema"/> each task fills: appended to its user message (after the cached prefix).</summary>
+        public const string ReviewFields = "Answer in \"findings\" (an empty list when nothing needs changing). Leave \"changes\" empty, \"needs_restructure\" false, and \"note\" and \"revised\" empty.";
+        public const string RewriteFields = "Answer in \"changes\", \"needs_restructure\" and \"note\". Leave \"findings\" empty and \"revised\" empty.";
+        public const string RestructureFields = "Answer in \"revised\": the whole revised fragment as XHTML (no <revised> wrapper needed). Leave \"findings\" and \"changes\" empty, \"needs_restructure\" false, and \"note\" empty.";
+
+        /// <summary>Findings for one unit (the review's part of <see cref="EditSchema"/>).</summary>
+        public static readonly JObject ReviewSchema = EditSchema;
 
         /// <summary>A rule id the model wasn't given (or made up) is cleared: the finding stays, uncited.</summary>
         public static void KeepCitable(List<StyleFinding> findings, ICollection<string> allowed)
@@ -130,17 +149,16 @@ namespace FlareAI.Core.Actions
 
         // ---- rewrite -----------------------------------------------------------------------------
 
-        /// <summary>A rewrite as new text for changed runs only; structure can't change on this path. Same schema every call (cache); run ids are checked in <see cref="ReadRewrite"/>.</summary>
-        public static readonly JObject RewriteSchema = Rewrite();
+        /// <summary>A rewrite as new text for changed runs only (the rewrite's part of <see cref="EditSchema"/>); structure can't change on this path.</summary>
+        public static readonly JObject RewriteSchema = EditSchema;
 
-        private static JObject Rewrite()
+        /// <summary>The restructured fragment from a <see cref="EditSchema"/> answer ("revised"), or from a plain &lt;revised&gt; answer.</summary>
+        public static string ReadRevised(FlareAI.Core.Llm.LlmResponse resp)
         {
-            return Obj(
-                P("changes", Arr(Obj(
-                    P("run_id", Str("The run to change, for example r3.")),
-                    P("text", Str("The complete new text of that run: plain text, no markup, no run markers."))))),
-                P("needs_restructure", Bool("True only if the task can't be done by changing run text (for example splitting one step into two).")),
-                P("note", Str("Empty, or one sentence: what restructuring is needed, or what information only the author can supply.")));
+            var revised = resp.Json == null ? null : (string)resp.Json["revised"];
+            if (!string.IsNullOrEmpty(revised) && revised.Trim().Length > 0)
+                return revised.IndexOf("<revised>", StringComparison.OrdinalIgnoreCase) >= 0 ? ResponseParser.ParseRevised(revised) : revised.Trim();
+            return ResponseParser.ParseRevised(resp.Text);
         }
 
         /// <summary>New text per run, or the reasons the answer breaks the contract.</summary>

@@ -56,11 +56,21 @@ namespace FlareAI.Core.Llm
             // reviews and repeat checks pay for it once. The rule packs for the unit's content are a second cached block.
             if (!string.IsNullOrEmpty(req.System))
             {
-                // The always-on block lives an hour: writers check a topic every few minutes, not every few seconds, and a
-                // 5-minute cache would be rewritten (1.25x) on nearly every check. An hour costs 2x once, then 0.1x per read.
-                var system = new JArray(new JObject { ["type"] = "text", ["text"] = req.System, ["cache_control"] = new JObject { ["type"] = "ephemeral", ["ttl"] = "1h" } });
+                // How long it lives is the task's choice (Routing.CacheFor): an hour for review and rewrite, which writers
+                // use every few minutes all day (2x once, then 0.1x per read); five minutes or nothing for tasks used a few
+                // times a week, where an hour-long write would rarely be read.
+                var ttl = req.CacheTtl ?? "1h";
+                var cached = ttl != "none";
+                var block = new JObject { ["type"] = "text", ["text"] = req.System };
+                if (cached) block["cache_control"] = ttl == "1h" ? new JObject { ["type"] = "ephemeral", ["ttl"] = "1h" } : new JObject { ["type"] = "ephemeral" };
+                var system = new JArray(block);
                 if (!string.IsNullOrEmpty(req.SystemPacks))
-                    system.Add(new JObject { ["type"] = "text", ["text"] = req.SystemPacks, ["cache_control"] = new JObject { ["type"] = "ephemeral" } });
+                {
+                    // Always 5 minutes: shared by the units of one check (a shorter TTL may follow a 1-hour one).
+                    var packs = new JObject { ["type"] = "text", ["text"] = req.SystemPacks };
+                    if (cached) packs["cache_control"] = new JObject { ["type"] = "ephemeral" };
+                    system.Add(packs);
+                }
                 if (!string.IsNullOrEmpty(req.SystemTerms))
                     system.Add(new JObject { ["type"] = "text", ["text"] = req.SystemTerms });   // unique per text: caching it would only cost
                 body["system"] = system;

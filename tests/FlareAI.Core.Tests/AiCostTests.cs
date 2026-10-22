@@ -79,5 +79,110 @@ namespace FlareAI.Core.Tests
                 Assert.True(results[i].GoodClean);
             }
         }
+
+        // ---- 2. Cache lifetime per task; one shared prefix for review, rewrite and restructure --------------------------
+
+        /// <summary>A runner over the fake guide whose model answers every task with an empty, valid contract.</summary>
+        internal static ActionRunner Runner(FakeLlmClient llm, FakeStyleService style = null)
+        {
+            style = style ?? new FakeStyleService();
+            return new ActionRunner(llm, PromptBuilder.For(style, null), 1024, style);
+        }
+
+        internal static FakeLlmClient Quiet()
+        {
+            return new FakeLlmClient(r =>
+                r.Task == "restructure" ? "<revised>" + FragmentOf(r.User) + "</revised>"
+                : r.Task == "review" ? "[]"
+                : r.Task == "alt" ? "{\"decorative\":false,\"alt\":\"The Transfers page.\"}"
+                : r.Task == "assist" ? "{\"description\":\"d\",\"keywords\":[],\"groups\":[],\"micro_content\":[],\"glossary\":[]}"
+                : r.Task == "extract" ? "{\"rules\":[]}"
+                : r.Task == "refine" ? "{\"replacement\":\"Members\",\"why\":\"x\",\"applies\":true}"
+                : "{\"findings\":[],\"changes\":[],\"needs_restructure\":false,\"note\":\"\",\"revised\":\"\"}");
+        }
+
+        private static string FragmentOf(string user)
+        {
+            var i = user.LastIndexOf("Fragment:", StringComparison.Ordinal);
+            return user.Substring(i + "Fragment:".Length).Trim();
+        }
+
+        private static Newtonsoft.Json.Linq.JObject Body(FlareAI.Core.Llm.LlmRequest r)
+        {
+            return Newtonsoft.Json.Linq.JObject.Parse(FlareAI.Core.Llm.AnthropicClient.BuildBody("claude-sonnet-5-5", r));
+        }
+
+        [Fact]
+        public void ReviewRewriteAndRestructure_ShareOneCachedPrefix_CachedForAnHour()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            doc.SelectXPath("//body/p[2]/text()");
+            var llm = Quiet();
+            var runner = Runner(llm);
+            var blocks = runner.PickBlocks(doc);
+            runner.Review(blocks, runner.Lint(blocks));
+            runner.Rewrite(doc, blocks, "Shorten this.");
+            runner.Restructure(doc, blocks, "Make this a list.");
+
+            var review = llm.Requests.First(r => r.Task == "review");
+            var rewrite = llm.Requests.First(r => r.Task == "rewrite");
+            var restructure = llm.Requests.First(r => r.Task == "restructure");
+            foreach (var other in new[] { rewrite, restructure })
+            {
+                // Same model, same schema (it sits ahead of the system prompt in the cache key), same cached system block.
+                Assert.Equal(review.Model, other.Model);
+                Assert.True(Newtonsoft.Json.Linq.JToken.DeepEquals(Body(review)["output_config"], Body(other)["output_config"]));
+                Assert.True(Newtonsoft.Json.Linq.JToken.DeepEquals(Body(review)["system"][0], Body(other)["system"][0]));
+            }
+            Assert.Equal("1h", (string)Body(review)["system"][0]["cache_control"]["ttl"]);
+            // What differs (which fields to fill, the task) is in the user message, after the cache.
+            Assert.StartsWith(Contracts.ReviewFields, review.User);
+            Assert.StartsWith(Contracts.RewriteFields, rewrite.User);
+            Assert.StartsWith(Contracts.RestructureFields, restructure.User);
+        }
+
+        [Fact]
+        public void Restructure_ReadsTheRevisedField()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            doc.SelectXPath("//body/p[2]/text()");
+            var llm = new FakeLlmClient(r => "{\"findings\":[],\"changes\":[],\"needs_restructure\":false,\"note\":\"\",\"revised\":\"<ul><li>One.</li><li>Two.</li></ul>\"}");
+            var runner = Runner(llm);
+            var proposal = runner.Restructure(doc, runner.PickBlocks(doc), "Make this a list.");
+            Assert.Equal("<ul><li>One.</li><li>Two.</li></ul>", proposal.ProposedXml);
+        }
+
+        [Theory]
+        [InlineData("draft", "5m")]
+        [InlineData("extract", "5m")]
+        [InlineData("refine", "5m")]
+        [InlineData("alt", "none")]
+        [InlineData("assist", "none")]
+        [InlineData("review", "1h")]
+        [InlineData("rewrite", "1h")]
+        public void RarelyUsedTasks_DontPayForAnHourLongCacheWrite(string task, string ttl)
+        {
+            Assert.Equal(ttl, new FlareAI.Core.Llm.Routing().CacheFor(task));
+            var body = Body(new FlareAI.Core.Llm.LlmRequest { Task = task, System = "system", User = "u", CacheTtl = ttl });
+            var control = body["system"][0]["cache_control"];
+            if (ttl == "none") Assert.Null(control);
+            else if (ttl == "5m") { Assert.Equal("ephemeral", (string)control["type"]); Assert.Null(control["ttl"]); }
+            else Assert.Equal("1h", (string)control["ttl"]);
+        }
+
+        [Fact]
+        public void TeamCanChangeACacheLifetime()
+        {
+            var dir = Path.Combine(Path.GetTempPath(), "flareai-cache-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(Path.Combine(dir, "FlareAI"));
+            try
+            {
+                File.WriteAllText(Path.Combine(dir, @"FlareAI\models.json"), "{\"cache\":{\"restructure\":\"5m\",\"alt\":\"forever\"}}");
+                var routing = new FlareAI.Core.Llm.Routing().WithTeamFile(dir);
+                Assert.Equal("5m", routing.CacheFor("restructure"));
+                Assert.Equal("none", routing.CacheFor("alt"));   // unknown values are ignored
+            }
+            finally { Directory.Delete(dir, true); }
+        }
     }
 }

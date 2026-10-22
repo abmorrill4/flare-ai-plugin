@@ -85,13 +85,17 @@ namespace FlareAI.Core.Actions
         private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null, GuideScope scope = null)
         {
             var route = Routing.For(task);
-            // Every task carries the same always-on block (same prefix → one cache entry for refine, assists, review…).
+            // The cached prefix is (model, output schema, system prompt): the schema sits ahead of the system prompt, and
+            // caches are per model. So tasks share a cache entry only when all three match: review, rewrite and restructure
+            // do (Sonnet, Contracts.EditSchema, the same always-on block); refine (Haiku), draft (Opus) and extract (its own
+            // schema) each have their own, so they cache for five minutes, not an hour (Routing.CacheFor).
             scope = scope ?? new GuideScope();
             if (scope.Always.Count == 0) scope.Always = new HashSet<string>(Routing.AlwaysPacks ?? new List<string>());
             var system = _prompts.BuildSystemParts(scope);
             var req = new LlmRequest
             {
                 Task = task, System = system[0], SystemPacks = system[1], SystemTerms = system[2], User = user, Schema = schema, Model = route.Model, Effort = route.Effort,
+                CacheTtl = Routing.CacheFor(task),
                 Images = images, MaxTokens = Math.Max(_maxTokens, AnthropicClient.DefaultMaxTokens)
             };
             var sw = Stopwatch.StartNew();
@@ -851,11 +855,12 @@ namespace FlareAI.Core.Actions
 
         private RewriteProposal Propose(IDocumentAdapter doc, IList<XmlNode> blocks, IList<XmlNode> view, string user, string task)
         {
-            var resp = Ask(task, user, null, null, ScopeOf(blocks));
+            // The edit-family schema, so restructure reads the review/rewrite cache entry instead of writing its own.
+            var resp = Ask(task, Contracts.RestructureFields + "\n\n" + user, Contracts.EditSchema, null, ScopeOf(blocks));
             var proposal = new RewriteProposal { OriginalBlocks = blocks, View = view, Raw = resp, Validation = new ValidationResult(), Notes = new List<string>(), RemainingLint = new List<StyleFinding>() };
             try
             {
-                proposal.ProposedXml = ResponseParser.ParseRevised(resp.Text);
+                proposal.ProposedXml = Contracts.ReadRevised(resp);
                 proposal.ProposedBlocks = XhtmlFragment.ParseInto(proposal.ProposedXml, doc.Document);
                 proposal.Validation = XhtmlValidator.Validate(view, proposal.ProposedBlocks);
                 if (proposal.Validation.IsValid)
