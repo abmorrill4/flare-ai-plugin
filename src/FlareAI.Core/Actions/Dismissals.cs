@@ -90,7 +90,7 @@ namespace FlareAI.Core.Actions
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
-                var existing = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8).TrimStart('﻿') : "# Rules turned off for this project (House Style, \"Turn off this rule\"). Vale syntax: Style.Rule = NO\r\n";
+                var existing = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8).TrimStart('﻿') : "# Rules disabled for this project (House Style, \"Disable Rule\"). Vale syntax: Style.Rule = NO\r\n";
                 if (existing.IndexOf(line, StringComparison.OrdinalIgnoreCase) >= 0) return;
                 var meta = by == null && string.IsNullOrEmpty(reason) ? "" : FlareAI.Core.Style.RuleOverrides.MetaLine(by, DateTime.Now, reason) + "\r\n";
                 File.WriteAllText(path, existing.TrimEnd() + "\r\n" + meta + line + "\r\n", NoBom); // ini readers choke on a BOM

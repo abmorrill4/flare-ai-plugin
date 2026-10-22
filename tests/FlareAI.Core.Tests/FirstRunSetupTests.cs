@@ -38,7 +38,7 @@ namespace FlareAI.Core.Tests
         [Fact]
         public void ChoiceLabelsArePlainWords()
         {
-            Assert.Equal("No AI (style rules only)", AiChoices.Label(AiChoice.None));
+            Assert.Equal("No AI (rules only)", AiChoices.Label(AiChoice.None));
             Assert.Equal("My Anthropic API key", AiChoices.Label(AiChoice.AnthropicKey));
             Assert.Equal("My company's AI service (gateway)", AiChoices.Label(AiChoice.Gateway));
         }

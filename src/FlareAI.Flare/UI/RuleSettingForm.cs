@@ -30,7 +30,7 @@ namespace FlareAI.Flare.UI
         public RuleSettingForm(string ruleText, bool canChangeTeamGuide, bool personalGuide = false, IList<FlareAI.Core.Style.RuleRef> otherRules = null,
                                string setting = null, bool canChangeProject = true, string title = null)
         {
-            Text = "House Style — " + (title ?? "Turn off this rule");
+            Text = "House Style — " + (title ?? "Disable Rule");
             StartPosition = FormStartPosition.CenterParent; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
             ClientSize = new Size(520, 270); Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;
@@ -41,11 +41,11 @@ namespace FlareAI.Flare.UI
             Controls.Add(_team); Controls.Add(_project);
             Controls.Add(new Label { Text = "Set the rule to:", Left = 12, Top = 124, Width = 110 });
             _setting = new ComboBox { Left = 124, Top = 120, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
-            _setting.Items.AddRange(new object[] { "Off", "Tip", "Warning", "Error" });
+            _setting.Items.AddRange(new object[] { "Off", "Suggestion", "Warning", "Error" });
             _setting.SelectedItem = FlareAI.Core.Severity.Label(setting ?? "off");
             if (_setting.SelectedIndex < 0) _setting.SelectedIndex = 0;
             Controls.Add(_setting);
-            Controls.Add(new Label { Text = "Why (the team sees this in the guide):", Left = 12, Top = 156, Width = 496 });
+            Controls.Add(new Label { Text = "Reason (the team sees it in the guide):", Left = 12, Top = 156, Width = 496 });
             _reason = new TextBox { Left = 12, Top = 176, Width = 496 };
             Controls.Add(_reason);
             var extra = 0;
@@ -53,14 +53,14 @@ namespace FlareAI.Flare.UI
             {
                 var names = new List<string>();
                 foreach (var r in otherRules) names.Add("•  " + (r.Name.Length > 80 ? r.Name.Substring(0, 79) + "…" : r.Name));   // one line each
-                _others = new CheckBox { Text = (setting == null || setting == "off" ? "Also turn off " : "Also change ") + otherRules.Count + (otherRules.Count == 1 ? " other rule" : " other rules") + " that flag the same words", Left = 12, Top = 208, Width = 496, Checked = true };
+                _others = new CheckBox { Text = (setting == null || setting == "off" ? "Also disable " : "Also change ") + otherRules.Count + (otherRules.Count == 1 ? " other rule" : " other rules") + " that flag the same words", Left = 12, Top = 208, Width = 496, Checked = true };
                 var list = new Label { Text = string.Join(Environment.NewLine, names.ToArray()), Left = 32, Top = 232, Width = 476, Height = 16 * names.Count + 4, AutoEllipsis = true };
                 Controls.Add(_others); Controls.Add(list);
                 extra = 28 + 16 * names.Count;
                 A11y.Name(_others, _others.Text, string.Join(", ", names.ToArray()));
             }
             ClientSize = new Size(520, 270 + extra);
-            var ok = new Button { Text = "Apply", Left = 352, Top = 228 + extra, Width = 75, DialogResult = DialogResult.OK };
+            var ok = new Button { Text = "OK", Left = 352, Top = 228 + extra, Width = 75, DialogResult = DialogResult.OK };
             var cancel = new Button { Text = "Cancel", Left = 433, Top = 228 + extra, Width = 75, DialogResult = DialogResult.Cancel };
             Controls.Add(ok); Controls.Add(cancel);
             AcceptButton = ok; CancelButton = cancel;

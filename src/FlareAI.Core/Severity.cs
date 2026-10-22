@@ -1,8 +1,8 @@
 namespace FlareAI.Core
 {
     /// <summary>
-    /// Severity tokens and their names in the UI. Tables and stored data keep the token "suggestion"; the UI says "Tip"
-    /// (a pane item is a "suggestion", so the lowest severity needed another name). Reading accepts both.
+    /// Severity tokens and their names in the UI. Tables and stored data keep the token "suggestion", which the UI
+    /// shows as "Suggestion" (what lint finds is an "issue"). Reading also accepts "tip", the UI word of earlier versions.
     /// </summary>
     public static class Severity
     {
@@ -15,14 +15,14 @@ namespace FlareAI.Core
             return s == "tip" ? Tip : s;
         }
 
-        /// <summary>"Error" / "Warning" / "Tip" for the UI ("off" shows as "Off").</summary>
+        /// <summary>"Error" / "Warning" / "Suggestion" for the UI ("off" shows as "Off").</summary>
         public static string Label(string token)
         {
             switch (Normalize(token))
             {
                 case Error: return "Error";
                 case Warning: return "Warning";
-                case Tip: return "Tip";
+                case Tip: return "Suggestion";
                 case "off": return "Off";
                 case "on": return "On";
                 default: return token ?? "";

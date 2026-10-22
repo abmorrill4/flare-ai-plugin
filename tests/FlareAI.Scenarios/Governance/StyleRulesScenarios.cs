@@ -372,7 +372,7 @@ namespace FlareAI.Scenarios.Governance
                 var rule = catalog().Find(ThisPage);
                 Assert.Equal(RuleState.Off, rule.State);
                 Assert.True(rule.IsDefault);
-                Assert.Equal("Off (Default)", rule.StateLabel);
+                Assert.Equal("Disabled (Default)", rule.StateLabel);
                 Assert.Equal(RuleOverrides.DefaultScope, rule.Change.Scope);
                 Assert.False(flagged());
                 Assert.False(RuleChanges.WillRequest(team, rule, true));

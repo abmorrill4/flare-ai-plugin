@@ -29,7 +29,7 @@ namespace FlareAI.Flare.UI
             foreach (var n in names) lines.Add("•  " + (n.Length > 80 ? n.Substring(0, 79) + "…" : n));
             _also = new CheckBox
             {
-                Text = "Also turn back on " + names.Count + (names.Count == 1 ? " rule" : " rules") + " turned off with it",
+                Text = "Also enable " + names.Count + (names.Count == 1 ? " rule that was" : " rules that were") + " disabled with it",
                 Left = 12, Top = 66, Width = 496, Checked = true
             };
             var list = new Label { Text = string.Join(Environment.NewLine, lines.ToArray()), Left = 32, Top = 90, Width = 476, Height = 16 * lines.Count + 4, AutoEllipsis = true };

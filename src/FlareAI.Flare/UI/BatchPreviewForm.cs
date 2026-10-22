@@ -21,7 +21,7 @@ namespace FlareAI.Flare.UI
         public BatchPreviewForm(BatchPlan plan)
         {
             _plan = plan;
-            Text = "House Style — Apply fixes";
+            Text = "House Style — Change All";
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false; MinimizeBox = false; ShowInTaskbar = false;
@@ -32,12 +32,12 @@ namespace FlareAI.Flare.UI
             var intro = new Label
             {
                 Left = 12, Top = 10, Width = 536, Height = 54,
-                Text = "These fixes reach files other than the one you have open. Untick any rule you don't want. " +
-                       "Every change is a tracked change. Files that aren't open are saved and closed afterwards; review them in Flare's Review tab."
+                Text = "These changes reach files other than the one you have open. Clear any rule you don't want. " +
+                       "Every change is a tracked change. Files that aren't open are saved and closed afterwards. Accept the changes on Flare's Review tab."
             };
             _rules = new ListView { Left = 12, Top = 68, Width = 536, Height = 150, View = View.Details, CheckBoxes = true, FullRowSelect = true, HideSelection = false, HeaderStyle = ColumnHeaderStyle.Nonclickable };
             _rules.Columns.Add("Rule", 330);
-            _rules.Columns.Add("Fixes", 70);
+            _rules.Columns.Add("Changes", 70);
             _rules.Columns.Add("Files", 70);
             foreach (var g in plan.Groups)
             {
@@ -52,7 +52,7 @@ namespace FlareAI.Flare.UI
             var cancel = new Button { Text = "Cancel", Left = 478, Top = 424, Width = 70, Height = 26, DialogResult = DialogResult.Cancel };
             Controls.AddRange(new Control[] { intro, _rules, _details, _snippets, skipped, _apply, cancel });
             AcceptButton = _apply; CancelButton = cancel;
-            A11y.Name(_rules, "Rules to apply", "Untick a rule to leave it out. Columns: rule, number of fixes, number of files.");
+            A11y.Name(_rules, "Rules to change", "Clear a rule to leave it out. Columns are rule, number of changes and number of files.");
             A11y.Name(_details, "Examples for the selected rule");
 
             _rules.ItemChecked += (s, e) => { if (_loading) return; ((RuleGroup)e.Item.Tag).Selected = e.Item.Checked; Refresh2(); };
@@ -68,7 +68,7 @@ namespace FlareAI.Flare.UI
             if (_plan.Skipped.Count == 0) return "";
             var names = new System.Collections.Generic.List<string>();
             foreach (var s in _plan.Skipped) names.Add(System.IO.Path.GetFileName(s.Path) + " (" + s.Reason + ")");
-            return "Skipped, not written: " + string.Join(", ", names.ToArray());
+            return "Skipped and not changed: " + string.Join(", ", names.ToArray());
         }
 
         private void ShowDetails()
@@ -79,9 +79,9 @@ namespace FlareAI.Flare.UI
         private void Refresh2()
         {
             var n = _plan.SelectedCount;
-            _apply.Text = n == 0 ? "Apply" : "Apply " + n;
+            _apply.Text = n == 0 ? "Change" : "Change " + n;
             _apply.Enabled = n > 0;
-            _apply.AccessibleName = n == 0 ? "Apply" : "Apply " + n + " fixes";
+            _apply.AccessibleName = n == 0 ? "Change" : "Make " + n + " changes";
             Text = "House Style — " + BatchPlan.Counts(n, _plan.SelectedFileCount);
             _snippets.Text = _plan.SnippetNote() ?? "";
             _snippets.AccessibleName = _snippets.Text;

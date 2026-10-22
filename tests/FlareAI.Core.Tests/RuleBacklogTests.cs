@@ -29,18 +29,18 @@ namespace FlareAI.Core.Tests
         [Fact]
         public void Summary_IsTheHeadlineTheTesterAskedFor()
         {
-            Assert.Equal("117 suggestions in 42 files. 63 can be fixed automatically across 9 rules.", RuleBacklog.Summary(PilotBacklog(), null));
-            Assert.Equal("117 suggestions in 42 files. 63 can be fixed automatically across 9 rules. 2 rules skipped for now.", RuleBacklog.Summary(PilotBacklog(), null, 2));
+            Assert.Equal("117 issues in 42 files. 63 can be changed automatically across 9 rules.", RuleBacklog.Summary(PilotBacklog(), null));
+            Assert.Equal("117 issues in 42 files. 63 can be changed automatically across 9 rules. 2 rules skipped for now.", RuleBacklog.Summary(PilotBacklog(), null, 2));
         }
 
         [Fact]
         public void Summary_EdgeCases()
         {
-            Assert.Equal("No open suggestions.", RuleBacklog.Summary(new List<StyleFinding>(), null));
-            Assert.Equal("1 suggestion in 1 file. It can be fixed automatically by one rule.", RuleBacklog.Summary(new[] { Hit("a", "t.htm", true) }, null));
-            Assert.Equal("2 suggestions in 2 files. None can be fixed automatically: review them one rule at a time.",
+            Assert.Equal("No issues found in this project.", RuleBacklog.Summary(new List<StyleFinding>(), null));
+            Assert.Equal("1 issue in 1 file. It can be changed automatically by one rule.", RuleBacklog.Summary(new[] { Hit("a", "t.htm", true) }, null));
+            Assert.Equal("2 issues in 2 files. None can be changed automatically. Review them one rule at a time.",
                          RuleBacklog.Summary(new[] { Hit("a", "t.htm", false), Hit("a", "u.htm", false) }, null));
-            Assert.Equal("2 suggestions in 1 file. All can be fixed automatically across 2 rules.",
+            Assert.Equal("2 issues in 1 file. All can be changed automatically across 2 rules.",
                          RuleBacklog.Summary(new[] { Hit("a", "t.htm", true), Hit("b", "T.htm", true) }, null));
         }
 
@@ -82,8 +82,8 @@ namespace FlareAI.Core.Tests
             r.AddChanged(@"C:\P\Content\a.htm", 3, true);
             r.AddNotStarted(@"C:\P\Content\b.htm", 2);
             r.AddNotStarted(@"C:\P\Content\c.htm", 1);
-            Assert.EndsWith("Stopped: 2 files were not changed.", r.Status());
-            Assert.Contains("Not changed: b.htm (2 fixes) — stopped before this file", r.Report());
+            Assert.EndsWith("Stopped. 2 files were not changed.", r.Status());
+            Assert.Contains("Not changed: b.htm (2 changes, stopped before this file)", r.Report());
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace FlareAI.Core.Tests
             var plan = BatchPlan.Build(fixes, null, p => null, p => p.EndsWith("Note.flsnp") ? 14 : 1);
             var shared = Assert.Single(plan.SharedSnippets);
             Assert.Equal(14, shared.Uses);
-            Assert.Equal("1 fix is in a snippet that other topics include: Note.flsnp (used in 14 topics). Changing a snippet changes every topic that includes it.", plan.SnippetNote());
+            Assert.Equal("1 change is in a snippet that other topics include: Note.flsnp (used in 14 topics). Changing a snippet changes every topic that includes it.", plan.SnippetNote());
             plan.Groups[0].Selected = false;
             Assert.Null(plan.SnippetNote());
         }

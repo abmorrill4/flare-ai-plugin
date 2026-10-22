@@ -70,6 +70,11 @@ namespace FlareAI.Core.Settings
         /// the policy file decides.
         /// </summary>
         public bool AutoUpdate { get; set; }
+        /// <summary>
+        /// Writer or style guide owner, from setup's first question or Settings; it decides the ribbon (read at Flare
+        /// start). Null in settings from before roles: see <see cref="Roles.Effective"/>.
+        /// </summary>
+        public UserRole? Role { get; set; }
 
         /// <summary>The routing in effect: these settings, then the team's FlareAI\models.json in the style guide.</summary>
         public FlareAI.Core.Llm.Routing Routing(string guideRoot)

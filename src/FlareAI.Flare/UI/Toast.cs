@@ -41,7 +41,7 @@ namespace FlareAI.Flare.UI
             AutoScaleMode = AutoScaleMode.Font;
             AccessibleRole = AccessibleRole.Alert;
             AccessibleName = "House Style notice";
-            AccessibleDescription = text + (action != null ? ". " + actionLabel + ": also in the House Style pane, or run Check style from the House Style ribbon." : "");
+            AccessibleDescription = text + (action != null ? ". " + actionLabel + " is also in the House Style Issues pane." : "");
             FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual; TopMost = true;
             BackColor = Color.FromArgb(45, 45, 48); ForeColor = Color.White; Font = SystemFonts.MessageBoxFont; Padding = new Padding(12, 10, 12, 10);
             var label = new Label { Text = text, AutoSize = true, MaximumSize = new Size(340, 0), Left = 12, Top = 10, ForeColor = Color.White };

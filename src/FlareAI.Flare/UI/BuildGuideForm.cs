@@ -38,7 +38,7 @@ namespace FlareAI.Flare.UI
         public BuildGuideForm(Team team, StyleEngine style, string project, Func<ActionRunner> runner, Func<string, IDocumentAdapter> open)
         {
             _team = team; _style = style; _project = project; _runner = runner; _open = open;
-            Text = "House Style — Build style guide";
+            Text = Notify.Caption(Commands.ImportRules.Label);
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(940, 640);
             MinimumSize = new Size(640, 420);
@@ -103,7 +103,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(detail, "Rule details"); A11y.Name(bar, "Dialog buttons");
             A11y.Apply(this);
             if (_team != null) _team.Recheck();
-            _head.Text = "Proposes rules from what your team already writes and from your notes. Check the ones to keep, then add them to the guide." +
+            _head.Text = "Find rules in what your team already writes, or in a document such as an old style guide. Select the ones to keep, then add them to the guide." +
                          (Requesting ? "\n" + _team.AccessNotice : "");
             UpdateAdd();
         }
@@ -124,7 +124,7 @@ namespace FlareAI.Flare.UI
                 if (e.Error != null) { Diagnostics.Log("Build guide: mine", e.Error); _head.Text = "Couldn't look through the project: " + e.Error.Message; return; }
                 var found = (List<RuleCandidate>)e.Result;
                 Add(found, "content");
-                _head.Text = files + " topics and snippets read: " + Plural.Of(found.Count, "suggested rule") + " the guide doesn't cover yet." +
+                _head.Text = files + " topics and snippets read. " + Plural.Of(found.Count, "suggested rule") + " the guide doesn't cover yet." +
                              (found.Count == 0 ? " Your content is consistent with the guide." : " Where the team was split, pick the preferred form.");
             };
             worker.RunWorkerAsync();
@@ -162,7 +162,7 @@ namespace FlareAI.Flare.UI
                 if (e.Error != null) { Diagnostics.Log("Build guide: notes", e.Error); _head.Text = "Could not read the notes: " + e.Error.Message; return; }
                 var found = (List<RuleCandidate>)e.Result;
                 Add(found, "notes");
-                _head.Text = Plural.Of(found.Count, "rule") + " found in your notes. Each shows the words it came from; check the ones to keep." +
+                _head.Text = Plural.Of(found.Count, "rule") + " found in your notes. Each shows the words it came from. Select the ones to keep." +
                              (skipped > 0 ? " " + skipped + " more are already in the guide." : "");
             };
             worker.RunWorkerAsync();
@@ -275,7 +275,7 @@ namespace FlareAI.Flare.UI
                 int n;
                 topic = GuideBuilder.AddToGuide(_team, accepted, out n);
                 foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
-                _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example)" +
+                _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare and run Test Rules" +
                              (_team.IsPersonal ? "." : ", then commit the guide.");
                 if (_open != null) _open(topic);
             }
@@ -283,14 +283,14 @@ namespace FlareAI.Flare.UI
             {
                 Diagnostics.Log("Build guide: write", ex);
                 _team.ProbeGuide();
-                if (Notify.Confirm(this, "House Style couldn't write to " + topic + ": " + ex.Message + "\n\nNothing was added. Send the checked rules to the style guide owners (" + _team.OwnerNames + ") as requests instead?", "Build style guide"))
+                if (Notify.Confirm(this, "House Style couldn't write to " + topic + ". " + ex.Message + "\n\nNothing was added. Send the selected rules to the style guide owners (" + _team.OwnerNames + ") as requests instead?", Commands.ImportRules.Label))
                     RequestAdding(accepted, null);
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Build guide: write", ex);
-                Notify.Error(this, "House Style couldn't add the rules: it couldn't write to " + topic + ".",
-                             ex.Message + "\n\nNothing was added. Check that you can write to that folder and the file isn't read-only, then try again.", ex, "Build style guide");
+                Notify.Error(this, "House Style couldn't add the rules because it couldn't write to " + topic + ".",
+                             ex.Message + "\n\nNothing was added. Check that you can write to that folder and the file isn't read-only, then try again.", ex, Commands.ImportRules.Label);
             }
             UpdateAdd();
         }
@@ -300,7 +300,7 @@ namespace FlareAI.Flare.UI
         {
             if (rules.Count == 0) return;
             reason = reason ?? RequestForm.AskReason(this, "Add " + Plural.Of(rules.Count, "rule") + " to the style guide: " + string.Join("; ", rules.Take(3).Select(c => c.Title).ToArray()) + (rules.Count > 3 ? "; …" : ""),
-                "This will be sent to the style guide owners (" + _team.OwnerNames + "), one request per rule. They decide in Tune style guide; you see the answer on your next check." +
+                "This goes to the style guide owners (" + _team.OwnerNames + "), one request per rule. You see their answer the next time you lint." +
                 (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice));
             if (reason == null) return;
             string problem = null;
@@ -321,13 +321,13 @@ namespace FlareAI.Flare.UI
                 catch (Exception ex)
                 {
                     Diagnostics.Log("Build guide: request", ex);
-                    Notify.Error(this, "House Style couldn't send the request for \"" + c.Title + "\".", ex.Message + "\n\nYour reason: " + reason, ex, "Build style guide");
+                    Notify.Error(this, "House Style couldn't send the request for \"" + c.Title + "\".", ex.Message + "\n\nYour reason: " + reason, ex, Commands.ImportRules.Label);
                     break;
                 }
                 foreach (var i in _list.Items.Cast<ListViewItem>().Where(i => i.Tag == c).ToList()) _list.Items.Remove(i);
             }
-            _head.Text = problem == null ? "Sent " + Plural.Of(sent, "request") + " to the style guide owners (" + _team.OwnerNames + "). You see their answer on your next check."
-                                         : Plural.Of(sent, "request") + " saved but not sent yet: " + problem + ". House Style sends them on your next check.";
+            _head.Text = problem == null ? "Sent " + Plural.Of(sent, "request") + " to the style guide owners (" + _team.OwnerNames + "). You see their answer the next time you lint."
+                                         : Plural.Of(sent, "request") + " saved but not sent yet (" + problem + "). House Style sends them the next time you lint.";
             UpdateAdd();
         }
 
@@ -389,7 +389,7 @@ namespace FlareAI.Flare.UI
                 if (code == 32 || code == 33) return "This file is open in another program (Word, for example) and can't be read. Close it there, or save a copy and load that.";
             }
             if (ex is UnauthorizedAccessException) return "House Style isn't allowed to read that file. Pick another file, or check its permissions.";
-            return "House Style couldn't read that file: " + ex.Message;
+            return "House Style couldn't read that file. " + ex.Message;
         }
     }
 }

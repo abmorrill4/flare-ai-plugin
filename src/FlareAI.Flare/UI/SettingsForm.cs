@@ -10,7 +10,7 @@ using FlareAI.Core.Settings;
 namespace FlareAI.Flare.UI
 {
     /// <summary>
-    /// Settings in four tabs: AI, Style guide, Checking, Advanced. The key is DPAPI-protected on save and never shown back.
+    /// Settings in four tabs: AI, Style guide, Linting, Advanced. The key is DPAPI-protected on save and never shown back.
     /// Which AI fields show for each choice comes from <see cref="AiChoices"/> (Core), shared with first-run setup.
     /// </summary>
     public sealed class SettingsForm : Form
@@ -37,14 +37,24 @@ namespace FlareAI.Flare.UI
 
         /// <summary>True when the writer chose "Run setup again": Settings closed without saving and setup should start.</summary>
         public bool RunSetupRequested { get; private set; }
+        /// <summary>True when the writer chose "Start the Tour Again": Settings closed without saving and the tour should start.</summary>
+        public bool TourRequested { get; private set; }
+
+        private readonly RadioButton[] _roles;
+        private readonly UserRole _startRole;
 
         private const string GatewayHint = "The address your admin gave you, e.g. https://gateway.example.com";
 
         /// <param name="pluginDir">The plugin folder (where an IT department's update-policy.json lives), or null.</param>
         /// <param name="whyUpdatesOff">Why automatic updates are off now (<c>UpdateFlow.WhyOff</c>), null when they are on.</param>
-        public SettingsForm(string pluginDir = null, Func<string> whyUpdatesOff = null)
+        /// <param name="role">The role the ribbon was built for (the one in effect until Flare restarts).</param>
+        /// <param name="exportLlm">Export for LLMs, from the Advanced tab (null hides the button).</param>
+        /// <param name="diagnostics">Diagnostics, from the Advanced tab (null hides the button).</param>
+        public SettingsForm(string pluginDir = null, Func<string> whyUpdatesOff = null, UserRole role = UserRole.Writer,
+                            Action<IWin32Window> exportLlm = null, Action<IWin32Window> diagnostics = null)
         {
             _settings = PluginSettings.Load();
+            _startRole = _settings.Role ?? role;
             _pluginDir = pluginDir;
             _whyUpdatesOff = whyUpdatesOff;
             _updatePolicy = FlareAI.Core.Update.UpdatePolicy.Resolve(_settings.AutoUpdate, pluginDir);
@@ -60,7 +70,7 @@ namespace FlareAI.Flare.UI
             // The tab control is in the form before the pages are filled, so the pages measure text with the dialog font.
             _tabs = new TabControl { Left = (int)(8 * scale), Top = (int)(8 * scale) };
             Controls.Add(_tabs);
-            var aiPage = Page("AI"); var guidePage = Page("Style guide"); var checkPage = Page("Checking"); var advPage = Page("Advanced");
+            var aiPage = Page("AI"); var guidePage = Page("Style guide"); var checkPage = Page("Linting"); var advPage = Page("Advanced");
 
             // ---- AI ----------------------------------------------------------------------------------------------
             var ai = _ai = new StackLayout(aiPage, scale);
@@ -89,15 +99,20 @@ namespace FlareAI.Flare.UI
             ai.Y += Math.Max(_test.PreferredSize.Height + ai.S(4), _testResult.Height + ai.S(4)) + ai.S(6);
 
             _aiNoteBlock = ai.Begin();
-            ai.Note("AI is used only when you ask for it: Check style's wording review, Rewrite, Ask, Topic assists, and Validate style guide's AI check. " +
-                    "Checking as you type, on save, before a build, and Check project never use AI and cost nothing.");
+            ai.Note("AI runs only when you ask for it, in Lint Topic's wording review, Rewrite, Ask AI, Topic Metadata and Test Rules. " +
+                    "Linting as you type, on save, before a build and Lint Project never use AI and cost nothing.");
 
             _noAiBlock = ai.Begin();
-            ai.Note("Without AI, House Style still checks your writing against the style rules: as you type, when you save, before a build, " +
-                    "and with Check style and Check project. Rewrite, Ask, Topic assists and the AI wording review need AI: choose one of the other options when you're ready.", true);
+            ai.Note("Without AI, House Style still lints your writing as you type, when you save, before a build, and with Lint Topic and Lint Project. " +
+                    "Rewrite, Ask AI, Topic Metadata and the AI wording review need AI.", true);
 
             // ---- Style guide --------------------------------------------------------------------------------------
             var g = _guide = new StackLayout(guidePage, scale);
+            g.Heading(Roles.Question);
+            _roles = g.Choices(Roles.Question, Roles.Answers, g.S(8));
+            _roles[(int)_startRole].Checked = true;
+            g.Note("A change to the ribbon applies the next time you start Flare.", true);
+            g.Gap(4);
             _layers = g.Row("Team style guide", new ListBox { Height = g.S(64), IntegralHeight = false, HorizontalScrollbar = true }, g.FieldWidth - g.S(92));
             foreach (var line in (_settings.StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
                 if (line.Trim().Length > 0) _layers.Items.Add(line.Trim());
@@ -121,17 +136,17 @@ namespace FlareAI.Flare.UI
             g.Note("Leave the list empty to use Google's developer documentation style guide plus your own changes. " +
                    "A team guide is a Flare project folder your style guide owner shares (on OneDrive, SharePoint, Google Drive or a network drive). If you add more than one, the later one wins.");
             _projectLayer = g.Check("Also use this project's variables, glossary and StyleGuide folder", _settings.UseProjectLayer);
-            g.Note("The open Flare project's variables and glossary terms, and any rules in its Resources\\StyleGuide folder, are checked too.");
+            g.Note("House Style also lints with the open project's variables, glossary terms and any rules in its Resources\\StyleGuide folder.");
             g.Reflow();
             _guideStatus.TextChanged += (s, e) => _guide.FitHeight(_guideStatus);
 
             // ---- Checking -----------------------------------------------------------------------------------------
             var c = new StackLayout(checkPage, scale);
-            c.Note("These checks use only the style rules: no AI and no cost. They never stop you saving or building.", true);
-            _live = c.Check("Check my writing as I type", _settings.LiveCheck, true);
-            _onSave = c.Check("When I save a topic, tell me how many suggestions it has", _settings.CheckOnSave, true);
-            _beforeBuild = c.Check("When I start a build, show the style suggestions for the whole project", _settings.ReportBeforeBuild, true);
-            _markers = c.Check("Mark paragraphs that have suggestions with a bar in the editor margin", _settings.ShowMarkers, true);
+            c.Note("Linting uses only the rules, with no AI and no cost. It never stops you from saving or building.", true);
+            _live = c.Check("Lint my writing as I type", _settings.LiveCheck, true);
+            _onSave = c.Check("When I save a topic, tell me how many issues it has", _settings.CheckOnSave, true);
+            _beforeBuild = c.Check("When I start a build, lint the whole project", _settings.ReportBeforeBuild, true);
+            _markers = c.Check("Mark paragraphs that have issues with a bar in the margin", _settings.ShowMarkers, true);
             c.Reflow();
 
             // ---- Advanced -----------------------------------------------------------------------------------------
@@ -155,7 +170,7 @@ namespace FlareAI.Flare.UI
             _feedback.Leave += (s, e) => CheckFeedback();
             a.Y = Math.Max(a.Y, _browseFeedback.Bottom + a.S(4));
             _feedbackStatus = a.Status(1);
-            a.Note("Shared folder (synced or network) where review decisions are pooled. Empty = personal only. The guide owner sees each decision, its rule and the text; who made it only if the guide sets attribution = names (default: anonymous, counted).");
+            a.Note("A shared folder where your team's decisions are collected. Leave it empty to keep them on this computer. Owners see each decision, its rule and the text, and names only if the style guide is set to show them.");
             _diag = a.Check("Write a diagnostics log (for support)", _settings.WriteDiagnostics);
             _llmExport = a.Check("After each HTML build, add LLM-ready Markdown and llms.txt to the output", _settings.LlmExportAfterBuild);
             _autoUpdate = a.Check("Keep House Style up to date (checks GitHub once a day)", _updatePolicy.Enabled);
@@ -165,6 +180,13 @@ namespace FlareAI.Flare.UI
             _autoUpdate.CheckedChanged += (s, e) => ShowUpdateStatus();
             a.Reflow();
             _updateStatus.TextChanged += (s, e) => _adv.FitHeight(_updateStatus);
+            // Tools that left the ribbon: Export for LLMs and Diagnostics, plus the tour.
+            var tools = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Left = a.LabelLeft, Top = a.Y, MaximumSize = new Size(a.FullWidth, 0) };
+            a.Add(tools);
+            if (exportLlm != null) ToolButton(tools, Commands.ExportLlm.Label + "…", Commands.ExportLlm.Tooltip, () => exportLlm(this));
+            if (diagnostics != null) ToolButton(tools, Commands.Diagnostics.Label + "…", Commands.Diagnostics.Tooltip, () => diagnostics(this));
+            ToolButton(tools, Commands.Tour.Label, Commands.Tour.Tooltip, () => { TourRequested = true; DialogResult = DialogResult.Cancel; Close(); });
+            a.Y += tools.PreferredSize.Height + a.S(8);
 
             // ---- size: the tallest page, every AI block shown ----------------------------------------------------
             var pageH = new[] { ai.FullHeight(), g.Y, c.Y, a.Y }.Max() + ai.S(8);
@@ -215,7 +237,8 @@ namespace FlareAI.Flare.UI
             A11y.Name(_testResult, "Connection test result");
             A11y.Name(_layers, "Team style guide folders", "Folders of your team's style guide. None uses Google's guide plus your own changes.");
             A11y.Name(_timeout, "Timeout in seconds");
-            A11y.Name(_runSetup, "Run setup again", "Closes Settings without saving and starts the three setup steps.");
+            A11y.Name(_runSetup, "Run setup again", "Closes Settings without saving and starts setup.");
+            A11y.Name(_roles[0].Parent, Roles.Question);
 
             var choice = AiChoices.Of(_settings);
             _choices[Array.IndexOf(AiChoices.All, choice)].Checked = true;   // runs OnChoiceChanged
@@ -229,13 +252,24 @@ namespace FlareAI.Flare.UI
             FormClosed += (s, e) => _closed = true;
         }
 
+        private readonly ToolTip _tips = new ToolTip();
+
+        private void ToolButton(FlowLayoutPanel bar, string text, string tip, Action click)
+        {
+            var b = new Button { Text = text, AutoSize = true, MinimumSize = new Size(0, (int)(26 * DeviceDpi / 96f)), Margin = new Padding(0, 0, 8, 4) };
+            b.Click += (s, e) => Safe.Run(text, click);
+            _tips.SetToolTip(b, tip);
+            A11y.Name(b, text.TrimEnd('…'), tip);
+            bar.Controls.Add(b);
+        }
+
         /// <summary>Under the update check box: who decides, and whether updates are on (from <c>UpdateFlow.WhyOff</c>).</summary>
         private void ShowUpdateStatus()
         {
             string why = null;
             try { why = _whyUpdatesOff == null ? null : _whyUpdatesOff(); } catch (Exception ex) { FlareAI.Core.Diagnostics.Log("update status", ex); }
             if (_updatePolicy.FromPolicyFile)
-                _updateStatus.Text = "Set by your IT department (update-policy.json in the plugin folder): updates are " + (_updatePolicy.Enabled ? "on." : "off.");
+                _updateStatus.Text = "Set by your IT department. Automatic updates are " + (_updatePolicy.Enabled ? "on." : "off.");
             else if (why != null && why.StartsWith("not available", StringComparison.OrdinalIgnoreCase))
                 _updateStatus.Text = "Automatic updates are " + why + ".";
             else
@@ -519,6 +553,7 @@ namespace FlareAI.Flare.UI
             _settings.LiveCheck = _live.Checked;
             _settings.CheckOnSave = _onSave.Checked;
             _settings.ReportBeforeBuild = _beforeBuild.Checked;
+            _settings.Role = (UserRole)Array.FindIndex(_roles, r => r.Checked);
             if (!_updatePolicy.FromPolicyFile) _settings.AutoUpdate = _autoUpdate.Checked;
             if (choice != AiChoice.None && _key.Text.Trim().Length > 0) _settings.SetApiKey(_key.Text.Trim());
             try

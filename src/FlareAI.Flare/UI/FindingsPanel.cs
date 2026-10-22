@@ -7,15 +7,17 @@ using System.Xml;
 using FlareAI.Core;
 using FlareAI.Core.Actions;
 using FlareAI.Core.Editing;
+using FlareAI.Core.Settings;
 
 namespace FlareAI.Flare.UI
 {
     /// <summary>
-    /// A review as discrete pieces of work. The list shows every suggestion in reading order, grouped by section;
-    /// the card below shows the selected one — what changes (word diff), why (the cited rule, its text and
-    /// example), and its impact — with Apply / Reject / Edit / Refine / Check this paragraph again. Applying writes
-    /// a tracked change and moves to the next suggestion; the editor never switches away from the topic on its own.
-    /// Style-rule results show at once; the AI review arrives section by section.
+    /// The House Style Issues pane. The list shows every issue in reading order, grouped by section; the card below
+    /// shows the selected one (what changes as a word diff, why with the cited rule, its text and example) with Change,
+    /// Change All, Ignore, Edit, Rewrite and Lint Paragraph. Change writes a tracked change and moves to the next issue;
+    /// the editor never switches away from the topic on its own. Rule issues show at once; the AI review arrives
+    /// section by section. While getting started, a hint strip at the top carries the guided first lint and the empty
+    /// list shows the getting-started checklist.
     /// </summary>
     public sealed class FindingsPanel : UserControl, IReviewHost
     {
@@ -34,7 +36,12 @@ namespace FlareAI.Flare.UI
         // card
         private readonly Label _cardHead;
         private readonly RichTextBox _cardDiff, _cardWhy;
-        private readonly Button _accept, _goTo, _openFile, _reject, _edit, _refine, _reanalyze, _rule;
+        private readonly Button _accept, _changeAll, _goTo, _openFile, _reject, _edit, _refine, _reanalyze, _rule, _legend;
+        // getting started: the guided first lint's hint strip, the checklist in the empty state, and the focused first Lint Project
+        private readonly LinkLabel _tourStrip, _checklist;
+        private readonly Button _showAllRules;
+        private bool _focusTop;
+        private string _focusLine;
         private readonly ContextMenuStrip _rejectMenu;
         private readonly ToolTip _ignoreTip;
         // project check: by rule / by file, the rule card's actions, and batches with progress
@@ -85,9 +92,12 @@ namespace FlareAI.Flare.UI
                                                Func<string, IDocumentAdapter> open, IList<string> files, string projectName)
         {
             var panel = new FindingsPanel(runner, activeDoc, newRunner, open, null, false, files);
-            panel.Title = "House Style — project " + projectName + " (" + files.Count + " files)";
+            panel.Title = PaneTitle + " · " + projectName + " (" + Plural.Of(files.Count, "file") + ")";
             return panel;
         }
+
+        /// <summary>The pane's name in Flare.</summary>
+        public const string PaneTitle = "House Style Issues";
 
         public bool IsProjectReport { get { return _files != null; } }
 
@@ -130,30 +140,32 @@ namespace FlareAI.Flare.UI
             _session.SelectRequested += Select;
             _session.StatusChanged += text => _status.Text = text;
             _session.BatchReported += ShowResult;
+            _session.Happened += OnHappened;
             // Keep the first check's scope: Go to selects text in the editor, which must not shrink a Check again.
             _wholeTopic = string.IsNullOrEmpty(doc.SelectionText);
-            Title = "House Style — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
+            Title = PaneTitle + " · " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
             Padding = new Padding(6);   // no minimum width: Flare docks the pane narrow, and a minimum only cuts the right side off
 
-            _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, Height = 36, Text = "Checking…" };
+            _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, Height = 36, Text = "Linting…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
-            _acceptAll = Btn(triage, "Apply all fixes", (s, e) => { if (_files != null) _session.FixAllAutomatic(); else _session.FixAll(); });
-            _bulk = Btn(triage, "Write all as tracked changes", (s, e) => _session.WriteAll());
-            _stop = Btn(triage, "Stop AI review", (s, e) => StopReview());
+            _acceptAll = Btn(triage, "Make Automatic Changes", (s, e) => { if (_files != null) _session.FixAllAutomatic(); else _session.FixAll(); });
+            _bulk = Btn(triage, "Make All Changes", (s, e) => _session.WriteAll());
+            _stop = Btn(triage, "Stop AI Review", (s, e) => StopReview());
             _stop.Visible = false;
             _batchStop = Btn(triage, "Stop after this file", (s, e) =>
             {
                 if (_batch == null) return;
                 _batch.Cancel();
                 _batchStop.Enabled = false;
-                _status.Text = "Stopping after this file. Files already fixed keep their tracked changes.";
+                _status.Text = "Stopping after this file. Files already changed keep their tracked changes.";
             });
             _batchStop.Visible = false;
+            _legend = Btn(triage, "?", (s, e) => { using (var f = new LegendForm()) f.ShowDialog(FindForm()); });
             _session.RunBatch = RunBatchInPane;
 
-            // Project check: one row per rule (most frequent first) or the suggestions file by file. Remembered.
+            // Lint Project: one row per rule (most frequent first) or the issues file by file. Remembered.
             _viewBar = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Visible = files != null };
             _viewBar.Controls.Add(new Label { Text = "View:", AutoSize = true, Margin = new Padding(0, 6, 4, 0) });
             var byFile = files != null && FlareAI.Core.Settings.PluginSettings.Load().ProjectViewByFile;
@@ -163,14 +175,15 @@ namespace FlareAI.Flare.UI
             _viewBar.Controls.Add(_byFile);
             _byRule.CheckedChanged += (s, e) => Safe.Run("View by rule", () => { if (_byRule.Checked) SwitchView(false); });
             _byFile.CheckedChanged += (s, e) => Safe.Run("View by file", () => { if (_byFile.Checked) SwitchView(true); });
-            _backToRules = Btn(_viewBar, "All rules", (s, e) => _session.EndRuleReview());
-            _showSkipped = Btn(_viewBar, "Show skipped rules", (s, e) => _session.ShowSkippedRules());
-            _backToRules.Visible = _showSkipped.Visible = false;
+            _backToRules = Btn(_viewBar, "All Rules", (s, e) => _session.EndRuleReview());
+            _showSkipped = Btn(_viewBar, "Show Skipped Rules", (s, e) => _session.ShowSkippedRules());
+            _showAllRules = Btn(_viewBar, "Show All Rules", (s, e) => ShowAllRules());
+            _backToRules.Visible = _showSkipped.Visible = _showAllRules.Visible = false;
 
             // Owner-drawn so a row can wrap: the suggestion on up to 3 lines, then a smaller grey line (source or counts).
             // Items, groups, selection, keys, menu and tooltips are the ListView's own; only the painting is ours.
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable, OwnerDraw = true };
-            _list.Columns.Add("Suggestion");
+            _list.Columns.Add("Issue");
             _list.Columns.Add("Source");
             _list.Resize += (s, e) => FitColumns();
             _list.DrawColumnHeader += (s, e) => e.DrawDefault = true;
@@ -181,7 +194,7 @@ namespace FlareAI.Flare.UI
             _list.GotFocus += (s, e) => _list.Invalidate();   // the selected row: highlighted when the list has focus, grey when not
             _list.LostFocus += (s, e) => _list.Invalidate();
             _list.SelectedIndexChanged += (s, e) => QueueSelectionChanged();
-            _list.DoubleClick += (s, e) => Safe.Run("Apply", Accept);
+            _list.DoubleClick += (s, e) => Safe.Run("Change", Accept);
             _list.KeyDown += (s, e) => Safe.Run("List key", () => OnListKey(s, e));
             _list.ContextMenuStrip = BuildRowMenu();
 
@@ -201,26 +214,28 @@ namespace FlareAI.Flare.UI
             _cardWhy = DiffView.Create();
             _cardWhy.BackColor = SystemColors.Control;
             var actions = _actions = new FlowLayoutPanel { AutoSize = false, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
-            // A rule row's card: fix it everywhere, step through it, turn it off, or put it aside for now.
+            // A rule row's card: change it everywhere, step through it, disable it, or put it aside for now.
             _ruleActions = new FlowLayoutPanel { AutoSize = false, WrapContents = true, Padding = new Padding(0, 4, 0, 0), Visible = false };
-            _fixRule = Btn(_ruleActions, "Fix all…", (s, e) => _session.FixRule(CurrentRule()));
-            _reviewRule = Btn(_ruleActions, "Review one by one", (s, e) => ReviewRule());
-            _turnOffRule = Btn(_ruleActions, "Turn off rule…", (s, e) => _session.TurnOffRule(CurrentRule()));
+            _fixRule = Btn(_ruleActions, "Change All…", (s, e) => _session.FixRule(CurrentRule()));
+            _reviewRule = Btn(_ruleActions, "Review One by One", (s, e) => ReviewRule());
+            _turnOffRule = Btn(_ruleActions, "Disable Rule…", (s, e) => _session.TurnOffRule(CurrentRule()));
             _skipRule = Btn(_ruleActions, "Skip", (s, e) => _session.SkipRule(CurrentRule()));
-            _accept = Btn(actions, "Apply", (s, e) => Accept());
-            _goTo = Btn(actions, "Go to", (s, e) => _session.GoToCurrent());
-            _openFile = Btn(actions, "Open file", (s, e) => _session.OpenFileOfCurrent());
-            _reject = Btn(actions, "Reject ▾", (s, e) => _rejectMenu.Show(_reject, new Point(0, _reject.Height)));
+            _accept = Btn(actions, "Change", (s, e) => Accept());
+            _changeAll = Btn(actions, "Change All", (s, e) => _session.ChangeAll());
+            _goTo = Btn(actions, "Go To", (s, e) => _session.GoToCurrent());
+            _openFile = Btn(actions, "Open File", (s, e) => _session.OpenFileOfCurrent());
+            _reject = Btn(actions, "Ignore ▾", (s, e) => _rejectMenu.Show(_reject, new Point(0, _reject.Height)));
             _edit = Btn(actions, "Edit…", (s, e) => _session.Edit());
-            _refine = Btn(actions, "Refine…", (s, e) => Refine());
-            _reanalyze = Btn(actions, "Check this paragraph again", (s, e) => Reanalyze());
-            _rule = Btn(actions, "Guide ↗", (s, e) => { var f = Current(); if (f != null && !string.IsNullOrEmpty(f.Link)) OpenLink(f.Link); });
+            _refine = Btn(actions, "Rewrite…", (s, e) => Refine());
+            _reanalyze = Btn(actions, "Lint Paragraph", (s, e) => Reanalyze());
+            _rule = Btn(actions, "Open Guide", (s, e) => { var f = Current(); if (f != null && !string.IsNullOrEmpty(f.Link)) OpenLink(f.Link); });
+            // Ignore asks why (recorded for Rule Decisions): the stored reasons stay "wrong", "fine here", "rule doesn't apply".
             _rejectMenu = new ContextMenuStrip();
-            _rejectMenu.Items.Add("Wrong — this suggestion is incorrect", null, (s, e) => Safe.Run("Reject", () => _session.Reject("wrong")));
-            _rejectMenu.Items.Add("Fine here — correct in this context", null, (s, e) => Safe.Run("Reject", () => _session.Reject("fine here")));
-            _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Safe.Run("Reject", () => _session.Reject("rule doesn't apply")));
+            _rejectMenu.Items.Add("The suggestion is wrong", null, (s, e) => Safe.Run("Ignore", () => _session.Reject("wrong")));
+            _rejectMenu.Items.Add("It's correct in this context", null, (s, e) => Safe.Run("Ignore", () => _session.Reject("fine here")));
+            _rejectMenu.Items.Add("The rule doesn't apply here", null, (s, e) => Safe.Run("Ignore", () => _session.Reject("rule doesn't apply")));
             _rejectMenu.Items.Add(new ToolStripSeparator());
-            _rejectMenu.Items.Add("Skip for now", null, (s, e) => Safe.Run("Skip", _session.Skip));
+            _rejectMenu.Items.Add("Skip for Now", null, (s, e) => Safe.Run("Skip", _session.Skip));
             card.Controls.Add(actions);   // in tab order: the decision first, then the text
             card.Controls.Add(_ruleActions);
             card.Controls.Add(_cardHead);
@@ -232,6 +247,10 @@ namespace FlareAI.Flare.UI
             // What the last batch did (changed, skipped with the reason, failed) stays here until the next check.
             _result = new TextBox { Dock = DockStyle.Bottom, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Height = 90, Visible = false, BackColor = SystemColors.Window };
             split.Panel1.Controls.Add(_result);
+            // Getting started, in the empty state: what to try next, ticked as it happens. Hide puts it away for good.
+            _checklist = new LinkLabel { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, Padding = new Padding(4, 4, 4, 4), AccessibleRole = AccessibleRole.Grouping, AccessibleName = "Getting started" };
+            _checklist.LinkClicked += (s, e) => Safe.Run("Checklist", () => OnChecklistLink(e.Link.LinkData as string));
+            split.Panel1.Controls.Add(_checklist);
             split.Panel2.Controls.Add(card);
             // The pane is laid out small first and grows: the card gets the height it needs (or the writer's, once they drag
             // the splitter) and the list what's left; the card is laid out again whenever its size or content changes.
@@ -242,26 +261,34 @@ namespace FlareAI.Flare.UI
             card.VisibleChanged += (s, e) => LayoutCard();
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
-            _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; _fresh = !_stopped; Start(); });   // after Stop: carry on, not start over
-            _ignore = Btn(bar, "Turn off this rule…", (s, e) => { var r = CurrentRule(); if (r != null) _session.TurnOffRule(r); else _session.TurnOffRule(); });
+            _recheck = Btn(bar, "Lint Again", (s, e) => { _aiOnStart = true; _fresh = !_stopped; Start(); });   // after Stop: carry on, not start over
+            _ignore = Btn(bar, "Disable Rule…", (s, e) => { var r = CurrentRule(); if (r != null) _session.TurnOffRule(r); else _session.TurnOffRule(); });
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
 
             var tips = new ToolTip();
-            tips.SetToolTip(_accept, "Write this suggestion into the topic as a tracked change and go to the next one (Enter or double-click).");
-            tips.SetToolTip(_reject, "Don't apply it: say why, so the style guide and the AI can be tuned (Delete).");
-            tips.SetToolTip(_edit, "Change the suggested text yourself, then apply it.");
-            tips.SetToolTip(_refine, "Ask the AI again for this one suggestion, with your instruction (\"keep SSO\", \"shorter\").");
-            tips.SetToolTip(_reanalyze, "Check this paragraph again, for example after you edited it.");
-            tips.SetToolTip(_bulk, "Write every suggestion that has exact text (fixes and rewords) into the topic as tracked changes, then review them with Flare's own Accept and Reject (Review tab) or in a review package.");
-            tips.SetToolTip(_acceptAll, "Apply every fix as a tracked change. In this topic only, one Ctrl+Z undoes it; if it reaches other files you see a preview first.");
-            tips.SetToolTip(_stop, "Stop asking the AI. Results so far are kept; the rest of the paragraphs are not reviewed.");
-            if (files != null) tips.SetToolTip(_acceptAll, "Apply every exact fix in every file, except rules you skipped. You see the rules, files and counts first; nothing is written until you click Apply.");
-            tips.SetToolTip(_batchStop,"Stop before the next file. Files already fixed keep their tracked changes; the rest are not touched.");
-            tips.SetToolTip(_byRule, "One row per rule, most frequent first: fix a rule everywhere at once, or step through it (Alt+R).");
-            tips.SetToolTip(_byFile, "Every suggestion, file by file (Alt+F).");
-            tips.SetToolTip(_fixRule, "Apply this rule's exact fixes in every file as tracked changes. You see the files and counts first; nothing is written until you click Apply.");
-            tips.SetToolTip(_reviewRule, "Step through this rule's suggestions only, with Apply and Go to (Enter).");
-            tips.SetToolTip(_skipRule, "Hide this rule until the next check. Nothing is recorded (Delete).");
+            tips.SetToolTip(_accept, "Replace the text with the suggestion.");
+            tips.SetToolTip(_changeAll, "Replace every instance of this issue in the topic.");
+            tips.SetToolTip(_reject, "Ignore this issue.");
+            tips.SetToolTip(_goTo, "Select this text in the topic.");
+            tips.SetToolTip(_openFile, "Open the file that contains this issue.");
+            tips.SetToolTip(_edit, "Change the suggested text before you apply it.");
+            tips.SetToolTip(_refine, "Ask the AI for a different suggestion.");
+            tips.SetToolTip(_reanalyze, "Lint this paragraph again.");
+            tips.SetToolTip(_rule, "Open this rule's page in the style guide.");
+            tips.SetToolTip(_bulk, "Make every change that has exact text, including AI wording.");
+            tips.SetToolTip(_acceptAll, "Make every automatic change in this topic.");
+            tips.SetToolTip(_stop, "Stop the AI review. The issues found so far stay.");
+            if (files != null) tips.SetToolTip(_acceptAll, "Make every automatic change in every file. You see the files first.");
+            tips.SetToolTip(_batchStop, "Stop before the next file.");
+            tips.SetToolTip(_byRule, "List one row per rule, most frequent first.");
+            tips.SetToolTip(_byFile, "List every issue, file by file.");
+            tips.SetToolTip(_fixRule, "Replace every instance of this issue in every file.");
+            tips.SetToolTip(_reviewRule, "Go through this rule's issues one at a time.");
+            tips.SetToolTip(_turnOffRule, "Stop linting for this rule.");
+            tips.SetToolTip(_skipRule, "Hide this rule until you lint again.");
+            tips.SetToolTip(_showAllRules, "List every rule.");
+            tips.SetToolTip(_recheck, "Lint this topic again.");
+            tips.SetToolTip(_legend, "Show what the symbols and buttons mean.");
             _ignoreTip = tips;
 
             // The last notice (a toast vanishes by itself) stays reachable here, with its action as a focusable link.
@@ -290,15 +317,148 @@ namespace FlareAI.Flare.UI
                                         AccessibleName = WidthTipText, AccessibleDescription = "Got it hides this tip for good.", Padding = new Padding(0, 0, 0, 4) };
             _widthTip.LinkArea = new LinkArea(WidthTipText.Length + 2, "Got it".Length);
             _widthTip.LinkClicked += (s, e) => Safe.Run("Hide tip", HideWidthTip);
-            Controls.Add(_widthTip);   // added last: the topmost line
+            Controls.Add(_widthTip);
+            // The guided first lint: one step at a time, at the very top.
+            _tourStrip = new LinkLabel { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, BackColor = SystemColors.Info, ForeColor = SystemColors.InfoText,
+                                         Padding = new Padding(4, 4, 4, 4), AccessibleRole = AccessibleRole.Link, AccessibleName = "Practice" };
+            _tourStrip.LinkClicked += (s, e) => Safe.Run("Tour", () => OnTourLink(e.Link.LinkData as string));
+            Controls.Add(_tourStrip);   // added last: the topmost line
+            GuidedTour.Changed += OnGettingStartedChanged;
+            GettingStarted.Changed += OnGettingStartedChanged;
+            HandleDestroyed += (s, e) => { GuidedTour.Changed -= OnGettingStartedChanged; GettingStarted.Changed -= OnGettingStartedChanged; };
             _status.TextChanged += (s, e) => { FitLabel(_status, 2); _ignoreTip.SetToolTip(_status, _status.Text); };
             _aiOffNote.VisibleChanged += (s, e) => FitLabel(_aiOffNote, 0);
+            _tourStrip.VisibleChanged += (s, e) => FitLabel(_tourStrip, 0);
+            _checklist.VisibleChanged += (s, e) => FitLabel(_checklist, 0);
             _cost.TextChanged += (s, e) => FitLabel(_cost, 0);
             SizeChanged += (s, e) => FitToWidth();
             HandleCreated += (s, e) => FitToWidth();
             NameControls();
             HandleDestroyed += (s, e) => { if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); };
             ShowCard();
+            UpdateTourStrip();
+        }
+
+        // ---- getting started -----------------------------------------------------------------------------------
+
+        private void OnGettingStartedChanged()
+        {
+            if (IsDisposed) return;
+            if (InvokeRequired) { BeginInvoke((Action)OnGettingStartedChanged); return; }
+            UpdateTourStrip();
+            UpdateChecklist();
+        }
+
+        /// <summary>What the writer did in the session: the tour and the checklist follow; the first Change gets its note.</summary>
+        private void OnHappened(ReviewEvent e)
+        {
+            switch (e)
+            {
+                case ReviewEvent.Changed:
+                    GettingStarted.Did(TourEvent.Changed);
+                    var form = FindForm();
+                    if (form != null) GettingStarted.Note(form, FirstTimeNote.FirstChange);
+                    break;
+                case ReviewEvent.Undone: GettingStarted.Did(TourEvent.Undone); break;
+                case ReviewEvent.RuleDisabled: GettingStarted.Did(TourEvent.RuleDisabled); break;
+            }
+        }
+
+        /// <summary>The hint strip: "Step 2 of 5. Select an issue and click Change." with Next (when House Style can't see the step) and Skip tour.</summary>
+        private void UpdateTourStrip()
+        {
+            var tour = GuidedTour.Current;
+            var show = tour != null;
+            if (show)
+            {
+                var text = tour.Step == TourStep.Finished ? tour.Hint : tour.Progress + ". " + tour.Hint;
+                var links = new List<KeyValuePair<string, string>>();
+                if (tour.Step == TourStep.Finished) links.Add(new KeyValuePair<string, string>("Done", "done"));
+                else
+                {
+                    if (tour.NeedsNext) links.Add(new KeyValuePair<string, string>("Next", "next"));
+                    links.Add(new KeyValuePair<string, string>("Skip tour", "skip"));
+                }
+                SetLinks(_tourStrip, text, links);
+                _tourStrip.AccessibleDescription = text;
+            }
+            if (_tourStrip.Visible != show) _tourStrip.Visible = show;
+            if (show) { FitLabel(_tourStrip, 0); }
+        }
+
+        private void OnTourLink(string what)
+        {
+            if (what == "next") GettingStarted.Did(TourEvent.Next);
+            else GettingStarted.EndTour();   // Skip tour, or Done after the last line
+        }
+
+        /// <summary>A link label's text: the text, then each link on the same line after two spaces.</summary>
+        private static void SetLinks(LinkLabel label, string text, IList<KeyValuePair<string, string>> links)
+        {
+            var sb = new System.Text.StringBuilder(text);
+            var spans = new List<int[]>();
+            foreach (var l in links) { sb.Append("  "); spans.Add(new[] { sb.Length, l.Key.Length }); sb.Append(l.Key); }
+            label.Links.Clear();
+            label.Text = sb.ToString();
+            label.Links.Clear();
+            for (var i = 0; i < links.Count; i++) label.Links.Add(spans[i][0], spans[i][1], links[i].Value);
+        }
+
+        /// <summary>
+        /// The getting-started checklist, in the empty state (no issues listed) during the writer's first week, until every
+        /// item is done or they hide it. The Review tab step can't be seen from House Style, so it has its own Done link.
+        /// </summary>
+        private void UpdateChecklist()
+        {
+            if (_checklist == null) return;
+            var show = false;
+            try
+            {
+                if (!_reviewing && _list.Items.Count == 0)
+                {
+                    var o = GettingStarted.Load();
+                    var aiOn = !FlareAI.Core.Settings.PluginSettings.Load().AiOff;
+                    show = o.ChecklistVisible(DateTime.UtcNow, aiOn);
+                    if (show)
+                    {
+                        var sb = new System.Text.StringBuilder("Getting started");
+                        var links = new List<int[]>(); var data = new List<string>();
+                        foreach (var item in Onboarding.Items(aiOn))
+                        {
+                            sb.Append("\n").Append(o.IsDone(item) ? "✓ " : "○ ").Append(Onboarding.Label(item));
+                            if (item == ChecklistItem.AcceptOnReviewTab && !o.IsDone(item))
+                            {
+                                sb.Append("  "); links.Add(new[] { sb.Length, "Done".Length }); data.Add("review"); sb.Append("Done");
+                            }
+                        }
+                        sb.Append("\n"); links.Add(new[] { sb.Length, "Hide".Length }); data.Add("hide"); sb.Append("Hide");
+                        _checklist.Links.Clear();
+                        _checklist.Text = sb.ToString();
+                        _checklist.Links.Clear();
+                        for (var i = 0; i < links.Count; i++) _checklist.Links.Add(links[i][0], links[i][1], data[i]);
+                        _checklist.AccessibleDescription = _checklist.Text.Replace("\n", ". ");
+                    }
+                }
+            }
+            catch (Exception ex) { Diagnostics.Log("checklist", ex); show = false; }
+            if (_checklist.Visible != show) _checklist.Visible = show;
+            if (show) FitLabel(_checklist, 0);
+        }
+
+        private void OnChecklistLink(string what)
+        {
+            if (what == "review") GettingStarted.Mark(ChecklistItem.AcceptOnReviewTab);
+            else if (what == "hide") GettingStarted.HideChecklist();
+        }
+
+        /// <summary>Show All Rules: the first Lint Project's focus on the top rules ends.</summary>
+        private void ShowAllRules()
+        {
+            _focusTop = false; _focusLine = null;
+            _showAllRules.Visible = false;
+            Rebuild();
+            _status.Text = Summary();
+            _list.Focus();
         }
 
         private void OnNoticeChanged()
@@ -318,32 +478,37 @@ namespace FlareAI.Flare.UI
         /// <summary>Accessible names, descriptions and a reading-order tab sequence (status, triage, list, card, bar).</summary>
         private void NameControls()
         {
-            A11y.Name(this, "House Style suggestions", "Style suggestions for the open topic, with a card for the selected one.");
+            A11y.Name(this, PaneTitle, "Issues in the open topic, with a card for the selected one.");
             A11y.Name(_progress, "Progress");
-            A11y.Name(_list, "Suggestions", "List of suggestions in reading order. Each row starts with its severity: filled circle is an error, triangle a warning, open circle a tip. Enter applies, Delete rejects.");
+            A11y.Name(_list, "Issues", "Issues in reading order. Each row starts with its severity. A filled circle is an error, a triangle is a warning and an open circle is a suggestion. Enter changes the issue. Delete ignores it.");
             A11y.Name(_result, "Result of the last batch");
             A11y.Name(_cardDiff, "What changes", "The text around the change, with removed words struck through and added words underlined.");
             A11y.Name(_cardWhy, "Why", "The reason, the guide rule and its example.");
-            A11y.Name(_accept, "Apply", "Applies this suggestion as a tracked change and goes to the next one.");
-            A11y.Name(_reject, "Reject", "Opens a menu of reasons for not applying it.");
-            A11y.Name(_edit, "Edit", "Change the suggested text yourself, then apply it. Opens a dialog.");
-            A11y.Name(_refine, "Refine", "Ask the AI again for this suggestion with your instruction. Opens a dialog.");
-            A11y.Name(_rule, "Open guide page", "Opens the guide page for this rule in your browser.");
-            A11y.Name(_recheck, "Check again");
-            A11y.Name(_ignore, "Turn off this rule", "Turns the selected rule off or changes its level, or asks the style guide owner to. Opens a dialog.");
-            // Tab order: notice, triage buttons, list, decision buttons, card text, bottom bar.
-            var top = new Control[] { _widthTip, _status, _notice, _acceptAll.Parent, _viewBar, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
+            A11y.Name(_accept, "Change", "Replace the text with the suggestion.");
+            A11y.Name(_changeAll, "Change All", "Replace every instance of this issue in the topic.");
+            A11y.Name(_reject, "Ignore", "Ignore this issue. Opens a menu of reasons.");
+            A11y.Name(_goTo, "Go To", "Select this text in the topic.");
+            A11y.Name(_openFile, "Open File", "Open the file that contains this issue.");
+            A11y.Name(_edit, "Edit", "Change the suggested text before you apply it. Opens a dialog.");
+            A11y.Name(_refine, "Rewrite", "Ask the AI for a different suggestion. Opens a dialog.");
+            A11y.Name(_rule, "Open Guide", "Open this rule's page in the style guide.");
+            A11y.Name(_recheck, "Lint Again");
+            A11y.Name(_legend, "What the symbols mean", "Show what the symbols and buttons mean. Opens a dialog.");
+            A11y.Name(_ignore, "Disable Rule", "Stop linting for this rule. Opens a dialog.");
+            // Tab order: tour, notice, triage buttons, list, decision buttons, card text, bottom bar.
+            var top = new Control[] { _tourStrip, _widthTip, _status, _notice, _acceptAll.Parent, _viewBar, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
             for (var i = 0; i < top.Length; i++) top[i].TabIndex = i;
-            A11y.Name(_acceptAll.Parent, "Bulk actions"); A11y.Name(_recheck.Parent, "Panel actions"); A11y.Name(_accept.Parent, "Decision for the selected suggestion");
-            A11y.Name(_viewBar, "View", "List the project's suggestions by rule or by file.");
+            A11y.Name(_acceptAll.Parent, "Actions for all issues"); A11y.Name(_recheck.Parent, "Pane actions"); A11y.Name(_accept.Parent, "Decision for the selected issue");
+            A11y.Name(_viewBar, "View", "List the project's issues by rule or by file.");
             A11y.Name(_ruleActions, "Actions for the selected rule");
-            A11y.Name(_fixRule, "Fix all", "Applies this rule's exact fixes in every file as tracked changes, after a preview of the files and counts. Opens a dialog.");
-            A11y.Name(_reviewRule, "Review one by one", "Lists only this rule's suggestions and steps through them.");
-            A11y.Name(_skipRule, "Skip", "Hides this rule until the next check.");
-            A11y.Name(_backToRules, "All rules", "Ends Review one by one and lists every rule again (Escape).");
+            A11y.Name(_fixRule, "Change All", "Replace every instance of this issue in every file. Opens a preview.");
+            A11y.Name(_reviewRule, "Review One by One", "Go through this rule's issues one at a time.");
+            A11y.Name(_skipRule, "Skip", "Hide this rule until you lint again.");
+            A11y.Name(_backToRules, "All Rules", "List every rule again (Escape).");
+            A11y.Name(_showAllRules, "Show All Rules");
             A11y.Name(_batchStop, "Stop after this file");
-            var order = new Control[] { _widthTip, _notice, _acceptAll, _bulk, _stop, _batchStop, _byRule, _byFile, _backToRules, _showSkipped, _list, _result,
-                                        _accept, _reject, _edit, _refine, _reanalyze, _rule, _fixRule, _reviewRule, _turnOffRule, _skipRule, _cardDiff, _cardWhy, _recheck, _ignore };
+            var order = new Control[] { _tourStrip, _widthTip, _notice, _acceptAll, _bulk, _stop, _batchStop, _legend, _byRule, _byFile, _backToRules, _showSkipped, _showAllRules, _checklist, _list, _result,
+                                        _accept, _changeAll, _reject, _edit, _refine, _reanalyze, _rule, _fixRule, _reviewRule, _turnOffRule, _skipRule, _cardDiff, _cardWhy, _recheck, _ignore };
             for (var i = 0; i < order.Length; i++) order[i].TabIndex = i;
             A11y.Apply(this);
         }
@@ -372,7 +537,7 @@ namespace FlareAI.Flare.UI
 
         // ---- narrow pane -------------------------------------------------------------------------
 
-        private const string WidthTipText = "Tip: drag this pane's edge to make it wider.";
+        private const string WidthTipText = "Drag this pane's edge to make it wider.";
 
         /// <summary>This pane's DPI scale (1 at 100%, 1.25 at 125%).</summary>
         private float Dpi { get { return DeviceDpi / 96f; } }
@@ -384,7 +549,7 @@ namespace FlareAI.Flare.UI
         {
             if (Width <= 0) return;
             foreach (var b in _buttons) FitButton(b);
-            FitLabel(_status, 2); FitLabel(_notice, 0); FitLabel(_aiOffNote, 0); FitLabel(_cost, 0);
+            FitLabel(_status, 2); FitLabel(_notice, 0); FitLabel(_aiOffNote, 0); FitLabel(_cost, 0); FitLabel(_tourStrip, 0); FitLabel(_checklist, 0);
             UpdateWidthTip();
             LayoutCard();
         }
@@ -688,9 +853,10 @@ namespace FlareAI.Flare.UI
             if (_worker != null && _worker.IsBusy) return;
             _session.Clear(); _list.Items.Clear(); _list.Groups.Clear(); _lintNote = null;
             _aiOff = FlareAI.Core.Settings.PluginSettings.Load().AiOff; _aiHidden = false; _aiOffNote.Visible = false;
-            _reviewing = true; _progress.Visible = true; _progress.Style = ProgressBarStyle.Marquee; _status.Text = "Checking style rules (free, no AI)…";
+            _reviewing = true; _progress.Visible = true; _progress.Style = ProgressBarStyle.Marquee; _status.Text = "Linting…";
             _result.Visible = false; _stop.Visible = false; _stop.Enabled = true; _stopped = false; _unitCount = 0; _doneUnits = 0;
             ShowCard();
+            UpdateChecklist();
 
             _worker = new BackgroundWorker { WorkerReportsProgress = true, WorkerSupportsCancellation = true };
             if (_files != null) { StartProject(); return; }
@@ -702,7 +868,7 @@ namespace FlareAI.Flare.UI
                 var blocks = _wholeTopic ? _runner.PickAllBlocks(_doc) : _runner.PickCheckBlocks(_doc);
                 List<StyleFinding> lint;
                 try { lint = _runner.Lint(blocks); }
-                catch (Exception ex) { Diagnostics.Log("docstyle", ex); lint = new List<StyleFinding>(); _lintNote = "The style rules couldn't be loaded, so only the AI review is shown. See Diagnostics for details."; }
+                catch (Exception ex) { Diagnostics.Log("docstyle", ex); lint = new List<StyleFinding>(); _lintNote = "The rules couldn't be loaded, so only the AI review is shown. For details, see Diagnostics in Settings."; }
                 try { lint.AddRange(FlareAI.Core.Style.StructureCheck.Of(blocks)); }
                 catch (Exception ex) { Diagnostics.Log("structure", ex); }
                 try { lint.AddRange(_runner.LintSnippets(blocks, _doc.SourcePath)); }
@@ -743,8 +909,8 @@ namespace FlareAI.Flare.UI
                 _unitCount = total; _doneUnits = doneUnits;
                 if (_aiOnStart && !_aiOff && doneUnits < total && !_stopped)
                 {
-                    // Style-rule results are already in the list, and they cost nothing; only this phase spends.
-                    _status.Text = Summary() + "  Style rules are free. Reviewing wording with AI: " + doneUnits + " of " + total + " paragraphs (you can work on these now).";
+                    // Rule issues are already in the list, and they cost nothing; only this phase spends.
+                    _status.Text = Summary() + "  Reviewing wording with AI, " + doneUnits + " of " + total + " paragraphs. You can work on these issues now.";
                     _stop.Visible = true;
                 }
                 else _status.Text = Summary();
@@ -757,21 +923,22 @@ namespace FlareAI.Flare.UI
                 _cost.Text = AiCost.Session();
                 if (e.Cancelled)
                 {
-                    _status.Text = Summary() + "  Stopped: " + _doneUnits + " of " + _unitCount + " paragraphs were reviewed with AI. Results so far are kept. Check again reviews the rest.";
+                    _status.Text = Summary() + "  Stopped after " + _doneUnits + " of " + _unitCount + " paragraphs. Lint Again reviews the rest.";
                     UpdateButtons();
+                    UpdateChecklist();
                     return;
                 }
                 if (e.Error != null)
                 {
-                    Diagnostics.Log("Check style", e.Error);
+                    Diagnostics.Log("Lint topic", e.Error);
                     _status.Text = Summary() + "  " + (e.Error.Message == FlareAI.Core.Llm.LlmClientFactory.AiOffMessage
-                        ? "AI review is off. Turn it on in House Style > Settings."   // the writer chose No AI: not a failure
-                        : "AI review failed: " + e.Error.Message);
+                        ? "AI review is off. Turn it on in Settings."   // the writer chose No AI: not a failure
+                        : "AI review failed. " + e.Error.Message);
                 }
                 else if (_aiOff)
-                    _status.Text = Open().Count == 0 ? Summary() : Summary() + "  These come from style rules only (free, no AI used).";
+                    _status.Text = Open().Count == 0 ? Summary() : Summary() + "  These issues come from the rules only. No AI was used.";
                 else if (!_aiOnStart && !cachedAny)
-                    _status.Text = Summary() + "  These come from style rules only (free, no AI used). Check again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
+                    _status.Text = Summary() + "  These issues come from the rules only. Lint Again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
                 else _status.Text = Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
                 _aiOffNote.Visible = _aiOff && _aiHidden;
@@ -782,6 +949,8 @@ namespace FlareAI.Flare.UI
                 if (team != null && team.Status != null && team.Status.Behind > 0) _status.Text += "  " + team.Status;
                 if (_list.SelectedItems.Count == 0) _session.Next();
                 UpdateButtons();
+                UpdateChecklist();
+                GettingStarted.Did(TourEvent.TopicLinted);
             };
             _worker.RunWorkerAsync();
         }
@@ -807,27 +976,44 @@ namespace FlareAI.Flare.UI
 
         private void StartProject()
         {
-            _status.Text = "Checking " + Plural.Of(_files.Count, "file") + "…";
-            _worker.DoWork += (s, e) => { _requestNote = _session.CheckRequests(); e.Result = _runner.LintFiles(_files, (done, total) => _worker.ReportProgress(done * 100 / Math.Max(1, total), done + "/" + total)); };
-            _worker.ProgressChanged += (s, e) => { if (!IsDisposed) _status.Text = "Checking " + e.UserState + " files…"; };
+            _status.Text = "Linting " + Plural.Of(_files.Count, "file") + "…";
+            _worker.DoWork += (s, e) => { _requestNote = _session.CheckRequests(); e.Result = _runner.LintFiles(_files, (done, total) => _worker.ReportProgress(done * 100 / Math.Max(1, total), done + " of " + total)); };
+            _worker.ProgressChanged += (s, e) => { if (!IsDisposed) _status.Text = "Linting " + e.UserState + " files…"; };
             _worker.RunWorkerCompleted += (s, e) =>
             {
                 if (IsDisposed || e.Cancelled) return;
                 _reviewing = false; _progress.Visible = false;
-                if (e.Error != null) { Diagnostics.Log("Check project", e.Error); _status.Text = "Project check failed: " + e.Error.Message; }
+                if (e.Error != null) { Diagnostics.Log("Lint project", e.Error); _status.Text = "Lint Project failed. " + e.Error.Message; }
                 else
                 {
                     var found = (List<StyleFinding>)e.Result;
+                    FirstProjectLint();
                     _session.Add(found);
-                    _status.Text = Summary() + "  Checked " + Plural.Of(_files.Count, "file") + " with style rules only (free, no AI).";
+                    _status.Text = Summary() + "  Linted " + Plural.Of(_files.Count, "file") + ". No AI was used." + (_focusLine != null ? "  " + _focusLine : "");
                     var guide = _runner.GuideNotice;
                     if (guide != null) _status.Text += "  " + guide;
                     ShowRequestNote();
                     if (RuleRows && _list.Items.Count > 0) { _list.Items[0].Selected = true; _list.Items[0].Focused = true; }
+                    GettingStarted.Mark(ChecklistItem.LintProject);
                 }
                 UpdateButtons();
+                UpdateChecklist();
             };
             _worker.RunWorkerAsync();
+        }
+
+        /// <summary>The writer's first Lint Project starts with the top rules (Show All Rules lists the rest); later ones list every rule.</summary>
+        private void FirstProjectLint()
+        {
+            try
+            {
+                var o = GettingStarted.Load();
+                if (o.ProjectLinted) return;
+                o.ProjectLinted = true;
+                o.Save();
+                _focusTop = true;
+            }
+            catch (Exception ex) { Diagnostics.Log("first project lint", ex); }
         }
 
         /// <summary>Redraws the list in the session's order (it changed), keeping the selection.</summary>
@@ -838,9 +1024,10 @@ namespace FlareAI.Flare.UI
                 var reviewing = _session.FocusRule != null;
                 _backToRules.Visible = reviewing;
                 _showSkipped.Visible = _session.SkippedRuleCount > 0 && !reviewing;
-                _showSkipped.Text = "Show skipped rules (" + _session.SkippedRuleCount + ")";
-                _list.Columns[0].Text = RuleRows ? "Rule" : "Suggestion";
+                _showSkipped.Text = "Show Skipped Rules (" + _session.SkippedRuleCount + ")";
+                _list.Columns[0].Text = RuleRows ? "Rule" : "Issue";
                 _list.Columns[1].Text = RuleRows ? "How many" : "Source";
+                _showAllRules.Visible = RuleRows && _focusTop;
                 if (RuleRows) { RebuildRules(); return; }
             }
             _actions.Visible = true; _ruleActions.Visible = false;
@@ -854,7 +1041,7 @@ namespace FlareAI.Flare.UI
                 {
                     if (focus != null && RuleBacklog.KeyOf(f) != focus) continue;
                     var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
-                    item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + ReadableRule(f) + "\n" + f.Suggestion;
+                    item.ToolTipText = A11y.SeverityLabel(f.Severity) + ". " + A11y.SeverityHelp(f.Severity) + "\n" + LayerLabel(f) + " · " + ReadableRule(f) + "\n" + f.Suggestion;
                     Restyle(item);
                     _list.Items.Add(item);
                     if (f == keep) item.Selected = true;
@@ -863,6 +1050,7 @@ namespace FlareAI.Flare.UI
             finally { _list.EndUpdate(); }   // never leave the list frozen (it would look empty)
             _session.Current = Current();
             ShowCard();   // the selection handler is deferred (QueueSelectionChanged): show the kept row's card now
+            UpdateChecklist();
             var changed = Changed;
             if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
         }
@@ -888,11 +1076,16 @@ namespace FlareAI.Flare.UI
             {
                 _list.Items.Clear(); _list.Groups.Clear();
                 ListViewItem selected = null;
-                foreach (var r in _session.Backlog())
+                var backlog = _session.Backlog();
+                var focus = RuleFocus.Of(backlog);
+                if (_focusTop && !focus.Focused) _focusTop = false;   // few rules: nothing to focus on
+                _focusLine = _focusTop ? focus.Line : null;
+                _showAllRules.Visible = _focusTop;
+                foreach (var r in _focusTop ? focus.Shown : backlog)
                 {
                     var counts = r.Counts() + (r.Snippets.Count > 0 ? " · in " + Plural.Of(r.Snippets.Count, "snippet") : "");
                     var item = new ListViewItem(new[] { A11y.SeverityGlyph(r.Severity) + " " + Shorten(r.Reason, 160), counts }) { Tag = r };
-                    item.ToolTipText = r.Title + "\n" + r.Reason + "\n" + counts;
+                    item.ToolTipText = A11y.SeverityLabel(r.Severity) + ". " + A11y.SeverityHelp(r.Severity) + "\n" + r.Title + "\n" + r.Reason + "\n" + counts;
                     item.ForeColor = r.Severity == "error" ? Color.Firebrick : SystemColors.WindowText;
                     _list.Items.Add(item);
                     if (r.Key == keep) selected = item;
@@ -902,7 +1095,7 @@ namespace FlareAI.Flare.UI
             }
             finally { _list.EndUpdate(); }
             _lastRule = null;
-            _list.AccessibleDescription = "Rules, most frequent first, with how many suggestions and files each has. Enter reviews the selected rule one by one; Delete skips it.";
+            _list.AccessibleDescription = "Rules, most frequent first, with how many issues and files each has. Enter reviews the selected rule one issue at a time. Delete skips it.";
             _session.Current = null;
             ShowCard();
             var changed = Changed;
@@ -946,14 +1139,14 @@ namespace FlareAI.Flare.UI
             }
             Line(_cardWhy, r.Reason, FontStyle.Regular);
             var auto = r.Automatic.Count;
-            Line(_cardWhy, auto == r.Occurrences ? "Every one can be fixed automatically: Fix all shows the files and counts before anything is written."
-                         : auto > 0 ? auto + " of " + r.Occurrences + " can be fixed automatically; the rest need you (Review one by one)."
-                         : "None can be fixed automatically: Review one by one takes you to each, with Go to.", FontStyle.Italic);
+            Line(_cardWhy, auto == r.Occurrences ? "Every issue can be changed automatically. Change All shows the files first."
+                         : auto > 0 ? auto + " of " + r.Occurrences + " can be changed automatically. Review the rest one by one."
+                         : "None can be changed automatically. Review One by One takes you to each issue.", FontStyle.Italic);
             if (r.Snippets.Count > 0)
             {
                 var uses = new List<string>();
                 foreach (var p in r.Snippets) { int n; uses.Add(System.IO.Path.GetFileName(p) + (_session.KnownSnippetUses(p, out n) ? " (used in " + UsesLabel(n) + ")" : "")); }
-                Line(_cardWhy, "In snippets: " + string.Join(", ", uses.ToArray()) + ". A fix there changes every topic that includes it.", FontStyle.Bold);
+                Line(_cardWhy, "Also in snippets " + string.Join(", ", uses.ToArray()) + ". A change in a snippet changes every topic that uses it.", FontStyle.Bold);
             }
             const int ShowFiles = 6;
             var files = new List<string>();
@@ -977,7 +1170,7 @@ namespace FlareAI.Flare.UI
             _batchStop.Visible = true; _batchStop.Enabled = true;
             _list.Enabled = false;
             UpdateButtons();
-            _status.Text = "Fixing " + Plural.Of(run.FileCount, "file") + "…";
+            _status.Text = "Changing " + Plural.Of(run.FileCount, "file") + "…";
             run.Finished += r => EndBatch(run);
             var timer = new Timer { Interval = 1 };   // WM_TIMER is low priority: clicks and painting get in between files
             timer.Tick += (s, e) =>
@@ -991,14 +1184,14 @@ namespace FlareAI.Flare.UI
                     if (more && !IsDisposed)
                     {
                         _progress.Value = Math.Min(run.FileCount, run.FilesDone);
-                        if (!run.IsCancelled) _status.Text = "Fixing files: " + run.FilesDone + " of " + run.FileCount + " done. Next: " + BatchPlan.ProjectPath(run.NextFile ?? "");
+                        if (!run.IsCancelled) _status.Text = "Changing files. " + run.FilesDone + " of " + run.FileCount + " done. Next is " + BatchPlan.ProjectPath(run.NextFile ?? "") + ".";
                     }
                 }
                 catch (Exception ex)
                 {
-                    Diagnostics.Log("Fix files", ex);
+                    Diagnostics.Log("Change files", ex);
                     run.Cancel();
-                    try { more = run.Step(); } catch (Exception ex2) { Diagnostics.Log("Fix files: finish", ex2); more = false; }
+                    try { more = run.Step(); } catch (Exception ex2) { Diagnostics.Log("Change files: finish", ex2); more = false; }
                     EndBatch(run);
                 }
                 if (more) timer.Start(); else timer.Dispose();
@@ -1046,7 +1239,7 @@ namespace FlareAI.Flare.UI
             if (f.DocumentPath != null && _files == null)
             {
                 int uses;
-                label += _session.KnownSnippetUses(f.DocumentPath, out uses) && uses > 1 ? "  — used in " + uses + " files" : "";
+                label += _session.KnownSnippetUses(f.DocumentPath, out uses) && uses > 1 ? " · used in " + uses + " files" : "";
             }
             return _list.Groups[key] ?? _list.Groups.Add(key, label);
         }
@@ -1056,10 +1249,10 @@ namespace FlareAI.Flare.UI
             var mark = f.IsFixed ? "✓ " : f.IsStale ? "⚠ " : "";
             switch (f.Kind)
             {
-                case "variable": return mark + "\"" + f.Excerpt + "\" → variable " + f.Variable;
-                case "restructure": return mark + "\"" + Shorten(f.Excerpt, 48) + "\" — rewrite";
-                case "manual": return mark + f.Rule.Substring(f.Rule.IndexOf('.') + 1) + ": \"" + Shorten(f.Excerpt, 36) + "\"";
-                default: return mark + (f.Replacement.Length == 0 ? "delete \"" + f.Excerpt + "\"" : "\"" + Shorten(f.Excerpt, 30) + "\" → \"" + Shorten(f.Replacement, 30) + "\"");
+                case "variable": return mark + "Use variable " + f.Variable + " for \"" + f.Excerpt + "\"";
+                case "restructure": return mark + "Rewrite \"" + Shorten(f.Excerpt, 48) + "\"";
+                case "manual": return mark + FlareAI.Core.Style.RuleWording.FromName(f.Rule) + " in \"" + Shorten(f.Excerpt, 36) + "\"";
+                default: return mark + (f.Replacement.Length == 0 ? "Delete \"" + f.Excerpt + "\"" : "Change \"" + Shorten(f.Excerpt, 30) + "\" to \"" + Shorten(f.Replacement, 30) + "\"");
             }
         }
 
@@ -1118,16 +1311,16 @@ namespace FlareAI.Flare.UI
             if (f == null)
             {
                 _cardHead.Text = _session.Findings.Count == 0 ? ""
-                               : rows ? (_list.Items.Count == 0 ? "" : "Select a rule to see why it matters, where it fires, and fix it everywhere at once.")
-                               : "Select a suggestion to see what changes and why.";
+                               : rows ? (_list.Items.Count == 0 ? "" : "Select a rule to see why it matters and where it appears.")
+                               : "Select an issue to see what changes and why.";
                 UpdateButtons();
                 return;
             }
             var where = f.DocumentPath == null ? ""
                 : f.DocumentPath.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)
-                    ? "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(_session.SnippetUses(f.DocumentPath)) + "; applying changes all of them"
+                    ? "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + ", used in " + UsesLabel(_session.SnippetUses(f.DocumentPath)) + ". A change here changes all of them."
                     : "In " + System.IO.Path.GetFileName(f.DocumentPath);
-            _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  applied" : f.IsStale ? "  ·  Text changed: check again" : "")
+            _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  changed" : f.IsStale ? "  ·  text changed" : "")
                              + (where.Length > 0 ? "\n" + where : "");
 
             _list.AccessibleDescription = (_cardHead.Text + ". " + f.Suggestion).Replace("\n", " ");   // what a screen reader says for the selected row
@@ -1155,7 +1348,7 @@ namespace FlareAI.Flare.UI
                 if (!string.IsNullOrEmpty(ex.Good)) Line(_cardWhy, "✓ " + ex.Good, FontStyle.Regular);
             }
             if (rule == null && f.Source == "ai") Line(_cardWhy, "General editing judgment (not tied to a guide rule).", FontStyle.Italic);
-            if (rule != null && Team.Current != null && Team.Current.IsOwner) Ref(_cardWhy, "Reference: " + rule.Id);   // for the guide owner (Validate, Tune); writers don't need it
+            if (rule != null && Team.Current != null && Team.Current.IsOwner) Ref(_cardWhy, "Reference: " + rule.Id);   // for the guide owner (Test Rules, Rule Decisions); writers don't need it
             _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
             UpdateButtons();
         }
@@ -1184,11 +1377,11 @@ namespace FlareAI.Flare.UI
         {
             switch (f.Kind)
             {
-                case "mechanical": return "Fix";
-                case "wording": return "Reword";
-                case "variable": return "Needs you — use the variable";
+                case "mechanical": return "Automatic";
+                case "wording": return "Wording";
+                case "variable": return "Needs you";
                 case "manual": return "Needs you";
-                default: return "Reword";
+                default: return "Wording";
             }
         }
 
@@ -1209,7 +1402,7 @@ namespace FlareAI.Flare.UI
         {
             var block = _runner.LocateBlock(_doc, f) ?? f.Block;
             var img = AltText.MissingIn(block);
-            if (img == null) { _status.Text = "That image already has alt text (or is gone). Check this paragraph again."; return; }
+            if (img == null) { _status.Text = "That image already has alt text, or it's gone. Lint the paragraph again."; return; }
             var inside = false;
             for (XmlNode n = img; n != null && !inside; n = n.ParentNode) inside = n == block;
             if (!inside) block = img.ParentNode; // the finding sits on the text next to an image-only paragraph
@@ -1226,18 +1419,18 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Alt text", e.Error); _status.Text = "Alt text failed: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Alt text", e.Error); _status.Text = "Alt text failed. " + e.Error.Message; return; }
                 var suggestion = (string)e.Result;
                 var alt = TextPrompt.Ask(this, "Alt text", suggestion == null
-                    ? "The AI thinks " + System.IO.Path.GetFileName(image.Path) + " is decorative. Type alt text if it isn't (screen readers will read it):"
-                    : "Alt text for " + System.IO.Path.GetFileName(image.Path) + " (edit before applying):", suggestion ?? "", false);
+                    ? "The AI thinks " + System.IO.Path.GetFileName(image.Path) + " is decorative. If it isn't, type alt text for screen readers."
+                    : "Alt text for " + System.IO.Path.GetFileName(image.Path) + ". Edit it before you add it.", suggestion ?? "", false);
                 if (string.IsNullOrEmpty(alt)) return;
                 try
                 {
                     AltText.Apply(_doc, block, src, alt.Trim());
                     _session.AltTextApplied(f, suggestion, alt.Trim());
                 }
-                catch (Exception ex) { Diagnostics.Log("Alt text apply", ex); _status.Text = "Could not apply: " + ex.Message; }
+                catch (Exception ex) { Diagnostics.Log("Alt text apply", ex); _status.Text = "Couldn't add the alt text. " + ex.Message; }
             };
             worker.RunWorkerAsync();
         }
@@ -1257,32 +1450,42 @@ namespace FlareAI.Flare.UI
         {
             var f = Current();
             if (f == null || f.IsFixed || f.IsStale) return;
-            var instruction = TextPrompt.Ask(this, "Refine suggestion", "How should the AI change this suggestion? (for example: keep the term SSO; make it shorter; keep the passive voice here)", "", true);
+            var instruction = TextPrompt.Ask(this, "Rewrite", "What should the AI change in this suggestion? For example, keep the term SSO, or make it shorter.", "", true);
             if (string.IsNullOrEmpty(instruction)) return;
             var block = f.DocumentPath == null ? _runner.LocateBlock(_doc, f) : null;
             var context = block != null ? block.InnerText : (f.Before ?? "") + f.Excerpt;
             var runner = _newRunner() ?? _runner;
-            Busy(true, "Refining…");
+            Busy(true, "Rewriting…");
             var worker = new BackgroundWorker();
             worker.DoWork += (s, e) => e.Result = runner.Refine(f, context, instruction);
             worker.RunWorkerCompleted += (s, e) =>
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Refine", e.Error); _status.Text = "Refine failed: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Refine", e.Error); _status.Text = "Rewrite failed. " + e.Error.Message; return; }
                 _session.Refined(f, (StyleFinding)e.Result, instruction);
+                AiRewriteDone();
             };
             worker.RunWorkerAsync();
         }
 
-        /// <summary>Checks the selected suggestion's paragraph again (style rules + AI) and replaces its suggestions.</summary>
+        /// <summary>Checklist and first-time note after an AI rewrite in the pane.</summary>
+        private void AiRewriteDone()
+        {
+            GettingStarted.Mark(ChecklistItem.AiRewrite);
+            var form = FindForm();
+            if (form != null) GettingStarted.Note(form, FirstTimeNote.FirstAiRewrite);
+            _cost.Text = AiCost.Session();
+        }
+
+        /// <summary>Lints the selected issue's paragraph again (rules and AI) and replaces its issues.</summary>
         private void Reanalyze()
         {
             var f = Current();
             var block = _session.ReanalyzeTarget(f);
             if (block == null) return;
             var blocks = new List<XmlNode> { block };
-            Busy(true, "Checking the paragraph again…");
+            Busy(true, "Linting the paragraph again…");
             var worker = new BackgroundWorker();
             worker.DoWork += (s, e) =>
             {
@@ -1295,7 +1498,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 Busy(false, null);
-                if (e.Error != null) { Diagnostics.Log("Re-analyze", e.Error); _status.Text = "Couldn't check the paragraph again: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Re-analyze", e.Error); _status.Text = "Couldn't lint the paragraph again. " + e.Error.Message; return; }
                 var parts = (object[])e.Result;
                 var lint = (List<StyleFinding>)parts[0];
                 var fresh = new List<StyleFinding>(lint);
@@ -1310,14 +1513,15 @@ namespace FlareAI.Flare.UI
             List<StyleFinding> related;
             var block = _session.RewriteTarget(f, out related);
             if (block == null) return;
-            var instruction = "Resolve these review findings and change nothing else:\n" + ActionRunner.Summarize(related);
+            var instruction = "Resolve these review issues and change nothing else:\n" + ActionRunner.Summarize(related);
             string applied;
-            using (var form = new ResultForm("Rewrite paragraph", _newRunner(), _doc, ActionKind.Ask, instruction, new List<XmlNode> { block }))
+            using (var form = new ResultForm("Rewrite Paragraph", _newRunner(), _doc, ActionKind.Ask, instruction, new List<XmlNode> { block }))
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;
                 applied = form.AppliedSummary;
             }
             _session.Rewritten(related, applied);
+            AiRewriteDone();
         }
 
         // ---- navigation --------------------------------------------------------------------------
@@ -1352,9 +1556,9 @@ namespace FlareAI.Flare.UI
         private void QueueSelectionChanged()
         {
             if (_selectionQueued || IsDisposed) return;
-            if (!IsHandleCreated) { Safe.Run("Select finding", OnSelectionChanged); return; }
+            if (!IsHandleCreated) { Safe.Run("Select issue", OnSelectionChanged); return; }
             _selectionQueued = true;
-            BeginInvoke((Action)(() => { _selectionQueued = false; if (!IsDisposed) Safe.Run("Select finding", OnSelectionChanged); }));
+            BeginInvoke((Action)(() => { _selectionQueued = false; if (!IsDisposed) Safe.Run("Select issue", OnSelectionChanged); }));
         }
 
         private void OnSelectionChanged()
@@ -1409,7 +1613,11 @@ namespace FlareAI.Flare.UI
             _accept.Enabled = open;
             _goTo.Enabled = f != null && !f.IsFixed;
             _openFile.Enabled = _session.FilePathOf(f) != null;
-            _accept.Text = f == null ? "Apply" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Suggest alt text…" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Apply";
+            _accept.Text = f == null ? "Change" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Add Alt Text…" : f.Kind == "restructure" ? "Change…" : f.Kind == "variable" || f.Kind == "manual" ? "Go To" : "Change";
+            _accept.AccessibleName = _accept.Text.TrimEnd('…');
+            var sameRule = open && _files == null ? _session.ChangeAllCandidates(f).Count : 0;
+            _changeAll.Visible = sameRule > 1;   // only when there is more than one of this issue (a narrow pane has no room for a dead button)
+            _changeAll.Text = sameRule > 1 ? "Change All (" + sameRule + ")" : "Change All";
             _reject.Enabled = f != null && !f.IsFixed;
             _edit.Enabled = open && f.Kind != "variable" && f.Kind != "manual";
             _refine.Enabled = open && !_reviewing;
@@ -1419,18 +1627,18 @@ namespace FlareAI.Flare.UI
             if (_files != null)
             {
                 var auto = _session.AutomaticCandidates().Count;
-                _acceptAll.Text = "Fix all automatic suggestions… (" + auto + ")";
+                _acceptAll.Text = "Make Automatic Changes (" + auto + ")…";
                 _acceptAll.Enabled = auto > 0 && !busy;
                 _bulk.Visible = false;
             }
             else
             {
                 var mech = _session.FixAllCandidates().Count;
-                _acceptAll.Text = "Apply all fixes (" + mech + ")";
+                _acceptAll.Text = "Make Automatic Changes (" + mech + ")";
                 _acceptAll.Enabled = mech > 0;
             }
             var exact = _session.WriteAllCandidates().Count;
-            _bulk.Text = "Write all as tracked changes (" + exact + ")";
+            _bulk.Text = "Make All Changes (" + exact + ")";
             _bulk.Enabled = exact > 0 && _files == null;
             _recheck.Enabled = !_reviewing && !busy;
             var r = CurrentRule();
@@ -1441,18 +1649,18 @@ namespace FlareAI.Flare.UI
             if (r != null)
             {
                 var n = r.Automatic.Count;
-                _fixRule.Text = n == 0 ? "Fix all…" : "Fix all (" + n + ")…";
+                _fixRule.Text = n == 0 ? "Change All…" : "Change All (" + n + ")…";
                 _fixRule.Enabled = n > 0;
-                _fixRule.AccessibleName = n == 0 ? "Fix all" : "Fix all " + n;
+                _fixRule.AccessibleName = n == 0 ? "Change All" : "Change All " + n;
             }
             var request = Team.Current != null && Team.Current.ChangesNeedRequest;
-            _turnOffRule.Text = request ? "Request a change…" : "Turn off rule…";
-            _turnOffRule.AccessibleName = _turnOffRule.Text;
+            _turnOffRule.Text = request ? "Request Change…" : "Disable Rule…";
+            _turnOffRule.AccessibleName = _turnOffRule.Text.TrimEnd('…');
             _ignore.Text = _session.RuleChangeLabel();
-            _ignore.AccessibleName = _ignore.Text;
-            _ignoreTip.SetToolTip(_ignore, request
-                ? "Ask the style guide owners to turn off or change the selected rule, or to make an exception for this project. They decide; you see the answer on your next check."
-                : "Turn the selected rule off, or change its level, for the whole team or just this project.");
+            _ignore.AccessibleName = _ignore.Text.TrimEnd('…');
+            var ruleTip = request ? "Ask the style guide owners to disable or change this rule." : "Stop linting for this rule.";
+            _ignoreTip.SetToolTip(_ignore, ruleTip);
+            _ignoreTip.SetToolTip(_turnOffRule, ruleTip);
             LayoutCard();   // the selection, the card's text or a button's label changed
         }
 
@@ -1497,7 +1705,7 @@ namespace FlareAI.Flare.UI
     {
         public static string Ask(IWin32Window owner, string title, string label, string initial, bool multiline)
         {
-            using (var form = new Form { Text = "House Style — " + title, StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ClientSize = new Size(520, multiline ? 190 : 150), Font = SystemFonts.MessageBoxFont, AutoScaleMode = AutoScaleMode.Font })
+            using (var form = new Form { Text = Notify.Caption(title), StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ClientSize = new Size(520, multiline ? 190 : 150), Font = SystemFonts.MessageBoxFont, AutoScaleMode = AutoScaleMode.Font })
             {
                 var text = new Label { Text = label, Left = 12, Top = 12, Width = 496, Height = 34 };
                 var box = new TextBox { Left = 12, Top = 50, Width = 496, Height = multiline ? 84 : 24, Multiline = multiline, AcceptsReturn = false, Text = initial ?? "", ScrollBars = multiline ? ScrollBars.Vertical : ScrollBars.None };

@@ -39,7 +39,7 @@ namespace FlareAI.Scenarios.Review
                     fx.Session.Select(all[i]);
                     fx.Session.Reject(reasons[i]);
                     Assert.DoesNotContain(all[i], fx.Session.Findings);                                  // gone at once
-                    Assert.Contains("Rejected (" + reasons[i] + ")", fx.Session.Status);
+                    Assert.Contains("Ignored. It stays hidden for this text.", fx.Session.Status);
                     Assert.NotNull(fx.Session.Current);                                                  // the next one is selected
                 }
 

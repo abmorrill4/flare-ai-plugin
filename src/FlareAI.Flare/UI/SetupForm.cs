@@ -10,9 +10,10 @@ using FlareAI.Core.Settings;
 namespace FlareAI.Flare.UI
 {
     /// <summary>
-    /// First-run setup in three steps: how you use AI, whose style rules, done. Shown once, on the first House Style
-    /// command (never on Flare start), and from Settings > Run setup again. Finishing or skipping saves the settings
-    /// file, so it doesn't show again. What is valid and what gets saved is <see cref="SetupAnswers"/> (Core).
+    /// First-run setup in four steps: how you use House Style (writer or style guide owner), how you use AI, whose rules,
+    /// done. Shown once when Flare first starts with House Style (or on the first command if that didn't happen), and from
+    /// Settings (Run Setup Again). Finishing or skipping saves the settings file, so it doesn't show again. What is valid
+    /// and what gets saved is <see cref="SetupAnswers"/> (Core).
     /// </summary>
     public sealed class SetupForm : Form
     {
@@ -23,6 +24,12 @@ namespace FlareAI.Flare.UI
         private readonly Button _back, _next, _skipStep;
         private SetupStep _step;
         private bool _closed, _finished;
+
+        // Step 1: role
+        private readonly StackLayout _roleLayout;
+        private readonly RadioButton[] _roleChoices;
+        private readonly Label _guideHeading, _guideOwnerNote;
+        private readonly StackLayout.Block _ownerNoteBlock;
 
         // Step 1: AI
         private readonly StackLayout _aiLayout;
@@ -61,13 +68,19 @@ namespace FlareAI.Flare.UI
 
             _stepTitle = new LiveLabel { AutoSize = true, Left = S(12), Top = S(12), ForeColor = SystemColors.GrayText };
             Controls.Add(_stepTitle);
-            _steps = new Panel[3];
-            for (var i = 0; i < 3; i++) { _steps[i] = new Panel { Left = 0, Top = S(30), Visible = i == 0 }; Controls.Add(_steps[i]); }
+            _steps = new Panel[StepCount];
+            for (var i = 0; i < StepCount; i++) { _steps[i] = new Panel { Left = 0, Top = S(30), Visible = i == 0 }; Controls.Add(_steps[i]); }
 
-            // ---- 1. AI ---------------------------------------------------------------------------------------------
-            var ai = _aiLayout = new StackLayout(_steps[0], scale);
+            // ---- 1. Role -------------------------------------------------------------------------------------------
+            var role = _roleLayout = new StackLayout(_steps[(int)SetupStep.Role], scale);
+            role.Heading(Roles.Question);
+            _roleChoices = role.Choices(Roles.Question, Roles.Answers, role.S(8));
+            role.Note("Style guide owners also get the Style Guide group on the ribbon. You can change this in Settings.", true);
+
+            // ---- 2. AI ---------------------------------------------------------------------------------------------
+            var ai = _aiLayout = new StackLayout(_steps[(int)SetupStep.Ai], scale);
             ai.Heading("How will you use AI?");
-            ai.Note("Style checks work without AI and cost nothing. AI adds wording suggestions, Rewrite and Ask.", true, false);
+            ai.Note("Linting works without AI and costs nothing. AI adds wording issues, Rewrite and Ask AI.", true, false);
             _aiChoices = ai.Choices("How will you use AI", AiChoices.All.Select(AiChoices.Label).ToArray(), ai.S(8));
             foreach (var r in _aiChoices) r.CheckedChanged += (s, e) => { if (((RadioButton)s).Checked) OnAiChoice(); };
             _urlBlock = ai.Begin();
@@ -89,14 +102,16 @@ namespace FlareAI.Flare.UI
             _aiError = ai.Status(2, true);
             _aiError.ForeColor = Color.FromArgb(160, 0, 0);
 
-            // ---- 2. Style guide ------------------------------------------------------------------------------------
-            var g = _guideLayout = new StackLayout(_steps[1], scale);
-            g.Heading("Whose style rules?");
-            _guideChoices = g.Choices("Whose style rules", new[] { "Google's guide plus my own changes", "My team's shared style guide folder" }, g.S(8));
+            // ---- 3. Style guide ------------------------------------------------------------------------------------
+            var g = _guideLayout = new StackLayout(_steps[(int)SetupStep.Guide], scale);
+            _guideHeading = g.Heading("Whose rules?");
+            _guideChoices = g.Choices("Whose rules", new[] { "Google's guide plus my own changes", "My team's shared style guide folder" }, g.S(8));
             foreach (var r in _guideChoices) r.CheckedChanged += (s, e) => { if (((RadioButton)s).Checked) OnGuideChoice(); };
             // Each choice's note follows the choice: Google's guide, or where the team's guide is.
             _googleNoteBlock = g.Begin();
-            g.Note("Google's developer documentation style guide is built in. Rules you turn off or add are kept for you alone.", true);
+            g.Note("Google's developer documentation style guide is built in. Rules you disable or add are kept for you alone.", true);
+            _ownerNoteBlock = g.Begin();
+            _guideOwnerNote = g.Note("Choose the Flare project folder that holds your team's style guide. Writers on your team choose the same folder.", true, false);
             _folderBlock = g.Begin();
             _folder = g.Row("Team style guide", new TextBox { Text = _answers.TeamGuideFolder ?? "" }, g.FieldWidth - g.S(92));
             _browse = g.Add(new Button { Text = "Browse…", Left = g.FieldLeft + g.FieldWidth - g.S(86), Top = _folder.Top - 1, Width = g.S(86), Height = Math.Max(g.S(26), _folder.Height + 2) });
@@ -107,18 +122,18 @@ namespace FlareAI.Flare.UI
             _folderStatus.TextChanged += (s, e) => { _guideLayout.FitHeight(_folderStatus); FitToStep(); };
             g.Note("Ask your style guide owner where the team's guide is. It's a Flare project folder, often on OneDrive, SharePoint, Google Drive or a network drive.");
 
-            // ---- 3. Done -------------------------------------------------------------------------------------------
-            var d = _doneLayout = new StackLayout(_steps[2], scale);
+            // ---- 4. Done -------------------------------------------------------------------------------------------
+            var d = _doneLayout = new StackLayout(_steps[(int)SetupStep.Done], scale);
             d.Heading("You're ready");
-            d.Note("Open a topic and choose Check style to see suggestions for it, or Check project to check every topic in the project.", true, false);
+            d.Note("Open a topic and click Lint Topic. Lint Project lints every topic in the project.", true, false);
             _summary = d.Status(4, true);
             var guideLink = d.Add(new LinkLabel { Text = "Open the getting started guide", AutoSize = true, Left = d.LabelLeft, Top = d.Y });
             guideLink.LinkClicked += (s, e) => OpenGuide();
             d.Y += guideLink.PreferredHeight + d.S(8);
-            d.Note("Change any of this later in House Style > Settings.", true);
+            d.Note("You can change any of this in Settings on the House Style tab.", true);
 
             // ---- size: each step as tall as what it shows (FitToStep), so no step has a big empty area ------------
-            var stepH = new[] { ai.FullHeight(), g.FullHeight(), d.FullHeight() }.Max() + S(8);
+            var stepH = new[] { role.FullHeight(), ai.FullHeight(), g.FullHeight(), d.FullHeight() }.Max() + S(8);
             foreach (var p in _steps) p.Size = new Size(ai.Width, stepH);
 
             _skipStep = new Button { Text = "Skip this step", AutoSize = true, MinimumSize = new Size(S(80), S(26)) };
@@ -149,11 +164,16 @@ namespace FlareAI.Flare.UI
             A11y.Name(guideLink, "Open the getting started guide", "Opens the page in your browser.");
             A11y.Name(_skipStep, "Skip this step", "Keeps your current choice for this step and goes on.");
 
+            var team = FlareAI.Core.Actions.Team.Current;
+            _answers.Role = Roles.Effective(_settings, team != null && team.IsListedOwner);
+            _roleChoices[(int)_answers.Role].Checked = true;
+            foreach (var r in _roleChoices) r.CheckedChanged += (s, e) => { if (((RadioButton)s).Checked) OnRoleChoice(); };
             _aiChoices[Array.IndexOf(AiChoices.All, _answers.Ai)].Checked = true;
             _guideChoices[_answers.UseTeamGuide ? 1 : 0].Checked = true;
+            OnRoleChoice();
             if (_settings.HasStoredKey) _keyStatus.Text = "A key is stored. Leave the box blank to keep it.";
             A11y.Apply(this);
-            Go(SetupStep.Ai);
+            Go(SetupStep.Role);
             FormClosing += OnClosing;
             KeyPreview = true;   // Esc closes, which skips setup
             KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) { e.Handled = true; Close(); } };
@@ -165,18 +185,22 @@ namespace FlareAI.Flare.UI
 
         // ---- navigation --------------------------------------------------------------------------------------------
 
+        private const int StepCount = 4;
+
         private void Go(SetupStep step)
         {
-            if (step < SetupStep.Ai) step = SetupStep.Ai;
+            if (step < SetupStep.Role) step = SetupStep.Role;
             _step = step;
             for (var i = 0; i < _steps.Length; i++) _steps[i].Visible = i == (int)step;
-            _stepTitle.Text = "Step " + ((int)step + 1) + " of 3";
-            _back.Visible = step != SetupStep.Ai;
-            _skipStep.Visible = step != SetupStep.Done;
+            _stepTitle.Text = "Step " + ((int)step + 1) + " of " + StepCount;
+            _back.Visible = step != SetupStep.Role;
+            _skipStep.Visible = step != SetupStep.Done && step != SetupStep.Role;
             _next.Text = step == SetupStep.Done ? "Finish" : "Next";
             if (step == SetupStep.Done) _summary.Text = PreviewSummary();
             FitToStep();
-            var first = step == SetupStep.Ai ? (Control)_aiChoices.First(r => r.Checked) : step == SetupStep.Guide ? (Control)_guideChoices.First(r => r.Checked) : _next;
+            var first = step == SetupStep.Role ? (Control)_roleChoices.First(r => r.Checked)
+                      : step == SetupStep.Ai ? (Control)_aiChoices.First(r => r.Checked)
+                      : step == SetupStep.Guide ? (Control)_guideChoices.First(r => r.Checked) : _next;
             if (IsHandleCreated) first.Focus(); else Shown += (s, e) => first.Focus();
         }
 
@@ -187,7 +211,7 @@ namespace FlareAI.Flare.UI
         private void FitToStep()
         {
             if (_next == null || _steps == null) return;
-            var layout = _step == SetupStep.Ai ? _aiLayout : _step == SetupStep.Guide ? _guideLayout : _doneLayout;
+            var layout = _step == SetupStep.Role ? _roleLayout : _step == SetupStep.Ai ? _aiLayout : _step == SetupStep.Guide ? _guideLayout : _doneLayout;
             if (layout == null) return;
             var page = _steps[(int)_step];
             page.Height = layout.VisibleHeight() + _s(8);
@@ -198,7 +222,12 @@ namespace FlareAI.Flare.UI
 
         private void Next()
         {
-            if (_step == SetupStep.Ai)
+            if (_step == SetupStep.Role)
+            {
+                Collect();
+                Go(SetupStep.Ai);
+            }
+            else if (_step == SetupStep.Ai)
             {
                 Collect();
                 _answers.AiSkipped = false;
@@ -233,6 +262,7 @@ namespace FlareAI.Flare.UI
 
         private void Collect()
         {
+            _answers.Role = (UserRole)Array.FindIndex(_roleChoices, r => r.Checked);
             _answers.Ai = AiChoices.All[Array.FindIndex(_aiChoices, r => r.Checked)];
             _answers.BaseUrl = _baseUrl.Text.Trim();
             _answers.Key = _key.Text.Trim();
@@ -285,6 +315,21 @@ namespace FlareAI.Flare.UI
         }
 
         // ---- step 1 ------------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// An owner sets up the team's guide: the guide step leads with the team folder. A writer gets the guide question
+        /// as before. Only the default changes; either answer stays possible.
+        /// </summary>
+        private void OnRoleChoice()
+        {
+            var owner = _roleChoices[(int)UserRole.Owner].Checked;
+            _guideHeading.Text = owner ? "Where is your team's style guide?" : "Whose rules?";
+            if (owner && !_answers.UseTeamGuide && _folder.Text.Trim().Length == 0) _guideChoices[1].Checked = true;
+            else if (!owner && _guideChoices[1].Checked && _folder.Text.Trim().Length == 0) _guideChoices[0].Checked = true;
+            OnGuideChoice();
+        }
+
+        // ---- step 2 ------------------------------------------------------------------------------------------------
 
         private void OnAiChoice()
         {
@@ -339,12 +384,13 @@ namespace FlareAI.Flare.UI
             _testResult.Text = (ok ? "✓ " : "") + message;
         }
 
-        // ---- step 2 ------------------------------------------------------------------------------------------------
+        // ---- step 3 ------------------------------------------------------------------------------------------------
 
         private void OnGuideChoice()
         {
             _folderBlock.Visible = _guideChoices[1].Checked;
             _googleNoteBlock.Visible = !_folderBlock.Visible;
+            _ownerNoteBlock.Visible = _folderBlock.Visible && _roleChoices != null && _roleChoices[(int)UserRole.Owner].Checked;
             _guideLayout.Reflow();
             FitToStep();
             if (_folderBlock.Visible && _folder.Text.Trim().Length == 0) _folderStatus.Text = "Choose the folder that holds your team's style guide.";

@@ -19,8 +19,14 @@ namespace FlareAI.Flare.Tests
     /// once the row is selected, the card shows its heading, what changes (at least two lines), why and every decision
     /// button, stacked without overlapping; the list keeps at least a row; a card too short for all of it scrolls.
     /// </summary>
-    public class NarrowPaneTests
+    [Collection("Panes")]   // panes share static state (the tour, notices): never two at once
+    public class NarrowPaneTests : IDisposable
     {
+        // The writer's data folder (onboarding notes, checklist) is a temp folder: a pane test never writes to %APPDATA%.
+        private readonly string _root = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "hs-pane-" + Guid.NewGuid().ToString("N"));
+        public NarrowPaneTests() { System.IO.Directory.CreateDirectory(_root); FlareAI.Core.Paths.Root = _root; FlareAI.Core.Settings.GuidedTour.Stop(); }
+        public void Dispose() { FlareAI.Core.Paths.Root = null; try { System.IO.Directory.Delete(_root, true); } catch (Exception) { } }
+
         private const string Topic = "<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\"><body><h1>Transfers</h1>" +
                                      "<p>Please note that the fee is waived for members who move money between their own accounts.</p></body></html>";
 
@@ -69,7 +75,7 @@ namespace FlareAI.Flare.Tests
                     var diff = boxes[0]; var why = boxes[1];
                     var card = (Panel)diff.Parent;
                     var head = card.Controls.OfType<Label>().Single();
-                    var decision = card.Controls.OfType<FlowLayoutPanel>().Single(f => f.AccessibleName == "Decision for the selected suggestion");
+                    var decision = card.Controls.OfType<FlowLayoutPanel>().Single(f => f.AccessibleName == "Decision for the selected issue");
                     var split = All(panel).OfType<SplitContainer>().Single();
                     Check(width + "x" + height + ": ", height, list, card, head, diff, why, decision, split);
 
@@ -111,7 +117,7 @@ namespace FlareAI.Flare.Tests
                     list.Items[0].Focused = true;
                     Pump(null, 200);
 
-                    var apply = All(panel).OfType<Button>().Single(b => b.Parent.AccessibleName == "Decision for the selected suggestion" && b.Text == "Apply");
+                    var apply = All(panel).OfType<Button>().Single(b => b.Parent.AccessibleName == "Decision for the selected issue" && b.Text == "Change");
                     apply.PerformClick();   // the button's own path: ReviewSession.Accept → Apply → FinishBatch → Sort → Rebuild, then Next
                     Pump(null, 300);
 
@@ -120,7 +126,7 @@ namespace FlareAI.Flare.Tests
                     Assert.DoesNotContain("Could not", labels());
                     Assert.True(list.Items.Count == 2, where + "after Apply the list has " + list.Items.Count + " rows");
                     Assert.True(list.Items[0].Font.Strikeout, where + "the applied row isn't struck through");
-                    Assert.True(list.Items[1].Selected, where + "Apply should move to the next suggestion");
+                    Assert.True(list.Items[1].Selected, where + "Change should move to the next issue");
                     Assert.True(apply.Enabled, where + "the next suggestion can be applied");
                     Assert.Contains("In order to", list.Items[1].Text);
 
@@ -132,7 +138,7 @@ namespace FlareAI.Flare.Tests
                     Assert.False(list.Items[0].Font.Strikeout, where + "the undone fix should be live again");
                     list.Items[0].Selected = true;
                     Pump(null, 200);
-                    Assert.True(apply.Enabled, where + "Apply works again after Ctrl+Z");
+                    Assert.True(apply.Enabled, where + "Change works again after Ctrl+Z");
                     apply.PerformClick();
                     Pump(null, 300);
                     Assert.Contains("The fee is waived", sim.Document.InnerText);
@@ -189,7 +195,7 @@ namespace FlareAI.Flare.Tests
         {
             where += "(card " + card.ClientSize + ", split " + split.Height + ", list " + list.Height + ", head " + head.Bounds + ", diff " + diff.Bounds +
                      ", buttons " + decision.Bounds + ", why " + why.Bounds + ") ";
-            Assert.Contains("Reword", head.Text);
+            Assert.Contains("Wording", head.Text);
             Assert.True(head.Top >= 0 && head.Height >= head.Font.Height, where + "the heading is hidden");
             Assert.True(head.Bottom <= diff.Top, where + "the heading overlaps what changes");
             Assert.True(diff.Height >= 2 * diff.Font.Height, where + "what changes is " + diff.Height + " px");

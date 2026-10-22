@@ -135,7 +135,7 @@ namespace FlareAI.Core.Tests
 
             Assert.True(f.IsStale);
             Assert.Equal(AcceptOutcome.Stale, s.Accept());
-            Assert.Equal("Text changed: check this paragraph again.", s.Status);
+            Assert.Equal("The text changed. Lint the paragraph again.", s.Status);
             Assert.Empty(_topic.TextOperations);
         }
 
@@ -165,7 +165,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Equal(AcceptOutcome.WentTo, s.Accept());
             Assert.Equal("the tool", _topic.LastSelected);
-            Assert.Equal("The text is selected: use Insert ▸ Variable ▸ General.ProductName (Flare replaces the selection).", s.Status);
+            Assert.Equal("The text is selected. On the Insert tab, click Variable and choose General.ProductName.", s.Status);
             Assert.Empty(_topic.TextOperations);
         }
 
@@ -180,7 +180,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Equal(AcceptOutcome.WentTo, s.Accept());
             Assert.Equal("The user", _topic.LastSelected);
-            Assert.Equal("Fix it in the editor (Use plain words.), then check this paragraph again.", s.Status);
+            Assert.Equal("Change it in the topic, then lint the paragraph again.", s.Status);
         }
 
         [Fact]
@@ -209,7 +209,7 @@ namespace FlareAI.Core.Tests
             _host.ConfirmAnswer = false;
 
             Assert.Equal(AcceptOutcome.Declined, s.Accept());
-            Assert.Equal("This changes shared.flsnp, used in 3 topics. Apply?\n\nThe change is tracked.", _host.Confirms.Single());
+            Assert.Equal("This changes shared.flsnp, used in 3 topics. Make the change?\n\nThe change is tracked.", _host.Confirms.Single());
             Assert.Empty(_snippet.TextOperations);
             Assert.False(f.IsFixed);
         }
@@ -250,7 +250,7 @@ namespace FlareAI.Core.Tests
             Assert.False(inSnippet.IsFixed);
             Assert.False(reword.IsFixed);
             Assert.Equal(2, _feedback.Count(x => x.StartsWith("accepted|")));
-            Assert.EndsWith("  1 more in snippets: select one to apply it there.", s.Status);
+            Assert.EndsWith("  1 more are in snippets. Select one to change it there.", s.Status);
             Assert.Same(reword, s.Current);
         }
 
@@ -304,7 +304,7 @@ namespace FlareAI.Core.Tests
             Assert.False(report.Changed.Single(e => e.Path == _topicPath).Saved);
             Assert.Equal("read-only", report.Skipped.Single().Reason);
             Assert.DoesNotContain("snippet stays open", s.Status);
-            Assert.Contains("Skipped 1 fix", s.Status);
+            Assert.Contains("Skipped 1 change", s.Status);
         }
 
         [Fact]
@@ -333,7 +333,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Equal("could not open it in Flare", _host.LastReport.Failed.Single().Reason);
             Assert.False(f.IsFixed);
-            Assert.Contains("Could not change other.htm: could not open it in Flare", s.Status);
+            Assert.Contains("Could not change other.htm (could not open it in Flare)", s.Status);
         }
 
         // ---- Write all as tracked changes ----------------------------------------------------------
@@ -347,7 +347,7 @@ namespace FlareAI.Core.Tests
 
             s.WriteAll();
 
-            Assert.Equal("Write all as tracked changes", _host.ConfirmActions.Single());
+            Assert.Equal("Make All Changes", _host.ConfirmActions.Single());
             Assert.Empty(_topic.TextOperations);
         }
 
@@ -370,8 +370,8 @@ namespace FlareAI.Core.Tests
             Assert.False(inSnippet.IsFixed);
             Assert.Single(_topic.TextOperations);
             Assert.Equal(2, _feedback.Count(x => x.StartsWith("proposed|bulk|")));
-            Assert.Contains("Wrote 2 tracked changes", s.Status);
-            Assert.StartsWith("Write 2 suggestions into the topic as tracked changes?", _host.Confirms.Single());
+            Assert.Contains("Made 2 tracked changes", s.Status);
+            Assert.StartsWith("Make 2 changes in the topic as tracked changes?", _host.Confirms.Single());
         }
 
         // ---- Reject and Skip --------------------------------------------------------------------
@@ -390,7 +390,7 @@ namespace FlareAI.Core.Tests
             Assert.DoesNotContain(a, s.Findings);
             Assert.Same(b, s.Current);
             Assert.Equal("rejected|fine here|Google.WordList", _feedback.Single());
-            Assert.EndsWith("Rejected (fine here); it stays hidden for this text.", s.Status);
+            Assert.EndsWith("Ignored. It stays hidden for this text.", s.Status);
 
             s.Add(new[] { Find(_topic, "utilize", "use") });   // the next check finds it again
             Assert.Single(s.Findings);
@@ -444,7 +444,7 @@ namespace FlareAI.Core.Tests
 
             s.Edit();
 
-            Assert.Equal("Replace \"utilize\" with:", _host.TextLabels.Single());
+            Assert.Equal("Change \"utilize\" to:", _host.TextLabels.Single());
             Assert.Contains("Please employ the tool.", TopicText());
             Assert.True(f.IsFixed);
             Assert.Equal("edited|use|Google.WordList", _feedback.Single());
@@ -492,14 +492,14 @@ namespace FlareAI.Core.Tests
             var a = Find(_topic, "utilize", "use");
             var b = Find(_topic, "utilize", "use", occurrence: 1);
             s.Add(new[] { a, b });
-            Assert.Equal("2 suggestions in 2 sections: 2 Fix · 0 Reword.", s.Summary());
+            Assert.Equal("2 issues in 2 sections. 2 automatic.", s.Summary());
 
             ((XmlText)b.Block.FirstChild).Value = "Then open the menu.";
             s.Sort();
 
             Assert.True(b.IsStale);
             Assert.Equal(new[] { a }, s.Open());
-            Assert.Equal("1 suggestion: 1 Fix · 0 Reword.", s.Summary());
+            Assert.Equal("1 issue. 1 automatic.", s.Summary());
         }
 
         [Fact]
@@ -507,12 +507,12 @@ namespace FlareAI.Core.Tests
         {
             var s = Session();
             Assert.Null(s.ReanalyzeTarget(Find(_snippet, "utilize", "use", documentPath: _snippetPath)));
-            Assert.Equal("Check this paragraph again works on the topic's paragraphs.", s.Status);
+            Assert.Equal("Lint Paragraph works on the topic's paragraphs.", s.Status);
 
             var gone = Find(_topic, "Then", null);
             gone.Block.ParentNode.RemoveChild(gone.Block);
             Assert.Null(s.ReanalyzeTarget(gone));
-            Assert.Equal("That paragraph is gone. Use Check again for the topic.", s.Status);
+            Assert.Equal("That paragraph is gone. Click Lint Again to lint the topic.", s.Status);
         }
 
         [Fact]
@@ -533,7 +533,7 @@ namespace FlareAI.Core.Tests
             Assert.Contains(elsewhere, s.Findings);
             Assert.Contains(applied, s.Findings);
             Assert.Same(fresh, s.Current);
-            Assert.EndsWith("Paragraph checked again: 1 suggestion.", s.Status);
+            Assert.EndsWith("Paragraph linted again. 1 issue.", s.Status);
         }
 
         [Fact]
@@ -561,7 +561,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Same(refined, s.Findings.Single());
             Assert.Same(refined, s.Current);
-            Assert.EndsWith("Refined. Apply, edit, or refine again.", s.Status);
+            Assert.EndsWith("The AI rewrote the suggestion. Change it, edit it, or rewrite it again.", s.Status);
         }
 
         [Fact]
@@ -585,7 +585,7 @@ namespace FlareAI.Core.Tests
             Assert.Same(elsewhere, s.Current);
 
             Assert.Null(s.RewriteTarget(Find(_snippet, "utilize", null, documentPath: _snippetPath), out related));
-            Assert.Equal("Open the snippet and use Rewrite selection there.", s.Status);
+            Assert.Equal("Open the snippet and use Rewrite there.", s.Status);
         }
 
         [Fact]
@@ -621,7 +621,7 @@ namespace FlareAI.Core.Tests
         {
             var s = Session();
             s.TurnOffRule();
-            Assert.Equal("Select a suggestion whose rule you want to change.", s.Status);
+            Assert.Equal("Select an issue whose rule you want to change.", s.Status);
             Assert.Null(_host.RuleQuestion);
         }
 
@@ -640,7 +640,7 @@ namespace FlareAI.Core.Tests
             s.TurnOffRule();
 
             Assert.Null(_host.RuleQuestion);   // nothing is written: no "turn off" dialog
-            Assert.StartsWith("This will be sent to the style guide owners (owner@example.com).", _host.Request.Notice);
+            Assert.StartsWith("This goes to the style guide owners (owner@example.com).", _host.Request.Notice);
             Assert.Contains("owners.txt doesn't list you", _host.Request.Notice);   // the folder is more open than the owners list
             Assert.Null(_host.Request.Wording);   // a Google rule: owners change its level, not its words
             var r = sent.Single();
@@ -667,8 +667,8 @@ namespace FlareAI.Core.Tests
 
             s.TurnOffRule();
 
-            Assert.StartsWith("Your request is saved but not sent yet: House Style couldn't write to", _host.Errors.Single());
-            Assert.EndsWith("Request saved; it is sent on your next check.", s.Status);
+            Assert.StartsWith("Your request is saved but not sent yet (House Style couldn't write to", _host.Errors.Single());
+            Assert.EndsWith("Request saved. It's sent the next time you lint.", s.Status);
         }
 
         [Fact]
@@ -701,7 +701,7 @@ namespace FlareAI.Core.Tests
 
             s.TurnOffRule();
 
-            Assert.EndsWith("Not sent: the owners need a reason to decide.", s.Status);
+            Assert.EndsWith("Not sent. Add a reason for the owners.", s.Status);
             Assert.Empty(_feedback);
         }
 
@@ -785,7 +785,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "google:words/2=off" }, _guideWrites);
             Assert.Equal(new[] { other }, s.Findings);
             Assert.Equal("rule ignored|We say it.|Google.WordList", _feedback.Single());
-            Assert.EndsWith("Rule set to off for the team (in " + Path.Combine(_root, "guide.htm") + "; commit it so everyone gets it).", s.Status);
+            Assert.EndsWith("Rule disabled for the team (in " + Path.Combine(_root, "guide.htm") + "). Commit it so everyone gets it.", s.Status);
         }
 
         [Fact]
@@ -801,7 +801,7 @@ namespace FlareAI.Core.Tests
             s.TurnOffRule();
 
             Assert.True(_host.RulePersonal);
-            Assert.EndsWith("Rule set to off in your style guide (" + Path.Combine(_root, "guide.htm") + ").", s.Status);
+            Assert.EndsWith("Rule disabled in your style guide (" + Path.Combine(_root, "guide.htm") + ").", s.Status);
         }
 
         [Fact]
@@ -818,7 +818,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Equal(new[] { "google:words/2=off by owner@example.com" }, _projectWrites);
             Assert.Empty(_guideWrites);
-            Assert.EndsWith("Rule set to off for this project (in " + ProjectRules.OverridesPath(_topicPath) + ").", s.Status);
+            Assert.EndsWith("Rule disabled for this project (in " + ProjectRules.OverridesPath(_topicPath) + ").", s.Status);
         }
 
         [Fact]
@@ -858,7 +858,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "Our rules · Audience: Say members.", "Google.Unknown" }, _host.RuleOthers.Select(r => r.Name));
             Assert.Equal(new[] { "google:words/2=off", "company:terminology/1=off", "google:unknown/9=off" }, _guideWrites);
             Assert.Equal(new[] { keep }, s.Findings);
-            Assert.Contains("Rules set to off for the team", s.Status);
+            Assert.Contains("Rules disabled for the team", s.Status);
         }
 
         [Fact]
@@ -894,7 +894,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Equal("House Style couldn't change the rule in " + ProjectRules.OverridesPath(_topicPath) + ".", _host.Errors.Single());
             Assert.StartsWith("House Style couldn't write to", _host.ErrorDetails.Single());
-            Assert.EndsWith("Nothing was changed: the rule still applies.", _host.ErrorDetails.Single());
+            Assert.EndsWith("Nothing was changed. The rule still applies.", _host.ErrorDetails.Single());
             Assert.EndsWith("The rule was not changed.", s.Status);
             Assert.Contains(f, s.Findings);
             Assert.Empty(_feedback);
@@ -922,7 +922,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "google:words/2" }, _guideWrites);
             Assert.Equal("House Style couldn't change \"Our rules · Audience: Say members.\" in guide.htm.", _host.Errors.Single());
             Assert.Empty(s.Findings);
-            Assert.EndsWith("Rule set to off for the team (in guide.htm; commit it so everyone gets it). 2 could not be changed.", s.Status);
+            Assert.EndsWith("Rule disabled for the team (in guide.htm). Commit it so everyone gets it. 2 could not be changed.", s.Status);
         }
 
         [Fact]
@@ -939,7 +939,7 @@ namespace FlareAI.Core.Tests
 
             Assert.Contains(f, s.Findings);
             Assert.StartsWith("rule changed|", _feedback.Single());
-            Assert.Contains("Rule set to suggestion for the team", s.Status);
+            Assert.Contains("Rule set to Suggestion for the team", s.Status);
         }
 
         [Fact]
@@ -1008,7 +1008,7 @@ namespace FlareAI.Core.Tests
             var gone = Find(_topic, "utilize", "use");
             ((XmlText)gone.Block.FirstChild).Value = "Nothing here.";
             s.GoTo(gone, true);
-            Assert.Equal("That text is no longer in the topic (it was edited). Check this paragraph again.", s.Status);
+            Assert.Equal("That text is no longer in the topic. Lint the paragraph again.", s.Status);
 
             var done = Find(_topic, "the menu", "it");
             done.IsFixed = true;
@@ -1060,7 +1060,7 @@ namespace FlareAI.Core.Tests
         public void Summary_CountsFixesRewordsAndNeedsYou_BySection()
         {
             var s = Session();
-            Assert.Equal("Nothing to fix: this text follows your style rules.", s.Summary());
+            Assert.Equal("No issues found in this topic.", s.Summary());
             var fix = Find(_topic, "utilize", "use");
             var reword = Find(_topic, "The user", "You");
             reword.Source = "ai";
@@ -1068,7 +1068,7 @@ namespace FlareAI.Core.Tests
             variable.Variable = "General.ProductName";
             s.Add(new[] { fix, reword, variable });
 
-            Assert.Equal("3 suggestions in 2 sections: 1 Fix · 1 Reword · 1 Needs you.", s.Summary());
+            Assert.Equal("3 issues in 2 sections. 1 automatic, 1 wording, 1 needs you.", s.Summary());
         }
 
         [Fact]

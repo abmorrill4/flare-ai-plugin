@@ -80,7 +80,7 @@ namespace FlareAI.Core.Style
         {
             get
             {
-                var s = State == RuleState.Off ? "Off" : State == RuleState.LevelChanged ? "Level changed" : "On";
+                var s = State == RuleState.Off ? "Disabled" : State == RuleState.LevelChanged ? "Level changed" : "Enabled";
                 return IsDefault ? s + " (Default)" : s;
             }
         }

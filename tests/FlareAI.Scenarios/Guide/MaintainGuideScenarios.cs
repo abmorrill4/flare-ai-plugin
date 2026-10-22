@@ -101,12 +101,12 @@ namespace FlareAI.Scenarios.Guide
             var byKind = items.ToDictionary(i => i.Kind);
             Assert.Equal(new[] { "disputed", "review", "edit", "ignore", "working" }, items.Select(i => i.Kind).ToArray());   // most urgent first
             Assert.Equal("company:terminology/3", byKind["disputed"].Rule);
-            Assert.Contains("Writer 1 accepts it (100% of 5)", byKind["disputed"].Evidence);
-            Assert.Contains("Writer 3 rejects it (100% of 5)", byKind["disputed"].Evidence);
+            Assert.Contains("Writer 1 changes it (100% of 5)", byKind["disputed"].Evidence);
+            Assert.Contains("Writer 3 ignores it (100% of 5)", byKind["disputed"].Evidence);
             Assert.Equal("company:plain-language/5", byKind["review"].Rule);
             Assert.Equal(5, byKind["review"].Writers.Count);
             Assert.Equal("company:plain-language/1", byKind["edit"].Rule);
-            Assert.Contains("Candidate Avoid/Use row: utilize → make use of", byKind["edit"].Evidence);
+            Assert.Contains("Candidate Avoid/Use row: avoid utilize, use make use of", byKind["edit"].Evidence);
             Assert.Equal("google:word-list/251", byKind["ignore"].Rule);
             Assert.Equal(2, byKind["ignore"].Writers.Count);
             Assert.All(items, i => Assert.All(i.Evidence.Concat(i.Writers), e => Assert.DoesNotContain("writer-", e)));
@@ -130,7 +130,7 @@ namespace FlareAI.Scenarios.Guide
                 Assert.Equal("tr", block.LocalName);                                             // the Avoid/Use row, not the bullet next to it
                 var instruction = GuideEdits.Instruction(item, rule, true);
                 Assert.Contains("Writers disagree", instruction);
-                Assert.Contains("Writer 3 rejects it", instruction);
+                Assert.Contains("Writer 3 ignores it", instruction);
                 var llm = new ScriptedLlmClient().When(r => r.Task == "draft", ScriptedReview.RewriteRun("We serve members.", "We serve members. Keep customer when it quotes a screen."));
                 var runner = new ActionRunner(llm, PromptBuilder.For(style, null), 16000, style, null);
 

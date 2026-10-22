@@ -25,7 +25,7 @@ namespace FlareAI.Core.Settings
         {
             switch (c)
             {
-                case AiChoice.None: return "No AI (style rules only)";
+                case AiChoice.None: return "No AI (rules only)";
                 case AiChoice.Gateway: return "My company's AI service (gateway)";
                 default: return "My Anthropic API key";
             }

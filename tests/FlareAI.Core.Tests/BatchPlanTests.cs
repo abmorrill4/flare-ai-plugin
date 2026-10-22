@@ -43,8 +43,8 @@ namespace FlareAI.Core.Tests
             Assert.Equal(4, please.Findings.Count);
             Assert.Equal(3, please.Files.Count);
             Assert.Equal(BatchPlan.MaxExamples, please.Examples.Count);
-            Assert.Equal("\"please click\" \u2192 \"click\"", please.Examples[0]);
-            Assert.Equal("5 fixes in 3 files", BatchPlan.Counts(plan.SelectedCount, plan.SelectedFileCount));
+            Assert.Equal("change \"please click\" to \"click\"", please.Examples[0]);
+            Assert.Equal("5 changes in 3 files", BatchPlan.Counts(plan.SelectedCount, plan.SelectedFileCount));
         }
 
         [Fact]
@@ -81,8 +81,8 @@ namespace FlareAI.Core.Tests
         {
             var plan = BatchPlan.Build(new[] { Fix("R.1", @"C:\p\LegacyApp.flsnp", "a", "b") }, @"C:\p\Open.htm", null, p => 9);
             Assert.Equal("LegacyApp.flsnp (snippet, used in 9 topics)", plan.Groups[0].Files[0]);
-            Assert.Equal("This changes LegacyApp.flsnp, used in 9 topics. Apply?", BatchPlan.SnippetQuestion(@"C:\p\LegacyApp.flsnp", 9));
-            Assert.Equal("This changes A.flsnp, used in 1 topic. Apply?", BatchPlan.SnippetQuestion(@"C:\p\A.flsnp", 1));
+            Assert.Equal("This changes LegacyApp.flsnp, used in 9 topics. Make the change?", BatchPlan.SnippetQuestion(@"C:\p\LegacyApp.flsnp", 9));
+            Assert.Equal("This changes A.flsnp, used in 1 topic. Make the change?", BatchPlan.SnippetQuestion(@"C:\p\A.flsnp", 1));
         }
 
         [Fact]

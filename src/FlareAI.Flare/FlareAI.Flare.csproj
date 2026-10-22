@@ -52,6 +52,8 @@
   <ItemGroup>
     <!-- Release notes for the What's new window; ships at the plugin root. -->
     <None Include="whats-new.md" CopyToOutputDirectory="PreserveNewest" />
+    <!-- The practice project for the guided first lint; ships at Samples\HouseStylePractice in the plugin folder. -->
+    <None Update="Samples\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

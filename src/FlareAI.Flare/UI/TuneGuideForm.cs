@@ -39,10 +39,10 @@ namespace FlareAI.Flare.UI
         private static readonly Dictionary<string, string> Groups = new Dictionary<string, string>
         {
             { "requests", "Requests to the style guide owners" },
-            { "disputed", "Writers disagree — decide, reword, or scope the rule" },
-            { "review", "Often rejected — reword, demote to prose, or drop" },
-            { "edit", "Repeated hand edits — the replacement is probably wrong" },
-            { "ignore", "Requests to turn a rule off" },
+            { "disputed", "Writers disagree about these rules" },
+            { "review", "Often ignored" },
+            { "edit", "Often edited by hand" },
+            { "ignore", "Requests to disable a rule" },
             { "working", "Working well" }
         };
 
@@ -55,7 +55,7 @@ namespace FlareAI.Flare.UI
                              Func<IList<string>> guideRoots = null, string openProject = null, Func<string, bool> isDefault = null, Action<IWin32Window> styleRules = null)
         {
             _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor; _guideRoots = guideRoots; _openProject = openProject; _isDefault = isDefault;
-            Text = "House Style — Tune style guide";
+            Text = Notify.Caption(Commands.RuleDecisions.Label);
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 600);
             MinimumSize = new Size(600, 400);
@@ -64,21 +64,21 @@ namespace FlareAI.Flare.UI
 
             _head = new LiveLabel { Dock = DockStyle.Top, Height = 54, Padding = new Padding(8, 8, 8, 0), Text = "Reading the team's review decisions…" };
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false };
-            _list.Columns.Add("Item", 420); _list.Columns.Add("Accepted", 70); _list.Columns.Add("Rejected", 70); _list.Columns.Add("Writers", 200);
+            _list.Columns.Add("Item", 420); _list.Columns.Add("Changed", 70); _list.Columns.Add("Ignored", 70); _list.Columns.Add("Writers", 200);
             foreach (var g in Groups) _list.Groups.Add(g.Key, g.Value);
             _list.SelectedIndexChanged += (s, e) => ShowDetail();
             _detail = DiffView.Create();
             _detail.Dock = DockStyle.Bottom; _detail.Height = 170; _detail.BackColor = SystemColors.Control;
             // Grows to a second row rather than clipping buttons at 125-150% scaling or in a narrow window.
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
-            var rules = new Button { Text = "Style rules…", AutoSize = true, Visible = styleRules != null };
+            var rules = new Button { Text = Commands.Rules.Label + "…", AutoSize = true, Visible = styleRules != null };
             rules.Click += (s, e) => { styleRules(this); Load(); };
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
             var refresh = new Button { Text = "Refresh", AutoSize = true };
             _openRule = new Button { Text = "Open rule in the guide", AutoSize = true, Enabled = false };
             _draft = new Button { Text = "Draft a change with AI…", AutoSize = true, Enabled = false };
             _prompts = new Button { Text = "Customize AI prompts…", AutoSize = true, Enabled = IsOwner };
-            _turnedOff = new Button { Text = "Turned-off rules…", AutoSize = true };
+            _turnedOff = new Button { Text = "Disabled Rules…", AutoSize = true };
             _decide = new Button { Text = "Approve or decline…", AutoSize = true, Enabled = false, Visible = CanDecide };
             _withdraw = new Button { Text = "Withdraw request", AutoSize = true, Enabled = false, Visible = false };
             _decide.Click += (s, e) => DecideCurrent();
@@ -89,20 +89,20 @@ namespace FlareAI.Flare.UI
             _prompts.Click += (s, e) => CustomizePrompts();
             _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject, _isDefault)) f.ShowDialog(this); };
             bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff, rules, _withdraw, _decide });
-            if (Requesting) _draft.Text = "Request a change…";
+            if (Requesting) _draft.Text = "Request Change…";
             var tips = new ToolTip();
-            tips.SetToolTip(rules, "Every rule in the style guide, with search and filters: turn rules off, change their level or turn them back on.");
-            tips.SetToolTip(_turnedOff, "Every rule turned off or changed in the style guide and this project: who, when and why. Turn rules back on here.");
-            tips.SetToolTip(_decide, "Approve the selected request (you can adjust it first) or decline it with a note. The writer sees the outcome on their next check.");
-            tips.SetToolTip(_withdraw, "Take back your open request; the owners no longer see it as open.");
-            tips.SetToolTip(_draft, Requesting ? "Ask the style guide owners to change the selected rule's level or wording, with your reason." : "The AI rewrites this rule in the guide from the team's evidence; you review the change and apply it as tracked changes (owners only).");
-            tips.SetToolTip(_prompts, @"Copy the AI's instructions into the guide (FlareAI\prompts) so the team can tune them, versioned with the rules (owners only).");
+            tips.SetToolTip(rules, Commands.Rules.Tooltip);
+            tips.SetToolTip(_turnedOff, "See every disabled or changed rule, with who changed it, when and why.");
+            tips.SetToolTip(_decide, "Approve the request, or decline it with a note. The writer sees the answer the next time they lint.");
+            tips.SetToolTip(_withdraw, "Take back your open request.");
+            tips.SetToolTip(_draft, Requesting ? "Ask the style guide owners to change this rule." : "Have the AI rewrite this rule from the team's decisions. You review the change before it's made.");
+            tips.SetToolTip(_prompts, "Copy the AI's instructions into the style guide so your team can adjust them.");
             Controls.Add(_list);
             Controls.Add(_detail);
             Controls.Add(bar);
             Controls.Add(_head);
             CancelButton = close;
-            A11y.Name(_list, "Rules and the team's review decisions", "Columns: item, accepted, rejected, writers.");
+            A11y.Name(_list, "Rules and the team's decisions", "Columns are item, changed, ignored and writers.");
             A11y.Name(_detail, "Details for the selected item");
             A11y.Name(bar, "Dialog buttons");
             A11y.Name(_decide, "Approve or decline", "Decide the selected request.");
@@ -167,8 +167,8 @@ namespace FlareAI.Flare.UI
             var writers = decisions.Select(d => d.Writer).Distinct(StringComparer.OrdinalIgnoreCase).Count();
             var dated = decisions.Where(d => d.At > DateTime.MinValue).ToList();
             var range = dated.Count == 0 ? "" : " (" + dated.Min(d => d.At).ToLocalTime().ToString("d") + " – " + dated.Max(d => d.At).ToLocalTime().ToString("d") + ")";
-            var source = _team == null || _team.FeedbackFolder == null ? "your own decisions only — set a team feedback folder in Settings to pool everyone's" : _team.FeedbackFolder;
-            var role = _team == null || !_team.IsStrict ? "No owners file: anyone can change the guide."
+            var source = _team == null || _team.FeedbackFolder == null ? "your own decisions only. Set a team feedback folder in Settings to collect everyone's" : _team.FeedbackFolder;
+            var role = _team == null || !_team.IsStrict ? "There's no owners file, so anyone can change the guide."
                      : _team.AccessNotice ?? (_team.IsListedOwner ? "You are a style guide owner." : "The owners are " + _team.OwnerNames + ".");
             var open = requests.Count(r => r.IsOpen);
             var actionable = items.Count(i => i.Kind != "working") + (CanDecide ? open : 0);
@@ -248,7 +248,7 @@ namespace FlareAI.Flare.UI
             else if (!string.IsNullOrEmpty(r.RuleText)) lines.Add("Rule: " + r.RuleText);
             if (r.Kind == RequestKinds.Wording) lines.Add("New wording asked for: " + r.Wording);
             if (r.Kind == RequestKinds.ProjectException)
-                lines.Add("For project " + (r.Project ?? "(unnamed)") + " only: the team rule stays on. When approved, the writer's plugin writes the exception into that project on their next check.");
+                lines.Add("For project " + (r.Project ?? "(unnamed)") + " only. The team rule stays enabled. When you approve it, the exception is written into that project the next time the writer lints.");
             if (r.Kind == RequestKinds.AddRule && r.Candidate != null)
             {
                 var c = r.Candidate;
@@ -259,7 +259,7 @@ namespace FlareAI.Flare.UI
             }
             int acc, rej;
             Counts(r, out acc, out rej);
-            if (acc + rej > 0) lines.Add("The team's decisions on this rule: " + acc + " accepted, " + rej + " rejected.");
+            if (acc + rej > 0) lines.Add("The team's decisions on this rule: " + acc + " changed, " + rej + " ignored.");
             foreach (var e in r.Evidence ?? new List<string>()) lines.Add("• " + e);
             return lines;
         }
@@ -331,14 +331,14 @@ namespace FlareAI.Flare.UI
                                       (string.IsNullOrEmpty(earlier.Note) ? "." : ": " + earlier.Note), "Decide a request");
                 Load();
                 _head.Text = earlier != null ? "Already decided by " + earlier.By + "." :
-                             decision == RequestStatus.Declined ? "Declined. The writer sees your note on their next check." :
-                             r.Kind == RequestKinds.ProjectException ? "Approved. The writer's plugin writes the exception into their project on their next check."
-                             : "Approved and applied to the style guide. Writers get it on their next check.";
+                             decision == RequestStatus.Declined ? "Declined. The writer sees your note the next time they lint." :
+                             r.Kind == RequestKinds.ProjectException ? "Approved. The exception is written into the writer's project the next time they lint."
+                             : "Approved and changed in the style guide. Writers get it the next time they lint.";
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("tune: decide " + r.Id, ex);
-                Notify.Error(this, "House Style couldn't " + (decision == RequestStatus.Declined ? "decline" : "apply") + " this request.", ex.Message + "\n\nNothing was changed; the request stays open.", ex, "Decide a request");
+                Notify.Error(this, "House Style couldn't " + (decision == RequestStatus.Declined ? "decline" : "apply") + " this request.", ex.Message + "\n\nNothing was changed. The request stays open.", ex, "Decide a request");
             }
         }
 
@@ -369,7 +369,7 @@ namespace FlareAI.Flare.UI
             var choice = RequestForm.Ask(this, new RequestQuestion
             {
                 RuleText = ReviewSession.SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Display,
-                Notice = "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide here in Tune style guide; you see the answer on your next check." +
+                Notice = "This goes to the style guide owners (" + _team.OwnerNames + "). You see their answer the next time you lint." +
                          (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice),
                 CanAskTeam = true, CanAskProject = false, Wording = rule.Layer != "google" ? rule.Text : null
             });
@@ -389,8 +389,8 @@ namespace FlareAI.Flare.UI
             try { GuideRequests.Send(_team, r, out problem); }
             catch (Exception ex) { Diagnostics.Log("tune: send request", ex); Notify.Error(this, "House Style couldn't send your request.", ex.Message + "\n\nYour reason: " + r.Reason, ex, "Request a change"); return; }
             Load();
-            _head.Text = problem == null ? "Request sent to the style guide owners (" + _team.OwnerNames + "). You see their answer on your next check."
-                                         : "Request saved but not sent yet: " + problem + ". House Style sends it on your next check.";
+            _head.Text = problem == null ? "Request sent to the style guide owners (" + _team.OwnerNames + "). You see their answer the next time you lint."
+                                         : "Request saved but not sent yet (" + problem + "). House Style sends it the next time you lint.";
         }
 
         /// <summary>Opens the rule's topic, finds the rule's bullet or row, and has the AI draft the change from the evidence.</summary>
@@ -418,7 +418,7 @@ namespace FlareAI.Flare.UI
                 using (var form = new ResultForm("Draft style guide change", runner, doc, ActionKind.Ask, instruction, new List<System.Xml.XmlNode> { block }) { Lint = false, Task = "draft" })
                 {
                     if (form.ShowDialog(this) != DialogResult.OK) return;
-                    _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ": review, save and commit the guide, then run Validate style guide.";
+                    _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ". Review, save and commit the guide, then run Test Rules.";
                 }
             }
             catch (GuideWriteException ex) { Diagnostics.Log("tune: draft", ex); Notify.Error(this, "House Style couldn't set up your style guide for the change.", ex.Message + "\n\nNothing was changed.", ex, "Draft change"); }
@@ -446,7 +446,7 @@ namespace FlareAI.Flare.UI
                 if (!System.IO.File.Exists(readme))
                     System.IO.File.WriteAllText(readme, "The AI's instructions. A file here replaces the built-in template of the same name for every writer\r\n" +
                         "who uses this style guide. Keep the {{PLACEHOLDERS}}. Delete a file to go back to the built-in version.\r\n" +
-                        "Commit changes like any rule change; run Validate style guide > Check prose rules with AI afterwards.\r\n", new System.Text.UTF8Encoding(false));
+                        "Commit changes like any rule change. Afterwards, run Test Rules and test the prose rules with AI.\r\n", new System.Text.UTF8Encoding(false));
                 _head.Text = (added > 0 ? "Copied " + Plural.Of(added, "prompt template") + " to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
                 System.Diagnostics.Process.Start("explorer.exe", "\"" + dir + "\"");
             }
@@ -461,10 +461,10 @@ namespace FlareAI.Flare.UI
         {
             switch (kind)
             {
-                case "disputed": return "Most splits are about scope: the rule is right for some content and wrong for other. Scope it (a project rule or a separate section), or reword it to say when it applies.";
-                case "review": return "Read the rejected excerpts: if the rule is wrong there, narrow its wording or make it a prose rule with an example of the exception.";
-                case "edit": return "Writers agree on a better replacement: update the rule's Use column (or add an Avoid/Use row), then run Validate style guide.";
-                case "ignore": return "Decide for the team: turn the rule off (Google overrides table), scope it, or answer the writers.";
+                case "disputed": return "The rule is probably right for some content and wrong for other. Narrow it with a project rule or a separate section, or rewrite it to say when it applies.";
+                case "review": return "Read the ignored excerpts. If the rule is wrong there, narrow its wording or make it a prose rule with an example of the exception.";
+                case "edit": return "Writers agree on better text. Update the rule's Use column or add an Avoid/Use row, then run Test Rules.";
+                case "ignore": return "Decide for the team. Disable the rule in the Google overrides table, narrow it, or answer the writers.";
                 default: return "";
             }
         }

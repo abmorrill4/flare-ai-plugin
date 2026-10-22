@@ -137,8 +137,8 @@ namespace FlareAI.Core.Actions
                     items.Add(new TuneItem
                     {
                         Kind = "disputed", Rule = g.Key, Title = "Writers disagree on " + g.Key, Accepted = acc, Rejected = rej, Writers = writers,
-                        Evidence = accepters.Select(w => w.Writer + " accepts it (" + Pct(1 - w.Rate) + " of " + w.N + ")")
-                            .Concat(rejecters.Select(w => w.Writer + " rejects it (" + Pct(w.Rate) + " of " + w.N + ")"))
+                        Evidence = accepters.Select(w => w.Writer + " changes it (" + Pct(1 - w.Rate) + " of " + w.N + ")")
+                            .Concat(rejecters.Select(w => w.Writer + " ignores it (" + Pct(w.Rate) + " of " + w.N + ")"))
                             .Concat(Reasons(all)).Concat(Samples(all.Where(d => d.IsReject), 3)).ToList()
                     });
                 }
@@ -146,7 +146,7 @@ namespace FlareAI.Core.Actions
                 {
                     items.Add(new TuneItem
                     {
-                        Kind = "review", Rule = g.Key, Title = "Often rejected: " + g.Key + " (" + Pct(rate) + " of " + (acc + rej) + ")",
+                        Kind = "review", Rule = g.Key, Title = "Often ignored: " + g.Key + " (" + Pct(rate) + " of " + (acc + rej) + ")",
                         Accepted = acc, Rejected = rej, Writers = writers,
                         Evidence = Reasons(all).Concat(Samples(all.Where(d => d.IsReject), 4))
                             .Concat(earlier > 0 ? new[] { Plural.Of(earlier, "older decision") + " about an earlier wording of this rule aren't counted." } : new string[0]).ToList()
@@ -172,7 +172,7 @@ namespace FlareAI.Core.Actions
                 items.Add(new TuneItem
                 {
                     Kind = "edit", Rule = all[0].Key, Title = "Writers keep editing \"" + all[0].Excerpt + "\" to \"" + all[0].Replacement + "\" (" + all.Count + "×)",
-                    Accepted = all.Count, Writers = writers, Evidence = new List<string> { "Rule: " + all[0].Key, "Candidate Avoid/Use row: " + all[0].Excerpt + " → " + all[0].Replacement }
+                    Accepted = all.Count, Writers = writers, Evidence = new List<string> { "Rule: " + all[0].Key, "Candidate Avoid/Use row: avoid " + all[0].Excerpt + ", use " + all[0].Replacement }
                 });
             }
 
@@ -182,7 +182,7 @@ namespace FlareAI.Core.Actions
                 var all = g.ToList();
                 items.Add(new TuneItem
                 {
-                    Kind = "ignore", Rule = g.Key, Title = "Asked to turn off: " + g.Key + " (" + Plural.Of(all.Count, "request") + ")",
+                    Kind = "ignore", Rule = g.Key, Title = "Asked to disable: " + g.Key + " (" + Plural.Of(all.Count, "request") + ")",
                     Rejected = all.Count, Writers = all.Select(d => d.Writer).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
                     Evidence = all.Select(d => d.Writer + ": " + (d.Reason ?? "(no reason)") + " — " + Path.GetFileName(d.File ?? "")).ToList()
                 });

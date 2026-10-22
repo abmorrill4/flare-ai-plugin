@@ -93,7 +93,7 @@ namespace FlareAI.Core.Actions
             if (rule == null) throw new ArgumentNullException("rule");
             if (choice == null) throw new ArgumentNullException("choice");
             var project = ProjectRules.OverridesPath(projectPath);
-            if (!choice.ForTeam && project == null) throw new InvalidOperationException("Open a topic of the project first: a project exception is written into that project.");
+            if (!choice.ForTeam && project == null) throw new InvalidOperationException("Open a topic in the project first. A project exception is written into that project.");
             var result = new RuleChangeResult();
             if (NeedsRequest(team))
             {
@@ -101,7 +101,7 @@ namespace FlareAI.Core.Actions
                 var editable = choice.ForTeam && !rule.IsTable && rule.Origin != "google";   // Google rules are generated: a level, not words
                 var wording = editable && !string.IsNullOrWhiteSpace(choice.Wording) && choice.Wording.Trim() != (rule.Text ?? "").Trim() ? choice.Wording.Trim() : null;
                 var r = RuleRequest(team, choice, rule.Key, rule.Name ?? rule.Key, rule.Origin, rule.Text, RuleFile(rule), projectPath, wording);
-                r.Evidence.Add("Asked from Style rules (" + rule.Source + " · " + rule.Page + ")");
+                r.Evidence.Add("Asked from Rules (" + rule.Source + " · " + rule.Page + ")");
                 result.Requested = true;
                 result.Request = r;
                 result.Problem = Send(team, r);
@@ -129,7 +129,7 @@ namespace FlareAI.Core.Actions
                 {
                     Diagnostics.Log("Style rules: change " + one.Key, ex);
                     if (one == rule) throw;
-                    result.Incomplete = "\"" + one.Title + "\" and any after it were not changed: " + ex.Message;
+                    result.Incomplete = "\"" + one.Title + "\" and the rules after it were not changed. " + ex.Message;
                     break;
                 }
             }
@@ -199,7 +199,7 @@ namespace FlareAI.Core.Actions
                 catch (Exception ex)
                 {
                     Diagnostics.Log("Style rules: restore " + one.Key, ex);
-                    result.Incomplete = "\"" + one.Title + "\" and any after it were not turned back on: " + ex.Message;
+                    result.Incomplete = "\"" + one.Title + "\" and the rules after it were not enabled. " + ex.Message;
                     break;
                 }
             }

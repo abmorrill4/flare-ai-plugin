@@ -114,7 +114,7 @@ namespace FlareAI.Core.Actions
                 if (names.Count < 3) names.Add(Path.GetFileName(x.Path) + " (used in " + x.Uses + " topics)");
             }
             if (selected.Count > 3) names.Add("and " + (selected.Count - 3) + " more");
-            return (fixes == 1 ? "1 fix is" : fixes + " fixes are") + " in " + (selected.Count == 1 ? "a snippet" : "snippets") + " that other topics include: " +
+            return (fixes == 1 ? "1 change is" : fixes + " changes are") + " in " + (selected.Count == 1 ? "a snippet" : "snippets") + " that other topics include: " +
                    string.Join(", ", names.ToArray()) + ". Changing a snippet changes every topic that includes it.";
         }
 
@@ -142,7 +142,7 @@ namespace FlareAI.Core.Actions
         {
             var from = "\"" + (f.Excerpt ?? "") + "\"";
             if (string.IsNullOrEmpty(f.Replacement)) return "delete " + from;
-            return from + " → \"" + f.Replacement + "\"";
+            return "change " + from + " to \"" + f.Replacement + "\"";
         }
 
         public List<StyleFinding> SelectedFindings
@@ -180,10 +180,10 @@ namespace FlareAI.Core.Actions
             }
         }
 
-        /// <summary>"12 fixes in 5 files" for the heading or the Apply button.</summary>
+        /// <summary>"12 changes in 5 files" for the heading or the Change button.</summary>
         public static string Counts(int fixes, int files)
         {
-            return fixes + (fixes == 1 ? " fix" : " fixes") + " in " + files + (files == 1 ? " file" : " files");
+            return fixes + (fixes == 1 ? " change" : " changes") + " in " + files + (files == 1 ? " file" : " files");
         }
 
         /// <summary>The files and examples for one rule, as plain lines.</summary>
@@ -216,7 +216,7 @@ namespace FlareAI.Core.Actions
         /// <summary>The confirmation for one snippet fix: it changes every topic that includes the snippet.</summary>
         public static string SnippetQuestion(string snippetPath, int topics)
         {
-            return "This changes " + Path.GetFileName(snippetPath) + ", used in " + topics + (topics == 1 ? " topic" : " topics") + ". Apply?";
+            return "This changes " + Path.GetFileName(snippetPath) + ", used in " + topics + (topics == 1 ? " topic" : " topics") + ". Make the change?";
         }
     }
 
@@ -244,22 +244,22 @@ namespace FlareAI.Core.Actions
         {
             var sb = new StringBuilder();
             var fixes = FixesApplied;
-            sb.Append(fixes == 0 ? "No changes were made" : "Applied " + fixes + (fixes == 1 ? " fix" : " fixes") + " as tracked changes");
+            sb.Append(fixes == 0 ? "No changes were made" : "Made " + fixes + (fixes == 1 ? " tracked change" : " tracked changes"));
             var saved = SavedFiles;
             var open = Changed.Count - saved;
             if (fixes > 0)
             {
                 if (saved > 0)
-                    sb.Append(". Changes in " + saved + (saved == 1 ? " file are" : " files are") + " tracked and saved; review them in Flare's Review tab"
+                    sb.Append(". Changes in " + saved + (saved == 1 ? " file are" : " files are") + " tracked and saved. Accept them on Flare's Review tab"
                               + (open > 0 ? ". The open topic can also use Ctrl+Z" : ""));
                 else sb.Append(". Ctrl+Z undoes them");
             }
             var skippedFixes = 0;
             foreach (var e in Skipped) skippedFixes += e.Fixes;
-            if (skippedFixes > 0) sb.Append(". Skipped " + skippedFixes + (skippedFixes == 1 ? " fix" : " fixes") + " (see the list)");
-            if (Failed.Count == 1) sb.Append(". Could not change " + Name(Failed[0].Path) + ": " + Failed[0].Reason);
+            if (skippedFixes > 0) sb.Append(". Skipped " + skippedFixes + (skippedFixes == 1 ? " change" : " changes") + " (see the list)");
+            if (Failed.Count == 1) sb.Append(". Could not change " + Name(Failed[0].Path) + " (" + Failed[0].Reason + ")");
             else if (Failed.Count > 1) sb.Append(". Could not change " + Failed.Count + " files (see the list)");
-            if (NotStarted.Count > 0) sb.Append(". Stopped: " + NotStarted.Count + (NotStarted.Count == 1 ? " file was" : " files were") + " not changed");
+            if (NotStarted.Count > 0) sb.Append(". Stopped. " + NotStarted.Count + (NotStarted.Count == 1 ? " file was" : " files were") + " not changed");
             return sb.Append('.').ToString();
         }
 
@@ -269,9 +269,9 @@ namespace FlareAI.Core.Actions
             var sb = new StringBuilder();
             sb.AppendLine(Status());
             foreach (var e in Changed) sb.AppendLine("Changed: " + Name(e.Path) + " (" + e.Fixes + ")");
-            foreach (var e in Skipped) sb.AppendLine("Skipped: " + Name(e.Path) + " (" + e.Fixes + (e.Fixes == 1 ? " fix" : " fixes") + ") — " + e.Reason);
-            foreach (var e in Failed) sb.AppendLine("Failed: " + Name(e.Path) + " — " + e.Reason);
-            foreach (var e in NotStarted) sb.AppendLine("Not changed: " + Name(e.Path) + " (" + e.Fixes + (e.Fixes == 1 ? " fix" : " fixes") + ") — " + e.Reason);
+            foreach (var e in Skipped) sb.AppendLine("Skipped: " + Name(e.Path) + " (" + e.Fixes + (e.Fixes == 1 ? " change, " : " changes, ") + e.Reason + ")");
+            foreach (var e in Failed) sb.AppendLine("Failed: " + Name(e.Path) + " (" + e.Reason + ")");
+            foreach (var e in NotStarted) sb.AppendLine("Not changed: " + Name(e.Path) + " (" + e.Fixes + (e.Fixes == 1 ? " change, " : " changes, ") + e.Reason + ")");
             return sb.ToString().TrimEnd();
         }
 

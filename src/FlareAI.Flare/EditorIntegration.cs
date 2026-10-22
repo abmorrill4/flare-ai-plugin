@@ -27,7 +27,7 @@ namespace FlareAI.Flare
     {
         private readonly IHost _host;
         private readonly Func<FlareDocumentAdapter, ActionRunner> _lintRunner;
-        private readonly Action _checkStyle, _rewrite, _ask, _checkProject;
+        private readonly Action _lintTopic, _rewrite, _ask, _lintProject;
         private readonly Func<Form> _owner;
         // Keyed by file path: Flare hands out a new IDocument wrapper for the same document on each call.
         private readonly Dictionary<string, DocState> _docs = new Dictionary<string, DocState>(StringComparer.OrdinalIgnoreCase);
@@ -43,10 +43,10 @@ namespace FlareAI.Flare
         }
 
         public EditorIntegration(IHost host, Func<FlareDocumentAdapter, ActionRunner> lintRunner, Func<Form> owner,
-                                 Action checkStyle, Action rewrite, Action ask, Action checkProject)
+                                 Action lintTopic, Action rewrite, Action ask, Action lintProject)
         {
             _host = host; _lintRunner = lintRunner; _owner = owner;
-            _checkStyle = checkStyle; _rewrite = rewrite; _ask = ask; _checkProject = checkProject;
+            _lintTopic = lintTopic; _rewrite = rewrite; _ask = ask; _lintProject = lintProject;
             FindingsPanel.Changed += panel => { var d = DocFor(panel.TopicPath); if (d != null) UpdateMarkers(d); };
             try { Directory.CreateDirectory(MarkerDir); foreach (var f in Directory.GetFiles(MarkerDir, "*.css")) File.Delete(f); } catch (Exception) { }
         }
@@ -79,7 +79,7 @@ namespace FlareAI.Flare
                 if (items != null && !items.Any(i => i.Text == Commands.Context[0].ContextLabel))
                 {
                     items.Add(new ToolStripSeparator());
-                    foreach (var c in Commands.Context) items.Add(Item(c, c == Commands.CheckStyle ? _checkStyle : c == Commands.Rewrite ? _rewrite : _ask));
+                    foreach (var c in Commands.Context) items.Add(Item(c, c == Commands.LintTopic ? _lintTopic : c == Commands.Rewrite ? _rewrite : _ask));
                 }
             }
             catch (Exception ex) { Diagnostics.Log("context menu", ex); }
@@ -163,8 +163,8 @@ namespace FlareAI.Flare
                 state.Lint = lint;
                 if (lint.Count == 0) return;   // nothing to say
                 var errors = lint.Count(f => f.Severity == "error");
-                Toast.Show(_owner(), Plural.Of(lint.Count, "suggestion") + " in " + Path.GetFileName(adapter.SourcePath) + (errors > 0 ? " (" + Plural.Of(errors, "error") + ")" : "") + ". Saved anyway.",
-                           "Show them", _checkStyle);
+                Toast.Show(_owner(), Plural.Of(lint.Count, "issue") + " in " + Path.GetFileName(adapter.SourcePath) + (errors > 0 ? " (" + Plural.Of(errors, "error") + ")" : "") + ". Saved anyway.",
+                           "Show Issues", _lintTopic);
                 UpdateMarkers(doc);
             }
             catch (Exception ex) { Diagnostics.Log("check on save", ex); }
@@ -234,11 +234,11 @@ namespace FlareAI.Flare
                 {
                     if (e.Error != null) { Diagnostics.Log("report before build", e.Error); return; }
                     var found = (List<StyleFinding>)e.Result;
-                    if (found.Count == 0) { Toast.Show(owner, "Building. No style issues in the project's " + Plural.Of(files.Count, "file") + "."); return; }
+                    if (found.Count == 0) { Toast.Show(owner, "Building. No issues found in the project's " + Plural.Of(files.Count, "file") + "."); return; }
                     var inFiles = found.Select(f => f.DocumentPath).Distinct(StringComparer.OrdinalIgnoreCase).Count();
                     var errors = found.Count(f => f.Severity == "error");
-                    Toast.Show(owner, "Building. " + Plural.Of(found.Count, "style issue") + " in " + Plural.Of(inFiles, "file") + (errors > 0 ? ", " + Plural.Of(errors, "error") : "") + ".",
-                               "Open the report", _checkProject);
+                    Toast.Show(owner, "Building. " + Plural.Of(found.Count, "issue") + " in " + Plural.Of(inFiles, "file") + (errors > 0 ? ", " + Plural.Of(errors, "error") : "") + ".",
+                               "Show Issues", _lintProject);
                 };
                 worker.RunWorkerAsync();
             }

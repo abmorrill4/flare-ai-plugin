@@ -36,7 +36,7 @@ namespace FlareAI.Flare.UI
     /// <summary>Shared accessibility helpers: severity glyphs and a pass that names controls and fixes tab order.</summary>
     internal static class A11y
     {
-        /// <summary>Severity is never colour-only: ● Error, ▲ Warning, ○ Tip.</summary>
+        /// <summary>Severity is never colour-only: ● Error, ▲ Warning, ○ Suggestion.</summary>
         public static string SeverityGlyph(string severity)
         {
             switch ((severity ?? "").ToLowerInvariant())
@@ -53,12 +53,23 @@ namespace FlareAI.Flare.UI
             {
                 case "error": return "Error";
                 case "warning": return "Warning";
-                default: return "Tip";
+                default: return "Suggestion";
             }
         }
 
-        /// <summary>"● Error", "▲ Warning" or "○ Tip".</summary>
+        /// <summary>"● Error", "▲ Warning" or "○ Suggestion".</summary>
         public static string SeverityLabel(string severity) { return SeverityGlyph(severity) + " " + SeverityWord(severity); }
+
+        /// <summary>What a severity means, in one plain sentence (row tooltips and the legend).</summary>
+        public static string SeverityHelp(string severity)
+        {
+            switch ((severity ?? "").ToLowerInvariant())
+            {
+                case "error": return "This breaks a required rule.";
+                case "warning": return "Change this unless you have a reason not to.";
+                default: return "Consider changing this.";
+            }
+        }
 
         public static void Name(Control c, string name, string description = null)
         {

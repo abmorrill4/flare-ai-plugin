@@ -144,7 +144,7 @@ namespace FlareAI.Core.Tests
             var def = cat.Find(ThisPage);
             Assert.Equal(RuleState.Off, def.State);
             Assert.True(def.IsDefault);
-            Assert.Equal("Off (Default)", def.StateLabel);
+            Assert.Equal("Disabled (Default)", def.StateLabel);
             Assert.Equal(RuleOverrides.DefaultScope, def.Change.Scope);
             Assert.False(def.ChangeIsProject);
 
@@ -162,7 +162,7 @@ namespace FlareAI.Core.Tests
             var on = cat.Find(Nbsp);         // a default (off) that my guide turns back on
             Assert.Equal(RuleState.On, on.State);
             Assert.True(on.Change.IsTurnOn);
-            Assert.Equal("On", on.StateLabel);
+            Assert.Equal("Enabled", on.StateLabel);
 
             var team = cat.Find(Please);
             Assert.Equal(RuleState.Off, team.State);

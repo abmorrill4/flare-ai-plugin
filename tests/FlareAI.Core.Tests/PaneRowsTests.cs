@@ -112,7 +112,7 @@ namespace FlareAI.Core.Tests
             using (var font = FontAt(scale))
             {
                 var available = PaneRows.S(150 - 12 - 4, scale);
-                foreach (var text in new[] { "Check this paragraph again", "Fix all automatic suggestions… (128)", "Write all as tracked changes (12)" })
+                foreach (var text in new[] { "Make Automatic Changes (128)…", "Show Skipped Rules (128)" })
                 {
                     var one = TextRenderer.MeasureText(text, font, Size.Empty, TextFormatFlags.NoPrefix);
                     var wrapped = TextRenderer.MeasureText(text, font, new Size(PaneRows.ButtonTextWidth(available, scale), 0), TextFormatFlags.NoPrefix | TextFormatFlags.WordBreak).Height;

@@ -254,7 +254,7 @@ namespace FlareAI.Scenarios.Rules
                 var before = Files.Snapshot(t.Guide);
                 t.Fx.Check();
                 var f = t.Choose(EMail);
-                Assert.Equal("Request a change…", t.Fx.Session.RuleChangeLabel());
+                Assert.Equal("Request Change…", t.Fx.Session.RuleChangeLabel());
                 t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Members write e-mail." };
 
                 t.Fx.Session.TurnOffRule();
@@ -286,7 +286,7 @@ namespace FlareAI.Scenarios.Rules
                 t.Fx.Session.TurnOffRule();
 
                 Assert.Contains("no team feedback folder is set in Settings", t.Fx.Host.Errors.Single());
-                Assert.Contains("Request saved; it is sent on your next check.", t.Fx.Session.Status);
+                Assert.Contains("Request saved. It's sent the next time you lint.", t.Fx.Session.Status);
                 var kept = GuideRequests.Load(Team.Load(t.Guide, null, Pat)).Single();
                 Assert.True(kept.Unsent);                                                         // the reason is not lost
                 Assert.Equal("Members write e-mail.", kept.Reason);

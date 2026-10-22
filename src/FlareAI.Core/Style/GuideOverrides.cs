@@ -31,7 +31,7 @@ namespace FlareAI.Core.Style
         /// <param name="by">Who made the change (recorded with the date); null records neither.</param>
         public static string Set(string guideRoot, string ruleId, string setting, string reason, string by = null, DateTime? when = null)
         {
-            if (string.IsNullOrEmpty(ruleId)) throw new ArgumentException("This suggestion isn't tied to a rule, so there is nothing to change.");
+            if (string.IsNullOrEmpty(ruleId)) throw new ArgumentException("This issue isn't tied to a rule, so there is nothing to change.");
             var folder = StyleFolder(guideRoot);
             var date = by == null ? null : (when ?? DateTime.Now).ToString("yyyy-MM-dd");
             // The first topic with a Rule/Setting table (the starter's "Changes to the Google guide"), else a new one.
