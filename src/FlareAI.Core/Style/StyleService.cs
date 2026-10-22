@@ -27,11 +27,32 @@ namespace FlareAI.Core.Style
         /// <summary>Other rules that flagged these same words (dropped as duplicates): turning off the shown rule would expose them.</summary>
         public List<RuleRef> AlsoRules = new List<RuleRef>();
 
-        /// <summary>Records the rule of <paramref name="other"/>, which this hit replaces, unless it has no id, is this rule or is listed.</summary>
+        /// <summary>Every rule on these words, the shown one first: turning all of them off leaves no finding here.</summary>
+        public List<string> RuleIds
+        {
+            get
+            {
+                var ids = new List<string>();
+                if (RuleId != null) ids.Add(RuleId);
+                foreach (var r in AlsoRules) if (!ids.Contains(r.Id)) ids.Add(r.Id);
+                return ids;
+            }
+        }
+
+        /// <summary>
+        /// Records the rule of <paramref name="other"/>, which this hit replaces, and the rules <paramref name="other"/> already
+        /// stood for, unless they have no id, are this rule or are listed.
+        /// </summary>
         internal void AlsoFlaggedBy(LintHit other)
         {
-            if (other.RuleId == null || other.RuleId == RuleId || AlsoRules.Any(r => r.Id == other.RuleId)) return;
-            AlsoRules.Add(new RuleRef { Id = other.RuleId, Name = other.Rule, Layer = other.Layer });
+            Also(new RuleRef { Id = other.RuleId, Name = other.Rule, Layer = other.Layer });
+            foreach (var r in other.AlsoRules) Also(r);
+        }
+
+        private void Also(RuleRef r)
+        {
+            if (r.Id == null || r.Id == RuleId || AlsoRules.Any(x => x.Id == r.Id)) return;
+            AlsoRules.Add(r);
         }
     }
 
@@ -129,6 +150,11 @@ namespace FlareAI.Core.Style
         /// <param name="headings">Indices of runs that are headings (heading rules apply only to them).</param>
         /// <param name="project">Path inside a Flare project to add its project layer (variables, glossary, StyleGuide), or null.</param>
         IList<LintHit> Lint(IList<string> texts, IList<int> headings, string project);
+        /// <summary>
+        /// Lint lines that carry their context (<see cref="TextLine.ToLint"/>): rules fire only where their Content scope
+        /// allows, and word rules stay out of UI labels.
+        /// </summary>
+        IList<LintHit> Lint(IList<LintLine> lines, string project);
         /// <summary>The layered style guide (Google → configured layers → project) for the system prompt.</summary>
         string Guide(string project);
         /// <summary>

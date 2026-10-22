@@ -118,6 +118,11 @@ namespace FlareAI.Core.Style
             return Compose(project).Lint(texts, headings);
         }
 
+        public IList<LintHit> Lint(IList<LintLine> lines, string project)
+        {
+            return Compose(project).Lint(lines);
+        }
+
         public string Guide(string project) { return Compose(project).Guide(); }
 
         /// <summary>
@@ -271,54 +276,95 @@ namespace FlareAI.Core.Style
 
         // ---- lint --------------------------------------------------------------------------------------------------
 
-        /// <summary>Exact findings in plain-text runs. Rules scoped to headings (Content.Headings) run on heading runs only.</summary>
+        /// <summary>
+        /// Exact findings in plain-text lines whose context isn't known beyond "heading or not" (MCP, tests, the miner).
+        /// Rules scoped to headings (Content.Headings) run on heading lines only; other Content scopes aren't enforced.
+        /// </summary>
         /// <param name="all">Every rule's hits, overlapping ones included (validation tests each rule on its own).</param>
         public List<LintHit> Lint(IList<string> texts, IList<int> headings, bool all = false)
         {
             var heads = new HashSet<int>(headings ?? new int[0]);
+            var lines = new List<LintLine>(texts.Count);
+            for (var i = 0; i < texts.Count; i++) lines.Add(LintLine.Plain(texts[i], heads.Contains(i)));
+            return Lint(lines, all);
+        }
+
+        /// <summary>
+        /// Exact findings in lines that carry their context (from <see cref="TextLine.ToLint"/>): each rule fires only where its
+        /// Content scope allows (<see cref="LintScope"/>), and only rules about UI wording fire inside UI labels.
+        /// Several rules on the same words make one finding: the owner (later layer, citable, fixable, severity, canonical
+        /// owner, then guide order) with every other rule on those words in <see cref="LintHit.AlsoRules"/>.
+        /// </summary>
+        /// <param name="all">Every rule's hits, overlapping ones included (validation tests each rule on its own).</param>
+        public List<LintHit> Lint(IList<LintLine> lines, bool all = false)
+        {
             var rank = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             for (var i = 0; i < Layers.Count; i++) rank[Layers[i].Name] = i;
             var hits = new List<LintHit>();
-            var active = Rules.Where(r => ForOurProducts(r.Products)).Select(r => new { r, o = Override(r) }).Where(x => x.o != "off").ToList();
-            for (var i = 0; i < texts.Count; i++)
+            var order = new Dictionary<LintHit, int>();
+            var active = Rules.Select((r, n) => new { r, n }).Where(x => ForOurProducts(x.r.Products))
+                              .Select(x => new { x.r, o = Override(x.r), scope = LintScope.For(x.r), x.n }).Where(x => x.o != "off").ToList();
+            for (var i = 0; i < lines.Count; i++)
             {
-                var text = (texts[i] ?? "").Replace('\r', ' ').Replace('\n', ' ');
+                var line = lines[i] ?? LintLine.Plain("");
+                var text = (line.Text ?? "").Replace('\r', ' ').Replace('\n', ' ');
                 foreach (var x in active)
                 {
                     var r = x.r;
-                    if (r.Applies.Contains("Headings") && !heads.Contains(i)) continue;
                     foreach (var swap in r.Swaps)
                         foreach (Match m in swap.Key.Matches(text))
                         {
                             if (m.Length == 0) continue;
+                            if (!x.scope.Allows(line, m.Index, m.Index + m.Length)) continue;
                             var hit = Hit(r, swap.Value, text, m.Index, m.Index + m.Length, x.o);
                             if (hit == null) continue;
                             hit.Index = i;
                             hits.Add(hit);
+                            order[hit] = x.n;
                         }
                 }
             }
             if (all) return hits;
-            // Same span flagged by several layers: keep the latest layer (it overrides), then a citable rule, then a fixable one.
+            // Same span flagged by several rules: one finding. The owner is the latest layer (it overrides), then a citable
+            // rule, a fixable one, the most severe, the layer's canonical owner (rule-owners.txt), then guide order: the
+            // same input always names the same rule.
             var kept = new List<LintHit>();
             var byKey = new Dictionary<string, LintHit>();
             foreach (var h in hits.OrderBy(h => h.Index).ThenBy(h => h.Start).ThenBy(h => h.Length)
                          .ThenBy(h => -(rank.ContainsKey(h.Layer) ? rank[h.Layer] : 0)).ThenBy(h => h.RuleId == null).ThenBy(h => h.Replacement == null)
-                         .ThenBy(h => Rank.ContainsKey(h.Severity) ? Rank[h.Severity] : 3))
+                         .ThenBy(h => Rank.ContainsKey(h.Severity) ? Rank[h.Severity] : 3)
+                         .ThenBy(h => OwnerRank(h.RuleId)).ThenBy(h => order[h]))
             {
                 LintHit first;
                 if (byKey.TryGetValue(h.Index + ":" + h.Start + ":" + h.Length, out first)) first.AlsoFlaggedBy(h);   // turning off the shown rule would otherwise expose this one
                 else { byKey[h.Index + ":" + h.Start + ":" + h.Length] = h; kept.Add(h); }
             }
-            // A hit inside a longer one ("Please" inside "Please note that") is the same problem: show the longer only.
+            // A hit inside a longer one ("Please" inside "Please note that") is the same problem: show the longer only, and
+            // list the inner hit's rules (with the rules it already stood for) on it.
             var shown = new List<LintHit>();
             foreach (var h in kept)
             {
-                var outer = kept.FirstOrDefault(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length);
+                var outer = kept.Where(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length)
+                                .OrderByDescending(o => o.Length).ThenBy(o => o.Start).FirstOrDefault();
                 if (outer == null) shown.Add(h);
                 else outer.AlsoFlaggedBy(h);
             }
             return shown;
+        }
+
+        private Dictionary<string, int> _owners;
+
+        /// <summary>Position of the rule in its layer's canonical owner list (rule-owners.txt); unlisted rules come after listed ones.</summary>
+        private int OwnerRank(string ruleId)
+        {
+            if (_owners == null)
+            {
+                var d = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var l in Layers) foreach (var id in l.Owners) if (!d.ContainsKey(id)) d[id] = d.Count;
+                _owners = d;
+            }
+            int n;
+            return ruleId != null && _owners.TryGetValue(ruleId, out n) ? n : int.MaxValue;
         }
 
         private static LintHit Hit(LintRule r, string use, string text, int start, int end, string severity)

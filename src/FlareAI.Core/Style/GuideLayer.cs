@@ -58,6 +58,11 @@ namespace FlareAI.Core.Style
         public List<GuideIssue> Problems = new List<GuideIssue>();
         /// <summary>The products this guide covers: the tags of its Product condition tag set (Project\ConditionTagSets\Product.flcts).</summary>
         public List<string> ProductTags = new List<string>();
+        /// <summary>
+        /// Canonical owners (rule-owners.txt in the layer folder, one rule id per line, first = strongest): when several rules
+        /// of one layer flag the same words, the finding names the listed rule. Written by the guide compiler (#56).
+        /// </summary>
+        public List<string> Owners = new List<string>();
         private readonly List<Section> _sections = new List<Section>();
 
         private sealed class Section { public string Title, Source; public List<string> Lines = new List<string>(); }
@@ -94,6 +99,9 @@ namespace FlareAI.Core.Style
             var ini = System.IO.Path.Combine(folder, "overrides.ini");
             if (File.Exists(ini))
                 foreach (var o in RuleOverrides.ReadIni(ini)) if (!o.IsAiName) Overrides.Add(new KeyValuePair<string, string>(o.RuleId, o.Setting));
+            var owners = System.IO.Path.Combine(folder, "rule-owners.txt");
+            if (File.Exists(owners))
+                Owners.AddRange(File.ReadAllLines(owners).Select(l => l.Split('#')[0].Trim()).Where(l => l.Length > 0));
             var md = System.IO.Path.Combine(folder, "guide.md");
             if (File.Exists(md)) LoadMarkdown(md);
             var topics = Directory.GetFiles(folder, "*.htm", SearchOption.AllDirectories).Concat(Directory.GetFiles(folder, "*.html", SearchOption.AllDirectories))
