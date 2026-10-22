@@ -34,7 +34,7 @@ namespace FlareAI.Flare.UI
         // card
         private readonly Label _cardHead;
         private readonly RichTextBox _cardDiff, _cardWhy;
-        private readonly Button _accept, _goTo, _reject, _edit, _refine, _reanalyze, _rule;
+        private readonly Button _accept, _goTo, _openFile, _reject, _edit, _refine, _reanalyze, _rule;
         private readonly ContextMenuStrip _rejectMenu;
         private readonly ToolTip _ignoreTip;
 
@@ -113,6 +113,7 @@ namespace FlareAI.Flare.UI
             _list.SelectedIndexChanged += (s, e) => Safe.Run("Select finding", () => { _session.Current = Current(); ShowCard(); _session.OnSelected(Current()); });
             _list.DoubleClick += (s, e) => Safe.Run("Apply", Accept);
             _list.KeyDown += (s, e) => Safe.Run("List key", () => OnListKey(s, e));
+            _list.ContextMenuStrip = BuildRowMenu();
 
             // The card: what, why, impact, and the decision.
             var card = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0) };
@@ -124,6 +125,7 @@ namespace FlareAI.Flare.UI
             var actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             _accept = Btn(actions, "Apply", (s, e) => Accept());
             _goTo = Btn(actions, "Go to", (s, e) => _session.GoToCurrent());
+            _openFile = Btn(actions, "Open file", (s, e) => _session.OpenFileOfCurrent());
             _reject = Btn(actions, "Reject ▾", (s, e) => _rejectMenu.Show(_reject, new Point(0, _reject.Height)));
             _edit = Btn(actions, "Edit…", (s, e) => _session.Edit());
             _refine = Btn(actions, "Refine…", (s, e) => Refine());
@@ -253,9 +255,36 @@ namespace FlareAI.Flare.UI
             _list.Columns[1].Width = w - _list.Columns[0].Width;
         }
 
+        /// <summary>Right-click on a row: Go to, Open file (the whole topic or snippet, nothing selected), Copy file path.</summary>
+        private ContextMenuStrip BuildRowMenu()
+        {
+            var menu = new ContextMenuStrip();
+            var goTo = menu.Items.Add("Go to", null, (s, e) => Safe.Run("Go to", () => _session.GoToCurrent()));
+            var open = menu.Items.Add("Open file", null, (s, e) => Safe.Run("Open file", () => _session.OpenFileOfCurrent()));
+            menu.Items.Add("Copy file path", null, (s, e) => Safe.Run("Copy file path", () =>
+            {
+                var path = _session.FilePathOf(Current());
+                if (path == null) return;
+                try { Clipboard.SetText(path); _status.Text = "Copied " + path; }
+                catch (Exception ex) { Diagnostics.Log("copy path", ex); _status.Text = "Could not copy the path: " + ex.Message; }
+            }));
+            menu.Opening += (s, e) =>
+            {
+                var p = _list.PointToClient(Cursor.Position);
+                var hit = _list.GetItemAt(p.X, p.Y);
+                if (hit != null) hit.Selected = true;
+                var f = Current();
+                if (f == null) { e.Cancel = true; return; }
+                goTo.Enabled = !f.IsFixed;
+                open.Enabled = _session.FilePathOf(f) != null;
+            };
+            return menu;
+        }
+
         private void OnListKey(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter && e.Control) { _session.GoToCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
+            if (e.KeyCode == Keys.Enter && e.Shift) { _session.OpenFileOfCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
+            else if (e.KeyCode == Keys.Enter && e.Control) { _session.GoToCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
             else if (e.KeyCode == Keys.Enter) { Accept(); e.Handled = true; }
             else if (e.KeyCode == Keys.Delete) { _rejectMenu.Show(_reject, new Point(0, _reject.Height)); e.Handled = true; }
         }
@@ -760,6 +789,7 @@ namespace FlareAI.Flare.UI
             var open = f != null && !f.IsFixed && !f.IsStale;
             _accept.Enabled = open;
             _goTo.Enabled = f != null && !f.IsFixed;
+            _openFile.Enabled = _session.FilePathOf(f) != null;
             _accept.Text = f == null ? "Apply" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Suggest alt text…" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Apply";
             _reject.Enabled = f != null && !f.IsFixed;
             _edit.Enabled = open && f.Kind != "variable" && f.Kind != "manual";
