@@ -68,7 +68,7 @@ The guide folder is read-only for everyone else.
 
 - Changes made to the guide outside House Style aren't recorded.
 - If a writer can't reach the guide folder, for example offline, House Style checks with Google's guide only and says so.
-- Requests contain the rule, the words it flagged, the topic's file name and the reason. They contain a writer's name
+- Requests contain the rule, the words it flagged, the topic's filename and the reason. They contain a writer's name
   only if the guide's `attribution.txt` says `names`.
 
 Setting up a guide for a team, step by step: user guide topic *Set up a team style guide*. Publishing it to
@@ -81,7 +81,7 @@ Confluence: *Publish the style guide to Confluence*.
   To fix a "use the variable" suggestion, select **Go to**, then use **Insert > Variable**.
 - **Rewrite…** can't restructure a paragraph with pending tracked changes. Accept or reject them first.
 - House Style refuses any AI change that would drop or change a variable, cross-reference, snippet or condition. You
-  see "Rejected", and nothing changes. Please report it anyway.
+  see "Rejected", and nothing changes. Report it anyway.
 
 ## Report a problem
 

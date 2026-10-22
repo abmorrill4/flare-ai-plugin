@@ -86,7 +86,7 @@ is the report. These are maintainer tools; writers never need them.
 
 ## Develop
 
-Prerequisites: Windows, MadCap Flare Desktop 2026, .NET SDK 8 or later, Git, and a `.env` at the repo root (git-ignored)
+Prerequisites: Windows, MadCap Flare Desktop 2026, .NET SDK 8 or later, Git, and a `.env` at the repository root (git-ignored)
 with `ANTHROPIC_API_KEY=...`. Architecture: `PLAN.md`. Flare API notes: `docs/flare-api-notes.md`.
 
 ```powershell
