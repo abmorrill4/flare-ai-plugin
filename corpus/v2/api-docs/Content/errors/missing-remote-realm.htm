@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code MISSING_REMOTE_REALM</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code MISSING_REMOTE_REALM</h1>
+        <p>The <code>MISSING_REMOTE_REALM</code> error code is returned with HTTP status 403.</p>
+        <h2>When you see this error</h2>
+        <p>An example JSON response for when no realm is registered for the authenticated server on the bouncer for the given <code>realm_uuid</code>:</p>
+        <p>Forbidden.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Organization not registered",
+  "code": "MISSING_REMOTE_REALM"
+}</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

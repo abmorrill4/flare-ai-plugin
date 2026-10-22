@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultToc Version="1">
+    <TocEntry Title="Cabling">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-one-camera-to-the-io-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-camera-cable-to-the-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-camera-cable-to-the-camera.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-dut-eth-port.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-jig-to-the-provisioning-network.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-touch-display-2-10-inch-to-a-compute-module.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-touch-display-2-5-inch-or-7-inch-to-a-compute-mo.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-touch-display-2-to-a-lumora-5-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-touch-display-2-to-an-earlier-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-the-touch-display-to-a-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/connect-two-cameras-to-the-io-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/pcie-connector.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/power-over-ethernet-connector.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/wire-an-external-trigger.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/cabling/wire-the-audio-board.htm" />
+    </TocEntry>
+    <TocEntry Title="Indicators">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/indicators/monitor-controls.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/indicators/monitor-on-screen-messages.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/indicators/programming-jig-led-behaviour.htm" />
+    </TocEntry>
+    <TocEntry Title="Maintenance">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/maintenance/programming-jig-troubleshooting.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/maintenance/remove-the-ir-filter.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/maintenance/remove-the-smart-display-module.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/maintenance/replace-the-pogo-pins.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/maintenance/touch-display-2-troubleshooting.htm" />
+    </TocEntry>
+    <TocEntry Title="Mounting">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/assemble-the-ai-hat.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/assemble-the-bumper.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/assemble-the-cm5io-case.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-a-camera.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-an-m-2-drive.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-the-antenna.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-the-cm5-cooler.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-the-m-2-hat-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-the-m-2-hat-compact.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-the-m-2-hat-mounting-hardware.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-the-ssd-kit.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/install-the-tv-hat.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/mount-the-active-cooler-for-the-ai-kit.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/mount-the-active-cooler.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/mount-the-ai-hat-heatsink.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/mount-the-ai-hat-on-the-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/mount-the-ai-kit-m-2-hat.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/position-the-monitor.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/seat-a-compute-module-5-in-the-jig.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/set-up-the-jig.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/mounting/set-up-the-smart-display-module.htm" />
+    </TocEntry>
+    <TocEntry Title="Overview">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/ai-hat-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/compute-module-4-io-board.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/compute-module-introduction.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/global-shutter-camera-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/how-the-ai-hat-works.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/m-2-hat-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/monitor-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/programming-jig-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/smart-display-module-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/touch-display-2-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/touch-display-overview.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/overview/tv-hat-overview.htm" />
+    </TocEntry>
+    <TocEntry Title="Power on">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/power-on/back-powering.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/power-on/power-button.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/power-on/power-supply-requirements.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/power-on/power-the-monitor.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/power-on/real-time-clock-and-backup-battery.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/power-on/recommended-power-supplies.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/power-on/start-the-board-with-the-m-2-hat.htm" />
+    </TocEntry>
+    <TocEntry Title="Safety">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/safety/power-supply-warnings.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/safety/product-compliance-and-safety.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/safety/programming-jig-safety-warnings.htm" />
+    </TocEntry>
+    <TocEntry Title="Specifications">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/ai-hat-models-compared.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/ai-hat-performance-variants.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/ai-hat-physical-dimensions.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/build-hat-device-compatibility.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/camera-hardware-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/camera-i2c-and-gpio-pin-mapping.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/compute-module-4-datasheet.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/compute-module-memory-storage-and-wireless-variants.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/compute-module-models.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/flash-drive-dimensions.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/io-board-compatibility.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/monitor-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/programming-jig-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/recommended-camera-lenses.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/sd-card-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/smart-display-module-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/ssd-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/touch-display-2-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/touch-display-specifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/specifications/typical-power-requirements.htm" />
+    </TocEntry>
+    <TocEntry Title="Unpacking">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/unpacking/ai-hat-hardware-checklist.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/unpacking/ai-kit-contents.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/unpacking/prepare-the-board-for-the-m-2-hat.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/unpacking/prepare-the-build-hat.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/unpacking/prepare-to-install-a-camera.htm" />
+    </TocEntry>
+</CatapultToc>

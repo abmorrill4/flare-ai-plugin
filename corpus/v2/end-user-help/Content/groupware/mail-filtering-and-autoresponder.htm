@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Filtering and autoresponder</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Filtering and autoresponder</h1>
+        <p>The Mail app has a editor for Sieve scripts, an interface to configure autoresponders and an interface to configure filters. Sieve has to be enabled in the <MadCap:xref href="mail-managing-your-mail-account.htm">account settings</MadCap:xref>.</p>
+        <h2>Autoresponders</h2>
+        <p><b>New in version 3.5:</b></p>
+        <p>The autoresponder is off by default. It can be set manually, or follow the system settings. Following system settings means that the long absence message entered on the <MadCap:xref href="absence.htm">Absence settings section</MadCap:xref> is applied automatically.</p>
+        <h2>Filter</h2>
+        <p><b>New in version 4.1:</b></p>
+        <p>Mail 4.1 includes a simple editor to configure filter rules.</p>
+        <p class="note">Importing existing filters is not supported. However, all existing filters will remain active and unchanged. We recommend backing up your current script through the Sieve script editor as a precaution.</p>
+        <h3>How to Add a New Filter</h3>
+        <ol>
+            <li><p>Open your account settings.</p></li>
+            <li><p>Verify that Sieve is enabled for your account (see Sieve server settings).</p></li>
+            <li><p>Click on Filters.</p></li>
+            <li><p>Select New Filter to create a new rule.</p></li>
+        </ol>
+        <h3>How to Delete a Filter</h3>
+        <ol>
+            <li><p>Open your account settings.</p></li>
+            <li><p>Ensure that Sieve is enabled for your account (see Sieve server settings).</p></li>
+            <li><p>Click on Filters.</p></li>
+            <li><p>Hover over the filter you wish to delete, then click the trash icon. Click the save button to keep your changes.</p></li>
+        </ol>
+        <h3>Conditions</h3>
+        <p>Conditions are applied to incoming emails on your mail server, targeting fields such as Subject, Sender, and Recipient. You can use the following operators to define conditions for these fields:</p>
+        <ul>
+            <li><p><b>is exactly</b>: An exact match. The field must be identical to the provided value.</p></li>
+            <li><p><b>contains</b>: A substring match. The field matches if the provided value is contained within it. For example, "report" would match "port".</p></li>
+            <li><p><b>matches</b>: A pattern match using wildcards. The "*" symbol represents any number of characters (including none), while "?" represents exactly one character. For example, "<i>report</i>" would match "Business report 2024".</p></li>
+        </ul>
+        <h3>Actions</h3>
+        <p>Actions are triggered when the specified tests are true. The following actions are available:</p>
+        <ul>
+            <li><p><b>fileinto</b>: Moves the message into a specified folder.</p></li>
+            <li><p><b>addflag</b>: Adds a flag to the message.</p></li>
+            <li><p><b>stop</b>: Halts the execution of the filter script. No further filters with will be processed after this action.</p></li>
+        </ul>
+        <h2>Create a filter from a message</h2>
+        <p><b>New in version 5.2:</b></p>
+        <p>To create a filter from a given message, open the message and then open the menu by clicking on the three dots. Next, click on "More actions" followed by "Create mail filter."</p>
+        <p>In the dialog, please select the conditions to match incoming messages and continue by clicking on "Create mail filter."</p>
+        <p> <img src="../Resources/Images/mail-create-filter-from-message.png" /> </p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

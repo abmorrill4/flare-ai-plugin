@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Update a user group</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Update a user group</h1>
+        <p><code>PATCH /user_groups/{user_group_id}</code></p>
+        <p>Update the name, description or any of the permission settings of a user group. Click the save button to keep your changes.</p>
+        <p>This endpoint is also used to reactivate a user group.</p>
+        <p>Note that while permissions settings of deactivated groups can be edited by this API endpoint, and those permissions settings do affect the ability to modify the deactivated group and its membership, the deactivated group itself cannot be mentioned or used in the value of any permission without first being reactivated.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-prior-to-12-2.flsnp" />
+        <p>Starting with <MadCap:variable name="General.ProductName" /> 11.0 (feature level 386), this endpoint can be used to reactivate a user group.</p>
+        <p>Prior to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 340), only the name field of deactivated groups could be modified.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python">request = {
+    "group_id": user_group_id,
+    "name": "leadership",
+    "description": "The leadership team.",
+}
+result = client.update_user_group(request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Update a user group
+curl -sS -X PATCH https://chat.example.com/api/v1/user_groups/38 \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>user_group_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the target user group.</td>
+                </tr>
+                <tr>
+                    <td><code>name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The new name of the group.</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The new description of the group.</td>
+                </tr>
+                <tr>
+                    <td><code>can_add_members_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_join_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_leave_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_manage_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_mention_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_remove_members_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>deactivated</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>A deactivated user group can be reactivated by passing this parameter as <code>false</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>name</code></h4>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 7.0 (feature level 165), this was a required field.</p>
+        <h4><code>description</code></h4>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 7.0 (feature level 165), this was a required field.</p>
+        <h4><code>deactivated</code></h4>
+        <p>Passing <code>true</code> does nothing as user group is deactivated using <code>POST /user_groups/{user_group_id}/deactivate</code> endpoint.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 386).</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Invalid user group",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

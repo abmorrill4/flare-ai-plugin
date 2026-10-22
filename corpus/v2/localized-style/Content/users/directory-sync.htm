@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Synchronize users from a directory</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Synchronize users from a directory</h1>
+        <p>Directory sync copies users and groups from your company directory into the console. It runs every 15 minutes.</p>
+        <h2>Requirements</h2>
+        <ul>
+            <li>A directory that supports the LDAP protocol.</li>
+            <li>A service account with read access to the users and groups that you want to copy.</li>
+            <li>A network path from the console to the directory.</li>
+        </ul>
+        <h2>Connect a directory</h2>
+        <ol>
+            <li>Select <b>Security</b> &gt; <b>Directory sync</b>.</li>
+            <li>Click <b>Add directory</b>.</li>
+            <li>Enter the server address, the port, and the service account.</li>
+            <li>Click <b>Test connection</b>. If the test succeeds, click <b>Save</b>.</li>
+        </ol>
+        <h2>Map attributes</h2>
+        <p>Directory sync maps the <code>mail</code> attribute to the user's email address and <code>cn</code> to the user's name. You can map other attributes on the <b>Mapping</b> tab. Only addresses on the whitelist can connect.</p>
+        <p class="note">Ask your Identity Provider administrator for the names of the attributes that your directory uses.</p>
+        <p>If a user is missing after a sync, see the troubleshooting topic for directory sync.</p>
+    </body>
+</html>

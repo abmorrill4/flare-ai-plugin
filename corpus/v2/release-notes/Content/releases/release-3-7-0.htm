@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Release 3.7.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Release 3.7.0</h1>
+        <p><MadCap:variable name="General.ProductName" /> 3.7.0 was released on May 28, 2024.</p>
+        <p>This version no longer receives fixes, so upgrade as soon as you can.</p>
+        <h2>What is in this release</h2>
+        <ul>
+            <li>14 new features</li>
+            <li>2 performance improvements</li>
+            <li>12 fixes</li>
+        </ul>
+        <p>For the full list, see:</p>
+        <ul>
+            <li><MadCap:xref href="fixes-3-7-0.htm">Fixes in 3.7.0</MadCap:xref></li>
+        </ul>
+        <h2>Changes</h2>
+        <ul>
+            <li><b>Schema</b>: Added a deprecation field attribute to identify deprecated fields (ORB-12686).</li>
+            <li>Added the <code>wasm_filters</code> configuration parameter for enabling individual filters (ORB-12843).</li>
+            <li>Added <code>eventsresponse_tokens</code>, <code>eventsprompt_tokens</code> and <code>eventsrequests</code> to the anonymous report to start counting AI usage (ORB-12924).</li>
+            <li>Improved config handling when the CP runs with the router set to the <code>expressions</code> flavor: (ORB-12967). <ul><li>If mixed config is detected and a lower DP is attached to the CP, no config will be sent at all</li><li>If the expression is invalid on the CP, no config will be sent at all</li><li>If the expression is invalid on a lower DP, it will be sent to the DP and DP validation will catch this and communicate back to the CP (this could result in partial config application)</li></ul></li>
+            <li>The route entity now supports the following fields when the <code>router_flavor</code> is <code>expressions</code>: <code>methods</code>, <code>hosts</code>, <code>paths</code>, <code>headers</code>, <code>snis</code>, <code>sources</code>, <code>destinations</code>, and <code>regex_priority</code>. The meaning of these fields are consistent with the traditional route entity (ORB-12667).</li>
+            <li>Added the <code>latencies.receive</code> property to the log serializer (ORB-12730).</li>
+            <li>AI Proxy now reads most prompt tuning parameters from the client, while the plugin config parameters under <code>model_options</code> are now just defaults. This fixes support for using the respective provider's native SDK (ORB-12903).</li>
+            <li>AI Proxy now has a <code>preserve</code> option for <code>route_type</code>, where the requests and responses are passed directly to the upstream LLM. This is to enable compatibility with any and all models and SDKs that may be used when calling the AI services (ORB-12903).</li>
+            <li><b>AI Proxy</b>: Added support for streaming event-by-event responses back to the client on supported providers (ORB-12792).</li>
+            <li><b>AI Prompt Guard</b>: Increased the maximum length of regex expressions to 500 for the allow and deny parameters (ORB-12731).</li>
+            <li>Addded support for EdDSA algorithms in JWT plugin (ORB-12726).</li>
+            <li>Added support for ES512, PS256, PS384, PS512 algorithms in JWT plugin (ORB-12638).</li>
+            <li><MadCap:variable name="General.ProductName" /> Manager now supports creating and editing Expressions routes with an interactive in-browser editor with syntax highlighting and autocompletion features for <MadCap:variable name="General.ProductName" />'s Expressions language.</li>
+            <li><MadCap:variable name="General.ProductName" /> Manager now groups the parameters to provide a better user experience while configuring plugins. Meanwhile, several issues with the plugin form page were fixed.</li>
+            <li>Improved proxy performance by refactoring internal hooking mechanism (ORB-12784).</li>
+            <li>Sped up the router matching when the <code>router_flavor</code> is <code>traditional_compatible</code> or <code>expressions</code> (ORB-12467).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+        <p><MadCap:xref href="../index/release-history.htm">Release history</MadCap:xref> · <MadCap:xref href="../index/upgrade-guide.htm">Upgrade guide</MadCap:xref></p>
+    </body>
+</html>

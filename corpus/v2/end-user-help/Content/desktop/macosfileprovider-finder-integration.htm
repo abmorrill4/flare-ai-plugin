@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Finder integration</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <h1>Finder integration</h1>
+        <p>On macOS, remote storage like a <MadCap:variable name="General.ProductName"/> files account appears like a dedicated location in the Finder sidebar. The actual location of the content on disk is defined by macOS.</p>
+        <p><img src="../Resources/Images/macosfileprovider-finder-sidebar.png" alt="Finder sidebar showing a Acme Hub File Provider domain"/></p>
+        <p class="note">To accelerate server-side change detection, we recommend enabling the notify_push app on your <MadCap:variable name="General.ProductName"/> server. This app will notify the <MadCap:glossaryTerm>desktop client</MadCap:glossaryTerm> of changes on the server as soon as they happen, reducing the time it takes for changes to appear in Finder. Otherwise the client needs to poll the server which will result in an increased delay between a change on the server and its local visibility.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp"/>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp"/>
+    </body>
+</html>

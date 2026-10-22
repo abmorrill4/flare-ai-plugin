@@ -6,13 +6,13 @@
   "topics": 250,
   "splits": {
     "all": {
-      "findings": 373,
+      "findings": 332,
       "labelsScored": 429,
       "unanchoredLabels": 0,
       "coverage": 1.0,
       "overall": {
-        "tp": 339,
-        "fp": 34,
+        "tp": 332,
+        "fp": 0,
         "wrongRule": 0,
         "fn": 107,
         "wrongRuleOnly": 0,
@@ -20,9 +20,9 @@
         "unscored": 0,
         "support": 429,
         "detected": 322,
-        "precision": 0.9088,
+        "precision": 1.0,
         "recall": 0.7506,
-        "f1": 0.8222
+        "f1": 0.8575
       },
       "rule": {
         "ai:vague": {
@@ -333,34 +333,6 @@
           "recall": 0.0,
           "f1": 0.0
         },
-        "google:abbreviations/18": {
-          "tp": 5,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 5,
-          "detected": 5,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
-        "google:phone-numbers/4": {
-          "tp": 7,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 7,
-          "detected": 7,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
         "google:tone/22": {
           "tp": 11,
           "fp": 0,
@@ -375,47 +347,19 @@
           "recall": 1.0,
           "f1": 1.0
         },
-        "google:units-of-measure/5": {
-          "tp": 0,
-          "fp": 1,
+        "google:word-list/244": {
+          "tp": 5,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 0,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
+          "support": 5,
+          "detected": 5,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.0
-        },
-        "google:word-list/221": {
-          "tp": 0,
-          "fp": 26,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
-        },
-        "google:word-list/640": {
-          "tp": 0,
-          "fp": 7,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
+          "f1": 1.0
         },
         "project:variables": {
           "tp": 23,
@@ -453,8 +397,8 @@
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 7,
-          "detected": 7,
+          "support": 14,
+          "detected": 14,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -546,18 +490,18 @@
           "f1": 0.8918
         },
         "google": {
-          "tp": 23,
-          "fp": 34,
+          "tp": 16,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 36,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 59,
-          "detected": 23,
-          "precision": 0.4035,
-          "recall": 0.3898,
-          "f1": 0.3966
+          "support": 52,
+          "detected": 16,
+          "precision": 1.0,
+          "recall": 0.3077,
+          "f1": 0.4706
         },
         "project": {
           "tp": 23,
@@ -581,8 +525,8 @@
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 37,
-          "detected": 37,
+          "support": 44,
+          "detected": 44,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -618,8 +562,8 @@
           "f1": 1.0
         },
         "paragraph": {
-          "tp": 275,
-          "fp": 27,
+          "tp": 270,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 91,
           "wrongRuleOnly": 0,
@@ -627,13 +571,13 @@
           "unscored": 0,
           "support": 354,
           "detected": 263,
-          "precision": 0.9106,
+          "precision": 1.0,
           "recall": 0.7429,
-          "f1": 0.8183
+          "f1": 0.8525
         },
         "step": {
-          "tp": 52,
-          "fp": 6,
+          "tp": 50,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 16,
           "wrongRuleOnly": 0,
@@ -641,29 +585,15 @@
           "unscored": 0,
           "support": 63,
           "detected": 47,
-          "precision": 0.8966,
+          "precision": 1.0,
           "recall": 0.746,
-          "f1": 0.8144
-        },
-        "table-cell": {
-          "tp": 0,
-          "fp": 1,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
+          "f1": 0.8545
         }
       },
       "context.span": {
         "(none)": {
-          "tp": 313,
-          "fp": 1,
+          "tp": 306,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 103,
           "wrongRuleOnly": 0,
@@ -671,27 +601,13 @@
           "unscored": 0,
           "support": 409,
           "detected": 306,
-          "precision": 0.9968,
+          "precision": 1.0,
           "recall": 0.7482,
-          "f1": 0.8548
-        },
-        "boilerplate": {
-          "tp": 0,
-          "fp": 31,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
+          "f1": 0.8559
         },
         "conditional": {
           "tp": 5,
-          "fp": 25,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 4,
           "wrongRuleOnly": 0,
@@ -699,13 +615,13 @@
           "unscored": 0,
           "support": 9,
           "detected": 5,
-          "precision": 0.1667,
+          "precision": 1.0,
           "recall": 0.5556,
-          "f1": 0.2564
+          "f1": 0.7143
         },
         "in-snippet-block": {
           "tp": 1,
-          "fp": 1,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 0,
           "wrongRuleOnly": 0,
@@ -713,9 +629,9 @@
           "unscored": 0,
           "support": 1,
           "detected": 1,
-          "precision": 0.5,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.6667
+          "f1": 1.0
         },
         "link-text": {
           "tp": 20,
@@ -730,26 +646,12 @@
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
-        },
-        "ui-label": {
-          "tp": 0,
-          "fp": 7,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
         }
       },
       "project": {
         "DigitalBanking": {
-          "tp": 339,
-          "fp": 34,
+          "tp": 332,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 107,
           "wrongRuleOnly": 0,
@@ -757,15 +659,15 @@
           "unscored": 0,
           "support": 429,
           "detected": 322,
-          "precision": 0.9088,
+          "precision": 1.0,
           "recall": 0.7506,
-          "f1": 0.8222
+          "f1": 0.8575
         }
       },
       "split": {
         "dev": {
-          "tp": 265,
-          "fp": 24,
+          "tp": 259,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 63,
           "wrongRuleOnly": 0,
@@ -773,13 +675,13 @@
           "unscored": 0,
           "support": 312,
           "detected": 249,
-          "precision": 0.917,
+          "precision": 1.0,
           "recall": 0.7981,
-          "f1": 0.8534
+          "f1": 0.8877
         },
         "test": {
-          "tp": 74,
-          "fp": 10,
+          "tp": 73,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 44,
           "wrongRuleOnly": 0,
@@ -787,26 +689,12 @@
           "unscored": 0,
           "support": 117,
           "detected": 73,
-          "precision": 0.881,
+          "precision": 1.0,
           "recall": 0.6239,
-          "f1": 0.7305
+          "f1": 0.7684
         }
       },
       "kind": {
-        "(none)": {
-          "tp": 0,
-          "fp": 34,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
-        },
         "alt_missing": {
           "tp": 10,
           "fp": 0,
@@ -1046,7 +934,7 @@
           "f1": 0.0
         },
         "phone": {
-          "tp": 14,
+          "tp": 7,
           "fp": 0,
           "wrongRule": 0,
           "fn": 0,
@@ -1354,52 +1242,17 @@
           "f1": 0.0
         }
       },
-      "cleanFalsePositives": [
-        "DigitalBanking/C0001 <- google:word-list/221",
-        "DigitalBanking/C0003 <- google:word-list/221",
-        "DigitalBanking/C0025 <- google:word-list/221",
-        "DigitalBanking/C0047 <- google:word-list/221",
-        "DigitalBanking/C0069 <- google:word-list/221",
-        "DigitalBanking/C0091 <- google:word-list/221",
-        "DigitalBanking/C0113 <- google:word-list/221",
-        "DigitalBanking/C0135 <- google:word-list/221",
-        "DigitalBanking/C0157 <- google:word-list/221",
-        "DigitalBanking/C0179 <- google:word-list/221",
-        "DigitalBanking/C0201 <- google:word-list/221",
-        "DigitalBanking/C0223 <- google:word-list/221",
-        "DigitalBanking/C0245 <- google:word-list/221",
-        "DigitalBanking/C0267 <- google:word-list/221",
-        "DigitalBanking/C0289 <- google:word-list/221",
-        "DigitalBanking/C0311 <- google:word-list/221",
-        "DigitalBanking/C0327 <- google:units-of-measure/5",
-        "DigitalBanking/C0334 <- google:word-list/221",
-        "DigitalBanking/C0356 <- google:word-list/221",
-        "DigitalBanking/C0378 <- google:word-list/221",
-        "DigitalBanking/C0400 <- google:word-list/221",
-        "DigitalBanking/C0422 <- google:word-list/221",
-        "DigitalBanking/C0444 <- google:word-list/221",
-        "DigitalBanking/C0465 <- google:word-list/640",
-        "DigitalBanking/C0466 <- google:word-list/221",
-        "DigitalBanking/C0467 <- google:word-list/640",
-        "DigitalBanking/C0470 <- google:word-list/640",
-        "DigitalBanking/C0473 <- google:word-list/640",
-        "DigitalBanking/C0476 <- google:word-list/640",
-        "DigitalBanking/C0479 <- google:word-list/640",
-        "DigitalBanking/C0484 <- google:word-list/640",
-        "DigitalBanking/C0488 <- google:word-list/221",
-        "DigitalBanking/C0510 <- google:word-list/221",
-        "DigitalBanking/C0532 <- google:word-list/221"
-      ],
+      "cleanFalsePositives": [],
       "wrongRulePairs": {}
     },
     "dev": {
-      "findings": 289,
+      "findings": 259,
       "labelsScored": 312,
       "unanchoredLabels": 0,
       "coverage": 1.0,
       "overall": {
-        "tp": 265,
-        "fp": 24,
+        "tp": 259,
+        "fp": 0,
         "wrongRule": 0,
         "fn": 63,
         "wrongRuleOnly": 0,
@@ -1407,9 +1260,9 @@
         "unscored": 0,
         "support": 312,
         "detected": 249,
-        "precision": 0.917,
+        "precision": 1.0,
         "recall": 0.7981,
-        "f1": 0.8534
+        "f1": 0.8877
       },
       "rule": {
         "ai:vague": {
@@ -1720,34 +1573,6 @@
           "recall": 0.0,
           "f1": 0.0
         },
-        "google:abbreviations/18": {
-          "tp": 5,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 5,
-          "detected": 5,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
-        "google:phone-numbers/4": {
-          "tp": 6,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 6,
-          "detected": 6,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
         "google:tone/22": {
           "tp": 8,
           "fp": 0,
@@ -1762,33 +1587,19 @@
           "recall": 1.0,
           "f1": 1.0
         },
-        "google:word-list/221": {
-          "tp": 0,
-          "fp": 19,
+        "google:word-list/244": {
+          "tp": 5,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 0,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
+          "support": 5,
+          "detected": 5,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.0
-        },
-        "google:word-list/640": {
-          "tp": 0,
-          "fp": 5,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
+          "f1": 1.0
         },
         "project:variables": {
           "tp": 20,
@@ -1826,8 +1637,8 @@
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 6,
-          "detected": 6,
+          "support": 12,
+          "detected": 12,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -1919,18 +1730,18 @@
           "f1": 0.9127
         },
         "google": {
-          "tp": 19,
-          "fp": 24,
+          "tp": 13,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 21,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 40,
-          "detected": 19,
-          "precision": 0.4419,
-          "recall": 0.475,
-          "f1": 0.4578
+          "support": 34,
+          "detected": 13,
+          "precision": 1.0,
+          "recall": 0.3824,
+          "f1": 0.5532
         },
         "project": {
           "tp": 20,
@@ -1954,8 +1765,8 @@
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 27,
-          "detected": 27,
+          "support": 33,
+          "detected": 33,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -1991,8 +1802,8 @@
           "f1": 1.0
         },
         "paragraph": {
-          "tp": 215,
-          "fp": 20,
+          "tp": 210,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 52,
           "wrongRuleOnly": 0,
@@ -2000,13 +1811,13 @@
           "unscored": 0,
           "support": 255,
           "detected": 203,
-          "precision": 0.9149,
+          "precision": 1.0,
           "recall": 0.7961,
-          "f1": 0.8514
+          "f1": 0.8865
         },
         "step": {
-          "tp": 40,
-          "fp": 4,
+          "tp": 39,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 11,
           "wrongRuleOnly": 0,
@@ -2014,14 +1825,14 @@
           "unscored": 0,
           "support": 47,
           "detected": 36,
-          "precision": 0.9091,
+          "precision": 1.0,
           "recall": 0.766,
-          "f1": 0.8314
+          "f1": 0.8675
         }
       },
       "context.span": {
         "(none)": {
-          "tp": 239,
+          "tp": 233,
           "fp": 0,
           "wrongRule": 0,
           "fn": 61,
@@ -2034,23 +1845,9 @@
           "recall": 0.7925,
           "f1": 0.8843
         },
-        "boilerplate": {
-          "tp": 0,
-          "fp": 22,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
-        },
         "conditional": {
           "tp": 5,
-          "fp": 18,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 2,
           "wrongRuleOnly": 0,
@@ -2058,13 +1855,13 @@
           "unscored": 0,
           "support": 7,
           "detected": 5,
-          "precision": 0.2174,
+          "precision": 1.0,
           "recall": 0.7143,
-          "f1": 0.3333
+          "f1": 0.8333
         },
         "in-snippet-block": {
           "tp": 1,
-          "fp": 1,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 0,
           "wrongRuleOnly": 0,
@@ -2072,9 +1869,9 @@
           "unscored": 0,
           "support": 1,
           "detected": 1,
-          "precision": 0.5,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.6667
+          "f1": 1.0
         },
         "link-text": {
           "tp": 20,
@@ -2089,26 +1886,12 @@
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
-        },
-        "ui-label": {
-          "tp": 0,
-          "fp": 5,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
         }
       },
       "project": {
         "DigitalBanking": {
-          "tp": 265,
-          "fp": 24,
+          "tp": 259,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 63,
           "wrongRuleOnly": 0,
@@ -2116,15 +1899,15 @@
           "unscored": 0,
           "support": 312,
           "detected": 249,
-          "precision": 0.917,
+          "precision": 1.0,
           "recall": 0.7981,
-          "f1": 0.8534
+          "f1": 0.8877
         }
       },
       "split": {
         "dev": {
-          "tp": 265,
-          "fp": 24,
+          "tp": 259,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 63,
           "wrongRuleOnly": 0,
@@ -2132,26 +1915,12 @@
           "unscored": 0,
           "support": 312,
           "detected": 249,
-          "precision": 0.917,
+          "precision": 1.0,
           "recall": 0.7981,
-          "f1": 0.8534
+          "f1": 0.8877
         }
       },
       "kind": {
-        "(none)": {
-          "tp": 0,
-          "fp": 24,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
-        },
         "alt_missing": {
           "tp": 6,
           "fp": 0,
@@ -2391,7 +2160,7 @@
           "f1": 0.0
         },
         "phone": {
-          "tp": 12,
+          "tp": 6,
           "fp": 0,
           "wrongRule": 0,
           "fn": 0,
@@ -2699,42 +2468,17 @@
           "f1": 0.0
         }
       },
-      "cleanFalsePositives": [
-        "DigitalBanking/C0001 <- google:word-list/221",
-        "DigitalBanking/C0069 <- google:word-list/221",
-        "DigitalBanking/C0091 <- google:word-list/221",
-        "DigitalBanking/C0113 <- google:word-list/221",
-        "DigitalBanking/C0135 <- google:word-list/221",
-        "DigitalBanking/C0157 <- google:word-list/221",
-        "DigitalBanking/C0201 <- google:word-list/221",
-        "DigitalBanking/C0223 <- google:word-list/221",
-        "DigitalBanking/C0267 <- google:word-list/221",
-        "DigitalBanking/C0334 <- google:word-list/221",
-        "DigitalBanking/C0356 <- google:word-list/221",
-        "DigitalBanking/C0378 <- google:word-list/221",
-        "DigitalBanking/C0400 <- google:word-list/221",
-        "DigitalBanking/C0422 <- google:word-list/221",
-        "DigitalBanking/C0444 <- google:word-list/221",
-        "DigitalBanking/C0465 <- google:word-list/640",
-        "DigitalBanking/C0466 <- google:word-list/221",
-        "DigitalBanking/C0467 <- google:word-list/640",
-        "DigitalBanking/C0473 <- google:word-list/640",
-        "DigitalBanking/C0479 <- google:word-list/640",
-        "DigitalBanking/C0484 <- google:word-list/640",
-        "DigitalBanking/C0488 <- google:word-list/221",
-        "DigitalBanking/C0510 <- google:word-list/221",
-        "DigitalBanking/C0532 <- google:word-list/221"
-      ],
+      "cleanFalsePositives": [],
       "wrongRulePairs": {}
     },
     "test": {
-      "findings": 84,
+      "findings": 73,
       "labelsScored": 117,
       "unanchoredLabels": 0,
       "coverage": 1.0,
       "overall": {
-        "tp": 74,
-        "fp": 10,
+        "tp": 73,
+        "fp": 0,
         "wrongRule": 0,
         "fn": 44,
         "wrongRuleOnly": 0,
@@ -2742,9 +2486,9 @@
         "unscored": 0,
         "support": 117,
         "detected": 73,
-        "precision": 0.881,
+        "precision": 1.0,
         "recall": 0.6239,
-        "f1": 0.7305
+        "f1": 0.7684
       },
       "rule": {
         "ai:vague": {
@@ -3013,20 +2757,6 @@
           "recall": 0.0,
           "f1": 0.0
         },
-        "google:phone-numbers/4": {
-          "tp": 1,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 1,
-          "detected": 1,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
         "google:tone/22": {
           "tp": 3,
           "fp": 0,
@@ -3040,48 +2770,6 @@
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
-        },
-        "google:units-of-measure/5": {
-          "tp": 0,
-          "fp": 1,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
-        },
-        "google:word-list/221": {
-          "tp": 0,
-          "fp": 7,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
-        },
-        "google:word-list/640": {
-          "tp": 0,
-          "fp": 2,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
         },
         "project:variables": {
           "tp": 3,
@@ -3119,8 +2807,8 @@
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 1,
-          "detected": 1,
+          "support": 2,
+          "detected": 2,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -3184,18 +2872,18 @@
           "f1": 0.8296
         },
         "google": {
-          "tp": 4,
-          "fp": 10,
+          "tp": 3,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 15,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 19,
-          "detected": 4,
-          "precision": 0.2857,
-          "recall": 0.2105,
-          "f1": 0.2424
+          "support": 18,
+          "detected": 3,
+          "precision": 1.0,
+          "recall": 0.1667,
+          "f1": 0.2857
         },
         "project": {
           "tp": 3,
@@ -3219,8 +2907,8 @@
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 10,
-          "detected": 10,
+          "support": 11,
+          "detected": 11,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -3243,7 +2931,7 @@
         },
         "paragraph": {
           "tp": 60,
-          "fp": 7,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 39,
           "wrongRuleOnly": 0,
@@ -3251,13 +2939,13 @@
           "unscored": 0,
           "support": 99,
           "detected": 60,
-          "precision": 0.8955,
+          "precision": 1.0,
           "recall": 0.6061,
-          "f1": 0.7229
+          "f1": 0.7547
         },
         "step": {
-          "tp": 12,
-          "fp": 2,
+          "tp": 11,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 5,
           "wrongRuleOnly": 0,
@@ -3265,29 +2953,15 @@
           "unscored": 0,
           "support": 16,
           "detected": 11,
-          "precision": 0.8571,
+          "precision": 1.0,
           "recall": 0.6875,
-          "f1": 0.763
-        },
-        "table-cell": {
-          "tp": 0,
-          "fp": 1,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
+          "f1": 0.8148
         }
       },
       "context.span": {
         "(none)": {
-          "tp": 74,
-          "fp": 1,
+          "tp": 73,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 42,
           "wrongRuleOnly": 0,
@@ -3295,27 +2969,13 @@
           "unscored": 0,
           "support": 115,
           "detected": 73,
-          "precision": 0.9867,
+          "precision": 1.0,
           "recall": 0.6348,
-          "f1": 0.7725
-        },
-        "boilerplate": {
-          "tp": 0,
-          "fp": 9,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
+          "f1": 0.7766
         },
         "conditional": {
           "tp": 0,
-          "fp": 7,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 2,
           "wrongRuleOnly": 0,
@@ -3323,29 +2983,15 @@
           "unscored": 0,
           "support": 2,
           "detected": 0,
-          "precision": 0.0,
+          "precision": 1.0,
           "recall": 0.0,
-          "f1": 0.0
-        },
-        "ui-label": {
-          "tp": 0,
-          "fp": 2,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
           "f1": 0.0
         }
       },
       "project": {
         "DigitalBanking": {
-          "tp": 74,
-          "fp": 10,
+          "tp": 73,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 44,
           "wrongRuleOnly": 0,
@@ -3353,15 +2999,15 @@
           "unscored": 0,
           "support": 117,
           "detected": 73,
-          "precision": 0.881,
+          "precision": 1.0,
           "recall": 0.6239,
-          "f1": 0.7305
+          "f1": 0.7684
         }
       },
       "split": {
         "test": {
-          "tp": 74,
-          "fp": 10,
+          "tp": 73,
+          "fp": 0,
           "wrongRule": 0,
           "fn": 44,
           "wrongRuleOnly": 0,
@@ -3369,26 +3015,12 @@
           "unscored": 0,
           "support": 117,
           "detected": 73,
-          "precision": 0.881,
+          "precision": 1.0,
           "recall": 0.6239,
-          "f1": 0.7305
+          "f1": 0.7684
         }
       },
       "kind": {
-        "(none)": {
-          "tp": 0,
-          "fp": 10,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 0,
-          "detected": 0,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0
-        },
         "alt_missing": {
           "tp": 4,
           "fp": 0,
@@ -3558,7 +3190,7 @@
           "f1": 0.0
         },
         "phone": {
-          "tp": 2,
+          "tp": 1,
           "fp": 0,
           "wrongRule": 0,
           "fn": 0,
@@ -3866,18 +3498,7 @@
           "f1": 0.0
         }
       },
-      "cleanFalsePositives": [
-        "DigitalBanking/C0003 <- google:word-list/221",
-        "DigitalBanking/C0025 <- google:word-list/221",
-        "DigitalBanking/C0047 <- google:word-list/221",
-        "DigitalBanking/C0179 <- google:word-list/221",
-        "DigitalBanking/C0245 <- google:word-list/221",
-        "DigitalBanking/C0289 <- google:word-list/221",
-        "DigitalBanking/C0311 <- google:word-list/221",
-        "DigitalBanking/C0327 <- google:units-of-measure/5",
-        "DigitalBanking/C0470 <- google:word-list/640",
-        "DigitalBanking/C0476 <- google:word-list/640"
-      ],
+      "cleanFalsePositives": [],
       "wrongRulePairs": {}
     }
   }

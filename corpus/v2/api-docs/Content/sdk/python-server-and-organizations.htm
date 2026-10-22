@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with server and organizations</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with server and organizations</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Get all data exports</h2>
+        <p>Call <MadCap:xref href="../reference/server-and-organizations/get-realm-exports.htm">Get all data exports</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get organization's public data exports.
+result = client.call_endpoint(url="/export/realm", method="GET")</pre>
+        <h2>Create a data export</h2>
+        <p>Call <MadCap:xref href="../reference/server-and-organizations/export-realm.htm">Create a data export</MadCap:xref> like this:</p>
+        <pre class="language-python"># Create a public data export of the organization.
+result = client.call_endpoint(url="/export/realm", method="POST")</pre>
+        <h2>Get data export consent state</h2>
+        <p>Call <MadCap:xref href="../reference/server-and-organizations/get-realm-export-consents.htm">Get data export consent state</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get the consents of users for their private data exports.
+result = client.call_endpoint(url="/export/realm/consents", method="GET")</pre>
+        <h2>Delete a data export</h2>
+        <p>Call <MadCap:xref href="../reference/server-and-organizations/delete-realm-export.htm">Delete a data export</MadCap:xref> like this:</p>
+        <pre class="language-python"># Delete a completed public or standard data export.
+result = client.call_endpoint(url=f"/export/realm/{export_id}", method="DELETE")</pre>
+        <h2>Get all custom emoji</h2>
+        <p>Call <MadCap:xref href="../reference/server-and-organizations/get-custom-emoji.htm">Get all custom emoji</MadCap:xref> like this:</p>
+        <pre class="language-python">result = client.get_realm_emoji()</pre>
+        <h2>Deactivate custom emoji</h2>
+        <p>Call <MadCap:xref href="../reference/server-and-organizations/deactivate-custom-emoji.htm">Deactivate custom emoji</MadCap:xref> like this:</p>
+        <pre class="language-python"># Delete a custom emoji.
+result = client.call_endpoint(f"realm/emoji/{emoji_name}", method="DELETE")</pre>
+    </body>
+</html>

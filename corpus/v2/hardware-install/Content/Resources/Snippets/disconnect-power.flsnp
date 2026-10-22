@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p class="warning">Disconnect the <MadCap:variable name="General.ProductName" /> board from power <b>prior to</b> you start. Don't connect or disconnect cables while the board is powered.</p>
+    </body>
+</html>

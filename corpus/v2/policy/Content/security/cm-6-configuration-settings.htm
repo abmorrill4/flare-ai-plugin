@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>CM-6 Configuration Settings</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>CM-6 Configuration Settings</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><ol><li><p>Establish and document configuration settings for components employed within the system that reflect the most restrictive mode consistent with operational requirements using [Assignment: organization-defined common secure configurations];</p></li><li><p>Implement the configuration settings;</p></li><li><p>Identify, document, and approve any deviations from established configuration settings for [Assignment: organization-defined system components] based on [Assignment: organization-defined operational requirements] ; and</p></li><li><p>Monitor and control changes to the configuration settings in accordance with organizational policies and procedures.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Configuration settings are the parameters that can be changed in the hardware, software, or firmware components of the system that affect the security and privacy posture or functionality of the system. Information technology products for which configuration settings can be defined include mainframe computers, servers, workstations, operating systems, mobile devices, input/output devices, protocols, and applications. Parameters that impact the security posture of systems include registry settings; account, file, or directory permission settings; and settings for functions, protocols, ports, services, and remote connections. Privacy parameters are parameters impacting the privacy posture of systems, including the parameters required to satisfy other privacy controls. Privacy parameters include settings for access controls, data processing preferences, and processing and retention permissions. Organizations establish organization-wide configuration settings and subsequently derive specific configuration settings for systems. The established settings become part of the configuration baseline for the system. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <p class="note">Common secure configurations (also known as security configuration checklists, lockdown and hardening guides, and security reference guides) provide recognized, standardized, and established benchmarks that stipulate secure configuration settings for information technology products and platforms as well as instructions for configuring those products or platforms to meet operational requirements. Common secure configurations can be developed by a variety of organizations, including information technology product developers, manufacturers, vendors, federal agencies, consortia, academia, industry, and other organizations in the public and private sectors.</p>
+        <p class="note">Implementation of a common secure configuration may be mandated at the organization level, mission and business process level, system level, or at a higher level, including by a regulatory agency. Common secure configurations include the United States Government Configuration Baseline USGCB and security technical implementation guides (STIGs), which affect the implementation of CM-6 and other controls such as AC-19 and CM-7 . The Security Content Automation Protocol (SCAP) and the defined standards within the protocol provide an effective method to uniquely identify, track, and control configuration settings.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>CM-06_ODP[01]</dt>
+            <dd><p>common secure configurations to establish and document configuration settings for components employed within the system are defined;</p></dd>
+            <dt>CM-06_ODP[02]</dt>
+            <dd><p>system components for which approval of deviations is needed are defined;</p></dd>
+            <dt>CM-06_ODP[03]</dt>
+            <dd><p>operational requirements necessitating approval of deviations are defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-19 Access Control for Mobile Devices</li>
+            <li><MadCap:xref href="../audit/au-2-event-logging.htm">AU-2 Event Logging</MadCap:xref></li>
+            <li><MadCap:xref href="../audit/au-6-audit-record-review-analysis-and-reporting.htm">AU-6 Audit Record Review, Analysis, and Reporting</MadCap:xref></li>
+            <li>CA-9 Internal System Connections</li>
+            <li>CM-2 Baseline Configuration</li>
+            <li>CM-3 Configuration Change Control</li>
+            <li>CM-5 Access Restrictions for Change</li>
+            <li>CM-7 Least Functionality</li>
+            <li>CM-11 User-installed Software</li>
+            <li>CP-7 Alternate Processing Site</li>
+            <li><MadCap:xref href="../retention/cp-9-system-backup.htm">CP-9 System Backup</MadCap:xref></li>
+            <li>CP-10 System Recovery and Reconstitution</li>
+            <li>IA-3 Device Identification and Authentication</li>
+            <li><MadCap:xref href="ia-5-authenticator-management.htm">IA-5 Authenticator Management</MadCap:xref></li>
+            <li>PL-8 Security and Privacy Architectures</li>
+            <li>PL-9 Central Management</li>
+            <li>RA-5 Vulnerability Monitoring and Scanning</li>
+            <li>SA-4 Acquisition Process</li>
+            <li>SA-5 System Documentation</li>
+            <li>SA-8 Security and Privacy Engineering Principles</li>
+            <li>SA-9 External System Services</li>
+            <li>SC-18 Mobile Code</li>
+            <li><MadCap:xref href="sc-28-protection-of-information-at-rest.htm">SC-28 Protection of Information at Rest</MadCap:xref></li>
+            <li>SC-43 Usage Restrictions</li>
+            <li>SI-2 Flaw Remediation</li>
+            <li>SI-4 System Monitoring</li>
+            <li>SI-6 Security and Privacy Function Verification</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>CM-06</dt>
+            <dd><dl><dt>CM-06a.</dt><dd><p>configuration settings that reflect the most restrictive mode consistent with operational requirements are established and documented for components employed within the system using [Assignment: organization-defined common secure configurations];</p></dd><dt>CM-06b.</dt><dd><p>the configuration settings documented in CM-06a are implemented;</p></dd><dt>CM-06c.</dt><dd><dl><dt>CM-06c.[01]</dt><dd><p>any deviations from established configuration settings for [Assignment: organization-defined system components] are identified and documented based on [Assignment: organization-defined operational requirements];</p></dd><dt>CM-06c.[02]</dt><dd><p>any deviations from established configuration settings for [Assignment: organization-defined system components] are approved;</p></dd></dl></dd><dt>CM-06d.</dt><dd><dl><dt>CM-06d.[01]</dt><dd><p>changes to the configuration settings are monitored in accordance with organizational policies and procedures;</p></dd><dt>CM-06d.[02]</dt><dd><p>changes to the configuration settings are controlled in accordance with organizational policies and procedures.</p></dd></dl></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Configuration management policy</li>
+            <li>procedures addressing configuration settings for the system</li>
+            <li>configuration management plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>common secure configuration checklists</li>
+            <li>system component inventory</li>
+            <li>evidence supporting approved deviations from established configuration settings</li>
+            <li>change control records</li>
+            <li>system data processing and retention permissions</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with security configuration management responsibilities</li>
+            <li>organizational personnel with privacy configuration management responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational processes for managing configuration settings</li>
+            <li>mechanisms that implement, monitor, and/or control system configuration settings</li>
+            <li>mechanisms that identify and/or document deviations from established configuration settings</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>SP 800-70</li>
+            <li>SP 800-126</li>
+            <li>SP 800-128</li>
+            <li>USGCB</li>
+            <li>NCPR</li>
+            <li>DOD STIG</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>CM-6(1) Automated Management, Application, and Verification</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Manage, apply, and verify configuration settings for [Assignment: organization-defined system components] using [Assignment: organization-defined automated mechanisms].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Automated tools (e.g., hardening tools, baseline configuration tools) can improve the accuracy, consistency, and availability of configuration settings information. Automation can also provide data aggregation and data correlation capabilities, alerting mechanisms, and dashboards to support risk-based decision-making within the organization.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>cm-6.1_prm_2</dt>
+            <dd><p>organization-defined automated mechanisms</p></dd>
+            <dt>CM-06(01)_ODP[01]</dt>
+            <dd><p>system components for which to manage, apply, and verify configuration settings are defined;</p></dd>
+            <dt>CM-06(01)_ODP[02]</dt>
+            <dd><p>automated mechanisms to manage configuration settings are defined;</p></dd>
+            <dt>CM-06(01)_ODP[03]</dt>
+            <dd><p>automated mechanisms to apply configuration settings are defined;</p></dd>
+            <dt>CM-06(01)_ODP[04]</dt>
+            <dd><p>automated mechanisms to verify configuration settings are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../audit/ca-7-continuous-monitoring.htm">CA-7 Continuous Monitoring</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CM-06(01)</dt>
+            <dd><dl><dt>CM-06(01)[01]</dt><dd><p>configuration settings for [Assignment: organization-defined system components] are managed using [Assignment: organization-defined automated mechanisms];</p></dd><dt>CM-06(01)[02]</dt><dd><p>configuration settings for [Assignment: organization-defined system components] are applied using [Assignment: organization-defined automated mechanisms];</p></dd><dt>CM-06(01)[03]</dt><dd><p>configuration settings for [Assignment: organization-defined system components] are verified using [Assignment: organization-defined automated mechanisms].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Configuration management policy</li>
+            <li>procedures addressing configuration settings for the system</li>
+            <li>configuration management plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system component inventory</li>
+            <li>common secure configuration checklists</li>
+            <li>change control records</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with security configuration management responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for managing configuration settings</li>
+            <li>automated mechanisms implemented to manage, apply, and verify system configuration settings</li>
+        </ul>
+        <h3>CM-6(2) Respond to Unauthorized Changes</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Take the following actions in response to unauthorized changes to [Assignment: organization-defined configuration settings]: [Assignment: organization-defined actions].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Responses to unauthorized changes to configuration settings include alerting designated organizational personnel, restoring established configuration settings, or—in extreme cases—halting affected system processing.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>CM-06(02)_ODP[01]</dt>
+            <dd><p>actions to be taken upon an unauthorized change are defined;</p></dd>
+            <dt>CM-06(02)_ODP[02]</dt>
+            <dd><p>configuration settings requiring action upon an unauthorized change are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="ir-4-incident-handling.htm">IR-4 Incident Handling</MadCap:xref></li>
+            <li><MadCap:xref href="ir-6-incident-reporting.htm">IR-6 Incident Reporting</MadCap:xref></li>
+            <li>SI-7 Software, Firmware, and Information Integrity</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CM-06(02)</dt>
+            <dd><p>[Assignment: organization-defined actions] are taken in response to unauthorized changes to [Assignment: organization-defined configuration settings].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System security plan</li>
+            <li>privacy plan</li>
+            <li>configuration management policy</li>
+            <li>procedures addressing configuration settings for the system</li>
+            <li>configuration management plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>alerts/notifications of unauthorized changes to system configuration settings</li>
+            <li>system component inventory</li>
+            <li>documented responses to unauthorized changes to system configuration settings</li>
+            <li>change control records</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with security configuration management responsibilities</li>
+            <li>organizational personnel with security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational process for responding to unauthorized changes to system configuration settings</li>
+            <li>mechanisms supporting and/or implementing actions in response to unauthorized changes</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

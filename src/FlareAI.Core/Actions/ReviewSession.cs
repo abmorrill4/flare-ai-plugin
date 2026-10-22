@@ -44,6 +44,7 @@ namespace FlareAI.Core.Actions
         private readonly List<StyleFinding> _findings = new List<StyleFinding>();
         private readonly Dictionary<string, int> _usage = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private HashSet<string> _ignoredAi;
+        private HashSet<string> _requested = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private string _status;
 
         /// <param name="topic">The checked topic (in a project report: the topic that was active).</param>
@@ -72,6 +73,10 @@ namespace FlareAI.Core.Actions
         public Func<string, string> WhyNotWritable { get; set; } = BatchPlan.WhyNotWritable;
         /// <summary>How many topics use a snippet.</summary>
         public Func<string, int> SnippetUsage { get; set; } = ActionRunner.SnippetUsage;
+        /// <summary>Sends a request to the owners; returns why it only reached the outbox, or null when it was delivered.</summary>
+        public Func<Team, GuideRequest, string> SendRequest { get; set; } = (team, r) => { string problem; GuideRequests.Send(team, r, out problem); return problem; };
+        /// <summary>The writer's request check (outcomes, approved project exceptions, rules still waiting).</summary>
+        public Func<Team, RequestCheck> SyncRequests { get; set; } = GuideRequests.Check;
 
         // ---- state the view reads ---------------------------------------------------------------
 
@@ -126,6 +131,7 @@ namespace FlareAI.Core.Actions
                     var cited = _runner.RuleFor(f.RuleId);   // its wording now: feedback records a fingerprint of it
                     if (cited != null) f.RuleText = cited.Text;
                 }
+                if (_requested.Contains(f.RuleId ?? f.Rule ?? "")) f.RequestSent = true;   // still visible while the owners decide
                 _findings.Add(f);
             }
             Sort();
@@ -496,34 +502,48 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>
-        /// Turn off this rule…: a writer on a team with owners asks the owner; an owner (or a writer without a team) turns
-        /// the rule off or changes its level for the guide or this project, optionally with the other rules on the same words.
+        /// At the start of a check (off the UI thread): the writer's requests to the owners. Sends any that were waiting,
+        /// writes approved project exceptions into the project, and returns the outcomes not seen yet ("Approved", "Declined:
+        /// note") as one notice, or null. Findings whose rule still has an open request are marked "Request sent".
+        /// </summary>
+        public string CheckRequests()
+        {
+            var team = CurrentTeam();
+            if (team == null || !team.IsStrict) return null;
+            try
+            {
+                var check = SyncRequests(team);
+                _requested = check.OpenRules;
+                foreach (var f in _findings) f.RequestSent = _requested.Contains(f.RuleId ?? f.Rule ?? "");
+                return check.Notice;
+            }
+            catch (Exception ex) { Diagnostics.Log("requests check", ex); return null; }
+        }
+
+        /// <summary>The label the pane gives "Turn off this rule…": "Request a change…" when changes go to the owners.</summary>
+        public string RuleChangeLabel()
+        {
+            var team = CurrentTeam();
+            return team != null && team.ChangesNeedRequest ? "Request a change…" : "Turn off this rule…";
+        }
+
+        /// <summary>
+        /// Turn off this rule…: an owner (or a team without an owners file) turns the rule off or changes its level for the
+        /// guide or this project, optionally with the other rules on the same words. When the guide is read-only for this
+        /// writer, or they aren't an owner, nothing is written: the change goes to the owners as a request with a reason.
         /// </summary>
         public void TurnOffRule()
         {
             var f = Current;
             if (f == null) { Status = "Select a suggestion whose rule you want to change."; return; }
             var team = CurrentTeam();
-            if (team != null && !team.IsOwner)
-            {
-                // Strict ownership: writers suggest, the style-guide owner decides (Tune style guide shows the requests).
-                var why = _host.AskText("Suggest changing this rule", "Ask the style guide owner (" + string.Join(", ", new List<string>(team.Owners).ToArray()) + ") to change or turn off \"" + f.Rule + "\". Why?", "", true);
-                if (why == null) return;
-                var unsent = RecordFeedback(f, _doc.SourcePath, "propose-ignore", why.Trim());
-                if (unsent != null)
-                {
-                    _host.ShowError("House Style couldn't send your request: it couldn't write to " + unsent + ".",
-                                    "Check that the team feedback folder (Settings) is available, then try again.", null, "Suggest changing this rule");
-                    return;
-                }
-                Status = Summary() + "  Sent to the style guide owner" + (team.FeedbackFolder == null ? " (set a team feedback folder in Settings so they receive it)." : ".");
-                return;
-            }
+            if (team != null && team.IsStrict && !team.IsPersonal) team.ProbeGuide();   // before any write: permissions may have changed
+            if (team != null && team.ChangesNeedRequest) { RequestChange(f, team, null); return; }
             // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
             var rule = _runner.RuleFor(f.RuleId);
             var guide = team != null ? team.GuideRoot : null;
             var personal = team != null && team.IsPersonal;
-            var described = rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
+            var described = Describe(f, rule);
             var others = rule != null ? f.AlsoRules : null;   // other rules on the same words: turning off this one would expose them
             if (others != null)
             {
@@ -554,6 +574,17 @@ namespace FlareAI.Core.Actions
                 catch (Exception ex)
                 {
                     Diagnostics.Log("Change rule", ex);
+                    // A team with owners: a guide that stopped being writable (share offline, permissions changed) can still
+                    // take the change as a request, with the reason already typed.
+                    if (one == f && choice.ForTeam && team != null && team.IsStrict && !team.IsPersonal && ex is GuideWriteException)
+                    {
+                        team.ProbeGuide();
+                        if (_host.Confirm("House Style couldn't write to " + (target ?? guide) + ": " + ex.Message + "\n\nNothing was changed. Send this change to the style guide owners (" +
+                                          team.OwnerNames + ") as a request instead? Your reason is kept.", "Turn off this rule"))
+                            RequestChange(f, team, choice);
+                        else Status = Summary() + "  The rule was not changed.";
+                        return;
+                    }
                     _host.ShowError("House Style couldn't change " + (one == f ? "the rule" : "\"" + one.Rule + "\"") + (target == null ? "." : " in " + target + "."),
                                     ex.Message + Environment.NewLine + Environment.NewLine + (one == f ? "Nothing was changed: the rule still applies." : "This rule and any after it were not changed: they still apply."), ex, "Turn off this rule");
                     if (one == f) { Status = Summary() + "  The rule was not changed."; return; }
@@ -572,6 +603,85 @@ namespace FlareAI.Core.Actions
                       : personal ? " in your style guide (" + target + ")."
                       : " for the team (in " + target + "; commit it so everyone gets it).") +
                      (changed.Count < all.Count ? " " + (all.Count - changed.Count) + " could not be changed." : "");
+        }
+
+        /// <summary>
+        /// "Request a change": asks scope, level or wording, and a reason, then sends one request to the owners. The finding
+        /// stays in the list, marked "Request sent"; the writer can still skip it for now. Nothing is written to the guide or
+        /// the project until an owner approves.
+        /// </summary>
+        public void RequestChange(StyleFinding f, Team team, RuleSettingChoice earlier)
+        {
+            if (f == null || team == null) return;
+            var rule = _runner.RuleFor(f.RuleId);
+            var path = f.DocumentPath ?? _doc.SourcePath;
+            var overrides = ProjectOverridesPath(path);
+            var editable = rule != null && rule.Layer != "google";   // Google rules are generated: owners change them with a level, not words
+            var choice = _host.ChooseRequest(new RequestQuestion
+            {
+                RuleText = Describe(f, rule),
+                Notice = "This will be sent to the style guide owners (" + team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
+                         (team.AccessNotice == null ? "" : Environment.NewLine + team.AccessNotice),
+                CanAskTeam = rule != null, CanAskProject = overrides != null,
+                Wording = editable ? rule.Text : null,
+                Reason = earlier != null ? earlier.Reason : null, Setting = earlier != null ? earlier.Setting : null,
+                ForProject = earlier != null ? !earlier.ForTeam : rule == null
+            });
+            if (choice == null) return;
+            var reason = (choice.Reason ?? "").Trim();
+            if (reason.Length == 0) { Status = Summary() + "  Not sent: the owners need a reason to decide."; return; }
+            if (choice.ForTeam && rule == null) choice.ForTeam = false;
+            if (!choice.ForTeam && overrides == null) { Status = Summary() + "  Not sent: this topic is not inside a Flare project."; return; }
+            var wording = choice.ForTeam && editable && !string.IsNullOrEmpty(choice.Wording) && choice.Wording.Trim() != rule.Text.Trim() ? choice.Wording.Trim() : null;
+            var kind = !choice.ForTeam ? RequestKinds.ProjectException : wording != null ? RequestKinds.Wording : choice.Setting == "off" ? RequestKinds.TurnOff : RequestKinds.Severity;
+            var r = GuideRequests.New(team, kind, reason);
+            r.RuleId = f.RuleId; r.Rule = f.Rule; r.Layer = f.Layer; r.Setting = choice.Setting ?? "off"; r.Wording = wording;
+            if (rule != null) { r.RuleText = rule.Text; r.RuleFile = RuleFile(rule); }
+            if (!choice.ForTeam) { r.ProjectPath = path; r.Project = ProjectName(overrides); }
+            if (!string.IsNullOrEmpty(f.Excerpt)) r.Evidence.Add("\"" + f.Excerpt + "\" (" + System.IO.Path.GetFileName(path ?? "") + ")");
+            string problem;
+            try { problem = SendRequest(team, r); }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Send request", ex);
+                _host.ShowError("House Style couldn't send your request.", ex.Message + Environment.NewLine + Environment.NewLine + "Your reason: " + reason, ex, "Request a change");
+                return;
+            }
+            RecordFeedback(f, _doc.SourcePath, "request", reason);
+            var key = f.RuleId ?? f.Rule ?? "";
+            _requested.Add(key);
+            foreach (var x in _findings) if ((x.RuleId ?? x.Rule ?? "") == key) x.RequestSent = true;
+            Sort();
+            if (problem != null)
+            {
+                _host.ShowError("Your request is saved but not sent yet: " + problem + ".",
+                                "House Style sends it on your next check once the requests folder is available. Check the team feedback folder in Settings.", null, "Request a change");
+                Status = Summary() + "  Request saved; it is sent on your next check.";
+                return;
+            }
+            Status = Summary() + "  Request sent to the style guide owners (" + team.OwnerNames + "). The suggestion stays here until they decide; skip it for now if you like.";
+        }
+
+        /// <summary>The project's folder name from its overrides.ini path (Project\Content\Resources\StyleGuide\overrides.ini).</summary>
+        private static string ProjectName(string overrides)
+        {
+            var dir = overrides == null ? null : new System.IO.FileInfo(overrides).Directory;
+            for (var i = 0; i < 3 && dir != null; i++) dir = dir.Parent;
+            return dir == null ? null : dir.Name;
+        }
+
+        private static string Describe(StyleFinding f, GuideRule rule)
+        {
+            return rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
+        }
+
+        /// <summary>The guide topic a rule is written in (a local file), or null.</summary>
+        public static string RuleFile(GuideRule rule)
+        {
+            if (rule == null) return null;
+            if (!string.IsNullOrEmpty(rule.Source) && System.IO.File.Exists(rule.Source)) return rule.Source;
+            try { return !string.IsNullOrEmpty(rule.Link) && rule.Link.StartsWith("file:", StringComparison.OrdinalIgnoreCase) ? new Uri(rule.Link).LocalPath : null; }
+            catch (UriFormatException) { return null; }
         }
 
         // ---- helpers ----------------------------------------------------------------------------

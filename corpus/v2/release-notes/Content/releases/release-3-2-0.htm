@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Release 3.2.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Release 3.2.0</h1>
+        <p><MadCap:variable name="General.ProductName" /> 3.2.0 was released on February 21, 2023.</p>
+        <p>This release is now available for download!</p>
+        <h2>What is in this release</h2>
+        <ul>
+            <li>7 new features</li>
+            <li>7 fixes</li>
+            <li>3 breaking changes</li>
+        </ul>
+        <p>For the full list, see:</p>
+        <ul>
+            <li><MadCap:xref href="../upgrade/breaking-3-2-0.htm">Breaking changes and deprecations in 3.2.0</MadCap:xref></li>
+        </ul>
+        <h2>Changes</h2>
+        <ul>
+            <li>When <code>router_flavor</code> is <code>traditional_compatible</code>, verify routes created utilizing the Expression router instead of the traditional router to ensure created routes are actually compatible (ORB-9987).</li>
+            <li>Services upstream TLS config is extended to stream subsystem (ORB-9947).</li>
+            <li>Add a new load-balancing <code>algorithm</code> option <code>latency</code> to the <code>Upstream</code> entity! This algorithm will choose a target based on the response latency of each target from prior requests (ORB-9787).</li>
+            <li><b>Plugin</b>: add an optional field <code>instance_name</code> that identifies a particular plugin entity (ORB-10077).</li>
+            <li><b>HTTP logging</b>: Suppport value of <code>headers</code> to be referenceable (ORB-9948).</li>
+            <li>In dbless mode, <code>/config</code> API endpoint can now flatten entity-related schema validation errors to a single array via the optional <code>flatten_errors</code> query parameter. Non-entity errors remain unchanged in this mode (ORB-10161, ORB-10256).</li>
+            <li>Support for <code>upstream_status</code> field in log serializer (ORB-10296).</li>
+        </ul>
+        <h2>Fixes</h2>
+        <ul>
+            <li>Fix an issue where after a valid declarative configuration is loaded, the configuration hash is incorrectly set to the value: <code>00000000000000000000000000000000</code> (ORB-9911).</li>
+            <li>Update the batch queues module so that queues no longer grow without bounds if their consumers fail to process the entries. Instead, old batches are now dropped and an error is logged (ORB-10247).</li>
+            <li>Fix an issue where 'X-Orbit-Upstream-Status' cannot be emitted when response is buffered (ORB-10056).</li>
+            <li>Improve error message for invalid JWK entities (ORB-9904).</li>
+            <li><b>JWT</b>: Deny requests that have different tokens in the jwt token search locations (ORB-9946).</li>
+            <li><b>OAuth2</b>: <code>refresh_token_ttl</code> is now limited between <code>0</code> and <code>100000000</code> by schema validator. Previously numbers that are too large causes requests to fail (ORB-10068).</li>
+            <li>Revert the removal of WebSocket protocol support for configuration sync, and disable the wRPC protocol (ORB-9921).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+        <p><MadCap:xref href="../index/release-history.htm">Release history</MadCap:xref> · <MadCap:xref href="../index/upgrade-guide.htm">Upgrade guide</MadCap:xref></p>
+    </body>
+</html>

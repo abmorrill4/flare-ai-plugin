@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code RATE_LIMIT_HIT</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code RATE_LIMIT_HIT</h1>
+        <p>The <code>RATE_LIMIT_HIT</code> error code is returned with HTTP status 429.</p>
+        <h2>When you see this error</h2>
+        <h3>Rate limit exceeded A typical failed JSON response for when a rate limit is exceeded. <MadCap:variable name="General.ProductName" /> sets a few [HTTP response headers][rate-limit-headers] to help with preventing rate limit errors. The value of <code>retry-after</code> in the response indicates how many seconds the client must wait before making additional requests. <b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 4.0 (feature level 36), the <code>code</code> key was not present in rate limit errors. [rate-limit-headers]: /api/http-headers#rate-limiting-response-headers</h3>
+        <p>Rate limit exceeded.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "API usage exceeded rate limit",
+  "code": "RATE_LIMIT_HIT",
+  "retry-after": 28.706807374954224
+}</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

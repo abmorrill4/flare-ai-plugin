@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Uninstallation</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Uninstallation</h1>
+        <p>It is safe to uninstall the files <MadCap:glossaryTerm>desktop client</MadCap:glossaryTerm> by using the built-in tools within your operating system.</p>
+        <h2>General instructions</h2>
+        <p>In each operating system:</p>
+        <ol>
+            <li><p>Make sure to <i>quit the desktop client</i> before removing it.</p></li>
+            <li><p><i>Uninstall</i> the desktop client.</p></li>
+            <li><p>You may also need to take into consideration that uninstalling the desktop client will not remove the <MadCap:xref href="advanced-configuration-configuration-file.htm">user's configuration</MadCap:xref> file and synced data.</p> <blockquote><p>For data removal (sync folders), consider using the server feature <a href="https://docs.example.com/de/blog/acmehub-desktop-client-2-6-1-brings-remote-wipe-dark-mode-support-to-mac-os-x-and-more/">remote wipe</a>. This feature is available across all clients. You get a best-in-class experience.</p></blockquote></li>
+        </ol>
+        <p>Below are platform specific instructions.</p>
+        <h3>Windows</h3>
+        <p>There are two ways of removing the desktop client:</p>
+        <ol>
+            <li><p>Using Add or Remove Programs. Items on the blacklist cannot be selected.</p></li>
+            <li><p>You can use the <a href="https://example.com/en-us/windows/win32/msi/standard-installer-command-line-options">msiexec</a> command line options:</p></li>
+        </ol>
+        <pre>msiexec /uninstall Acme Hub-x.y.z-x64.msi /quiet``</pre>
+        <ol>
+            <li><p>The <MadCap:xref href="advanced-configuration-configuration-file.htm">user's configuration</MadCap:xref> is located at %APPDATA%\Acme Hub\acmehub.cfg.</p></li>
+        </ol>
+        <h3>macOS</h3>
+        <p>Beyond deleting the desktop client from the <i>Applications</i> folder, you may also need to remove all related data, specially if you are using virtual files.</p>
+        <ol>
+            <li><p>To simply uninstall the software: you can do this from the <a href="https://example.com/en-us/102610">Launchpad or the Finder</a>.</p></li>
+            <li><p>For the complete removal of all related data, the following commands can be used:</p></li>
+        </ol>
+        <pre>rm -rf "$HOME/Library/Application Scripts/com.acmehub.desktopclient"*
+rm -f  "$HOME/Library/Application Support/CrashReporter/Nextcloud_"*
+rm -rf "$HOME/Library/Application Support/Acme Hub"
+rm -rf "$HOME/Library/Caches/Acme Hub"
+rm -rf "$HOME/Library/Containers/com.acmehub.desktopclient"*
+rm -rf "$HOME/Library/Group Containers/NKUJUXUJ3B.com.acmehub.desktopclient"
+rm -rf "$HOME/Library/Group Containers/com.acmehub.desktopclient"
+rm -f  "$HOME/Library/LaunchAgents/com.acmehub.desktopclient.plist"
+rm -rf "$HOME/Library/Preferences/Acme Hub"
+rm -f  "$HOME/Library/Preferences/com.acmehub.desktopclient.plist"</pre>
+        <ol>
+            <li><p>From version 33.0.0 the <MadCap:xref href="advanced-configuration-configuration-file.htm">user's configuration</MadCap:xref> is located at $HOME/Library/Containers/com.acmehub.desktopclient/Data/Library/Preferences/<MadCap:variable name="General.ProductName" />/acmehub.cfg. On older versions it is located at $HOME/Library/Preferences/<MadCap:variable name="General.ProductName" />/acmehub.cfg.</p></li>
+        </ol>
+        <h3>Linux</h3>
+        <p>Please note that it depends on how you installed the desktop client:</p>
+        <ol>
+            <li><p>If you are running the <MadCap:variable name="General.ProductName" /> AppImage, you can simply delete the AppImage file.</p></li>
+            <li><p>If you have used your package manager to install the desktop client, you can use it to uninstall the desktop client as well. For example, on Linux you can use the following command:</p></li>
+        </ol>
+        <pre>sudo apt remove acmehub-desktop</pre>
+        <ol>
+            <li><p>The <MadCap:xref href="advanced-configuration-configuration-file.htm">user's configuration</MadCap:xref> is located at <i>$HOME/.config/<MadCap:variable name="General.ProductName" />/acmehub.cfg</i>.</p></li>
+        </ol>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-this-page-is.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

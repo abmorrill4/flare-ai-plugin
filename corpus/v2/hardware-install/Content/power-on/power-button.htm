@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Power button</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Power button</h1>
+        <p class="note">This section only applies to <MadCap:variable name="General.ProductName" /> models with a power button, such as the <MadCap:variable name="General.ProductName" /> 5.</p>
+        <p>When you plug your <MadCap:variable name="General.ProductName" /> into power for the first time, it will automatically turn on and boot into the operating system without having to push the button.</p>
+        <p>If you run <MadCap:variable name="General.ProductName" /> Desktop, you can initiate a clean shutdown by briefly pressing the power button. A window will appear asking whether you want to shutdown, reboot, or logout.</p>
+        <p>Select an option or press the power button again to initiate a clean shutdown.</p>
+        <p class="note">If you run <MadCap:variable name="General.ProductName" /> Desktop, you can press the power button twice in quick succession to shut down. If you run <MadCap:variable name="General.ProductName" /> OS Lite without a desktop, press the power button a single time to initiate a shutdown.</p>
+        <h2>Restart</h2>
+        <p>If the <MadCap:variable name="General.ProductName" /> board is turned off, but still connected to power, pressing the power button restarts the board.</p>
+        <p class="note">Resetting the Power Management Integrated Circuit (PMIC) can also restart the board. Connecting a HAT can reset the PMIC. Always disconnect your device from the power supply before connecting a HAT.</p>
+        <h2>Hard shutdown</h2>
+        <p>To force a hard shutdown, press and hold the power button.</p>
+        <h2>Add your own power button</h2>
+        <p><img src="../Resources/Images/j2.jpg" alt="The J2 jumper" /></p>
+        <p class="caption">Figure 1. The J2 jumper</p>
+        <p>The J2 jumper is located between the RTC battery connector and the board edge. This breakout allows you to add your own power button to <MadCap:variable name="General.ProductName" /> 5 by adding a Normally Open (NO) momentary switch bridging the two pads. Briefly closing this switch will perform the same actions as the onboard power button.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

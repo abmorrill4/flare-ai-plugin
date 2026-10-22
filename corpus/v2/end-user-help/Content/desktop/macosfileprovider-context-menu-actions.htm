@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Context menu actions</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Context menu actions</h1>
+        <p><img src="../Resources/Images/macosfileprovider-context-menu.png" alt="macOS Finder context menu on a Acme Hub file showing Keep Downloaded, Lock, and Share options" /></p>
+        <p>The File Provider extension also provides special <MadCap:variable name="General.ProductName" /> features through the context menu in Finder.</p>
+        <h2>Keep Downloaded</h2>
+        <p>Files and folders can be marked to be kept downloaded and available offline permanently. If this is chosen on folders, it will also apply to all their contents. This is especially useful for users with limited or no network access, as it ensures that they can always access their important files without needing to worry about connectivity. macOS will <b>not</b> free up local disk space by evicting items which are marked to be kept downloaded, even if they have not been accessed for a long time.</p>
+        <p>This can be undone by selecting "Allow automatic freeing up space" on the same items.</p>
+        <p>To always keep everything in an account available locally, you can select "Always keep downloaded" on the location root in the Finder sidebar.</p>
+        <h2>Locking</h2>
+        <p><img src="../Resources/Images/macosfileprovider-file-locking.png" alt="macOS Finder showing a Acme Hub file with a lock indicator after locking" /></p>
+        <p>If the server supports file locking, the client will offer manual locking and unlocking of files in Finder. You get a best-in-class experience.</p>
+        <h2>Sharing</h2>
+        <p><img src="../Resources/Images/macosfileprovider-file-sharing.png" alt="macOS Finder share management panel for a Acme Hub file showing existing shares" /></p>
+        <p>When the server supports sharing and the item is allowed to be shared, then you can create new shares or manage existing shares for an item directly from the context menu in Finder, as in the <MadCap:variable name="General.ProductName" /> web interface.</p>
+        <h2>File actions</h2>
+        <p>If the server has apps installed which provide file actions for the selected file types, these actions will also be available in the context menu in Finder. This allows you to <b>utilize</b> server-side features of your <MadCap:variable name="General.ProductName" /> instance directly from the Finder.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

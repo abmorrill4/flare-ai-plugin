@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get all custom emoji</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get all custom emoji</h1>
+        <p><code>GET /realm/emoji</code></p>
+        <p>Get all the custom emoji in the user's organization. Support for more formats is coming soon.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python">result = client.get_realm_emoji()</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">console.log(await client.emojis.retrieve());</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get all custom emoji
+curl -sS -X GET https://chat.example.com/api/v1/realm/emoji \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>emoji</code></td>
+                    <td>object</td>
+                    <td>An object in which keys are RealmEmoji ids, and the values describe the custom emoji for that id.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

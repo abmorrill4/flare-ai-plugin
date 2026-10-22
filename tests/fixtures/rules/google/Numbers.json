@@ -58,7 +58,7 @@
     "Good": []
   },
   {
-    "Id": "google:numbers/32",
+    "Id": "google:numbers/33",
     "Layer": "google",
     "Page": "Numbers",
     "Row": 2,
@@ -68,42 +68,22 @@
       "Numbers"
     ],
     "Avoid": [
-      "\\b\\d+(?:\\.\\d+)?\\s+%"
+      "\\b\\d+(?:\\.\\d+)?[ \\u00A0]?percent\\b"
     ],
     "Use": "",
-    "Example": "Usage rose to 40 % this month.",
+    "Example": "Only 40 percent of the files were copied.",
     "IgnoreCase": false,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Usage rose to 40 % this month.",
+        "Text": "Only 40 percent of the files were copied.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
         }
       }
     ],
-    "Good": []
-  },
-  {
-    "Id": "google:numbers/35",
-    "Layer": "google",
-    "Page": "Numbers",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [
-      "Numbers"
-    ],
-    "Avoid": [
-      "\\d\\s*(?:–|&ndash;)\\s*\\d"
-    ],
-    "Use": "",
-    "Example": "The project ran from 2012–2016.",
-    "IgnoreCase": false,
-    "MarkupOnly": true,
-    "Bad": [],
     "Good": []
   },
   {
@@ -156,35 +136,6 @@
       {
         "Source": "example",
         "Text": "The icon must be 192 x 192 pixels.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      }
-    ],
-    "Good": []
-  },
-  {
-    "Id": "google:numbers/33",
-    "Layer": "google",
-    "Page": "Numbers",
-    "Row": 3,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [
-      "Numbers"
-    ],
-    "Avoid": [
-      "\\b\\d+(?:\\.\\d+)?[ \\u00A0]?percent\\b"
-    ],
-    "Use": "",
-    "Example": "Only 40 percent of the files were copied.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Only 40 percent of the files were copied.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>New in 3.6.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>New in 3.6.0</h1>
+        <p>These features and improvements arrived with <MadCap:variable name="General.ProductName" /> 3.6.0 on February 9, 2024.</p>
+        <h2>Features</h2>
+        <h3>Configuration</h3>
+        <ul>
+            <li>display a warning message when <MadCap:variable name="General.ProductName" /> Manager is enabled but the Admin API is not enabled (ORB-12071).</li>
+            <li>add DHE-RSA-CHACHA20-POLY1305 cipher to the intermediate configuration (ORB-12133).</li>
+            <li>The default value of <code>dns_no_sync</code> option has been changed to <code>off</code> (ORB-11869).</li>
+        </ul>
+        <h3>Core</h3>
+        <ul>
+            <li>Adds telemetry collection for AI Proxy, AI Request Transformer, and AI Response Transformer, pertaining to model and provider usage (ORB-12495).</li>
+            <li>Allow primary key passed as a full entity to DAO functions (ORB-11695).</li>
+            <li>The expressions route now supports the <code>!</code> (not) operator, which allows creating routes like <code>!(http.path =^ "/a")</code> and <code>!(http.path == "/a" || http.path == "/b")</code> (ORB-12419).</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>Increase the precision of JSON number encoding from 14 to 16 decimals (ORB-12019).</li>
+        </ul>
+        <h3>Plugin</h3>
+        <ul>
+            <li>Introduced the new <b>AI Prompt Decorator</b> plugin that enables prepending and appending llm/v1/chat messages onto consumer LLM requests, for prompt tuning (ORB-12336).</li>
+            <li>Introduced the new <b>AI Prompt Guard</b> which can allow and/or block LLM requests based on pattern matching (ORB-12427).</li>
+        </ul>
+        <h3>Admin API</h3>
+        <ul>
+            <li>add gateway edition to the root endpoint of the admin api (ORB-12097).</li>
+            <li>Enable <code>status_listen</code> on <code>127.0.0.1:8007</code> by default (ORB-12304).</li>
+        </ul>
+        <h3>Clustering</h3>
+        <ul>
+            <li><b>Clustering</b>: Expose data plane certificate expiry date on the control plane API (ORB-11921).</li>
+        </ul>
+        <h3>Default</h3>
+        <ul>
+            <li>Added a JSON/YAML format preview for all entity forms.</li>
+            <li>Adopted resigned basic components for better UI/UX.</li>
+        </ul>
+        <h2>Performance</h2>
+        <ul>
+            <li>Cooperatively yield when building statistics of routes to reduce the impact to proxy path latency (ORB-12013).</li>
+        </ul>
+        <h3>Configuration</h3>
+        <ul>
+            <li>Bump <code>dns_stale_ttl</code> default to 1 hour so stale DNS record can be used for longer time in case of resolver downtime (ORB-12087).</li>
+        </ul>
+        <h3>Core</h3>
+        <ul>
+            <li>Reuse match context between requests to avoid frequent memory allocation/deallocation (ORB-12258).</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>Performance optimization to avoid unnecessary creations and garbage-collections of spans (ORB-12080).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-3-6-0.htm">Release 3.6.0</MadCap:xref>.</p>
+    </body>
+</html>

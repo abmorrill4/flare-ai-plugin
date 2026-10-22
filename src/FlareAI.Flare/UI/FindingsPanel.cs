@@ -44,6 +44,7 @@ namespace FlareAI.Flare.UI
         private BackgroundWorker _worker;
         private bool _reviewing, _started;
         private string _lintNote;
+        private volatile string _requestNote;
         private List<StyleFinding> _lint;
 
         /// <summary>Raised when the author clicks Close; the host hides its pane or window.</summary>
@@ -274,6 +275,7 @@ namespace FlareAI.Flare.UI
             var cachedAny = false;
             _worker.DoWork += (s, e) =>
             {
+                _requestNote = _session.CheckRequests();   // outcomes of the writer's requests to the owners
                 var blocks = _wholeTopic ? _runner.PickAllBlocks(_doc) : _runner.PickCheckBlocks(_doc);
                 List<StyleFinding> lint;
                 try { lint = _runner.Lint(blocks); }
@@ -343,12 +345,23 @@ namespace FlareAI.Flare.UI
                     _status.Text = Summary() + "  These come from style rules only (free, no AI used). Check again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
                 else _status.Text = Open().Count == 0 ? "No open suggestions." : Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
+                ShowRequestNote();
                 var team = Team.Current;
                 if (team != null && team.Status != null && team.Status.Behind > 0) _status.Text += "  " + team.Status;
                 if (_list.SelectedItems.Count == 0) _session.Next();
                 UpdateButtons();
             };
             _worker.RunWorkerAsync();
+        }
+
+        /// <summary>Outcomes of the writer's requests (approved, declined), once each: in the status line and as a notice.</summary>
+        private void ShowRequestNote()
+        {
+            var note = _requestNote;
+            _requestNote = null;
+            if (string.IsNullOrEmpty(note)) return;
+            _status.Text += "  " + note;
+            try { Toast.Show(FindForm(), note); } catch (Exception ex) { Diagnostics.Log("request notice", ex); }
         }
 
         private void StopReview()
@@ -363,7 +376,7 @@ namespace FlareAI.Flare.UI
         private void StartProject()
         {
             _status.Text = "Checking " + Plural.Of(_files.Count, "file") + "…";
-            _worker.DoWork += (s, e) => e.Result = _runner.LintFiles(_files, (done, total) => _worker.ReportProgress(done * 100 / Math.Max(1, total), done + "/" + total));
+            _worker.DoWork += (s, e) => { _requestNote = _session.CheckRequests(); e.Result = _runner.LintFiles(_files, (done, total) => _worker.ReportProgress(done * 100 / Math.Max(1, total), done + "/" + total)); };
             _worker.ProgressChanged += (s, e) => { if (!IsDisposed) _status.Text = "Checking " + e.UserState + " files…"; };
             _worker.RunWorkerCompleted += (s, e) =>
             {
@@ -377,6 +390,7 @@ namespace FlareAI.Flare.UI
                     var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     foreach (var f in found) files.Add(f.DocumentPath);
                     _status.Text = Plural.Of(found.Count, "issue") + " in " + files.Count + " of " + Plural.Of(_files.Count, "file") + " (style rules only, no AI). Apply opens the file.";
+                    ShowRequestNote();
                 }
                 UpdateButtons();
             };
@@ -458,6 +472,11 @@ namespace FlareAI.Flare.UI
         }
 
         private static string LayerLabel(StyleFinding f)
+        {
+            return (f.RequestSent ? "Request sent · " : "") + RuleSource(f);
+        }
+
+        private static string RuleSource(StyleFinding f)
         {
             if (f.RuleLayer != null) return "AI · " + SourceName(f.RuleLayer) + ": " + f.RuleSection;
             if (string.IsNullOrEmpty(f.Layer) || f.Layer == "ai") return "AI";
@@ -755,11 +774,11 @@ namespace FlareAI.Flare.UI
             _bulk.Enabled = exact > 0 && _files == null;
             _recheck.Enabled = !_reviewing;
             _ignore.Enabled = f != null;
-            var writer = Team.Current != null && !Team.Current.IsOwner;
-            _ignore.Text = writer ? "Suggest changing this rule…" : "Turn off this rule…";
+            var request = Team.Current != null && Team.Current.ChangesNeedRequest;
+            _ignore.Text = _session.RuleChangeLabel();
             _ignore.AccessibleName = _ignore.Text;
-            _ignoreTip.SetToolTip(_ignore, writer
-                ? "Send the style guide owner a request to change or turn off the selected rule, with your reason."
+            _ignoreTip.SetToolTip(_ignore, request
+                ? "Ask the style guide owners to turn off or change the selected rule, or to make an exception for this project. They decide; you see the answer on your next check."
                 : "Turn the selected rule off, or change its level, for the whole team or just this project.");
         }
 
@@ -775,6 +794,8 @@ namespace FlareAI.Flare.UI
                 return new RuleSettingChoice { ForTeam = form.ForTeam, Setting = form.Setting, Reason = form.Reason, AlsoOthers = form.AlsoOthers };
             }
         }
+
+        RuleSettingChoice IReviewHost.ChooseRequest(RequestQuestion question) { return RequestForm.Ask(this, question); }
 
         string IReviewHost.AskText(string title, string label, string initial, bool multiline) { return TextPrompt.Ask(this, title, label, initial, multiline); }
 

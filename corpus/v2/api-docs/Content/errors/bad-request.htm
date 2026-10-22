@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code BAD_REQUEST</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code BAD_REQUEST</h1>
+        <p>The <code>BAD_REQUEST</code> error code is returned with HTTP status 400 or 404.</p>
+        <h2>When you see this error</h2>
+        <h3>Incompatible request parameters A typical failed JSON response for when two or more, optional parameters are supplied that are incompatible with each other. The value of <code>parameters</code> in the response is string containing the parameters, separated by commas, that are incompatible.</h3>
+        <h3>User not authorized for query A typical failed JSON response for when the user is not authorized for a query.</h3>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Key does not exist.",
+  "code": "BAD_REQUEST",
+  "parameters": "object_id, object_name"
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/bots/remove-bot-storage.htm">Remove a bot's stored data</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/bots/get-bot-storage.htm">Get a bot's stored data</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/bots/update-bot-storage.htm">Update a bot's stored data</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/channels/remove-default-stream.htm">Remove a default channel</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/channels/add-default-stream.htm">Add a default channel</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/channels/get-stream-id.htm">Get channel ID</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

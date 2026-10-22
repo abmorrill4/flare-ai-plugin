@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Logging in with two-factor authentication</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <h1>Logging in with two-factor authentication</h1>
+        <p>After you log out and log in again, you will see a prompt to enter the <MadCap:glossaryTerm>TOTP</MadCap:glossaryTerm> code in your browser. If you have enabled more than one second factor, you will see a selection screen where you can choose which method to use for this login. Select TOTP:</p>
+        <p> <img src="../Resources/Images/totp-login-1.png" alt="Choosing a two-factor authentication method."/> </p>
+        <p><MadCap:toggler targets="tgl12">Now, just enter your code:</MadCap:toggler></p>
+        <p MadCap:targetName="tgl12"> <img src="../Resources/Images/totp-login-2.png" alt="Entering TOTP code at login."/> </p>
+        <p>If the code was correct you will be redirected to your <MadCap:variable name="General.ProductName"/> account.</p>
+        <p class="note">Since the code is time-based, it is important that your server's and your smartphone's clock are almost in sync. A time drift of a few seconds won't be a problem.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp"/>
+    </body>
+</html>

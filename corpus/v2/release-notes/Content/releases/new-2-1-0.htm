@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>New in 2.1.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>New in 2.1.0</h1>
+        <p>These features and improvements arrived with <MadCap:variable name="General.ProductName" /> 2.1.0 on July 16, 2020.</p>
+        <h2>Features</h2>
+        <h3>Core</h3>
+        <ul>
+            <li><b>Asynchronous upstream updates</b>: <MadCap:variable name="General.ProductName" />'s load balancer is now able to update its internal structures asynchronously instead of onto the request/stream path. This change required the introduction of new configuration properties and the deprecation of older ones: (ORB-5325). <ul><li>New properties:</li><li><code>worker_consistency</code></li><li><code>worker_state_update_frequency</code></li><li>Deprecated properties:</li></ul></li>
+            <li>The default certificate for the proxy can now be configured via Admin API using the <code>/certificates</code> endpoint. A special <code>*</code> SNI has been introduced which stands for the default certificate (ORB-5404).</li>
+            <li>Add <code>X-Forwarded-Prefix</code> to set of headers forwarded to upstream requests (ORB-5620).</li>
+            <li>Introduce a <code>_transform</code> option to declarative configuration, which allows importing basicauth credentials with and without hashed passwords! This change is only supported in declarative configuration format version <code>2.1</code> (ORB-5835).</li>
+        </ul>
+        <h3>CLI</h3>
+        <ul>
+            <li>Migrations: add a new <code>--force</code> flag to <code>orbit migrations bootstrap</code> (ORB-5635).</li>
+        </ul>
+        <h3>Configuration</h3>
+        <ul>
+            <li>Introduce configuration property <code>db_cache_neg_ttl</code>, allowing the configuration of negative TTL for DB entities (ORB-5397).</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>Support <code>orbit.response.exit</code> in Stream (L4) proxy mode (ORB-5524).</li>
+            <li>Introduce <code>orbit.request.get_forwarded_path</code> method, which returns the path component of the request's URL, but also considers <code>X-Forwarded-Prefix</code> if it comes from a trusted source (ORB-5620).</li>
+            <li>Introduce <code>orbit.response.error</code> method, that allows PDK users to exit with an error while honoring the Accept header or manually forcing a content-type (ORB-5562).</li>
+            <li>Introduce <code>orbit.log.serialize</code> method (ORB-5995).</li>
+        </ul>
+        <h3>Plugins</h3>
+        <ul>
+            <li><b>New Plugin</b>: introduce the grpc-gateway plugin, allowing access to upstream gRPC services through a plain HTTP request (ORB-5939).</li>
+            <li>Go: add getter and setter methods for <code>orbit.ctx.shared</code>.</li>
+            <li>OAuth2: add ability to persist refresh tokens throughout their life cycle (ORB-5264).</li>
+            <li>IP-Restriction: add support for IPv6 (ORB-5640).</li>
+        </ul>
+        <h2>Changes</h2>
+        <h3>Core</h3>
+        <ul>
+            <li>Increase maximum allowed payload size in hybrid mode (ORB-5654).</li>
+            <li>Targets now support a weight range of 0-65535 (ORB-5871).</li>
+        </ul>
+        <h3>Configuration</h3>
+        <ul>
+            <li>The configuration properties <code>router_consistency</code> and <code>router_update_frequency</code> have been renamed to <code>worker_consistency</code> and <code>worker_state_update_frequency</code>, respectively. The new properties allow for configuring the consistency settings of additional internal structures, see below for details (ORB-5325).</li>
+            <li>The default value of <code>worker_state_update_frequency</code> (previously <code>router_update_frequency</code>) was changed from <code>1</code> to <code>5</code> (ORB-5325).</li>
+        </ul>
+        <h3>Plugins</h3>
+        <ul>
+            <li>Change authentication plugins to standardize on <code>allow</code> and <code>deny</code> as terms for access control. Previous nomenclature is deprecated and support will be removed in <MadCap:variable name="General.ProductName" /> 3.0 (ORB-6014). <ul><li>ACL: use <code>allow</code> and <code>deny</code> instead of <code>whitelist</code> and <code>blacklist</code></li><li>bot-detection: use <code>allow</code> and <code>deny</code> instead of <code>whitelist</code> and <code>blacklist</code></li><li>ip-restriction: use <code>allow</code> and <code>deny</code> instead of <code>whitelist</code> and <code>blacklist</code></li></ul></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-2-1-0.htm">Release 2.1.0</MadCap:xref>.</p>
+    </body>
+</html>

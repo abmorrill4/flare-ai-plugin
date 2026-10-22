@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>IA-5 Authenticator Management</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>IA-5 Authenticator Management</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><p>Manage system authenticators by:</p><ol><li><p>Verifying, as part of the initial authenticator distribution, the identity of the individual, group, role, service, or device receiving the authenticator;</p></li><li><p>Establishing initial authenticator content for any authenticators issued by the organization;</p></li><li><p>Ensuring that authenticators have sufficient strength of mechanism for their intended use;</p></li><li><p>Establishing and implementing administrative procedures for initial authenticator distribution, for lost or compromised or damaged authenticators, and for revoking authenticators;</p></li><li><p>Changing default authenticators prior to first use;</p></li><li><p>Changing or refreshing authenticators [Assignment: organization-defined time period by authenticator type] or when [Assignment: organization-defined events] occur;</p></li><li><p>Protecting authenticator content from unauthorized disclosure and modification;</p></li><li><p>Requiring individuals to take, and having devices implement, specific controls to protect authenticators; and</p></li><li><p>Changing authenticators for group or role accounts when membership to those accounts changes.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Authenticators include passwords, cryptographic devices, biometrics, certificates, one-time password devices, and ID badges. Device authenticators include certificates and passwords. Initial authenticator content is the actual content of the authenticator (e.g., the initial password). In contrast, the requirements for authenticator content contain specific criteria or characteristics (e.g., minimum password length). Developers may deliver system components with factory default authentication credentials (i.e., passwords) to allow for initial installation and configuration. Default authentication credentials are often well known, easily discoverable, and present a significant risk. The requirement to protect individual authenticators may be implemented via control <MadCap:xref href="../acceptable-use/pl-4-rules-of-behavior.htm">PL-4</MadCap:xref> or <MadCap:xref href="../acceptable-use/ps-6-access-agreements.htm">PS-6</MadCap:xref> for authenticators in the possession of individuals and by controls <MadCap:xref href="ac-3-access-enforcement.htm">AC-3</MadCap:xref>, AC-6 , and <MadCap:xref href="sc-28-protection-of-information-at-rest.htm">SC-28</MadCap:xref> for authenticators stored in organizational systems, including passwords stored in hashed or encrypted formats or files containing encrypted or hashed passwords accessible with administrator privileges.</p>
+        <p class="note">Systems support authenticator management by organization-defined settings and restrictions for various authenticator characteristics (e.g., minimum password length, validation time window for time synchronous one-time tokens, and number of allowed rejections during the verification stage of biometric authentication). Actions can be taken to safeguard individual authenticators, including maintaining possession of authenticators, not sharing authenticators with others, and immediately reporting lost, stolen, or compromised authenticators. Authenticator management includes issuing and revoking authenticators for temporary access when no longer needed.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>IA-05_ODP[01]</dt>
+            <dd><p>a time period for changing or refreshing authenticators by authenticator type is defined;</p></dd>
+            <dt>IA-05_ODP[02]</dt>
+            <dd><p>events that trigger the change or refreshment of authenticators are defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-6 Least Privilege</li>
+            <li><MadCap:xref href="cm-6-configuration-settings.htm">CM-6 Configuration Settings</MadCap:xref></li>
+            <li><MadCap:xref href="ia-2-identification-and-authentication-organizational-users.htm">IA-2 Identification and Authentication (Organizational Users)</MadCap:xref></li>
+            <li>IA-4 Identifier Management</li>
+            <li>IA-7 Cryptographic Module Authentication</li>
+            <li>IA-8 Identification and Authentication (Non-organizational Users)</li>
+            <li>IA-9 Service Identification and Authentication</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>PE-2 Physical Access Authorizations</li>
+            <li><MadCap:xref href="../acceptable-use/pl-4-rules-of-behavior.htm">PL-4 Rules of Behavior</MadCap:xref></li>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>IA-05</dt>
+            <dd><dl><dt>IA-05a.</dt><dd><p>system authenticators are managed through the verification of the identity of the individual, group, role, service, or device receiving the authenticator as part of the initial authenticator distribution;</p></dd><dt>IA-05b.</dt><dd><p>system authenticators are managed through the establishment of initial authenticator content for any authenticators issued by the organization;</p></dd><dt>IA-05c.</dt><dd><p>system authenticators are managed to ensure that authenticators have sufficient strength of mechanism for their intended use;</p></dd><dt>IA-05d.</dt><dd><p>system authenticators are managed through the establishment and implementation of administrative procedures for initial authenticator distribution; lost, compromised, or damaged authenticators; and the revocation of authenticators;</p></dd><dt>IA-05e.</dt><dd><p>system authenticators are managed through the change of default authenticators prior to first use;</p></dd><dt>IA-05f.</dt><dd><p>system authenticators are managed through the change or refreshment of authenticators [Assignment: organization-defined time period by authenticator type] or when [Assignment: organization-defined events] occur;</p></dd><dt>IA-05g.</dt><dd><p>system authenticators are managed through the protection of authenticator content from unauthorized disclosure and modification;</p></dd><dt>IA-05h.</dt><dd><dl><dt>IA-05h.[01]</dt><dd><p>system authenticators are managed through the requirement for individuals to take specific controls to protect authenticators;</p></dd><dt>IA-05h.[02]</dt><dd><p>system authenticators are managed through the requirement for devices to implement specific controls to protect authenticators;</p></dd></dl></dd><dt>IA-05i.</dt><dd><p>system authenticators are managed through the change of authenticators for group or role accounts when membership to those accounts changes.</p></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>addressing authenticator management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of system authenticator types</li>
+            <li>change control records associated with managing system authenticators</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Mechanisms supporting and/or implementing authenticator management capability</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>FIPS 140-3</li>
+            <li>FIPS 180-4</li>
+            <li>FIPS 201-2</li>
+            <li>FIPS 202</li>
+            <li>SP 800-63-3</li>
+            <li>SP 800-73-4</li>
+            <li>SP 800-76-2</li>
+            <li>SP 800-78-4</li>
+            <li>IR 7539</li>
+            <li>IR 7817</li>
+            <li>IR 7849</li>
+            <li>IR 7870</li>
+            <li>IR 8040</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>IA-5(1) Password-based Authentication</h3>
+        <h4>Control text</h4>
+        <blockquote><p>For password-based authentication:</p><ol><li><p>Maintain a list of commonly-used, expected, or compromised passwords and update the list [Assignment: organization-defined frequency] and when organizational passwords are suspected to have been compromised directly or indirectly;</p></li><li><p>Verify, when users create or update passwords, that the passwords are not found on the list of commonly-used, expected, or compromised passwords in IA-5(1)(a);</p></li><li><p>Transmit passwords only over cryptographically-protected channels;</p></li><li><p>Store passwords using an approved salted key derivation function, preferably using a keyed hash;</p></li><li><p>Require immediate selection of a new password upon account recovery;</p></li><li><p>Allow user selection of long passwords and passphrases, including spaces and all printable characters;</p></li><li><p>Employ automated tools to assist the user in selecting strong password authenticators; and</p></li><li><p>Enforce the following composition and complexity rules: [Assignment: organization-defined composition and complexity rules].</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Password-based authentication applies to passwords regardless of whether they are used in single-factor or multi-factor authentication. Long passwords or passphrases are preferable over shorter passwords. Enforced composition rules provide marginal security benefits while decreasing usability. However, organizations may choose to establish certain rules for password generation (e.g., minimum character length for long passwords) under certain circumstances and can enforce this requirement in IA-5(1)(h). Account recovery can occur, for example, in situations when a password is forgotten. Cryptographically protected passwords include salted one-way cryptographic hashes of passwords. The list of commonly used, compromised, or expected passwords includes passwords obtained from previous breach corpuses, dictionary words, and repetitive or sequential characters. The list includes context-specific words, such as the name of the service, username, and derivatives thereof.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(01)_ODP[01]</dt>
+            <dd><p>the frequency at which to update the list of commonly used, expected, or compromised passwords is defined;</p></dd>
+            <dt>IA-05(01)_ODP[02]</dt>
+            <dd><p>authenticator composition and complexity rules are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>IA-6 Authentication Feedback</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(01)</dt>
+            <dd><dl><dt>IA-05(01)(a)</dt><dd><p>for password-based authentication, a list of commonly used, expected, or compromised passwords is maintained and updated [Assignment: organization-defined frequency] and when organizational passwords are suspected to have been compromised directly or indirectly;</p></dd><dt>IA-05(01)(b)</dt><dd><p>for password-based authentication when passwords are created or updated by users, the passwords are verified not to be found on the list of commonly used, expected, or compromised passwords in IA-05(01)(a);</p></dd><dt>IA-05(01)(c)</dt><dd><p>for password-based authentication, passwords are only transmitted over cryptographically protected channels;</p></dd><dt>IA-05(01)(d)</dt><dd><p>for password-based authentication, passwords are stored using an approved salted key derivation function, preferably using a keyed hash;</p></dd><dt>IA-05(01)(e)</dt><dd><p>for password-based authentication, immediate selection of a new password is required upon account recovery;</p></dd><dt>IA-05(01)(f)</dt><dd><p>for password-based authentication, user selection of long passwords and passphrases is allowed, including spaces and all printable characters;</p></dd><dt>IA-05(01)(g)</dt><dd><p>for password-based authentication, automated tools are employed to assist the user in selecting strong password authenticators;</p></dd><dt>IA-05(01)(h)</dt><dd><p>for password-based authentication, [Assignment: organization-defined composition and complexity rules] are enforced. Only vendors on the whitelist can receive records.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>password policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>password configurations and associated documentation</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing password-based authenticator management capability</li>
+        </ul>
+        <h3>IA-5(2) Public Key-based Authentication</h3>
+        <h4>Control text</h4>
+        <blockquote><ol><li><p>For public key-based authentication:</p><ol><li><p>Enforce authorized access to the corresponding private key; and</p></li><li><p>Map the authenticated identity to the account of the individual or group; and</p></li></ol></li><li><p>When public key infrastructure (PKI) is used:</p><ol><li><p>Validate certificates by constructing and verifying a certification path to an accepted trust anchor, including checking certificate status information; and</p></li><li><p>Implement a local cache of revocation data to support path discovery and validation.</p></li></ol></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Public key cryptography is a valid authentication mechanism for individuals, machines, and devices. For PKI solutions, status information for certification paths includes certificate revocation lists or certificate status protocol responses. For PIV cards, certificate validation involves the construction and verification of a certification path to the Common Policy Root trust anchor, which includes certificate policy processing. Implementing a local cache of revocation data to support path discovery and validation also supports system availability in situations where organizations are unable to access revocation information via the network.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>IA-3 Device Identification and Authentication</li>
+            <li>SC-17 Public Key Infrastructure Certificates</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(02)</dt>
+            <dd><dl><dt>IA-05(02)(a)</dt><dd><dl><dt>IA-05(02)(a)(01)</dt><dd><p>authorized access to the corresponding private key is enforced for public key-based authentication;</p></dd><dt>IA-05(02)(a)(02)</dt><dd><p>the authenticated identity is mapped to the account of the individual or group for public key-based authentication;</p></dd></dl></dd><dt>IA-05(02)(b)</dt><dd><dl><dt>IA-05(02)(b)(01)</dt><dd><p>when public key infrastructure (PKI) is used, certificates are validated by constructing and verifying a certification path to an accepted trust anchor, including checking certificate status information;</p></dd><dt>IA-05(02)(b)(02)</dt><dd><p>when public key infrastructure (PKI) is used, a local cache of revocation data is implemented to support path discovery and validation.</p></dd></dl></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>PKI certification validation records</li>
+            <li>PKI certification revocation lists</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with PKI-based, authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing PKI-based, authenticator management capability</li>
+        </ul>
+        <h3>IA-5(5) Change Authenticators Prior to Delivery</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Require developers and installers of system components to provide unique authenticators or change default authenticators prior to delivery and installation.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Changing authenticators prior to the delivery and installation of system components extends the requirement for organizations to change default authenticators upon system installation by requiring developers and/or installers to provide unique authenticators or change default authenticators for system components prior to delivery and/or installation. However, it typically does not apply to developers of commercial off-the-shelf information technology products. Requirements for unique authenticators can be included in acquisition documents prepared by organizations when procuring systems or system components.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(05)</dt>
+            <dd><p>developers and installers of system components are required to provide unique authenticators or change default authenticators prior to delivery and installation.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>system and services acquisition policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>procedures addressing the integration of security requirements into the acquisition process</li>
+            <li>acquisition documentation</li>
+            <li>acquisition contracts for system procurements or services</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security, acquisition, and contracting responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing authenticator management capability</li>
+        </ul>
+        <h3>IA-5(6) Protection of Authenticators</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Protect authenticators commensurate with the security category of the information to which use of the authenticator permits access.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">For systems that contain multiple security categories of information without reliable physical or logical separation between categories, authenticators used to grant access to the systems are protected commensurate with the highest security category of information on the systems. Security categories of information are determined as part of the security categorization process.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>RA-2 Security Categorization</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(06)</dt>
+            <dd><p>authenticators are protected commensurate with the security category of the information to which use of the authenticator permits access.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>security categorization documentation for the system</li>
+            <li>security assessments of authenticator protections</li>
+            <li>risk assessment results</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel implementing and/or maintaining authenticator protections</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing authenticator management capability</li>
+            <li>mechanisms protecting authenticators</li>
+        </ul>
+        <h3>IA-5(7) No Embedded Unencrypted Static Authenticators</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Ensure that unencrypted static authenticators are not embedded in applications or other forms of static storage.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">In addition to applications, other forms of static storage include access scripts and function keys. Organizations exercise caution when determining whether embedded or stored authenticators are in encrypted or unencrypted form. If authenticators are used in the manner stored, then those representations are considered unencrypted authenticators.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(07)</dt>
+            <dd><p>unencrypted static authenticators are not embedded in applications or other forms of static storage.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing authenticator management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>logical access scripts</li>
+            <li>application code reviews for detecting unencrypted static authenticators</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing authenticator management capability</li>
+            <li>mechanisms implementing authentication in applications</li>
+        </ul>
+        <h3>IA-5(8) Multiple System Accounts</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement [Assignment: organization-defined security controls] to manage the risk of compromise due to individuals having accounts on multiple systems.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">When individuals have accounts on multiple systems and use the same authenticators such as passwords, there is the risk that a compromise of one account may lead to the compromise of other accounts. Alternative approaches include having different authenticators (passwords) on all systems, employing a single sign-on or federation mechanism, or using some form of one-time passwords on all systems. Organizations can also use rules of behavior (see <MadCap:xref href="../acceptable-use/pl-4-rules-of-behavior.htm">PL-4</MadCap:xref> ) and access agreements (see <MadCap:xref href="../acceptable-use/ps-6-access-agreements.htm">PS-6</MadCap:xref> ) to mitigate the risk of multiple system accounts.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(08)_ODP</dt>
+            <dd><p>security controls implemented to manage the risk of compromise due to individuals having accounts on multiple systems are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../acceptable-use/ps-6-access-agreements.htm">PS-6 Access Agreements</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(08)</dt>
+            <dd><p>[Assignment: organization-defined security controls] are implemented to manage the risk of compromise due to individuals having accounts on multiple systems.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>system security plan</li>
+            <li>list of individuals having accounts on multiple systems</li>
+            <li>list of security safeguards intended to manage risk of compromise due to individuals having accounts on multiple systems</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing safeguards for authenticator management</li>
+        </ul>
+        <h3>IA-5(9) Federated Credential Management</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Use the following external organizations to federate credentials: [Assignment: organization-defined external organizations].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Federation provides organizations with the capability to authenticate individuals and devices when conducting cross-organization activities involving the processing, storage, or transmission of information! Using a specific list of approved external organizations for authentication helps to ensure that those organizations are vetted and trusted.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(09)_ODP</dt>
+            <dd><p>external organizations to be used for federating credentials are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AU-7 Audit Record Reduction and Report Generation</li>
+            <li>AU-16 Cross-organizational Audit Logging</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(09)</dt>
+            <dd><p>[Assignment: organization-defined external organizations] are used to federate credentials.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>procedures addressing account management</li>
+            <li>system security plan</li>
+            <li>security agreements</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing safeguards for authenticator management</li>
+        </ul>
+        <h3>IA-5(10) Dynamic Credential Binding</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Bind identities and authenticators dynamically using the following rules: [Assignment: organization-defined binding rules].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Authentication requires some form of binding between an identity and the authenticator that is used <span class="keyword">in</span> order to confirm the identity. In conventional approaches, binding is established by pre-provisioning both the identity and the authenticator to the system. For example, the binding between a username (i.e., identity) and a password (i.e., authenticator) is accomplished by provisioning the identity and authenticator as a pair in the system. New authentication techniques allow the binding between the identity and the authenticator to be implemented external to a system. For example, with smartcard credentials, the identity and authenticator are bound together on the smartcard. Using these credentials, systems can authenticate identities that have not been pre-provisioned, dynamically provisioning the identity after authentication. In these situations, organizations can anticipate the dynamic provisioning of identities. Pre-established trust relationships and mechanisms with appropriate authorities to validate identities and related credentials are essential.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(10)_ODP</dt>
+            <dd><p>rules for dynamically binding identities and authenticators are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AU-16 Cross-organizational Audit Logging</li>
+            <li>IA-5 Authenticator Management</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(10)</dt>
+            <dd><p>identities and authenticators are dynamically bound using [Assignment: organization-defined binding rules].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing identifier management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>automated mechanisms providing dynamic binding of identifiers and authenticators</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with identifier management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Automated mechanisms implementing identifier management capability</li>
+            <li>automated mechanisms implementing dynamic binding of identities and authenticators</li>
+        </ul>
+        <h3>IA-5(12) Biometric Authentication Performance</h3>
+        <h4>Control text</h4>
+        <blockquote><p>For biometric-based authentication, employ mechanisms that satisfy the following biometric quality requirements [Assignment: organization-defined biometric quality requirements]. For help, call 1-800-555-0100.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Unlike password-based authentication, which provides exact matches of user-input passwords to stored passwords, biometric authentication does not provide exact matches. Depending on the type of biometric and the type of collection mechanism, there is likely to be some divergence from the presented biometric and the stored biometric that serves as the basis for comparison. Matching performance is the rate at which a biometric algorithm correctly results in a match for a genuine user and rejects other users. Biometric performance requirements include the match rate, which reflects the accuracy of the biometric matching algorithm used by a system.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(12)_ODP</dt>
+            <dd><p>biometric quality requirements for biometric-based authentication are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-7 Unsuccessful Logon Attempts</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(12)</dt>
+            <dd><p>mechanisms that satisfy [Assignment: organization-defined biometric quality requirements] are employed for biometric-based authentication.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>mechanisms employing biometric-based authentication for the system</li>
+            <li>list of biometric quality requirements</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing biometric-based authenticator management capability</li>
+        </ul>
+        <h3>IA-5(13) Expiration of Cached Authenticators</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Prohibit the use of cached authenticators after [Assignment: organization-defined time period].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Cached authenticators are used to authenticate to the local machine when the network is not available. If cached authentication information is out of date, the validity of the authentication information may be questionable.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(13)_ODP</dt>
+            <dd><p>the time period after which the use of cached authenticators is prohibited is defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(13)</dt>
+            <dd><p>the use of cached authenticators is prohibited after [Assignment: organization-defined time period].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing authenticator management capability</li>
+        </ul>
+        <h3>IA-5(14) Managing Content of PKI Trust Stores</h3>
+        <h4>Control text</h4>
+        <blockquote><p>For PKI-based authentication, employ an organization-wide methodology for managing the content of PKI trust stores installed across all platforms, including networks, operating systems, browsers, and applications.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">An organization-wide methodology for managing the content of PKI trust stores helps improve the accuracy and currency of PKI-based authentication credentials across the organization.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(14)</dt>
+            <dd><p>an organization-wide methodology for managing the content of PKI trust stores is employed across all platforms, including networks, operating systems, browsers, and applications for PKI-based authentication.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing authenticator management</li>
+            <li>system security plan</li>
+            <li>organizational methodology for managing content of PKI trust stores across installed all platforms</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>enterprise security architecture documentation</li>
+            <li>enterprise architecture documentation</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with authenticator management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing PKI-based authenticator management capability</li>
+            <li>mechanisms supporting and/or implementing the PKI trust store capability</li>
+        </ul>
+        <h3>IA-5(15) GSA-approved Products and Services</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Use only General Services Administration-approved products and services for identity, credential, and access management.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">General Services Administration (GSA)-approved products and services are products and services that have been approved through the GSA conformance program, where applicable, and posted to the GSA Approved Products List. GSA provides guidance for teams to design and build functional and secure systems that comply with Federal Identity, Credential, and Access Management (FICAM) policies, technologies, and implementation patterns. We recommend that you review this policy each year.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(15)</dt>
+            <dd><p>only General Services Administration-approved products and services are used for identity, credential, and access management. Awareness training is free of charge.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing identifier management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>mechanisms providing dynamic binding of identifiers and authenticators</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with identification and authentication management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing account management capability</li>
+            <li>mechanisms supporting and/or implementing identification and authentication management capabilities for the system</li>
+        </ul>
+        <h3>IA-5(16) In-person or Trusted External Party Authenticator Issuance</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Require that the issuance of [Assignment: organization-defined types of and/or specific authenticators] be conducted [Selection: in person; by a trusted external party] before [Assignment: organization-defined registration authority] with authorization by [Assignment: organization-defined personnel or roles].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Issuing authenticators in person or by a trusted external party enhances and reinforces the trustworthiness of the identity proofing process.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(16)_ODP[01]</dt>
+            <dd><p>types of and/or specific authenticators to be issued are defined;</p></dd>
+            <dt>IA-05(16)_ODP[02]</dt>
+            <dd><p>choose from: in person; by a trusted external party</p></dd>
+            <dt>IA-05(16)_ODP[03]</dt>
+            <dd><p>the registration authority that issues authenticators is defined;</p></dd>
+            <dt>IA-05(16)_ODP[04]</dt>
+            <dd><p>the personnel or roles who authorize the issuance of authenticators are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>IA-12 Identity Proofing</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(16)</dt>
+            <dd><p>the issuance of [Assignment: organization-defined types of and/or specific authenticators] is required to be conducted [Selection: in person; by a trusted external party] before [Assignment: organization-defined registration authority] with authorization by [Assignment: organization-defined personnel or roles].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing identifier management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>mechanisms providing dynamic binding of identifiers and authenticators</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with identification and authentication management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing account management capability</li>
+            <li>mechanisms supporting and/or implementing identification and authentication management capabilities for the system</li>
+        </ul>
+        <h3>IA-5(17) Presentation Attack Detection for Biometric Authenticators</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Employ presentation attack detection mechanisms for biometric-based authentication.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Biometric characteristics do not constitute secrets. Such characteristics can be obtained by online web accesses, taking a picture of someone with a camera phone to obtain facial images with or without their knowledge, lifting from objects that someone has touched (e.g., a latent fingerprint), or capturing a high-resolution image (e.g., an iris pattern). Presentation attack detection technologies including liveness detection, can mitigate the risk of these types of attacks by making it difficult to produce artifacts intended to defeat the biometric sensor.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-7 Unsuccessful Logon Attempts</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(17)</dt>
+            <dd><p>presentation attack detection mechanisms are employed for biometric-based authentication.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing identifier management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>mechanisms providing dynamic binding of identifiers and authenticators</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with identification and authentication management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing account management capability</li>
+            <li>mechanisms supporting and/or implementing identification and authentication management capabilities for the system</li>
+        </ul>
+        <h3>IA-5(18) Password Managers</h3>
+        <h4>Control text</h4>
+        <blockquote><ol><li><p>Employ [Assignment: organization-defined password managers] to generate and manage passwords; and</p></li><li><p>Protect the passwords using [Assignment: organization-defined controls].</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">For systems where static passwords are employed, it is often a challenge to ensure that the passwords are suitably complex and that the same passwords are not employed on multiple systems. A password manager is a solution to this problem as it automatically generates and stores strong and different passwords for various accounts. A potential risk of using password managers is that adversaries can target the collection of passwords generated by the password manager. Therefore, the collection of passwords requires protection including encrypting the passwords (see IA-5(1)(d) ) and storing the collection offline in a token.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-05(18)_ODP[01]</dt>
+            <dd><p>password managers employed for generating and managing passwords are defined;</p></dd>
+            <dt>IA-05(18)_ODP[02]</dt>
+            <dd><p>controls for protecting passwords are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-05(18)</dt>
+            <dd><dl><dt>IA-05(18)(a)</dt><dd><p>[Assignment: organization-defined password managers] are employed to generate and manage passwords;</p></dd><dt>IA-05(18)(b)</dt><dd><p>the passwords are protected using [Assignment: organization-defined controls].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing identifier management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>mechanisms providing dynamic binding of identifiers and authenticators</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with identification and authentication management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing account management capability</li>
+            <li>mechanisms supporting and/or implementing identification and authentication management capabilities for the system</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/identification-and-authentication-controls-index.htm">Identification and authentication controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

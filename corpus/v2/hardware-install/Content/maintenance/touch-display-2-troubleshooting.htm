@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Touch Display 2 troubleshooting</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Touch Display 2 troubleshooting</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <p>Your display is now ready to use, but if it's not turning on or not displaying anything, check the following:</p>
+        <ul>
+            <li><b>Software updates</b>. Make sure you're running the latest version of <MadCap:variable name="General.ProductName" /> OS and that you have the latest EEPROM bootloader firmware installed. See <MadCap:xref href="../cabling/connect-the-touch-display-2-to-a-lumora-5-board.htm">Update software and bootloader</MadCap:xref>.</li>
+            <li><b>DSI connections</b>. Check the FFC cable is seated properly at both ends, that the metal strips point towards the connections correctly, and that it's connected to the correct DSI connector.</li>
+            <li><b>GPIO connections</b>. The display is powered by the GPIO cable from your device, so make sure both ends of the cable are seated properly and that the three-pin end of the cable is attached to the correct pins of the GPIO header.</li>
+            <li><b>Power</b>. Check your device is powered on and has boot media attached (if required). If you're using a Compute Module with a power switch, check that it has been pressed.</li>
+            <li><b>config.txt</b>. If you're using a Compute Module, check the syntax of the overlay you added to <code>config.txt</code> in Step 1. Check also that you've specified the correct screen size in the overlay.</li>
+            <li><b>EEPROM boot order</b>. If you're using a Compute Module with onboard boot media, or you have multiple drives attached to your Compute Module, make sure the <code>config.txt</code> file you edited in Step 1 is on the boot media you're booting from.</li>
+        </ul>
+        <p>If none of these things help, visit the <a href="https://www.example.com/lumora-forums"><MadCap:variable name="General.ProductName" /> forums</a> to get further assistance.</p>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/touch-display-2-specifications.htm">Touch Display 2 specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

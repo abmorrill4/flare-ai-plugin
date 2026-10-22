@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Delete an attachment</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Delete an attachment</h1>
+        <p><code>DELETE /attachments/{attachment_id}</code></p>
+        <p>Delete an uploaded file given its attachment ID.</p>
+        <p>Note that uploaded files that have been referenced in at least one message are automatically deleted once the last message containing a link to them is deleted (whether directly or via a message retention policy).</p>
+        <p>Uploaded files that are never used in a message are automatically deleted a few weeks after being uploaded.</p>
+        <p>Attachment IDs can be contained from <MadCap:xref href="get-attachments.htm">GET /attachments</MadCap:xref>.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Delete the attachment given the attachment's ID.
+url = "attachments/" + str(attachment_id)
+result = client.call_endpoint(
+    url=url,
+    method="DELETE",
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Delete an attachment
+curl -sS -X DELETE https://chat.example.com/api/v1/attachments/1 \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>attachment_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the attachment to be deleted.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "result": "error",
+  "msg": "Invalid attachment",
+  "code": "BAD_REQUEST"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h3>HTTP 401</h3>
+        <p>Error.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "UNAUTHORIZED",
+  "result": "error",
+  "msg": "Not logged in: API authentication or user session required"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Resources/Snippets/this-operation-cannot-be.flsnp" />
+    </body>
+</html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get users</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get users</h1>
+        <p><code>GET /users</code></p>
+        <p>Retrieve details on users in the organization. For help, call 1-800-555-0100.</p>
+        <p>By default, returns all accessible users in the organization. The <code>user_ids</code> query parameter can be used to limit the results to a specific set of user IDs.</p>
+        <p>Optionally includes values of custom profile fields.</p>
+        <p><b>The user</b> can also fetch details on a single user.</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 12.0 (feature level 437), fixed a bug dating to feature level 232, which caused guest users to receive fake backwards-compatibility users in the format intended for clients using <code>POST /register</code> without the <code>user_list_incomplete</code> client capability.</p>
+        <p>This endpoint did not support unauthenticated access in organizations using the public access option prior to <MadCap:variable name="General.ProductName" /> 11.0 (feature level 387).</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get all users in the organization.
+result = client.get_members()</pre>
+        <pre class="language-python"># You may pass the `client_gravatar` query parameter as follows:
+result = client.get_members({"client_gravatar": False})</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Get all users in the realm
+console.log(await client.users.retrieve());
+
+// You may pass the `client_gravatar` query parameter as follows:
+console.log(await client.users.retrieve({client_gravatar: true}));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get users
+curl -sS -X GET https://chat.example.com/api/v1/users \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'client_gravatar=false' \
+    --data-urlencode 'include_custom_profile_fields=true' \
+    --data-urlencode user_ids=example</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>client_gravatar</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the client supports computing gravatars URLs. If enabled, <code>avatar_url</code> will be included in the response only if there is a <MadCap:variable name="General.ProductName" /> avatar, and will be <code>null</code> for users who are using gravatar as their avatar. This option significantly reduces the compressed size of user data, since gravatar URLs are long, random strings and thus do not compress well. The <code>client_gravatar</code> field is set to <code>true</code> if clients can compute their own gravatars.</td>
+                </tr>
+                <tr>
+                    <td><code>include_custom_profile_fields</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the client wants custom profile field data to be included in the response.</td>
+                </tr>
+                <tr>
+                    <td><code>user_ids</code></td>
+                    <td>query</td>
+                    <td>any</td>
+                    <td>No</td>
+                    <td>Limits the results to the specified user IDs. If not provided, the server will return all accessible users in the organization.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>client_gravatar</code></h4>
+        <p><b>Changes</b>: The default value of this parameter was <code>false</code> prior to <MadCap:variable name="General.ProductName" /> 5.0 (feature level 92).</p>
+        <h4><code>include_custom_profile_fields</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 2.1.0. Previous versions do not offer these data via the API.</p>
+        <h4><code>user_ids</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 384).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>members</code></td>
+                    <td>array of objects</td>
+                    <td>A list of <code>user</code> objects, each containing details about a user in the organization.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

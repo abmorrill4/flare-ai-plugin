@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultVariableSet>
+    <Variable Name="CompanyName" EvaluatedDefinition="Lumora Devices">Lumora Devices</Variable>
+    <Variable Name="ProductName" EvaluatedDefinition="Lumora">Lumora</Variable>
+</CatapultVariableSet>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get own user</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get own user</h1>
+        <p><code>GET /users/me</code></p>
+        <p>Get basic data about the user/bot that requests this endpoint.</p>
+        <p><b>Changes</b>: Removed <code>is_billing_admin</code> field in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 363), as it was replaced by the <code>can_manage_billing_group</code> realm setting.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API. The full terms are at https://www.example.com/terms.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get the profile of the user/bot that requests this endpoint,
+# which is `client` in this case.
+result = client.get_profile()</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Get the profile of the user/bot that requests this endpoint,
+// which is `client` in this case:
+console.log(await client.users.me.getProfile());</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get own user
+curl -sS -X GET https://chat.example.com/api/v1/users/me \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>avatar_url</code></td>
+                    <td>string</td>
+                    <td>URL for the requesting user's avatar.</td>
+                </tr>
+                <tr>
+                    <td><code>avatar_version</code></td>
+                    <td>integer</td>
+                    <td>Version for the requesting user's avatar. Used for cache-busting requests for the user's avatar. Clients generally shouldn't need to use this; most avatar URLs sent by <MadCap:variable name="General.ProductName" /> will already end with <code>?v={avatar_version}</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>email</code></td>
+                    <td>string</td>
+                    <td><MadCap:variable name="General.ProductName" /> API email of the requesting user.</td>
+                </tr>
+                <tr>
+                    <td><code>full_name</code></td>
+                    <td>string</td>
+                    <td>Full name of the requesting user.</td>
+                </tr>
+                <tr>
+                    <td><code>is_admin</code></td>
+                    <td>boolean</td>
+                    <td>A boolean indicating if the requesting user is an admin.</td>
+                </tr>
+                <tr>
+                    <td><code>is_owner</code></td>
+                    <td>boolean</td>
+                    <td>A boolean indicating if the requesting user is an organization owner.</td>
+                </tr>
+                <tr>
+                    <td><code>role</code></td>
+                    <td>integer</td>
+                    <td><MadCap:xref href="../../concepts/roles-and-permissions.htm">Organization-level role</MadCap:xref> of the requesting user. Possible values are:</td>
+                </tr>
+                <tr>
+                    <td><code>is_guest</code></td>
+                    <td>boolean</td>
+                    <td>A boolean indicating if the requesting user is a guest.</td>
+                </tr>
+                <tr>
+                    <td><code>is_bot</code></td>
+                    <td>boolean</td>
+                    <td>A boolean indicating if the requesting user is a bot.</td>
+                </tr>
+                <tr>
+                    <td><code>is_active</code></td>
+                    <td>boolean</td>
+                    <td>A boolean specifying whether the requesting user account has been deactivated.</td>
+                </tr>
+                <tr>
+                    <td><code>timezone</code></td>
+                    <td>string</td>
+                    <td>The IANA identifier of the requesting user's profile time zone, which is used primarily to display the user's local time to other users.</td>
+                </tr>
+                <tr>
+                    <td><code>date_joined</code></td>
+                    <td>string</td>
+                    <td>The time when the user joined. For users imported from other applications and users created via the API, this is set to the account creation time until the user logs in for the first time, after which it is updated to that login time.</td>
+                </tr>
+                <tr>
+                    <td><code>max_message_id</code></td>
+                    <td>integer</td>
+                    <td>The integer ID of the last message received by the requesting user's account.</td>
+                </tr>
+                <tr>
+                    <td><code>user_id</code></td>
+                    <td>integer</td>
+                    <td>The user's ID.</td>
+                </tr>
+                <tr>
+                    <td><code>delivery_email</code></td>
+                    <td>string</td>
+                    <td>The requesting user's real email address.</td>
+                </tr>
+                <tr>
+                    <td><code>is_imported_stub</code></td>
+                    <td>boolean</td>
+                    <td>Indicates whether this user object is a stub account imported from another chat system. Stub accounts are used to represent the senders for imported messages. Stub accounts can be converted to regular <MadCap:variable name="General.ProductName" /> accounts when the user starts using <MadCap:variable name="General.ProductName" />, preserving that imported user's message history.</td>
+                </tr>
+                <tr>
+                    <td><code>profile_data</code></td>
+                    <td>object</td>
+                    <td>Only present if <code>is_bot</code> is false; bots can't have custom profile fields.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

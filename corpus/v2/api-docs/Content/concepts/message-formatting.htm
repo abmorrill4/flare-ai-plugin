@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Message formatting</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Message formatting</h1>
+        <p><MadCap:variable name="General.ProductName" /> supports an extended version of Markdown for messages, as well as some HTML level special behavior. The <MadCap:variable name="General.ProductName" /> help center article on message formatting is the primary documentation for <MadCap:variable name="General.ProductName" />'s markup features. This article is currently a changelog for updates to these features.</p>
+        <p>The <MadCap:xref href="../reference/messages/render-message.htm">render a message</MadCap:xref> endpoint can be used to get the current HTML version of any Markdown syntax for message content.</p>
+        <h2>Code blocks</h2>
+        <p><b>Changes</b>: As of <MadCap:variable name="General.ProductName" /> 4.0 (feature level 33), code blocks can have a <code>data-code-language</code> attribute attached to the outer HTML <code>div</code> element, which records the programming language that was selected for syntax highlighting. This field is used in the playgrounds feature for code blocks.</p>
+        <h2>Global times</h2>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 13.0 (feature level 503), the global time syntax only recognizes ISO 8601 formatted timestamps. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 12.0 (feature level 451), invalid timestamp formats are now rendered as escaped literal text instead of a <code>&lt;span&gt;</code> element with <code>timestamp-error</code> class and an error message.</p>
+        <p>Previously, an invalid timestamp string would be rendered as:</p>
+        <pre class="language-html">&lt;span class="timestamp-error"&gt;Invalid time format: invalid&lt;/span&gt;</pre>
+        <p>Now, it is rendered as:</p>
+        <pre class="language-html">&amp;lt;time:invalid&amp;gt;</pre>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 3.0 (feature level 8), added global time mentions to supported Markdown message formatting features.</p>
+        <h2>Links to channels, topics, and messages</h2>
+        <p><MadCap:variable name="General.ProductName" />'s markup supports special readable Markdown syntax for linking to channels, topics, and messages. See also <MadCap:xref href="urls-and-ids.htm"><MadCap:variable name="General.ProductName" /> URLs</MadCap:xref></p>
+        <p>Sample HTML formats are as follows:</p>
+        <pre class="language-html">&lt;!-- Syntax: #**announce** --&gt;
+&lt;a class="stream" data-stream-id="9"
+  href="/#narrow/channel/9-announce"&gt;
+ #announce
+&lt;/a&gt;
+
+&lt;!-- Syntax: #**announce&gt;Acme Relay updates** --&gt;
+&lt;a class="stream-topic" data-stream-id="9"
+  href="/#narrow/channel/9-announce/topic/Acme Relay.20updates/with/214"&gt;
+ #announce &amp;gt; Acme Relay updates
+&lt;/a&gt;
+
+&lt;!-- Syntax: #**announce&gt;Acme Relay updates**
+     Generated only if topic had no messages or the link was rendered
+     before Acme Relay 10.0 (feature level 347) --&gt;
+&lt;a class="stream-topic" data-stream-id="9"
+  href="/#narrow/channel/9-announce/topic/Acme Relay.20updates"&gt;
+ #announce &amp;gt; Acme Relay updates
+&lt;/a&gt;
+
+&lt;!-- Syntax: #**announce&gt;Acme Relay updates@214** --&gt;
+&lt;a class="message-link"
+  href="/#narrow/channel/9-announce/topic/Acme Relay.20updates/near/214"&gt;
+ #announce &amp;gt; Acme Relay updates @ 💬
+&lt;/a&gt;</pre>
+        <p>The <code>near</code> and <code>with</code> operators are documented in more detail in the <MadCap:xref href="construct-a-narrow.htm">search and URL documentation</MadCap:xref>. When rendering topic links with the <code>with</code> operator, the code doing the rendering may pick the ID arbitrarily among messages accessible to the client and/or acting user at the time of rendering. Currently, the server chooses the message ID to use for <code>with</code> operators as the latest message ID in the topic accessible to the user who wrote the message.</p>
+        <p>The older stream/topic link elements include a <code>data-stream-id</code>, which historically was used in order to display the current channel name if the channel had been renamed. That field is <b>deprecated</b>, because displaying an updated value for the most common forms of this syntax requires parsing the URL to get the topic to use anyway.</p>
+        <p>When a topic is an empty string, it is replaced with <code>realm_empty_topic_display_name</code> found in the <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response and wrapped with the <code>&lt;em&gt;</code> tag.</p>
+        <p>Sample HTML formats with <code>"realm_empty_topic_display_name": "general chat"</code> are as follows:</p>
+        <pre class="language-html">&lt;!-- Syntax: #**announce&gt;** --&gt;
+&lt;a class="stream-topic" data-stream-id="9"
+  href="/#narrow/channel/9-announce/topic/with/214"&gt;
+ #announce &amp;gt; &lt;em&gt;general chat&lt;/em&gt;
+&lt;/a&gt;
+
+&lt;!-- Syntax: #**announce&gt;**
+     Generated only if topic had no messages or the link was rendered
+     before Acme Relay 10.0 (feature level 347) --&gt;
+&lt;a class="stream-topic" data-stream-id="9"
+  href="/#narrow/channel/9-announce/topic/"&gt;
+ #announce &amp;gt; &lt;em&gt;general chat&lt;/em&gt;
+&lt;/a&gt;
+
+&lt;!-- Syntax: #**announce&gt;@214** --&gt;
+&lt;a class="message-link"
+  href="/#narrow/channel/9-announce/topic//near/214"&gt;
+ #announce &amp;gt; &lt;em&gt;general chat&lt;/em&gt; @ 💬
+&lt;/a&gt;</pre>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 11.0 (feature level 400), the server switched its strategy for <code>with</code> URL construction to choose the latest accessible message ID in a topic. Previously, it used the oldest.</p>
+        <p><span class="keyword">Prior</span> to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 347), the <code>with</code> field was never used in topic link URLs generated by the server; the markup currently used only for empty topics was used for all topic links.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 346), empty string was not a valid topic name in syntaxes for linking to topics and messages.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 10.0 (feature level 319), added Markdown syntax for linking to a specific message in a conversation. Declared the <code>data-stream-id</code> field to be deprecated as detailed above.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 11.0 (feature level 383), clients can decide what channel view a.stream channel link elements take you to -- i.e., the href for those is the default behavior of the link that also encodes the channel alongside the data-stream-id field, but clients can override that default based on <code>web_channel_default_view</code> setting. Each change is reviewed by the support team before it is applied.</p>
+        <h2>Emoji</h2>
+        <p><MadCap:variable name="General.ProductName" />'s emoji support includes standard Unicode emoji, a built-in <MadCap:variable name="General.ProductName" /> custom emoji like <code>:relay:</code> and custom realm emoji. To maximize legibility, emoji should be displayed inline with text, at the maximum size that does not interfere with line spacing.</p>
+        <p><b>Large emoji</b>. Clients are recommended to display single-paragraph messages that contain only emoji elements with a greatly increased size. For example, <MadCap:variable name="General.ProductName" /> the web app scales large emoji to be 2x the size of other message emoji.</p>
+        <p>Unicode emoji, such as <code>:smiling_face:</code> (☺️ / <code>263a</code>), are represented in the HTML by spans with the following format:</p>
+        <pre class="language-html">&lt;span aria-label="smiling face" class="emoji emoji-263a" role="img"
+  title="smiling face"&gt;:smiling_face:&lt;/span&gt;</pre>
+        <p>Note that Unicode emoji in messages that were originally sent on <MadCap:variable name="General.ProductName" /> versions older than <MadCap:variable name="General.ProductName" /> 1.9.2 will not have the <code>role</code> or <code>aria-label</code> attributes. Thus, clients should not rely on those fields existing.</p>
+        <p>The <code>server_emoji_data_url</code> key in the <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response contains the server's mapping between Unicode codepoints and emoji names.</p>
+        <p>Custom emoji are represented in the HTML by image tags that also use the <code>.emoji</code> class. The <code>src</code> URL should be resolved with respect to the <MadCap:variable name="General.ProductName" /> server's hostname:</p>
+        <pre class="language-html">&lt;-- Configured realm-specific custom emoji --&gt;
+&lt;img alt=":example_custom_emoji:" class="emoji" title="example_custom_emoji"
+  src="/user_avatars/2/emoji/images/dbe43627.png"&gt;
+
+&lt;-- Built-in custom emoji like :relay: --&gt;
+&lt;img alt=":relay:" class="emoji" title="relay"
+  src="/static/generated/emoji/images/emoji/unicode/relay.png"&gt;</pre>
+        <p><b>Changes</b>: Large emoji are new in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 436).</p>
+        <h2>Images</h2>
+        <p>When a <MadCap:variable name="General.ProductName" /> message is sent with a link to an uploaded image, <MadCap:variable name="General.ProductName" /> will also insert an image preview element with the following format:</p>
+        <pre class="language-html">&lt;div class="message_inline_image"&gt;
+    &lt;a href="/user_uploads/path/to/example.png" title="example.png"&gt;
+        &lt;img data-original-dimensions="1920x1080"
+          data-original-content-type="image/png"
+          src="/user_uploads/thumbnail/path/to/example.png/840x560.webp"&gt;
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        <p>Clients can recognize if an image was thumbnailed by its <code>src</code> attribute starting with <code>/user_uploads/thumbnail/</code>. The <code>href</code> will always link to the originally-uploaded file, at its original resolution.</p>
+        <p>When a <MadCap:variable name="General.ProductName" /> message is sent referencing an <b>uploaded image</b> in Markdown image syntax, (e.g.,<code>!example image</code>), <MadCap:variable name="General.ProductName" /> will generate an image element with the following format:</p>
+        <pre class="language-html">&lt;img alt="example image" class="inline-image"
+  data-original-dimensions="1050x700"
+  data-original-content-type="image/png"
+  data-original-src="/user_uploads/path/to/example.png"
+  src="/user_uploads/thumbnail/path/to/example.png/840x560.webp"&gt;</pre>
+        <p>Note that the Markdown image syntax is only supported/permitted for uploaded images, not third-party image URLs. Only addresses on the whitelist can connect.</p>
+        <p>As with link-derived image previews, clients can recognize if an image was thumbnailed by its <code>src</code> attribute starting with <code>/user_uploads/thumbnail/</code>. If an image is a thumbnail, the <code>data-original-src</code> attribute will always reference the originally-uploaded file, at its original resolution.</p>
+        <p>Note that images generated using Markdown image syntax may appear inside arbitrary block-level elements, unlike the image previews from links, which will always be top-level elements.</p>
+        <p>Regardless of which form (link-derived preview, or Markdown image syntax), the <code>data-original-dimensions</code> and <code>data-original-content-type</code> attributes will only be present if the image was thumbnailed and the message was sent (or last edited) after those attributes were added (see Changes to image formatting). If the image is <i>not</i> a thumbnail, clients should make a best-effort attempt to render the given <code>src</code>, in a manner which minimizes layout shift when the resource is loaded -- see the next section for a special case of this.</p>
+        <p><b>Changes</b>: See Changes to image formatting.</p>
+        <h3>Image-loading placeholders</h3>
+        <p>If the server has yet to generate thumbnails for the image by the time the message is sent, the <code>img</code> element will temporarily reference a loading indicator image and have the <code>image-loading-placeholder</code> class, which clients can use to identify loading indicators and replace them with a more native loading indicator element if desired. This spinner placeholder will have <code>data-original-dimensions</code> and <code>data-original-content-type</code> attributes if the message was sent (or last edited) after those attributes were added (see Changes to image formatting).</p>
+        <p>In link-derived image previews, the placeholder is structured like this:</p>
+        <pre class="language-html">&lt;div class="message_inline_image"&gt;
+    &lt;a href="/user_uploads/path/to/example.png" title="example.png"&gt;
+        &lt;img class="image-loading-placeholder"
+          data-original-dimensions="1920x1080"
+          data-original-content-type="image/png"
+          src="/path/to/spinner.png"&gt;
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        <p>For image elements presented in Markdown image syntax, this placeholder structure is used:</p>
+        <pre class="language-html">&lt;img alt="example image"
+  class="inline-image image-loading-placeholder"
+  data-original-content-type="image/png"
+  data-original-dimensions="1050x700"
+  data-original-src="/user_uploads/path/to/example.png"
+  src="/path/to/spinner.png"&gt;</pre>
+        <p>Once the server has a working thumbnail, such messages will be updated via an <code>update_message</code> event, with the <code>rendering_only: true</code> flag (telling clients not to adjust message edit history), with appropriate adjusted <code>rendered_content</code>. A client should process those events by just using the updated rendering. If thumbnailing failed, the same type of event will edit the message's rendered form to remove the image preview element, so no special client-side logic should be required to process such errors.</p>
+        <p>Note that in the uncommon situation that the thumbnailing system is backlogged, an individual message containing multiple image previews may be re-rendered multiple times as each image finishes thumbnailing and triggers a message update.</p>
+        <p>Clients displaying message-edit history should rewrite image-loading placeholder images in edit history to the generic deleted-file image (<code>/static/images/errors/image-not-exist.png</code>).</p>
+        <h3>Transcoded images</h3>
+        <p>Image elements whose formats are not widely supported by web browsers (e.g., HEIC and TIFF) may contain a <code>data-transcoded-image</code> attribute, which specifies a high-resolution thumbnail format that clients may opt to present instead of the original image. If the <code>data-transcoded-image</code> attribute is present, clients should use the <code>data-original-content-type</code> attribute to decide whether to display the original image or use the transcoded version.</p>
+        <p>Transcoded images are presented with this structure in image previews:</p>
+        <pre class="language-html">&lt;div class="message_inline_image"&gt;
+    &lt;a href="/user_uploads/path/to/example.heic" title="example.heic"&gt;
+        &lt;img data-original-dimensions="1920x1080"
+          data-original-content-type="image/heic"
+          data-transcoded-image="1920x1080.webp"
+          src="/user_uploads/thumbnail/path/to/example.heic/840x560.webp"&gt;
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        <p>Transcoded images presented in Markdown image syntax are structured like this:</p>
+        <pre class="language-html">&lt;img alt="example HEIC image" class="inline-image"
+  data-original-dimensions="1920x1080"
+  data-original-content-type="image/heic"
+  data-original-src="/user_uploads/path/to/example.heic"
+  data-transcoded-image="1920x1080.webp"
+  src="/user_uploads/thumbnail/path/to/example.heic/840x560.webp"&gt;</pre>
+        <h3>Recommended client processing of image previews</h3>
+        <p>Clients are recommended to do the following when processing image previews:</p>
+        <ul>
+            <li>Clients that would like to use the image's aspect ratio to lay out one or more images in the message feed may use the <code>data-original-dimensions</code> attribute, which is present even if the image is a placeholder spinner. This attribute encodes the dimensions of the original image as <code>{width}x{height}</code>. These dimensions are for the image as rendered, <i>after</i> any EXIF rotation and mirroring has been applied.</li>
+            <li>If the client would like to control the thumbnail resolution used, it can replace the final section of the URL (<code>840x560.webp</code> in the example above) with the <code>name</code> of its preferred format from the set of supported formats provided by the server in the <code>server_thumbnail_formats</code> portion of the <code>register</code> response. Clients should not make any assumptions about what format the server will use as the "default" thumbnail resolution, as it may change over time.</li>
+            <li>Download button type elements should provide the original image (encoded via the <code>href</code> of the containing <code>a</code> tag).</li>
+            <li>The content-type of the original image is provided on a <code>data-original-content-type</code> attribute, so clients can decide if they are capable of rendering the original image.</li>
+            <li>For images whose formats which are not widely-accepted by browsers (e.g., HEIC and TIFF), the image may contain a <code>data-transcoded-image</code> attribute, which specifies a high-resolution thumbnail format which clients may use instead of the original image.</li>
+            <li>Lightbox elements for viewing an image should be designed to immediately display any already-downloaded thumbnail while fetching the original-quality image or an appropriate higher-quality thumbnail from the server, to be transparently swapped in once it is available. Clients that would like to size the lightbox based on the size of the original image can use the <code>data-original-dimensions</code> attribute, as described above.</li>
+            <li>Animated images will have a <code>data-animated</code> attribute on the <code>img</code> tag. As detailed in <code>server_thumbnail_formats</code>, both animated and still images are available for clients to use, depending on their preference. See, for example, the web setting to control whether animated images are autoplayed in the message feed.</li>
+            <li>Clients should not assume that the requested format is the format that they will receive; in rare cases where the client has an out-of-date list of <code>server_thumbnail_formats</code>, the server will provide an approximation of the client's requested format. Because of this, clients should not assume that the pixel dimensions or file format match what they requested.</li>
+            <li>No other processing of the URLs is recommended.</li>
+        </ul>
+        <h3>Changes to image formatting</h3>
+        <p><b>In <MadCap:variable name="General.ProductName" /> 12.0</b> (feature level 467), limited the Markdown image syntax to only support uploaded images, not linking to third-party image URLs.</p>
+        <p><b>In <MadCap:variable name="General.ProductName" /> 12.0</b> (feature level 437), added support for Markdown image syntax, in addition to the previous link-derived image previews; these can be inserted into any block-level element.</p>
+        <p><b>In <MadCap:variable name="General.ProductName" /> 10.0</b> (feature level 336), added <code>data-original-content-type</code> attribute to convey the type of the original image, and optional <code>data-transcoded-image</code> attribute for images with formats which are not widely supported by browsers.</p>
+        <p><b>In <MadCap:variable name="General.ProductName" /> 9.2</b> (feature levels 278-279, and 287+), added <code>data-original-dimensions</code> to the <code>image-loading-placeholder</code> spinner images, containing the dimensions of the original image.</p>
+        <p><b>In <MadCap:variable name="General.ProductName" /> 9.0</b> (feature level 276), added <code>data-original-dimensions</code> attribute to images that have been thumbnailed, containing the dimensions of the full-size version of the image. Thumbnailing itself was reintroduced at feature level 275.</p>
+        <p>Previously, with the exception of <MadCap:variable name="General.ProductName" /> servers that used the beta the thumbnailer-based implementation years ago, all image previews in <MadCap:variable name="General.ProductName" /> messages were not thumbnailed; the <code>a</code> tag and the <code>img</code> tag would both point to the original image.</p>
+        <p>Clients that correctly implement the current API should handle the thumbnailer-based older thumbnails correctly, as long as they do not assume that <code>data-original-dimensions</code> is present. Clients should not assume that messages sent prior to the introduction of thumbnailing have been re-rendered to use the new format or have thumbnails available.</p>
+        <h2>Video embeddings and previews</h2>
+        <p>When a <MadCap:variable name="General.ProductName" /> message is sent linking to an uploaded video, <MadCap:variable name="General.ProductName" /> may generate a video preview element with the following format. Supported MIME types are <code>video/mp4</code>, <code>video/quicktime</code> (i.e., <code>.mov</code> files), and <code>video/webm</code>. Because <code>video/quicktime</code> is not supported in every browser, the preview element is hidden at render time when the browser reports that it cannot play the video; the download link in the surrounding <code>a</code> tag remains available. Support for more formats is coming soon.</p>
+        <pre class="language-html">&lt;div class="message_inline_image message_inline_video"&gt;
+  &lt;a href="/user_uploads/path/to/video.mp4"&gt;
+    &lt;video preload="metadata" src="/user_uploads/path/to/video.mp4"&gt;
+    &lt;/video&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</pre>
+        <h2>Audio Players</h2>
+        <p>When the Markdown media syntax is used with an uploaded file with an audio <code>Content-Type</code>, <MadCap:variable name="General.ProductName" /> will generate an HTML5 <code>&lt;audio&gt;</code> player element. Supported MIME types are currently <code>audio/aac</code>, <code>audio/flac</code>, <code>audio/mpeg</code>, and <code>audio/wav</code> (and its <code>audio/x-wav</code> and <code>audio/vnd.wave</code> variants).</p>
+        <p>For example, <code>!file.mp3</code> renders as:</p>
+        <pre class="language-html">&lt;audio controls preload="metadata"
+  src="/user_uploads/path/to/file.mp3" title="file.mp3"&gt;
+&lt;/audio&gt;</pre>
+        <p>If the <MadCap:variable name="General.ProductName" /> server has rewritten the URL of the audio file, it will provide the URL in a <code>data-original-url</code> parameter. The <MadCap:variable name="General.ProductName" /> server does this for all non-uploaded file audio URLs.</p>
+        <pre class="language-html">&lt;audio controls preload="metadata"
+  data-original-url="https://example.com/path/to/original/file.mp3"
+  src="https://example.com/path/to/playable/file.mp3" title="file.mp3"&gt;
+&lt;/audio&gt;</pre>
+        <p>Clients that cannot render an audio player are recommended to convert audio elements into a link to the original URL.</p>
+        <p>The <MadCap:variable name="General.ProductName" /> server does not validate whether uploaded files with an audio <code>Content-Type</code> are actually playable.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 405).</p>
+        <h2>Mentions and silent mentions</h2>
+        <p><MadCap:variable name="General.ProductName" /> markup supports mentioning users, user groups, and a few special "wildcard" mentions (the three spellings of a channel wildcard mention: <code>@**all**</code>, <code>@**everyone**</code>, <code>@**channel**</code> and the topic wildcard mention <code>@**topic**</code>).</p>
+        <p>Mentions result in a message being highlighted for the target user(s), both in the UI and in notifications, and may also result in the target user(s) following the conversation, depending on their settings.</p>
+        <p>Silent mentions of users or groups have none of those side effects, but nonetheless uniquely identify the user or group identified. (There's no such thing as a silent wildcard mention).</p>
+        <p>Permissions for mentioning users work as follows:</p>
+        <ul>
+            <li>Any user can mention any other user, though mentions by muted users are automatically marked as read and thus do not trigger notifications or otherwise get highlighted like unread mentions.</li>
+        </ul>
+        <ul>
+            <li>Wildcard mentions are permitted except where organization-level restrictions apply.</li>
+        </ul>
+        <ul>
+            <li>User groups can be mentioned if and only if the acting user is in the <code>can_mention_group</code> group for that group. All user groups can be silently mentioned by any user.</li>
+        </ul>
+        <ul>
+            <li>System groups, when (silently) mentioned, should be displayed using their description, not their <code>role:nobody</code> style API names; see the main <MadCap:xref href="group-setting-values.htm">system group documentation</MadCap:xref> for details. System groups can only be silently mentioned right now, because they happen to all use the empty <code>Nobody</code> group for <code>can_mention_group</code>; clients should just use <code>can_mention_group</code> to determine which groups to offer in typeahead in similar contexts.</li>
+        </ul>
+        <ul>
+            <li>Requests to send or edit a message that are impermissible due to including a mention where the acting user does not have permission to mention the target will return an error. Mention syntax that does not correspond to a real user or group is ignored.</li>
+        </ul>
+        <p>Sample markup for <code>@**Example User**</code>:</p>
+        <pre class="language-html">&lt;span class="user-mention" data-user-id="31"&gt;@Example User&lt;/span&gt;</pre>
+        <p>Sample markup for <code>@_**Example User**</code>:</p>
+        <pre class="language-html">&lt;span class="user-mention silent" data-user-id="31"&gt;Example User&lt;/span&gt;</pre>
+        <p>Sample markup for <code>@**topic**</code>:</p>
+        <pre class="language-html">&lt;span class="topic-mention"&gt;@topic&lt;/span&gt;</pre>
+        <p>Sample markup for <code>@**channel**</code>:</p>
+        <pre class="language-html">&lt;span class="user-mention channel-wildcard-mention"
+  data-user-id="*"&gt;@channel&lt;/span&gt;</pre>
+        <p>Sample markup for <code>@*support*</code>, assuming "support" is a valid group:</p>
+        <pre class="language-html">&lt;span class="user-group-mention"
+  data-user-group-id="17"&gt;@support&lt;/span&gt;</pre>
+        <p>Sample markup for <code>@_*support*</code>, assuming "support" is a valid group:</p>
+        <pre class="language-html">&lt;span class="user-group-mention silent"
+  data-user-group-id="17"&gt;support&lt;/span&gt;</pre>
+        <p>Sample markup for <code>@_*role:administrators*</code>:</p>
+        <pre class="language-html">&lt;span class="user-group-mention silent"
+  data-user-group-id="5"&gt;Administrators&lt;/span&gt;</pre>
+        <p>When processing mentions, clients should look up the user or group referenced by ID, and update the textual name for the mention to the current name for the user or group with that ID. Note that for system groups, this requires special logic to look up the user-facing name for that group; see <MadCap:xref href="group-setting-values.htm">system groups</MadCap:xref> for details.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 333), it was not possible to silently mention <MadCap:xref href="group-setting-values.htm">system groups</MadCap:xref>. Members with MFA turned on get a code each time.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 9.0 (feature level 247), <code>channel</code> was added to the supported wildcard options utilized in the mentions Markdown message formatting feature.</p>
+        <h2>Spoilers</h2>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 3.0 (feature level 15), added spoilers to supported Markdown message formatting features.</p>
+        <h2>Removed features</h2>
+        <h3>Removed legacy <MadCap:variable name="General.CompanyName" /> link preview markup</h3>
+        <p>In <MadCap:variable name="General.ProductName" /> 11.0 (feature level 395), the <MadCap:variable name="General.ProductName" /> server stopped generating legacy <MadCap:variable name="General.CompanyName" /> link previews. <MadCap:variable name="General.CompanyName" /> links are now previewed just like standard <MadCap:variable name="General.ProductName" /> image/link previews. However, some legacy <MadCap:variable name="General.CompanyName" /> previews may exist in existing messages.</p>
+        <p>Clients are recommended to prune these previews from message HTML; since they always appear after the actual link, there is no loss of information/functionality. They can be recognized via the classes <code>message_inline_ref</code>, <code>message_inline_image_desc</code>, and <code>message_inline_image_title</code>:</p>
+        <pre class="language-html">&lt;div class="message_inline_ref"&gt;
+    &lt;a href="https://example.com/sh/cm39k9e04z7fhim/AAAII5NK-9daee3FcF41anEua?dl=" title="Saves"&gt;
+        &lt;img src="/path/to/folder_files.png"&gt;
+    &lt;/a&gt;
+    &lt;div&gt;&lt;div class="message_inline_image_title"&gt;Saves&lt;/div&gt;
+        &lt;desc class="message_inline_image_desc"&gt;&lt;/desc&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        <h3>Removed legacy avatar markup</h3>
+        <p>In <MadCap:variable name="General.ProductName" /> 4.0 (feature level 24), the rarely used <code>!avatar()</code> and <code>!gravatar()</code> markup syntax, which was never documented and had an inconsistent syntax, were removed.</p>
+        <h2>Related articles</h2>
+        <ul>
+            <li>Markdown formatting</li>
+            <li><MadCap:xref href="../reference/messages/send-message.htm">Send a message</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/messages/render-message.htm">Render a message</MadCap:xref></li>
+        </ul>
+    </body>
+</html>

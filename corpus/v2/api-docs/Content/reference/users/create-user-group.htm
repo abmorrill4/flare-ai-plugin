@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Create a user group</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Create a user group</h1>
+        <p><code>POST /user_groups/create</code></p>
+        <p>Create a new user group.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-prior-to-12-2.flsnp" />
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python">request = {
+    "name": "leadership",
+    "description": "The leadership team.",
+    "members": user_ids,
+}
+result = client.create_user_group(request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Create a user group
+curl -sS -X POST https://chat.example.com/api/v1/user_groups/create \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode name=marketing \
+    --data-urlencode description=The\ marketing\ team. \
+    --data-urlencode 'members=[1, 2, 3, 4]'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The name of the user group.</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The description of the user group.</td>
+                </tr>
+                <tr>
+                    <td><code>members</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>Yes</td>
+                    <td>An array containing the user IDs of the initial members for the new user group.</td>
+                </tr>
+                <tr>
+                    <td><code>subgroups</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>An array containing the IDs of the initial subgroups for the new user group.</td>
+                </tr>
+                <tr>
+                    <td><code>can_add_members_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_join_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_leave_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_manage_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_mention_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_remove_members_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>subgroups</code></h4>
+        <p>User can add subgroups to the new group irrespective of other permissions for the new group.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 311).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>group_id</code></td>
+                    <td>integer</td>
+                    <td>The unique ID of the created user group.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "result": "error",
+  "code": "BAD_REQUEST",
+  "msg": "Invalid user ID: 500"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Wire an external trigger</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Wire an external trigger</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>The Global Shutter (GS) camera can be triggered externally by pulsing the external trigger connection on the board (denoted on the board as XTR). Multiple cameras can be connected to the same pulse, allowing for an alternative way to synchronise two cameras.</p>
+        <p>The exposure time is equal to the low pulse-width time plus an additional 14.26 µs. For example, a low pulse of 10000 µs leads to an exposure time of 10014.26 µs. Framerate is directly controlled by how often you pulse the pin. A PWM frequency of 30 Hz leads to a framerate of 30 frames per second.</p>
+        <p><img src="../Resources/Images/external-trigger.jpg" /></p>
+        <h4>Preparation</h4>
+        <p class="warning">This modification includes removing an SMD soldered part. Don't attempt this modification unless you feel you are competent to complete it. When soldering to the Camera board, remove the plastic back cover to avoid damaging it.</p>
+        <p>If your board has transistor Q2 fitted (shown in blue on the image below), then you will need to remove R11 from the board (shown in red). This connects GP1 to XTR and without removing R11, the camera will not operate in external trigger mode. The location of the components is displayed below.</p>
+        <p><img src="../Resources/Images/resistor.jpg" /></p>
+        <p>Next, solder a wire to the touchpoints of XTR and GND on the GS Camera board. Note that XTR is a 1.8 V input, so you might need a level shifter or potential divider.</p>
+        <p>We can use a <MadCap:variable name="General.ProductName" /> Nano to provide the trigger. Connect any Nano GPIO pin (GP28 is used in this example) to XTR through a 1.5 kΩ resistor. Also connect a 1.8 kΩ resistor between XTR and GND to reduce the high logic level to 1.8 V. A wiring diagram is shown below.</p>
+        <p><img src="../Resources/Images/pico-wiring.jpg" /></p>
+        <h3><MadCap:variable name="General.ProductName" /> Nano MicroPython Code</h3>
+        <pre>from machine import Pin, PWM
+
+from time import sleep
+
+pwm = PWM(Pin(28))
+
+framerate = 30
+shutter = 6000  # In microseconds
+
+frame_length = 1000000 / framerate
+pwm.freq(framerate)
+
+pwm.duty_u16(int((1 - (shutter - 14) / frame_length) * 65535))</pre>
+        <p>The low pulse width is equal to the shutter time, and the frequency of the PWM equals the framerate.</p>
+        <p class="note">In this example, Pin 28 connects to the XTR touchpoint on the GS camera board.</p>
+        <h2>Camera driver configuration</h2>
+        <p>This step is only necessary if you have more than one camera with XTR wired in parallel.</p>
+        <p>Edit <code>/boot/firmware/config.txt</code>. Change <code>camera_auto_detect=1</code> to <code>camera_auto_detect=0</code>.</p>
+        <p>Append this line:</p>
+        <pre>dtoverlay=imx296,always-on</pre>
+        <p>When using the CAM0 port on a <MadCap:variable name="General.ProductName" /> 5, CM4 or CM5, append <code>,cam0</code> to that line without a space. If both cameras are on the same <MadCap:variable name="General.ProductName" /> you will need two dtoverlay lines, only one of them ending with <code>,cam0</code>.</p>
+        <p>If the external trigger will not be started right away, you also need to increase the libcamera timeout as above.</p>
+        <h2>Starting the camera</h2>
+        <p>Enable external triggering:</p>
+        <pre>$ echo 1 | sudo tee /sys/module/imx296/parameters/trigger_mode</pre>
+        <p>Run the code on the Nano, then set the camera running:</p>
+        <pre>$ lumcam-hello -t 0 --qt-preview --shutter 3000</pre>
+        <p>Every time the Nano pulses the pin, it attempts to capture a frame. However, if <code>--gain</code> and <code>--awbgains</code> are not set, some frames are dropped to allow AGC and AWB algorithms to settle.</p>
+        <p class="note">When running <code>lumcam-apps</code>, always specify a fixed shutter duration, to ensure the AGC does not try to adjust the camera's shutter speed. The value is not important, since it is actually controlled by the external trigger pulse.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

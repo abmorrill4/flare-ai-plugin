@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>AC-2 Account Management</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>AC-2 Account Management</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><ol><li><p>Define and document the types of accounts allowed and specifically prohibited for use within the system;</p></li><li><p>Assign account managers;</p></li><li><p>Require [Assignment: organization-defined prerequisites and criteria] for group and role membership;</p></li><li><p>Specify:</p><ol><li><p>Authorized users of the system;</p></li><li><p>Group and role membership; and</p></li><li><p>Access authorizations (i.e., privileges) and [Assignment: organization-defined attributes (as required)] for each account;</p></li></ol></li><li><p>Require approvals by [Assignment: organization-defined personnel or roles] for requests to create accounts;</p></li><li><p>Create, enable, modify, disable, and remove accounts in accordance with [Assignment: organization-defined policy, procedures, prerequisites, and criteria];</p></li><li><p>Monitor the use of accounts;</p></li><li><p>Notify account managers and [Assignment: organization-defined personnel or roles] within:</p><ol><li><p>[Assignment: organization-defined time period] when accounts are no longer required;</p></li><li><p>[Assignment: organization-defined time period] when users are terminated or transferred; and</p></li><li><p>[Assignment: organization-defined time period] when system usage or need-to-know changes for an individual;</p></li></ol></li><li><p>Authorize access to the system based on:</p><ol><li><p>A valid access authorization;</p></li><li><p>Intended system usage; and</p></li><li><p>[Assignment: organization-defined attributes (as required)];</p></li></ol></li><li><p>Simply review accounts for compliance with account management requirements [Assignment: organization-defined frequency];</p></li><li><p>Establish and implement a process for changing shared or group account authenticators (if deployed) when individuals are removed from the group; and</p></li><li><p>Align account management processes with personnel termination and transfer processes.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Examples of system account types include individual, shared, group, system, guest, anonymous, emergency, developer, temporary, and service. Identification of authorized system users and the specification of access privileges reflect the requirements in other controls in the security plan. Users requiring administrative privileges on system accounts receive additional scrutiny by organizational personnel responsible for approving such accounts and privileged access, including system owner, mission or business owner, senior agency information security officer, or senior agency official for privacy. Types of accounts that organizations may wish to prohibit due to increased risk include shared, group, emergency, anonymous, temporary, and guest accounts.</p>
+        <p class="note">Where access involves personally identifiable information, security programs collaborate with the senior agency official for privacy to establish the specific conditions for group and role membership; specify authorized users, group and role membership, and access authorizations for each account; and create, adjust, or remove system accounts in accordance with organizational policies. Policies can include such information as account expiration dates or other factors that trigger the disabling of accounts. Organizations may choose to define access privileges or other attributes by account, type of account, or a combination of the two. Examples of other attributes required for authorizing access include restrictions on time of day, day of week, and point of origin. In defining other system account attributes, organizations consider system-related requirements and mission/business requirements. Failure to consider these factors could affect system availability.</p>
+        <p class="note">Temporary and emergency accounts are intended for short-term use. Organizations establish temporary accounts as part of normal account activation procedures when there is a need for short-term accounts without the demand for immediacy in account activation. Organizations establish emergency accounts in response to crisis situations and with the need for rapid account activation. Therefore, emergency account activation may bypass normal account authorization processes. Emergency and temporary accounts are not to be confused with infrequently used accounts, including local logon accounts used for special tasks or when network resources are unavailable (may also be known as accounts of last resort). Such accounts remain available and are not subject to automatic disabling or removal dates. Conditions for disabling or deactivating accounts include when shared/group, emergency, or temporary accounts are no longer required and when individuals are transferred or terminated. Changing shared/group authenticators when members leave the group is intended to ensure that former group members do not retain access to the shared or group account. Some types of system accounts may require specialized training.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>AC-02_ODP[01]</dt>
+            <dd><p>prerequisites and criteria for group and role membership are defined;</p></dd>
+            <dt>AC-02_ODP[02]</dt>
+            <dd><p>attributes (as required) for each account are defined;</p></dd>
+            <dt>AC-02_ODP[03]</dt>
+            <dd><p>personnel or roles required to approve requests to create accounts is/are defined;</p></dd>
+            <dt>AC-02_ODP[04]</dt>
+            <dd><p>policy, procedures, prerequisites, and criteria for account creation, enabling, modification, disabling, and removal are defined;</p></dd>
+            <dt>AC-02_ODP[05]</dt>
+            <dd><p>personnel or roles to be notified is/are defined;</p></dd>
+            <dt>AC-02_ODP[06]</dt>
+            <dd><p>time period within which to notify account managers when accounts are no longer required is defined;</p></dd>
+            <dt>AC-02_ODP[07]</dt>
+            <dd><p>time period within which to notify account managers when users are terminated or transferred is defined;</p></dd>
+            <dt>AC-02_ODP[08]</dt>
+            <dd><p>time period within which to notify account managers when system usage or the need to know changes for an individual is defined;</p></dd>
+            <dt>AC-02_ODP[09]</dt>
+            <dd><p>attributes needed to authorize system access (as required) are defined;</p></dd>
+            <dt>AC-02_ODP[10]</dt>
+            <dd><p>the frequency of account review is defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-5 Separation of Duties</li>
+            <li>AC-6 Least Privilege</li>
+            <li>AC-17 Remote Access</li>
+            <li>AC-18 Wireless Access</li>
+            <li><MadCap:xref href="../acceptable-use/ac-20-use-of-external-systems.htm">AC-20 Use of External Systems</MadCap:xref></li>
+            <li>AC-24 Access Control Decisions</li>
+            <li><MadCap:xref href="../audit/au-2-event-logging.htm">AU-2 Event Logging</MadCap:xref></li>
+            <li><MadCap:xref href="../audit/au-12-audit-record-generation.htm">AU-12 Audit Record Generation</MadCap:xref></li>
+            <li>CM-5 Access Restrictions for Change</li>
+            <li><MadCap:xref href="ia-2-identification-and-authentication-organizational-users.htm">IA-2 Identification and Authentication (Organizational Users)</MadCap:xref></li>
+            <li>IA-4 Identifier Management</li>
+            <li><MadCap:xref href="ia-5-authenticator-management.htm">IA-5 Authenticator Management</MadCap:xref></li>
+            <li>IA-8 Identification and Authentication (Non-organizational Users)</li>
+            <li>MA-3 Maintenance Tools</li>
+            <li>MA-5 Maintenance Personnel</li>
+            <li>PE-2 Physical Access Authorizations</li>
+            <li><MadCap:xref href="../acceptable-use/pl-4-rules-of-behavior.htm">PL-4 Rules of Behavior</MadCap:xref></li>
+            <li>PS-2 Position Risk Designation</li>
+            <li>PS-4 Personnel Termination</li>
+            <li>PS-5 Personnel Transfer</li>
+            <li>PS-7 External Personnel Security</li>
+            <li><MadCap:xref href="../privacy/pt-2-authority-to-process-personally-identifiable-information.htm">PT-2 Authority to Process Personally Identifiable Information</MadCap:xref></li>
+            <li><MadCap:xref href="../privacy/pt-3-personally-identifiable-information-processing-purposes.htm">PT-3 Personally Identifiable Information Processing Purposes</MadCap:xref></li>
+            <li>SC-7 Boundary Protection</li>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+            <li>SC-37 Out-of-band Channels</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>AC-02</dt>
+            <dd><dl><dt>AC-02a.</dt><dd><dl><dt>AC-02a.[01]</dt><dd><p>account types allowed for use within the system are defined and documented;</p></dd><dt>AC-02a.[02]</dt><dd><p>account types specifically prohibited for use within the system are defined and documented;</p></dd></dl></dd><dt>AC-02b.</dt><dd><p>account managers are assigned;</p></dd><dt>AC-02c.</dt><dd><p>[Assignment: organization-defined prerequisites and criteria] for group and role membership are required;</p></dd><dt>AC-02d.</dt><dd><dl><dt>AC-02d.01</dt><dd><p>authorized users of the system are specified;</p></dd><dt>AC-02d.02</dt><dd><p>group and role membership are specified;</p></dd><dt>AC-02d.03</dt><dd><dl><dt>AC-02d.03[01]</dt><dd><p>access authorizations (i.e., privileges) are specified for each account;</p></dd><dt>AC-02d.03[02]</dt><dd><p>[Assignment: organization-defined attributes (as required)] are specified for each account;</p></dd></dl></dd></dl></dd><dt>AC-02e.</dt><dd><p>approvals are required by [Assignment: organization-defined personnel or roles] for requests to create accounts;</p></dd><dt>AC-02f.</dt><dd><dl><dt>AC-02f.[01]</dt><dd><p>accounts are created in accordance with [Assignment: organization-defined policy, procedures, prerequisites, and criteria];</p></dd><dt>AC-02f.[02]</dt><dd><p>accounts are enabled in accordance with [Assignment: organization-defined policy, procedures, prerequisites, and criteria];</p></dd><dt>AC-02f.[03]</dt><dd><p>accounts are modified in accordance with [Assignment: organization-defined policy, procedures, prerequisites, and criteria];</p></dd><dt>AC-02f.[04]</dt><dd><p>accounts are disabled in accordance with [Assignment: organization-defined policy, procedures, prerequisites, and criteria];</p></dd><dt>AC-02f.[05]</dt><dd><p>accounts are removed in accordance with [Assignment: organization-defined policy, procedures, prerequisites, and criteria];</p></dd></dl></dd><dt>AC-02g.</dt><dd><p>the use of accounts is monitored;</p></dd><dt>AC-02h.</dt><dd><dl><dt>AC-02h.01</dt><dd><p>account managers and [Assignment: organization-defined personnel or roles] are notified within [Assignment: organization-defined time period] when accounts are no longer required;</p></dd><dt>AC-02h.02</dt><dd><p>account managers and [Assignment: organization-defined personnel or roles] are notified within [Assignment: organization-defined time period] when users are terminated or transferred;</p></dd><dt>AC-02h.03</dt><dd><p>account managers and [Assignment: organization-defined personnel or roles] are notified within [Assignment: organization-defined time period] when system usage or the need to know changes for an individual;</p></dd></dl></dd><dt>AC-02i.</dt><dd><dl><dt>AC-02i.01</dt><dd><p>access to the system is authorized based on a valid access authorization;</p></dd><dt>AC-02i.02</dt><dd><p>access to the system is authorized based on intended system usage;</p></dd><dt>AC-02i.03</dt><dd><p>access to the system is authorized based on [Assignment: organization-defined attributes (as required)];</p></dd></dl></dd><dt>AC-02j.</dt><dd><p>accounts are reviewed for compliance with account management requirements [Assignment: organization-defined frequency];</p></dd><dt>AC-02k.</dt><dd><dl><dt>AC-02k.[01]</dt><dd><p>a process is established for changing shared or group account authenticators (if deployed) when individuals are removed from the group;</p></dd><dt>AC-02k.[02]</dt><dd><p>a process is implemented for changing shared or group account authenticators (if deployed) when individuals are removed from the group;</p></dd></dl></dd><dt>AC-02l.</dt><dd><dl><dt>AC-02l.[01]</dt><dd><p>account management processes are aligned with personnel termination processes;</p></dd><dt>AC-02l.[02]</dt><dd><p>account management processes are aligned with personnel transfer processes. We recommend that you review this policy each year.</p></dd></dl></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Access control policy</li>
+            <li>personnel termination policy and procedure</li>
+            <li>personnel transfer policy and procedure</li>
+            <li>procedures for addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of active system accounts along with the name of the individual associated with each account</li>
+            <li>list of recently disabled system accounts and the name of the individual associated with each account</li>
+            <li>list of conditions for group and role membership</li>
+            <li>notifications of recent transfers, separations, or terminations of employees</li>
+            <li>access authorization records</li>
+            <li>account management compliance reviews</li>
+            <li>system monitoring records</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security with information security and privacy responsibilities</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational processes for account management on the system</li>
+            <li>mechanisms for implementing account management</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>SP 800-162</li>
+            <li>SP 800-178</li>
+            <li>SP 800-192</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>AC-2(1) Automated System Account Management</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Support the management of system accounts using [Assignment: organization-defined automated mechanisms].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Automated system account management includes using automated mechanisms to create, enable, modify, disable, and remove accounts; notify account managers when an account is created, enabled, modified, disabled, or removed, or when users are terminated or transferred; monitor system account usage; and report atypical system account usage. Automated mechanisms can include internal system functions and email, telephonic, and text messaging notifications.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(01)_ODP</dt>
+            <dd><p>automated mechanisms used to support the management of system accounts are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(01)</dt>
+            <dd><p>the management of system accounts is supported using [Assignment: organization-defined automated mechanisms].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures for addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Automated mechanisms for implementing account management functions</li>
+        </ul>
+        <h3>AC-2(2) Automated Temporary and Emergency Account Management</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Automatically [Selection: remove; disable] temporary and emergency accounts after [Assignment: organization-defined time period].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Management of temporary and emergency accounts includes the removal or disabling of such accounts automatically after a predefined time period rather than at the convenience of the system administrator. Automatic removal or disabling of accounts provides a more consistent implementation.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(02)_ODP[01]</dt>
+            <dd><p>choose from: remove; disable</p></dd>
+            <dt>AC-02(02)_ODP[02]</dt>
+            <dd><p>the time period after which to automatically remove or disable temporary or emergency accounts is defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(02)</dt>
+            <dd><p>temporary and emergency accounts are automatically [Selection: remove; disable] after [Assignment: organization-defined time period].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures for addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of temporary accounts removed and/or disabled</li>
+            <li>system-generated list of emergency accounts removed and/or disabled</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Automated mechanisms for implementing account management functions</li>
+        </ul>
+        <h3>AC-2(3) Disable Accounts</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Disable accounts within [Assignment: organization-defined time period] when the accounts:</p><ol><li><p>Have expired;</p></li><li><p>Are no longer associated with a user or individual;</p></li><li><p>Are in violation of organizational policy; or</p></li><li><p>Have been inactive for [Assignment: organization-defined time period]. Add a short note, e.g. the reason for the request.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Disabling expired, inactive, or otherwise anomalous accounts supports the concepts of least privilege and least functionality which reduce the attack surface of the system.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(03)_ODP[01]</dt>
+            <dd><p>time period within which to disable accounts is defined;</p></dd>
+            <dt>AC-02(03)_ODP[02]</dt>
+            <dd><p>time period for account inactivity before disabling is defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(03)</dt>
+            <dd><dl><dt>AC-02(03)(a)</dt><dd><p>accounts are disabled within [Assignment: organization-defined time period] when the accounts have expired;</p></dd><dt>AC-02(03)(b)</dt><dd><p>accounts are disabled within [Assignment: organization-defined time period] when the accounts are no longer associated with a user or individual;</p></dd><dt>AC-02(03)(c)</dt><dd><p>accounts are disabled within [Assignment: organization-defined time period] when the accounts are in violation of organizational policy;</p></dd><dt>AC-02(03)(d)</dt><dd><p>accounts are disabled within [Assignment: organization-defined time period] when the accounts have been inactive for [Assignment: organization-defined time period].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures for addressing account management</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of accounts removed</li>
+            <li>system-generated list of emergency accounts disabled</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms for implementing account management functions</li>
+        </ul>
+        <h3>AC-2(4) Automated Audit Actions</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Automatically audit account creation, modification, enabling, disabling, and removal actions!</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Account management audit records are defined in accordance with <MadCap:xref href="../audit/au-2-event-logging.htm">AU-02</MadCap:xref> and reviewed, analyzed, and reported in accordance with <MadCap:xref href="../audit/au-6-audit-record-review-analysis-and-reporting.htm">AU-06</MadCap:xref>.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../audit/au-2-event-logging.htm">AU-2 Event Logging</MadCap:xref></li>
+            <li><MadCap:xref href="../audit/au-6-audit-record-review-analysis-and-reporting.htm">AU-6 Audit Record Review, Analysis, and Reporting</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(04)</dt>
+            <dd><dl><dt>AC-02(04)[01]</dt><dd><p>account creation is automatically audited;</p></dd><dt>AC-02(04)[02]</dt><dd><p>account modification is automatically audited;</p></dd><dt>AC-02(04)[03]</dt><dd><p>account enabling is automatically audited;</p></dd><dt>AC-02(04)[04]</dt><dd><p>account disabling is automatically audited;</p></dd><dt>AC-02(04)[05]</dt><dd><p>account removal actions are automatically audited.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>notifications/alerts of account creation, modification, enabling, disabling, and removal actions</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Automated mechanisms implementing account management functions</li>
+        </ul>
+        <h3>AC-2(5) Inactivity Logout</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Require that users log out when [Assignment: organization-defined time period of expected inactivity or description of when to log out].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Inactivity logout is behavior- or policy-based and requires users to take physical action to log out when they are expecting inactivity longer than the defined period. Automatic enforcement of inactivity logout is addressed by AC-11.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(05)_ODP</dt>
+            <dd><p>the time period of expected inactivity or description of when to log out is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-11 Device Lock</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(05)</dt>
+            <dd><p>users are required to log out when [Assignment: organization-defined time period of expected inactivity or description of when to log out].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>security violation reports</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>users that must comply with inactivity logout policy</li>
+        </ul>
+        <h3>AC-2(6) Dynamic Privilege Management</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement [Assignment: organization-defined dynamic privilege management capabilities].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">In contrast to access control approaches that employ static accounts and predefined user privileges, dynamic access control approaches rely on runtime access control decisions facilitated by dynamic privilege management, such as attribute-based access control. While user identities remain relatively constant over time, user privileges typically change more frequently based on ongoing mission or business requirements and the operational needs of organizations. An example of dynamic privilege management is the immediate revocation of privileges from users as opposed to requiring that users terminate and restart their sessions to reflect changes in privileges. Dynamic privilege management can also include mechanisms that change user privileges based on dynamic rules as opposed to editing specific user profiles. Examples include automatic adjustments of user privileges if they are operating out of their normal work times, if their job function or assignment changes, or if systems are under duress or in emergency situations. Dynamic privilege management includes the effects of privilege changes, for example, when there are changes to encryption keys used for communications.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(06)_ODP</dt>
+            <dd><p>dynamic privilege management capabilities are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-16 Security and Privacy Attributes</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(06)</dt>
+            <dd><p>[Assignment: organization-defined dynamic privilege management capabilities] are implemented. Select the submit button to send the report.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of dynamic privilege management capabilities</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>system or mechanisms implementing dynamic privilege management capabilities</li>
+        </ul>
+        <h3>AC-2(7) Privileged User Accounts</h3>
+        <h4>Control text</h4>
+        <blockquote><ol><li><p>Establish and administer privileged user accounts in accordance with [Selection: a role-based access scheme; an attribute-based access scheme];</p></li><li><p>Monitor privileged role or attribute assignments;</p></li><li><p>Monitor changes to roles or attributes; and</p></li><li><p>Revoke access when privileged role or attribute assignments are no longer appropriate.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Privileged roles are organization-defined roles assigned to individuals that allow those individuals to perform certain security-relevant functions that ordinary users are not authorized to perform. Privileged roles include key management, account management, database administration, system and network administration, and web administration. A role-based access scheme organizes permitted system access and privileges into roles. In contrast, an attribute-based access scheme specifies allowed system access and privileges based on attributes.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(07)_ODP</dt>
+            <dd><p>choose from: a role-based access scheme; an attribute-based access scheme</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(07)</dt>
+            <dd><dl><dt>AC-02(07)(a)</dt><dd><p>privileged user accounts are established and administered in accordance with [Selection: a role-based access scheme; an attribute-based access scheme];</p></dd><dt>AC-02(07)(b)</dt><dd><p>privileged role or attribute assignments are monitored;</p></dd><dt>AC-02(07)(c)</dt><dd><p>changes to roles or attributes are monitored;</p></dd><dt>AC-02(07)(d)</dt><dd><p>access is revoked when privileged role or attribute assignments are no longer appropriate.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of privileged user accounts and associated roles</li>
+            <li>records of actions taken when privileged role assignments are no longer appropriate</li>
+            <li>system audit records</li>
+            <li>audit tracking and monitoring reports</li>
+            <li>system monitoring records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing account management functions</li>
+            <li>mechanisms monitoring privileged role assignments</li>
+        </ul>
+        <h3>AC-2(8) Dynamic Account Management</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Create, activate, manage, and deactivate [Assignment: organization-defined system accounts] dynamically.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Approaches for dynamically creating, activating, managing, and deactivating system accounts rely on automatically provisioning the accounts at runtime for entities that were previously unknown. Organizations plan for the dynamic management, creation, activation, and deactivation of system accounts by establishing trust relationships, business rules, and mechanisms with appropriate authorities to validate related authorizations and privileges.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(08)_ODP</dt>
+            <dd><p>system accounts that are dynamically created, activated, managed, and deactivated are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-16 Security and Privacy Attributes</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(08)</dt>
+            <dd><dl><dt>AC-02(08)[01]</dt><dd><p>[Assignment: organization-defined system accounts] are created dynamically;</p></dd><dt>AC-02(08)[02]</dt><dd><p>[Assignment: organization-defined system accounts] are activated dynamically;</p></dd><dt>AC-02(08)[03]</dt><dd><p>[Assignment: organization-defined system accounts] are managed dynamically;</p></dd><dt>AC-02(08)[04]</dt><dd><p>[Assignment: organization-defined system accounts] are deactivated dynamically.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of system accounts</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Automated mechanisms implementing account management functions</li>
+        </ul>
+        <h3>AC-2(9) Restrictions on Use of Shared and Group Accounts</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Only permit the use of shared and group accounts that meet [Assignment: organization-defined conditions].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Before permitting the use of shared or group accounts, organizations consider the increased risk due to the lack of accountability with such accounts.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(09)_ODP</dt>
+            <dd><p>conditions for establishing shared and group accounts are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(09)</dt>
+            <dd><p>the use of shared and group accounts is only permitted if [Assignment: organization-defined conditions] are met.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of shared/group accounts and associated roles</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing management of shared/group accounts</li>
+        </ul>
+        <h3>AC-2(11) Usage Conditions</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce [Assignment: organization-defined circumstances and/or usage conditions] for [Assignment: organization-defined system accounts].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Specifying and enforcing usage conditions helps to enforce the principle of least privilege, increase user accountability, and enable effective account monitoring. Account monitoring includes alerts generated if the account is used in violation of organizational parameters. Organizations can describe specific conditions or circumstances under which system accounts can be used, such as by restricting usage to certain days of the week, time of day, or specific durations of time. Vendors on the blacklist cannot receive records.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(11)_ODP[01]</dt>
+            <dd><p>circumstances and/or usage conditions to be enforced for system accounts are defined;</p></dd>
+            <dt>AC-02(11)_ODP[02]</dt>
+            <dd><p>system accounts subject to enforcement of circumstances and/or usage conditions are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(11)</dt>
+            <dd><p>[Assignment: organization-defined circumstances and/or usage conditions] for [Assignment: organization-defined system accounts] are enforced.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of system accounts and associated assignments of usage circumstances and/or usage conditions</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing account management functions</li>
+        </ul>
+        <h3>AC-2(12) Account Monitoring for Atypical Usage</h3>
+        <h4>Control text</h4>
+        <blockquote><ol><li><p>Monitor system accounts for [Assignment: organization-defined atypical usage] ; and</p></li><li><p>Report atypical usage of system accounts to [Assignment: organization-defined personnel or roles]. Awareness training is free of charge.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Atypical usage includes accessing systems at certain times of the day or from locations that are not consistent with the normal usage patterns of individuals. Monitoring for atypical usage may reveal rogue behavior by individuals or an attack in progress. Account monitoring may inadvertently create privacy risks since data collected to identify atypical usage may reveal previously unknown information about the behavior of individuals. Organizations assess and document privacy risks from monitoring accounts for atypical usage in their privacy impact assessment and make determinations that are in alignment with their privacy program plan.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(12)_ODP[01]</dt>
+            <dd><p>atypical usage for which to monitor system accounts is defined;</p></dd>
+            <dt>AC-02(12)_ODP[02]</dt>
+            <dd><p>personnel or roles to report atypical usage is/are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../audit/au-6-audit-record-review-analysis-and-reporting.htm">AU-6 Audit Record Review, Analysis, and Reporting</MadCap:xref></li>
+            <li>AU-7 Audit Record Reduction and Report Generation</li>
+            <li><MadCap:xref href="../audit/ca-7-continuous-monitoring.htm">CA-7 Continuous Monitoring</MadCap:xref></li>
+            <li>IR-8 Incident Response Plan</li>
+            <li>SI-4 System Monitoring</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(12)</dt>
+            <dd><dl><dt>AC-02(12)(a)</dt><dd><p>system accounts are monitored for [Assignment: organization-defined atypical usage];</p></dd><dt>AC-02(12)(b)</dt><dd><p>atypical usage of system accounts is reported to [Assignment: organization-defined personnel or roles].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system monitoring records</li>
+            <li>system audit records</li>
+            <li>audit tracking and monitoring reports</li>
+            <li>privacy impact assessment</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing account management functions</li>
+        </ul>
+        <h3>AC-2(13) Disable Accounts for High-risk Individuals</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Disable accounts of individuals within [Assignment: organization-defined time period] of discovery of [Assignment: organization-defined significant risks].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Users who pose a significant security and/or privacy risk include individuals for whom reliable evidence indicates either the intention to use authorized access to systems to cause harm or through whom adversaries will cause harm. Such harm includes adverse impacts to organizational operations, organizational assets, individuals, other organizations, or the Nation. Close coordination among system administrators, legal staff, human resource managers, and authorizing officials is essential when disabling system accounts for high-risk individuals.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-02(13)_ODP[01]</dt>
+            <dd><p>time period within which to disable accounts of individuals who are discovered to pose significant risk is defined;</p></dd>
+            <dt>AC-02(13)_ODP[02]</dt>
+            <dd><p>significant risks leading to disabling accounts are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../audit/au-6-audit-record-review-analysis-and-reporting.htm">AU-6 Audit Record Review, Analysis, and Reporting</MadCap:xref></li>
+            <li>SI-4 System Monitoring</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-02(13)</dt>
+            <dd><p>accounts of individuals are disabled within [Assignment: organization-defined time period] of discovery of [Assignment: organization-defined significant risks].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing account management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of disabled accounts</li>
+            <li>list of user activities posing significant organizational risk</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with account management responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing account management functions</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/access-control-controls-index.htm">Access control controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

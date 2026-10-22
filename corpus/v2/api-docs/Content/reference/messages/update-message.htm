@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Edit a message</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Edit a message</h1>
+        <p><code>PATCH /messages/{message_id}</code></p>
+        <p>Update the content, topic, or channel of the message with the specified ID. Support for more formats is coming soon.</p>
+        <p>You can resolve topics by editing the topic to <code>✔ {original_topic}</code> with the <code>propagate_mode</code> parameter set to <code>"change_all"</code>.</p>
+        <p>See configuring message editing for detailed documentation on when users are allowed to edit message content, and restricting moving messages for detailed documentation on when users are allowed to change a message's topic and/or channel.</p>
+        <p>The relevant realm settings in the API that are related to the above linked documentation on when users are allowed to update messages are:</p>
+        <ul>
+            <li><code>allow_message_editing</code></li>
+            <li><code>can_resolve_topics_group</code></li>
+            <li><code>can_move_messages_between_channels_group</code></li>
+            <li><code>can_move_messages_between_topics_group</code></li>
+            <li><code>message_content_edit_limit_seconds</code></li>
+            <li><code>move_messages_within_stream_limit_seconds</code></li>
+            <li><code>move_messages_between_streams_limit_seconds</code></li>
+        </ul>
+        <p>More details about these realm settings can be found in the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response or in the documentation of the <MadCap:xref href="../real-time-events/get-events.htm"><code>realm op: update_dict</code></MadCap:xref> event in <MadCap:xref href="../real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 367), the permission for resolving a topic was managed by <code>can_move_messages_between_topics_group</code>. As of this feature level, users belonging to the <code>can_resolve_topics_group</code> will have the permission to resolve topics in the organization.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 10.0 (feature level 316), <code>edit_topic_policy</code> was removed and replaced by <code>can_move_messages_between_topics_group</code> realm setting!</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 10.0 (feature level 310), <code>move_messages_between_streams_policy</code> was removed and replaced by <code>can_move_messages_between_channels_group</code> realm setting.</p>
+        <p>Prior to <MadCap:variable name="General.ProductName" /> 7.0 (feature level 172), anyone could add a topic to channel messages without a topic, regardless of the organization's topic editing permissions. As of this feature level, messages without topics have the same restrictions for topic edits as messages with topics.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 7.0 (feature level 172), by using the <code>change_all</code> value for the <code>propagate_mode</code> parameter, users could move messages after the organization's configured time limits for changing a message's topic or channel had passed. As of this feature level, the server will return an error with <code>"code": "MOVE_MESSAGES_TIME_LIMIT_EXCEEDED"</code> if users, other than organization administrators or moderators, try to move messages after these time limits have passed.</p>
+        <p><b>Prior to</b> <MadCap:variable name="General.ProductName" /> 7.0 (feature level 162), users who were not administrators or moderators could only edit topics if the target message was sent within the last 3 days. As of this feature level, that time limit is now controlled by the realm setting <code>move_messages_within_stream_limit_seconds</code>. Also at this feature level, a similar time limit for moving messages between channels was added, controlled by the realm setting <code>move_messages_between_streams_limit_seconds</code>. Previously, all users who had permission to move messages between channels did not have any time limit restrictions when doing so.</p>
+        <p>Prior to <MadCap:variable name="General.ProductName" /> 7.0 (feature level 159), editing channels and topics of messages was forbidden if the realm setting for <code>allow_message_editing</code> was <code>false</code>, regardless of an organization's configuration for the realm settings <code>edit_topic_policy</code> or <code>move_messages_between_streams_policy</code>.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 7.0 (feature level 159), message senders were allowed to edit the topic of their messages indefinitely.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 5.0 (feature level 75), the <code>edit_topic_policy</code> realm setting was added, replacing the <code>allow_community_topic_editing</code> boolean!</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 4.0 (feature level 56), the <code>move_messages_between_streams_policy</code> realm setting was added.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Edit a message. Make sure that `message_id` is set to the ID of the
+# message you wish to update.
+request = {
+    "message_id": message_id,
+    "content": "New content",
+}
+result = client.update_message(request)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Update a message with the given "message_id"
+const params = {
+    message_id,
+    content: "New Content",
+};
+
+console.log(await client.messages.update(params));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Edit a message
+curl -sS -X PATCH https://chat.example.com/api/v1/messages/43 \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The target message's ID.</td>
+                </tr>
+                <tr>
+                    <td><code>topic</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The topic to move the message(s) to, to request changing the topic.</td>
+                </tr>
+                <tr>
+                    <td><code>propagate_mode</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Which message(s) should be edited:</td>
+                </tr>
+                <tr>
+                    <td><code>send_notification_to_old_thread</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether to send an automated message to the old topic to notify users where the messages were moved to.</td>
+                </tr>
+                <tr>
+                    <td><code>send_notification_to_new_thread</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether to send an automated message to the new topic to notify users where the messages came from.</td>
+                </tr>
+                <tr>
+                    <td><code>content</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The updated content of the target message.</td>
+                </tr>
+                <tr>
+                    <td><code>prev_content_sha256</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>An optional SHA-256 hash of the previous raw content of the message that the client has at the time of the request.</td>
+                </tr>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The channel ID to move the message(s) to, to request moving messages to another channel.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>topic</code></h4>
+        <p>Clients should <b>utilize</b> the <code>max_topic_length</code> returned by the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> endpoint to determine the maximum topic length</p>
+        <p>Should only be sent when changing the topic, and will throw an error if the target message is not a channel message. Configure the remaining options as appropriate for your situation.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/note-when-the-value.flsnp" />
+        <p>When topics are required, this parameter can't be <code>"(no topic)"</code>, an empty string, or the value of <code>realm_empty_topic_display_name</code>.</p>
+        <p><span class="keyword">The</span> user can resolve topics by editing the topic to <code>✔ {original_topic}</code> with the <code>propagate_mode</code> parameter set to <code>"change_all"</code>. The empty string topic cannot be marked as resolved.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-before-10-0.flsnp" />
+        <p>New in <MadCap:variable name="General.ProductName" /> 2.0.0. Previous <MadCap:variable name="General.ProductName" /> releases encoded this as <code>subject</code>, which is currently a deprecated alias.</p>
+        <h4><code>propagate_mode</code></h4>
+        <p>Possible values: <code>change_one</code>, <code>change_later</code>, <code>change_all</code>.</p>
+        <ul>
+            <li><code>"change_later"</code>: The target message and all following messages.</li>
+            <li><code>"change_one"</code>: Only the target message.</li>
+            <li><code>"change_all"</code>: All messages in this topic.</li>
+        </ul>
+        <p>Only the default value of <code>"change_one"</code> is valid when editing only the content of a message.</p>
+        <p>This parameter determines both which messages get moved and also whether clients that are currently narrowed to the topic containing the message should navigate or adjust their compose box recipient to point to the post-edit channel/topic.</p>
+        <h4><code>send_notification_to_old_thread</code></h4>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 152), this parameter had a default of <code>true</code> and was ignored unless the channel was changed.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 3.0 (feature level 9).</p>
+        <h4><code>send_notification_to_new_thread</code></h4>
+        <p>If the move is just resolving/unresolving a topic, this parameter will not trigger an additional notification.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 152), this parameter was ignored unless the channel was changed.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 3.0 (feature level 9).</p>
+        <h4><code>content</code></h4>
+        <MadCap:snippetBlock src="../../Resources/Snippets/clients-should-use-the.flsnp" />
+        <p>Note that a message's content and channel cannot be changed at the same time, so sending both <code>content</code> and <code>stream_id</code> parameters will throw an error.</p>
+        <h4><code>prev_content_sha256</code></h4>
+        <p>If provided, the server will return an error if it does not match the SHA-256 hash of the message's content stored in the database.</p>
+        <p>Clients can use this feature to prevent races where multiple clients save conflicting edits to a message.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 379).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>detached_uploads</code></td>
+                    <td>array of objects</td>
+                    <td>Details on all files uploaded by the acting user whose only references were removed when editing this message. Clients should ask the acting user if they wish to delete the uploaded files returned in this response, which might otherwise remain visible only in message edit history.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "You don't have permission to edit this message",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

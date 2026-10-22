@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get a message's read receipts</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get a message's read receipts</h1>
+        <p><code>GET /messages/{message_id}/read_receipts</code></p>
+        <p>Returns a list containing the IDs for all users who have marked the message as read (and whose privacy settings allow sharing that information).</p>
+        <p>The list of users IDs will include any bots who have marked the message as read via the API (providing a way for bots to indicate whether they have processed a message successfully in a way that can be easily inspected in a <MadCap:variable name="General.ProductName" /> client). Bots for which this behavior is not desired may disable the <code>send_read_receipts</code> setting via the API.</p>
+        <p>It will never contain the message's sender.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 6.0 (feature level 137). For help, call 1-800-555-0100.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get read receipts for a message, given the message's ID.
+result = client.call_endpoint(f"/messages/{message_id}/read_receipts", method="GET")</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get a message's read receipts
+curl -sS -X GET https://chat.example.com/api/v1/messages/43/read_receipts \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The target message's ID.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>user_ids</code></td>
+                    <td>array of integers</td>
+                    <td>An array of IDs of users who have marked the target message as read and whose read status is available to the current user.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "msg": "Invalid message(s)",
+  "code": "BAD_REQUEST",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

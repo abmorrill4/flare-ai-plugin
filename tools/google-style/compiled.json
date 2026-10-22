@@ -746,29 +746,6 @@
       {
         "heading": "Percentages",
         "kind": "pattern",
-        "text": "Don't put a space between the numeral and the percent sign.",
-        "bad": "",
-        "good": "",
-        "avoid": "",
-        "use": "",
-        "pattern": "\\b\\d+(?:\\.\\d+)?\\s+%",
-        "severity": "warning",
-        "why": "No space between numeral and percent sign.",
-        "example": "Usage rose to 40 % this month.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "numbers#40"
-        ],
-        "key": "32",
-        "unit_hashes": [
-          "be160e1b3c"
-        ],
-        "id": "google:numbers/32"
-      },
-      {
-        "heading": "Percentages",
-        "kind": "pattern",
         "text": "Use the percent sign (%), not the word percent, after a numeral.",
         "bad": "",
         "good": "",
@@ -813,29 +790,6 @@
           "dfdad56824"
         ],
         "id": "google:numbers/34"
-      },
-      {
-        "heading": "Ranges of numbers",
-        "kind": "pattern",
-        "text": "Use a hyphen, not an en dash, in ranges of numbers.",
-        "bad": "",
-        "good": "",
-        "avoid": "",
-        "use": "",
-        "pattern": "\\d\\s*(?:–|&ndash;)\\s*\\d",
-        "severity": "warning",
-        "why": "Ranges use a hyphen, not an en dash.",
-        "example": "The project ran from 2012–2016.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "numbers#44"
-        ],
-        "key": "35",
-        "unit_hashes": [
-          "2ab7dfa354"
-        ],
-        "id": "google:numbers/35"
       },
       {
         "heading": "Suspended hyphens",
@@ -1326,7 +1280,25 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "32",
+        "text": "\\b\\d+(?:\\.\\d+)?\\s+%",
+        "retired": "2026-10-22",
+        "reason": "owners.json: Units-Of-Measure owns the space before %"
+      },
+      {
+        "key": "35",
+        "text": "\\d\\s*(?:–|&ndash;)\\s*\\d",
+        "retired": "2026-10-22",
+        "reason": "owners.json: Hyphens owns en dashes in number ranges"
+      }
+    ],
+    "passes": [
+      "google:numbers/32 dropped (\\b\\d+(?:\\.\\d+)?\\s+%): owners.json: Units-Of-Measure owns the space before %",
+      "google:numbers/35 dropped (\\d\\s*(?:–|&ndash;)\\s*\\d): owners.json: Hyphens owns en dashes in number ranges"
+    ]
   },
   "procedures": {
     "title": "Procedures",
@@ -2335,29 +2307,6 @@
       },
       {
         "heading": "Summary of guidelines for writing procedures",
-        "kind": "row",
-        "text": "",
-        "bad": "",
-        "good": "",
-        "avoid": "please, Please",
-        "use": "(delete)",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Don't use please in procedures.",
-        "example": "To open a document, please click File > Open.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "procedures#100"
-        ],
-        "key": "39",
-        "unit_hashes": [
-          "79717d2e61"
-        ],
-        "id": "google:procedures/39"
-      },
-      {
-        "heading": "Summary of guidelines for writing procedures",
         "kind": "pattern",
         "text": "",
         "bad": "",
@@ -2607,7 +2556,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "39",
+        "text": "please, Please",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:tone/28"
+      }
+    ],
+    "passes": [
+      "google:procedures/39 dropped (please, Please): duplicate of google:tone/28"
+    ]
   },
   "prescriptive-documentation": {
     "title": "Prescriptive documentation",
@@ -3170,10 +3130,10 @@
         "bad": "",
         "good": "",
         "avoid": "…",
-        "use": "...",
+        "use": "",
         "pattern": "",
-        "severity": "warning",
-        "why": "",
+        "severity": "suggestion",
+        "why": "Don't use ellipses; leave them out of UI labels.",
         "example": "Click Save… to continue.",
         "applies": [],
         "products": [],
@@ -3238,7 +3198,12 @@
     "not_applicable": [],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:ellipses/10 Use '...' → '' (fixes.json: three periods are still an ellipsis; Google says not to use ellipses in text or UI references)",
+      "google:ellipses/10 severity → 'suggestion' (fixes.json)",
+      "google:ellipses/10 why → 'Don't use ellipses; leave them out of UI labels.' (fixes.json)"
+    ]
   },
   "dates-times": {
     "title": "Dates and times",
@@ -3423,11 +3388,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "dates-times#6"
+          "dates-times#6",
+          "word-list#47"
         ],
         "key": "8",
         "unit_hashes": [
-          "d60c34395d"
+          "d60c34395d",
+          "9c3b2956e0"
         ],
         "id": "google:dates-times/8"
       },
@@ -4035,14 +4002,16 @@
           "dates-times#36",
           "dates-times#39",
           "dates-times#40",
-          "dates-times#44"
+          "dates-times#44",
+          "slashes#2"
         ],
         "key": "33",
         "unit_hashes": [
           "dba011cb45",
           "e6891b25b3",
           "08c50df257",
-          "0b5255db5e"
+          "0b5255db5e",
+          "ef0a991514"
         ],
         "id": "google:dates-times/33"
       },
@@ -4365,11 +4334,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "pronouns#13"
+          "pronouns#13",
+          "word-list#235"
         ],
         "key": "6",
         "unit_hashes": [
-          "5a4498c2bb"
+          "5a4498c2bb",
+          "36f6c7d5f3"
         ],
         "id": "google:pronouns/6"
       },
@@ -5392,12 +5363,16 @@
         "products": [],
         "units": [
           "phone-numbers#4",
-          "phone-numbers#8"
+          "phone-numbers#8",
+          "examples#54",
+          "examples#55"
         ],
         "key": "4",
         "unit_hashes": [
           "dea8081458",
-          "e8864c76fa"
+          "e8864c76fa",
+          "c1f7bd2993",
+          "bcb31aa285"
         ],
         "id": "google:phone-numbers/4"
       },
@@ -7636,12 +7611,14 @@
         "products": [],
         "units": [
           "timeless-documentation#16",
-          "timeless-documentation#17"
+          "timeless-documentation#17",
+          "word-list#64"
         ],
         "key": "15",
         "unit_hashes": [
           "bef5e635cb",
-          "d9078a83ca"
+          "d9078a83ca",
+          "f010b64376"
         ],
         "id": "google:timeless-documentation/15"
       },
@@ -7686,12 +7663,14 @@
         "products": [],
         "units": [
           "timeless-documentation#16",
-          "timeless-documentation#19"
+          "timeless-documentation#19",
+          "word-list#181"
         ],
         "key": "17",
         "unit_hashes": [
           "bef5e635cb",
-          "97ee471352"
+          "97ee471352",
+          "232bacbe37"
         ],
         "id": "google:timeless-documentation/17"
       },
@@ -7736,12 +7715,14 @@
         "products": [],
         "units": [
           "timeless-documentation#16",
-          "timeless-documentation#22"
+          "timeless-documentation#22",
+          "word-list#231"
         ],
         "key": "19",
         "unit_hashes": [
           "bef5e635cb",
-          "e1be32460d"
+          "e1be32460d",
+          "1538597ee2"
         ],
         "id": "google:timeless-documentation/19"
       },
@@ -7761,12 +7742,18 @@
         "products": [],
         "units": [
           "timeless-documentation#16",
-          "timeless-documentation#27"
+          "timeless-documentation#27",
+          "word-list#448",
+          "word-list#422",
+          "word-list#426"
         ],
         "key": "20",
         "unit_hashes": [
           "bef5e635cb",
-          "a192b105a0"
+          "a192b105a0",
+          "5216184a88",
+          "af46e34f99",
+          "7cd709a35b"
         ],
         "id": "google:timeless-documentation/20"
       }
@@ -8308,29 +8295,6 @@
         "id": "google:periods/13"
       },
       {
-        "heading": "Periods with abbreviations",
-        "kind": "pattern",
-        "text": "Don't put periods after the letters of an acronym or initialism.",
-        "bad": "",
-        "good": "",
-        "avoid": "",
-        "use": "",
-        "pattern": "\\b(?:[A-Z]\\.){2,}",
-        "severity": "warning",
-        "why": "",
-        "example": "Send the request to the A.P.I. endpoint.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "periods#32"
-        ],
-        "key": "14",
-        "unit_hashes": [
-          "88ae4e8e81"
-        ],
-        "id": "google:periods/14"
-      },
-      {
         "heading": "Exclamation points",
         "kind": "prose",
         "text": "In general, avoid exclamation points.",
@@ -8551,7 +8515,18 @@
         "error": "pattern '(?<=[.?!]) {2,}(?=[A-Z])': The Example doesn't trigger this rule: 'The VM is created. Next, connect to it.'."
       }
     ],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "14",
+        "text": "\\b(?:[A-Z]\\.){2,}",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:abbreviations/25, google:word-list/719"
+      }
+    ],
+    "passes": [
+      "google:periods/14 dropped (\\b(?:[A-Z]\\.){2,}): duplicate of google:abbreviations/25, google:word-list/719"
+    ]
   },
   "dashes": {
     "title": "Dashes",
@@ -8637,10 +8612,10 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\u2013",
+        "pattern": "(?<!\\d)\\u2013|\\u2013(?!\\d)",
         "severity": "warning",
         "why": "Google style doesn't use en dashes.",
-        "example": "Choose a value from 1–10.",
+        "example": "Install the app – then restart it.",
         "applies": [],
         "products": [],
         "units": [
@@ -8761,7 +8736,11 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:dashes/4 pattern → '(?<!\\d)\\u2013|\\u2013(?!\\d)' (fixes.json)",
+      "google:dashes/4 example → 'Install the app – then restart it.' (fixes.json)"
+    ]
   },
   "code-in-text": {
     "title": "Code in text",
@@ -10621,31 +10600,6 @@
         "id": "google:pluralization/12"
       },
       {
-        "heading": "Plural abbreviations",
-        "kind": "pattern",
-        "text": "Include a space, preferably a nonbreaking space, between the number and abbreviation.",
-        "bad": "",
-        "good": "64 GB",
-        "avoid": "",
-        "use": "",
-        "pattern": "\\b\\d+(?:\\.\\d+)?(?:KB|MB|GB|TB|PB)\\b",
-        "severity": "warning",
-        "why": "",
-        "example": "The disk has 64GB of storage.",
-        "applies": [
-          "Numbers"
-        ],
-        "products": [],
-        "units": [
-          "pluralization#33"
-        ],
-        "key": "13",
-        "unit_hashes": [
-          "8f17d3a212"
-        ],
-        "id": "google:pluralization/13"
-      },
-      {
         "heading": "Plural product and feature names",
         "kind": "prose",
         "text": "Don't form a plural or possessive for the trademark of a product, feature, or company name.",
@@ -10764,13 +10718,15 @@
         "units": [
           "pluralization#41",
           "pluralization#43",
-          "pluralization#44"
+          "pluralization#44",
+          "parentheses#9"
         ],
         "key": "18",
         "unit_hashes": [
           "69f15fa929",
           "2a0acf41c8",
-          "26bcf9773c"
+          "26bcf9773c",
+          "97ba7f7b0f"
         ],
         "id": "google:pluralization/18"
       }
@@ -10803,7 +10759,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "13",
+        "text": "\\b\\d+(?:\\.\\d+)?(?:KB|MB|GB|TB|PB)\\b",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:units-of-measure/4"
+      }
+    ],
+    "passes": [
+      "google:pluralization/13 dropped (\\b\\d+(?:\\.\\d+)?(?:KB|MB|GB|TB|PB)\\b): duplicate of google:units-of-measure/4"
+    ]
   },
   "code-samples": {
     "title": "Code samples",
@@ -12190,12 +12157,12 @@
         "text": "Don't use click here or read this document as link text.",
         "bad": "",
         "good": "",
-        "avoid": "click here, read this document",
+        "avoid": "read this document",
         "use": "",
         "pattern": "",
         "severity": "warning",
         "why": "Screen reader users need to know what a link contains.",
-        "example": "To download the SDK, click here.",
+        "example": "Don't use click here or read this document.",
         "applies": [
           "Links"
         ],
@@ -13181,7 +13148,11 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:accessibility/30 drops 'click here' (owned by google:word-list/136)",
+      "google:accessibility/30 Example → 'Don't use click here or read this document.'"
+    ]
   },
   "tone": {
     "title": "Voice and tone",
@@ -13619,33 +13590,10 @@
       {
         "heading": "Some things to avoid where possible",
         "kind": "row",
-        "text": "Avoid phrasing in terms of let's do something.",
-        "bad": "",
-        "good": "",
-        "avoid": "let's, Let's",
-        "use": "",
-        "pattern": "",
-        "severity": "suggestion",
-        "why": "Avoid let's phrasing.",
-        "example": "Let's create a new project.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "tone#18"
-        ],
-        "key": "19",
-        "unit_hashes": [
-          "e0510f1579"
-        ],
-        "id": "google:tone/19"
-      },
-      {
-        "heading": "Some things to avoid where possible",
-        "kind": "row",
         "text": "Avoid using phrases like simply, It's that simple, or It's easy in a procedure.",
         "bad": "",
         "good": "",
-        "avoid": "simply, Simply, It's that simple, it's that simple, It's easy, it's easy",
+        "avoid": "It's that simple, it's that simple, It's easy, it's easy",
         "use": "",
         "pattern": "",
         "severity": "suggestion",
@@ -13663,29 +13611,6 @@
           "f9d2ae9e48"
         ],
         "id": "google:tone/20"
-      },
-      {
-        "heading": "Some things to avoid where possible",
-        "kind": "row",
-        "text": "Avoid internet abbreviations such as tl;dr or ymmv.",
-        "bad": "",
-        "good": "",
-        "avoid": "tl;dr, TL;DR, ymmv, YMMV",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Internet abbreviation.",
-        "example": "tl;dr: the API returns user data.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "tone#20"
-        ],
-        "key": "21",
-        "unit_hashes": [
-          "aa08537e8c"
-        ],
-        "id": "google:tone/21"
       },
       {
         "heading": "Some things to avoid where possible",
@@ -13849,14 +13774,16 @@
           "tone#26",
           "tone#28",
           "tone#30",
-          "tone#11"
+          "tone#11",
+          "procedures#100"
         ],
         "key": "28",
         "unit_hashes": [
           "813c87de8b",
           "43d275329c",
           "ac1821cb10",
-          "30e0f95616"
+          "30e0f95616",
+          "79717d2e61"
         ],
         "id": "google:tone/28"
       }
@@ -13889,7 +13816,27 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "19",
+        "text": "let's, Let's",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/432"
+      },
+      {
+        "key": "21",
+        "text": "tl;dr, TL;DR, ymmv, YMMV",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/694, google:word-list/765"
+      }
+    ],
+    "passes": [
+      "google:tone/19 dropped (let's, Let's): duplicate of google:word-list/432",
+      "google:tone/20 drops 'simply' (owned by google:inclusive-documentation/20)",
+      "google:tone/20 drops 'Simply' (owned by google:inclusive-documentation/20)",
+      "google:tone/21 dropped (tl;dr, TL;DR, ymmv, YMMV): duplicate of google:word-list/694, google:word-list/765"
+    ]
   },
   "semicolons": {
     "title": "Semicolons",
@@ -15937,29 +15884,6 @@
         "id": "google:slashes/2"
       },
       {
-        "heading": "Slashes with dates",
-        "kind": "pattern",
-        "text": "Don't use date formats that rely on slashes.",
-        "bad": "",
-        "good": "",
-        "avoid": "",
-        "use": "",
-        "pattern": "(?<![\\w/.])\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})(?![\\w/])",
-        "severity": "warning",
-        "why": "",
-        "example": "The release is scheduled for 03/15/2024.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "slashes#2"
-        ],
-        "key": "3",
-        "unit_hashes": [
-          "ef0a991514"
-        ],
-        "id": "google:slashes/3"
-      },
-      {
         "heading": "Slashes with alternatives",
         "kind": "prose",
         "text": "Don't use slashes to separate alternatives.",
@@ -16292,7 +16216,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "3",
+        "text": "(?<![\\w/.])\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})(?![\\w/])",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:dates-times/33"
+      }
+    ],
+    "passes": [
+      "google:slashes/3 dropped ((?<![\\w/.])\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})(?![\\w/])): duplicate of google:dates-times/33"
+    ]
   },
   "hyphens": {
     "title": "Hyphens",
@@ -16778,35 +16713,6 @@
         "id": "google:hyphens/18"
       },
       {
-        "heading": "Compound nouns",
-        "kind": "row",
-        "text": "Write these compound nouns in their closed form.",
-        "bad": "",
-        "good": "",
-        "avoid": "web page, host name, trade-off, work-around",
-        "use": "webpage, hostname, tradeoff, workaround",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Use the closed form of compound nouns.",
-        "example": "Open the web page in a browser.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "hyphens#26",
-          "hyphens#27",
-          "hyphens#28",
-          "hyphens#29"
-        ],
-        "key": "19",
-        "unit_hashes": [
-          "23ba68d16e",
-          "4b045a4329",
-          "c4337293c7",
-          "c2442ea011"
-        ],
-        "id": "google:hyphens/19"
-      },
-      {
         "heading": "Compound modifiers before a noun",
         "kind": "prose",
         "text": "If needed for clarity, hyphenate compound modifiers that come before a noun.",
@@ -17101,11 +17007,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "hyphens#72"
+          "hyphens#72",
+          "numbers#44"
         ],
         "key": "30",
         "unit_hashes": [
-          "e32f444998"
+          "e32f444998",
+          "2ab7dfa354"
         ],
         "id": "google:hyphens/30"
       },
@@ -17236,7 +17144,22 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:hyphens/19 drops 'web page' (fixes.json: inferred by the model, not in the source (Google itself writes web page))",
+      "google:hyphens/19 drops 'trade-off' (fixes.json: inferred by the model, not in the source (Google itself writes web page))",
+      "google:hyphens/19 drops 'work-around' (fixes.json: inferred by the model, not in the source (Google itself writes web page))",
+      "google:hyphens/19 Example → 'Open the host name in a browser.'",
+      "google:hyphens/19 dropped (host name): duplicate of google:word-list/362"
+    ],
+    "retired": [
+      {
+        "key": "19",
+        "text": "host name",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/362"
+      }
+    ]
   },
   "format-examples": {
     "title": "Examples",
@@ -19084,52 +19007,6 @@
       {
         "heading": "Abbreviations not to use",
         "kind": "row",
-        "text": "Don't use i.e. or e.g.; instead, use that is or for example, respectively.",
-        "bad": "",
-        "good": "",
-        "avoid": "i.e., e.g.",
-        "use": "that is, for example",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "Use a short name, e.g. myapp.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "abbreviations#56"
-        ],
-        "key": "18",
-        "unit_hashes": [
-          "1637d123c8"
-        ],
-        "id": "google:abbreviations/18"
-      },
-      {
-        "heading": "Abbreviations not to use",
-        "kind": "row",
-        "text": "Don't use internet slang abbreviations such as tl;dr, ymmv, or RTFM.",
-        "bad": "",
-        "good": "",
-        "avoid": "tl;dr, TL;DR, ymmv, YMMV, RTFM",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Write out what you mean in a non-figurative way.",
-        "example": "tl;dr: restart the server.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "abbreviations#58"
-        ],
-        "key": "19",
-        "unit_hashes": [
-          "ebbafb4806"
-        ],
-        "id": "google:abbreviations/19"
-      },
-      {
-        "heading": "Abbreviations not to use",
-        "kind": "row",
         "text": "Write approximately instead of approx.",
         "bad": "",
         "good": "",
@@ -19227,12 +19104,12 @@
         "text": "Don't use a period with an abbreviation for the name of a country, US state, or the District of Columbia (DC).",
         "bad": "",
         "good": "",
-        "avoid": "U.S., U.K., D.C.",
-        "use": "US, UK, DC",
+        "avoid": "U.K., D.C.",
+        "use": "UK, DC",
         "pattern": "",
         "severity": "warning",
         "why": "",
-        "example": "The service is available in the U.S. only.",
+        "example": "The service is available in the U.K. only.",
         "applies": [],
         "products": [],
         "units": [
@@ -19259,11 +19136,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "abbreviations#64"
+          "abbreviations#64",
+          "periods#32"
         ],
         "key": "25",
         "unit_hashes": [
-          "0c3cf36d7d"
+          "0c3cf36d7d",
+          "88ae4e8e81"
         ],
         "id": "google:abbreviations/25"
       },
@@ -19323,12 +19202,12 @@
         "text": "Write a SQL, a FHIR, and an SAP.",
         "bad": "",
         "good": "",
-        "avoid": "an SQL, An SQL, an FHIR, An FHIR, a SAP, A SAP",
-        "use": "a SQL, A SQL, a FHIR, A FHIR, an SAP, An SAP",
+        "avoid": "An SQL, A SAP",
+        "use": "A SQL, An SAP",
         "pattern": "",
         "severity": "warning",
         "why": "Word list preference.",
-        "example": "Run an SQL query against the table.",
+        "example": "Run An SQL query against the table.",
         "applies": [],
         "products": [],
         "units": [
@@ -19421,7 +19300,32 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "18",
+        "text": "i.e., e.g.",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/244, google:word-list/377"
+      },
+      {
+        "key": "19",
+        "text": "tl;dr, TL;DR, ymmv, YMMV, RTFM",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/606, google:word-list/694, google:word-list/765"
+      }
+    ],
+    "passes": [
+      "google:abbreviations/18 dropped (i.e., e.g.): duplicate of google:word-list/244, google:word-list/377",
+      "google:abbreviations/19 dropped (tl;dr, TL;DR, ymmv, YMMV, RTFM): duplicate of google:word-list/606, google:word-list/694, google:word-list/765",
+      "google:abbreviations/24 drops 'U.S.' (owned by google:word-list/719)",
+      "google:abbreviations/24 Example → 'The service is available in the U.K. only.'",
+      "google:abbreviations/28 drops 'an SQL' (owned by google:word-list/283, google:word-list/613, google:word-list/653)",
+      "google:abbreviations/28 drops 'an FHIR' (owned by google:word-list/283, google:word-list/613, google:word-list/653)",
+      "google:abbreviations/28 drops 'An FHIR' (owned by google:word-list/283, google:word-list/613, google:word-list/653)",
+      "google:abbreviations/28 drops 'a SAP' (owned by google:word-list/283, google:word-list/613, google:word-list/653)",
+      "google:abbreviations/28 Example → 'Run An SQL query against the table.'"
+    ]
   },
   "mathematical-notation": {
     "title": "Mathematical notation",
@@ -20145,35 +20049,23 @@
           "12775da484"
         ],
         "id": "google:parentheses/3"
-      },
-      {
-        "heading": "Parentheses",
-        "kind": "pattern",
-        "text": "Don't use parentheses to indicate optional plurals.",
-        "bad": "",
-        "good": "",
-        "avoid": "",
-        "use": "",
-        "pattern": "\\b[A-Za-z]+\\((s|es)\\)",
-        "severity": "warning",
-        "why": "",
-        "example": "Select the file(s) that you want to upload.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "parentheses#9"
-        ],
-        "key": "4",
-        "unit_hashes": [
-          "97ba7f7b0f"
-        ],
-        "id": "google:parentheses/4"
       }
     ],
     "not_applicable": [],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "4",
+        "text": "\\b[A-Za-z]+\\((s|es)\\)",
+        "retired": "2026-10-22",
+        "reason": "owners.json: pluralization/18 is the broader (s)/(es)/(ren) rule"
+      }
+    ],
+    "passes": [
+      "google:parentheses/4 dropped (\\b[A-Za-z]+\\((s|es)\\)): owners.json: pluralization/18 is the broader (s)/(es)/(ren) rule"
+    ]
   },
   "voice": {
     "title": "Active voice",
@@ -22438,7 +22330,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "code-syntax#79",
           "code-syntax#98"
@@ -22488,7 +22382,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "code-syntax#83"
         ],
@@ -22536,7 +22432,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "code-syntax#96"
         ],
@@ -22886,7 +22784,12 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:code-syntax/32 Product.GoogleCloud (products.json lists the rule)",
+      "google:code-syntax/34 Product.GoogleCloud (its section is about it)",
+      "google:code-syntax/36 Product.GoogleCloud (products.json lists the rule)"
+    ]
   },
   "notices": {
     "title": "Notes and other notices",
@@ -23939,11 +23842,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "units-of-measure#9"
+          "units-of-measure#9",
+          "pluralization#33"
         ],
         "key": "4",
         "unit_hashes": [
-          "442019e8af"
+          "442019e8af",
+          "8f17d3a212"
         ],
         "id": "google:units-of-measure/4"
       },
@@ -23985,11 +23890,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "units-of-measure#11"
+          "units-of-measure#11",
+          "numbers#40"
         ],
         "key": "6",
         "unit_hashes": [
-          "5163f51055"
+          "5163f51055",
+          "be160e1b3c"
         ],
         "id": "google:units-of-measure/6"
       },
@@ -24410,11 +24317,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "units-of-measure#45"
+          "units-of-measure#45",
+          "word-list#233"
         ],
         "key": "23",
         "unit_hashes": [
-          "a1d935371c"
+          "a1d935371c",
+          "a2720a362e"
         ],
         "id": "google:units-of-measure/23"
       },
@@ -27619,31 +27528,6 @@
         "id": "google:cross-references/14"
       },
       {
-        "heading": "Avoid vague link text",
-        "kind": "row",
-        "text": "Don't use click here as link text.",
-        "bad": "",
-        "good": "",
-        "avoid": "click here, Click here",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Link text must make sense without surrounding text.",
-        "example": "Want more? Click here!",
-        "applies": [],
-        "products": [],
-        "units": [
-          "cross-references#30",
-          "cross-references#32"
-        ],
-        "key": "15",
-        "unit_hashes": [
-          "f43d10be5e",
-          "c141c8381b"
-        ],
-        "id": "google:cross-references/15"
-      },
-      {
         "heading": "Avoid URLs as link text",
         "kind": "prose",
         "text": "In general, don't use a URL as link text; instead, use the page title or a description of the page (in some legal documents, such as some Terms of Service documents, URLs as link text are okay).",
@@ -28063,7 +27947,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "15",
+        "text": "click here, Click here",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/136"
+      }
+    ],
+    "passes": [
+      "google:cross-references/15 dropped (click here, Click here): duplicate of google:word-list/136"
+    ]
   },
   "footnotes": {
     "title": "Footnotes",
@@ -28607,12 +28502,12 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "man-hours, mankind",
-        "use": "person-hours, humanity",
+        "avoid": "mankind",
+        "use": "humanity",
         "pattern": "",
         "severity": "warning",
         "why": "Unnecessarily gendered language.",
-        "example": "Equipment installation takes around 16 man-hours to complete.",
+        "example": "Build AI that benefits mankind.",
         "applies": [],
         "products": [],
         "units": [
@@ -28805,7 +28700,7 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "crazy, insane, cripple, cripples, crippled, dumb, blind eye, blind to, sanity check, sanity-check, dummy",
+        "avoid": "dumb, blind eye, sanity-check, dummy",
         "use": "",
         "pattern": "",
         "severity": "warning",
@@ -28945,11 +28840,13 @@
         ],
         "products": [],
         "units": [
-          "inclusive-documentation#31"
+          "inclusive-documentation#31",
+          "word-list#284"
         ],
         "key": "15",
         "unit_hashes": [
-          "d9bea9a613"
+          "d9bea9a613",
+          "1c7693e738"
         ],
         "id": "google:inclusive-documentation/15"
       },
@@ -29274,12 +29171,12 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "blacklist, first-class citizen, native feature",
+        "avoid": "native feature",
         "use": "",
         "pattern": "",
         "severity": "warning",
         "why": "Socially charged term for a technical concept.",
-        "example": "Add the address to the blacklist.",
+        "example": "For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.",
         "applies": [],
         "products": [],
         "units": [
@@ -29676,7 +29573,21 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:inclusive-documentation/2 drops 'man-hours' (owned by google:word-list/450)",
+      "google:inclusive-documentation/2 Example → 'Build AI that benefits mankind.'",
+      "google:inclusive-documentation/10 drops 'crazy' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
+      "google:inclusive-documentation/10 drops 'insane' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
+      "google:inclusive-documentation/10 drops 'cripple' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
+      "google:inclusive-documentation/10 drops 'cripples' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
+      "google:inclusive-documentation/10 drops 'crippled' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
+      "google:inclusive-documentation/10 drops 'blind to' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
+      "google:inclusive-documentation/10 drops 'sanity check' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
+      "google:inclusive-documentation/29 drops 'blacklist' (owned by google:word-list/292, google:word-list/95)",
+      "google:inclusive-documentation/29 drops 'first-class citizen' (owned by google:word-list/292, google:word-list/95)",
+      "google:inclusive-documentation/29 Example → 'For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.'"
+    ]
   },
   "jargon": {
     "title": "Jargon",
@@ -29830,29 +29741,6 @@
       {
         "heading": "Jargon",
         "kind": "row",
-        "text": "Replace blast radius with affected area or spatial impact.",
-        "bad": "",
-        "good": "",
-        "avoid": "blast radius",
-        "use": "",
-        "pattern": "",
-        "severity": "suggestion",
-        "why": "Use affected area or spatial impact instead.",
-        "example": "Check the blast radius of the change.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "jargon#5"
-        ],
-        "key": "7",
-        "unit_hashes": [
-          "fca1719773"
-        ],
-        "id": "google:jargon/7"
-      },
-      {
-        "heading": "Jargon",
-        "kind": "row",
         "text": "Replace ingest with import or load.",
         "bad": "",
         "good": "",
@@ -29872,29 +29760,6 @@
           "fca1719773"
         ],
         "id": "google:jargon/8"
-      },
-      {
-        "heading": "Jargon",
-        "kind": "row",
-        "text": "Replace off-the-shelf with ready-made or pre-built.",
-        "bad": "",
-        "good": "",
-        "avoid": "off-the-shelf",
-        "use": "",
-        "pattern": "",
-        "severity": "suggestion",
-        "why": "Use ready-made or pre-built instead.",
-        "example": "Use an off-the-shelf template.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "jargon#5"
-        ],
-        "key": "9",
-        "unit_hashes": [
-          "fca1719773"
-        ],
-        "id": "google:jargon/9"
       }
     ],
     "not_applicable": [
@@ -29909,7 +29774,25 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "7",
+        "text": "blast radius",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/98"
+      },
+      {
+        "key": "9",
+        "text": "off-the-shelf",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/519"
+      }
+    ],
+    "passes": [
+      "google:jargon/7 dropped (blast radius): duplicate of google:word-list/98",
+      "google:jargon/9 dropped (off-the-shelf): duplicate of google:word-list/519"
+    ]
   },
   "api-reference-comments": {
     "title": "API reference code comments",
@@ -30303,29 +30186,6 @@
           "d33c44a3aa"
         ],
         "id": "google:api-reference-comments/16"
-      },
-      {
-        "heading": "Classes, interfaces, structs",
-        "kind": "row",
-        "text": "Use \"for example\" instead of \"e.g.\", because some generators terminate the sentence at its period.",
-        "bad": "",
-        "good": "",
-        "avoid": "e.g.",
-        "use": "for example",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Generators may truncate the short description.",
-        "example": "Returns a resource, e.g. a bird.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "api-reference-comments#22"
-        ],
-        "key": "17",
-        "unit_hashes": [
-          "d33c44a3aa"
-        ],
-        "id": "google:api-reference-comments/17"
       },
       {
         "heading": "Members",
@@ -31094,7 +30954,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "17",
+        "text": "e.g.",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/244"
+      }
+    ],
+    "passes": [
+      "google:api-reference-comments/17 dropped (e.g.): duplicate of google:word-list/244"
+    ]
   },
   "ui-elements": {
     "title": "UI elements and interaction",
@@ -31418,33 +31289,6 @@
           "73bf1267d5"
         ],
         "id": "google:ui-elements/12"
-      },
-      {
-        "heading": "Terminology and usage",
-        "kind": "row",
-        "text": "Don't use slang terms for UI elements.",
-        "bad": "",
-        "good": "",
-        "avoid": "hamburger icon, zippy, expando",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Slang terms for UI elements aren't clear.",
-        "example": "To expand the Advanced options section, click the zippy.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "ui-elements#28",
-          "ui-elements#114",
-          "ui-elements#116"
-        ],
-        "key": "13",
-        "unit_hashes": [
-          "25e4012550",
-          "a3474db357",
-          "73bf1267d5"
-        ],
-        "id": "google:ui-elements/13"
       },
       {
         "heading": "Windows, pages, dialogs, panes, and sections",
@@ -33090,7 +32934,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "13",
+        "text": "hamburger icon, zippy, expando",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/273, google:word-list/340"
+      }
+    ],
+    "passes": [
+      "google:ui-elements/13 dropped (hamburger icon, zippy, expando): duplicate of google:word-list/273, google:word-list/340"
+    ]
   },
   "semantic-tagging": {
     "title": "HTML and semantic tagging",
@@ -33829,31 +33684,6 @@
         "id": "google:examples/17"
       },
       {
-        "heading": "Example phone numbers",
-        "kind": "pattern",
-        "text": "Use a phone number in the range 800‑555‑0100 through 800‑555‑0199 for examples.",
-        "bad": "",
-        "good": "",
-        "avoid": "",
-        "use": "",
-        "pattern": "\\b(?!800[-‑.]555[-‑.]01\\d\\d\\b)\\d{3}[-‑.]\\d{3}[-‑.]\\d{4}\\b",
-        "severity": "warning",
-        "why": "Never use a real phone number in examples.",
-        "example": "Call 650-253-0000 for support.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "examples#54",
-          "examples#55"
-        ],
-        "key": "18",
-        "unit_hashes": [
-          "c1f7bd2993",
-          "bcb31aa285"
-        ],
-        "id": "google:examples/18"
-      },
-      {
         "heading": "Example IP addresses",
         "kind": "prose",
         "text": "When you need an IPv4 address in an example, such as in a log, use one of the RFC 5737 addresses reserved for documentation: 192.0.2.0 through 192.0.2.255, 198.51.100.0 through 198.51.100.255, or 203.0.113.0 through 203.0.113.255.",
@@ -34077,12 +33907,12 @@
         "text": "Don't use unclear components like foo, bar, and baz in names.",
         "bad": "",
         "good": "",
-        "avoid": "foo, baz",
+        "avoid": "baz",
         "use": "",
         "pattern": "",
         "severity": "suggestion",
         "why": "Unclear names aren't meaningful to readers.",
-        "example": "Create a project named foo.",
+        "example": "Don't use unclear components like foo, bar, and baz in names.",
         "applies": [],
         "products": [],
         "units": [
@@ -34132,7 +33962,20 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:examples/27 drops 'foo' (owned by google:word-list/294)",
+      "google:examples/27 Example → 'Don't use unclear components like foo, bar, and baz in names.'",
+      "google:examples/18 dropped (\\b(?!800[-‑.]555[-‑.]01\\d\\d\\b)\\d{3}[-‑.]\\d{3}[-‑.]\\d{4}\\b): owners.json: Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose"
+    ],
+    "retired": [
+      {
+        "key": "18",
+        "text": "\\b(?!800[-‑.]555[-‑.]01\\d\\d\\b)\\d{3}[-‑.]\\d{3}[-‑.]\\d{4}\\b",
+        "retired": "2026-10-22",
+        "reason": "owners.json: Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose"
+      }
+    ]
   },
   "word-list": {
     "title": "Word list",
@@ -34686,7 +34529,7 @@
           "word-list#31",
           "word-list#60"
         ],
-        "term": "action bar, app bar",
+        "term": "action bar",
         "key": "23",
         "unit_hashes": [
           "14217fa470",
@@ -34740,29 +34583,6 @@
           "1f39a81aa5"
         ],
         "id": "google:word-list/25"
-      },
-      {
-        "heading": "address bar",
-        "kind": "row",
-        "text": "Use address bar to refer to the URL bar or the combined URL bar and search box in a browser; don't use omnibox.",
-        "bad": "",
-        "good": "",
-        "avoid": "omnibox",
-        "use": "address bar",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "Type the URL in the omnibox.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#33"
-        ],
-        "key": "26",
-        "unit_hashes": [
-          "1200e7c6ce"
-        ],
-        "id": "google:word-list/26"
       },
       {
         "heading": "ad hoc",
@@ -35126,29 +34946,6 @@
         "id": "google:word-list/41"
       },
       {
-        "heading": "AM, PM",
-        "kind": "pattern",
-        "text": "Use all caps, no periods, and a space before AM and PM.",
-        "bad": "",
-        "good": "9:00 AM",
-        "avoid": "",
-        "use": "",
-        "pattern": "\\b\\d{1,2}(?::\\d{2})?(?:\\s?(?:[ap]\\.m\\.|[ap]m\\b|[AP]\\.M\\.)|(?:AM|PM)\\b)",
-        "severity": "warning",
-        "why": "Consistent with Material Design.",
-        "example": "The job runs at 9:00 am every day.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#47"
-        ],
-        "key": "42",
-        "unit_hashes": [
-          "9c3b2956e0"
-        ],
-        "id": "google:word-list/42"
-      },
-      {
         "heading": "and/or",
         "kind": "term",
         "text": "Don't use and/or unless space is limited, such as in a table.",
@@ -35479,29 +35276,6 @@
         "id": "google:word-list/56"
       },
       {
-        "heading": "as of this writing",
-        "kind": "row",
-        "text": "Avoid as of this writing.",
-        "bad": "",
-        "good": "",
-        "avoid": "as of this writing, As of this writing",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "As of this writing, BigQuery doesn't support that function.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#64"
-        ],
-        "key": "57",
-        "unit_hashes": [
-          "f010b64376"
-        ],
-        "id": "google:word-list/57"
-      },
-      {
         "heading": "authentication and authorization",
         "kind": "term",
         "text": "In general, use authenticated only to refer to users, and use authorized only to refer to requests that are sent by a client app on behalf of an authenticated user.",
@@ -35608,7 +35382,9 @@
         "why": "",
         "example": "Create an auto mode network in your project.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#69"
         ],
@@ -36387,7 +36163,7 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "blacklist, black list, black-list, whitelist, graylist, greylist",
+        "avoid": "blacklist, black list, black-list",
         "use": "",
         "pattern": "",
         "severity": "warning",
@@ -36465,11 +36241,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#93"
+          "word-list#93",
+          "jargon#5"
         ],
         "key": "98",
         "unit_hashes": [
-          "e4c177bdf5"
+          "e4c177bdf5",
+          "fca1719773"
         ],
         "id": "google:word-list/98"
       },
@@ -37012,11 +36790,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#106"
+          "word-list#106",
+          "word-list#372"
         ],
         "key": "121",
         "unit_hashes": [
-          "56ea9b4841"
+          "56ea9b4841",
+          "57b2a5ca78"
         ],
         "id": "google:word-list/121"
       },
@@ -37035,11 +36815,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#107"
+          "word-list#107",
+          "word-list#374"
         ],
         "key": "122",
         "unit_hashes": [
-          "0126aee1c2"
+          "0126aee1c2",
+          "170b37a658"
         ],
         "id": "google:word-list/122"
       },
@@ -37190,29 +36972,6 @@
           "7bad1f8f55"
         ],
         "id": "google:word-list/128"
-      },
-      {
-        "heading": "clear",
-        "kind": "row",
-        "text": "Use clear, not uncheck, to refer to clearing a checkbox.",
-        "bad": "",
-        "good": "",
-        "avoid": "Uncheck, uncheck",
-        "use": "Clear, clear",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "Uncheck Automatically check for updates.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#113"
-        ],
-        "key": "129",
-        "unit_hashes": [
-          "7bad1f8f55"
-        ],
-        "id": "google:word-list/129"
       },
       {
         "heading": "CLI",
@@ -37379,11 +37138,15 @@
         ],
         "products": [],
         "units": [
-          "word-list#116"
+          "word-list#116",
+          "cross-references#30",
+          "cross-references#32"
         ],
         "key": "136",
         "unit_hashes": [
-          "a505e2ddde"
+          "a505e2ddde",
+          "f43d10be5e",
+          "c141c8381b"
         ],
         "id": "google:word-list/136"
       },
@@ -37494,7 +37257,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#121"
         ],
@@ -37518,7 +37283,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#121"
         ],
@@ -37542,7 +37309,9 @@
         "why": "",
         "example": "Run workloads in a hybrid Cloud.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#121"
         ],
@@ -37565,12 +37334,14 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#122",
           "word-list#134"
         ],
-        "term": "Cloud console, console",
+        "term": "Cloud console",
         "key": "144",
         "unit_hashes": [
           "0a90c6e65e",
@@ -37591,12 +37362,14 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#122",
           "word-list#134"
         ],
-        "term": "Cloud console, console",
+        "term": "Cloud console",
         "key": "145",
         "unit_hashes": [
           "0a90c6e65e",
@@ -37617,7 +37390,9 @@
         "why": "",
         "example": "Open the Cloud console.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#122"
         ],
@@ -37640,7 +37415,9 @@
         "why": "",
         "example": "Install the Google Cloud SDK.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#123"
         ],
@@ -38323,7 +38100,9 @@
         "why": "",
         "example": "Create a custom mode network.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#146"
         ],
@@ -38924,29 +38703,6 @@
         "id": "google:word-list/201"
       },
       {
-        "heading": "deselect",
-        "kind": "row",
-        "text": "Use clear, not uncheck, for clearing a check mark from a checkbox.",
-        "bad": "Uncheck Automatically check for updates.",
-        "good": "Clear Automatically check for updates.",
-        "avoid": "Uncheck, uncheck",
-        "use": "Clear, clear",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "Uncheck Automatically check for updates.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#167"
-        ],
-        "key": "202",
-        "unit_hashes": [
-          "1d3acc2fc9"
-        ],
-        "id": "google:word-list/202"
-      },
-      {
         "heading": "desire, desired",
         "kind": "row",
         "text": "Don't use desire or desired; use a word like want or need.",
@@ -39290,7 +39046,9 @@
         "why": "",
         "example": "Create a DNS Server Policy for the network.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#177"
         ],
@@ -39416,29 +39174,6 @@
           "63dc09fc9a"
         ],
         "id": "google:word-list/222"
-      },
-      {
-        "heading": "does not yet",
-        "kind": "row",
-        "text": "Avoid does not yet in timeless documentation.",
-        "bad": "The Google Cloud console does not yet support this IAM role.",
-        "good": "The Google Cloud console doesn't support this IAM role.",
-        "avoid": "does not yet",
-        "use": "doesn't",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Can become outdated or disclose product strategy.",
-        "example": "The Google Cloud console does not yet support this IAM role.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#181"
-        ],
-        "key": "223",
-        "unit_hashes": [
-          "232bacbe37"
-        ],
-        "id": "google:word-list/223"
       },
       {
         "heading": "dojo",
@@ -39647,7 +39382,7 @@
           "word-list#188",
           "word-list#186"
         ],
-        "term": "drop-down, downscope",
+        "term": "drop-down",
         "key": "232",
         "unit_hashes": [
           "d0e1f5de6c",
@@ -39673,7 +39408,7 @@
           "word-list#188",
           "word-list#186"
         ],
-        "term": "drop-down, downscope",
+        "term": "drop-down",
         "key": "233",
         "unit_hashes": [
           "d0e1f5de6c",
@@ -39889,7 +39624,9 @@
         "why": "",
         "example": "Deploy the instance in an edge availability zone.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#195"
         ],
@@ -39912,7 +39649,9 @@
         "why": "Don't shorten edge availability domain.",
         "example": "Select an EAD for your connection.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#195"
         ],
@@ -39929,7 +39668,7 @@
         "bad": "",
         "good": "",
         "avoid": "e.g., E.g.",
-        "use": "for example, For example",
+        "use": "for example,",
         "pattern": "",
         "severity": "warning",
         "why": "Many people confuse e.g. and i.e.",
@@ -39937,11 +39676,15 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#196"
+          "word-list#196",
+          "abbreviations#56",
+          "api-reference-comments#22"
         ],
         "key": "244",
         "unit_hashes": [
-          "b4c63f5865"
+          "b4c63f5865",
+          "1637d123c8",
+          "d33c44a3aa"
         ],
         "id": "google:word-list/244"
       },
@@ -40315,7 +40058,7 @@
         "text": "",
         "bad": "The API enables you to detect features in images.",
         "good": "The API lets you detect features in images.",
-        "avoid": "enables you to, allows you to",
+        "avoid": "enables you to",
         "use": "lets you",
         "pattern": "",
         "severity": "warning",
@@ -40529,7 +40272,7 @@
         "bad": "",
         "good": "",
         "avoid": "",
-        "use": "etc.",
+        "use": "",
         "pattern": "\\betc\\b(?!\\.)",
         "severity": "error",
         "why": "",
@@ -40634,11 +40377,17 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#210"
+          "word-list#210",
+          "ui-elements#28",
+          "ui-elements#114",
+          "ui-elements#116"
         ],
         "key": "273",
         "unit_hashes": [
-          "29289631ae"
+          "29289631ae",
+          "25e4012550",
+          "a3474db357",
+          "73bf1267d5"
         ],
         "id": "google:word-list/273"
       },
@@ -40679,7 +40428,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#212"
         ],
@@ -40703,7 +40454,9 @@
         "why": "",
         "example": "Create an external VPN Gateway resource.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#212"
         ],
@@ -40719,8 +40472,8 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "unarchive, uncompress, untar, unzip, Unarchive, Uncompress, Untar, Unzip",
-        "use": "extract, extract, extract, extract, Extract, Extract, Extract, Extract",
+        "avoid": "uncompress, untar, unzip, Uncompress, Untar, Unzip",
+        "use": "extract, extract, extract, Extract, Extract, Extract",
         "pattern": "",
         "severity": "warning",
         "why": "",
@@ -40753,7 +40506,7 @@
         "units": [
           "word-list#214"
         ],
-        "term": "fail over (verb), failover (noun, adjective)",
+        "term": "fail over (verb), failover (noun or adjective)",
         "key": "278",
         "unit_hashes": [
           "0a918d208e"
@@ -41276,29 +41029,6 @@
         "id": "google:word-list/300"
       },
       {
-        "heading": "future, in the future",
-        "kind": "row",
-        "text": "Avoid in the future in timeless documentation.",
-        "bad": "",
-        "good": "",
-        "avoid": "in the future, In the future",
-        "use": "",
-        "pattern": "",
-        "severity": "suggestion",
-        "why": "Can become outdated.",
-        "example": "In the future, this API will support streaming.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#231"
-        ],
-        "key": "301",
-        "unit_hashes": [
-          "1538597ee2"
-        ],
-        "id": "google:word-list/301"
-      },
-      {
         "heading": "GBps",
         "kind": "row",
         "text": "Use GBps, not GB/s, for gigabytes per second.",
@@ -41320,29 +41050,6 @@
           "30116bdabb"
         ],
         "id": "google:word-list/302"
-      },
-      {
-        "heading": "Gbps",
-        "kind": "row",
-        "text": "Use Gbps, not Gb/s, for gigabits per second.",
-        "bad": "",
-        "good": "",
-        "avoid": "Gb/s",
-        "use": "Gbps",
-        "pattern": "",
-        "severity": "warning",
-        "why": "By convention, Google uses Gbps for gigabits per second.",
-        "example": "The link supports 10 Gb/s.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#233"
-        ],
-        "key": "303",
-        "unit_hashes": [
-          "a2720a362e"
-        ],
-        "id": "google:word-list/303"
       },
       {
         "heading": "gcloud CLI",
@@ -41391,29 +41098,6 @@
           "36f6c7d5f3"
         ],
         "id": "google:word-list/305"
-      },
-      {
-        "heading": "gender-neutral he, him, or his (or she or her)",
-        "kind": "row",
-        "text": "Don't use he/she or (s)he or other such punctuational approaches; use the singular they.",
-        "bad": "",
-        "good": "",
-        "avoid": "he/she, (s)he, s/he, him/her, his/her",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Use the singular they instead.",
-        "example": "When a user signs in, he/she sees the dashboard.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#235"
-        ],
-        "key": "306",
-        "unit_hashes": [
-          "36f6c7d5f3"
-        ],
-        "id": "google:word-list/306"
       },
       {
         "heading": "generative AI",
@@ -41621,7 +41305,7 @@
         "units": [
           "word-list#242"
         ],
-        "term": "Google API Client Library for LANGUAGE (Java, .NET, etc.)",
+        "term": "Google API Client Library for LANGUAGE (Java or .NET or etc.)",
         "key": "315",
         "unit_hashes": [
           "95cab757ba"
@@ -41664,7 +41348,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#244"
         ],
@@ -41688,7 +41374,9 @@
         "why": "Use the product name Google Cloud.",
         "example": "Deploy the app to GCP.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#244"
         ],
@@ -41759,7 +41447,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#246"
         ],
@@ -41783,7 +41473,9 @@
         "why": "Use the full term Google Cloud project ID.",
         "example": "Enter your Cloud project ID.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#246"
         ],
@@ -42198,7 +41890,7 @@
         "text": "Don't use hamburger or hamburger menu; instead use the aria-label for that particular icon.",
         "bad": "",
         "good": "",
-        "avoid": "hamburger menu, hamburger icon, Hamburger menu",
+        "avoid": "hamburger menu, hamburger icon, Hamburger menu, Hamburger icon",
         "use": "",
         "pattern": "",
         "severity": "warning",
@@ -42207,11 +41899,17 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#263"
+          "word-list#263",
+          "ui-elements#28",
+          "ui-elements#114",
+          "ui-elements#116"
         ],
         "key": "340",
         "unit_hashes": [
-          "329f79bea8"
+          "329f79bea8",
+          "25e4012550",
+          "a3474db357",
+          "73bf1267d5"
         ],
         "id": "google:word-list/340"
       },
@@ -42423,7 +42121,7 @@
           "word-list#271",
           "word-list#272"
         ],
-        "term": "health check, healthy",
+        "term": "health check",
         "key": "349",
         "unit_hashes": [
           "a77c346b5b",
@@ -42741,11 +42439,19 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#280"
+          "word-list#280",
+          "hyphens#26",
+          "hyphens#27",
+          "hyphens#28",
+          "hyphens#29"
         ],
         "key": "362",
         "unit_hashes": [
-          "7a17c65a6a"
+          "7a17c65a6a",
+          "23ba68d16e",
+          "4b045a4329",
+          "c4337293c7",
+          "c2442ea011"
         ],
         "id": "google:word-list/362"
       },
@@ -42866,29 +42572,6 @@
           "c840669d1c"
         ],
         "id": "google:word-list/367"
-      },
-      {
-        "heading": "hover",
-        "kind": "row",
-        "text": "Don't use hover; instead use hold the pointer over.",
-        "bad": "",
-        "good": "",
-        "avoid": "hover over, Hover over",
-        "use": "hold the pointer over, Hold the pointer over",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "In the Admin menu, hover over File, and then click New.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#284"
-        ],
-        "key": "368",
-        "unit_hashes": [
-          "1c7693e738"
-        ],
-        "id": "google:word-list/368"
       },
       {
         "heading": "HTTPS",
@@ -43095,11 +42778,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#289"
+          "word-list#289",
+          "abbreviations#56"
         ],
         "key": "377",
         "unit_hashes": [
-          "a0dd8672d2"
+          "a0dd8672d2",
+          "1637d123c8"
         ],
         "id": "google:word-list/377"
       },
@@ -43354,7 +43039,9 @@
         "why": "Don't abbreviate instance group to IG.",
         "example": "Create an IG in your project.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#298"
         ],
@@ -43424,7 +43111,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#301"
         ],
@@ -43448,7 +43137,9 @@
         "why": "",
         "example": "",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#301"
         ],
@@ -43472,7 +43163,9 @@
         "why": "Don't use generic terms; specify the product name.",
         "example": "Create a cross-connect to your network.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#301"
         ],
@@ -43519,7 +43212,9 @@
         "why": "Don't use interconnect type.",
         "example": "Select an interconnect type.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#303"
         ],
@@ -44397,11 +44092,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#330"
+          "word-list#330",
+          "tone#18"
         ],
         "key": "432",
         "unit_hashes": [
-          "269ae9e8df"
+          "269ae9e8df",
+          "e0510f1579"
         ],
         "id": "google:word-list/432"
       },
@@ -44819,7 +44516,7 @@
         "bad": "",
         "good": "",
         "avoid": "man hours, manhours, man-hours",
-        "use": "person hours",
+        "use": "person-hours",
         "pattern": "",
         "severity": "warning",
         "why": "Avoid using gendered terms.",
@@ -45478,29 +45175,6 @@
         "id": "google:word-list/477"
       },
       {
-        "heading": "mobile data",
-        "kind": "row",
-        "text": "",
-        "bad": "",
-        "good": "",
-        "avoid": "cellular data",
-        "use": "mobile data",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "Turn off cellular data to save battery.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#372"
-        ],
-        "key": "478",
-        "unit_hashes": [
-          "57b2a5ca78"
-        ],
-        "id": "google:word-list/478"
-      },
-      {
         "heading": "mobile device",
         "kind": "term",
         "text": "Use mobile device, not mobile phone, when you're referring to more than phones (for example, tablets and phones); it's OK to use phone without mobile when the context is clear.",
@@ -45518,36 +45192,13 @@
           "word-list#373",
           "word-list#375"
         ],
-        "term": "mobile device, mobile phone",
+        "term": "mobile device",
         "key": "479",
         "unit_hashes": [
           "73b721f06a",
           "6daca053f6"
         ],
         "id": "google:word-list/479"
-      },
-      {
-        "heading": "mobile network",
-        "kind": "row",
-        "text": "",
-        "bad": "",
-        "good": "",
-        "avoid": "cellular network",
-        "use": "mobile network",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "Connect to a cellular network.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#374"
-        ],
-        "key": "480",
-        "unit_hashes": [
-          "170b37a658"
-        ],
-        "id": "google:word-list/480"
       },
       {
         "heading": "mom test",
@@ -46009,7 +45660,9 @@
         "why": "Google style uses internal IP address.",
         "example": "Enter the network IP address of the VM.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#390"
         ],
@@ -46284,29 +45937,6 @@
         "id": "google:word-list/511"
       },
       {
-        "heading": "NoOps",
-        "kind": "row",
-        "text": "",
-        "bad": "",
-        "good": "",
-        "avoid": "noops",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Don't use noops.",
-        "example": "The platform is noops by design.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#396"
-        ],
-        "key": "512",
-        "unit_hashes": [
-          "f552686e08"
-        ],
-        "id": "google:word-list/512"
-      },
-      {
         "heading": "NoSQL",
         "kind": "row",
         "text": "",
@@ -46466,11 +46096,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#402"
+          "word-list#402",
+          "jargon#5"
         ],
         "key": "519",
         "unit_hashes": [
-          "527ba1b971"
+          "527ba1b971",
+          "fca1719773"
         ],
         "id": "google:word-list/519"
       },
@@ -46563,11 +46195,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#404"
+          "word-list#404",
+          "word-list#33"
         ],
         "key": "523",
         "unit_hashes": [
-          "279dbea732"
+          "279dbea732",
+          "1200e7c6ce"
         ],
         "id": "google:word-list/523"
       },
@@ -46918,7 +46552,9 @@
         "why": "",
         "example": "Create a peer zone for the network.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#418"
         ],
@@ -47108,7 +46744,9 @@
         "why": "",
         "example": "Attach a PD to the instance.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#422"
         ],
@@ -47131,7 +46769,9 @@
         "why": "Lowercase except at the start of a sentence.",
         "example": "Attach a Persistent Disk to the instance.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#422"
         ],
@@ -47159,7 +46799,7 @@
           "word-list#423",
           "word-list#422"
         ],
-        "term": "personally identifiable information (PII), persistent disk",
+        "term": "personally identifiable information (PII)",
         "key": "548",
         "unit_hashes": [
           "a92d3ddce0",
@@ -47210,7 +46850,7 @@
           "word-list#425",
           "word-list#422"
         ],
-        "term": "plain text, persistent disk",
+        "term": "plain text",
         "key": "550",
         "unit_hashes": [
           "278c9e71d8",
@@ -47236,7 +46876,7 @@
           "word-list#426",
           "word-list#422"
         ],
-        "term": "please, persistent disk",
+        "term": "please",
         "key": "551",
         "unit_hashes": [
           "7cd709a35b",
@@ -47262,7 +46902,7 @@
           "word-list#426",
           "word-list#422"
         ],
-        "term": "please, persistent disk",
+        "term": "please",
         "key": "552",
         "unit_hashes": [
           "7cd709a35b",
@@ -47314,7 +46954,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please",
+        "term": "plugin (noun), plug-in (adjective), plug in (verb)",
         "key": "554",
         "unit_hashes": [
           "a9500a247b",
@@ -47342,7 +46982,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please",
+        "term": "plugin (noun), plug-in (adjective), plug in (verb)",
         "key": "555",
         "unit_hashes": [
           "a9500a247b",
@@ -47370,7 +47010,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please",
+        "term": "plugin (noun), plug-in (adjective), plug in (verb)",
         "key": "556",
         "unit_hashes": [
           "a9500a247b",
@@ -47400,7 +47040,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "point to, persistent disk, please",
+        "term": "point to",
         "key": "557",
         "unit_hashes": [
           "bbc7e85960",
@@ -47430,7 +47070,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "point to, persistent disk, please",
+        "term": "point to",
         "key": "558",
         "unit_hashes": [
           "bbc7e85960",
@@ -47458,7 +47098,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "POJO, persistent disk, please",
+        "term": "POJO",
         "key": "559",
         "unit_hashes": [
           "5e2fb49f85",
@@ -47540,7 +47180,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "populate, persistent disk, please",
+        "term": "populate",
         "key": "562",
         "unit_hashes": [
           "e47122c9e5",
@@ -47595,7 +47235,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "portal, persistent disk, please",
+        "term": "portal",
         "key": "564",
         "unit_hashes": [
           "3aed4f6360",
@@ -47623,7 +47263,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "possible, persistent disk, please",
+        "term": "possible",
         "key": "565",
         "unit_hashes": [
           "ab506d1457",
@@ -47651,7 +47291,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "PostgreSQL, persistent disk, please",
+        "term": "PostgreSQL",
         "key": "566",
         "unit_hashes": [
           "22f61cd50d",
@@ -47679,7 +47319,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "postmortem, persistent disk, please",
+        "term": "postmortem",
         "key": "567",
         "unit_hashes": [
           "2ef4772f4e",
@@ -47707,7 +47347,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "postmortem, persistent disk, please",
+        "term": "postmortem",
         "key": "568",
         "unit_hashes": [
           "2ef4772f4e",
@@ -47735,7 +47375,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "practitioner, persistent disk, please",
+        "term": "practitioner",
         "key": "569",
         "unit_hashes": [
           "73adc6e6d1",
@@ -47934,33 +47574,6 @@
         "id": "google:word-list/576"
       },
       {
-        "heading": "presently, at present",
-        "kind": "row",
-        "text": "Avoid presently and at present because this word or phrase is implied.",
-        "bad": "",
-        "good": "",
-        "avoid": "presently, Presently, at present, At present",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "Implied; can disclose strategy or imply future change.",
-        "example": "At present, this setting is required.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "word-list#448",
-          "word-list#422",
-          "word-list#426"
-        ],
-        "key": "577",
-        "unit_hashes": [
-          "5216184a88",
-          "af46e34f99",
-          "7cd709a35b"
-        ],
-        "id": "google:word-list/577"
-      },
-      {
         "heading": "press",
         "kind": "term",
         "text": "Use press when referring to pressing a key or a key combination to cause an action to occur, and for mechanical buttons.",
@@ -47979,7 +47592,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "press, persistent disk, please",
+        "term": "press",
         "key": "578",
         "unit_hashes": [
           "5bfb8c4976",
@@ -48007,7 +47620,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "press, persistent disk, please",
+        "term": "press",
         "key": "579",
         "unit_hashes": [
           "5bfb8c4976",
@@ -48062,7 +47675,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "primitive, persistent disk, please",
+        "term": "primitive",
         "key": "581",
         "unit_hashes": [
           "65ec99f917",
@@ -48092,7 +47705,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "project, persistent disk, please",
+        "term": "project",
         "key": "582",
         "unit_hashes": [
           "ab2474b594",
@@ -48120,7 +47733,7 @@
           "word-list#422",
           "word-list#426"
         ],
-        "term": "proper, properly, persistent disk, please",
+        "term": "proper, properly",
         "key": "583",
         "unit_hashes": [
           "849325a461",
@@ -48506,7 +48119,9 @@
         "why": "",
         "example": "Add a resource recordset to the zone.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#467"
         ],
@@ -48671,11 +48286,13 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#474"
+          "word-list#474",
+          "abbreviations#58"
         ],
         "key": "606",
         "unit_hashes": [
-          "fc8ca6721e"
+          "fc8ca6721e",
+          "ebbafb4806"
         ],
         "id": "google:word-list/606"
       },
@@ -49125,7 +48742,7 @@
           "word-list#491",
           "word-list#492"
         ],
-        "term": "service level agreement, service level indicator, service level objective",
+        "term": "service level agreement",
         "key": "625",
         "unit_hashes": [
           "113ce9f713",
@@ -49152,7 +48769,7 @@
           "word-list#491",
           "word-list#492"
         ],
-        "term": "service level indicator, service level objective",
+        "term": "service level indicator",
         "key": "626",
         "unit_hashes": [
           "9409113ab0",
@@ -49416,7 +49033,7 @@
           "word-list#501",
           "word-list#504"
         ],
-        "term": "sign-in (noun or adjective), sign in (verb), sign-out (noun or adjective), sign out (verb)",
+        "term": "sign-in (noun or adjective), sign in (verb)",
         "key": "637",
         "unit_hashes": [
           "9fbc82c198",
@@ -50376,7 +49993,7 @@
           "word-list#536",
           "word-list#533"
         ],
-        "term": "target, tap",
+        "term": "target",
         "key": "677",
         "unit_hashes": [
           "4f75f061c6",
@@ -50402,7 +50019,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "terminate, tap",
+        "term": "terminate",
         "key": "678",
         "unit_hashes": [
           "62830eec3c",
@@ -50431,7 +50048,7 @@
           "word-list#538",
           "word-list#537"
         ],
-        "term": "text box, textbox, terminate",
+        "term": "text box, textbox",
         "key": "679",
         "unit_hashes": [
           "77c0e5dd11",
@@ -50485,7 +50102,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "then, terminate, tap",
+        "term": "then",
         "key": "681",
         "unit_hashes": [
           "3d6601c075",
@@ -50513,7 +50130,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "they (singular), terminate, tap",
+        "term": "they (singular)",
         "key": "682",
         "unit_hashes": [
           "bf53826271",
@@ -50565,7 +50182,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "third party (noun), third-party (adjective), terminate, tap",
+        "term": "third party (noun), third-party (adjective)",
         "key": "684",
         "unit_hashes": [
           "4686de0bdc",
@@ -50616,7 +50233,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "this, that, terminate, tap",
+        "term": "this, that",
         "key": "686",
         "unit_hashes": [
           "0ea0cbe046",
@@ -50695,7 +50312,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "timeout (noun), time out (verb), terminate, tap",
+        "term": "timeout (noun), time out (verb)",
         "key": "689",
         "unit_hashes": [
           "6374c32de7",
@@ -50801,7 +50418,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "time zone (noun), time-zone (adjective), terminate, tap",
+        "term": "time zone (noun), time-zone (adjective)",
         "key": "693",
         "unit_hashes": [
           "cb71e34080",
@@ -50827,13 +50444,17 @@
         "units": [
           "word-list#549",
           "word-list#537",
-          "word-list#533"
+          "word-list#533",
+          "abbreviations#58",
+          "tone#20"
         ],
         "key": "694",
         "unit_hashes": [
           "6ba1e68d5b",
           "62830eec3c",
-          "a11a173ec7"
+          "a11a173ec7",
+          "ebbafb4806",
+          "aa08537e8c"
         ],
         "id": "google:word-list/694"
       },
@@ -50885,7 +50506,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "touch, terminate, tap",
+        "term": "touch",
         "key": "696",
         "unit_hashes": [
           "1e3b81f645",
@@ -50907,7 +50528,9 @@
         "why": "",
         "example": "Touch and hold the app icon.",
         "applies": [],
-        "products": [],
+        "products": [
+          "Android"
+        ],
         "units": [
           "word-list#552",
           "word-list#537",
@@ -50967,7 +50590,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "traditional, terminate, tap",
+        "term": "traditional",
         "key": "699",
         "unit_hashes": [
           "1a4d33a5de",
@@ -51049,7 +50672,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "trojan, terminate, tap",
+        "term": "trojan",
         "key": "702",
         "unit_hashes": [
           "cac77725d9",
@@ -51080,7 +50703,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "turn on, terminate, tap",
+        "term": "turn on",
         "key": "703",
         "unit_hashes": [
           "49091f6ff4",
@@ -51132,7 +50755,7 @@
           "word-list#537",
           "word-list#533"
         ],
-        "term": "type, terminate, tap",
+        "term": "type",
         "key": "705",
         "unit_hashes": [
           "a41f4c381f",
@@ -51222,12 +50845,12 @@
         "text": "Don't use unarchive, uncompress, untar, or unzip. Instead, use extract.",
         "bad": "",
         "good": "",
-        "avoid": "unarchive, uncompress, untar, unzip",
+        "avoid": "unarchive",
         "use": "extract",
         "pattern": "",
         "severity": "warning",
         "why": "",
-        "example": "To get the files, unzip the downloaded archive.",
+        "example": "To get the files, unarchive the downloaded archive.",
         "applies": [],
         "products": [],
         "units": [
@@ -51288,11 +50911,15 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#564"
+          "word-list#564",
+          "word-list#113",
+          "word-list#167"
         ],
         "key": "711",
         "unit_hashes": [
-          "92537524b5"
+          "92537524b5",
+          "7bad1f8f55",
+          "1d3acc2fc9"
         ],
         "id": "google:word-list/711"
       },
@@ -51479,12 +51106,14 @@
         "products": [],
         "units": [
           "word-list#574",
-          "word-list#570"
+          "word-list#570",
+          "periods#32"
         ],
         "key": "719",
         "unit_hashes": [
           "e294c18f5e",
-          "c0d462433d"
+          "c0d462433d",
+          "88ae4e8e81"
         ],
         "id": "google:word-list/719"
       },
@@ -51506,7 +51135,7 @@
           "word-list#575",
           "word-list#570"
         ],
-        "term": "user, unselect",
+        "term": "user",
         "key": "720",
         "unit_hashes": [
           "0b1ffc589b",
@@ -51581,7 +51210,7 @@
           "word-list#577",
           "word-list#570"
         ],
-        "term": "using, unselect",
+        "term": "using",
         "key": "723",
         "unit_hashes": [
           "fa8e8f9a1a",
@@ -51633,7 +51262,7 @@
           "word-list#578",
           "word-list#570"
         ],
-        "term": "utilize, utilization, UTF, unselect",
+        "term": "utilize, utilization",
         "key": "725",
         "unit_hashes": [
           "b6fe34f5d4",
@@ -51824,7 +51453,9 @@
         "why": "",
         "example": "Create an Interconnect attachment for your connection.",
         "applies": [],
-        "products": [],
+        "products": [
+          "GoogleCloud"
+        ],
         "units": [
           "word-list#585"
         ],
@@ -52259,7 +51890,7 @@
         "text": "Don't use whitelist, whitelisted, whitelisting, or their variants; see the blacklist entry.",
         "bad": "",
         "good": "",
-        "avoid": "whitelist, white list, white-list, whitelisted, white listed, white-listed, whitelisting, white listing, white-listing, Whitelist, White list, White-list, Whitelisted, Whitelisting",
+        "avoid": "whitelist, white list, white-list, white listed, white-listed, white listing, white-listing, Whitelist, White list, White-list",
         "use": "",
         "pattern": "",
         "severity": "warning",
@@ -52578,11 +52209,15 @@
         "applies": [],
         "products": [],
         "units": [
-          "word-list#617"
+          "word-list#617",
+          "abbreviations#58",
+          "tone#20"
         ],
         "key": "765",
         "unit_hashes": [
-          "d4af67a51f"
+          "d4af67a51f",
+          "ebbafb4806",
+          "aa08537e8c"
         ],
         "id": "google:word-list/765"
       },
@@ -52910,6 +52545,256 @@
         "error": "row 'Tap & hold, Tap and hold, tap & hold, tap and hold': The Example doesn't trigger this rule: 'To open the menu, tap and hold the icon.'."
       }
     ],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:word-list/23 claims units of several entries (action bar; app bar); its Term is its own entry, 'action bar'",
+      "google:word-list/23 Term 'action bar, app bar' → 'action bar'",
+      "google:word-list/144 claims units of several entries (Cloud console; console); its Term is its own entry, 'Cloud console'",
+      "google:word-list/144 Term 'Cloud console, console' → 'Cloud console'",
+      "google:word-list/145 claims units of several entries (Cloud console; console); its Term is its own entry, 'Cloud console'",
+      "google:word-list/145 Term 'Cloud console, console' → 'Cloud console'",
+      "google:word-list/232 claims units of several entries (drop-down; downscope); its Term is its own entry, 'drop-down'",
+      "google:word-list/232 Term 'drop-down, downscope' → 'drop-down'",
+      "google:word-list/233 claims units of several entries (drop-down; downscope); its Term is its own entry, 'drop-down'",
+      "google:word-list/233 Term 'drop-down, downscope' → 'drop-down'",
+      "google:word-list/278 Term 'fail over (verb), failover (noun, adjective)' → 'fail over (verb), failover (noun or adjective)'",
+      "google:word-list/315 Term 'Google API Client Library for LANGUAGE (Java, .NET, etc.)' → 'Google API Client Library for LANGUAGE (Java or .NET or etc.)'",
+      "google:word-list/349 claims units of several entries (health check; healthy); its Term is its own entry, 'health check'",
+      "google:word-list/349 Term 'health check, healthy' → 'health check'",
+      "google:word-list/479 claims units of several entries (mobile device; mobile phone); its Term is its own entry, 'mobile device'",
+      "google:word-list/479 Term 'mobile device, mobile phone' → 'mobile device'",
+      "google:word-list/548 claims units of several entries (personally identifiable information (PII); persistent disk); its Term is its own entry, 'personally identifiable information (PII)'",
+      "google:word-list/548 Term 'personally identifiable information (PII), persistent disk' → 'personally identifiable information (PII)'",
+      "google:word-list/550 claims units of several entries (plain text; persistent disk); its Term is its own entry, 'plain text'",
+      "google:word-list/550 Term 'plain text, persistent disk' → 'plain text'",
+      "google:word-list/551 claims units of several entries (please; persistent disk); its Term is its own entry, 'please'",
+      "google:word-list/551 Term 'please, persistent disk' → 'please'",
+      "google:word-list/552 claims units of several entries (please; persistent disk); its Term is its own entry, 'please'",
+      "google:word-list/552 Term 'please, persistent disk' → 'please'",
+      "google:word-list/554 claims units of several entries (plugin (noun), plug-in (adjective), plug in (verb); persistent disk; please); its Term is its own entry, 'plugin (noun), plug-in (adjective), plug in (verb)'",
+      "google:word-list/554 Term 'plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please' → 'plugin (noun), plug-in (adjective), plug in (verb)'",
+      "google:word-list/555 claims units of several entries (plugin (noun), plug-in (adjective), plug in (verb); persistent disk; please); its Term is its own entry, 'plugin (noun), plug-in (adjective), plug in (verb)'",
+      "google:word-list/555 Term 'plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please' → 'plugin (noun), plug-in (adjective), plug in (verb)'",
+      "google:word-list/556 claims units of several entries (plugin (noun), plug-in (adjective), plug in (verb); persistent disk; please); its Term is its own entry, 'plugin (noun), plug-in (adjective), plug in (verb)'",
+      "google:word-list/556 Term 'plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please' → 'plugin (noun), plug-in (adjective), plug in (verb)'",
+      "google:word-list/557 claims units of several entries (point to; persistent disk; please); its Term is its own entry, 'point to'",
+      "google:word-list/557 Term 'point to, persistent disk, please' → 'point to'",
+      "google:word-list/558 claims units of several entries (point to; persistent disk; please); its Term is its own entry, 'point to'",
+      "google:word-list/558 Term 'point to, persistent disk, please' → 'point to'",
+      "google:word-list/559 claims units of several entries (POJO; persistent disk; please); its Term is its own entry, 'POJO'",
+      "google:word-list/559 Term 'POJO, persistent disk, please' → 'POJO'",
+      "google:word-list/562 claims units of several entries (populate; persistent disk; please); its Term is its own entry, 'populate'",
+      "google:word-list/562 Term 'populate, persistent disk, please' → 'populate'",
+      "google:word-list/564 claims units of several entries (portal; persistent disk; please); its Term is its own entry, 'portal'",
+      "google:word-list/564 Term 'portal, persistent disk, please' → 'portal'",
+      "google:word-list/565 claims units of several entries (possible; persistent disk; please); its Term is its own entry, 'possible'",
+      "google:word-list/565 Term 'possible, persistent disk, please' → 'possible'",
+      "google:word-list/566 claims units of several entries (PostgreSQL; persistent disk; please); its Term is its own entry, 'PostgreSQL'",
+      "google:word-list/566 Term 'PostgreSQL, persistent disk, please' → 'PostgreSQL'",
+      "google:word-list/567 claims units of several entries (postmortem; persistent disk; please); its Term is its own entry, 'postmortem'",
+      "google:word-list/567 Term 'postmortem, persistent disk, please' → 'postmortem'",
+      "google:word-list/568 claims units of several entries (postmortem; persistent disk; please); its Term is its own entry, 'postmortem'",
+      "google:word-list/568 Term 'postmortem, persistent disk, please' → 'postmortem'",
+      "google:word-list/569 claims units of several entries (practitioner; persistent disk; please); its Term is its own entry, 'practitioner'",
+      "google:word-list/569 Term 'practitioner, persistent disk, please' → 'practitioner'",
+      "google:word-list/578 claims units of several entries (press; persistent disk; please); its Term is its own entry, 'press'",
+      "google:word-list/578 Term 'press, persistent disk, please' → 'press'",
+      "google:word-list/579 claims units of several entries (press; persistent disk; please); its Term is its own entry, 'press'",
+      "google:word-list/579 Term 'press, persistent disk, please' → 'press'",
+      "google:word-list/581 claims units of several entries (primitive; persistent disk; please); its Term is its own entry, 'primitive'",
+      "google:word-list/581 Term 'primitive, persistent disk, please' → 'primitive'",
+      "google:word-list/582 claims units of several entries (project; persistent disk; please); its Term is its own entry, 'project'",
+      "google:word-list/582 Term 'project, persistent disk, please' → 'project'",
+      "google:word-list/583 claims units of several entries (proper, properly; persistent disk; please); its Term is its own entry, 'proper, properly'",
+      "google:word-list/583 Term 'proper, properly, persistent disk, please' → 'proper, properly'",
+      "google:word-list/625 claims units of several entries (service level agreement; service level indicator; service level objective); its Term is its own entry, 'service level agreement'",
+      "google:word-list/625 Term 'service level agreement, service level indicator, service level objective' → 'service level agreement'",
+      "google:word-list/626 claims units of several entries (service level indicator; service level objective); its Term is its own entry, 'service level indicator'",
+      "google:word-list/626 Term 'service level indicator, service level objective' → 'service level indicator'",
+      "google:word-list/637 claims units of several entries (sign-in (noun or adjective), sign in (verb); sign-out (noun or adjective), sign out (verb)); its Term is its own entry, 'sign-in (noun or adjective), sign in (verb)'",
+      "google:word-list/637 Term 'sign-in (noun or adjective), sign in (verb), sign-out (noun or adjective), sign out (verb)' → 'sign-in (noun or adjective), sign in (verb)'",
+      "google:word-list/677 claims units of several entries (target; tap); its Term is its own entry, 'target'",
+      "google:word-list/677 Term 'target, tap' → 'target'",
+      "google:word-list/678 claims units of several entries (terminate; tap); its Term is its own entry, 'terminate'",
+      "google:word-list/678 Term 'terminate, tap' → 'terminate'",
+      "google:word-list/679 claims units of several entries (text box, textbox; terminate); its Term is its own entry, 'text box, textbox'",
+      "google:word-list/679 Term 'text box, textbox, terminate' → 'text box, textbox'",
+      "google:word-list/681 claims units of several entries (then; terminate; tap); its Term is its own entry, 'then'",
+      "google:word-list/681 Term 'then, terminate, tap' → 'then'",
+      "google:word-list/682 claims units of several entries (they (singular); terminate; tap); its Term is its own entry, 'they (singular)'",
+      "google:word-list/682 Term 'they (singular), terminate, tap' → 'they (singular)'",
+      "google:word-list/684 claims units of several entries (third party (noun), third-party (adjective); terminate; tap); its Term is its own entry, 'third party (noun), third-party (adjective)'",
+      "google:word-list/684 Term 'third party (noun), third-party (adjective), terminate, tap' → 'third party (noun), third-party (adjective)'",
+      "google:word-list/686 claims units of several entries (this, that; terminate; tap); its Term is its own entry, 'this, that'",
+      "google:word-list/686 Term 'this, that, terminate, tap' → 'this, that'",
+      "google:word-list/689 claims units of several entries (timeout (noun), time out (verb); terminate; tap); its Term is its own entry, 'timeout (noun), time out (verb)'",
+      "google:word-list/689 Term 'timeout (noun), time out (verb), terminate, tap' → 'timeout (noun), time out (verb)'",
+      "google:word-list/693 claims units of several entries (time zone (noun), time-zone (adjective); terminate; tap); its Term is its own entry, 'time zone (noun), time-zone (adjective)'",
+      "google:word-list/693 Term 'time zone (noun), time-zone (adjective), terminate, tap' → 'time zone (noun), time-zone (adjective)'",
+      "google:word-list/696 claims units of several entries (touch; terminate; tap); its Term is its own entry, 'touch'",
+      "google:word-list/696 Term 'touch, terminate, tap' → 'touch'",
+      "google:word-list/699 claims units of several entries (traditional; terminate; tap); its Term is its own entry, 'traditional'",
+      "google:word-list/699 Term 'traditional, terminate, tap' → 'traditional'",
+      "google:word-list/702 claims units of several entries (trojan; terminate; tap); its Term is its own entry, 'trojan'",
+      "google:word-list/702 Term 'trojan, terminate, tap' → 'trojan'",
+      "google:word-list/703 claims units of several entries (turn on; terminate; tap); its Term is its own entry, 'turn on'",
+      "google:word-list/703 Term 'turn on, terminate, tap' → 'turn on'",
+      "google:word-list/705 claims units of several entries (type; terminate; tap); its Term is its own entry, 'type'",
+      "google:word-list/705 Term 'type, terminate, tap' → 'type'",
+      "google:word-list/720 claims units of several entries (user; unselect); its Term is its own entry, 'user'",
+      "google:word-list/720 Term 'user, unselect' → 'user'",
+      "google:word-list/723 claims units of several entries (using; unselect); its Term is its own entry, 'using'",
+      "google:word-list/723 Term 'using, unselect' → 'using'",
+      "google:word-list/725 claims units of several entries (utilize, utilization; UTF; unselect); its Term is its own entry, 'utilize, utilization'",
+      "google:word-list/725 Term 'utilize, utilization, UTF, unselect' → 'utilize, utilization'",
+      "google:word-list/62 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/141 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/142 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/143 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/144 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/145 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/146 Product.GoogleCloud (its fix writes the product name)",
+      "google:word-list/147 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/176 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/217 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/242 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/243 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/275 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/276 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/317 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/318 Product.GoogleCloud (its fix writes the product name)",
+      "google:word-list/321 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/322 Product.GoogleCloud (its fix writes the product name)",
+      "google:word-list/388 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/391 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/392 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/393 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/395 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/500 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/538 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/546 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/547 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/599 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/697 Product.Android (products.json lists the entry)",
+      "google:word-list/733 Product.GoogleCloud (products.json lists the entry)",
+      "google:word-list/450 Use 'person hours' → 'person-hours' (fixes.json: one fix for man-hours: Inclusive-Documentation and Hyphens write person-hours)",
+      "google:word-list/340 takes over 'Hamburger icon' from google:ui-elements/13",
+      "google:word-list/26 dropped (omnibox): duplicate of google:word-list/523",
+      "google:word-list/57 dropped (as of this writing, As of this writing): duplicate of google:timeless-documentation/15",
+      "google:word-list/95 drops 'whitelist' (owned by google:word-list/333, google:word-list/752)",
+      "google:word-list/95 drops 'graylist' (owned by google:word-list/333, google:word-list/752)",
+      "google:word-list/95 drops 'greylist' (owned by google:word-list/333, google:word-list/752)",
+      "google:word-list/129 dropped (Uncheck, uncheck): duplicate of google:word-list/711",
+      "google:word-list/202 dropped (Uncheck, uncheck): duplicate of google:word-list/711",
+      "google:word-list/223 dropped (does not yet): duplicate of google:timeless-documentation/17",
+      "google:word-list/260 drops 'allows you to' (owned by google:word-list/39)",
+      "google:word-list/277 drops 'unarchive' (owned by google:word-list/709)",
+      "google:word-list/277 drops 'Unarchive' (owned by google:word-list/709)",
+      "google:word-list/301 dropped (in the future, In the future): duplicate of google:timeless-documentation/19",
+      "google:word-list/303 dropped (Gb/s): duplicate of google:units-of-measure/23",
+      "google:word-list/306 dropped (he/she, (s)he, s/he, him/her, his/her): duplicate of google:pronouns/6",
+      "google:word-list/368 dropped (hover over, Hover over): duplicate of google:inclusive-documentation/15",
+      "google:word-list/478 dropped (cellular data): duplicate of google:word-list/121",
+      "google:word-list/480 dropped (cellular network): duplicate of google:word-list/122",
+      "google:word-list/577 dropped (presently, Presently, at present, At present): duplicate of google:timeless-documentation/20",
+      "google:word-list/709 drops 'uncompress' (owned by google:word-list/277)",
+      "google:word-list/709 drops 'untar' (owned by google:word-list/277)",
+      "google:word-list/709 drops 'unzip' (owned by google:word-list/277)",
+      "google:word-list/709 Example → 'To get the files, unarchive the downloaded archive.'",
+      "google:word-list/752 drops 'whitelisted' (owned by google:word-list/96, google:word-list/97)",
+      "google:word-list/752 drops 'whitelisting' (owned by google:word-list/96, google:word-list/97)",
+      "google:word-list/752 drops 'Whitelisted' (owned by google:word-list/96, google:word-list/97)",
+      "google:word-list/752 drops 'Whitelisting' (owned by google:word-list/96, google:word-list/97)",
+      "google:word-list/42 dropped (\\b\\d{1,2}(?::\\d{2})?(?:\\s?(?:[ap]\\.m\\.|[ap]m\\b|[AP]\\.M\\.)|(?:AM|PM)\\b)): owners.json: Dates-Times owns time formats (dates-times/8 and /9 cover every form; word-list/42 differs only by a trailing period)",
+      "google:word-list/512 dropped (noops): owners.json: same entry (NoOps); 511 has the fix",
+      "google:word-list/244 Use 'for example, For example' → 'for example,' (the fix 'Use a supported format, for example JSON.' is flagged by google:word-list/296 ('for example'))",
+      "google:word-list/269 flag-only, was Use 'etc.' (the fix 'If your app experiences instability, high latency, etc., follow these steps:' is flagged by google:lists/36 (', etc.'))"
+    ],
+    "retired": [
+      {
+        "key": "26",
+        "text": "omnibox",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/523"
+      },
+      {
+        "key": "57",
+        "text": "as of this writing, As of this writing",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:timeless-documentation/15"
+      },
+      {
+        "key": "129",
+        "text": "Uncheck, uncheck",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/711"
+      },
+      {
+        "key": "202",
+        "text": "Uncheck, uncheck",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/711"
+      },
+      {
+        "key": "223",
+        "text": "does not yet",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:timeless-documentation/17"
+      },
+      {
+        "key": "301",
+        "text": "in the future, In the future",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:timeless-documentation/19"
+      },
+      {
+        "key": "303",
+        "text": "Gb/s",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:units-of-measure/23"
+      },
+      {
+        "key": "306",
+        "text": "he/she, (s)he, s/he, him/her, his/her",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:pronouns/6"
+      },
+      {
+        "key": "368",
+        "text": "hover over, Hover over",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:inclusive-documentation/15"
+      },
+      {
+        "key": "478",
+        "text": "cellular data",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/121"
+      },
+      {
+        "key": "480",
+        "text": "cellular network",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:word-list/122"
+      },
+      {
+        "key": "577",
+        "text": "presently, Presently, at present, At present",
+        "retired": "2026-10-22",
+        "reason": "duplicate of google:timeless-documentation/20"
+      },
+      {
+        "key": "42",
+        "text": "\\b\\d{1,2}(?::\\d{2})?(?:\\s?(?:[ap]\\.m\\.|[ap]m\\b|[AP]\\.M\\.)|(?:AM|PM)\\b)",
+        "retired": "2026-10-22",
+        "reason": "owners.json: Dates-Times owns time formats (dates-times/8 and /9 cover every form; word-list/42 differs only by a trailing period)"
+      },
+      {
+        "key": "512",
+        "text": "noops",
+        "retired": "2026-10-22",
+        "reason": "owners.json: same entry (NoOps); 511 has the fix"
+      }
+    ]
   }
 }

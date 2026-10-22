@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Create a channel</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Create a channel</h1>
+        <p><code>POST /channels/create</code></p>
+        <p>Create a new channel, and optionally subscribe users to the newly created channel.</p>
+        <p>The initial <MadCap:xref href="update-stream.htm">channel settings</MadCap:xref> will be determined by the optional parameters, like <code>invite_only</code>, detailed below. Add a short label, e.g. the purpose of the item.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 417). Previously, this was only possible via the <MadCap:xref href="subscribe.htm"><code>POST /api/subscribe</code></MadCap:xref> endpoint, which handles both channel subscription and creation.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Create a new channel.
+request = {
+    "name": "music_group",
+    "description": "Channel for discussing and learning about music.",
+    "subscribers": [12],
+}
+result = client.call_endpoint(
+    url="channels/create",
+    method="POST",
+    request=request,
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Create a channel
+curl -sS -X POST https://chat.example.com/api/v1/channels/create \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode name=music \
+    --data-urlencode 'subscribers=[17, 12]'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The name of the new channel.</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The description to use for the new channel being created, in text/markdown format.</td>
+                </tr>
+                <tr>
+                    <td><code>subscribers</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>Yes</td>
+                    <td>A list of user IDs of the users to be subscribed to the new channel.</td>
+                </tr>
+                <tr>
+                    <td><code>announce</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>This determines whether notification bot will send an announcement about the new channel's creation.</td>
+                </tr>
+                <tr>
+                    <td><code>invite_only</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>This parameter and the ones that follow are utilized to request an initial configuration of the new channel.</td>
+                </tr>
+                <tr>
+                    <td><code>is_web_public</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>This parameter determines whether the newly created channel will be a web-public channel.</td>
+                </tr>
+                <tr>
+                    <td><code>is_default_stream</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>This parameter determines whether the newly created channel will be added as a default channel for new users joining the organization.</td>
+                </tr>
+                <tr>
+                    <td><code>folder_id</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>This parameter adds the newly created channel to the specified channel folder.</td>
+                </tr>
+                <tr>
+                    <td><code>topics_policy</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Whether named topics and the empty topic (i.e., "general chat" topic) are enabled in this channel.</td>
+                </tr>
+                <tr>
+                    <td><code>history_public_to_subscribers</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the channel's message history should be available to newly subscribed members, or users can only access messages they actually received while subscribed to the channel.</td>
+                </tr>
+                <tr>
+                    <td><code>message_retention_days</code></td>
+                    <td>body</td>
+                    <td>string or integer</td>
+                    <td>No</td>
+                    <td>Number of days that messages sent to this channel will be stored before being automatically deleted by the message retention policy. Two special string format values are supported:</td>
+                </tr>
+                <tr>
+                    <td><code>can_add_subscribers_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_create_topic_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_delete_any_message_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_delete_own_message_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_remove_subscribers_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_administer_channel_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_move_messages_out_of_channel_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_move_messages_within_channel_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_send_message_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_subscribe_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_resolve_topics_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>default_push_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether mobile push notifications will be enabled by default when a user first subscribes to this channel, potentially overriding the user's default mobile notification setting for channel messages!</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>name</code></h4>
+        <p>Clients should use the <code>max_stream_name_length</code> returned by the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> endpoint to determine the maximum channel name length. Members with MFA turned on get a code each time.</p>
+        <h4><code>description</code></h4>
+        <p>Clients should use the <code>max_stream_description_length</code> returned by the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> endpoint to determine the maximum channel description length.</p>
+        <h4><code>invite_only</code></h4>
+        <p>This parameter determines whether the newly created channel will be a private channel.</p>
+        <h4><code>is_web_public</code></h4>
+        <p>Note that creating web-public channels requires the <code>WEB_PUBLIC_STREAMS_ENABLED</code> server setting to be enabled on the <MadCap:variable name="General.ProductName" /> server in question, the organization to have enabled the <code>enable_spectator_access</code> realm setting, and the current user to have permission under the organization's <code>can_create_web_public_channel_group</code> realm setting. You get a best-in-class experience.</p>
+        <h4><code>folder_id</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 389).</p>
+        <h4><code>topics_policy</code></h4>
+        <p>Possible values: <code>inherit</code>, <code>allow_empty_topic</code>, <code>disable_empty_topic</code>, <code>empty_topic_only</code>.</p>
+        <ul>
+            <li><code>"inherit"</code>: Messages can be sent to named topics in this channel, and the organization-level <code>realm_topics_policy</code> is used for whether messages can be sent to the empty topic in this channel.</li>
+            <li><code>"allow_empty_topic"</code>: Messages can be sent to both named topics and the empty topic in this channel.</li>
+            <li><code>"disable_empty_topic"</code>: Messages can be sent to named topics in this channel, but the empty topic is disabled.</li>
+            <li><code>"empty_topic_only"</code>: Messages can be sent to the empty topic in this channel, but named topics are disabled. See "general chat" channels.</li>
+        </ul>
+        <p>The <code>"empty_topic_only"</code> policy can only be set if all existing messages in the channel are already in the empty topic.</p>
+        <p>When creating a new channel, if the <code>topics_policy</code> is not specified, the <code>"inherit"</code> option will be set.</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 11.0 (feature level 404), the <code>"empty_topic_only"</code> option was added.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 392). Items on the blacklist cannot be selected.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>id</code></td>
+                    <td>integer</td>
+                    <td>The ID of the newly created channel!</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 409</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "result": "error",
+  "msg": "Channel 'discussions' already exists",
+  "code": "CHANNEL_ALREADY_EXISTS"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

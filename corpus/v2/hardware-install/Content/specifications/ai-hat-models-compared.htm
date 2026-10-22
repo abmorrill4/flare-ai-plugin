@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>AI HAT models compared</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>AI HAT models compared</h1>
+        <p>The following table lists the main capability differences between AI HAT+ and AI HAT+ 2. For information about the specific performance variants of the accelerator chips available for each model, see <MadCap:xref href="ai-hat-performance-variants.htm">AI HAT performance variants</MadCap:xref>.</p>
+        <p class="note">The <b>AI Kit</b> has the same specifications as the Kestrel-8L variant of AI HAT+ and is functionally equivalent. However, the AI Kit is no longer in production and we recommend using one of the AI HATs described in this page.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>AI HAT+</th>
+                    <th>AI HAT+ 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Accelerator chip (Kestrel NPU)</b></td>
+                    <td>Kestrel-8L (13 TOPS, INT8) or Kestrel-8 (26 TOPS, INT8)</td>
+                    <td>Kestrel-10H (40 TOPS, INT4)</td>
+                </tr>
+                <tr>
+                    <td><b>Memory (RAM)</b></td>
+                    <td>Uses the memory on a <MadCap:variable name="General.ProductName" /> 5</td>
+                    <td>Has its own 8GB onboard memory, allowing it to run LLMs and VLMs up to ~6 billion parameters</td>
+                </tr>
+                <tr>
+                    <td><b>Large Language Model (LLM) support</b></td>
+                    <td>Not supported</td>
+                    <td>Supported</td>
+                </tr>
+                <tr>
+                    <td><b>Vision-Language Model (VLM) support</b></td>
+                    <td>Not supported</td>
+                    <td>Supported</td>
+                </tr>
+                <tr>
+                    <td><b>Use cases</b></td>
+                    <td>Object detection, camera post-processing, robotics, moderate neural workloads</td>
+                    <td>Everything available on AI HAT+ plus generative AI workloads, including local LLMs and VLMs</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

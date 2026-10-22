@@ -17,7 +17,8 @@ namespace FlareAI.Flare.UI
     /// project (spelling variants, competing words, capitalization, heading case — with counts and real sentences)
     /// and extracts rules from pasted notes, an old guide, or another tool's prompt. The owner checks the ones to
     /// keep, picks the preferred form where the team was split, and adds them to the guide; Validate style guide
-    /// then tests each new row against its example.
+    /// then tests each new row against its example. When the guide is read-only for this writer (or they aren't an owner),
+    /// the checked rules go to the owners as requests instead.
     /// </summary>
     public sealed class BuildGuideForm : Form
     {
@@ -101,11 +102,14 @@ namespace FlareAI.Flare.UI
             A11y.Name(_prefer, "Preferred form", "Pick which form the guide should prefer where the team was split.");
             A11y.Name(detail, "Rule details"); A11y.Name(bar, "Dialog buttons");
             A11y.Apply(this);
+            if (_team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();
             _head.Text = "Proposes rules from what your team already writes and from your notes. Check the ones to keep, then add them to the guide." +
-                         (IsOwner ? "" : "\nRead-only: only the style guide owners (" + string.Join(", ", _team.Owners.ToArray()) + ") can add rules.");
+                         (Requesting ? "\n" + _team.AccessNotice : "");
+            UpdateAdd();
         }
 
-        private bool IsOwner { get { return _team == null || _team.IsOwner; } }
+        /// <summary>Checked rules go to the owners as requests (read-only guide, or not an owner).</summary>
+        private bool Requesting { get { return _team != null && _team.ChangesNeedRequest; } }
 
         private void Mine()
         {
@@ -252,26 +256,35 @@ namespace FlareAI.Flare.UI
 
         private void UpdateAdd()
         {
-            _add.Enabled = IsOwner && _team != null && _team.GuideRoot != null && _list.CheckedItems.Count > 0;
-            _add.Text = "Add " + (_list.CheckedItems.Count > 0 ? _list.CheckedItems.Count + " " : "") + "checked rule(s) to the guide";
+            _add.Enabled = _team != null && _team.GuideRoot != null && _list.CheckedItems.Count > 0;
+            var n = _list.CheckedItems.Count > 0 ? _list.CheckedItems.Count + " " : "";
+            _add.Text = Requesting ? "Request adding " + n + "checked rule(s)…" : "Add " + n + "checked rule(s) to the guide";
+            _add.AccessibleName = _add.Text;
         }
 
         private void AddToGuide()
         {
             var accepted = _list.CheckedItems.Cast<ListViewItem>().Select(i => (RuleCandidate)i.Tag).ToList();
+            if (_team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();   // before any write: permissions may have changed
+            if (Requesting) { RequestAdding(accepted, null); return; }
             var root = _team.GuideRoot;
             var topic = Path.Combine(root, @"Content\Resources\StyleGuide\From-our-content.htm");
             try
             {
                 // The team guide, or the writer's own guide (created on first use): never the read-only guide in the plugin folder.
-                root = _team.WritableGuide();
-                var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
-                topic = Path.Combine(folder, "From-our-content.htm");
-                var n = GuideBuilder.Write(topic, accepted, "From our content");
+                int n;
+                topic = GuideBuilder.AddToGuide(_team, accepted, out n);
                 foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
                 _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example)" +
                              (_team.IsPersonal ? "." : ", then commit the guide.");
                 if (_open != null) _open(topic);
+            }
+            catch (Exception ex) when ((ex is IOException || ex is UnauthorizedAccessException) && _team.IsStrict && !_team.IsPersonal)
+            {
+                Diagnostics.Log("Build guide: write", ex);
+                _team.ProbeGuide();
+                if (Notify.Confirm(this, "House Style couldn't write to " + topic + ": " + ex.Message + "\n\nNothing was added. Send the checked rules to the style guide owners (" + _team.OwnerNames + ") as requests instead?", "Build style guide"))
+                    RequestAdding(accepted, null);
             }
             catch (Exception ex)
             {
@@ -279,6 +292,42 @@ namespace FlareAI.Flare.UI
                 Notify.Error(this, "House Style couldn't add the rules: it couldn't write to " + topic + ".",
                              ex.Message + "\n\nNothing was added. Check that you can write to that folder and the file isn't read-only, then try again.", ex, "Build style guide");
             }
+            UpdateAdd();
+        }
+
+        /// <summary>One request per checked rule, all with the same reason; they leave the list once sent (or saved to send).</summary>
+        private void RequestAdding(List<RuleCandidate> rules, string reason)
+        {
+            if (rules.Count == 0) return;
+            reason = reason ?? RequestForm.AskReason(this, "Add " + Plural.Of(rules.Count, "rule") + " to the style guide: " + string.Join("; ", rules.Take(3).Select(c => c.Title).ToArray()) + (rules.Count > 3 ? "; …" : ""),
+                "This will be sent to the style guide owners (" + _team.OwnerNames + "), one request per rule. They decide in Tune style guide; you see the answer on your next check." +
+                (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice));
+            if (reason == null) return;
+            string problem = null;
+            var sent = 0;
+            foreach (var c in rules)
+            {
+                var r = GuideRequests.New(_team, RequestKinds.AddRule, reason);
+                r.Candidate = c; r.Rule = c.Title;
+                if (c.Forms.Count > 0) r.Evidence.Add("Your content: " + Evidence(c));
+                foreach (var e in c.Examples.Take(3)) r.Evidence.Add(e.Text + (string.IsNullOrEmpty(e.File) ? "" : " (" + e.File + ")"));
+                try
+                {
+                    string why;
+                    GuideRequests.Send(_team, r, out why);
+                    problem = problem ?? why;
+                    sent++;
+                }
+                catch (Exception ex)
+                {
+                    Diagnostics.Log("Build guide: request", ex);
+                    Notify.Error(this, "House Style couldn't send the request for \"" + c.Title + "\".", ex.Message + "\n\nYour reason: " + reason, ex, "Build style guide");
+                    break;
+                }
+                foreach (var i in _list.Items.Cast<ListViewItem>().Where(i => i.Tag == c).ToList()) _list.Items.Remove(i);
+            }
+            _head.Text = problem == null ? "Sent " + Plural.Of(sent, "request") + " to the style guide owners (" + _team.OwnerNames + "). You see their answer on your next check."
+                                         : Plural.Of(sent, "request") + " saved but not sent yet: " + problem + ". House Style sends them on your next check.";
             UpdateAdd();
         }
 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>HTTP headers</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>HTTP headers</h1>
+        <p>This page describes version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <p>This page documents the HTTP headers used by the <MadCap:variable name="General.ProductName" /> API.</p>
+        <p class="tip">Full details of the HTTP requests are given in the <code>curl</code> example on each endpoint's documentation page. You can access curl's documentation at <code>man curl</code>.</p>
+        <h2>The <code>Authorization</code> header</h2>
+        <p>Most important is that API clients authenticate to the server using HTTP Basic authentication. If you're using the official <MadCap:xref href="install-client-bindings.htm">Python or JavaScript bindings</MadCap:xref>, this is taken care of when you configure said bindings.</p>
+        <p>Otherwise, to authenticate an API request:</p>
+        <ul>
+            <li>Use HTTP <code>Basic</code> authentication, which is described here. This means sending an HTTP header named <code>Authorization</code>, with your credentials in a certain format.</li>
+        </ul>
+        <ul>
+            <li>For <code>Basic</code> authentication credentials in the <MadCap:variable name="General.ProductName" /> API, a "username" takes the form of an email address, and a "password" takes the form of an API key. In the <code>curl</code> example for each endpoint, this is shown as: <code>-u EMAIL_ADDRESS:API_KEY</code>.</li>
+        </ul>
+        <ul>
+            <li>A bot's credentials can be obtained through the web and desktop apps' bot management UI or by <MadCap:xref href="api-keys.htm">downloading the bot's <code>relayrc</code> file</MadCap:xref>.</li>
+        </ul>
+        <ul>
+            <li>See fetch an API key (production) for the password-based authentication flow for getting a user's credentials.</li>
+        </ul>
+        <h2>The <code>User-Agent</code> header</h2>
+        <p>Clients are not required to pass a <code>User-Agent</code> HTTP header, but we highly recommend doing so when writing an integration. It's easy to do and it can help save time when debugging issues related to an API client.</p>
+        <p>If provided, the <MadCap:variable name="General.ProductName" /> server will parse the <code>User-Agent</code> HTTP header in order to identify specific clients and integrations. This information is used by the server for logging, usage statistics, and on rare occasions, for backwards-compatibility logic to preserve support for older versions of official clients.</p>
+        <p>Official <MadCap:variable name="General.ProductName" /> clients and integrations use a <code>User-Agent</code> that starts with something like <code>Acme RelayMobile/20.0.103</code>, encoding the name of the application and it's version.</p>
+        <p><MadCap:variable name="General.ProductName" />'s official API bindings have reasonable defaults for <code>User-Agent</code>. For example, the official <MadCap:variable name="General.ProductName" /> Python bindings have a default <code>User-Agent</code> starting with <code>Acme RelayPython/{version}</code>, where <code>version</code> is the version of the library.</p>
+        <p>You can give your bot/integration its own name by passing the <code>client</code> parameter when initializing the Python bindings. For example, the official <MadCap:variable name="General.ProductName" /> Nagios integration is initialized like this:</p>
+        <pre class="language-python">client = relay.Client(
+    config_file=opts.config, client=f"Acme RelayNagios/{VERSION}"
+)</pre>
+        <p>If you are working on an integration that you plan to share outside your organization, you can get help picking a good name in #integrations in the <MadCap:variable name="General.ProductName" /> development community.</p>
+        <h2>Rate-limiting response headers</h2>
+        <p>To help clients avoid exceeding rate limits, <MadCap:variable name="General.ProductName" /> sets the following HTTP headers in all API responses:</p>
+        <ul>
+            <li><code>X-RateLimit-Remaining</code>: The number of additional requests of this type that the client can send before exceeding its limit.</li>
+            <li><code>X-RateLimit-Limit</code>: The limit that would be applicable to a client that had not made any recent requests of this type. This is useful for designing a client's burst behavior so as to avoid ever reaching a rate limit.</li>
+            <li><code>X-RateLimit-Reset</code>: The time at which the client will no longer have any rate limits applied to it (and thus could do a burst of <code>X-RateLimit-Limit</code> requests).</li>
+        </ul>
+        <p><MadCap:variable name="General.ProductName" />'s rate limiting rules are configurable, and can vary by server and over time. The default configuration currently limits:</p>
+        <ul>
+            <li>Every user is limited to 200 total API requests per minute.</li>
+            <li>Separate, much lower limits for authentication/login attempts.</li>
+        </ul>
+        <p>When the <MadCap:variable name="General.ProductName" /> server has configured multiple rate limits that apply to a given request, the values returned will be for the strictest limit.</p>
+    </body>
+</html>

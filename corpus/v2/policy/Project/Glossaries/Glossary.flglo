@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultGlossary Version="1">
+    <GlossaryEntry>
+        <Terms>
+            <Term>HHS</Term>
+        </Terms>
+        <Definition>Department of Health and Human Services.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>ODP</Term>
+        </Terms>
+        <Definition>Organization-defined parameter.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>PHI</Term>
+        </Terms>
+        <Definition>Protected health information.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>PII</Term>
+        </Terms>
+        <Definition>Personally identifiable information.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>ePHI</Term>
+        </Terms>
+        <Definition>Electronic protected health information.</Definition>
+    </GlossaryEntry>
+</CatapultGlossary>

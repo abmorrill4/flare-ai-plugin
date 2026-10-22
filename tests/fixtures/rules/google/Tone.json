@@ -113,61 +113,16 @@
     "Good": []
   },
   {
-    "Id": "google:tone/19",
-    "Layer": "google",
-    "Page": "Tone",
-    "Row": 3,
-    "Severity": "suggestion",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "let's",
-      "Let's"
-    ],
-    "Use": "",
-    "Example": "Let's create a new project.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Let's create a new project.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "let's",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Let's",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": []
-  },
-  {
     "Id": "google:tone/20",
     "Layer": "google",
     "Page": "Tone",
-    "Row": 4,
+    "Row": 3,
     "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Steps"
     ],
     "Avoid": [
-      "simply",
-      "Simply",
       "It's that simple",
       "it's that simple",
       "It's easy",
@@ -188,7 +143,7 @@
       },
       {
         "Source": "avoid",
-        "Text": "simply",
+        "Text": "It's that simple",
         "Expect": {
           "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
           "fires": "step, step-p"
@@ -196,70 +151,16 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "Simply",
+        "Text": "it's that simple",
         "Expect": {
           "clean": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "It's that simple",
+        "Text": "It's easy",
         "Expect": {
           "clean": "paragraph"
-        }
-      }
-    ],
-    "Good": []
-  },
-  {
-    "Id": "google:tone/21",
-    "Layer": "google",
-    "Page": "Tone",
-    "Row": 5,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "tl",
-      "dr",
-      "TL",
-      "DR",
-      "ymmv",
-      "YMMV"
-    ],
-    "Use": "",
-    "Example": "tl;dr: the API returns user data.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "tl;dr: the API returns user data.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "tl",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "dr",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "TL",
-        "Expect": {
-          "fires": "paragraph"
         }
       }
     ],

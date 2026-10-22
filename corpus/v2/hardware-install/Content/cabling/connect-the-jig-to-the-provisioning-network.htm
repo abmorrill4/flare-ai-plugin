@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Connect the jig to the provisioning network</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Connect the jig to the provisioning network</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>Connect the jig to your provisioning network using one of the following methods:</p>
+        <ul>
+            <li>(Recommended) Ethernet</li>
+            <li>Wi-Fi</li>
+        </ul>
+        <p>The jig uses the connection to the provisioning network to:</p>
+        <ul>
+            <li>Provide <MadCap:variable name="General.ProductName" /> Connect screen sharing and SSH access.</li>
+            <li>Please download software updates.</li>
+            <li>Transfer OS images to the jig.</li>
+        </ul>
+        <p class="warning">The provisioning network always has direct access to the jig. If you also connect the <b>DUT ETH</b> port to the provisioning network (see <MadCap:xref href="connect-the-dut-eth-port.htm">Connect the DUT ETH port</MadCap:xref>), the network has direct access to devices during programming. Consider the design of this network as part of your threat model. Ensure that only authorised systems and personnel have access to the provisioning network.</p>
+        <h2>Connect using Ethernet (recommended)</h2>
+        <p>To connect the jig to your provisioning network over Ethernet:</p>
+        <ol>
+            <li>Ensure the jig is powered off by unplugging the power cable.</li>
+            <li>Connect an Ethernet cable from your provisioning network to the jig's <b>JIG ETH</b> port.</li>
+            <li>Power on the jig by plugging in the power cable.</li>
+        </ol>
+        <p>The jig obtains a network address automatically using DHCP.</p>
+        <h2>Connect using Wi-Fi</h2>
+        <p>If you configured Wi-Fi credentials in <MadCap:variable name="General.ProductName" /> Imager, the jig connects to your wireless network automatically on boot.</p>
+        <ol>
+            <li>Ensure the jig is powered off by unplugging the power cable.</li>
+            <li>Ensure the Wi-Fi antenna is attached to your the back of your jig.</li>
+            <li>If your jig has an Ethernet cable connected to the <b>JIG ETH</b> port, disconnect this cable from the jig.</li>
+            <li>Power on the jig by plugging in the power cable.</li>
+        </ol>
+        <p>The jig connects to the configured wireless network.</p>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/programming-jig-specifications.htm">Programming jig specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

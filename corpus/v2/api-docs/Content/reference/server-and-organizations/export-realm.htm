@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Create a data export</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Create a data export</h1>
+        <p><code>POST /export/realm</code></p>
+        <p MadCap:conditions="Default.OnPrem"><b>Note</b>: If you're the administrator of a self-hosted installation, <span class="keyword">the</span> user may be looking for the documentation on server data export and import or server backups.</p>
+        <p>Create a public or a standard data export of the organization.</p>
+        <p>This endpoint only queues the data export; it does not wait for the export to complete, which depending on the size of the organization can take anywhere from seconds to an hour. Therefore, this endpoint's success response does not describe the outcome of the export.</p>
+        <p>To find out the outcome of the export, clients should rely on the <MadCap:xref href="../real-time-events/get-events.htm"><code>realm_export</code> event</MadCap:xref>, which is which is sent to every organization administrator immediately when the export is requested, and again once it completes or fails. Additionally, when the export succeeds, the user who requested it will receive a direct message from the Notification Bot with a link to the organization's data exports panel, where the export can be downloaded.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 304), only public data exports could be created using this endpoint.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 2.1.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API. Configure the remaining options as appropriate for your situation.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Create a public data export of the organization.
+result = client.call_endpoint(url="/export/realm", method="POST")</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Create a data export
+curl -sS -X POST https://chat.example.com/api/v1/export/realm \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode export_type=full_with_consent</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>export_type</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Whether the data export should be public, full with consent, or full without consent.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>export_type</code></h4>
+        <p>Possible values: <code>public</code>, <code>full_with_consent</code>, <code>full_without_consent</code>.</p>
+        <ul>
+            <li><code>public</code> = Public data only export.</li>
+            <li><code>full_with_consent</code> = Public and private data export (with consent), which includes private data for users who have granted consent.</li>
+            <li><code>full_without_consent</code> = All public and private data export, which includes private data for all users. This option requires the organization to have the <code>owner_full_content_access</code> feature enabled.</li>
+        </ul>
+        <p>If not specified, defaults to <code>public</code>.</p>
+        <p><b>Changes</b>: <MadCap:variable name="General.ProductName" /> 12.0 (feature level 449) changed the type of this field from int to string with <code>1</code> being replaced by <code>public</code> and <code>2</code> being replaced by <code>full_with_consent</code>. The option <code>full_without_consent</code> was added for full exports without member consent.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 304). Previously, all export requests were public data exports.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>id</code></td>
+                    <td>integer</td>
+                    <td>The ID of the data export created.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Please request a manual export from relay-admin@example.com.",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

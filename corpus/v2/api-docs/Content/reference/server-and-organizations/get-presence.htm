@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get presence of all users</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get presence of all users</h1>
+        <p><code>GET /realm/presence</code></p>
+        <p>Get the presence information of all the users in an organization.</p>
+        <p>If the <code>CAN_ACCESS_ALL_USERS_GROUP_LIMITS_PRESENCE</code> server-level setting is set to <code>true</code>, presence information of only accessible users are returned.</p>
+        <p>Complete <MadCap:variable name="General.ProductName" /> apps are recommended to fetch presence information when they post their own state using the <code>POST /presence</code> API endpoint.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get presence information of all the users in an organization.
+result = client.get_realm_presence()</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get presence of all users
+curl -sS -X GET https://chat.example.com/api/v1/realm/presence \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>server_timestamp</code></td>
+                    <td>number</td>
+                    <td>The time when the server fetched the <code>presences</code> data included in the response.</td>
+                </tr>
+                <tr>
+                    <td><code>presences</code></td>
+                    <td>object</td>
+                    <td>A dictionary where each entry describes the presence details of a user in the <MadCap:variable name="General.ProductName" /> organization.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

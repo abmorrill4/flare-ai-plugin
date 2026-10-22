@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultGlossary Version="1">
+    <GlossaryEntry>
+        <Terms>
+            <Term>Depot</Term>
+        </Terms>
+        <Definition>The place where a technician starts the day.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Dispatcher</Term>
+        </Terms>
+        <Definition>A person who schedules jobs and assigns them.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Resolution</Term>
+        </Terms>
+        <Definition>The description of the work that was done.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Stop</Term>
+        </Terms>
+        <Definition>One visit on a route.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Sync</Term>
+        </Terms>
+        <Definition>The exchange of data between the mobile app and the server.</Definition>
+    </GlossaryEntry>
+</CatapultGlossary>

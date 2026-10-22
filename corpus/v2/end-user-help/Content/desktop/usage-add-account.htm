@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Add account</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Add account</h1>
+        <p>To connect another <MadCap:variable name="General.ProductName" /> account, open the settings dialog and click <b>Add account</b> in the sidebar. Enter the address you use to access your <MadCap:variable name="General.ProductName" /> server in a browser, then click <b>Log in</b>.</p>
+        <p><img src="../Resources/Images/wizard-server.png" alt="Setup wizard with the server address field and Log in button" /></p>
+        <p>If your network requires a proxy, click <b>Proxy settings</b> before logging in. Choose the system proxy or enter your proxy settings manually, then click <b>Done</b>.</p>
+        <p><img src="../Resources/Images/wizard-proxy-settings.png" alt="Proxy settings dialog with no proxy, system proxy, and manual proxy options" /></p>
+        <p>If the secure connection fails, check the server address and contact your server administrator. The wizard may offer to connect without TLS or use a client certificate. Use <b>Use client certificate</b> only if your server requires one.</p>
+        <p><img src="../Resources/Images/wizard-secure-connection.png" alt="Warning that the secure server connection failed, with client certificate and unencrypted options" /></p>
+        <p>If prompted for a client certificate, choose the PKCS#12 file provided by your administrator, enter its password, and click <b>Connect</b>.</p>
+        <p><img src="../Resources/Images/wizard-client-certificate.png" alt="Client certificate dialog with certificate file and password fields" /></p>
+        <p>The wizard asks you to switch to your browser. Click <b>Open</b> if the browser does not open automatically. Log in and grant the <MadCap:glossaryTerm>desktop client</MadCap:glossaryTerm> access when prompted. Then return to the wizard. Items on the blacklist cannot be selected.</p>
+        <p><img src="../Resources/Images/wizard-browser-auth.png" alt="Setup wizard prompting you to open a browser to authorize the account" /></p>
+        <p>Choose how to sync your files. With classic synchronization, choose <b>Synchronize everything</b> or <b>Choose what to sync</b>. Use <b>Choose</b> beside <b>Local sync folder</b> to change where files are stored, then click <b>Done</b>.</p>
+        <p><img src="../Resources/Images/wizard-sync-classic.png" alt="Classic synchronization options and local sync folder in the setup wizard" /></p>
+        <p>You can choose <b>File Provider</b> to download files on demand. Click <b>Done</b> to finish adding the account. On macOS, see <MadCap:xref href="macosfileprovider.htm">Using the macOS File Provider</MadCap:xref> for details about Finder integration.</p>
+        <p><img src="../Resources/Images/wizard-sync-file-provider.png" alt="File Provider selected in the setup wizard" /></p>
+        <p>Before finishing classic synchronization, click <b>Advanced</b> if you want confirmation before syncing large folders or external storage. Set your preferences in <b>Advanced options</b>, then click <b>Done</b> to return to the wizard.</p>
+        <p><img src="../Resources/Images/wizard-advanced-options.png" alt="Advanced options for large folders and external storage in the setup wizard" /></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

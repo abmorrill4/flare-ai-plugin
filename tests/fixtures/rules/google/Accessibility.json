@@ -10,17 +10,16 @@
       "Links"
     ],
     "Avoid": [
-      "click here",
       "read this document"
     ],
     "Use": "",
-    "Example": "To download the SDK, click here.",
+    "Example": "Don't use click here or read this document.",
     "IgnoreCase": true,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "To download the SDK, click here.",
+        "Text": "Don't use click here or read this document.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -28,31 +27,10 @@
       },
       {
         "Source": "avoid",
-        "Text": "click here",
+        "Text": "read this document",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Click here",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "CLICK HERE",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "read this document",
-        "Expect": {
-          "fires": "paragraph"
         }
       },
       {

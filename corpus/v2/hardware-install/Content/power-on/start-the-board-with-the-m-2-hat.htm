@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Start the board with the M.2 HAT</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Start the board with the M.2 HAT</h1>
+        <p>If your NVMe drive is new or unformatted, it doesn't appear as an icon on the <MadCap:variable name="General.ProductName" /> OS desktop. Additionally, commands such as <code>sudo blkid</code> don't show a partition UUID. You must partition and format your drive (for example, by using the <b>Erase</b> option in <a href="https://www.example.com/lumora-imager"><MadCap:variable name="General.ProductName" /> Imager</a>) to make it visible and accessible to the operating system. For more information, see Boot from NVMe or automatically mount a storage device.</p>
+        <ol>
+            <li><p>Connect your <MadCap:variable name="General.ProductName" /> to power. <MadCap:variable name="General.ProductName" /> OS automatically detects the M.2 HAT+ or M.2 HAT+ Compact.</p><ul><li><p>To verify the hardware is detected, open a terminal and run:</p><pre>$ ls -l /dev/nvme*</pre><p>If the drive has been correctly detected, you see <code>/dev/nvme0</code> and <code>/dev/nvme0n1</code>.</p></li><li>If you plan to boot from the drive, see Boot from NVMe. <MadCap:variable name="General.ProductName" /> Imager automatically partitions and formats the drive during installation.</li><li><p>If you plan to use the drive purely as additional storage, format the drive before configuring automatic mounting!</p><ol><li>To make your drive automatically available for file access, consider configuring automatic mounting.</li></ol></li></ul></li>
+        </ol>
+        <p class="warning">Always disconnect your <MadCap:variable name="General.ProductName" /> from power before connecting or disconnecting a device from the M.2 slot. You get a best-in-class thermal design.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

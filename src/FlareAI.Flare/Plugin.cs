@@ -268,11 +268,15 @@ namespace FlareAI.Flare
                 // first need), never to the plugin folder: standard users can't write under Program Files.
                 var team = Team.Load(settings.GuideRoot(PluginDirectory), settings.FeedbackFolder);
                 team.SeedFrom = settings.ReadOnlyGuide(PluginDirectory);
+                settings.GuideRoots(PluginDirectory);   // upgrades a writer's guide in the old layout (a full copy) before first use
                 Team.Current = team;
                 PromptBuilder.DefaultOverrideFolder = team.GuideRoot == null ? null : Path.Combine(team.GuideRoot, Path.Combine("FlareAI", "prompts"));
                 Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
                 System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                 {
+                    // Read-only detection on load: a create-and-delete probe (shares report attributes unreliably).
+                    try { if (team.IsStrict && !team.IsPersonal) Diagnostics.Log("Guide access: " + (team.ProbeGuide() ?? "writable") + (team.AccessNotice == null ? "" : " — " + team.AccessNotice)); }
+                    catch (Exception ex) { Diagnostics.Log("guide access", ex); }
                     try { team.Status = Team.ReadStatus(team.GuideRoot, true); if (team.Status != null) Diagnostics.Log(team.Status.ToString()); }
                     catch (Exception ex) { Diagnostics.Log("guide status", ex); }
                 });
@@ -400,11 +404,13 @@ namespace FlareAI.Flare
                 var style = StyleService(settings);
                 var adapter = ActiveAdapter();
                 var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
-                // Turned-off rules: the guides the writer can change (not the read-only one in the plugin folder) and the open project.
+                // Turned-off rules: the guides in effect (the read-only one in the plugin folder lists its defaults, which the
+                // writer turns back on with a row in their own guide) and the open project.
                 var pluginDir = PluginDirectory;
-                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir).FindAll(r => !PluginSettings.IsUnder(r, pluginDir));
+                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir);
+                Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
-                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject))
+                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)

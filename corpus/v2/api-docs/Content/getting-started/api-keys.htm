@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>API keys and relayrc files</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>API keys and <code>relayrc</code> files</h1>
+        <p>This page describes version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <p>An <b>API key</b> is how a user or bot can identify their account to <MadCap:variable name="General.ProductName" />.</p>
+        <p>A <b><code>relayrc</code> file</b> is a configuration file written in the <a href="https://en.wikipedia.org/wiki/INI_file">INI file format</a>, which contains key-value pairs, such as an API key and other configuration values, that are necessary for using the <MadCap:variable name="General.ProductName" /> API with a specific user or bot account on a <MadCap:variable name="General.ProductName" /> server, <b>e.g.</b>:</p>
+        <pre>[api]
+key=&lt;bot API key&gt;
+email=&lt;bot email address&gt;
+site=&lt;Acme Relay server's URL&gt;
+...</pre>
+        <p>For the official clients, such as the <MadCap:xref href="configure-python-bindings.htm">Python bindings</MadCap:xref>, we recommend downloading a <code>relayrc</code> file.</p>
+        <h2>Get an API key</h2>
+        <h4>For A Bot</h4>
+        <p>Open the <b>Your Bots</b> settings.</p>
+        <ol>
+            <li>In the <b>Actions</b> column, click the <b>manage bot</b> (<i />) icon, and scroll down to <b>API key</b>.</li>
+        </ol>
+        <ol>
+            <li>Click the <b>copy</b> (<i />) icon to copy the bot's API key to your clipboard.</li>
+        </ol>
+        <p>Anyone with a bot's API key can impersonate the bot, so be careful with it!</p>
+        <h4>For Yourself</h4>
+        <p>Open the <b>Account And Privacy</b> settings.</p>
+        <ol>
+            <li>Under <b>API key</b>, click <b>Manage your API key</b>.</li>
+        </ol>
+        <ol>
+            <li>Enter your password, and click <b>Get API key</b>. If you don't know your password, click <b>reset it</b> and follow the instructions from there.</li>
+        </ol>
+        <ol>
+            <li>Copy your API key.</li>
+        </ol>
+        <p>Anyone with your API key can impersonate you, so be doubly careful with it.</p>
+        <h2>Invalidate an API key</h2>
+        <p>To invalidate an existing API key, you have to generate a new key. Generating a new API key will immediately log you out of this account on all mobile devices.</p>
+        <h4>For A Bot</h4>
+        <p>Open the <b>Your Bots</b> settings.</p>
+        <ol>
+            <li>In the <b>Actions</b> column, click the <b>manage bot</b> (<i />) icon, and scroll down to <b>API key</b>.</li>
+        </ol>
+        <ol>
+            <li>Click the <b>generate new API key</b> (<i />) icon.</li>
+        </ol>
+        <h4>For Yourself</h4>
+        <p>Open the <b>Account And Privacy</b> settings. Items on the blacklist cannot be selected.</p>
+        <ol>
+            <li>Under <b>API key</b>, click <b>Manage your API key</b>.</li>
+        </ol>
+        <ol>
+            <li>Enter your password, and click <b>Get API key</b>. If you don't know your password, click <b>reset it</b> and follow the instructions from there.</li>
+        </ol>
+        <ol>
+            <li>Click <b>Generate new API key</b></li>
+        </ol>
+        <h3>Download a <code>relayrc</code> file</h3>
+        <h4>For A Bot</h4>
+        <p>Open the <b>Your Bots</b> settings.</p>
+        <ol>
+            <li>In the <b>Actions</b> column, click the <b>manage bot</b> (<i />) icon, and scroll down to <b>Acme Relayrc configuration</b>.</li>
+        </ol>
+        <ol>
+            <li>Click the <b>download</b> (<i />) icon to download the bot's <code>relayrc</code> file, or the <b>copy</b> (<i />) icon to copy the file's content to your clipboard.</li>
+        </ol>
+        <p>Anyone with a bot's API key can impersonate the bot, so be careful with it!</p>
+        <h4>For Yourself</h4>
+        <p>Open the <b>Account And Privacy</b> settings.</p>
+        <ol>
+            <li>Under <b>API key</b>, click <b>Manage your API key</b>.</li>
+        </ol>
+        <ol>
+            <li>Enter your password, and click <b>Get API key</b>. If you don't know your password, click <b>reset it</b> and follow the instructions from there.</li>
+        </ol>
+        <ol>
+            <li>Click <b>Download relayrc</b> to download your <code>relayrc</code> file.</li>
+        </ol>
+        <ol>
+            <li>(optional) If you'd like your credentials to be used by default when using the <MadCap:variable name="General.ProductName" /> API on your computer, move the <code>relayrc</code> file to <code>~/.relayrc</code> in your home directory.</li>
+        </ol>
+        <p>Anyone with your API key can impersonate you, so be doubly careful with it.</p>
+        <h3>Configuration keys and environment variables</h3>
+        <p>The keys the user can use in a <code>relayrc</code> file (and their equivalent <a href="https://en.wikipedia.org/wiki/Environment_variable">environment variables</a>) can be found in the following table:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th><code>relayrc</code> key</th>
+                    <th>Environment variable</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>key</code></td>
+                    <td><code>ACME_RELAY_API_KEY</code></td>
+                    <td>Yes</td>
+                    <td>The user's API key.</td>
+                </tr>
+                <tr>
+                    <td><code>email</code></td>
+                    <td><code>ACME_RELAY_EMAIL</code></td>
+                    <td>Yes</td>
+                    <td>The email address of the user who owns the API key mentioned above.</td>
+                </tr>
+                <tr>
+                    <td><code>site</code></td>
+                    <td><code>ACME_RELAY_SITE</code></td>
+                    <td>No</td>
+                    <td>URL where the <MadCap:variable name="General.ProductName" /> server is located.</td>
+                </tr>
+                <tr>
+                    <td><code>client_cert_key</code></td>
+                    <td><code>ACME_RELAY_CERT_KEY</code></td>
+                    <td>No</td>
+                    <td>Path to the SSL/TLS private key that the binding should use to connect to the server.</td>
+                </tr>
+                <tr>
+                    <td><code>client_cert</code></td>
+                    <td><code>ACME_RELAY_CERT</code></td>
+                    <td>No*</td>
+                    <td>The public counterpart of <code>client_cert_key</code>/<code>ACME_RELAY_CERT_KEY</code>. <i>*This setting is required if a cert key has been set.</i></td>
+                </tr>
+                <tr>
+                    <td><code>client_bundle</code></td>
+                    <td><code>ACME_RELAY_CERT_BUNDLE</code></td>
+                    <td>No</td>
+                    <td>Path where the server's PEM-encoded certificate is located. CA certificates are also accepted, in case those CA's have issued the server's certificate. Defaults to the built-in CA bundle trusted by Python.</td>
+                </tr>
+                <tr>
+                    <td><code>insecure</code></td>
+                    <td><code>ACME_RELAY_ALLOW_INSECURE</code></td>
+                    <td>No</td>
+                    <td>Allows connecting to <MadCap:variable name="General.ProductName" /> servers with an invalid SSL/TLS certificate. Please note that enabling this will make the HTTPS connection insecure. Defaults to <code>false</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Related articles</h2>
+        <ul>
+            <li><MadCap:xref href="configure-python-bindings.htm">Configuring the Python bindings</MadCap:xref></li>
+        </ul>
+    </body>
+</html>

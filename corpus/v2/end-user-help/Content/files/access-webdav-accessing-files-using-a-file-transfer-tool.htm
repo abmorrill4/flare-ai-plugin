@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Accessing files using a file transfer tool</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Accessing files using a file transfer tool</h1>
+        <p><a href="https://example.com/">a file transfer tool</a> is an open source FTP, SFTP, <MadCap:glossaryTerm>WebDAV</MadCap:glossaryTerm>, OpenStack Swift, and object storage browser designed for file transfers on macOS and Windows.</p>
+        <p class="note">This example uses a file transfer tool version 4.2.1.</p>
+        <p>To use a file transfer tool:</p>
+        <ol>
+            <li><p>Specify a server without any leading protocol information.</p> <p>For example: example.com</p></li>
+            <li><p>Specify the appropriate port.</p> <p>The port you choose depends on whether or not your <MadCap:variable name="General.ProductName" /> server supports <MadCap:glossaryTerm>SSL</MadCap:glossaryTerm>. a file transfer tool requires that you select a different connection type if you plan to use SSL.</p> <dl><dt>For example:</dt><dd><ul><li><p>80 for unencrypted WebDAV</p></li><li><p>443 for secure WebDAV (HTTPS/SSL)</p></li></ul></dd></dl></li>
+            <li><p>Use the 'More Options' drop-down menu to add the rest of your WebDAV URL into the 'Path' field.</p> <p><MadCap:xref href="access-webdav-accessing-files-using-a-file-transfer-tool.htm">E.g.</MadCap:xref>: remote.php/dav/files/USERNAME/</p></li>
+        </ol>
+        <p>Now a file transfer tool enables file access to the <MadCap:variable name="General.ProductName" /> server.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

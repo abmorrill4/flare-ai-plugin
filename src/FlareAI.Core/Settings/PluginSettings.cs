@@ -77,19 +77,28 @@ namespace FlareAI.Core.Settings
 
         /// <summary>
         /// The writer's own style guide (%APPDATA%\FlareAI\StyleGuide): where rule changes go when no team guide is
-        /// configured, because the plugin folder (Program Files) is read-only for standard users.
+        /// configured, because the plugin folder (Program Files) is read-only for standard users. It holds only the
+        /// writer's changes, as a layer after the bundled guide.
         /// </summary>
         public static string UserGuidePath { get { return Path.Combine(SettingsDirectory, "StyleGuide"); } }
 
-        /// <summary>The style guide projects in effect, in order: the configured ones, or the bundled guide; the writer's own
-        /// guide replaces the read-only one it was copied from once it exists.</summary>
+        /// <summary>
+        /// The style guide projects in effect, in order: the configured ones, or the bundled guide; then the writer's own
+        /// guide (their changes only) once it exists, when rule changes go there. The bundled layers always load from the
+        /// plugin, so plugin updates reach the writer. A writer's guide in the old layout (a full copy of the bundled one)
+        /// is upgraded here first (<see cref="FlareAI.Core.Style.GuideSeed.Upgrade"/>); if that fails it stands in for the
+        /// read-only guide as before, so the writer's changes still apply.
+        /// </summary>
         /// <param name="userGuide">The writer's own guide (default <see cref="UserGuidePath"/>; tests pass another).</param>
         public System.Collections.Generic.List<string> GuideRoots(string pluginDir, string userGuide = null)
         {
             var list = Configured(pluginDir);
             var readOnly = ReadOnlyGuide(pluginDir);
             if (list.Count == 0) list.Add(readOnly);
-            if (readOnly != null && FlareAI.Core.Style.GuideSeed.IsSeeded(userGuide ?? UserGuidePath)) list[list.Count - 1] = userGuide ?? UserGuidePath;
+            var mine = userGuide ?? UserGuidePath;
+            if (readOnly == null || !FlareAI.Core.Style.GuideSeed.IsSeeded(mine)) return list;
+            if (FlareAI.Core.Style.GuideSeed.Upgrade(readOnly, mine)) list.Add(mine);
+            else list[list.Count - 1] = mine;
             return list;
         }
 
@@ -104,8 +113,8 @@ namespace FlareAI.Core.Settings
         }
 
         /// <summary>
-        /// The read-only guide the writer's own guide stands in for (and is first copied from): the bundled guide, or a
-        /// configured guide inside the plugin folder. Null when rule changes go to a team guide.
+        /// The read-only guide the writer's own guide is layered after (and takes its layer name from): the bundled guide,
+        /// or a configured guide inside the plugin folder. Null when rule changes go to a team guide.
         /// </summary>
         public string ReadOnlyGuide(string pluginDir)
         {

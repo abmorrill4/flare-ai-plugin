@@ -1,0 +1,418 @@
+{
+  "name": "policy",
+  "title": "Policy and compliance set",
+  "domain": "Privacy, security, acceptable use, retention and audit requirements in a formal register: regulation text and a control catalogue with its assessment procedures.",
+  "flareProject": "policy.flprj",
+  "targets": [
+    {
+      "file": "Project/Targets/PDF.fltar",
+      "type": "PDF",
+      "toc": "Project/TOCs/Print.fltoc",
+      "excludes": "Default.ScreenOnly"
+    },
+    {
+      "file": "Project/Targets/HTML5.fltar",
+      "type": "WebHelp2",
+      "toc": "Project/TOCs/Main.fltoc",
+      "excludes": "Default.Print"
+    }
+  ],
+  "topics": 84,
+  "snippets": 7,
+  "seed": 20261022,
+  "seedNotes": "corpuskit import --seed 20261022; inject passes in this order: heading_skip only (seed 20261024, density 0.03), utilize only (seed 20261025, density 0.01), every other kind except exclaim (seed 20261022, density 0.10), exclaim only (seed 20261023, density 0.01). One kind per pass keeps a kind that matches almost every sentence from crowding out the rest. The same seeds on the same sources give the same project.",
+  "licence": {
+    "spdx": "CC0-1.0 / US federal public domain",
+    "file": null,
+    "shareAlike": false,
+    "note": "All source text is a work of the United States government (17 U.S.C. 105) or dedicated to the public domain; no share-alike LICENSE file is needed. The synthetic framing text and snippets added by the corpus build are released under CC0-1.0."
+  },
+  "sources": [
+    {
+      "name": "Electronic Code of Federal Regulations, Title 45, Parts 160 and 164",
+      "url": "https://www.ecfr.gov/",
+      "api": "https://www.ecfr.gov/api/versioner/v1/full/2026-10-06/title-45.xml?part=164 (and part=160)",
+      "version": "in force on 2026-10-06 (issue date), up to date as of 2026-10-20",
+      "retrieved": "2026-10-21",
+      "licence": "US federal government work, public domain",
+      "files": [
+        {
+          "path": "45 CFR 164.103",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.105",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.302",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.304",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.306",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.308",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.310",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.312",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.314",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.316",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.318",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR Part 164, Subpart C, Appendix A",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.400",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.402",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.404",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.406",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.408",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.410",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.412",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.414",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.500",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.501",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.502",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.504",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.506",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.508",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.510",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.512",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.514",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.520",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.522",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.524",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.526",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.528",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 164.530",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 160.103",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 160.306",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 160.308",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 160.310",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 160.312",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 160.316",
+          "topics": 1
+        },
+        {
+          "path": "45 CFR 160.404",
+          "topics": 1
+        }
+      ]
+    },
+    {
+      "name": "NIST SP 800-53 Rev. 5.2.0 controls and SP 800-53A Rev. 5.2.0 assessment procedures (OSCAL catalog)",
+      "url": "https://github.com/usnistgov/oscal-content",
+      "commit": "78650f02ad9321bb7b817846f8fbd4f2bcd620de",
+      "commitDate": "2026-05-13T05:13:20Z",
+      "path": "nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json",
+      "retrieved": "2026-10-21",
+      "licence": "Public domain in the United States, waived worldwide under CC0 1.0 (LICENSE.md at that commit)",
+      "files": [
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AU-1",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AU-2",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AU-3",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AU-6",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AU-9",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AU-12",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control CA-2",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control CA-7",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AU-11",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control SI-12",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control MP-6",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control CP-9",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AC-8",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AC-20",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PL-4",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PS-6",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PS-8",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AT-2",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PT-2",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PT-3",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PT-4",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PT-5",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control PM-18",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AC-2",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control AC-3",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control IA-2",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control IA-5",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control SC-8",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control SC-12",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control SC-28",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control IR-4",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control IR-6",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control CM-6",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 control RA-3",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 family AC",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 family AU",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 family IA",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 family SC",
+          "topics": 1
+        },
+        {
+          "path": "NIST SP 800-53 Rev. 5.2.0 family SI",
+          "topics": 1
+        }
+      ]
+    }
+  ],
+  "authors": [
+    "Source text: US Office of the Federal Register; National Institute of Standards and Technology (see NOTICE.md)",
+    "Adaptation: FlareAI corpus build, CorpusKit"
+  ],
+  "split": {
+    "rule": "FNV-1a 64-bit hash of the project-relative path with forward slashes, modulo 100; below 70 is dev, 70 and above is test (CorpusKit's rule)",
+    "files": 91,
+    "testFiles": 29,
+    "testShare": 0.319,
+    "test": [
+      "Content/Resources/Snippets/74-fr-42767-aug.flsnp",
+      "Content/Resources/Snippets/as-used-in-this.flsnp",
+      "Content/Resources/Snippets/organizational-personnel-with-personally.flsnp",
+      "Content/Resources/Snippets/print-notice.flsnp",
+      "Content/acceptable-use/pl-4-rules-of-behavior.htm",
+      "Content/audit/au-6-audit-record-review-analysis-and-reporting.htm",
+      "Content/breach/164-408-notification-to-the-secretary.htm",
+      "Content/breach/164-410-notification-by-a-business-associate.htm",
+      "Content/catalogue/access-control-controls-index.htm",
+      "Content/catalogue/audit-and-accountability-controls-index.htm",
+      "Content/catalogue/identification-and-authentication-controls-index.htm",
+      "Content/catalogue/system-and-communications-protection-controls-index.htm",
+      "Content/definitions/164-304-definitions.htm",
+      "Content/overview/about-this-policy-set.htm",
+      "Content/privacy/164-510-uses-and-disclosures-requiring-an-opportunity-for-the-individu.htm",
+      "Content/privacy/164-512-uses-and-disclosures-for-which-an-authorization-or-opportunity.htm",
+      "Content/privacy/164-526-amendment-of-protected-health-information.htm",
+      "Content/privacy/164-528-accounting-of-disclosures-of-protected-health-information.htm",
+      "Content/privacy/pt-3-personally-identifiable-information-processing-purposes.htm",
+      "Content/privacy/pt-5-privacy-notice.htm",
+      "Content/retention/au-11-audit-record-retention.htm",
+      "Content/retention/cp-9-system-backup.htm",
+      "Content/retention/si-12-information-management-and-retention.htm",
+      "Content/retention/time-limits-and-retention-periods.htm",
+      "Content/security/164-314-organizational-requirements.htm",
+      "Content/security/ia-5-authenticator-management.htm",
+      "Content/security/ir-6-incident-reporting.htm",
+      "Content/security/sc-28-protection-of-information-at-rest.htm",
+      "Content/security/sc-8-transmission-confidentiality-and-integrity.htm"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head/>
+    <body>
+        <p MadCap:conditions="Default.Cloud">On <MadCap:variable name="General.ProductName"/> Cloud, requests to this endpoint are rate limited for each organization. When you reach the limit, the server responds with HTTP status 429 and a <code>retry-after</code> value.</p>
+    </body>
+</html>

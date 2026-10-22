@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultVariableSet>
+    <Variable Name="CompanyName" EvaluatedDefinition="Acme Software">Acme Software</Variable>
+    <Variable Name="ProductName" EvaluatedDefinition="Acme Relay">Acme Relay</Variable>
+</CatapultVariableSet>

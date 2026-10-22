@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Managing your calendars</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Managing your calendars</h1>
+        <h2>Create a new Calendar</h2>
+        <p>If you plan on setting up a new calendar without transferring any old data from your previous calendar, creating a new calendar is the way <span class="keyword">the</span> user should go.</p>
+        <p> <img src="../Resources/Images/calendar-create-1.png" /> </p>
+        <ol>
+            <li><p>Click on + New Calendar in the left sidebar.</p></li>
+            <li><p>Type in a name for your new calendar, e.g. "Work", "Home" or "Marketing planning".</p></li>
+            <li><p>After clicking on the checkmark, your new calendar is created and can be synced across your devices, filled with new events and shared with your friends and colleagues.</p></li>
+        </ol>
+        <p> <img src="../Resources/Images/calendar-create-2.png" /> </p>
+        <h2>Import a Calendar</h2>
+        <p>If you want to transfer your calendar and their respective events to your <MadCap:variable name="General.ProductName" /> instance, importing is the best way to do so.</p>
+        <p> <img src="../Resources/Images/calendar-importing.png" /> </p>
+        <ol>
+            <li><p>Click on the <b>Calendar settings</b> icon.</p></li>
+            <li><p>After clicking on Import Calendar, found in the General section, you can select one or more calendar files from your local device to upload.</p></li>
+            <li><p>Select a Calendar to import into.</p></li>
+            <li><p>The upload can take some time and depends on how big the calendar you import is. A blue progress bar will appear below "Calendar Settings".</p></li>
+        </ol>
+        <p class="note">The <MadCap:variable name="General.ProductName" /> Calendar application only supports iCalendar-compatible .ics-files, defined in RFC 5545.</p>
+        <h2>Import an Event/Add .ics Event</h2>
+        <p>Individual events are often distributed as .ics files (sometimes via a button labelled "iCal", "a vendor Calendar" or "a mail client"). You can import them into <MadCap:variable name="General.ProductName" /> Calendar using the same import flow as a full calendar.</p>
+        <ol>
+            <li><p>Click on the <b>Calendar settings</b> icon.</p></li>
+            <li><p>After clicking on Import calendar you can select one or more .ics files from your local device to upload. Single-event files are added to the calendar you select.</p></li>
+            <li><p>Select a Calendar to import into.</p></li>
+            <li><p>The upload can take some time and depends on how big the calendar/event you import is. A blue progress bar will appear below "Calendar Settings".</p></li>
+        </ol>
+        <p class="note">The <MadCap:variable name="General.ProductName" /> Calendar application only supports iCalendar-compatible .ics-files, defined in RFC 5545.</p>
+        <h2>Edit, Export or Delete a Calendar</h2>
+        <p>Sometimes you may want to change the color or the entire name of a previous imported or created calendar. You may also want to export it to your local hard drive or delete it forever.</p>
+        <p class="note">Please keep in mind that deleting a calendar is an irreversible action. After deletion, there is no way of restoring the calendar unless you have a local backup.</p>
+        <p> <img src="../Resources/Images/calendar-dropdown.png" /> </p>
+        <p>Click on the "pen" icon of the respective calendar. You will see a new popup that will allow you to change the calendar name and color, and buttons to delete or export the calendar.</p>
+        <p> <img src="../Resources/Images/calendar-settings.png" /> </p>
+        <h2>Calendar Transparency</h2>
+        <p>You can toggle the checkbox "Never show me as busy (set calendar to transparent)" to influence if this calendars' events are taken into account in Free/Busy calculations. If checked, no events in this calendar will be taken into account, your schedule will always be free, regardless of an events' settings.</p>
+        <p> <img src="../Resources/Images/calendar-transparency.png" /> </p>
+        <h2>Sharing calendars</h2>
+        <p>You may share your calendar with local users, groups or with remote users on federated servers.</p>
+        <p> <img src="../Resources/Images/calendar-sharing-1.png" /> </p>
+        <p>Calendars may be shared with write access or read-only. When sharing a calendar with write access, users with whom the calendar is shared will be able to create new events into the calendar as well as edit and delete existing ones.</p>
+        <p> <img src="../Resources/Images/calendar-sharing-2.png" /> </p>
+        <p class="note">Calendar shares currently cannot be accepted or rejected. If you want to stop having a calendar that someone shared with you, you can click on the 3-dot menu next to the calendar in the calendar list and click on "Unshare from me". To restore a share, the calendar can be reshared again, either for the whole group, resetting all unshares, or for a single user.</p>
+        <h2>Calendar delegation</h2>
+        <p><b>New in version 34.0.0:</b></p>
+        <p>In the app settings, you can delegate your calendars to other users so they can manage them for you. You can grant read access if they should only view the calendar, or write access if they should create, edit and delete events.</p>
+        <p>Calendar delegation also works with other clients that support calendar delegation.</p>
+        <p>By default, delegatees are not added as attendees of events that they create for a delegator, the delegator remains the organizer of the event. If the event has a Talk conversation attached, both the delegator and the delegatee are moderators of that conversation.</p>
+        <p class="note">Currently, delegating your account delegates all of your calendars. Delegating individual calendars is not yet supported.</p>
+        <h2>Federated calendar sharing</h2>
+        <p><b>New in version 32.0.0:</b></p>
+        <p><b>Changed in version 33.0.0:</b></p>
+        <p>Sharing a calendar with a user on another <MadCap:variable name="General.ProductName" /> instance works just like sharing with a local user. The difference is that you need to use the federated user identifier as the recipient, which has the format &lt;username&gt;@&lt;instance&gt; (e.g. alice@cloud.example.com).</p>
+        <p>Starting with <MadCap:variable name="General.ProductName" /> 33, federated shares support full read/write access, allowing remote users to create, edit, and delete events in the shared calendar. In <MadCap:variable name="General.ProductName" /> 32, federated shares were read-only.</p>
+        <h2>Publishing a calendar</h2>
+        <p>Calendars can be published through a public link to make them viewable (read-only) to external users. You may create a public link by opening the share menu for a calendar and clicking on « + » next to « Share link ». Once created <b>the user</b> can copy the public link to your clipboard or send it through email.</p>
+        <p>There's also an « embedding code » that provides an HTML iframe to embed your calendar into public pages.</p>
+        <p>Multiple calendars can be shared together by adding their unique tokens to the end of an embed link. Individual tokens can be found at the end of each calendar's public link. The full address will look like https://cloud.example.com/index.php/apps/calendar/embed/&lt;token1&gt;-&lt;token2&gt;-&lt;token3&gt;</p>
+        <p>To change the default view or date of an embedded calendar, you need to provide a URL that looks like https://cloud.example.com/index.php/apps/calendar/embed/&lt;token&gt;/&lt;view&gt;/&lt;date&gt;. In this URL you need to replace the following variables:</p>
+        <ul>
+            <li><p>&lt;token&gt; with the calendar's token,</p></li>
+            <li><p>&lt;view&gt; with one of dayGridMonth, timeGridWeek, timeGridDay, listMonth, listWeek, listDay. The default view is dayGridMonth and the normally used list is listMonth,</p></li>
+            <li><p>&lt;date&gt; with now or any date with the following format &lt;year&gt;-&lt;month&gt;-&lt;day&gt; (e.g. 2019-12-28).</p></li>
+        </ul>
+        <p>On the public page, users are able to get the subscription link for the calendar and export the whole calendar directly. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <h2>Calendar Widget</h2>
+        <p>You can embed your calendars into supported apps like Talk, Notes, etc... by either sharing the public link to make the embed viewable (read-only) to all users or by using the internal link to make it private.</p>
+        <h2>Subscribe to a Calendar</h2>
+        <p>You can subscribe to iCal calendars directly inside of your <MadCap:variable name="General.ProductName" />. By supporting this interoperable standard (RFC 5545) we made <MadCap:variable name="General.ProductName" /> calendar compatible to a web provider Calendar, a vendor iCloud and many other calendar-servers you can exchange your calendars with, including subscription links from calendar published on other <MadCap:variable name="General.ProductName" /> instances, as described above.</p>
+        <ol>
+            <li><p>Click on + New calendar in the left sidebar</p></li>
+            <li><p>Click on + New subscription from link (read-only)</p></li>
+            <li><p>Type in or paste the link of the shared calendar you want to subscribe to.</p></li>
+        </ol>
+        <p>Finished. Your calendar subscriptions will be updated regularly.</p>
+        <p class="note">Subscriptions are refreshed every week by default. Your administrator may have changed this setting.</p>
+        <h2>Subscribe to a Holiday Calendar</h2>
+        <p><b>New in version 4.4:</b></p>
+        <p>You can subscribe to a read-only holiday calendar provided by <a href="https://example.com/calendar/holidays/">a mail client</a>.</p>
+        <ol>
+            <li><p>Click on + New calendar in the left sidebar</p></li>
+            <li><p>Click on + Add holiday calendar</p></li>
+            <li><p>Find your country or region and click Subscribe</p></li>
+        </ol>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

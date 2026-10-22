@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Install the antenna</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Install the antenna</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>The <MadCap:variable name="General.ProductName" /> Antenna Kit provides a certified external antenna to boost wireless reception on a CM4 or CM5.</p>
+        <p><img src="../Resources/Images/cm4-cm5-antenna.jpg" alt="Antenna attached to a CM4" /></p>
+        <p class="caption">Figure 1. Antenna attached to a CM4</p>
+        <h2>Antenna specifications</h2>
+        <p>The antenna supports dual-band Wi-Fi and attaches to the <a href="https://www.example.com/u-fl-connector">U.FL connector</a> on your CM4 or CM5. The antenna is approximately 108.5 mm at full height and approximately 87.5 mm long when at a 90 degree angle; the SMA to U.FL cable is approximately 205 mm long.</p>
+        <p><img src="../Resources/Images/cm4-cm5-antenna-physical.png" alt="CM4 and CM5 antenna physical specifications" /></p>
+        <p class="caption">Figure 2. CM4 and CM5 antenna physical specifications</p>
+        <h2>Connect an antenna through the CM5IO Case</h2>
+        <p>You can use the antenna with the <MadCap:xref href="assemble-the-cm5io-case.htm">CM5IO Case</MadCap:xref>. To attach the antenna to your Compute Module through the CM5IO Case, complete the first four steps outlined in <MadCap:xref href="assemble-the-cm5io-case.htm">Assemble the CM5IO case</MadCap:xref>, and then complete following steps:</p>
+        <ol>
+            <li><b>Connect the U.FL connector.</b> Connect the U.FL connector on the antenna cable to the U.FL-compatible connector on your Compute Module, next to the top-left mounting hole of your CM5. Do this before attaching a cooler (if using one) because the cooler can make it harder to attach the U.FL connector.</li>
+            <li><b>Insert the SMA connector.</b> Remove the rubber plug from the antenna port on the inside of the CM5IO Case. Then, from the inside of the case, push the SMA connector (with the flat side up) into the antenna port so that it extends through and is accessible from the outside.</li>
+            <li><b>Fasten the SMA connector into place.</b> Twist the retaining hexagonal nut and washer onto the SMA connector in a clockwise direction until it sits securely in place. Avoid excessive twisting when tightening to prevent damage.</li>
+            <li><b>Attach the antenna to the SMA connector.</b> Insert the SMA connector into the antenna port with the antenna facing outward and twist the antenna clockwise to secure it.</li>
+            <li><b>Adjust the antenna.</b> Move the antenna into its final position by turning it up to a 90 degree angle.</li>
+        </ol>
+        <p>You can now complete the remaining steps outlined in <MadCap:xref href="assemble-the-cm5io-case.htm">Assemble the CM5IO case</MadCap:xref> for mounting a CM5IO inside your case.</p>
+        <p><img src="../Resources/Images/cm4-cm5-antenna-assembly.svg" alt="CM4 and CM5 antenna assembly diagram" /></p>
+        <p class="caption">Figure 3. CM4 and CM5 antenna assembly diagram</p>
+        <p>To use the Antenna with your Compute Module, add a <code>dtparam</code> instruction in <code>/boot/firmware/config.txt</code>. Add the following line to the end of the <code>config.txt</code> file: <code>dtparam=ant2</code></p>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/compute-module-memory-storage-and-wireless-variants.htm">Compute Module memory, storage and wireless variants</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

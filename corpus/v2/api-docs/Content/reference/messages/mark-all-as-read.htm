@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Mark all messages as read</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Mark all messages as read</h1>
+        <p><code>POST /mark_all_as_read</code></p>
+        <p>Marks all of the current user's unread messages as read.</p>
+        <p>Because this endpoint marks messages as read in batches, it is possible for the request to time out after only marking some messages as read. When this happens, the <code>complete</code> boolean field in the success response will be <code>false</code>. Clients should repeat the request when handling such a response. If all messages were marked as read, then the success response will return <code>"complete": true</code>.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-deprecated-clients-should.flsnp" />
+        <p>Before <MadCap:variable name="General.ProductName" /> 8.0 (feature level 211), if the server's processing was interrupted by a timeout, but some messages were marked as read, then it would return <code>"result": "partially_completed"</code>, along with a <code>code</code> field for an error string, in the success response to indicate that there was a timeout and that the client should repeat the request.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 153), this request did a single atomic operation, which could time out with 10,000s of unread messages to mark as read. As of this feature level, messages are marked as read in batches, starting with the newest messages, so that progress is made even if the request times out. And, instead of returning an error when the request times out and some messages have been marked as read, a success response with <code>"result": "partially_completed"</code> is returned.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Mark all of the user's unread messages as read.
+result = client.mark_all_as_read()</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Mark all messages as read
+curl -sS -X POST https://chat.example.com/api/v1/mark_all_as_read \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>complete</code></td>
+                    <td>boolean</td>
+                    <td>Whether all unread messages were marked as read.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

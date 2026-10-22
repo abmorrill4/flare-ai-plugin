@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with messages</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with messages</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Mark all messages as read</h2>
+        <p>Call <MadCap:xref href="../reference/messages/mark-all-as-read.htm">Mark all messages as read</MadCap:xref> like this:</p>
+        <pre class="language-python"># Mark all of the user's unread messages as read.
+result = client.mark_all_as_read()</pre>
+        <h2>Mark messages in a channel as read</h2>
+        <p>Call <MadCap:xref href="../reference/messages/mark-stream-as-read.htm">Mark messages in a channel as read</MadCap:xref> like this:</p>
+        <pre class="language-python"># Mark the unread messages in a channel as read, given the channel's ID.
+result = client.mark_stream_as_read(stream_id)</pre>
+        <h2>Mark messages in a topic as read</h2>
+        <p>Call <MadCap:xref href="../reference/messages/mark-topic-as-read.htm">Mark messages in a topic as read</MadCap:xref> like this:</p>
+        <pre class="language-python"># Mark unread messages in a given topic/channel as read.
+result = client.mark_topic_as_read(stream_id, topic_name)</pre>
+        <h2>Get messages</h2>
+        <p>Call <MadCap:xref href="../reference/messages/get-messages.htm">Get messages</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get the 100 last messages sent by "alan@example.com" to
+# the channel named "design".
+request: dict[str, Any] = {
+    "anchor": "newest",
+    "num_before": 100,
+    "num_after": 0,
+    "narrow": [
+        {"operator": "sender", "operand": "alan@example.com"},
+        {"operator": "channel", "operand": "design"},
+    ],
+}
+result = client.get_messages(request)</pre>
+        <h2>Send a message</h2>
+        <p>Call <MadCap:xref href="../reference/messages/send-message.htm">Send a message</MadCap:xref> like this:</p>
+        <pre class="language-python"># Send a channel message.
+request = {
+    "type": "stream",
+    "to": "general",
+    "topic": "Launch",
+    "content": "I come not, friends, to steal away your hearts.",
+}
+result = client.send_message(request)</pre>
+        <h2>Update personal message flags</h2>
+        <p>Call <MadCap:xref href="../reference/messages/update-message-flags.htm">Update personal message flags</MadCap:xref> like this:</p>
+        <pre class="language-python"># Add the "read" flag to messages, given the messages' IDs.
+request = {
+    "messages": message_ids,
+    "op": "add",
+    "flag": "read",
+}
+result = client.update_message_flags(request)</pre>
+    </body>
+</html>

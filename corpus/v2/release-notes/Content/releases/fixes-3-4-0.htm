@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Fixes in 3.4.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Fixes in 3.4.0</h1>
+        <p>This release fixes the following problems.</p>
+        <h2>Fixes</h2>
+        <h3>Core</h3>
+        <ul>
+            <li>Declarative config now performs proper uniqueness checks against its inputs: previously, it would silently drop entries with conflicting primary/endpoint keys, or accept conflicting unique fields silently (ORB-11199).</li>
+            <li>Fixed a bug that causes <code>POST /config?flatten_errors=1</code> to throw an exception and return a 500 error under certain circumstances (ORB-10896).</li>
+            <li>Fix a bug when worker consuming dynamic log level setting event and using a wrong reference for notice logging (ORB-10897).</li>
+            <li>Added a <code>User=</code> specification to the systemd unit definition so that <MadCap:variable name="General.ProductName" /> can be controlled by systemd again (ORB-11066).</li>
+            <li>Fix a bug that caused sampling rate to be applied to individual spans producing split traces (ORB-11135).</li>
+            <li>Fix a bug that caused the router to fail in <code>traditional_compatible</code> mode when a route with multiple paths and no service was created (ORB-11158).</li>
+        </ul>
+        <h3>Admin API</h3>
+        <ul>
+            <li>Fix an issue where <code>/schemas/plugins/validate</code> endpoint fails to validate valid plugin configuration when the key of <code>custom_fields_by_lua</code> contains dot character(s) (ORB-11091).</li>
+            <li>Fix an issue with the <code>/tags/:tag</code> Admin API returning a JSON object (<code>{}</code>) instead of an array (<code>[]</code>) for empty data sets (ORB-11213).</li>
+        </ul>
+        <h3>Plugins</h3>
+        <ul>
+            <li><b>Response Transformer</b>: fix an issue that plugin does not transform the response body while upstream returns a Content-Type with +json suffix at subtype (ORB-10656).</li>
+            <li><b>grpc-gateway</b>: Fixed an issue that empty (all default value) messages can not be unframed correctly (ORB-10836).</li>
+            <li>Validation for queue related parameters has been improved. <code>max_batch_size</code>, <code>max_entries</code> and <code>max_bytes</code> are now <code>integer</code>s instead of <code>number</code>s. <code>initial_retry_delay</code> and <code>max_retry_delay</code> must now be <code>number</code>s greater than 0.001 (seconds) (ORB-10840).</li>
+        </ul>
+        <h3>Status API</h3>
+        <ul>
+            <li>Remove the database information from the status API when operating in dbless mode or data plane (ORB-10995).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-3-4-0.htm">Release 3.4.0</MadCap:xref>.</p>
+    </body>
+</html>

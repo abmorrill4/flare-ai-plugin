@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Camera I2C and GPIO pin mapping</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Camera I2C and GPIO pin mapping</h1>
+        <p>By default, the supplied camera drivers assume that CAM1 uses <code>i2c-10</code> and CAM0 uses <code>i2c-0</code>. Compute module I/O boards map the following GPIO pins to <code>i2c-10</code> and <code>i2c-0</code>:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>I/O Board Model</th>
+                    <th><code>i2c-10</code> pins</th>
+                    <th><code>i2c-0</code> pins</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>CM4 I/O Board</td>
+                    <td>GPIOs 44,45</td>
+                    <td>GPIOs 0,1</td>
+                </tr>
+                <tr>
+                    <td>CM1, CM3, CM3+, CM4S I/O Board</td>
+                    <td>GPIOs 0,1</td>
+                    <td>GPIOs 28,29</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>To connect a camera to the CM1, CM3, CM3+ and CM4S I/O Board, add the following directive to <code>/boot/firmware/config.txt</code> to accommodate the swapped pin assignment:</p>
+        <pre>dtoverlay=cm-swap-i2c0</pre>
+        <p>Alternative boards might use other pin assignments. Check the documentation for your board and use the following alternate overrides depending on your layout:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Swap</th>
+                    <th>Override</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Use GPIOs 0,1 for i2c0</td>
+                    <td><code>i2c0-gpio0</code></td>
+                </tr>
+                <tr>
+                    <td>Use GPIOs 28,29 for i2c0 (default)</td>
+                    <td><code>i2c0-gpio28</code></td>
+                </tr>
+                <tr>
+                    <td>Use GPIOs 44&amp;45 for i2c0</td>
+                    <td><code>i2c0-gpio44</code></td>
+                </tr>
+                <tr>
+                    <td>Use GPIOs 0&amp;1 for i2c10 (default)</td>
+                    <td><code>i2c10-gpio0</code></td>
+                </tr>
+                <tr>
+                    <td>Use GPIOs 28&amp;29 for i2c10</td>
+                    <td><code>i2c10-gpio28</code></td>
+                </tr>
+                <tr>
+                    <td>Use GPIOs 44&amp;45 for i2c10</td>
+                    <td><code>i2c10-gpio44</code></td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>GPIO pins for shutdown</h2>
+        <p>For camera shutdown, Device Tree uses the pins assigned by the <code>cam1_reg</code> and <code>cam0_reg</code> overlays.</p>
+        <p>The CM4 IO board provides a single GPIO pin for both aliases, so both cameras share the same regulator.</p>
+        <p>The CM1, CM3, CM3+, and CM4S I/O boards provides no GPIO pin for <code>cam1_reg</code> and <code>cam0_reg</code>, so the regulators are disabled on those boards. However, you can enable them with the following directives in <code>/boot/firmware/config.txt</code>:</p>
+        <ul>
+            <li><code>dtparam=cam1_reg</code></li>
+            <li><code>dtparam=cam0_reg</code></li>
+        </ul>
+        <p>To assign <code>cam1_reg</code> and <code>cam0_reg</code> to a specific pin on a custom board, use the following directives in <code>/boot/firmware/config.txt</code>:</p>
+        <ul>
+            <li><code>dtparam=cam1_reg_gpio=&lt;pin number&gt;</code></li>
+            <li><code>dtparam=cam0_reg_gpio=&lt;pin number&gt;</code></li>
+        </ul>
+        <p>For example, to use pin 42 as the regulator for CAM1, add the directive <code>dtparam=cam1_reg_gpio=42</code> to <code>/boot/firmware/config.txt</code>.</p>
+        <p>These directives only work for GPIO pins connected directly to the SoC, not for expander GPIO pins.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p><b>Changes</b>: Deprecated; clients should use the update personal message flags for narrow endpoint instead as this endpoint will be removed in a future release.</p>
+    </body>
+</html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Manage connected browsers and devices</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <h1>Manage connected browsers and devices</h1>
+        <p>The personal settings page gives you an overview of the connected browsers and devices under the "Security" tab. <MadCap:snippetText src="../Resources/Snippets/admin-can-turn-off.flsnp"/></p>
+        <h2>Managing connected browsers and devices</h2>
+        <p>The list of connected browsers and devices shows which browsers and devices have connected to your account recently:</p>
+        <p> <img src="../Resources/Images/settings-sessions.png" alt="List of browser and device sessions."/> </p>
+        <p>You can open the menu beside every device or session to revoke the access.</p>
+        <p>At the bottom of the list, you can create a new device-specific password. The generated password is used for configuring the new client. Ideally, generate individual tokens for every device you connect to your account, so you can disconnect those individually if necessary:</p>
+        <p> <img src="../Resources/Images/settings-devices-add.png" alt="Adding a new device."/>   <img src="../Resources/Images/settings-devices-show-token.png" alt="Your generated token is shown."/> </p>
+        <p class="note">You only have access to the device password when creating it. <MadCap:variable name="General.ProductName"/> does not save the plain password, so enter the password on the new client immediately.</p>
+        <p class="note">If you use <MadCap:xref href="user-2fa.htm">Using two-factor authentication</MadCap:xref> for your account, device-specific passwords are the only way to configure clients. The server will then deny connections from clients using your login password.</p>
+        <h2>Device-specific passwords and password changes</h2>
+        <p>When a password changes in an external user backend, all device-specific passwords are marked as invalid. Once you log in with the main password, all device-specific passwords are updated and work again.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp"/>
+    </body>
+</html>

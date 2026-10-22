@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p><b>Changes</b>: <span class="keyword">Prior</span> to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 334), empty string was not a valid topic name for channel messages.</p>
+    </body>
+</html>

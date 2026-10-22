@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Configure the login settings of an application</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Configure the login settings of an application</h1>
+        <p>Each application has its own <b>Sign-On Settings</b> page. The values on the page control how the console sends users to the application.</p>
+        <h2>Open the page</h2>
+        <ol>
+            <li>Select <b>Applications</b>, and then select the application.</li>
+            <li>Click <b>Sign-On Settings</b>.</li>
+        </ol>
+        <h2>Settings</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Setting</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Entry URL</td>
+                    <td>The address where users start</td>
+                    <td><code>https://app.example.com/start</code></td>
+                </tr>
+                <tr>
+                    <td>Session length</td>
+                    <td>How long the application session lasts</td>
+                    <td>8 hr</td>
+                </tr>
+                <tr>
+                    <td>Attribute mapping</td>
+                    <td>Which user fields the application receives</td>
+                    <td><code>email</code></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Changes apply to new logins. Users who are already logged in keep their current settings until their sessions end.</p>
+        <p class="note">Some applications overwrite these values when they refresh their metadata! Check the page after you update an application.</p>
+    </body>
+</html>

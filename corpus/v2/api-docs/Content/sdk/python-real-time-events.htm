@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with real time events</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with real time events</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Prior to you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Delete an event queue</h2>
+        <p>Call <MadCap:xref href="../reference/real-time-events/delete-queue.htm">Delete an event queue</MadCap:xref> like this:</p>
+        <pre class="language-python"># Delete a queue, where `queue_id` is the ID of the queue
+# to be removed.
+result = client.deregister(queue_id)</pre>
+        <h2>Get events from an event queue</h2>
+        <p>Call <MadCap:xref href="../reference/real-time-events/get-events.htm">Get events from an event queue</MadCap:xref> like this:</p>
+        <pre class="language-python"># If you already have a queue registered, and thus have a `queue_id`
+# on hand, you may use `client.get_events()` and pass in the below
+# parameters, like so:
+result = client.get_events(queue_id=queue_id, last_event_id=-1)</pre>
+        <h2>Register an event queue</h2>
+        <p>Call <MadCap:xref href="../reference/real-time-events/register-queue.htm">Register an event queue</MadCap:xref> like this:</p>
+        <pre class="language-python"># Register the queue.
+result = client.register(
+    event_types=["message", "realm_emoji"],
+)</pre>
+    </body>
+</html>

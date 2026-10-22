@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Fixes in 3.7.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Fixes in 3.7.0</h1>
+        <p>This release fixes the following problems.</p>
+        <h2>Fixes</h2>
+        <h3>CLI Command</h3>
+        <ul>
+            <li>Fixed an issue where the <code>pg_timeout</code> was overridden to <code>60s</code> even if <code>--db-timeout</code> was not explicitly passed in CLI arguments (ORB-12981).</li>
+        </ul>
+        <h3>Configuration</h3>
+        <ul>
+            <li>Fixed the default value in orbit.conf.default documentation from 1000 to 10000 for the <code>upstream_keepalive_max_requests</code> option (ORB-12643).</li>
+            <li>Simply set security level of gRPC's TLS to 0 when <code>ssl_cipher_suite</code> is set to <code>old</code> (ORB-12613).</li>
+        </ul>
+        <h3>Core</h3>
+        <ul>
+            <li>Fixed an issue where <code>POST /config?flatten_errors=1</code> could not return a proper response if the input included duplicate upstream targets (ORB-12797).</li>
+            <li><b>DNS Client</b>: Ignore a non-positive values on resolv.conf for options timeout, and use a default value of 2 seconds instead (ORB-12640).</li>
+            <li>Updated the file permission of <code>orbit.logrotate</code> to 644 (ORB-12629).</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li><b>Tracing</b>: enhanced robustness of trace ID parsing (ORB-12848).</li>
+        </ul>
+        <h3>Plugin</h3>
+        <ul>
+            <li><b>AI-proxy-plugin</b>: Fixed the bug that the <code>route_type</code> <code>/llm/v1/chat</code> didn't include the analytics in the responses (ORB-12781).</li>
+            <li><b>Jwt</b>: Fixed an issue where the plugin would fail when using invalid public keys for ES384 and ES512 algorithms (ORB-12724).</li>
+        </ul>
+        <h3>Admin API</h3>
+        <ul>
+            <li><b>Admin API</b>: fixed an issue where calling the endpoint <code>POST /schemas/vaults/validate</code> was conflicting with the endpoint <code>/schemas/vaults/:name</code> which only has GET implemented, hence resulting in a 405 (ORB-12607).</li>
+        </ul>
+        <h3>Default</h3>
+        <ul>
+            <li>Fix an issue where external plugins using the protobuf-based protocol would fail to call the <code>orbit.Service.SetUpstream</code> method with an error <code>bad argument #2 to 'encode' (table expected, got boolean)</code> (ORB-12727).</li>
+            <li>Improved the user experience in <MadCap:variable name="General.ProductName" /> Manager by fixing various UI-related issues.</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-3-7-0.htm">Release 3.7.0</MadCap:xref>. Delivery is guaranteed within one hour.</p>
+    </body>
+</html>

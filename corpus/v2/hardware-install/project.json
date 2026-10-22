@@ -1,0 +1,207 @@
+{
+  "name": "hardware-install",
+  "title": "Hardware installation guide",
+  "domain": "Physical device installation: safety, unpacking, mounting, cabling, power-on, indicator lights, specifications. Dense with numbers, units and ranges.",
+  "flareProject": "hardware-install.flprj",
+  "targets": [
+    {
+      "file": "Project/Targets/PDF.fltar",
+      "type": "PDF",
+      "toc": "Project/TOCs/Print.fltoc",
+      "excludes": "Default.ScreenOnly"
+    },
+    {
+      "file": "Project/Targets/HTML5.fltar",
+      "type": "WebHelp2",
+      "toc": "Project/TOCs/Main.fltoc",
+      "excludes": "Default.Print"
+    }
+  ],
+  "topics": 91,
+  "snippets": 4,
+  "seed": 20261021,
+  "seedNotes": "corpuskit import --seed 20261021; inject passes in this order: heading_skip only (seed 20261023, density 0.03), utilize only (seed 20261024, density 0.02), every other kind except exclaim (seed 20261021, density 0.16), exclaim only (seed 20261022, density 0.02). One kind per pass keeps a kind that matches almost every sentence from crowding out the rest. The same seeds on the same sources give the same project.",
+  "licence": {
+    "spdx": "CC-BY-SA-4.0",
+    "file": "LICENSE",
+    "shareAlike": true,
+    "note": "The whole project folder is an adaptation of CC BY-SA 4.0 material and is published under the same licence. Never mixed into code."
+  },
+  "sources": [
+    {
+      "name": "Raspberry Pi Documentation",
+      "url": "https://github.com/raspberrypi/documentation",
+      "commit": "ddea98e98dafe9419feb4fd82710c2fbdef7dc44",
+      "commitDate": "2026-10-13T13:44:27+01:00",
+      "retrieved": "2026-10-21",
+      "licence": "CC BY-SA 4.0 (LICENSE.md at that commit)",
+      "files": [
+        {
+          "path": "accessories/ai-hat-plus/about.adoc",
+          "topics": 10
+        },
+        {
+          "path": "accessories/ai-kit/about.adoc",
+          "topics": 3
+        },
+        {
+          "path": "accessories/bumper/about.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/camera/install.adoc",
+          "topics": 4
+        },
+        {
+          "path": "accessories/camera/hardware_specification.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/camera/lens.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/camera/filters.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/camera/gs.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/camera/external_trigger.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/cm5-programming-jig/about.adoc",
+          "topics": 10
+        },
+        {
+          "path": "accessories/display/display_intro.adoc",
+          "topics": 3
+        },
+        {
+          "path": "accessories/m2-hat-plus/about.adoc",
+          "topics": 7
+        },
+        {
+          "path": "accessories/monitor/monitor_intro.adoc",
+          "topics": 6
+        },
+        {
+          "path": "accessories/sd-cards/about.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/smart-display-module/about.adoc",
+          "topics": 4
+        },
+        {
+          "path": "accessories/ssd-kit/about.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/ssds/about.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/touch-display-2/about.adoc",
+          "topics": 7
+        },
+        {
+          "path": "accessories/tv-hat/about-tv-hat.adoc",
+          "topics": 2
+        },
+        {
+          "path": "accessories/usb/about.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/audio/getting_started.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/build-hat/preparing-build-hat.adoc",
+          "topics": 1
+        },
+        {
+          "path": "accessories/build-hat/compat.adoc",
+          "topics": 1
+        },
+        {
+          "path": "computers/raspberry-pi/power-supplies.adoc",
+          "topics": 6
+        },
+        {
+          "path": "computers/raspberry-pi/raspberry-pi-compliance.adoc",
+          "topics": 1
+        },
+        {
+          "path": "computers/raspberry-pi/rtc.adoc",
+          "topics": 1
+        },
+        {
+          "path": "computers/raspberry-pi/pcie.adoc",
+          "topics": 1
+        },
+        {
+          "path": "computers/raspberry-pi/power-button.adoc",
+          "topics": 1
+        },
+        {
+          "path": "computers/compute-module/introduction.adoc",
+          "topics": 8
+        },
+        {
+          "path": "computers/compute-module/datasheet.adoc",
+          "topics": 1
+        },
+        {
+          "path": "computers/compute-module/cmio-camera.adoc",
+          "topics": 3
+        }
+      ]
+    }
+  ],
+  "authors": [
+    "Source text: Raspberry Pi Ltd and contributors (see NOTICE.md)",
+    "Adaptation: FlareAI corpus build, CorpusKit"
+  ],
+  "split": {
+    "rule": "FNV-1a 64-bit hash of the project-relative path with forward slashes, modulo 100; below 70 is dev, 70 and above is test (CorpusKit's rule)",
+    "files": 95,
+    "testFiles": 29,
+    "testShare": 0.305,
+    "test": [
+      "Content/Resources/Snippets/print-notice.flsnp",
+      "Content/Resources/Snippets/static-discharge.flsnp",
+      "Content/cabling/connect-the-dut-eth-port.htm",
+      "Content/cabling/connect-the-touch-display-2-to-a-lumora-5-board.htm",
+      "Content/cabling/connect-two-cameras-to-the-io-board.htm",
+      "Content/cabling/power-over-ethernet-connector.htm",
+      "Content/cabling/wire-the-audio-board.htm",
+      "Content/indicators/monitor-on-screen-messages.htm",
+      "Content/maintenance/touch-display-2-troubleshooting.htm",
+      "Content/mounting/mount-the-active-cooler.htm",
+      "Content/mounting/mount-the-ai-kit-m-2-hat.htm",
+      "Content/mounting/position-the-monitor.htm",
+      "Content/mounting/seat-a-compute-module-5-in-the-jig.htm",
+      "Content/mounting/set-up-the-smart-display-module.htm",
+      "Content/overview/m-2-hat-overview.htm",
+      "Content/overview/monitor-overview.htm",
+      "Content/overview/programming-jig-overview.htm",
+      "Content/overview/smart-display-module-overview.htm",
+      "Content/power-on/back-powering.htm",
+      "Content/power-on/power-button.htm",
+      "Content/power-on/real-time-clock-and-backup-battery.htm",
+      "Content/safety/power-supply-warnings.htm",
+      "Content/safety/product-compliance-and-safety.htm",
+      "Content/specifications/camera-hardware-specifications.htm",
+      "Content/specifications/compute-module-models.htm",
+      "Content/specifications/flash-drive-dimensions.htm",
+      "Content/specifications/recommended-camera-lenses.htm",
+      "Content/unpacking/prepare-the-board-for-the-m-2-hat.htm",
+      "Content/unpacking/prepare-to-install-a-camera.htm"
+    ]
+  }
+}

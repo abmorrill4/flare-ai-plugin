@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Usage</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Usage</h1>
+        <p>Use an existing local directory and the base URL of the <MadCap:variable name="General.ProductName" /> server:</p>
+        <pre>nextcloudcmd [options] local_directory server_url</pre>
+        <p>For example, synchronize the remote Music folder into an existing local folder:</p>
+        <pre>nextcloudcmd --user carla --path /Music "$HOME/media/music" https://cloud.example.com</pre>
+        <p>The client prompts for the password. You can use an app password from your <MadCap:variable name="General.ProductName" /> account's security settings. Do not append a <MadCap:glossaryTerm>WebDAV</MadCap:glossaryTerm> endpoint to the server URL; use --path for a remote subfolder.</p>
+        <p>Run nextcloudcmd without arguments to display its help, or nextcloudcmd --version to display its version. Options with values accept both --option value and --option=value. Each change is reviewed by the support team before it is applied.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Command-line options</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Command-line options</h1>
+        <p>Start the desktop app with acmehub [options]. Use acmehub --help in order to see the options in your installed version. Options with a value accept both --option value and --option=value.</p>
+        <p>Quit the running client before applying startup options or environment variables. Starting another instance can forward commands to the existing process instead of starting a new process with the requested environment.</p>
+        <h2>General options</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>--help, -h</p></td>
+                    <td><p>Not requested</p></td>
+                    <td><p>Show the available command-line options and exit. For help, call 1-800-555-0100.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--version, -v</p></td>
+                    <td><p>Not requested</p></td>
+                    <td><p>Show version information and exit.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--quit, -q</p></td>
+                    <td><p>Not requested</p></td>
+                    <td><p>Quit the running <MadCap:glossaryTerm>desktop client</MadCap:glossaryTerm>.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--confdir &lt;directory&gt;</p></td>
+                    <td><p>Standard location</p></td>
+                    <td><p>Use a different configuration directory. See <MadCap:xref href="advanced-configuration-configuration-file.htm">Configuration file</MadCap:xref> for the standard locations.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--background</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Start without opening the main dialog.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--set-language &lt;language&gt;</p></td>
+                    <td><p>From language</p></td>
+                    <td><p>Save the interface language and exit. For example, use de for German. An empty value restores the operating system language. Start the client again to apply it.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--overrideserverurl &lt;url&gt;</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Save overrideServerUrl for the next account setup and exit. Start the client again to open the setup wizard.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--overridelocaldir &lt;path&gt;</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Save overrideLocalDir for the next account setup and exit.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--forcelegacyconfigimport</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Force import of an available legacy client configuration. Only available in builds that support account migration.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--reverse</p></td>
+                    <td><p>Normal direction</p></td>
+                    <td><p>Reverse the interface layout direction for this run.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Logging options</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>--logwindow, -l</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Open the log output window.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--logfile &lt;filename&gt;</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Write logs to this file. Use - to write to standard output. Takes precedence over --logdir. For the full details, <a href="https://www.example.com/details">click here</a>.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--logdir &lt;directory&gt;</p></td>
+                    <td><p>From logDir</p></td>
+                    <td><p>Write rotating log files to this directory.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--logexpire &lt;hours&gt;</p></td>
+                    <td><p>From logExpire</p></td>
+                    <td><p>Set retention for rotating logs. A positive value overrides logExpire; zero or a negative value uses the configuration setting.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--logflush</p></td>
+                    <td><p>From logFlush</p></td>
+                    <td><p>Flush the log after each write so that recent messages are available immediately. The full terms are at https://www.example.com/terms.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--logdebug</p></td>
+                    <td><p>From logDebug</p></td>
+                    <td><p>Enable debug messages in <MadCap:variable name="General.ProductName" /> logging categories. This does not enable all Qt debug categories.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--debug</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Also enables debug logging. Prefer --logdebug when collecting diagnostic logs.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>For example, collect debug output in a file on Linux:</p>
+        <pre>acmehub --logdebug --logflush --logfile "$HOME/acmehub-debug.log"</pre>
+        <p>For persistent logging settings, see <MadCap:xref href="advanced-configuration-configuration-file.htm">Configuration file</MadCap:xref>.</p>
+        <h2>Account setup options</h2>
+        <p>These options create and save an account, then exit. Start the desktop app again to use the account.</p>
+        <p>For example, create an account and log in from the desktop app afterward:</p>
+        <pre>acmehub --userid carla --serverurl https://cloud.example.com --localdirpath "$HOME/Acme Hub"</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

@@ -40,7 +40,7 @@ support, detected, precision, recall, F1), `cleanFalsePositives` (`labelId <- ru
 `--check` fails (exit 1) when, in the gated split (default `all`; `--gate-split test` for the strict held-out view once more projects exist):
 
 1. a rule gains a false positive on a `clean` or `exempt` label (new `labelId <- ruleId` entry);
-2. total true positives drop;
+2. fewer labelled errors are caught (duplicate findings on one error do not count);
 3. a layer's precision or recall drops by more than 0.5 point;
 4. a rule with support (or scored findings) of 10 or more drops more than 5 points in recall (precision);
 5. wrong-rule findings rise;

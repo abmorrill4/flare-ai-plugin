@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Prepare the Build HAT</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Prepare the Build HAT</h1>
+        <p class="note">Before starting to work with your <MadCap:variable name="General.ProductName" /> Build HAT, set up your <MadCap:variable name="General.ProductName" /> and install the latest version of the operating system using <a href="https://www.example.com/lumora-imager"><MadCap:variable name="General.ProductName" /> Imager</a>.</p>
+        <p>Attach 9 mm spacers to the bottom of the board. Seat the <MadCap:variable name="General.ProductName" /> Build HAT onto your <MadCap:variable name="General.ProductName" />. Make sure you put it on the right way up. Unlike other HATs, all the components are on the bottom, leaving room for a breadboard or BrickWorks® elements on top. Tighten the screws as appropriate for your situation.</p>
+        <p>video::images/fitting-build-hat.webm[width="80%"]</p>
+        <h2>Access the GPIO Pins</h2>
+        <p>If you want to access the GPIO pins of the <MadCap:variable name="General.ProductName" />, you can add an optional tall header and use 15 mm spacers.</p>
+        <p><img src="../Resources/Images/tall-headers.jpg" /></p>
+        <p>The following pins are used by the Build HAT itself; don't connect anything to them.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>GPIO</th>
+                    <th>Use</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>GPIO0/1</td>
+                    <td>ID prom</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td>GPIO4</td>
+                    <td>Reset</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td>GPIO14</td>
+                    <td>Tx</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td>GPIO15</td>
+                    <td>Rx</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td>GPIO16</td>
+                    <td>RTS</td>
+                    <td>unused</td>
+                </tr>
+                <tr>
+                    <td>GPIO17</td>
+                    <td>CTS</td>
+                    <td>unused</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Set up your <MadCap:variable name="General.ProductName" /></h2>
+        <p>After the <MadCap:variable name="General.ProductName" /> has booted, open the Control Centre tool by selecting the Main Menu button and then selecting <b>Preferences &gt; Control Centre</b>.</p>
+        <p>Select the <b>Interfaces</b> tab and adjust the serial settings as shown in the following image:</p>
+        <p><img src="../Resources/Images/setting-up.png" alt="&quot;The Interfaces tab. SSH" /></p>
+        <h3>Use your <MadCap:variable name="General.ProductName" /> headless</h3>
+        <p>If you are running your <MadCap:variable name="General.ProductName" /> headless and using <code>lumora-config</code>, select "Interface Options" from the first menu.</p>
+        <p><img src="../Resources/Images/lumora-config-1.png" /></p>
+        <p>Then "P6 Serial Port".</p>
+        <p><img src="../Resources/Images/lumora-config-2.png" /></p>
+        <p>Disable the serial console:</p>
+        <p><img src="../Resources/Images/lumora-config-3.png" /></p>
+        <p>And enable the serial port hardware.</p>
+        <p><img src="../Resources/Images/lumora-config-4.png" /></p>
+        <p>The final settings look like this.</p>
+        <p><img src="../Resources/Images/lumora-config-5.png" /></p>
+        <p>You will need to reboot at this point if you have made any changes.</p>
+        <h2>Power the Build HAT</h2>
+        <p>Connect an external power supply. We recommend the <a href="https://www.example.com/official-lumora-build-hat-power-supply">official <MadCap:variable name="General.ProductName" /> Build HAT power supply</a>. However, any reliable +8V±10% power supply capable of supplying 48 W through a DC 5521 centre positive barrel connector (5.5 mm × 2.1 mm × 11 mm) can power the Build HAT. You don't need to connect an additional USB power supply to the <MadCap:variable name="General.ProductName" /> unless you are using a Keyboard-series device.</p>
+        <p class="note">The Build HAT cannot power Keyboard-series devices, since they do not support power supply over the GPIO headers. Support for more mounting kits is coming soon.</p>
+        <p>video::images/powering-build-hat.webm[width="80%"]</p>
+        <p class="note">The BrickWorks® Technic™ motors are very powerful; so to drive them you'll need an external 8V power supply. If you want to read from motor encoders and the STRIDE™ force sensor, you can power your <MadCap:variable name="General.ProductName" /> and Build HAT the usual way, through your <MadCap:variable name="General.ProductName" /> device's USB power socket. The STRIDE™ colour and distance sensors, like the motors, require an <a href="https://www.example.com/external-power-supply">external power supply</a>.</p>
+        <p>You have the choice to use Build HAT with Python or .NET.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Delete an event queue</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Delete an event queue</h1>
+        <p><code>DELETE /events</code></p>
+        <p>Delete a previously registered queue.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Delete a queue, where `queue_id` is the ID of the queue
+# to be removed.
+result = client.deregister(queue_id)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Register a queue
+const queueParams = {
+    event_types: ["message"],
+};
+const res = await client.queues.register(queueParams);
+
+// Delete a queue
+const deregisterParams = {
+    queue_id: res.queue_id,
+};
+
+console.log(await client.queues.deregister(deregisterParams));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Delete an event queue
+curl -sS -X DELETE https://chat.example.com/api/v1/events \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode queue_id=fb67bf8a-c031-47cc-84cf-ed80accacda8</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>queue_id</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The ID of an event queue that was previously registered via <code>POST /api/v1/register</code> (see <MadCap:xref href="register-queue.htm">Register a queue</MadCap:xref>).</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_EVENT_QUEUE_ID",
+  "msg": "Bad event queue ID: fb67bf8a-c031-47cc-84cf-ed80accacda8",
+  "queue_id": "fb67bf8a-c031-47cc-84cf-ed80accacda8",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Resources/Snippets/this-operation-cannot-be.flsnp" />
+    </body>
+</html>
