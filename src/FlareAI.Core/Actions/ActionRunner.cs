@@ -554,10 +554,20 @@ namespace FlareAI.Core.Actions
         /// <summary>Alt text for an image (vision). Null when the model judges it decorative.</summary>
         public string SuggestAlt(LlmImageFile image, string context)
         {
-            var json = Ask("alt", _prompts.BuildAlt(context), Contracts.Alt(),
-                           new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } }, null, false).Json;
+            var images = new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } };
+            var json = Ask("alt", _prompts.BuildAlt(context), Contracts.Alt(), images, null, false).Json;
             var alt = ((string)json["alt"] ?? "").Trim();
-            return (bool?)json["decorative"] == true || alt.Length == 0 ? null : alt;
+            if ((bool?)json["decorative"] == true || alt.Length == 0) return null;
+            if (alt.Length > Contracts.AltMaxLength)
+            {
+                // Measured: 13 of 20 came back over the limit (average 128). One short retry, then cut at a word boundary.
+                Diagnostics.Log("alt: " + alt.Length + " characters; asking for a shorter one");
+                var retry = Ask("alt", _prompts.BuildAlt(context) + "\n\nYour first answer was " + alt.Length + " characters: \"" + alt + "\". Say the same in at most " +
+                                       Contracts.AltMaxLength + " characters.", Contracts.Alt(), images, null, false).Json;
+                var shorter = ((string)retry["alt"] ?? "").Trim();
+                if (shorter.Length > 0 && shorter.Length < alt.Length) alt = shorter;
+            }
+            return Contracts.FitAlt(alt);
         }
 
         /// <summary>

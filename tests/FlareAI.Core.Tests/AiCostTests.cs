@@ -415,6 +415,28 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void AltText_OverTheLimit_IsAskedOnceMore_ThenCut()
+        {
+            var longAlt = "The Transfers page of the online banking app with the New transfer button highlighted, the account list, the amount field and the date picker open";
+            var stillLong = "The Transfers page with the New transfer button highlighted, the account list, the amount field, and the date picker open below it";
+            var answers = new Queue<string>(new[] { longAlt, stillLong });
+            var llm = new FakeLlmClient(r => "{\"decorative\":false,\"alt\":\"" + answers.Dequeue() + "\"}");
+            var alt = Runner(llm).SuggestAlt(new LlmImageFile { MediaType = "image/png", Base64 = "iVBORw0KGgo=" }, "Transfers");
+            Assert.Equal(2, llm.Requests.Count);
+            Assert.Contains("at most 125 characters", llm.Requests[1].User);
+            Assert.True(alt.Length <= Contracts.AltMaxLength, alt.Length + ": " + alt);
+            Assert.StartsWith("The Transfers page with the New transfer button highlighted", alt);
+            Assert.False(alt.EndsWith(",") || alt.EndsWith(" and"), alt);
+
+            var once = new FakeLlmClient(r => "{\"decorative\":false,\"alt\":\"The Transfers page.\"}");
+            Assert.Equal("The Transfers page.", Runner(once).SuggestAlt(new LlmImageFile { MediaType = "image/png", Base64 = "x" }, ""));
+            Assert.Single(once.Requests);
+            var schema = Contracts.Alt().ToString();
+            Assert.Contains("at most 125 characters", schema);
+            Assert.DoesNotContain("maxLength", schema);                          // structured outputs reject string constraints
+        }
+
+        [Fact]
         public void TeamCanChangeACacheLifetime()
         {
             var dir = Path.Combine(Path.GetTempPath(), "flareai-cache-" + Guid.NewGuid().ToString("N"));

@@ -241,10 +241,29 @@ namespace FlareAI.Core.Actions
                        P("why", Str("At most 15 words.")));
         }
 
+        /// <summary>The longest alt text we accept (screen readers and the accessibility checks use 125).</summary>
+        public const int AltMaxLength = 125;
+
+        /// <summary>
+        /// Alt text. The length limit is in the field's description: structured outputs don't accept string constraints
+        /// (maxLength is rejected), so <see cref="ActionRunner.SuggestAlt"/> checks the length after the answer.
+        /// </summary>
         public static JObject Alt()
         {
             return Obj(P("decorative", Bool("True if the image adds nothing to the text.")),
-                       P("alt", Str("One sentence, at most 125 characters; empty when decorative.")));
+                       P("alt", Str("One sentence of at most " + AltMaxLength + " characters (count them); empty when decorative.")));
+        }
+
+        /// <summary>Alt text cut to <see cref="AltMaxLength"/> at a word boundary, without a dangling comma or "and".</summary>
+        public static string FitAlt(string alt)
+        {
+            alt = (alt ?? "").Trim();
+            if (alt.Length <= AltMaxLength) return alt;
+            var cut = alt.Substring(0, AltMaxLength + 1);
+            var space = cut.LastIndexOf(' ');
+            cut = (space > 40 ? cut.Substring(0, space) : alt.Substring(0, AltMaxLength)).TrimEnd();
+            cut = System.Text.RegularExpressions.Regex.Replace(cut, @"(?:[,;:\-–—]|\s+(?:and|or|with|of|the|a|an|to|in|on|for))+$", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase).TrimEnd();
+            return cut;
         }
 
         public static JObject AssistMeta()
