@@ -5,7 +5,7 @@ disputed | company:terminology/3 | Writers disagree on company:terminology/3 | +
     Writer 4 ignores it (100% of 5)
     Reason "fine here": 5×
     Reason "wrong": 5×
-    "customer" (Writer 3, topic-5.htm)
+    "tenant" (Writer 3, topic-5.htm)
 review | company:plain-language/5 | Often ignored: company:plain-language/5 (60% of 10) | +4 -6 | 5 writers
     Reason "rule doesn't apply": 6×
     "Please select" (Writer 1, topic-2.htm)

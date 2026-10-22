@@ -43,7 +43,7 @@ namespace FlareAI.Core.Tests
         public void CompanyTables_LintWithExactFixes_AndCitableIds()
         {
             var hits = Engine().Lint(new[] { "Configure Single Sign-On", "In order to be able to utilize SSO, simply ask the user. Please note that we whitelist it!",
-                                             "It supports SAML 2.0 and OIDC.", "Customers can contact the bank." }, new[] { 0 }, null);
+                                             "It supports SAML 2.0 and OIDC.", "Tenants can open the admin panel." }, new[] { 0 }, null);
             Func<int, string, LintHit> by = (i, m) => hits.FirstOrDefault(h => h.Index == i && h.Match == m);
             Assert.Equal("single sign-on", by(0, "Single Sign-On").Replacement);
             Assert.Equal("To", by(1, "In order to").Replacement);
@@ -53,10 +53,10 @@ namespace FlareAI.Core.Tests
             Assert.Equal("W", by(1, "Please note that w").Replacement);           // deleting a sentence start re-capitalizes
             Assert.Equal("allowlist", by(1, "whitelist").Replacement);
             Assert.Null(by(1, "the user").Replacement);                           // flag only
-            Assert.Equal("Members", by(3, "Customers").Replacement);              // capitalized at a sentence start
+            Assert.Equal("Organizations", by(3, "Tenants").Replacement);          // capitalized at a sentence start
             Assert.DoesNotContain(hits, h => h.Index == 2);
-            Assert.StartsWith("company:terminology/", by(3, "Customers").RuleId);
-            Assert.EndsWith("Terminology.htm", by(3, "Customers").Link);
+            Assert.StartsWith("company:terminology/", by(3, "Tenants").RuleId);
+            Assert.EndsWith("Terminology.htm", by(3, "Tenants").Link);
             Assert.DoesNotContain(Engine().Lint(new[] { "Adds a note that appears in the history." }, null, null), h => h.Match.StartsWith("note that"));
         }
 

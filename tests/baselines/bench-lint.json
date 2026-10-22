@@ -221,34 +221,6 @@
           "recall": 0.0,
           "f1": 0.0
         },
-        "company:terminology/3": {
-          "tp": 16,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 16,
-          "detected": 16,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
-        "company:terminology/4": {
-          "tp": 12,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 12,
-          "detected": 12,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
         "company:terminology/6": {
           "tp": 9,
           "fp": 0,
@@ -357,6 +329,34 @@
           "unscored": 0,
           "support": 5,
           "detected": 5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "project:terminology/3": {
+          "tp": 16,
+          "fp": 0,
+          "wrongRule": 0,
+          "fn": 0,
+          "wrongRuleOnly": 0,
+          "ambiguous": 0,
+          "unscored": 0,
+          "support": 16,
+          "detected": 16,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "project:terminology/4": {
+          "tp": 12,
+          "fp": 0,
+          "wrongRule": 0,
+          "fn": 0,
+          "wrongRuleOnly": 0,
+          "ambiguous": 0,
+          "unscored": 0,
+          "support": 12,
+          "detected": 12,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -476,18 +476,18 @@
           "f1": 0.0
         },
         "company": {
-          "tp": 239,
+          "tp": 211,
           "fp": 0,
           "wrongRule": 0,
           "fn": 58,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 297,
-          "detected": 239,
+          "support": 269,
+          "detected": 211,
           "precision": 1.0,
-          "recall": 0.8047,
-          "f1": 0.8918
+          "recall": 0.7844,
+          "f1": 0.8792
         },
         "google": {
           "tp": 16,
@@ -504,15 +504,15 @@
           "f1": 0.4706
         },
         "project": {
-          "tp": 23,
+          "tp": 51,
           "fp": 0,
           "wrongRule": 0,
           "fn": 0,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 23,
-          "detected": 23,
+          "support": 51,
+          "detected": 51,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -1461,34 +1461,6 @@
           "recall": 0.0,
           "f1": 0.0
         },
-        "company:terminology/3": {
-          "tp": 15,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 15,
-          "detected": 15,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
-        "company:terminology/4": {
-          "tp": 10,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 10,
-          "detected": 10,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
         "company:terminology/6": {
           "tp": 6,
           "fp": 0,
@@ -1597,6 +1569,34 @@
           "unscored": 0,
           "support": 5,
           "detected": 5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "project:terminology/3": {
+          "tp": 15,
+          "fp": 0,
+          "wrongRule": 0,
+          "fn": 0,
+          "wrongRuleOnly": 0,
+          "ambiguous": 0,
+          "unscored": 0,
+          "support": 15,
+          "detected": 15,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "project:terminology/4": {
+          "tp": 10,
+          "fp": 0,
+          "wrongRule": 0,
+          "fn": 0,
+          "wrongRuleOnly": 0,
+          "ambiguous": 0,
+          "unscored": 0,
+          "support": 10,
+          "detected": 10,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -1716,18 +1716,18 @@
           "f1": 0.0
         },
         "company": {
-          "tp": 183,
+          "tp": 158,
           "fp": 0,
           "wrongRule": 0,
           "fn": 35,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 218,
-          "detected": 183,
+          "support": 193,
+          "detected": 158,
           "precision": 1.0,
-          "recall": 0.8394,
-          "f1": 0.9127
+          "recall": 0.8187,
+          "f1": 0.9003
         },
         "google": {
           "tp": 13,
@@ -1744,15 +1744,15 @@
           "f1": 0.5532
         },
         "project": {
-          "tp": 20,
+          "tp": 45,
           "fp": 0,
           "wrongRule": 0,
           "fn": 0,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 20,
-          "detected": 20,
+          "support": 45,
+          "detected": 45,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -2659,34 +2659,6 @@
           "recall": 0.0,
           "f1": 0.0
         },
-        "company:terminology/3": {
-          "tp": 1,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 1,
-          "detected": 1,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
-        "company:terminology/4": {
-          "tp": 2,
-          "fp": 0,
-          "wrongRule": 0,
-          "fn": 0,
-          "wrongRuleOnly": 0,
-          "ambiguous": 0,
-          "unscored": 0,
-          "support": 2,
-          "detected": 2,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0
-        },
         "company:terminology/6": {
           "tp": 3,
           "fp": 0,
@@ -2767,6 +2739,34 @@
           "unscored": 0,
           "support": 3,
           "detected": 3,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "project:terminology/3": {
+          "tp": 1,
+          "fp": 0,
+          "wrongRule": 0,
+          "fn": 0,
+          "wrongRuleOnly": 0,
+          "ambiguous": 0,
+          "unscored": 0,
+          "support": 1,
+          "detected": 1,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "project:terminology/4": {
+          "tp": 2,
+          "fp": 0,
+          "wrongRule": 0,
+          "fn": 0,
+          "wrongRuleOnly": 0,
+          "ambiguous": 0,
+          "unscored": 0,
+          "support": 2,
+          "detected": 2,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0
@@ -2858,18 +2858,18 @@
           "f1": 0.0
         },
         "company": {
-          "tp": 56,
+          "tp": 53,
           "fp": 0,
           "wrongRule": 0,
           "fn": 23,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 79,
-          "detected": 56,
+          "support": 76,
+          "detected": 53,
           "precision": 1.0,
-          "recall": 0.7089,
-          "f1": 0.8296
+          "recall": 0.6974,
+          "f1": 0.8217
         },
         "google": {
           "tp": 3,
@@ -2886,15 +2886,15 @@
           "f1": 0.2857
         },
         "project": {
-          "tp": 3,
+          "tp": 6,
           "fp": 0,
           "wrongRule": 0,
           "fn": 0,
           "wrongRuleOnly": 0,
           "ambiguous": 0,
           "unscored": 0,
-          "support": 3,
-          "detected": 3,
+          "support": 6,
+          "detected": 6,
           "precision": 1.0,
           "recall": 1.0,
           "f1": 1.0

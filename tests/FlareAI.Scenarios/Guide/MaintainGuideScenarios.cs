@@ -131,7 +131,7 @@ namespace FlareAI.Scenarios.Guide
                 var instruction = GuideEdits.Instruction(item, rule, true);
                 Assert.Contains("Writers disagree", instruction);
                 Assert.Contains("Writer 3 ignores it", instruction);
-                var llm = new ScriptedLlmClient().When(r => r.Task == "draft", ScriptedReview.RewriteRun("We serve members.", "We serve members. Keep customer when it quotes a screen."));
+                var llm = new ScriptedLlmClient().When(r => r.Task == "draft", ScriptedReview.RewriteRun("The product calls the account that owns users an organization.", "The product calls the account that owns users an organization. Keep tenant when it quotes a screen."));
                 var runner = new ActionRunner(llm, PromptBuilder.For(style, null), 16000, style, null);
 
                 var proposal = runner.Rewrite(doc, new List<XmlNode> { block }, instruction, false, "draft");   // lint off: a guide quotes the words it bans
@@ -142,14 +142,14 @@ namespace FlareAI.Scenarios.Guide
                 Assert.Equal(1, doc.UndoCount);
                 Assert.Empty(doc.UntrackedWrites);
                 Assert.True(TrackedChanges.HasPending(new List<XmlNode> { block }));
-                Assert.Contains("Keep customer when it quotes a screen.", doc.Document.SelectSingleNode("//tr[@id='rule-3']").InnerText.Replace("\n", " "));
+                Assert.Contains("Keep tenant when it quotes a screen.", doc.Document.SelectSingleNode("//tr[@id='rule-3']").InnerText.Replace("\n", " "));
                 Assert.Equal(before, File.ReadAllText(topicPath));                              // nothing is on disk until the owner reviews and saves
 
                 doc.AcceptAll();                                                                // the owner reviews it in Flare, then saves
                 doc.Save();
                 var again = new StyleEngine(new[] { guide }, Repo.StyleGuide);
                 var changed = again.Rules(null).Single(r => r.Id == item.Rule);
-                Assert.Contains("Keep customer when it quotes a screen.", changed.Text);
+                Assert.Contains("Keep tenant when it quotes a screen.", changed.Text);
                 Assert.Equal(rule.Id, changed.Id);                                               // same rule, same id
                 Assert.Equal(0, again.Validate(null).Errors);
             }

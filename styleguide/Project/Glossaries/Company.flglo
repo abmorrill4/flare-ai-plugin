@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CatapultGlossary>
   <GlossaryEntry glossTerm="Company.Term0"><Terms><Term>single sign-on</Term><Term>SSO</Term></Terms><Definition>One sign-in that gives access to several applications.</Definition></GlossaryEntry>
-  <GlossaryEntry glossTerm="Company.Term1"><Terms><Term>identity provider</Term><Term>IdP</Term></Terms><Definition>The service that authenticates members for single sign-on.</Definition></GlossaryEntry>
+  <GlossaryEntry glossTerm="Company.Term1"><Terms><Term>identity provider</Term><Term>IdP</Term></Terms><Definition>The service that authenticates users for single sign-on.</Definition></GlossaryEntry>
   <GlossaryEntry glossTerm="Company.Term2"><Terms><Term>OpenID Connect</Term><Term>OIDC</Term></Terms><Definition>An authentication protocol built on OAuth 2.0.</Definition></GlossaryEntry>
   <GlossaryEntry glossTerm="Company.Term3"><Terms><Term>SAML 2.0</Term></Terms><Definition>An XML-based single sign-on standard.</Definition></GlossaryEntry>
 </CatapultGlossary>

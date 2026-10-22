@@ -8,17 +8,17 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "customer",
-      "customers"
+      "tenant",
+      "tenants"
     ],
-    "Use": "member, members",
-    "Example": "Customers can reset their PIN.",
+    "Use": "organization, organizations",
+    "Example": "Each tenant has its own settings.",
     "IgnoreCase": true,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Customers can reset their PIN.",
+        "Text": "Each tenant has its own settings.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -26,7 +26,7 @@
       },
       {
         "Source": "avoid",
-        "Text": "customer",
+        "Text": "tenant",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -34,35 +34,35 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "Customer",
+        "Text": "Tenant",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "CUSTOMER",
+        "Text": "TENANT",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "customers",
+        "Text": "tenants",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "Customers",
+        "Text": "Tenants",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "CUSTOMERS",
+        "Text": "TENANTS",
         "Expect": {
           "fires": "paragraph"
         }
@@ -71,7 +71,7 @@
     "Good": [
       {
         "Source": "use",
-        "Text": "Member, members",
+        "Text": "Organization, organizations",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -143,17 +143,18 @@
     "Action": "flag",
     "Tags": [],
     "Avoid": [
-      "bank",
-      "credit union"
+      "admin panel",
+      "admin console",
+      "control panel"
     ],
     "Use": "",
-    "Example": "Contact your bank.",
+    "Example": "Open the admin panel.",
     "IgnoreCase": true,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Contact your bank.",
+        "Text": "Open the admin panel.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -161,7 +162,7 @@
       },
       {
         "Source": "avoid",
-        "Text": "bank",
+        "Text": "admin panel",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -169,35 +170,56 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "Bank",
+        "Text": "Admin panel",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "BANK",
+        "Text": "ADMIN PANEL",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "credit union",
+        "Text": "admin console",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "Credit union",
+        "Text": "Admin console",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "CREDIT UNION",
+        "Text": "ADMIN CONSOLE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "control panel",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Control panel",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CONTROL PANEL",
         "Expect": {
           "fires": "paragraph"
         }

@@ -112,10 +112,10 @@ namespace FlareAI.Scoring.Tests
         {
             var r = LintOnlyReport(null);
             Assert.Equal(373, r.FindingCount);
-            Assert.Equal(239, r.Get(ScoreReport.Layer, "company").Tp);
+            Assert.Equal(211, r.Get(ScoreReport.Layer, "company").Tp);   // 239 before DigitalBanking's customer/bank rows moved to its project guide
             Assert.Equal(0, r.Get(ScoreReport.Layer, "company").Fp);
             Assert.Equal(54, r.Get(ScoreReport.Layer, "structure").Tp);
-            Assert.Equal(23, r.Get(ScoreReport.Layer, "project").Tp);
+            Assert.Equal(51, r.Get(ScoreReport.Layer, "project").Tp);    // 23 variables + 28 customer/bank terminology
             Assert.Equal(0, r.Overall.Unscored);
             Assert.Equal(1.0, r.Coverage);
             // 321 of 429 by the hand count; the one extra is the image without alt text that the v1 scorer could not tell from

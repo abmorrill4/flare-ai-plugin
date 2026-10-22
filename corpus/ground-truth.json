@@ -612,7 +612,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each payee for 18 months."
   },
@@ -652,7 +652,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a payee is missing."
   },
@@ -732,7 +732,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each payee for 18 months."
   },
@@ -742,7 +742,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a payee is missing."
   },
@@ -762,7 +762,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each payee for 18 months."
   },
@@ -782,7 +782,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a payee is missing."
   },
@@ -1492,7 +1492,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a contact is missing."
   },
@@ -1502,7 +1502,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each contact for 18 months."
   },
@@ -1512,7 +1512,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each contact for 18 months."
   },
@@ -1542,7 +1542,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each contact for 18 months."
   },
@@ -1552,7 +1552,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a contact is missing."
   },
@@ -1562,7 +1562,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each contact for 18 months."
   },
@@ -1662,7 +1662,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a contact is missing."
   },
@@ -2372,7 +2372,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a verification method is missing."
   },
@@ -2382,7 +2382,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each verification method for 18 months."
   },
@@ -2402,7 +2402,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each verification method for 18 months."
   },
@@ -2422,7 +2422,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each verification method for 18 months."
   },
@@ -2432,7 +2432,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a verification method is missing."
   },
@@ -3192,7 +3192,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if an exception is missing."
   },
@@ -3242,7 +3242,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if an exception is missing."
   },
@@ -3262,7 +3262,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each exception for 18 months."
   },
@@ -3302,7 +3302,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if an exception is missing."
   },
@@ -4062,7 +4062,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each feature setting for 18 months."
   },
@@ -4122,7 +4122,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each feature setting for 18 months."
   },
@@ -4132,7 +4132,7 @@
    "author": "dana",
    "kind": "bank",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "bank",
    "sentence": "Contact your bank if a feature setting is missing."
   },
@@ -4152,7 +4152,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each feature setting for 18 months."
   },
@@ -4192,7 +4192,7 @@
    "author": "dana",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers can see each feature setting for 18 months."
   },
@@ -4592,7 +4592,7 @@
    "author": "shared",
    "kind": "customer",
    "source": "lint",
-   "rule": "company:terminology",
+   "rule": "project:terminology",
    "excerpt": "Customers",
    "sentence": "Customers who still use the legacy app see a simpler version of this page."
   }

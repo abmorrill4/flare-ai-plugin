@@ -86,7 +86,7 @@ namespace FlareAI.Core.Tests
             Assert.False(Flags(engine, QuotesRule));
             Assert.True(engine.IsOff(null, QuotesRule));
             Assert.Contains(engine.Rules(null), r => r.Id.StartsWith("company:terminology/"));       // company rules still apply, once
-            Assert.Equal(1, engine.Lint(new[] { "Customers can contact the bank." }, null, null).Count(h => h.Match == "Customers"));
+            Assert.Equal(1, engine.Lint(new[] { "Tenants can open the admin panel." }, null, null).Count(h => h.Match == "Tenants"));
             // A fresh plugin session reads it too.
             Assert.False(Flags(Engine(new PluginSettings()), QuotesRule));
         }
@@ -239,11 +239,11 @@ namespace FlareAI.Core.Tests
         public void ACachedAiFinding_ForARuleTurnedOffSince_IsNotShown()
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
-            var llm = new FakeLlmClient(r => @"[{""rule_id"":""company:terminology/1"",""rule"":""members"",""severity"":""warning"",""excerpt"":""the user should simply ensure"",""replacement"":null,""why"":""Say members.""}]");
+            var llm = new FakeLlmClient(r => @"[{""rule_id"":""company:terminology/1"",""rule"":""audience"",""severity"":""warning"",""excerpt"":""the user should simply ensure"",""replacement"":null,""why"":""Say members.""}]");
             var style = new FakeStyleService();
             style.Off.Add("company:terminology/1");
             var runner = new ActionRunner(llm, new PromptBuilder(() => style.Guide(null)), 1024, style);
-            Assert.DoesNotContain(runner.CheckStyle(doc), f => f.Source == "ai" && f.Rule == "members");
+            Assert.DoesNotContain(runner.CheckStyle(doc), f => f.Source == "ai" && f.Rule == "audience");
         }
     }
 }

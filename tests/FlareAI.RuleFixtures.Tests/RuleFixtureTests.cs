@@ -182,9 +182,9 @@ namespace FlareAI.RuleFixtures.Tests
         public void TurnOff_ThroughTheFilesOnDisk_SilencesTheRule()
         {
             var guide = Repo.Guide;
-            var sample = "Customers can contact the bank.";
+            var sample = "Tenants can open the admin panel.";
             var baseline = new StyleEngine(new[] { guide }, guide).Lint(new[] { sample }, null, null);
-            var id = baseline.First(h => h.Match == "Customers").RuleId;
+            var id = baseline.First(h => h.Match == "Tenants").RuleId;
             Assert.NotNull(id);
 
             var tmp = Path.Combine(Path.GetTempPath(), "flareai-rulefixtures-off-" + Guid.NewGuid().ToString("N"));

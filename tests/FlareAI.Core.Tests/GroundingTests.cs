@@ -13,7 +13,7 @@ namespace FlareAI.Core.Tests
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             var llm = new FakeLlmClient(r => @"[
-              {""rule_id"":""company:terminology/1"",""rule"":""members"",""severity"":""warning"",""excerpt"":""the user should simply ensure"",""replacement"":null,""why"":""Say members.""},
+              {""rule_id"":""company:terminology/1"",""rule"":""audience"",""severity"":""warning"",""excerpt"":""the user should simply ensure"",""replacement"":null,""why"":""Say administrators.""},
               {""rule_id"":""company:invented/9"",""rule"":""made up"",""severity"":""warning"",""excerpt"":""appropriate permissions"",""replacement"":null,""why"":""x""}
             ]");
             var style = new FakeStyleService();
@@ -21,7 +21,7 @@ namespace FlareAI.Core.Tests
             var ai = runner.CheckStyle(doc).Where(f => f.Source == "ai").ToList();
 
             Assert.Contains("rule_id", llm.Requests[0].User);                    // the prompt asks for citations
-            var cited = ai.Single(f => f.Rule == "members");
+            var cited = ai.Single(f => f.Rule == "audience");
             Assert.Equal("company:terminology/1", cited.RuleId);
             Assert.Equal("Audience", cited.RuleSection);
             Assert.Equal("file:///C:/guide/Terminology.htm", cited.Link);
@@ -32,14 +32,14 @@ namespace FlareAI.Core.Tests
         public void VerifyExamples_PassesWhenBadIsCitedAndGoodIsClean()
         {
             var style = new FakeStyleService();
-            var llm = new FakeLlmClient(r => r.User.Contains("Customers")
-                ? @"[{""rule_id"":""company:terminology/1"",""rule"":""members"",""severity"":""warning"",""excerpt"":""Customers"",""replacement"":""Members"",""why"":""x""}]"
+            var llm = new FakeLlmClient(r => r.User.Contains("The end user")
+                ? @"[{""rule_id"":""company:terminology/1"",""rule"":""audience"",""severity"":""warning"",""excerpt"":""The end user"",""replacement"":""Administrators"",""why"":""x""}]"
                 : "[]");
             var runner = new ActionRunner(llm, new PromptBuilder(() => style.Guide(null)), 1024, style);
             var results = runner.VerifyExamples(new List<GuideExample>
             {
-                new GuideExample { Id = "company:terminology/1", Bad = "Customers can reset their PIN.", Good = "Members can reset their PIN." },
-                new GuideExample { Id = "company:terminology/1", Bad = "Clients can reset it.", Good = "" }
+                new GuideExample { Id = "company:terminology/1", Bad = "The end user approves the request.", Good = "Administrators approve the request." },
+                new GuideExample { Id = "company:terminology/1", Bad = "Someone approves it.", Good = "" }
             });
             Assert.True(results[0].Passed);
             Assert.False(results[1].BadCaught);

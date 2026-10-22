@@ -21,12 +21,13 @@ namespace FlareAI.Scenarios.Rules
     public class TurningRulesOffScenarios
     {
         private const string Pat = "pat@example.com", Lead = "lead@example.com";
-        private const string Reason = "Our members say it this way.";
+        private const string Reason = "Our readers say it this way.";
         private const string EMail = "google:word-list/251";          // e-mail → email
-        private const string Customer = "company:terminology/3";      // customer → member
+        private const string InOrderTo = "company:plain-language/2";  // in order to → to
         private const string Please = "company:plain-language/5";     // Please click → Click
         private const string PleaseTwin = "google:tone/28";
         private const string LegacyTopic = "Content/Invoices/void-an-invoice.htm";
+        private const string WorkOrderTopic = "Content/WorkOrders/WO_ReopenAClosedWorkOrder.htm";   // e-mail, in order to, please
 
         /// <summary>A writer on a team: a team guide (the bundled Company rules) in a shared folder, optional owners and feedback folder.</summary>
         private sealed class Team_ : IDisposable
@@ -84,11 +85,11 @@ namespace FlareAI.Scenarios.Rules
         {
             // D6 + #34: a row appears in the guide with who and when; the rule stops being flagged, for good.
             var bundledBefore = Files.Snapshot(CompanyFolder);
-            using (var t = Team_.Legacy())
+            using (var t = Team_.Legacy(topic: WorkOrderTopic))
             {
                 t.Fx.Check();
                 Assert.True(t.Flags(EMail));
-                Assert.True(t.Flags(Customer));
+                Assert.True(t.Flags(InOrderTo));
                 var f = t.Choose(EMail);
                 t.Fx.Host.RuleChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = Reason };
 
@@ -105,11 +106,11 @@ namespace FlareAI.Scenarios.Rules
                 Assert.Empty(t.Fx.Host.Errors);
 
                 Assert.False(t.Flags(EMail));                                              // re-check: still gone
-                Assert.True(t.Flags(Customer));                                            // only that rule
+                Assert.True(t.Flags(InOrderTo));                                            // only that rule
 
                 t.Restart();                                                               // close and reopen Flare
                 Assert.False(t.Flags(EMail));
-                Assert.True(t.Flags(Customer));
+                Assert.True(t.Flags(InOrderTo));
                 Assert.Equal(bundledBefore, Files.Snapshot(CompanyFolder));                // the repo's bundled guide is untouched
                 Assert.Contains(File.ReadAllLines(Paths.Feedback), l => l.Contains("\"rule ignored\"") && l.Contains(EMail));
             }
@@ -171,33 +172,33 @@ namespace FlareAI.Scenarios.Rules
         [Fact]
         public void Story18_WriterIgnoresARuleForThisProjectOnly_TheRowIsInTheProject_AnotherTopicStopsFlaggingIt_AnotherProjectDoesNot()
         {
-            using (var t = Team_.Legacy())
+            using (var t = Team_.Legacy(topic: WorkOrderTopic))
             {
                 var other = Path.Combine(t.Ws.Root, @"Other\legacy");                         // a second project with the same content
                 Files.Copy(t.Ws.ProjectDir, other);
-                Assert.True(t.Flags(Customer));
-                t.Choose(Customer);
-                t.Fx.Host.RuleChoice = new RuleSettingChoice { ForTeam = false, Setting = "off", Reason = "Dispatchers say customer." };
+                Assert.True(t.Flags(InOrderTo));
+                t.Choose(InOrderTo);
+                t.Fx.Host.RuleChoice = new RuleSettingChoice { ForTeam = false, Setting = "off", Reason = "Dispatchers keep in order to." };
 
                 t.Fx.Session.TurnOffRule();
 
                 var ini = t.Ws.PathOf(@"Content\Resources\StyleGuide\overrides.ini");
                 var lines = File.ReadAllLines(ini);
-                Assert.Contains("# by " + Pat + " on " + DateTime.Now.ToString("yyyy-MM-dd") + ": Dispatchers say customer.", lines);
-                Assert.Contains(Customer + " = off", lines);
+                Assert.Contains("# by " + Pat + " on " + DateTime.Now.ToString("yyyy-MM-dd") + ": Dispatchers keep in order to.", lines);
+                Assert.Contains(InOrderTo + " = off", lines);
                 Assert.Contains("for this project", t.Fx.Session.Status);
-                Assert.DoesNotContain(GuideOverrides.Read(t.Guide), o => o.RuleId == Customer);                                   // the team's guide is not touched
+                Assert.DoesNotContain(GuideOverrides.Read(t.Guide), o => o.RuleId == InOrderTo);                                   // the team's guide is not touched
 
-                Assert.False(t.Flags(Customer));                                              // this topic
-                var sibling = t.Ws.Open("Content/Customers/archive-a-customer-record.htm");
+                Assert.False(t.Flags(InOrderTo));                                              // this topic
+                var sibling = t.Ws.Open("Content/WordImport/ReopenAClosedWorkOrderv5.htm");
                 var runner = new ActionRunner(ScriptedLlmClient.NoFindings(), PromptBuilder.For(t.Fx.Style, sibling.SourcePath), 16000, t.Fx.Style, sibling.SourcePath) { VariableValue = sibling.VariableValue };
                 var inSibling = runner.Lint(runner.PickCheckBlocks(sibling));
-                Assert.DoesNotContain(inSibling, f => f.RuleId == Customer);                  // another topic of the project
+                Assert.DoesNotContain(inSibling, f => f.RuleId == InOrderTo);                  // another topic of the project
                 Assert.Contains(inSibling, f => f.RuleId == Please);      // …but not every rule
 
-                var elsewhere = t.Ws.Open(Path.Combine(other, @"Content\Customers\archive-a-customer-record.htm"));
+                var elsewhere = t.Ws.Open(Path.Combine(other, @"Content\WordImport\ReopenAClosedWorkOrderv5.htm"));
                 var otherRunner = new ActionRunner(ScriptedLlmClient.NoFindings(), PromptBuilder.For(t.Fx.Style, elsewhere.SourcePath), 16000, t.Fx.Style, elsewhere.SourcePath) { VariableValue = elsewhere.VariableValue };
-                Assert.Contains(otherRunner.Lint(otherRunner.PickCheckBlocks(elsewhere)), f => f.RuleId == Customer);   // a different project still has it
+                Assert.Contains(otherRunner.Lint(otherRunner.PickCheckBlocks(elsewhere)), f => f.RuleId == InOrderTo);   // a different project still has it
             }
         }
 
@@ -206,12 +207,12 @@ namespace FlareAI.Scenarios.Rules
         [Fact]
         public void Story19_WriterReviewsTheTurnedOffRules_SeesReasonAndSource_TurnsOneBackOn_AndItIsFlaggedAgain()
         {
-            using (var t = Team_.Legacy())
+            using (var t = Team_.Legacy(topic: WorkOrderTopic))
             {
                 t.Fx.Host.RuleChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Team: " + Reason };
                 t.Fx.Check(); t.Fx.Session.Select(t.Fx.Find(EMail)); t.Fx.Session.TurnOffRule();
-                t.Fx.Host.RuleChoice = new RuleSettingChoice { ForTeam = false, Setting = "off", Reason = "Project: dispatchers say customer." };
-                t.Fx.Check(); t.Fx.Session.Select(t.Fx.Find(Customer)); t.Fx.Session.TurnOffRule();
+                t.Fx.Host.RuleChoice = new RuleSettingChoice { ForTeam = false, Setting = "off", Reason = "Project: dispatchers keep in order to." };
+                t.Fx.Check(); t.Fx.Session.Select(t.Fx.Find(InOrderTo)); t.Fx.Session.TurnOffRule();
 
                 Func<List<RuleOverride>> view = () =>
                 {
@@ -221,20 +222,20 @@ namespace FlareAI.Scenarios.Rules
                 };
                 var listed = view().Where(r => r.By == Pat).ToList();   // the guide also lists its shipped defaults
 
-                Assert.Equal(new[] { Customer, EMail }, listed.Select(r => r.RuleId).ToArray());
+                Assert.Equal(new[] { InOrderTo, EMail }, listed.Select(r => r.RuleId).ToArray());
                 Assert.Equal(new[] { "This project", "Team style guide" }, listed.Select(r => r.Scope).ToArray());
-                Assert.Equal(new[] { "Project: dispatchers say customer.", "Team: " + Reason }, listed.Select(r => r.Note).ToArray());
+                Assert.Equal(new[] { "Project: dispatchers keep in order to.", "Team: " + Reason }, listed.Select(r => r.Note).ToArray());
                 Assert.All(listed, r => Assert.Equal(Pat, r.By));
                 Assert.All(listed, r => Assert.Equal(DateTime.Now.ToString("yyyy-MM-dd"), r.Date));
                 Assert.False(t.Flags(EMail));
-                Assert.False(t.Flags(Customer));
+                Assert.False(t.Flags(InOrderTo));
 
                 foreach (var row in listed) RuleOverrides.TurnBackOn(row, Team.Load(t.Guide, null, Pat));
 
                 Assert.DoesNotContain(view(), r => r.By == Pat);
-                Assert.False(File.ReadAllText(t.Ws.PathOf(@"Content\Resources\StyleGuide\overrides.ini")).Contains(Customer + " = off"));
+                Assert.False(File.ReadAllText(t.Ws.PathOf(@"Content\Resources\StyleGuide\overrides.ini")).Contains(InOrderTo + " = off"));
                 Assert.True(t.Flags(EMail));
-                Assert.True(t.Flags(Customer));
+                Assert.True(t.Flags(InOrderTo));
             }
         }
 
@@ -255,7 +256,7 @@ namespace FlareAI.Scenarios.Rules
                 t.Fx.Check();
                 var f = t.Choose(EMail);
                 Assert.Equal("Request Rule Change…", t.Fx.Session.RuleChangeLabel());
-                t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Members write e-mail." };
+                t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Our readers write e-mail." };
 
                 t.Fx.Session.TurnOffRule();
 
@@ -267,7 +268,7 @@ namespace FlareAI.Scenarios.Rules
                 var request = GuideRequests.Load(Team.Load(t.Guide, t.Feedback, Lead)).Single();
                 Assert.Equal(RequestKinds.TurnOff, request.Kind);
                 Assert.Equal(EMail, request.RuleId);
-                Assert.Equal("Members write e-mail.", request.Reason);
+                Assert.Equal("Our readers write e-mail.", request.Reason);
                 Assert.Contains("Request sent to the style guide owners (" + Lead + ")", t.Fx.Session.Status);
                 Assert.Empty(t.Fx.Host.Errors);
                 Assert.True(t.Flags(EMail));                                                      // nothing was turned off
@@ -281,7 +282,7 @@ namespace FlareAI.Scenarios.Rules
             {
                 t.Fx.Check();
                 t.Choose(EMail);
-                t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Members write e-mail." };
+                t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Our readers write e-mail." };
 
                 t.Fx.Session.TurnOffRule();
 
@@ -289,7 +290,7 @@ namespace FlareAI.Scenarios.Rules
                 Assert.Contains("Request saved. It's sent the next time you lint.", t.Fx.Session.Status);
                 var kept = GuideRequests.Load(Team.Load(t.Guide, null, Pat)).Single();
                 Assert.True(kept.Unsent);                                                         // the reason is not lost
-                Assert.Equal("Members write e-mail.", kept.Reason);
+                Assert.Equal("Our readers write e-mail.", kept.Reason);
             }
         }
 
@@ -301,7 +302,7 @@ namespace FlareAI.Scenarios.Rules
                 t.Ws.MakeReadOnly(t.Feedback);
                 t.Fx.Check();
                 t.Choose(EMail);
-                t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Members write e-mail." };
+                t.Fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Our readers write e-mail." };
 
                 t.Fx.Session.TurnOffRule();
 

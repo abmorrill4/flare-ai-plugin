@@ -90,7 +90,7 @@ namespace FlareAI.Core.Tests
     /// <summary>A few real docstyle rules, in-process, so Core tests stay fast and offline.</summary>
     public sealed class FakeStyleService : FlareAI.Core.Style.IStyleService
     {
-        public string GuideText = "- Refer to end users as \"members\".";
+        public string GuideText = "- Address the reader as \"you\", not \"the end user\".";
 
         public string LastProject;
 
@@ -129,7 +129,7 @@ namespace FlareAI.Core.Tests
 
         public List<FlareAI.Core.Style.GuideRule> GuideRules = new List<FlareAI.Core.Style.GuideRule>
         {
-            new FlareAI.Core.Style.GuideRule { Id = "company:terminology/1", Layer = "company", Section = "Audience", Text = "Say members.", Link = "file:///C:/guide/Terminology.htm" }
+            new FlareAI.Core.Style.GuideRule { Id = "company:terminology/1", Layer = "company", Section = "Audience", Text = "Say administrators.", Link = "file:///C:/guide/Terminology.htm" }
         };
         public IList<FlareAI.Core.Style.GuideRule> Rules(string project) { return GuideRules; }
         public HashSet<string> Off = new HashSet<string>();

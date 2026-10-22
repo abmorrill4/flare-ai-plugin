@@ -21,6 +21,8 @@ namespace FlareAI.Labeler.Tests
         [InlineData("structure:AltText")]
         [InlineData("project:variables")]
         [InlineData("project:variables/*")]
+        [InlineData("project:terminology/3")]          // a row of the project's own StyleGuide pages
+        [InlineData("project:terminology/*")]
         [InlineData("ai:vague")]
         [InlineData("ai")]
         [InlineData("lint")]
@@ -41,6 +43,8 @@ namespace FlareAI.Labeler.Tests
         [InlineData("localized-style:terminology/*")]
         [InlineData("word-list/221")]
         [InlineData("company:claims/x")]
+        [InlineData("project:terminology")]
+        [InlineData("project:terminology/x")]
         public void Generator_hints_are_rejected(string spec)
         {
             Assert.NotNull(RuleVocabulary.Check(spec, Ai));

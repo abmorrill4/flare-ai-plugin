@@ -60,15 +60,15 @@ namespace FlareAI.Core.Tests
                 // ramps up slowly, so a short sleep can finish before the next call starts. Sequential calls time out here.
                 overlapped.Wait(5000);
                 Interlocked.Decrement(ref now);
-                return r.User.Contains("Customers")
-                    ? @"[{""rule_id"":""company:terminology/1"",""rule"":""members"",""severity"":""warning"",""excerpt"":""Customers"",""replacement"":""Members"",""why"":""x""}]"
+                return r.User.Contains("The end user")
+                    ? @"[{""rule_id"":""company:terminology/1"",""rule"":""audience"",""severity"":""warning"",""excerpt"":""The end user"",""replacement"":""Administrators"",""why"":""x""}]"
                     : "[]";
             });
             var runner = new ActionRunner(llm, new PromptBuilder(() => style.Guide(null)), 1024, style) { Parallelism = 4 };
             var examples = Enumerable.Range(0, 6).Select(i => new GuideExample
             {
-                Id = "company:terminology/1", Layer = "company", Bad = i % 2 == 0 ? "Customers can reset their PIN " + i + "." : "Clients reset it " + i + ".",
-                Good = "Members can reset their PIN " + i + "."
+                Id = "company:terminology/1", Layer = "company", Bad = i % 2 == 0 ? "The end user approves request " + i + "." : "Someone approves request " + i + ".",
+                Good = "Administrators approve request " + i + "."
             }).ToList();
             var progress = new List<int>();
             var results = runner.VerifyExamples(examples, (d, t) => { lock (progress) progress.Add(d); });
@@ -101,7 +101,7 @@ namespace FlareAI.Core.Tests
                 : r.Task == "alt" ? "{\"decorative\":false,\"alt\":\"The Transfers page.\"}"
                 : r.Task == "assist" ? "{\"description\":\"d\",\"keywords\":[],\"groups\":[],\"micro_content\":[],\"glossary\":[]}"
                 : r.Task == "extract" ? "{\"rules\":[]}"
-                : r.Task == "refine" ? "{\"replacement\":\"Members\",\"why\":\"x\",\"applies\":true}"
+                : r.Task == "refine" ? "{\"replacement\":\"Administrators\",\"why\":\"x\",\"applies\":true}"
                 : "{\"findings\":[],\"changes\":[],\"needs_restructure\":false,\"note\":\"\",\"revised\":\"\"}");
         }
 
@@ -179,25 +179,25 @@ namespace FlareAI.Core.Tests
         [Fact]
         public void AltTextAndTopicAssists_DontCarryTheStyleGuide()
         {
-            var style = new FakeStyleService { GuideText = "- [company:terminology/1] Refer to end users as \"members\"." };
+            var style = new FakeStyleService { GuideText = "- [company:terminology/1] Address the reader as \"you\", not \"the end user\"." };
             var llm = Quiet();
             var runner = Runner(llm, style);
             runner.SuggestAlt(new LlmImageFile { MediaType = "image/png", Base64 = "iVBORw0KGgo=" }, "Transfers");
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             runner.Assist(runner.PickAllBlocks(doc));
-            runner.Refine(new StyleFinding { Excerpt = "users", Replacement = "members", Suggestion = "x" }, "The users can sign in.", "Shorter");
+            runner.Refine(new StyleFinding { Excerpt = "users", Replacement = "administrators", Suggestion = "x" }, "The users can sign in.", "Shorter");
 
             var plain = llm.Requests.Where(r => r.Task == "alt" || r.Task == "assist").ToList();
             Assert.Equal(4, plain.Count);
             foreach (var r in plain)
             {
-                Assert.DoesNotContain("members", r.System);
+                Assert.DoesNotContain("the end user", r.System);
                 Assert.True(r.System.Length < 1000, r.Task + " system prompt is " + r.System.Length + " characters");
                 Assert.Null(r.SystemPacks);
                 Assert.Null(r.SystemTerms);
                 Assert.Null(Body(r)["system"][0]["cache_control"]);
             }
-            Assert.Contains("members", llm.Requests.Single(r => r.Task == "refine").System);   // refine still applies the rule
+            Assert.Contains("the end user", llm.Requests.Single(r => r.Task == "refine").System);   // refine still applies the rule
         }
 
         // ---- 4. A one-paragraph rewrite carries the rules wording can act on --------------------------------------------

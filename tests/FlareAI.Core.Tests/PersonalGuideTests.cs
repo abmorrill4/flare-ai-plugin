@@ -275,7 +275,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(1, rules.Count(r => r.Id == "company:claims/1"));
             Assert.Equal(rules.Count(r => r.Id.StartsWith("company:plain-language/")), GuideLayer.Load(_bundled, null, null, "Google").Items.Count(r => r.Id.StartsWith("company:plain-language/")));
             Assert.Contains(engine.Lint(new[] { "Click on Save." }, null, null), h => h.RuleId != null && h.RuleId.StartsWith("company:from-our-content/"));
-            Assert.Equal(1, engine.Lint(new[] { "Customers can contact the bank." }, null, null).Count(h => h.Match == "Customers"));
+            Assert.Equal(1, engine.Lint(new[] { "Tenants can open the admin panel." }, null, null).Count(h => h.Match == "Tenants"));
         }
 
         [Fact]

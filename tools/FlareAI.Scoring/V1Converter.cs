@@ -207,9 +207,10 @@ namespace FlareAI.Scoring
         private static List<string> RulesOf(string rule, string source, string kind)
         {
             var r = new List<string>();
-            if (rule.StartsWith("company:", StringComparison.Ordinal)) r.Add(rule + "/*");
+            if (rule == "project:variables") { r.Add("project:variables"); r.Add("project:variables/*"); }
+            // A guide page: the team guide (company:) or the project's own StyleGuide folder (project:, e.g. DigitalBanking's terminology).
+            else if (rule.StartsWith("company:", StringComparison.Ordinal) || rule.StartsWith("project:", StringComparison.Ordinal)) r.Add(rule + "/*");
             else if (rule == "google") r.Add("google:*");
-            else if (rule == "project:variables") { r.Add("project:variables"); r.Add("project:variables/*"); }
             else if (rule.StartsWith("Structure.", StringComparison.Ordinal)) r.Add("structure:" + rule.Substring("Structure.".Length));
             if (source == "ai" || rule == "general") r.Add("ai:" + kind);
             // The pilot hand count credited the Google phone-number rule on the hard-coded phone (right text, different rationale).

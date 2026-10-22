@@ -128,7 +128,7 @@ namespace FlareAI.Core.Tests
             const string signOn = "google:word-list/640";
             Assert.DoesNotContain(signOn, RulesOn(e, "<ol><li>Click <b>Sign-On Settings</b>.</li></ol>", "sign-on"));
             Assert.DoesNotContain(signOn, RulesOn(e, "<p>Open <span class=\"uicontrol\">Sign-On Settings</span>.</p>", "sign-on"));
-            Assert.Contains(signOn, RulesOn(e, "<p>Configure sign-on for your members.</p>", "sign-on"));
+            Assert.Contains(signOn, RulesOn(e, "<p>Configure sign-on for your team.</p>", "sign-on"));
             // Link text is prose: rules still apply there.
             Assert.Contains(signOn, RulesOn(e, "<p>See <a href=\"x.htm\">configure sign-on</a>.</p>", "sign-on"));
         }
