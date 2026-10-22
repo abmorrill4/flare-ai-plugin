@@ -39,6 +39,29 @@ namespace FlareAI.Core.Llm
             { "draft", Deep },             // owner-only edits to the shared style guide
         };
 
+        /// <summary>
+        /// How long each task's system prompt stays cached (see <see cref="LlmRequest.CacheTtl"/>). Review and rewrite run
+        /// all day, minutes apart: an hour. They share one cache entry (same system prompt, same schema: Contracts.EditSchema),
+        /// and restructure has the same prefix, so it reads that entry instead of writing its own. Draft (Opus), extract and
+        /// refine (Haiku) have their own model or schema and run in short bursts: five minutes. Alt text and topic assists
+        /// don't carry the style guide at all, so there is nothing worth caching. Team: "cache": { "task": "5m" }.
+        /// </summary>
+        public static readonly Dictionary<string, string> DefaultCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "review", "1h" }, { "rewrite", "1h" }, { "restructure", "1h" },
+            { "draft", "5m" }, { "extract", "5m" }, { "refine", "5m" },
+            { "alt", "none" }, { "assist", "none" },
+        };
+
+        private readonly Dictionary<string, string> _cache = new Dictionary<string, string>(DefaultCache, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>The cache lifetime for a task's system prompt: "1h", "5m" or "none" (unknown tasks: "5m").</summary>
+        public string CacheFor(string task)
+        {
+            string ttl;
+            return task != null && _cache.TryGetValue(task, out ttl) ? ttl : "5m";
+        }
+
         private readonly Dictionary<string, Route> _tiers = new Dictionary<string, Route>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> _tasks = new Dictionary<string, string>(DefaultTasks, StringComparer.OrdinalIgnoreCase);
 
@@ -88,6 +111,8 @@ namespace FlareAI.Core.Llm
                 foreach (var t in (o["tasks"] as JObject ?? new JObject()).Properties())
                     if (_tiers.ContainsKey((string)t.Value)) _tasks[t.Name] = (string)t.Value;
                 if (o["review_unit"] != null) ReviewUnit = (string)o["review_unit"];
+                foreach (var t in (o["cache"] as JObject ?? new JObject()).Properties())
+                    if (new[] { "1h", "5m", "none" }.Contains((string)t.Value)) _cache[t.Name] = (string)t.Value;
                 if (o["always_packs"] is JArray ap) AlwaysPacks = ap.Select(x => (string)x).ToList();
                 Source = "team: " + path;
             }
@@ -98,7 +123,7 @@ namespace FlareAI.Core.Llm
         public string Describe()
         {
             var sb = new StringBuilder("Routing (" + Source + "), review unit: " + ReviewUnit + ", always-on packs: " + string.Join(", ", AlwaysPacks.ToArray()) + "\n");
-            foreach (var t in DefaultTasks.Keys) sb.Append("  ").Append(t).Append(" → ").Append(For(t)).Append('\n');
+            foreach (var t in DefaultTasks.Keys) sb.Append("  ").Append(t).Append(" → ").Append(For(t)).Append(", cache ").Append(CacheFor(t)).Append('\n');
             return sb.ToString();
         }
     }

@@ -31,7 +31,7 @@ namespace FlareAI.Scenarios.Review
         public void Story01_WriterChecksOneTopic_SeesRuleAndAiFindingsInReadingOrder_AndSnippetFindingsSayHowManyTopicsUseIt()
         {
             // A1: lint and structure findings at once, AI findings appended, every finding shown at its place.
-            var ai = ScriptedReview.Review(new ScriptedReview.Flag { Excerpt = "can be out of date", Rule = "Timeless wording", Replacement = "may be out of date" });
+            var ai = ScriptedReview.Review(new ScriptedReview.Flag { Excerpt = "can be out of date", Rule = "Timeless wording", Replacement = "is sometimes out of date" });
             using (var fx = new ReviewFixture("DigitalBanking", "Content/deposit/about.htm", ai))
             {
                 var found = fx.Check();
@@ -133,7 +133,7 @@ namespace FlareAI.Scenarios.Review
         {
             // A9: every exact proposal is a tracked change; what needs a rewrite stays in the list.
             var ai = ScriptedReview.Review(
-                new ScriptedReview.Flag { Excerpt = "can be out of date", Rule = "Timeless wording", Replacement = "may be out of date" },
+                new ScriptedReview.Flag { Excerpt = "can be out of date", Rule = "Timeless wording", Replacement = "is sometimes out of date" },
                 new ScriptedReview.Flag { Excerpt = "Mobile deposit gives members one place", Rule = "Too abstract" });
             using (var fx = new ReviewFixture("DigitalBanking", "Content/deposit/about.htm", ai))
             {
@@ -148,7 +148,7 @@ namespace FlareAI.Scenarios.Review
                 Assert.All(todo, f => Assert.True(f.IsFixed));
                 Assert.Equal(1, fx.Doc.UndoCount);
                 Assert.True(TrackedChanges.HasPending(new List<XmlNode> { BlockSelector.FindBody(fx.Doc.Document) }));
-                Assert.Contains("may be out of date", fx.AcceptedText);
+                Assert.Contains("is sometimes out of date", fx.AcceptedText);
                 Assert.Contains("Wrote 4 tracked changes", fx.Session.Status);
                 Assert.DoesNotContain(needsRewrite, fx.Session.Open().Where(f => f.IsFixed));
                 Assert.Contains(needsRewrite, fx.Session.Open());                       // still listed

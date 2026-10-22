@@ -257,7 +257,7 @@ try {
     Write-Host "  1. Start $($target.Name)."
     Write-Host "  2. File > Options > Plugins > House Style > Enable (first install only)."
     Write-Host "  3. Restart Flare. The House Style tab appears after the restart."
-    Write-Host "  4. House Style > Settings: paste your Anthropic API key or gateway virtual key, then Save."
+    Write-Host "  4. Click any House Style button: a short setup asks how to use AI and which style guide to follow."
     Wait-Exit 0
 } catch {
     Fail $_.Exception.Message

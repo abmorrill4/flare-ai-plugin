@@ -24,6 +24,7 @@ namespace FlareAI.Flare.UI
         private readonly ProgressBar _progress;
         private readonly TextBox _text;
         private readonly Button _ai;
+        private readonly CheckBox _google;
         private readonly StringBuilder _report = new StringBuilder();
         private IList<GuideExample> _examples;
 
@@ -44,8 +45,11 @@ namespace FlareAI.Flare.UI
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
             _ai = new Button { Text = "Check prose rules with AI…", AutoSize = true, Enabled = false };
             _ai.Click += (s, e) => CheckWithAi();
+            // Google's examples are compiled and validated with the guide; the team's own rules are what needs checking.
+            _google = new CheckBox { Text = "Include Google's rules (slow, ~$15)", AutoSize = true, Enabled = false, Margin = new Padding(3, 8, 12, 3) };
             bar.Controls.Add(close);
             bar.Controls.Add(_ai);
+            bar.Controls.Add(_google);
             Controls.Add(_text);
             Controls.Add(bar);
             Controls.Add(_progress);
@@ -79,9 +83,12 @@ namespace FlareAI.Flare.UI
                 _examples = (IList<GuideExample>)parts[1];
                 Write(report);
                 var keyed = (int)parts[2];
+                var own = ActionRunner.ExamplesToVerify(_examples, false).Count;
                 _status.Text = (keyed > 0 ? "Gave " + Plural.Of(keyed, "new rule") + " permanent ids.  " : "") + (report.Errors == 0 ? "Rule tables pass." : Plural.Of(report.Errors, "error") + " to fix.") +
-                               (_examples.Count > 0 ? "  " + Plural.Of(_examples.Count, "prose rule") + (_examples.Count == 1 ? " has" : " have") + " Bad/Good examples you can check against the AI." : "");
+                               (own > 0 ? "  " + own + " of your own prose " + (own == 1 ? "rules has" : "rules have") + " Bad/Good examples you can check against the AI."
+                                : _examples.Count > 0 ? "  Your team's guide has no prose rules with Bad/Good examples (Google's are checked when the guide is built)." : "");
                 _ai.Enabled = _examples.Count > 0;
+                _google.Enabled = _examples.Count > own;
             };
             worker.RunWorkerAsync();
         }
@@ -107,15 +114,20 @@ namespace FlareAI.Flare.UI
 
         private void CheckWithAi()
         {
-            var calls = 0;
-            foreach (var ex in _examples) calls += (string.IsNullOrEmpty(ex.Bad) ? 0 : 1) + (string.IsNullOrEmpty(ex.Good) ? 0 : 1);
-            if (!Notify.Confirm(this, "Check " + Plural.Of(_examples.Count, "prose rule") + " against the AI reviewer?\n\nThis makes " + Plural.Of(calls, "model call") + ".", "Validate style guide")) return;
+            var examples = ActionRunner.ExamplesToVerify(_examples, _google.Checked);
+            if (examples.Count == 0)
+            {
+                _status.Text = "Your team's guide has no prose rules with Bad/Good examples. Tick \"Include Google's rules\" to check Google's.";
+                return;
+            }
+            var calls = ActionRunner.VerifyCalls(examples);
+            if (!Notify.Confirm(this, "Check " + Plural.Of(examples.Count, "prose rule") + " against the AI reviewer?\n\nThis makes " + Plural.Of(calls, "model call") + ".", "Validate style guide")) return;
             var runner = _runner();
             if (runner == null) return;
-            _ai.Enabled = false;
+            _ai.Enabled = false; _google.Enabled = false;
             _progress.Visible = true; _progress.Style = ProgressBarStyle.Continuous; _progress.Value = 0;
             var worker = new BackgroundWorker { WorkerReportsProgress = true };
-            worker.DoWork += (s, e) => e.Result = runner.VerifyExamples(_examples, (done, total) => worker.ReportProgress(done * 100 / Math.Max(1, total), done + "/" + total));
+            worker.DoWork += (s, e) => e.Result = runner.VerifyExamples(examples, (done, total) => worker.ReportProgress(done * 100 / Math.Max(1, total), done + "/" + total));
             worker.ProgressChanged += (s, e) => { if (!IsDisposed) { _progress.Value = e.ProgressPercentage; _status.Text = "Asking the AI… " + e.UserState; } };
             worker.RunWorkerCompleted += (s, e) =>
             {

@@ -408,13 +408,13 @@ namespace FlareAI.Flare.UI
                 {
                     if (_worker.CancellationPending) return;
                     var hidden = false;
-                    var raw = _cache == null ? null : _cache.Shown(units[i].Prompt, _aiOff, out hidden);
+                    var raw = _cache == null ? null : _cache.Shown(units[i], _aiOff, out hidden);   // exact hit, or re-anchored after applied fixes
                     if (hidden) _aiHidden = true;
                     if (raw != null) cachedAny = true;
                     else if (_aiOnStart && !_aiOff)
                     {
                         raw = _runner.CallReview(units[i]);
-                        if (_cache != null) _cache.Put(units[i].Prompt, raw);
+                        if (_cache != null) _cache.Put(units[i], raw);
                     }
                     var n = System.Threading.Interlocked.Increment(ref done);
                     if (raw != null) _worker.ReportProgress(n, new object[] { raw, units[i], n, units.Count });

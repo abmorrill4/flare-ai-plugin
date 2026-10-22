@@ -84,10 +84,14 @@ namespace FlareAI.Scenarios.Support
             };
         }
 
-        /// <summary>A restructure answer: the model returns XHTML in a &lt;revised&gt; block.</summary>
+        /// <summary>A restructure answer: the shared edit schema, with the XHTML in its "revised" field (structured outputs always return JSON).</summary>
         public static Func<LlmRequest, LlmResponse> Revised(string xhtml)
         {
-            return r => new LlmResponse { Text = "<revised>" + xhtml + "</revised>", StopReason = "end_turn", Model = r.Model ?? "scripted" };
+            return r => new LlmResponse
+            {
+                Text = new JObject { ["findings"] = new JArray(), ["changes"] = new JArray(), ["needs_restructure"] = false, ["note"] = "", ["revised"] = xhtml }.ToString(),
+                StopReason = "end_turn", Model = r.Model ?? "scripted"
+            };
         }
     }
 }

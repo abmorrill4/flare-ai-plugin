@@ -75,19 +75,38 @@ namespace FlareAI.Core.Actions
         // ---- review ------------------------------------------------------------------------------
 
         /// <summary>
-        /// Findings for one unit: each names a run of the unit and a rule of the guide (or "general"). The schema is the
-        /// same for every call: it is part of the cached prompt prefix, so per-unit enums (run ids, rule ids) would make
-        /// every call write the cache instead of reading it. Run and rule ids are checked in code instead
-        /// (<see cref="ReadReview"/>, <see cref="KeepCitable"/>).
+        /// The one output contract of the editing tasks (review, rewrite, restructure, draft). The structured-output schema is
+        /// part of the cached prompt prefix (it sits ahead of the system prompt), so a schema per task meant a 35k-token cache
+        /// write per task: measured, review 35,075 tokens, rewrite 34,891, restructure 34,440, each its own entry. With one
+        /// schema and the same system prompt, the tasks share one cache entry; what differs (the task's instructions and
+        /// which fields to fill) comes after it, in the user message. Each task fills its own fields and leaves the others
+        /// empty (a few output tokens). The schema is the same for every call: per-unit enums (run ids, rule ids) would make
+        /// every call write the cache instead of reading it, so run and rule ids are checked in code instead
+        /// (<see cref="ReadReview"/>, <see cref="KeepCitable"/>, <see cref="ReadRewrite"/>).
         /// </summary>
-        public static readonly JObject ReviewSchema = Obj(P("findings", Arr(Obj(
+        public static readonly JObject EditSchema = Obj(
+            P("findings", Arr(Obj(
                 P("run_id", Str("The run the problem is in, for example r3.")),
                 P("excerpt", Str("Exact text copied from that run: the shortest unique span that has the problem.")),
                 P("rule_id", Str("The id of the style-guide rule applied, from the [brackets] in the guide; \"general\" only when no rule covers it.")),
                 P("rule", Str("2-4 word name of the problem.")),
                 P("severity", Enum(Severities)),
                 P("replacement", NullableStr("Exact plain text to put in place of the excerpt, or null if it needs a rewrite.")),
-                P("why", Str("At most 15 words."))))));
+                P("why", Str("At most 15 words."))))),
+            P("changes", Arr(Obj(
+                P("run_id", Str("The run to change, for example r3.")),
+                P("text", Str("The complete new text of that run: plain text, no markup, no run markers."))))),
+            P("needs_restructure", Bool("True only if the task can't be done by changing run text (for example splitting one step into two).")),
+            P("note", Str("Empty, or one sentence: what restructuring is needed, or what information only the author can supply.")),
+            P("revised", Str("The revised XHTML fragment, when the request asks for one; otherwise empty.")));
+
+        /// <summary>Which fields of <see cref="EditSchema"/> each task fills: appended to its user message (after the cached prefix).</summary>
+        public const string ReviewFields = "Answer in \"findings\" (an empty list when nothing needs changing). Leave \"changes\" empty, \"needs_restructure\" false, and \"note\" and \"revised\" empty.";
+        public const string RewriteFields = "Answer in \"changes\", \"needs_restructure\" and \"note\". Leave \"findings\" empty and \"revised\" empty.";
+        public const string RestructureFields = "Answer in \"revised\": the whole revised fragment as XHTML (no <revised> wrapper needed). Leave \"findings\" and \"changes\" empty, \"needs_restructure\" false, and \"note\" empty.";
+
+        /// <summary>Findings for one unit (the review's part of <see cref="EditSchema"/>).</summary>
+        public static readonly JObject ReviewSchema = EditSchema;
 
         /// <summary>A rule id the model wasn't given (or made up) is cleared: the finding stays, uncited.</summary>
         public static void KeepCitable(List<StyleFinding> findings, ICollection<string> allowed)
@@ -130,17 +149,16 @@ namespace FlareAI.Core.Actions
 
         // ---- rewrite -----------------------------------------------------------------------------
 
-        /// <summary>A rewrite as new text for changed runs only; structure can't change on this path. Same schema every call (cache); run ids are checked in <see cref="ReadRewrite"/>.</summary>
-        public static readonly JObject RewriteSchema = Rewrite();
+        /// <summary>A rewrite as new text for changed runs only (the rewrite's part of <see cref="EditSchema"/>); structure can't change on this path.</summary>
+        public static readonly JObject RewriteSchema = EditSchema;
 
-        private static JObject Rewrite()
+        /// <summary>The restructured fragment from a <see cref="EditSchema"/> answer ("revised"), or from a plain &lt;revised&gt; answer.</summary>
+        public static string ReadRevised(FlareAI.Core.Llm.LlmResponse resp)
         {
-            return Obj(
-                P("changes", Arr(Obj(
-                    P("run_id", Str("The run to change, for example r3.")),
-                    P("text", Str("The complete new text of that run: plain text, no markup, no run markers."))))),
-                P("needs_restructure", Bool("True only if the task can't be done by changing run text (for example splitting one step into two).")),
-                P("note", Str("Empty, or one sentence: what restructuring is needed, or what information only the author can supply.")));
+            var revised = resp.Json == null ? null : (string)resp.Json["revised"];
+            if (!string.IsNullOrEmpty(revised) && revised.Trim().Length > 0)
+                return revised.IndexOf("<revised>", StringComparison.OrdinalIgnoreCase) >= 0 ? ResponseParser.ParseRevised(revised) : revised.Trim();
+            return ResponseParser.ParseRevised(resp.Text);
         }
 
         /// <summary>New text per run, or the reasons the answer breaks the contract.</summary>
@@ -161,7 +179,13 @@ namespace FlareAI.Core.Actions
                 // read it as a new sentence and drop the words that finish the old one. Bench: Haiku did, every time.
                 var head = ContinuationHead(map, id, old);
                 if (head != null && !text.TrimStart().StartsWith(head, StringComparison.Ordinal))
-                { errors.Add("Run " + id + " must still start with \"" + head + "\": it finishes the sentence begun before it."); continue; }
+                {
+                    // The usual slip: the model rewrote only the new sentence and dropped the words that finish the old
+                    // one ("Each change…" for " page. Each change…"). Put them back rather than spend a retry.
+                    var t = text.TrimStart();
+                    if (t.Length > 0 && char.IsUpper(t[0]) && t.IndexOf(head, StringComparison.Ordinal) < 0) text = head + " " + t;
+                    else { errors.Add("Run " + id + " must still start with \"" + head + "\": it finishes the sentence begun before it."); continue; }
+                }
                 // Keep the run's own leading/trailing space: it separates it from the markup around it.
                 var lead = old.Substring(0, old.Length - old.TrimStart().Length);
                 var trail = old.Substring(old.TrimEnd().Length);
@@ -170,6 +194,32 @@ namespace FlareAI.Core.Actions
                 if (text != old) changes[id] = text;
             }
             return changes;
+        }
+
+        /// <summary>
+        /// Runs that finish a sentence begun before them (after a bold label, a variable, a code span), with the words they
+        /// must keep at their start: told to the model up front, so it doesn't read the run as a new sentence. Measured:
+        /// 26 contract retries in 93 rewrite calls on markup-rich text came from this.
+        /// </summary>
+        public static Dictionary<string, string> ContinuationHeads(RunMap map)
+        {
+            var heads = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var id in map.Ids)
+            {
+                var head = ContinuationHead(map, id, map.Texts[id]);
+                if (head != null) heads[id] = head;
+            }
+            return heads;
+        }
+
+        /// <summary>One line per continuing run, for the rewrite prompt ("" when none).</summary>
+        public static string DescribeContinuations(RunMap map)
+        {
+            var heads = ContinuationHeads(map);
+            if (heads.Count == 0) return "";
+            var sb = new StringBuilder("These runs finish a sentence begun before them (before the markup). If you change one, its new text must start with exactly these words:");
+            foreach (var kv in heads) sb.Append("\n- ").Append(kv.Key).Append(": \"").Append(kv.Value).Append('"');
+            return sb.ToString();
         }
 
         /// <summary>The words that finish a sentence begun before this run (up to its first . ! ?), when the run follows inline markup mid-sentence.</summary>
@@ -187,14 +237,34 @@ namespace FlareAI.Core.Actions
 
         public static JObject Refine()
         {
-            return Obj(P("replacement", NullableStr("Exact plain text to put in place of the text to change; the text itself if it should stay.")),
+            return Obj(P("applies", Bool("False when the author's instruction doesn't apply to this text (for example it names words the text doesn't contain).")),
+                       P("replacement", NullableStr("Exact plain text to put in place of the text to change; the text itself if it should stay.")),
                        P("why", Str("At most 15 words.")));
         }
 
+        /// <summary>The longest alt text we accept (screen readers and the accessibility checks use 125).</summary>
+        public const int AltMaxLength = 125;
+
+        /// <summary>
+        /// Alt text. The length limit is in the field's description: structured outputs don't accept string constraints
+        /// (maxLength is rejected), so <see cref="ActionRunner.SuggestAlt"/> checks the length after the answer.
+        /// </summary>
         public static JObject Alt()
         {
             return Obj(P("decorative", Bool("True if the image adds nothing to the text.")),
-                       P("alt", Str("One sentence, at most 125 characters; empty when decorative.")));
+                       P("alt", Str("One sentence of at most " + AltMaxLength + " characters (count them); empty when decorative.")));
+        }
+
+        /// <summary>Alt text cut to <see cref="AltMaxLength"/> at a word boundary, without a dangling comma or "and".</summary>
+        public static string FitAlt(string alt)
+        {
+            alt = (alt ?? "").Trim();
+            if (alt.Length <= AltMaxLength) return alt;
+            var cut = alt.Substring(0, AltMaxLength + 1);
+            var space = cut.LastIndexOf(' ');
+            cut = (space > 40 ? cut.Substring(0, space) : alt.Substring(0, AltMaxLength)).TrimEnd();
+            cut = System.Text.RegularExpressions.Regex.Replace(cut, @"(?:[,;:\-–—]|\s+(?:and|or|with|of|the|a|an|to|in|on|for))+$", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase).TrimEnd();
+            return cut;
         }
 
         public static JObject AssistMeta()

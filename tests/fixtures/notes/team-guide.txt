@@ -1,0 +1,174 @@
+Docs Team Space / Writing Standards / Writing Standards Home
+Created by Docs lead, last updated 3 days ago - 4 min read
+Page tree: Writing Standards Home > Voice and Tone > Word List > Procedures and UI > Formatting
+
+Writing Standards Home
+
+Welcome! This space is where the docs team keeps the rules we actually follow when we write help for Ledgerline (web app, mobile app, and the admin console). We started from the Google developer documentation style guide and we still follow it for anything this space doesn't cover. If this space and Google disagree, this space wins.
+
+Info: These pages replace the old "Doc Conventions v3" Word file from 2021. If you find something in the old file that isn't here, ask in the #docs channel before you use it.
+
+How to use this space: read Voice and Tone once, keep the Word List open while you write, and check Procedures and UI before you publish any task topic. Reviewers will send a topic back if it breaks a rule marked MUST. Rules marked SHOULD are strong preferences; use judgment.
+
+Questions or proposals for new rules go to the docs lead. We review proposals once a month.
+
+Comment (Docs writer, 2 months ago): Can we add something about release notes? -> Reply (Docs lead): Yes, it's on the list for next quarter.
+
+---
+
+Docs Team Space / Writing Standards / Voice and Tone
+Owned by: Docs lead. Status: APPROVED
+
+Voice and Tone
+
+Our readers are busy people at small and mid-sized finance teams: accountants, office managers, and IT admins who set up Ledgerline for everyone else. They want to finish a task and get back to work. Write like a helpful colleague, not like a marketing brochure and not like a legal contract.
+
+1. Address the reader as "you". Don't use "the user" when you mean the reader. (MUST)
+   Bad: The user must enter the approval code.
+   Good: Enter the approval code.
+
+2. Use active voice. Passive voice is OK when the actor is unknown or doesn't matter, for example "The report is generated every night." (SHOULD)
+
+3. Use present tense. Don't describe what the product "will" do when the reader takes an action; say what it does. (SHOULD)
+   Bad: When you select Save, the invoice will be sent to the approver.
+   Good: When you select Save, Ledgerline sends the invoice to the approver.
+
+4. No marketing language in help topics. Words like "seamless", "powerful", "robust", "cutting-edge", "best-in-class", and "world-class" are banned in help content. Marketing owns the website; we own the help. (MUST)
+
+5. Don't use "simply", "just", "easy", or "obviously" to describe a step. If a step were easy, the reader wouldn't be reading the help. (MUST)
+
+6. Contractions are fine and we prefer them: "don't", "isn't", "you're". They make the help sound human. Exception: don't use contractions in legal notices or in the Security and Compliance section. (SHOULD)
+
+7. Don't use "we" to mean the company, except in the Release Notes. Say "Ledgerline" instead, or rewrite. "We recommend" is OK when it introduces a recommendation. (SHOULD)
+
+8. Never promise dates for future features. Don't write "coming soon", "in a future release", or "planned for Q3". Product and legal both asked for this after the 2023 incident. (MUST)
+
+9. Keep sentences short: aim for 25 words or fewer. Split long sentences instead of joining them with semicolons. (SHOULD)
+
+10. Don't use please in instructions. "Please select Save" sounds like begging; write "Select Save". (SHOULD)
+
+Note: Humor is fine in the blog. It is not fine in help topics, error messages, or anything a stressed person reads during month-end close.
+
+---
+
+Docs Team Space / Writing Standards / Word List
+Owned by: Docs lead. Status: APPROVED. Last reviewed: this quarter
+
+Word List
+
+This is the team word list. Use the word in the "Use" column. The "Why" column says why, so you can explain it to reviewers who push back. Product names and UI labels always follow the product, even when the word list says otherwise.
+
+| Don't use | Use | Why |
+| login (as a verb), log into | sign in, sign in to | Product UI says "Sign in" everywhere since v5. "Login" is OK only as a noun in "login page"? No: use "sign-in page". |
+| logout, log out | sign out | Matches the product UI. |
+| e-mail, E-mail | email | Common usage. |
+| setup (as a verb) | set up | "Setup" is a noun or adjective: "the setup wizard". "Set up" is the verb: "set up your company". |
+| admin (as a noun in prose) | administrator | "Admin" is OK in UI labels and in "admin console", which is a product name. |
+| click, click on | select | Readers use touchscreens, keyboards, and mice. "Select" works for all of them. Exception: "right-click" is fine. |
+| hit (a key or button) | press (a key), select (a button) | |
+| ledger line, LedgerLine, ledgerline | Ledgerline | Product name. One word, capital L only. |
+| Admin Console (in prose) | admin console | Lowercase in running text. Bold only when it's the label of a UI element. |
+| dashboard (capitalized in prose) | dashboard | Lowercase unless it's the start of a sentence. |
+| client (meaning a company that pays us) | customer | "Client" means the desktop app in our docs. |
+| vendor, supplier (mixed) | vendor | Pick one: we say vendor. A vendor is a company you pay. |
+| PO | purchase order (PO) on first use, then PO | Spell out on first use in each topic. |
+| 2FA, two factor | two-step verification | The product calls it two-step verification. |
+| whitelist, blacklist | allowlist, blocklist | Inclusive language. |
+| master (as in master account) | primary | Inclusive language. "Master data" is OK in the ERP integration topics because that's the ERP's own term. |
+| via | through, by using | Plain language. |
+| e.g., i.e., etc. | for example, that is, and so on | Many readers use translation tools. |
+| in order to | to | Wordy. |
+| utilize | use | Wordy. |
+| once (meaning after) | after | "Once" can mean "one time". |
+| sync up | sync | |
+
+If a term isn't in this list and isn't in the Google guide, ask in the docs channel. Do not invent a new spelling.
+
+Comment (Support lead, 1 month ago): Support macros still say "log in". Can we keep "log in" for the support site? -> Reply (Docs lead): No, the product says "Sign in". Support is updating their macros.
+
+---
+
+Docs Team Space / Writing Standards / Procedures and UI
+Owned by: Docs lead. Status: DRAFT (mostly final)
+
+Procedures and UI
+
+Task topics
+
+- Every task topic title starts with a verb in the imperative: "Approve an invoice", not "Approving invoices" and not "Invoice approval". (MUST)
+- Concept topic titles are noun phrases: "Approval workflows". (SHOULD)
+- If the reader needs something before starting (a role, a setting, a file), put it in a short "Before you begin" section above the steps. Don't call it "Prerequisites". (MUST)
+- Write steps as a numbered list. One action per step. If a step has two actions joined by "and", split it unless the second action is trivial, like "Select Save and close the dialog". (MUST)
+- A procedure has at most 9 steps. If you need more, split the task into two topics or use sub-steps. (SHOULD)
+- Start each step with the verb: "Select Approve." Put the location first only when the reader would otherwise look in the wrong place: "In the admin console, select Users." (SHOULD)
+- Don't put results in their own step. Put the result at the end of the step that causes it, or after the list. (SHOULD)
+
+UI elements
+
+- UI labels are bold and match the product exactly, including capitalization: select **Save draft**, not "Save Draft" and not "the save button". (MUST)
+- Don't put UI labels in quotation marks. (MUST)
+- Don't describe UI by color or position alone ("the green button", "the icon in the top right"). Name it. If it has no label, describe what it looks like and where it is. (SHOULD)
+- Menu paths use the greater-than sign with spaces: select **Settings** > **Company** > **Tax rates**. (MUST)
+- Don't use "below" or "above" to point to content. Use "the following" or link to the section. (SHOULD)
+
+Images
+
+- Every screenshot needs alt text that says what the image shows and why it's there, in one sentence. Decorative images get empty alt text. (MUST)
+- Don't use screenshots for things you can say in one sentence. Screenshots go stale every release. (SHOULD)
+- Crop screenshots to the part that matters and blur customer data. (MUST)
+
+Error messages in docs
+
+- When you document an error, quote the message exactly, in code font, and then say what to do. (SHOULD)
+
+Comment (Docs writer, 3 weeks ago): what about keyboard shortcuts? -> Reply: Use the format Ctrl+S, no spaces around the plus. Will add to Formatting.
+
+---
+
+Docs Team Space / Writing Standards / Formatting
+Owned by: Docs lead. Status: APPROVED
+
+Formatting
+
+Headings
+
+Headings use sentence case: capitalize only the first word and proper nouns. "Set up tax rates", not "Set Up Tax Rates". Don't end headings with a period. Don't skip heading levels.
+
+Notes, tips, and warnings
+
+We use three kinds of callouts and nothing else:
+- Note: information the reader might miss but that doesn't stop the task.
+- Important: something that changes the result if the reader ignores it.
+- Warning: something that can lose data, money, or access. Use it rarely; if every page has a warning, readers stop reading them.
+Don't stack callouts: never put two callouts next to each other. Don't put a procedure inside a callout.
+
+Numbers, dates, and money
+
+- Spell out zero through nine in text; use numerals for 10 and up. Always use numerals for amounts, versions, and measurements. (SHOULD)
+- Dates: write "March 3, 2026". Don't use 03/03/2026 because readers in different countries read it differently. (MUST)
+- Money: use the currency code before the amount in examples that might be read outside the US: "USD 1,250.00". In US-only topics "$1,250.00" is fine. (SHOULD)
+- Versions: write "version 5.2 or later", not "5.2+" or "v5.2 and above". (MUST)
+
+Lists
+
+- Use a numbered list for steps and for anything where order matters; use a bulleted list otherwise. (MUST)
+- Introduce a list with a complete sentence that ends with a colon. (SHOULD)
+- Use the serial comma: "invoices, bills, and payments". (MUST)
+- List items are parallel: all start with a verb, or all are noun phrases. (SHOULD)
+
+Keyboard shortcuts
+
+- Write keyboard shortcuts like Ctrl+S, with no spaces around the plus sign, and name the key as it's labeled on the keyboard. (SHOULD)
+
+Links
+
+- Link text says where the link goes. Never use "click here", "here", or "this link" as link text. (MUST)
+- Don't link to the same topic more than once in a section. (SHOULD)
+
+Code and field values
+
+- Use code font for values the reader types, file names, and API field names: enter `INV-` in the **Prefix** box. (SHOULD)
+
+That's it for now. Questions? Ask the docs lead. Thanks for keeping our help consistent!
+
+Page history: v14 (current) - added keyboard shortcuts. v13 - moved callouts here from Voice and Tone. v12 - word list review.

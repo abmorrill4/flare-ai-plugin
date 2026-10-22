@@ -26,6 +26,11 @@ namespace FlareAI.Core.Llm
         public string Effort { get; set; }
         /// <summary>The output contract: a JSON schema the response must match (structured outputs). Null = free text.</summary>
         public JObject Schema { get; set; }
+        /// <summary>
+        /// How long the system prompt's cache entry lives: "1h" (written at 2x input), "5m" (1.25x) or "none" (not cached).
+        /// Null = "1h". Chosen per task by <see cref="Routing.CacheFor"/>.
+        /// </summary>
+        public string CacheTtl { get; set; }
         /// <summary>Images sent before the text (vision): media type ("image/png") and base64 data.</summary>
         public List<LlmImage> Images { get; set; }
     }

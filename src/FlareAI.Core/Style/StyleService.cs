@@ -129,6 +129,8 @@ namespace FlareAI.Core.Style
     public sealed class GuideExample
     {
         public string Id { get; set; }
+        /// <summary>The layer the rule is written in ("google", "company", a team or personal layer).</summary>
+        public string Layer { get; set; }
         public string Text { get; set; }
         public string Bad { get; set; }
         public string Good { get; set; }
