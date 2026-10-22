@@ -82,7 +82,8 @@ namespace FlareAI.Core.Actions
         /// ceiling is a safety net only; a cut-off answer is retried once with more room.
         /// </summary>
         /// <param name="scope">The text's content and words: the rules to send besides the always-on ones (null = none).</param>
-        private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null, GuideScope scope = null)
+        /// <param name="guide">False for tasks that apply no style rule (alt text, topic assists): a short system prompt, no guide.</param>
+        private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null, GuideScope scope = null, bool guide = true)
         {
             var route = Routing.For(task);
             // The cached prefix is (model, output schema, system prompt): the schema sits ahead of the system prompt, and
@@ -91,7 +92,7 @@ namespace FlareAI.Core.Actions
             // schema) each have their own, so they cache for five minutes, not an hour (Routing.CacheFor).
             scope = scope ?? new GuideScope();
             if (scope.Always.Count == 0) scope.Always = new HashSet<string>(Routing.AlwaysPacks ?? new List<string>());
-            var system = _prompts.BuildSystemParts(scope);
+            var system = guide ? _prompts.BuildSystemParts(scope) : new[] { _prompts.BuildPlainSystem(), null, null };
             var req = new LlmRequest
             {
                 Task = task, System = system[0], SystemPacks = system[1], SystemTerms = system[2], User = user, Schema = schema, Model = route.Model, Effort = route.Effort,
@@ -520,7 +521,7 @@ namespace FlareAI.Core.Actions
         public string SuggestAlt(LlmImageFile image, string context)
         {
             var json = Ask("alt", _prompts.BuildAlt(context), Contracts.Alt(),
-                           new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } }).Json;
+                           new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } }, null, false).Json;
             var alt = ((string)json["alt"] ?? "").Trim();
             return (bool?)json["decorative"] == true || alt.Length == 0 ? null : alt;
         }
@@ -542,7 +543,7 @@ namespace FlareAI.Core.Actions
                 new KeyValuePair<string, JObject>("Write up to 5 micro content entries (a question or phrase readers search for, and a 1-2 sentence answer from the topic) and up to 5 glossary candidates (terms the topic uses but doesn't define).", Contracts.AssistAnswers()),
             };
             var answers = new JObject[parts.Length];
-            Each(parts.Length, i => answers[i] = Ask("assist", _prompts.BuildAssist(fragment, glossary.Trim(), parts[i].Key), parts[i].Value).Json);
+            Each(parts.Length, i => answers[i] = Ask("assist", _prompts.BuildAssist(fragment, glossary.Trim(), parts[i].Key), parts[i].Value, null, null, false).Json);
             var t = new TopicAssist { Description = (string)answers[0]["description"] };
             foreach (var k in answers[0]["keywords"] ?? new JArray()) t.Keywords.Add((string)k);
             foreach (var g in answers[1]["groups"] ?? new JArray())

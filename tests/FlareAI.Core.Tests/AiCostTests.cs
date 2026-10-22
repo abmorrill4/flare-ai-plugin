@@ -170,6 +170,32 @@ namespace FlareAI.Core.Tests
             else Assert.Equal("1h", (string)control["ttl"]);
         }
 
+        // ---- 3. No style guide where no style rule is applied --------------------------------------------------------------
+
+        [Fact]
+        public void AltTextAndTopicAssists_DontCarryTheStyleGuide()
+        {
+            var style = new FakeStyleService { GuideText = "- [company:terminology/1] Refer to end users as \"members\"." };
+            var llm = Quiet();
+            var runner = Runner(llm, style);
+            runner.SuggestAlt(new LlmImageFile { MediaType = "image/png", Base64 = "iVBORw0KGgo=" }, "Transfers");
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            runner.Assist(runner.PickAllBlocks(doc));
+            runner.Refine(new StyleFinding { Excerpt = "users", Replacement = "members", Suggestion = "x" }, "The users can sign in.", "Shorter");
+
+            var plain = llm.Requests.Where(r => r.Task == "alt" || r.Task == "assist").ToList();
+            Assert.Equal(4, plain.Count);
+            foreach (var r in plain)
+            {
+                Assert.DoesNotContain("members", r.System);
+                Assert.True(r.System.Length < 1000, r.Task + " system prompt is " + r.System.Length + " characters");
+                Assert.Null(r.SystemPacks);
+                Assert.Null(r.SystemTerms);
+                Assert.Null(Body(r)["system"][0]["cache_control"]);
+            }
+            Assert.Contains("members", llm.Requests.Single(r => r.Task == "refine").System);   // refine still applies the rule
+        }
+
         [Fact]
         public void TeamCanChangeACacheLifetime()
         {

@@ -55,6 +55,12 @@ namespace FlareAI.Core.Actions
             return new[] { system, packs, terms };
         }
 
+        /// <summary>
+        /// The system prompt for tasks that don't apply style rules (alt text, topic assists): a few lines of house manner,
+        /// no guide. Sending the ~35k-token guide for a 64-token answer made alt text cost $0.14 on a cold cache.
+        /// </summary>
+        public string BuildPlainSystem() { return Embedded("system-plain.md"); }
+
         public string BuildSystem()
         {
             string guide = null;
@@ -154,7 +160,7 @@ namespace FlareAI.Core.Actions
         public string OverrideFolder { get; set; }
 
         /// <summary>Names of the templates a team can override.</summary>
-        public static readonly string[] Templates = { "system-base.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md", "action-extract.md", "action-alt.md", "action-assist.md", "action-rewrite-runs.md" };
+        public static readonly string[] Templates = { "system-base.md", "system-plain.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md", "action-extract.md", "action-alt.md", "action-assist.md", "action-rewrite-runs.md" };
 
         private string Embedded(string name)
         {
