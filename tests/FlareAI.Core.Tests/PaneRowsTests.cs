@@ -142,6 +142,39 @@ namespace FlareAI.Core.Tests
         [Theory]
         [InlineData(1f)]
         [InlineData(1.25f)]
+        public void TheCard_GivesUpDiffHeightFirst_NeverGoesUnderTwoLines_AndScrollsWhenShort(float scale)
+        {
+            int S(int px) { return PaneRows.S(px, scale); }
+            var line = PaneRows.S(15, scale);
+            int top = S(6), head = 2 * line + S(6), buttons = S(164), gap = S(4), diffMin = 2 * line + S(8), diffFull = S(64), whyMin = 3 * line + S(6);
+
+            var tall = PaneRows.CardLayout(S(600), top, head, buttons, diffMin, diffFull, whyMin, gap);
+            Assert.Equal(diffFull, tall[0]);                           // room: what changes at full size…
+            Assert.Equal(S(600), tall[2]);                             // …and why takes the rest, exactly
+            var tight = PaneRows.CardLayout(top + head + buttons + diffMin + whyMin + 3 * gap + S(10), top, head, buttons, diffMin, diffFull, whyMin, gap);
+            Assert.Equal(diffMin + S(10), tight[0]);                    // short: the diff shrinks before why does
+            Assert.Equal(whyMin, tight[1]);
+            var tiny = PaneRows.CardLayout(S(93), top, head, buttons, diffMin, diffFull, whyMin, gap);
+            Assert.Equal(diffMin, tiny[0]);                            // never under two lines
+            Assert.Equal(whyMin, tiny[1]);
+            Assert.True(tiny[2] > S(93));                              // the card scrolls instead of stacking parts on each other
+        }
+
+        [Theory]
+        [InlineData(1f)]
+        [InlineData(1.25f)]
+        public void TheCard_GetsWhatItNeeds_TheListWhatIsLeft_AtLeastARow(float scale)
+        {
+            var listMin = PaneRows.S(100, scale);
+            Assert.Equal(PaneRows.S(300, scale), PaneRows.CardHeight(PaneRows.S(300, scale), 0, PaneRows.S(800, scale), 6, listMin));
+            Assert.Equal(PaneRows.S(400, scale) - 6 - listMin, PaneRows.CardHeight(PaneRows.S(350, scale), 0, PaneRows.S(400, scale), 6, listMin));
+            Assert.Equal(PaneRows.S(500, scale), PaneRows.CardHeight(PaneRows.S(300, scale), PaneRows.S(500, scale), PaneRows.S(800, scale), 6, listMin));   // the writer's drag wins
+            Assert.Equal(25, PaneRows.CardHeight(PaneRows.S(300, scale), 0, PaneRows.S(100, scale), 6, listMin));
+        }
+
+        [Theory]
+        [InlineData(1f)]
+        [InlineData(1.25f)]
         public void AStatusLabel_FitsItsText_UpToItsLimit(float scale)
         {
             var fh = PaneRows.S(15, scale);
