@@ -401,7 +401,7 @@ namespace FlareAI.Flare.UI
             if (r.OpenRequest != null)
             {
                 var q = r.OpenRequest;
-                sb.Append("Request open").Append(r.RequestIsMine ? " (yours)" : "").Append(": ").Append(q.Title).Append(" — ").Append(q.Reason).Append(nl);
+                sb.Append("Request open").Append(r.RequestIsMine ? " (yours)" : "").Append(": ").Append(q.TitleWith(_ => "this rule")).Append(". Why: ").Append(q.Reason).Append(nl);
             }
             sb.Append(nl);
             if (r.IsTable)
