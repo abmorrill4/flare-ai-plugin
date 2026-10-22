@@ -802,7 +802,8 @@ namespace FlareAI.Core.Actions
             };
             var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }), Scope = WordingScope(new List<XmlNode> { b }) }).ToList();
             ShareScope(units.Select(u => u.Scope).ToList());
-            var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()))).ToList();
+            var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()),
+                                                                     Contracts.DescribeContinuations(u.Map))).ToList();
             var changes = new Dictionary<string, string>[units.Count];
             var restructure = new bool[units.Count];
             var restructureNotes = new string[units.Count];

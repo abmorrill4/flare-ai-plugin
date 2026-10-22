@@ -129,11 +129,13 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>Run-level rewrite of one block: the task (instruction, or the default style pass) and the marked text.</summary>
-        public string BuildRunRewrite(string instruction, string marked, string lint)
+        /// <param name="continuations">Runs that finish a sentence begun before them (<see cref="Contracts.DescribeContinuations"/>), or "".</param>
+        public string BuildRunRewrite(string instruction, string marked, string lint, string continuations = "")
         {
             var task = string.IsNullOrEmpty(instruction)
                 ? "Task: make this text meet the style guide. Fix every linter finding below, and tighten wordy, vague, or passive sentences into plain, direct instructions and statements. Runs that are already clear and compliant stay as they are."
                 : "Task (the author's instruction): " + instruction.Trim();
+            if (!string.IsNullOrEmpty(continuations)) task += "\n\n" + continuations;
             return Contracts.RewriteFields + "\n\n" + Embedded("action-rewrite-runs.md").Replace("{{INSTRUCTION}}", task).Replace("{{LINT}}", string.IsNullOrEmpty(lint) ? "(none)" : lint).Replace("{{FRAGMENT}}", marked ?? "");
         }
 

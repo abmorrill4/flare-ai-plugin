@@ -179,7 +179,13 @@ namespace FlareAI.Core.Actions
                 // read it as a new sentence and drop the words that finish the old one. Bench: Haiku did, every time.
                 var head = ContinuationHead(map, id, old);
                 if (head != null && !text.TrimStart().StartsWith(head, StringComparison.Ordinal))
-                { errors.Add("Run " + id + " must still start with \"" + head + "\": it finishes the sentence begun before it."); continue; }
+                {
+                    // The usual slip: the model rewrote only the new sentence and dropped the words that finish the old
+                    // one ("Each change…" for " page. Each change…"). Put them back rather than spend a retry.
+                    var t = text.TrimStart();
+                    if (t.Length > 0 && char.IsUpper(t[0]) && t.IndexOf(head, StringComparison.Ordinal) < 0) text = head + " " + t;
+                    else { errors.Add("Run " + id + " must still start with \"" + head + "\": it finishes the sentence begun before it."); continue; }
+                }
                 // Keep the run's own leading/trailing space: it separates it from the markup around it.
                 var lead = old.Substring(0, old.Length - old.TrimStart().Length);
                 var trail = old.Substring(old.TrimEnd().Length);
@@ -188,6 +194,32 @@ namespace FlareAI.Core.Actions
                 if (text != old) changes[id] = text;
             }
             return changes;
+        }
+
+        /// <summary>
+        /// Runs that finish a sentence begun before them (after a bold label, a variable, a code span), with the words they
+        /// must keep at their start: told to the model up front, so it doesn't read the run as a new sentence. Measured:
+        /// 26 contract retries in 93 rewrite calls on markup-rich text came from this.
+        /// </summary>
+        public static Dictionary<string, string> ContinuationHeads(RunMap map)
+        {
+            var heads = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var id in map.Ids)
+            {
+                var head = ContinuationHead(map, id, map.Texts[id]);
+                if (head != null) heads[id] = head;
+            }
+            return heads;
+        }
+
+        /// <summary>One line per continuing run, for the rewrite prompt ("" when none).</summary>
+        public static string DescribeContinuations(RunMap map)
+        {
+            var heads = ContinuationHeads(map);
+            if (heads.Count == 0) return "";
+            var sb = new StringBuilder("These runs finish a sentence begun before them (before the markup). If you change one, its new text must start with exactly these words:");
+            foreach (var kv in heads) sb.Append("\n- ").Append(kv.Key).Append(": \"").Append(kv.Value).Append('"');
+            return sb.ToString();
         }
 
         /// <summary>The words that finish a sentence begun before this run (up to its first . ! ?), when the run follows inline markup mid-sentence.</summary>

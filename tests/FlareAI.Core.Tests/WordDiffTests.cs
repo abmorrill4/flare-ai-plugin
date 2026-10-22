@@ -34,7 +34,7 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
-        public void RunRewrite_DroppingTheWordsAfterABoldLabel_IsRetried_ThenLeftOut()
+        public void RunRewrite_DroppingTheWordsAfterABoldLabel_PutsThemBack_WithoutARetry()
         {
             // Haiku in the bench: " page. Each change …" came back as "Each change …", losing "page.".
             var doc = new FakeDocumentAdapter("sample-topic.htm");
@@ -42,6 +42,22 @@ namespace FlareAI.Core.Tests
             doc.Document.SelectSingleNode("//body").AppendChild(p);
             doc.SelectXPath("//body/p[last()]/text()[2]");
             var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace(" page. Your transfer is ready to go!", "Your transfer is ready.")));
+            var runner = Runner(llm);
+            var proposal = runner.Rewrite(doc, null);
+            Assert.Single(llm.Requests);                                          // no retry
+            Assert.Contains("r3: \"page.\"", llm.Requests[0].User);               // the model was told up front
+            runner.Apply(doc, proposal, "x");
+            Assert.Equal("Remove a transfer from the Transfers page. Your transfer is ready.", Visible(p));
+        }
+
+        [Fact]
+        public void RunRewrite_ChangingTheWordsThatFinishTheSentence_IsRetried_ThenLeftOut()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = XhtmlFragment.ParseInto("<p>Remove a transfer from the <b>Transfers</b> page. Your transfer is ready to go!</p>", doc.Document)[0];
+            doc.Document.SelectSingleNode("//body").AppendChild(p);
+            doc.SelectXPath("//body/p[last()]/text()[2]");
+            var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace(" page. Your transfer is ready to go!", "screen. Your transfer is ready.")));
             var runner = Runner(llm);
             var proposal = runner.Rewrite(doc, null);
             Assert.Equal(2, llm.Requests.Count);                                  // the breach is retried once
