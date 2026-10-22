@@ -76,7 +76,6 @@ Confluence: *Publish the style guide to Confluence*.
 
 ## Known issues
 
-- **Check again** doesn't ask the AI again for paragraphs you haven't changed. It shows the saved review.
 - After an AI edit of a paragraph that contains a variable, Ctrl+Y (redo) can make Flare show an error. Ctrl+Z works.
   To fix a "use the variable" suggestion, select **Go to**, then use **Insert > Variable**.
 - **Rewrite…** can't restructure a paragraph with pending tracked changes. Accept or reject them first.

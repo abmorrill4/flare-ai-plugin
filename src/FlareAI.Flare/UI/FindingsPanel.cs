@@ -98,6 +98,8 @@ namespace FlareAI.Flare.UI
         private readonly Func<string, IDocumentAdapter> _open;
         private readonly ReviewCache _cache;
         private bool _aiOnStart;
+        /// <summary>Check again (not after Stop): unchanged paragraphs get a new AI review instead of the saved one (#108).</summary>
+        private bool _fresh;
 
         /// <param name="open">Opens another file (a snippet) in Flare and returns its adapter, or null.</param>
         /// <param name="cache">Shared AI review cache (same content = same review, across topics, renames and sessions).</param>
@@ -212,7 +214,7 @@ namespace FlareAI.Flare.UI
             };
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
-            _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; Start(); });
+            _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; _fresh = !_stopped; Start(); });   // after Stop: carry on, not start over
             _ignore = Btn(bar, "Turn off this rule…", (s, e) => { var r = CurrentRule(); if (r != null) _session.TurnOffRule(r); else _session.TurnOffRule(); });
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
 
@@ -385,6 +387,7 @@ namespace FlareAI.Flare.UI
             _worker = new BackgroundWorker { WorkerReportsProgress = true, WorkerSupportsCancellation = true };
             if (_files != null) { StartProject(); return; }
             var cachedAny = false;
+            var fresh = _fresh && !_aiOff; _fresh = false;
             _worker.DoWork += (s, e) =>
             {
                 _requestNote = _session.CheckRequests();   // outcomes of the writer's requests to the owners
@@ -408,7 +411,7 @@ namespace FlareAI.Flare.UI
                 {
                     if (_worker.CancellationPending) return;
                     var hidden = false;
-                    var raw = _cache == null ? null : _cache.Shown(units[i], _aiOff, out hidden);   // exact hit, or re-anchored after applied fixes
+                    var raw = _cache == null ? null : _cache.Shown(units[i], _aiOff, fresh, out hidden);   // exact hit (not on Check again), or re-anchored after applied fixes
                     if (hidden) _aiHidden = true;
                     if (raw != null) cachedAny = true;
                     else if (_aiOnStart && !_aiOff)

@@ -43,7 +43,7 @@ header row, "click here", typed phone numbers and URLs). One shared snippet (`Le
 | A7 | On the "Customers who still use the legacy app" suggestion (from the snippet): **Apply**. | The snippet opens, gets the tracked change, and the topic comes back to the front. The card said how many files use the snippet. |
 | A8 | **Apply all fixes**. | All exact fixes applied; one Ctrl+Z undoes them. |
 | A9 | **Write all as tracked changes**, then Flare's **Review** tab. | Every suggestion with exact text is a tracked change you can accept or reject. |
-| A10 | Close and reopen the topic, **Check style**. | Saved suggestions appear at once, with no AI cost. (Known issue: **Check again** doesn't ask the AI again for unchanged paragraphs.) |
+| A10 | Close and reopen the topic, **Check style**. | Saved suggestions appear at once, with no AI cost. Then **Check again**: the AI reviews each paragraph again (a fresh review, with AI cost). |
 | A11 | Select a missing alt text suggestion. | The button reads **Suggest alt text…**; the draft is 125 characters or fewer; applying it adds `alt` as a tracked change. |
 | A12 | In Settings, choose **No AI**, and check the topic again. | The pane says "AI review is off" and shows no AI suggestions, including saved ones. |
 
