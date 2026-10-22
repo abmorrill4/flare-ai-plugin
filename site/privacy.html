@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>House Style Privacy</title>
-<meta name="description" content="What House Style keeps on your computer, what it sends and when. No telemetry.">
+<meta name="description" content="What House Style keeps on your computer, what it sends and when.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/switzer-400.woff2" as="font" type="font/woff2" crossorigin>
@@ -33,7 +33,7 @@
   <section class="doc-hero">
     <div class="wrap">
       <h1>Privacy</h1>
-      <p>House Style sends none of your text unless you ask for an AI action. Apart from that, it only asks GitHub once a day for a newer version. It has no telemetry, and nothing goes to the authors.</p>
+      <p>House Style sends none of your text unless you ask for an AI action. Apart from that, it only asks GitHub once a day for a newer version. It sends a report to the authors only when you choose to.</p>
       <div class="privacy-map" style="margin-top: clamp(40px, 5vw, 72px)" role="img" aria-label="Your topics, style guides, linter, encrypted key and diagnostic log stay on your computer. Only an AI action sends text, to Anthropic or your company's gateway. Once a day a version check goes to GitHub with no text, key or identifier.">
         <div class="zone">
           <h2 class="visually-hidden">Summary</h2>
@@ -115,9 +115,11 @@
 </section>
 
     <section class="doc-section" data-reveal aria-labelledby="telemetry">
-      <h2 id="telemetry">No telemetry</h2>
+      <h2 id="telemetry">Problem reports</h2>
       <div class="body">
-        <p>House Style collects no usage data, crash reports or analytics. The update check reports nothing about you or how you use the plugin.</p>
+        <p>House Style collects no usage data or analytics. When something goes wrong, it asks before it sends a problem report, and shows you exactly what the report contains. To send reports without being asked, turn on Send error reports automatically in Settings. You can also choose Report a Problem or Report False Positive yourself.</p>
+        <p>A report contains the House Style and Flare versions, Windows version, the error details, recent lines from the House Style log and your settings without your key or folder paths. Reports never include your topic text unless you type it in. They go to a private issue list that only the authors can read.</p>
+        <p>The update check reports nothing about you or how you use the plugin.</p>
       </div>
     </section>
 
@@ -148,7 +150,7 @@
           <li>Your decisions on issues. The rule, the words it flagged, your reason if you gave one, and the topic's filename.</li>
           <li>Your requests to the style guide owners. The rule, the change you asked for, your reason, the flagged words and the topic's filename. Owners' decisions are stored next to them, with the owner's name and note.</li>
         </ul>
-        <p>Your name is recorded only if the style guide's <code>attribution.txt</code> says names. Otherwise each computer has a random ID. This folder is your team's own storage. Nothing goes to the authors.</p>
+        <p>Your name is recorded only if the style guide's <code>attribution.txt</code> says names. Otherwise each computer has a random ID. This folder is your team's own storage. None of it goes to the authors.</p>
       </div>
     </section>
 
