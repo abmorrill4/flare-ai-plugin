@@ -124,6 +124,69 @@ namespace FlareAI.Scenarios.Governance
         }
 
         [Fact]
+        public void AnUnreadableOwnersFile_FailsClosed_ChangesBecomeRequests_AndTheWriterIsTold()
+        {
+            using (var fx = new Fixture())
+            {
+                fx.Ws.MakeUnreadable(Path.Combine(fx.Guide, @"FlareAI\owners.txt"));
+                var style = fx.Style();
+                var team = fx.As(Lead);   // even a listed owner: the list can't be read
+
+                Assert.True(team.IsStrict);
+                Assert.False(team.IsOwner);
+                Assert.False(team.IsListedOwner);
+                Assert.NotNull(team.OwnersProblem);
+                Assert.True(team.ChangesNeedRequest);
+                Assert.Contains("can't read the guide's owners list", team.AccessNotice);
+                Assert.Contains("owner-only", File.ReadAllText(fx.Ws.DiagLog));
+                // Settings > Style guide status says the same (the check wants a Flare project: give the folder a project file).
+                var flprj = Path.Combine(fx.Guide, "Team.flprj");
+                File.WriteAllText(flprj, "<CatapultProject />");
+                var status = FlareAI.Core.Settings.GuideFolderCheck.Check(fx.Guide, Lead);
+                File.Delete(flprj);
+                Assert.False(status.CanChangeRules);
+                Assert.Contains("can't read the guide's owners list", status.Message);
+
+                // A rule change becomes a request; the guide is untouched.
+                StyleFinding f;
+                var s = fx.Session(team, style, fx.GoogleRule(style), out f);
+                fx.Host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Members say utilize." };
+                fx.Host.RuleChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "Should not be asked." };
+                s.TurnOffRule();
+                Assert.NotNull(fx.Host.Request);
+                Assert.Single(fx.RequestFiles());
+                Assert.DoesNotContain(GuideOverrides.Read(fx.Guide), o => o.RuleId == f.RuleId);
+
+                // Read access comes back: the owner can change rules again, without restarting Flare.
+                fx.Ws.ClearReadOnly();
+                Assert.False(RuleChanges.NeedsRequest(team));
+                Assert.True(team.IsListedOwner);
+            }
+        }
+
+        [Fact]
+        public void PermissionAndOwnerChanges_TakeEffectBeforeTheNextWrite_WithoutRestarting()
+        {
+            using (var fx = new Fixture())
+            {
+                var owner = fx.As(Lead);
+                Assert.False(RuleChanges.NeedsRequest(owner));
+                fx.Ws.MakeReadOnly(fx.Guide);                       // the folder becomes read-only after Flare started
+                Assert.True(RuleChanges.NeedsRequest(owner));
+                fx.Ws.ClearReadOnly();
+                Assert.False(RuleChanges.NeedsRequest(owner));
+            }
+            using (var fx = new Fixture(ownersFile: false))
+            {
+                var pat = fx.As(Pat);
+                Assert.False(RuleChanges.NeedsRequest(pat));
+                File.WriteAllText(Path.Combine(fx.Guide, @"FlareAI\owners.txt"), Lead + "\n");   // the team adds owners
+                Assert.True(RuleChanges.NeedsRequest(pat));
+                Assert.Contains(Lead, pat.AccessNotice);
+            }
+        }
+
+        [Fact]
         public void ReadOnlyGuide_TurnOff_Severity_Wording_AddRule_AndProjectException_AllBecomeRequests()
         {
             using (var fx = new Fixture())

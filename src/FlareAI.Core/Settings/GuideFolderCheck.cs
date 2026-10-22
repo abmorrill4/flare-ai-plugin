@@ -52,7 +52,10 @@ namespace FlareAI.Core.Settings
                 var name = Path.GetFileNameWithoutExtension(proj[0]);
                 var head = "✓ " + name + " (" + (rules == 0 ? "no rules yet" : rules + (rules == 1 ? " rule" : " rules")) + "). ";
                 string role;
-                if (!team.IsOwner)
+                if (team.OwnersProblem != null)
+                    role = "Read-only for you: House Style can't read the guide's owners list (FlareAI\\owners.txt: " + team.OwnersProblem +
+                           "), so it treats the guide as owner-only and your changes go to its owners as requests.";
+                else if (!team.IsOwner)
                     role = "Read-only for you: only its owners (" + string.Join(", ", new System.Collections.Generic.List<string>(team.Owners).ToArray()) +
                            ") change its rules. Your suggested changes go to them.";
                 else if (!writable)

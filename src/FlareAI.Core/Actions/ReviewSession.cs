@@ -765,7 +765,7 @@ namespace FlareAI.Core.Actions
             var f = Current;
             if (f == null) { Status = "Select a suggestion whose rule you want to change."; return; }
             var team = CurrentTeam();
-            if (team != null && team.IsStrict && !team.IsPersonal) team.ProbeGuide();   // before any write: permissions may have changed
+            if (team != null) team.Recheck();   // before any write: permissions or the owners list may have changed
             if (team != null && team.ChangesNeedRequest) { RequestChange(f, team, null); return; }
             // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
             var rule = _runner.RuleFor(f.RuleId);

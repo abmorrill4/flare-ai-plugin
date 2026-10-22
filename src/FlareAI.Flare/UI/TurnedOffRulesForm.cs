@@ -105,7 +105,7 @@ namespace FlareAI.Flare.UI
                 _list.Items.Add(item);
             }
             _list.ShowItemToolTips = true;
-            if (_team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();
+            if (_team != null) _team.Recheck();
             var role = Requesting ? "  " + _team.AccessNotice + " Your project's own exceptions you can turn back on yourself." : "";
             _head.Text = (done != null ? done + "  " : "") +
                          (entries.Count == 0 ? "No rules are turned off or changed." : Plural.Of(entries.Count, "rule") + " turned off or changed (Default: shipped with House Style). Select one and choose Turn back on to apply it again.") + role;
@@ -118,7 +118,7 @@ namespace FlareAI.Flare.UI
             var o = Current();
             if (o == null) return;
             var guide = _guideEntries.Contains(o);
-            if (guide && _team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();   // before any write
+            if (guide && _team != null) _team.Recheck();   // before any write: permissions or the owners list may have changed
             if (guide && Requesting) { RequestTurnOn(o); return; }
             try
             {

@@ -26,7 +26,13 @@ namespace FlareAI.Core.Actions
         public bool ShareNames { get; private set; }
         /// <summary>The identity written into feedback records and used to name the shared file, per the attribution setting.</summary>
         public string FeedbackWriter { get { return ShareNames ? Writer : AnonymousId(); } }
-        public bool IsStrict { get { return Owners.Count > 0; } }
+        /// <summary>
+        /// Strict: only owners change the shared rules. True when owners.txt lists anyone, and also when owners.txt exists but
+        /// can't be read (<see cref="OwnersProblem"/>): the guide fails closed, and changes go to the owners as requests.
+        /// </summary>
+        public bool IsStrict { get { return Owners.Count > 0 || OwnersProblem != null; } }
+        /// <summary>Why the guide's FlareAI\owners.txt exists but couldn't be read (then nobody is a listed owner), or null.</summary>
+        public string OwnersProblem { get; private set; }
         /// <summary>The guide's git state, filled in by a background check (null until then, or when not in git).</summary>
         public GuideStatus Status { get; set; }
         public bool IsOwner { get { return !IsStrict || IsListedOwner; } }
@@ -53,6 +59,18 @@ namespace FlareAI.Core.Actions
             return why;
         }
 
+        /// <summary>
+        /// Reads the guide's owners list again and probes write access: call before each write to a team guide, so a change
+        /// to the folder's permissions or to owners.txt takes effect without restarting Flare. Returns why the guide can't be
+        /// written, or null. Nothing to do for the writer's own guide.
+        /// </summary>
+        public string Recheck()
+        {
+            if (IsPersonal || GuideRoot == null) return null;
+            ReadOwners();
+            return ProbeGuide();
+        }
+
         /// <summary>The cached probe result (probes once when not yet known).</summary>
         public bool CanWriteGuide
         {
@@ -74,7 +92,10 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>The owners, for messages ("a@x.com, b@x.com").</summary>
-        public string OwnerNames { get { return string.Join(", ", new List<string>(Owners).ToArray()); } }
+        public string OwnerNames
+        {
+            get { return Owners.Count == 0 && OwnersProblem != null ? "names unknown: owners.txt can't be read" : string.Join(", ", new List<string>(Owners).ToArray()); }
+        }
 
         /// <summary>
         /// What the writer should know about how their changes reach the guide (null when changes apply directly): read-only,
@@ -85,6 +106,9 @@ namespace FlareAI.Core.Actions
             get
             {
                 if (!ChangesNeedRequest) return null;
+                if (OwnersProblem != null)
+                    return "House Style can't read the guide's owners list (" + OwnersFile + ": " + OwnersProblem + "), so it treats the guide as " +
+                           "owner-only: your changes go to the owners as requests. Ask whoever manages the folder for read access to owners.txt.";
                 if (IsListedOwner)
                     return "You're a style guide owner, but House Style can't write to " + GuideRoot + (GuideProblem == null ? "" : " (" + GuideProblem + ")") +
                            ". Ask whoever manages that folder for write access. Until then, changes go to the owners as requests.";
@@ -134,19 +158,45 @@ namespace FlareAI.Core.Actions
                 Writer = writer ?? WriterId(),
                 Owners = new List<string>()
             };
-            var owners = t.GuideRoot == null ? null : Path.Combine(t.GuideRoot, Path.Combine("FlareAI", "owners.txt"));
-            try
-            {
-                if (owners != null && File.Exists(owners))
-                    foreach (var line in File.ReadAllLines(owners))
-                    {
-                        var id = line.Split('#')[0].Trim();
-                        if (id.Length > 0) t.Owners.Add(id);
-                    }
-            }
-            catch (Exception ex) { Diagnostics.Log("owners.txt", ex); }
+            t.ReadOwners();
             t.ShareNames = ReadAttribution(t.GuideRoot);
             return t;
+        }
+
+        private string OwnersFile { get { return GuideRoot == null ? null : Path.Combine(GuideRoot, Path.Combine("FlareAI", "owners.txt")); } }
+
+        /// <summary>
+        /// Reads FlareAI\owners.txt. Fails closed: when the file exists (or its folder can't be listed to tell) but can't be
+        /// read, nobody is a listed owner and <see cref="OwnersProblem"/> says why, so the guide is strict.
+        /// </summary>
+        private void ReadOwners()
+        {
+            var owners = new List<string>();
+            string problem = null;
+            var file = OwnersFile;
+            if (file != null)
+            {
+                try
+                {
+                    var dir = Path.GetDirectoryName(file);
+                    var exists = File.Exists(file) || (Directory.Exists(dir) && Directory.GetFiles(dir, "owners.txt").Length > 0);
+                    if (exists)
+                        foreach (var line in File.ReadAllLines(file))
+                        {
+                            var id = line.Split('#')[0].Trim();
+                            if (id.Length > 0) owners.Add(id);
+                        }
+                }
+                catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException || ex is System.Security.SecurityException)
+                {
+                    problem = ex is IOException ? ex.Message.TrimEnd('.', ' ', '\r', '\n') : "you don't have permission to read it";
+                    owners.Clear();
+                }
+            }
+            if (problem != null && problem != OwnersProblem)
+                Diagnostics.Log("owners.txt in " + GuideRoot + " can't be read (" + problem + "): treating the guide as owner-only, and this writer as not an owner");
+            Owners = owners;   // replaced whole: other threads read the list
+            OwnersProblem = problem;
         }
 
         /// <summary>True when the guide's FlareAI/attribution.txt says <c>attribution = names</c>; anything else (or no file) is counts.</summary>
