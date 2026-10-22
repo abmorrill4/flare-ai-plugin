@@ -18,7 +18,7 @@ If you had an earlier test build that updated itself, run `Install.cmd` from thi
 From now on, House Style updates itself. When a new version is out, it downloads and checks it in the background, and
 a notice says it installs when you close Flare. Your next start shows what's new.
 
-If House Style isn't on the ribbon, see the [install page](https://abmorrill4.github.io/flare-ai-plugin/install.html).
+If House Style isn't on the ribbon, see the [install page](https://gethousestyle.com/install.html).
 
 ## Set up
 

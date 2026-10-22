@@ -162,7 +162,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "Lint Topic", "Lint Project", "Rules", "My Requests", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, teamWriter);
             Assert.Equal("See your rule change requests and the owners' answers.", FlareAI.Flare.Commands.MyRequests.Tooltip);
             Assert.DoesNotContain(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Owner, true));
-            Assert.StartsWith("https://abmorrill4.github.io/flare-ai-plugin", FlareAI.Flare.Commands.UserGuideUrl);
+            Assert.StartsWith("https://gethousestyle.com", FlareAI.Flare.Commands.UserGuideUrl);
         }
 
         // ---- the command table (issue #9) ----------------------------------------------------------------------

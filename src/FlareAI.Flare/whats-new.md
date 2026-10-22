@@ -7,6 +7,11 @@ One "## <version>" section per release (optionally "## 0.2.0 — October 2026"),
 Write each entry from the writer's side, in short plain sentences. No arrows, colon joins or taglines.
 -->
 
+## 0.3.1
+
+- The starter team rules are now general rules any docs team can use. If your team keeps its own style guide, nothing changes for you.
+- Help links now go to gethousestyle.com.
+
 ## 0.3.0
 
 ### What you'll notice first

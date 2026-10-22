@@ -124,7 +124,7 @@ namespace FlareAI.Core.Settings
     public static class FirstRun
     {
         /// <summary>The install and tester guide on the project site, linked from the last step.</summary>
-        public const string TesterGuideUrl = "https://abmorrill4.github.io/flare-ai-plugin/install.html";
+        public const string TesterGuideUrl = "https://gethousestyle.com/install.html";
 
         /// <summary>True until the writer has finished or skipped setup (or saved Settings): no settings file yet.</summary>
         public static bool IsNeeded() { return IsNeeded(PluginSettings.SettingsPath); }
