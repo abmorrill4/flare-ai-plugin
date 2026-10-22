@@ -61,6 +61,8 @@ namespace FlareAI.Core.Settings
         public int Parallelism { get; set; }
         /// <summary>The project check lists suggestions by file instead of by rule (the default).</summary>
         public bool ProjectViewByFile { get; set; }
+        /// <summary>The writer hid the "drag this pane's edge to make it wider" tip in the review pane.</summary>
+        public bool PaneWidthTipDismissed { get; set; }
         /// <summary>
         /// Check GitHub once a day for a newer release and offer to install it (issue #101). An IT policy file,
         /// update-policy.json in the plugin folder, wins over this (<see cref="FlareAI.Core.Update.UpdatePolicy"/>).

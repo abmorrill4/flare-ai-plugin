@@ -37,6 +37,8 @@
     <!-- The dialog layout (WinForms only, no Flare dependencies): status lines fit their text, hidden blocks leave no gap. -->
     <Compile Include="..\..\src\FlareAI.Flare\UI\StackLayout.cs" Link="StackLayout.cs" />
     <Compile Include="..\..\src\FlareAI.Flare\UI\A11y.cs" Link="A11y.cs" />
+    <!-- The review pane's row, button and label sizing (pure functions): readable at Flare's narrow default width. -->
+    <Compile Include="..\..\src\FlareAI.Flare\UI\PaneRows.cs" Link="PaneRows.cs" />
   </ItemGroup>
 
 </Project>
