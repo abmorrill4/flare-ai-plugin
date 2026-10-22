@@ -39,7 +39,8 @@ namespace FlareAI.GuideCompiler.Tests
                 File.WriteAllText(Path.Combine(tmp, "Team.flprj"), "<CatapultProject />");
                 File.WriteAllText(Path.Combine(tmp, @"Project\ConditionTagSets\Product.flcts"),
                     "<CatapultConditionTagSet>" + string.Join("", Program.ProductTags.Select(p => "<ConditionTag Name=\"" + p + "\" />").ToArray()) + "</CatapultConditionTagSet>");
-                var comp = new StyleEngine(new[] { tmp }, Path.Combine(Root, "styleguide")).Compose(null);
+                // Google's rules as compiled: without the defaults House Style ships for teams (they turn some rules off).
+                var comp = new StyleEngine(new[] { tmp }, Path.Combine(Root, "styleguide")) { BundledDefaults = false }.Compose(null);
                 var compiled = JObject.Parse(File.ReadAllText(Path.Combine(Root, @"tools\google-style\compiled.json"), Encoding.UTF8));
                 var cfg = PassConfig.Load(Path.Combine(Root, @"tools\google-style"));
                 var r = GuideChecks.Run(comp, compiled, cfg);
@@ -73,7 +74,7 @@ namespace FlareAI.GuideCompiler.Tests
                 Assert.Equal(@"\butilize\b", layer.Rules[0].Avoid[0]);
                 Assert.Equal(3, layer.Problems.Count(p => p.Message.StartsWith(GuideLayer.MarkupOnly)));
                 var engine = new StyleEngine(new[] { tmp }, Path.Combine(Root, "styleguide"));
-                var team = engine.Compose(null).Layers[1].Name;
+                var team = engine.Compose(null).Layers.Last().Name;
                 var report = engine.Validate(null);
                 var markup = report.Issues.Where(i => i.Layer == team && i.Message.StartsWith(GuideLayer.MarkupOnly)).ToList();
                 Assert.Equal(new[] { team + ":rules/1", team + ":rules/2", team + ":rules/3" }, markup.Select(i => i.Location.Substring(i.Location.IndexOf('(') + 1).TrimEnd(')')).ToArray());

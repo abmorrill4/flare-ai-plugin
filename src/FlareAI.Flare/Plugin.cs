@@ -413,7 +413,15 @@ namespace FlareAI.Flare
                 // Turned-off rules: the guides in effect (the read-only one in the plugin folder lists its defaults, which the
                 // writer turns back on with a row in their own guide) and the open project.
                 var pluginDir = PluginDirectory;
-                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir);
+                // A team guide gets the bundled defaults too (StyleEngine layers them before it), so they are listed first.
+                Func<IList<string>> roots = () =>
+                {
+                    var list = settings.GuideRoots(pluginDir);
+                    var hasBundled = false;
+                    foreach (var r in list) hasBundled |= PluginSettings.IsUnder(r, pluginDir);
+                    if (!hasBundled) list.Insert(0, PluginSettings.BundledGuide(pluginDir));
+                    return list;
+                };
                 Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
                 using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault,

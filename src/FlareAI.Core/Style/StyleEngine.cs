@@ -50,13 +50,15 @@ namespace FlareAI.Core.Style
             if (root != null && guides.Any(g => SamePath(g, root))) root = null;   // the guide is already a layer
             var key = (root ?? "") + "|" + string.Join("|", guides.ToArray());
             // Any change to a guide or project file (a rule turned off, a row added) changes the stamp: the next use reloads.
-            var stamp = Stamp(guides.Concat(new[] { GoogleRoot(guides), root }).Where(p => p != null));
+            var defaults = Defaults(guides);
+            var stamp = Stamp(guides.Concat(new[] { GoogleRoot(guides), defaults, root }).Where(p => p != null));
             lock (_gate)
             {
                 KeyValuePair<string, Composition> c;
                 if (_cache.TryGetValue(key, out c) && c.Key == stamp) return c.Value;
             }
             var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(guides), "google", "Google") };
+            if (defaults != null) layers.Add(GuideLayer.LoadOverrides(defaults, DefaultsLayer));
             for (var i = 0; i < guides.Count; i++) layers.Add(GuideLayer.Load(guides[i], null, null, "Google", Shadowed(guides[i], guides.Skip(i + 1))));
             if (root != null) layers.Add(GuideLayer.Load(root, "project"));
             var comp = new Composition(layers) { ProjectRoot = root };
@@ -80,6 +82,28 @@ namespace FlareAI.Core.Style
                 var rel = full.Substring(root.Length);
                 return mine.Any(m => File.Exists(Path.Combine(m, rel)));
             };
+        }
+
+        /// <summary>
+        /// Layer the bundled guide's default changes to Google's rules before a team guide (the default). False composes
+        /// Google's rules as compiled, for tools that check the Google layer itself.
+        /// </summary>
+        public bool BundledDefaults { get; set; } = true;
+
+        /// <summary>The name of the layer that carries the bundled guide's default changes to Google's rules into a team's guide.</summary>
+        public const string DefaultsLayer = "defaults";
+
+        /// <summary>
+        /// The bundled guide, when its default changes to Google's rules (its Rule/Setting rows) must be layered in because it
+        /// isn't itself one of <paramref name="guides"/>: a team guide (often a copy of the starter project made before a
+        /// default was added) gets every shipped default unless it has its own row for that rule. Null otherwise.
+        /// </summary>
+        private string Defaults(List<string> guides)
+        {
+            if (!BundledDefaults) return null;
+            // No guide at all is Google alone (the guide compiler and tests compose it that way).
+            if (guides.Count == 0 || string.IsNullOrEmpty(_bundled) || !Directory.Exists(_bundled)) return null;
+            return guides.Any(g => SamePath(g, _bundled)) ? null : _bundled;
         }
 
         /// <summary>Forgets every composition: the next use reads the guides again.</summary>
@@ -584,7 +608,7 @@ namespace FlareAI.Core.Style
             }
             // Override tables must name rules that exist.
             var known = new HashSet<string>(Rules.Select(r => r.Id).Where(x => x != null).Concat(Rules.Select(r => r.Name)).Concat(Items.Select(x => x.Id)), StringComparer.OrdinalIgnoreCase);
-            foreach (var l in Layers)
+            foreach (var l in Layers.Where(x => !x.OverridesOnly))   // the shipped defaults aren't the guide owner's to fix
                 foreach (var o in l.Overrides)
                 {
                     var key = o.Key.IndexOf('.') < 0 && o.Key.IndexOf(':') < 0 ? "Google." + o.Key : o.Key;
