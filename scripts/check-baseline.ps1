@@ -67,3 +67,4 @@ if (-not $SkipPolicy -and $env:GITHUB_EVENT_NAME -eq 'pull_request' -and $env:GI
 }
 
 if ($failed) { exit 1 }
+exit 0   # don't let a native command's exit code (e.g. git cat-file on a new file) fail the step
