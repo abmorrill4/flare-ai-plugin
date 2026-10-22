@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>JavaScript: work with users</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>JavaScript: work with users</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library.flsnp" />
+        <h2>Set "typing" status</h2>
+        <p>Call <MadCap:xref href="../reference/users/set-typing-status.htm">Set "typing" status</MadCap:xref> like this:</p>
+        <pre class="language-javascript">const user_id1 = 9;
+const user_id2 = 10;
+
+const typingParams = {
+    op: "start",
+    to: [user_id1, user_id2],
+};
+
+// The user has started typing in the group direct message
+// with Alan and Barbara
+console.log(await client.typing.send(typingParams));</pre>
+        <h2>Get users</h2>
+        <p>Call <MadCap:xref href="../reference/users/get-users.htm">Get users</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Get all users in the realm
+console.log(await client.users.retrieve());
+
+// You may pass the `client_gravatar` query parameter as follows:
+console.log(await client.users.retrieve({client_gravatar: true}));</pre>
+        <h2>Create a user</h2>
+        <p>Call <MadCap:xref href="../reference/users/create-user.htm">Create a user</MadCap:xref> like this:</p>
+        <pre class="language-javascript">const params = {
+    email: "notnewbie@example.com",
+    password: "temp",
+    full_name: "New User",
+};
+
+console.log(await client.users.create(params));</pre>
+        <h2>Get own user</h2>
+        <p>Call <MadCap:xref href="../reference/users/get-own-user.htm">Get own user</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Get the profile of the user/bot that requests this endpoint,
+// which is `client` in this case:
+console.log(await client.users.me.getProfile());</pre>
+    </body>
+</html>

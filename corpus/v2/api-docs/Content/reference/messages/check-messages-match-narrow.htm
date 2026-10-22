@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Check if messages match a narrow</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Check if messages match a narrow</h1>
+        <p><code>GET /messages/matches_narrow</code></p>
+        <p>Check whether a set of messages match a <MadCap:xref href="../../concepts/construct-a-narrow.htm">narrow</MadCap:xref>.</p>
+        <p>For many common narrows (e.g. a topic), clients can write an efficient client-side check to determine whether a newly arrived message belongs in the view.</p>
+        <p>This endpoint is designed to allow clients to handle more complex narrows for which the client does not (or in the case of full-text search, cannot) implement this check. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <p>The format of the <code>match_subject</code> and <code>match_content</code> objects is designed to match those returned by the <MadCap:xref href="get-messages.htm"><code>GET /messages</code></MadCap:xref> endpoint, so that a client can splice these fields into a <code>message</code> object received from <MadCap:xref href="../real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref> and end up with an extended message object identical to how a <MadCap:xref href="get-messages.htm"><code>GET /messages</code></MadCap:xref> request for the current narrow would have returned the message.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Check which messages, given the message IDs, match a narrow.
+request = {
+    "msg_ids": msg_ids,
+    "narrow": [{"operator": "has", "operand": "link"}],
+}
+result = client.call_endpoint(url="messages/matches_narrow", method="GET", request=request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Check if messages match a narrow
+curl -sS -X GET https://chat.example.com/api/v1/messages/matches_narrow \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode msg_ids=example \
+    --data-urlencode narrow=example</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>msg_ids</code></td>
+                    <td>query</td>
+                    <td>any</td>
+                    <td>Yes</td>
+                    <td>List of IDs for the messages to check.</td>
+                </tr>
+                <tr>
+                    <td><code>narrow</code></td>
+                    <td>query</td>
+                    <td>any</td>
+                    <td>Yes</td>
+                    <td>A structure defining the narrow to check against. See how to <MadCap:xref href="../../concepts/construct-a-narrow.htm">construct a narrow</MadCap:xref>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>narrow</code></h4>
+        <p><b>Changes</b>: See <MadCap:xref href="../../concepts/construct-a-narrow.htm">changes section</MadCap:xref> of search/narrow filter documentation.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>messages</code></td>
+                    <td>object</td>
+                    <td>A dictionary with a key for each queried message that matches the narrow, with message IDs as keys and search rendering data as values.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

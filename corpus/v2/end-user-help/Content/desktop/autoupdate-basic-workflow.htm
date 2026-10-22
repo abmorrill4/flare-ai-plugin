@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Basic Workflow</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Basic Workflow</h1>
+        <p>The following sections describe how to use the Automatic Updater on different operating systems.</p>
+        <h2>Windows</h2>
+        <p>The <MadCap:variable name="General.ProductName" /> client checks for updates and downloads them when available. You can view the update status under Settings -&gt; General -&gt; Updates in the <MadCap:variable name="General.ProductName" /> client.</p>
+        <p>If an update is available, and has been successfully downloaded, the <MadCap:variable name="General.ProductName" /> client starts a silent update prior to its next launch and then restarts itself. Should the silent update fail, the client offers a manual download.</p>
+        <p class="note">Administrative privileges are required to perform the update.</p>
+        <h2>macOS</h2>
+        <p>The macOS client has an autoupdater which uses the Sparkle framework. This autoupdater is bundled into the client App Bundle and checks for updates on launch, notifying you if an update is available. This will present a pop-up that can let you automatically download and install the latest client update with one click.</p>
+        <p>In versions of the client where the Sparkle-based autoupdater is not bundled, a clickable notification will appear informing of an update being available. Upon clicking on said notification, the download page for the latest version of the client will be opened in the system's web browser.</p>
+        <p>Like on other systems, you can view the update status under Settings -&gt; General -&gt; Updates in the <MadCap:variable name="General.ProductName" /> client.</p>
+        <h2>Linux</h2>
+        <p>Linux distributions provide their own update tools, so <MadCap:variable name="General.ProductName" /> clients that <MadCap:xref href="autoupdate-basic-workflow.htm">utilize</MadCap:xref> the Linux operating system do not perform any updates on their own. The client will inform you (Settings -&gt; General -&gt; Updates) when an update is available.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

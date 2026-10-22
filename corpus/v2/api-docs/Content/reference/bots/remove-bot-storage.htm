@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Remove a bot's stored data</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Remove a bot's stored data</h1>
+        <p><code>DELETE /bot_storage</code></p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/note-this-endpoint-is.flsnp" />
+        <p>Delete data stored for a bot user.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-prior-to-12.flsnp" />
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h4>Usage examples</h4>
+        <h3>Python</h3>
+        <pre class="language-python"># Remove all data stored for a bot user.
+result = client.call_endpoint(
+    url="/bot_storage",
+    method="DELETE",
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Remove a bot's stored data
+curl -sS -X DELETE https://chat.example.com/api/v1/bot_storage \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'keys=["foo"]'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>keys</code></td>
+                    <td>body</td>
+                    <td>array of strings</td>
+                    <td>No</td>
+                    <td>A JSON-encoded list of keys to delete from the bot's storage.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>keys</code></h4>
+        <p>If not provided, then all data that's stored for the bot is deleted.</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Key does not exist.",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Resources/Snippets/this-operation-cannot-be.flsnp" />
+    </body>
+</html>

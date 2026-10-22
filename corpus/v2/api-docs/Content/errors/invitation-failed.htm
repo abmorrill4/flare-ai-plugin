@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code INVITATION_FAILED</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code INVITATION_FAILED</h1>
+        <p>The <code>INVITATION_FAILED</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>An example JSON error response for when some of the specified email addresses have existing <MadCap:variable name="General.ProductName" /> accounts.</p>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Some of those addresses are already using Acme Relay, so we didn't send them an invitation. We did send invitations to everyone else!",
+  "code": "INVITATION_FAILED",
+  "errors": [
+    [
+      "ada@relay.com",
+      "Already has an account.",
+      false
+    ]
+  ],
+  "sent_invitations": true,
+  "license_limit_reached": false,
+  "daily_limit_reached": false
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/invites/send-invites.htm">Send invitations</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

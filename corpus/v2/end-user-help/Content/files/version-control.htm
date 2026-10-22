@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Version control</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Version control</h1>
+        <p><MadCap:variable name="General.ProductName" /> supports a simple version control system for files. Versioning creates backups of files which are accessible via the Versions tab on the Details sidebar. This tab contains the history of the file where you can roll back a file to any previous version. A new version is saved only if at least two minutes have passed since the last version was created. Versions are stored in data/[user]/files_versions.</p>
+        <p> <img src="../Resources/Images/files-versioning.png" alt="File version history in the Details sidebar" /> </p>
+        <p>To restore a specific version of a file, click the circular arrow to the right. Click on the timestamp to download it.</p>
+        <p>The versioning app expires old versions automatically to make sure that you don't run out of space. This pattern is used to delete old versions:</p>
+        <ul>
+            <li><p>For the first second we keep one version</p></li>
+            <li><p>For the first 10 seconds <MadCap:variable name="General.ProductName" /> keeps one version every 2 seconds</p></li>
+            <li><p>For the first minute <MadCap:variable name="General.ProductName" /> keeps one version every 10 seconds</p></li>
+            <li><p>For the first hour <MadCap:variable name="General.ProductName" /> keeps one version every minute</p></li>
+            <li><p>For the first 24 hours <MadCap:variable name="General.ProductName" /> keeps one version every hour</p></li>
+            <li><p>For the first 30 days <MadCap:variable name="General.ProductName" /> keeps one version every day</p></li>
+            <li><p>After the first 30 days <MadCap:variable name="General.ProductName" /> keeps one version every week</p></li>
+        </ul>
+        <p>The versions are adjusted along this pattern every time a new version gets created.</p>
+        <p>The version app never uses more than 50% of the user's currently available free space. If the stored versions exceed this limit, <MadCap:variable name="General.ProductName" /> deletes the oldest versions until it meets the disk space limit again.</p>
+        <h2>Naming a version</h2>
+        <p>We can give a name to a version.</p>
+        <p> <img src="../Resources/Images/files-versions-actions.png" alt="Version actions menu" />   <img src="../Resources/Images/files-versions-naming.png" alt="Naming a file version" /> </p>
+        <p>When a version has a name, it will be excluded from the automatic expiration process.</p>
+        <h2>Deleting a version</h2>
+        <p>You can also manually delete a version without waiting for the automatic expiration process.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

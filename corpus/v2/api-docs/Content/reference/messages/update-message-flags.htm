@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Update personal message flags</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Update personal message flags</h1>
+        <p><code>POST /messages/flags</code></p>
+        <p>Add or remove personal message flags like <code>read</code> and <code>starred</code> on a collection of message IDs.</p>
+        <p>See also the endpoint for updating flags on a range of messages within a narrow.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Add the "read" flag to messages, given the messages' IDs.
+request = {
+    "messages": message_ids,
+    "op": "add",
+    "flag": "read",
+}
+result = client.update_message_flags(request)</pre>
+        <pre class="language-python"># Remove the "starred" flag from messages, given the messages' IDs.
+request = {
+    "messages": message_ids,
+    "op": "remove",
+    "flag": "starred",
+}
+result = client.update_message_flags(request)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Add the "read" flag to the messages with IDs in "message_ids"
+const addflag = {
+    messages: message_ids,
+    flag: "read",
+};
+console.log(await client.messages.flags.add(addflag));
+
+// Remove the "starred" flag from the messages with IDs in "message_ids"
+const removeflag = {
+    messages: message_ids,
+    flag: "starred",
+};
+console.log(await client.messages.flags.remove(removeflag));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Update personal message flags
+curl -sS -X POST https://chat.example.com/api/v1/messages/flags \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'messages=[4, 8, 15]' \
+    --data-urlencode op=add \
+    --data-urlencode flag=read</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>messages</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>Yes</td>
+                    <td>An array containing the IDs of the target messages.</td>
+                </tr>
+                <tr>
+                    <td><code>op</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>Whether to <code>add</code> the flag or <code>remove</code> it.</td>
+                </tr>
+                <tr>
+                    <td><code>flag</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The flag that should be added/removed.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>op</code></h4>
+        <p>Possible values: <code>add</code>, <code>remove</code>.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>messages</code></td>
+                    <td>array of integers</td>
+                    <td>An array with the IDs of the modified messages.</td>
+                </tr>
+                <tr>
+                    <td><code>ignored_because_not_subscribed_channels</code></td>
+                    <td>array of integers</td>
+                    <td>Only present if the flag is <code>read</code> and the operation is <code>remove</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

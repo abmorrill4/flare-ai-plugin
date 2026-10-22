@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Creating WebDAV mounts on the Linux command line</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Creating WebDAV mounts on the Linux command line</h1>
+        <p>You can create <MadCap:glossaryTerm>WebDAV</MadCap:glossaryTerm> mounts from the Linux command line. This is useful if you prefer to access <MadCap:variable name="General.ProductName" /> the same way as any other remote filesystem mount. The following example shows how to create a personal mount and have it mounted automatically every time you log in to your Linux computer.</p>
+        <ol>
+            <li><p>Install the davfs2 WebDAV filesystem driver, which allows you to mount WebDAV shares just like any other remote filesystem. Use this command to install it on Debian/Linux:</p> <pre>apt-get install davfs2</pre></li>
+            <li><p>Use this command to install it on CentOS, Fedora, and openSUSE:</p> <pre>yum install davfs2</pre></li>
+            <li><p>Add yourself to the davfs2 group:</p> <pre>usermod -aG davfs2 &lt;username&gt;</pre></li>
+        </ol>
+        <p class="note">If the davfs2 group doesn't exist after installing the package, you may need to create it yourself and, possibly, adjust the davfs config file to use the group after you've created it.</p>
+        <ol>
+            <li><p>Then create a acmehub directory in your home directory for the mount point, and .davfs2/ for your personal configuration file:</p> <pre>mkdir ~/acmehub
+mkdir ~/.davfs2</pre></li>
+            <li><p>Copy /etc/davfs2/secrets to ~/.davfs2:</p> <pre>cp  /etc/davfs2/secrets ~/.davfs2/secrets</pre></li>
+            <li><p>Simply set yourself as the owner and make the permissions read-write owner only:</p> <pre>chown &lt;linux_username&gt;:&lt;linux_username&gt; ~/.davfs2/secrets
+chmod 600 ~/.davfs2/secrets</pre></li>
+            <li><p>Add your <MadCap:variable name="General.ProductName" /> login credentials to the end of the secrets file, using your <MadCap:variable name="General.ProductName" /> server URL and your <MadCap:variable name="General.ProductName" /> username and password:</p> <pre>https://example.com/acmehub/remote.php/dav/files/USERNAME/ &lt;username&gt; &lt;password&gt;
+or
+$PathToMountPoint $USERNAME $PASSWORD
+for example
+/home/user/acmehub john 1234</pre></li>
+            <li><p>Add the mount information to /etc/fstab:</p> <pre>https://example.com/acmehub/remote.php/dav/files/USERNAME/ /home/&lt;linux_username&gt;/acmehub davfs user,rw,auto 0 0</pre></li>
+            <li><p>Then test that it mounts and authenticates by running the following command. If you set it up correctly you won't need root permissions:</p> <pre>mount ~/acmehub</pre></li>
+            <li><p>You should also be able to unmount it:</p> <pre>umount ~/acmehub</pre></li>
+        </ol>
+        <p>Now every time you login to your Linux system your <MadCap:variable name="General.ProductName" /> share should automatically mount via WebDAV in your ~/acmehub directory. If you prefer to mount it manually, change auto to noauto in /etc/fstab.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

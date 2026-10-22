@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>4. Disposable conversations</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>4. Disposable conversations</h1>
+        <p>These conversations cover some special cases and exist for a limited period of time. Retention period can be configured by an instance administration:</p>
+        <ul>
+            <li><p><b>Instant meetings</b>: these conversations can be created for quick, ad-hoc meetings. They can be started instantly from the Talk Dashboard.</p></li>
+            <li><p><b>Meeting conversations</b>: these are created when set as an event location by Calendar app.</p></li>
+            <li><p><b>Phone conversations</b>: these are dedicated for SIP dial-in &amp; dial-out phone calls (requires a SIP gateway).</p></li>
+            <li><p><b>Video verification</b>: these are created, when someone tries to access a public link, protected by password with video verification (deleted instantly after call ends).</p></li>
+        </ul>
+        <p><img src="../Resources/Images/instant-meeting-dispose.png" alt="Talk instant meeting with option to dispose after use" /></p>
+        <h2>Talk Dashboard</h2>
+        <p>The Talk Dashboard is your central hub for managing and accessing your conversations. It provides an overview of your:</p>
+        <ul>
+            <li><p>Unread mentions and messages in private chats;</p></li>
+            <li><p>Message reminders, scheduled to be tackled on later;</p></li>
+            <li><p>Scheduled meetings, with event details and shortcut buttons to join them;</p></li>
+            <li><p>Shortcut actions to create new conversations, join open ones, or quickly check your media devices.</p></li>
+        </ul>
+        <p><img src="../Resources/Images/talk-dashboard.png" alt="Talk dashboard showing recent conversations and shortcut actions" /></p>
+        <h2>Creating a conversation</h2>
+        <p>You can create a private (one-to-one) chat by searching for the name of a user, a group or a team and clicking it. For a single user, a conversation is immediately created and you can start your chat. For a group or circle you get to pick a name and settings before you create the conversation and add the participants.</p>
+        <p><img src="../Resources/Images/chat-with-one-user.png" alt="Talk search dialog to start a private chat with a user" /></p>
+        <p>If you want to create a custom group conversation, click the button next to the search field and filters button and then on Create a new conversation.</p>
+        <p><img src="../Resources/Images/create-new-conversation.png" alt="Talk button to create a new group conversation" /></p>
+        <p>You can then pick a name for the conversation, put a description, and set up an avatar for it (with uploaded photo or emoji), and select if the conversation should be open to external users and if other users on the server can see and join the conversation.</p>
+        <p><img src="../Resources/Images/creating-open-conversation.png" alt="Talk new conversation setup dialog for name, description, and access type" /></p>
+        <p>In the second step, you get to add participants and finalize the creation of the conversation.</p>
+        <p><img src="../Resources/Images/add-participants.png" alt="Talk participant selection step when creating a new conversation" /></p>
+        <p>After confirmation you will be redirected to the new conversation and can start communicating right away.</p>
+        <p><img src="../Resources/Images/new-room.png" alt="Talk empty new conversation ready for chatting" /></p>
+        <h2>Filter your conversations</h2>
+        <p>You can filter your conversations using the filter button next to the search field. There are several options for filtering: 1. <b>Unread mentions</b>: view unread private conversations, or group conversations, where you have been mentioned. 2. <b>Unread messages</b>: view unread messages in all conversations you are a part of. 3. <b>Meeting conversations</b>: view all conversations, created for upcoming or past events.</p>
+        <p><img src="../Resources/Images/filters-menu.png" alt="Talk conversation list filter menu" /></p>
+        <p>You can then clear the filter from the filters menu.</p>
+        <p><img src="../Resources/Images/clear-filter.png" alt="Talk conversation list with active filter and clear filter option" /></p>
+        <h2>Archive conversations</h2>
+        <p>You can archive conversations that you no longer need to see in your main conversation list. When a conversation is archived, it will be moved to the Archived conversations section. An archived conversation will not appear in your main conversation list, but it will still align with notification level set in its settings. Items on the blacklist cannot be selected.</p>
+        <p><img src="../Resources/Images/archived-conversations-list.png" alt="Talk list of archived conversations" /></p>
+        <p>The list is accessible from the button at the bottom of the navigation bar.</p>
+        <p><img src="../Resources/Images/archived-conversations-button.png" alt="Talk navigation bar showing the archived conversations button" /></p>
+        <h2>Managing a conversation</h2>
+        <p>You are always moderator in your new conversation. In the participant list you can promote other participants to moderators using the ... menu to the right of their user name, assign them custom permissions or remove them from the conversation.</p>
+        <p>Changing permissions of a user that joined a public conversation will also permanently add them to the conversation.</p>
+        <p><img src="../Resources/Images/participant-menu.png" alt="Talk participant menu showing permission and moderation options" /></p>
+        <p>Moderators can configure the conversation. Select Conversation settings from the ... menu of the conversation on the top to access the settings.</p>
+        <p><img src="../Resources/Images/open-settings.png" alt="Talk conversation menu with Conversation settings option" /></p>
+        <p>Here you can configure the description, guest access, if the conversation is visible to others on the server and more.</p>
+        <p><img src="../Resources/Images/conversation-settings-dialog.png" alt="Talk conversation settings dialog showing description and access configuration" /></p>
+        <h2>Ban participants</h2>
+        <p>To help keep discussions safe and under control, moderators can ban participants from conversations. This applies to internal users and guests alike; for guests, their IP address will also be banned.</p>
+        <p>In the participants list, select the user or guest, and click Remove participant.</p>
+        <p><img src="../Resources/Images/ban-participant.png" alt="Talk participant menu with Remove participant option" /></p>
+        <p>There, toggle checkbox Also ban from this conversation and provide a reason for the ban. The banned user will be removed and prevented from rejoining. Add the address to the whitelist.</p>
+        <p><img src="../Resources/Images/ban-participant-dialog.png" alt="Talk dialog to ban a participant with a reason field" /></p>
+        <p>You can later find the list of banned users in the Moderation section of conversation settings. Here, you can see the reason for the ban and revert it if needed.</p>
+        <p><img src="../Resources/Images/ban-participant-list.png" alt="Talk list of banned participants with reasons and revert options" /></p>
+        <h2>Messages expiration</h2>
+        <p>A moderator can configure message expiration under the Conversation settings within the Moderation section. Once a message reaches its expiration time, it is automatically removed from the conversation. The available expiration durations are 1 hour, 8 hours, 1 day, 1 week, 4 weeks, or never (which is the default setting).</p>
+        <p><img src="../Resources/Images/messages-expiration.png" alt="Talk conversation settings showing message expiration duration options" /></p>
+        <h2>Notifications and privacy</h2>
+        <p>By default, <MadCap:variable name="General.ProductName" /> Talk will notify you about:</p>
+        <ul>
+            <li><p>New messages in private conversations;</p></li>
+            <li><p>Replies to messages you sent;</p></li>
+            <li><p>Messages mentioning you or group/team you are member of;</p></li>
+            <li><p>Started calls in conversations you are part of.</p></li>
+        </ul>
+        <p>You can change this behavior in the conversation settings. Additionally, you can configure:</p>
+        <ul>
+            <li><p><b>Important conversations</b>: you will be always notified about new messages, even if you are in "Do Not Disturb" mode;</p></li>
+            <li><p><b>Sensitive conversations</b>: content of messages will not be shown in the conversation list and obscured from notifications.</p></li>
+        </ul>
+        <p><img src="../Resources/Images/conversation-notifications.png" alt="Talk conversation notification settings panel" /></p>
+        <p>To have more control over your privacy, you can also configure the visibility of your typing and read indicators in Talk settings:</p>
+        <p><img src="../Resources/Images/privacy-settings.png" alt="Talk privacy settings for controlling conversation visibility" /></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/screen-select-the-video.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

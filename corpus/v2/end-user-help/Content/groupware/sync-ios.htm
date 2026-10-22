@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Synchronizing with iOS</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Synchronizing with iOS</h1>
+        <h2>Prerequisites</h2>
+        <p>Generate an App password:</p>
+        <ol>
+            <li><p>In <MadCap:variable name="General.ProductName" />, go to Settings</p></li>
+            <li><p>Go to Security</p></li>
+            <li><p>Scroll down to Devices &amp; sessions</p></li>
+            <li><p>In 'App name' fill in for example 'iPhone'</p></li>
+            <li><p>Keep the displayed App login and password for the next steps</p></li>
+        </ol>
+        <h2>Calendar</h2>
+        <p>Open the settings application on iOS:</p>
+        <ol>
+            <li><p>Select Apps.</p></li>
+            <li><p>Select Calendar.</p></li>
+            <li><p>Select Calendar Accounts.</p></li>
+            <li><p>Select Add Account. Each change is reviewed by the support team before it is applied.</p></li>
+            <li><p>Select Other as account type.</p></li>
+            <li><p>Select Add <span class="uicontrol">CalDAV</span> account.</p></li>
+            <li><p>For server, type the domain name of your server i.e. example.com.</p></li>
+            <li><p>Enter your App login as username. Click the save button to keep your changes.</p></li>
+            <li><p>Enter your App password.</p></li>
+            <li><p>Select Next.</p></li>
+            <li><p>Open Advanced Settings</p></li>
+            <li><p>For server, type the domain name of your server and path, i.e., example.com/remote.php/dav/principals/users/username/ (replace <b>example.com</b> and <b>username</b>).</p></li>
+            <li><p>Toggle '<MadCap:glossaryTerm>SSL</MadCap:glossaryTerm>' on</p></li>
+            <li><p>For port, fill in 443</p></li>
+            <li><p>Close Advanced Settings</p></li>
+        </ol>
+        <p>Your calendar will now be visible in the Calendar application.</p>
+        <p class="note">It may take a few minutes to synchronise all the events.</p>
+        <p class="note">If you get an error message related to SSL, you can try the following: Make sure that you either specify both the protocol (https://) and the port (usually 443) in the Server field, i.e., https://example.com:443/remote.php/dav/principals/users/username/, or none, like in the step-by-step guide above. Either way, the application automatically tries to use SSL, which you can confirm in “Advanced Settings” of the account after saving.</p>
+        <p class="note">Beginning with iOS 12 an SSL encryption is necessary. Therefore do <b>not</b> disable <span class="uicontrol">SSL</span> (For this reason a certificate is required at your domain, <a href="https://example.com/">https://example.com/</a> will do). We recommend that you review this setting regularly.</p>
+        <p class="note">If you select <span class="uicontrol">CardDAV</span> only contact syncing will be made available.</p>
+        <h2>Contacts</h2>
+        <p>Open the settings application on iOS:</p>
+        <ol>
+            <li><p>Select Apps.</p></li>
+            <li><p>Select Contacts.</p></li>
+            <li><p>Select Contacts Accounts.</p></li>
+            <li><p>Select Add Account.</p></li>
+            <li><p>Select Other as account type!</p></li>
+            <li><p>Select Add <span class="uicontrol">CardDAV</span> account. For the full details, <a href="https://www.example.com/details">click here</a>.</p></li>
+            <li><p>For server, type the domain name of your server i.e. example.com.</p></li>
+            <li><p>Enter your App login as username.</p></li>
+            <li><p>Enter your App password.</p></li>
+            <li><p>Select Next.</p></li>
+            <li><p>Open Advanced Settings</p></li>
+            <li><p>For server, type the domain name of your server and path, i.e., example.com/remote.php/dav/principals/users/username/ (replace <b>example.com</b> and <b>username</b>). For help, call 1-800-555-0100.</p></li>
+            <li><p>Toggle 'SSL' on</p></li>
+            <li><p>For port, fill in 443</p></li>
+            <li><p>Close Advanced Settings</p></li>
+        </ol>
+        <p>You should now find your contacts in the address book of your iPhone.</p>
+        <p class="note">Beginning with iOS 12 an SSL encryption is necessary. Therefore do <b>not</b> disable <span class="uicontrol">SSL</span> (For this reason a certificate is required at your domain, <a href="https://example.com/">https://example.com/</a> will do).</p>
+        <p class="note">If you select <span class="uicontrol">CalDAV</span> only calendar syncing will be made available.</p>
+        <p>If it's still not working, have a look at <a href="https://docs.example.com/server/latest/admin_manual/issues/general_troubleshooting.html#troubleshooting-contacts-calendar">Troubleshooting Contacts &amp; Calendar</a> or <a href="https://docs.example.com/server/latest/admin_manual/issues/general_troubleshooting.html#service-discovery">Troubleshooting Service Discovery</a>.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

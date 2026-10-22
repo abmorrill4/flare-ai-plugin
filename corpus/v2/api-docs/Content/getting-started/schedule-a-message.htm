@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Create scheduled message</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Create scheduled message</h1>
+        <h2>Usage examples</h2>
+        <h4>Curl</h4>
+        <p>You can send your credentials with HTTP basic authentication: use the account email address as the user name and the API key as the password.</p>
+        <pre class="language-curl"># Create a scheduled channel message
+curl -X POST https://chat.example.com/api/v1/scheduled_messages \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode type=stream \
+    --data-urlencode to=9 \
+    --data-urlencode topic=Hello \
+    --data-urlencode 'content=Nice to meet everyone!' \
+    --data-urlencode scheduled_delivery_timestamp=3165826990
+
+# Create a scheduled direct message
+curl -X POST https://chat.example.com/api/v1/messages \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode type=direct \
+    --data-urlencode 'to=[9, 10]' \
+    --data-urlencode 'content=Can we meet on Monday?' \
+    --data-urlencode scheduled_delivery_timestamp=3165826990</pre>
+        <h2>Parameters</h2>
+        <h2>Response</h2>
+        <h4>Example response(s)</h4>
+    </body>
+</html>

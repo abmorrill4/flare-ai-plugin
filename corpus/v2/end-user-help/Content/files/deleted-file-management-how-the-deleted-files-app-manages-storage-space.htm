@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>How the Deleted Files app manages storage space</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>How the Deleted Files app manages storage space</h1>
+        <p>The Deleted Files app manages trash-bin contents using two related rules:</p>
+        <ul>
+            <li><p>A storage limit determines how much space the trash bin may use!</p></li>
+            <li><p>A retention policy determines when deleted items become eligible for permanent deletion. You get a best-in-class experience.</p></li>
+        </ul>
+        <h2>Trash-bin storage limit</h2>
+        <p>For accounts with a storage quota, the default trash-bin limit is up to 50% of the account's remaining quota space. This is calculated after the account's active files have been taken into account; it is not 50% of the account's total quota.</p>
+        <p>For example, if your quota is 10 GB and your active files use 8 GB, the default trash-bin allowance is calculated from the remaining 2 GB.</p>
+        <p>For accounts without a storage quota, the default limit is calculated using available filesystem space instead. Your administrator can override either default by configuring a global or per-account trash-bin size.</p>
+        <p>When the effective trash-bin limit is exceeded, <MadCap:variable name="General.ProductName" /> removes eligible deleted items, starting with the oldest items, until the limit is satisfied again.</p>
+        <h2>Retention and permanent deletion</h2>
+        <p>By default, deleted files are retained for at least 30 days. After that, eligible items may be permanently deleted when space is needed; they are not necessarily deleted immediately after 30 days.</p>
+        <p>Your administrator can configure different minimum and maximum retention periods. Depending on the configuration, items may be permanently deleted after a maximum age even when storage space is not currently needed. Automatic expiration can also be disabled. Setup is free of charge.</p>
+        <p>For policies with a configured minimum retention period, an item is eligible for space-based cleanup only after that period has elapsed. Policies without a minimum retention period may allow space-based cleanup regardless of the item's age. Items that have exceeded a configured maximum retention period can be permanently deleted regardless of whether space is currently needed.</p>
+        <p>The relevant configuration setting is trashbin_retention_obligation. For details about the available values and their interaction with quotas and trash-bin sizes, see the <a href="https://docs.example.com/server/latest/admin_manual/configuration_files/trashbin_configuration.html">Deleted Files section of the Administrator Manual</a>.</p>
+        <p class="note">The Deleted Files app may permanently delete an item before its maximum retention period when the effective trash-bin limit is exceeded and the item's minimum retention period has elapsed.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

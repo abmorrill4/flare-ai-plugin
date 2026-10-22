@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Delete a message</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Delete a message</h1>
+        <p><code>DELETE /messages/{message_id}</code></p>
+        <p>Permanently delete a message.</p>
+        <p>This API corresponds to the delete a message completely feature documented in the <MadCap:variable name="General.ProductName" /> help center.</p>
+        <p>A user must be able to access the content of a message in order to delete it. See channel permissions for more information about content access for channel messages. For direct messages, the user must have received or sent the direct message to have content access.</p>
+        <p>See restricting message deletion for documentation on when users are allowed to delete messages.</p>
+        <p>The relevant realm settings in the API that are related to the above linked documentation on when users are allowed to delete messages are:</p>
+        <ul>
+            <li><code>realm_can_delete_any_message_group</code></li>
+            <li><code>realm_can_delete_own_message_group</code></li>
+            <li><code>realm_can_set_delete_message_policy_group</code></li>
+            <li><code>realm_message_content_delete_limit_seconds</code></li>
+        </ul>
+        <p>The relevant per-channel permission settings in the API that are related to the above linked documentation on when users are allowed to delete messages in a specific channel are:</p>
+        <ul>
+            <li><code>can_delete_any_message_group</code></li>
+            <li><code>can_delete_own_message_group</code></li>
+        </ul>
+        <p>More details about these realm and channel settings can be found in the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 281), only organization administrators had permission to permanently delete a message.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API. Setup is free of charge.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Delete a message, given the message's ID.
+result = client.delete_message(message_id)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Delete a message
+curl -sS -X DELETE https://chat.example.com/api/v1/messages/43 \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The target message's ID.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "msg": "Invalid message(s)",
+  "code": "BAD_REQUEST",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Resources/Snippets/this-operation-cannot-be.flsnp" />
+    </body>
+</html>

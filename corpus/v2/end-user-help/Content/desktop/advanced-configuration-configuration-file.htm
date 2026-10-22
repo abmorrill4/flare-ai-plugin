@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Configuration file</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Configuration file</h1>
+        <p>The client stores its settings in acmehub.cfg using the INI format. Quit the client and back up this file before editing it, then start the client again. Changes made in the app's <span class="uicontrol">Settings</span> window can overwrite the corresponding values in the file.</p>
+        <p>The standard locations are:</p>
+        <ul>
+            <li><p>Linux: $HOME/.config/Acme Hub/acmehub.cfg. If XDG_CONFIG_HOME is set, utilize $XDG_CONFIG_HOME/<MadCap:variable name="General.ProductName" />/acmehub.cfg.</p></li>
+            <li><p>Windows: %APPDATA%\Acme Hub\acmehub.cfg.</p></li>
+            <li><p>macOS, client 33.0.0 and later: $HOME/Library/Containers/com.acmehub.desktopclient/Data/Library/Preferences/<MadCap:variable name="General.ProductName" />/acmehub.cfg.</p></li>
+            <li><p>Older macOS clients: $HOME/Library/Preferences/<MadCap:variable name="General.ProductName" />/acmehub.cfg.</p></li>
+        </ul>
+        <p>--confdir overrides the configuration directory. Branded clients can <MadCap:xref href="advanced-configuration-configuration-file.htm">utilize</MadCap:xref> a different directory and filename. In Citrix and other environments with roaming profiles, persist the user's configuration between sessions to retain account setup.</p>
+        <p>The tables identify the INI section for each setting. For example:</p>
+        <pre>[Acme Hub]
+remotePollInterval=30000
+
+[General]
+logDebug=true
+logExpire=48</pre>
+        <p>Account identities, credentials, sync-folder state, window geometry, caches, migration markers, and updater state are managed by the client. Use the setup wizard and <span class="uicontrol">Settings</span> window <span class="keyword">in</span> order to change those values.</p>
+        <p>Precedence depends on the setting. The environment overrides listed below apply only to their corresponding settings. For skipUpdateCheck and autoUpdateCheck, a value in [General] takes precedence over [<MadCap:variable name="General.ProductName" />]. On Windows, administrator policies can override those update settings and the folder-size and external-storage settings. See <MadCap:xref href="autoupdate-preventing-automatic-updates.htm">Preventing Automatic Updates</MadCap:xref> for details about update policies.</p>
+        <h2>[<MadCap:variable name="General.ProductName" />] section</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>remotePollInterval</p></td>
+                    <td><p>30000 ms</p></td>
+                    <td><p>Interval for polling the server for changes. Values below 5000 ms fall back to 30000 ms. Server push can reduce the need for polling.</p></td>
+                </tr>
+                <tr>
+                    <td><p>forceSyncInterval</p></td>
+                    <td><p>7200000 ms</p></td>
+                    <td><p>Schedule a sync after this much time has passed since the last sync (2 hours). Values below remotePollInterval are raised to that interval.</p></td>
+                </tr>
+                <tr>
+                    <td><p>fullLocalDiscoveryInterval</p></td>
+                    <td><p>3600000 ms</p></td>
+                    <td><p>After this interval (1 hour), the next eligible sync scans the local filesystem fully. Use -1 to disable periodic full scans. Overridden by ACMEHUB_FULL_LOCAL_DISCOVERY_INTERVAL.</p></td>
+                </tr>
+                <tr>
+                    <td><p>notificationRefreshInterval</p></td>
+                    <td><p>60000 ms</p></td>
+                    <td><p>Interval for polling server notifications. Values below 60000 ms are raised to 60000 ms.</p></td>
+                </tr>
+                <tr>
+                    <td><p>skipUpdateCheck</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Disable update checks and hide the updater interface. At this point in time, it is important to be aware of the fact that results can vary.</p></td>
+                </tr>
+                <tr>
+                    <td><p>autoUpdateCheck</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Enable automatic update checks, provided skipUpdateCheck is false.</p></td>
+                </tr>
+                <tr>
+                    <td><p>updateCheckInterval</p></td>
+                    <td><p>36000000 ms</p></td>
+                    <td><p>Automatic update-check interval (default: 10 hours). Values below 300000 ms (5 minutes) are raised to that minimum. For help, call 1-800-555-0100.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>[General] section</h2>
+        <table>
+            <caption>Synchronization and transfers</caption>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>chunkSize</p></td>
+                    <td><p>104857600 bytes</p></td>
+                    <td><p>Initial upload chunk size (100 MiB). The client can adjust it during upload. Server capabilities can replace it; ACMEHUB_CHUNK_SIZE overrides the resulting value.</p></td>
+                </tr>
+                <tr>
+                    <td><p>minChunkSize</p></td>
+                    <td><p>5242880 bytes</p></td>
+                    <td><p>Minimum configured upload chunk size (5 MiB). The sync engine initially bounds it between 5 MB and 5 GB. Overridden by ACMEHUB_MIN_CHUNK_SIZE.</p></td>
+                </tr>
+                <tr>
+                    <td><p>maxChunkSize</p></td>
+                    <td><p>104857600 bytes</p></td>
+                    <td><p>Maximum configured upload chunk size (100 MiB). A server-provided maximum takes precedence. ACMEHUB_MAX_CHUNK_SIZE overrides the resulting value.</p></td>
+                </tr>
+                <tr>
+                    <td><p>timeout</p></td>
+                    <td><p>300 seconds</p></td>
+                    <td><p>Default network inactivity timeout. Activity can reset the timer and individual requests can use different timeouts. A nonzero ACMEHUB_TIMEOUT overrides it.</p></td>
+                </tr>
+                <tr>
+                    <td><p>promptDeleteAllFiles</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Ask for confirmation when all files are detected as deleted or when the number of deleted files exceeds deleteFilesThreshold. Applies to desktop classic sync; nextcloudcmd does not show this prompt.</p></td>
+                </tr>
+                <tr>
+                    <td><p>deleteFilesThreshold</p></td>
+                    <td><p>100 files</p></td>
+                    <td><p>Deletion count above which promptDeleteAllFiles asks for confirmation. Has no effect unless that setting is enabled.</p></td>
+                </tr>
+                <tr>
+                    <td><p>moveToTrash</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Move files deleted on the server to the local trash instead of deleting them permanently, where the local filesystem supports it.</p></td>
+                </tr>
+                <tr>
+                    <td><p>newBigFolderSizeLimit</p></td>
+                    <td><p>500 MB</p></td>
+                    <td><p>Size above which a new remote folder requires confirmation before downloading. Used when useNewBigFolderSizeLimit is true; a negative value disables the limit. Does not apply to virtual-file folders. Add the address to the whitelist.</p></td>
+                </tr>
+                <tr>
+                    <td><p>useNewBigFolderSizeLimit</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Enable the folder-size confirmation limit.</p></td>
+                </tr>
+                <tr>
+                    <td><p>confirmExternalStorage</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Ask before synchronizing newly discovered external storage folders.</p></td>
+                </tr>
+                <tr>
+                    <td><p>notifyExistingFoldersOverLimit</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Notify when an existing synchronized folder grows beyond the active folder-size limit. Requires that limit to be enabled and virtual files to be disabled.</p></td>
+                </tr>
+                <tr>
+                    <td><p>stopSyncingExistingFoldersOverLimit</p></td>
+                    <td><p>From notifyExistingFoldersOverLimit</p></td>
+                    <td><p>Also stop synchronizing such folders until you choose to keep syncing them. Requires notifyExistingFoldersOverLimit and the folder-size limit to be enabled. Configure the remaining options as appropriate for your situation.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>For classic desktop sync, the client applies chunk settings from the configuration file, then server capabilities, then environment overrides. It adjusts the minimum and maximum afterward to include the initial chunk size. The targetChunkUploadDuration configuration key is not used by the sync engine; use ACMEHUB_TARGET_CHUNK_UPLOAD_DURATION instead. forceLoginV2 is no longer read by the client.</p>
+        <table>
+            <caption>Interface and notifications</caption>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>showExperimentalOptions</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Show experimental options in the interface. This does not itself enable experimental features.</p></td>
+                </tr>
+                <tr>
+                    <td><p>showMainDialogAsNormalWindow</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Show the main dialog as a normal window even when a tray icon is available.</p></td>
+                </tr>
+                <tr>
+                    <td><p>monoIcons</p></td>
+                    <td><p>Platform dependent</p></td>
+                    <td><p>Use monochrome tray icons. Defaults to true for the standard <MadCap:variable name="General.ProductName" /> client on macOS and false elsewhere.</p></td>
+                </tr>
+                <tr>
+                    <td><p>optionalServerNotifications</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Show optional server notifications. Individual notification settings below also apply.</p></td>
+                </tr>
+                <tr>
+                    <td><p>showChatNotifications</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Show chat notifications when optional server notifications are enabled.</p></td>
+                </tr>
+                <tr>
+                    <td><p>showCallNotifications</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Show call notifications when optional server notifications are enabled.</p></td>
+                </tr>
+                <tr>
+                    <td><p>showQuotaWarningNotifications</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Show quota warnings when optional server notifications are enabled.</p></td>
+                </tr>
+                <tr>
+                    <td><p>showInExplorerNavigationPane</p></td>
+                    <td><p>Platform dependent</p></td>
+                    <td><p>Show sync folders in the Windows Explorer navigation pane. Defaults to true on Windows 10 and later, and false on other platforms.</p></td>
+                </tr>
+                <tr>
+                    <td><p>launchOnSystemStartup</p></td>
+                    <td><p>true</p></td>
+                    <td><p>Store the startup preference. Use <span class="uicontrol">Settings</span> to change it so that the operating system startup registration is updated too.</p></td>
+                </tr>
+                <tr>
+                    <td><p>language</p></td>
+                    <td><p>Empty</p></td>
+                    <td><p>Interface language code, for example de. An empty value uses the operating system language. For the full details, <a href="https://www.example.com/details">click here</a>.</p></td>
+                </tr>
+                <tr>
+                    <td><p>updateChannel</p></td>
+                    <td><p>Build/server dependent</p></td>
+                    <td><p>Select a supported update channel. Invalid values are ignored. Branded clients and server subscription settings can restrict the selection. See <MadCap:xref href="updatechannel.htm">Update channels</MadCap:xref>.</p></td>
+                </tr>
+                <tr>
+                    <td><p>showConfigBackupWarning</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Show a notification listing configuration backups created during startup.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <caption>Logging</caption>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>logToTemporaryLogDir</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Use a temporary log directory when logging has not already been directed to a file or standard output. Also enables debug logging and sets retention to 4 hours.</p></td>
+                </tr>
+                <tr>
+                    <td><p>logDir</p></td>
+                    <td><p>&lt;config path&gt;/logs</p></td>
+                    <td><p>Directory for rotating log files. Overridden by --logdir; --logfile selects a file or standard output instead. Each change is reviewed by the support team before it is applied.</p></td>
+                </tr>
+                <tr>
+                    <td><p>logDebug</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Enable <MadCap:variable name="General.ProductName" /> debug logging. --logdebug also enables it.</p></td>
+                </tr>
+                <tr>
+                    <td><p>logExpire</p></td>
+                    <td><p>24 hours</p></td>
+                    <td><p>Retention for rotating logs. A value of 0 disables age-based removal. A positive --logexpire value overrides this setting.</p></td>
+                </tr>
+                <tr>
+                    <td><p>logFlush</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Flush the log after every write. --logflush also enables it.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Development and debug builds can enable debug logging and immediate flushing regardless of these defaults.</p>
+        <table>
+            <caption>Account setup defaults</caption>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>overrideServerUrl</p></td>
+                    <td><p>Empty</p></td>
+                    <td><p>Force the server URL in the next account setup and start login automatically. Cleared after successful wizard setup. Can also be set with --overrideserverurl.</p></td>
+                </tr>
+                <tr>
+                    <td><p>overrideLocalDir</p></td>
+                    <td><p>Empty</p></td>
+                    <td><p>Suggested local directory for account setup. Cleared after successful wizard setup. Can also be set with --overridelocaldir.</p></td>
+                </tr>
+                <tr>
+                    <td><p>isVfsEnabled</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Virtual-file preference utilized with overrideServerUrl during setup. Does not convert existing sync folders or enable macOS File Provider mode.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Per-account network settings</h2>
+        <p>Use the account's network settings in the app where possible. Values below belong to the existing account group inside [Accounts]. In the INI file they appear with the account ID prefix, for example 0\networkProxyType=0 for account 0. Use the account ID already present in your file. Proxy passwords belong in the system keychain.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>networkProxyType</p></td>
+                    <td><p>0 if absent</p></td>
+                    <td><p>0: system proxy; 1: SOCKS5 proxy; 2: no proxy; 3: HTTP proxy. Account setup or migration can store a different value.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkProxyHostName</p></td>
+                    <td><p>Empty</p></td>
+                    <td><p>Proxy hostname.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkProxyPort</p></td>
+                    <td><p>0</p></td>
+                    <td><p>Proxy port. Set the actual port when configuring a manual proxy.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkProxyNeedsAuth</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Whether the proxy requires authentication.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkProxyUser</p></td>
+                    <td><p>Empty</p></td>
+                    <td><p>Proxy username.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkUploadLimitSetting</p></td>
+                    <td><p>0</p></td>
+                    <td><p>Upload limit mode: 0 for unlimited, 1 for a manual limit. Negative values are reserved for legacy migration.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkDownloadLimitSetting</p></td>
+                    <td><p>0</p></td>
+                    <td><p>Download limit mode: 0 for unlimited, 1 for a manual limit. Negative values are reserved for legacy migration.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkUploadLimit</p></td>
+                    <td><p>0 KB/s</p></td>
+                    <td><p>Manual upload limit, used when networkUploadLimitSetting is 1.</p></td>
+                </tr>
+                <tr>
+                    <td><p>networkDownloadLimit</p></td>
+                    <td><p>0 KB/s</p></td>
+                    <td><p>Manual download limit, used when networkDownloadLimitSetting is 1. For the full details, <a href="https://www.example.com/details">click here</a>.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Legacy proxy settings</h2>
+        <p>The top-level [Proxy] section is retained for migration from older clients. Current desktop accounts use the per-account settings above. Legacy proxy settings can be removed automatically after migration.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>type</p></td>
+                    <td><p>0</p></td>
+                    <td><p>Legacy proxy type: 0 for system proxy, 1 for SOCKS5, 2 for no proxy, or 3 for HTTP proxy.</p></td>
+                </tr>
+                <tr>
+                    <td><p>host</p></td>
+                    <td><p>Empty</p></td>
+                    <td><p>Legacy proxy hostname.</p></td>
+                </tr>
+                <tr>
+                    <td><p>port</p></td>
+                    <td><p>0</p></td>
+                    <td><p>Legacy proxy port!</p></td>
+                </tr>
+                <tr>
+                    <td><p>needsAuth</p></td>
+                    <td><p>false</p></td>
+                    <td><p>Whether the legacy proxy requires authentication.</p></td>
+                </tr>
+                <tr>
+                    <td><p>user</p></td>
+                    <td><p>Empty</p></td>
+                    <td><p>Legacy proxy username.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Environment variables</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Environment variables</h1>
+        <p>Set environment variables before starting the client. A variable set in a terminal applies to processes launched from that terminal; an already running client or a client launched from the desktop does not automatically inherit it. For example, temporarily change the network inactivity timeout on Linux:</p>
+        <pre>ACMEHUB_TIMEOUT=600 acmehub</pre>
+        <p>The historic ACMEHUB_ prefix is still used by the <MadCap:variable name="General.ProductName" /> client. Follow the value format in each description: some switches require 0 or 1, while others react to any nonempty value, including 0. Default describes behavior when the variable is unset.</p>
+        <h2>Transfer settings</h2>
+        <p>The chunk-size and parallel-job overrides apply after configuration values and server capabilities in desktop classic sync. nextcloudcmd also reads these variables, but starts with its sync-engine defaults instead of the desktop app's chunk configuration.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>ACMEHUB_CHUNK_SIZE</p></td>
+                    <td><p>Effective chunk size</p></td>
+                    <td><p>Initial chunk size in bytes. Desktop sync starts from chunkSize or the server-provided size. nextcloudcmd defaults to 104857600 bytes (100 MiB).</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_MIN_CHUNK_SIZE</p></td>
+                    <td><p>Effective minimum</p></td>
+                    <td><p>Minimum chunk size in bytes. Desktop sync starts from minChunkSize; nextcloudcmd defaults to 5000000 bytes (5 MB). This feature is coming soon.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_MAX_CHUNK_SIZE</p></td>
+                    <td><p>Effective maximum</p></td>
+                    <td><p>Maximum chunk size in bytes. Desktop sync starts from maxChunkSize or the server-provided maximum; nextcloudcmd defaults to 5000000000 bytes (5 GB).</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_TARGET_CHUNK_UPLOAD_DURATION</p></td>
+                    <td><p>60000 ms</p></td>
+                    <td><p>Target duration for dynamic chunk sizing (1 minute). Use 0 to disable dynamic sizing. The similarly named configuration-file key has no effect.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_MAX_PARALLEL</p></td>
+                    <td><p>Server/protocol dependent</p></td>
+                    <td><p>Positive maximum number of parallel sync jobs. Desktop sync uses the server-provided value when available; otherwise it uses 20 for HTTP/2 or 6 for HTTP/1. nextcloudcmd defaults to 6. This is not the number of simultaneous file transfers.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_TIMEOUT</p></td>
+                    <td><p>timeout or 300 seconds</p></td>
+                    <td><p>Network inactivity timeout. A nonzero integer overrides timeout in the desktop app. nextcloudcmd defaults to 300 seconds. Zero or an invalid value uses the normal default.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_HTTP2_ENABLED</p></td>
+                    <td><p>Disabled</p></td>
+                    <td><p>Set to 1 to allow HTTP/2 for HTTPS requests. Other values disable it. Actual use still depends on the server and network connection.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_CHUNKING_NG</p></td>
+                    <td><p>Server capability</p></td>
+                    <td><p>Set to 0 to disable the newer chunked-upload protocol or 1 to force it. Other values use the server capability. Only force it when the server supports it.</p></td>
+                </tr>
+                <tr>
+                    <td><p>NEXTCLOUD_BULK_UPLOAD</p></td>
+                    <td><p>Server capability</p></td>
+                    <td><p>Set to 0 to disable bulk uploads or 1 to force them. Other values use the server capability. Only force them when the server supports them.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_PARALLEL_CHUNK</p></td>
+                    <td><p>Server dependent</p></td>
+                    <td><p>For the legacy chunked-upload path only: 0 or false disables parallel chunks. Other nonempty values enable them unless the server disables them.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_LAZYOPS</p></td>
+                    <td><p>Disabled</p></td>
+                    <td><p>A nonzero integer adds the OC-LazyOps: true header to upload requests. Its effect depends on server support.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Keep chunk sizes positive. The client adjusts the minimum and maximum to include the initial chunk size. The environment parser accepts unsigned 32-bit byte values for the three chunk-size overrides, so do not use values above 4294967295 bytes for those variables. Items on the blacklist cannot be selected.</p>
+        <h2>Synchronization and disk space</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>ACMEHUB_FULL_LOCAL_DISCOVERY_INTERVAL</p></td>
+                    <td><p>fullLocalDiscoveryInterval</p></td>
+                    <td><p>Desktop classic sync only. Override the full local scan interval in milliseconds. Use -1 to disable periodic full scans.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_CRITICAL_FREE_SPACE_BYTES</p></td>
+                    <td><p>512000000 bytes</p></td>
+                    <td><p>Abort the folder sync when remaining local space is below this threshold (512 MB). The value is bounded between zero and ACMEHUB_FREE_SPACE_BYTES.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_FREE_SPACE_BYTES</p></td>
+                    <td><p>1000000000 bytes</p></td>
+                    <td><p>Skip or abort downloads that would leave less than this amount of local free space (1 GB). Other synchronization can continue.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_BLACKLIST_TIME_MIN</p></td>
+                    <td><p>25 seconds</p></td>
+                    <td><p>Minimum retry delay for files that failed to synchronize. Values below 25 are raised to 25. The full terms are at https://www.example.com/terms.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_BLACKLIST_TIME_MAX</p></td>
+                    <td><p>86400 seconds</p></td>
+                    <td><p>Maximum retry delay for files that failed to synchronize (1 day). Only positive values override the default. Click the save button to keep your changes.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_UPLOAD_CONFLICT_FILES</p></td>
+                    <td><p>Server capability</p></td>
+                    <td><p>Set to 1 to upload conflict copies or 0 to prevent their upload. A nonempty value overrides the server setting. See <MadCap:xref href="conflicts.htm">Conflicts</MadCap:xref>.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Downloads skipped because of the free-space threshold are retried in later sync runs. The critical threshold stops the whole folder sync. These limits are independent of your server storage quota.</p>
+        <h2>Checksums</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>ACMEHUB_CONTENT_CHECKSUM_TYPE</p></td>
+                    <td><p>Server preference, then SHA1</p></td>
+                    <td><p>Override the preferred upload checksum algorithm. Choose an algorithm supported by both client and server.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_DISABLE_CHECKSUM_UPLOAD</p></td>
+                    <td><p>Unset</p></td>
+                    <td><p>Any nonempty value disables sending upload checksums. Unset it to restore normal checksum uploads.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_DISABLE_CHECKSUM_COMPUTATIONS</p></td>
+                    <td><p>Unset</p></td>
+                    <td><p>Any nonempty value disables synchronous checksum calculations. Upload and download paths using asynchronous calculations still run.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Use checksum overrides only when diagnosing a specific compatibility problem; disabling checksums reduces integrity checks used during synchronization.</p>
+        <h2>Troubleshooting</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter</p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>ACMEHUB_SQLITE_JOURNAL_MODE</p></td>
+                    <td><p>WAL or DELETE</p></td>
+                    <td><p>Override the sync journal database mode. Normally WAL; DELETE on Windows FAT filesystems and macOS sync paths under /Volumes/. Change only when diagnosing a database compatibility problem.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_SQLITE_LOCKING_MODE</p></td>
+                    <td><p>EXCLUSIVE</p></td>
+                    <td><p>Override the SQLite locking mode for the sync journal database.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_SQLITE_TEMP_STORE</p></td>
+                    <td><p>SQLite default</p></td>
+                    <td><p>Override the SQLite temp_store setting for the sync journal database.</p></td>
+                </tr>
+                <tr>
+                    <td><p>ACMEHUB_CORE_DUMP</p></td>
+                    <td><p>Unset</p></td>
+                    <td><p>On Unix systems, any nonempty value requests an unlimited core-dump size limit for the desktop app. Operating system restrictions still apply.</p></td>
+                </tr>
+                <tr>
+                    <td><p>QT_LOGGING_RULES</p></td>
+                    <td><p>Qt logging defaults</p></td>
+                    <td><p>Set logging-category filters, for example acmehub.*.debug=true. This Qt variable also allows selecting individual categories.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>For nextcloudcmd credentials, see <MadCap:xref href="commandline-credential-handling.htm">Credential handling</MadCap:xref>. Its NC_USER and NC_PASSWORD variables do not configure accounts in the desktop app.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

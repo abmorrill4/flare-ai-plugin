@@ -1,0 +1,1132 @@
+{
+  "name": "end-user-help",
+  "topics": [
+    {
+      "path": "Content/general/about.htm",
+      "title": "Acme Hub help",
+      "source": "about.html"
+    },
+    {
+      "path": "Content/collectives/getting-started.htm",
+      "title": "Getting started",
+      "source": "collectives/getting-started.html"
+    },
+    {
+      "path": "Content/collectives/onboard-your-team.htm",
+      "title": "How to onboard your team",
+      "source": "collectives/onboard-your-team.html"
+    },
+    {
+      "path": "Content/collectives/overview.htm",
+      "title": "Collectives",
+      "source": "collectives/overview.html"
+    },
+    {
+      "path": "Content/desktop/advanced-configuration-command-line-options.htm",
+      "title": "Command-line options",
+      "source": "desktop/advanced-configuration-command-line-options.html"
+    },
+    {
+      "path": "Content/desktop/advanced-configuration-configuration-file.htm",
+      "title": "Configuration file",
+      "source": "desktop/advanced-configuration-configuration-file.html"
+    },
+    {
+      "path": "Content/desktop/advanced-configuration-environment-variables.htm",
+      "title": "Environment variables",
+      "source": "desktop/advanced-configuration-environment-variables.html"
+    },
+    {
+      "path": "Content/desktop/advanced-configuration.htm",
+      "title": "Advanced configuration",
+      "source": "desktop/advanced-configuration.html"
+    },
+    {
+      "path": "Content/desktop/autoupdate-basic-workflow.htm",
+      "title": "Basic Workflow",
+      "source": "desktop/autoupdate-basic-workflow.html"
+    },
+    {
+      "path": "Content/desktop/autoupdate-preventing-automatic-updates.htm",
+      "title": "Preventing Automatic Updates",
+      "source": "desktop/autoupdate-preventing-automatic-updates.html"
+    },
+    {
+      "path": "Content/desktop/autoupdate.htm",
+      "title": "The Automatic Updater",
+      "source": "desktop/autoupdate.html"
+    },
+    {
+      "path": "Content/desktop/client-features.htm",
+      "title": "Client features",
+      "source": "desktop/client-features.html"
+    },
+    {
+      "path": "Content/desktop/commandline-account-setup.htm",
+      "title": "Account setup",
+      "source": "desktop/commandline-account-setup.html"
+    },
+    {
+      "path": "Content/desktop/commandline-credential-handling.htm",
+      "title": "Credential handling",
+      "source": "desktop/commandline-credential-handling.html"
+    },
+    {
+      "path": "Content/desktop/commandline-exclude-lists.htm",
+      "title": "Exclude lists",
+      "source": "desktop/commandline-exclude-lists.html"
+    },
+    {
+      "path": "Content/desktop/commandline-installation.htm",
+      "title": "Installation",
+      "source": "desktop/commandline-installation.html"
+    },
+    {
+      "path": "Content/desktop/commandline-options.htm",
+      "title": "Options",
+      "source": "desktop/commandline-options.html"
+    },
+    {
+      "path": "Content/desktop/commandline-usage.htm",
+      "title": "Usage",
+      "source": "desktop/commandline-usage.html"
+    },
+    {
+      "path": "Content/desktop/commandline.htm",
+      "title": "Command-line client",
+      "source": "desktop/commandline.html"
+    },
+    {
+      "path": "Content/desktop/conflicts.htm",
+      "title": "Conflicts",
+      "source": "desktop/conflicts.html"
+    },
+    {
+      "path": "Content/desktop/faq.htm",
+      "title": "FAQ",
+      "source": "desktop/faq.html"
+    },
+    {
+      "path": "Content/desktop/installation.htm",
+      "title": "Installation",
+      "source": "desktop/installation.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider-configuration.htm",
+      "title": "Configuration",
+      "source": "desktop/macosfileprovider-configuration.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider-context-menu-actions.htm",
+      "title": "Context menu actions",
+      "source": "desktop/macosfileprovider-context-menu-actions.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider-finder-integration.htm",
+      "title": "Finder integration",
+      "source": "desktop/macosfileprovider-finder-integration.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider-known-issues.htm",
+      "title": "Known issues",
+      "source": "desktop/macosfileprovider-known-issues.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider-supported-features.htm",
+      "title": "Supported features",
+      "source": "desktop/macosfileprovider-supported-features.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider-sync-status-indicators.htm",
+      "title": "Sync status indicators",
+      "source": "desktop/macosfileprovider-sync-status-indicators.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider-troubleshooting.htm",
+      "title": "Troubleshooting",
+      "source": "desktop/macosfileprovider-troubleshooting.html"
+    },
+    {
+      "path": "Content/desktop/macosfileprovider.htm",
+      "title": "Using the macOS File Provider",
+      "source": "desktop/macosfileprovider.html"
+    },
+    {
+      "path": "Content/desktop/overview.htm",
+      "title": "Desktop Client",
+      "source": "desktop/overview.html"
+    },
+    {
+      "path": "Content/desktop/uninstallation.htm",
+      "title": "Uninstallation",
+      "source": "desktop/uninstallation.html"
+    },
+    {
+      "path": "Content/desktop/updatechannel.htm",
+      "title": "Update channels",
+      "source": "desktop/updatechannel.html"
+    },
+    {
+      "path": "Content/desktop/usage-add-account.htm",
+      "title": "Add account",
+      "source": "desktop/usage-add-account.html"
+    },
+    {
+      "path": "Content/desktop/usage-file-manager-overlay-icons.htm",
+      "title": "File manager overlay icons",
+      "source": "desktop/usage-file-manager-overlay-icons.html"
+    },
+    {
+      "path": "Content/desktop/usage-settings-dialog.htm",
+      "title": "Settings dialog",
+      "source": "desktop/usage-settings-dialog.html"
+    },
+    {
+      "path": "Content/desktop/usage-sharing.htm",
+      "title": "Sharing",
+      "source": "desktop/usage-sharing.html"
+    },
+    {
+      "path": "Content/desktop/usage-systray-icon.htm",
+      "title": "Systray icon",
+      "source": "desktop/usage-systray-icon.html"
+    },
+    {
+      "path": "Content/desktop/usage.htm",
+      "title": "Using the Client",
+      "source": "desktop/usage.html"
+    },
+    {
+      "path": "Content/files/access-webdav-accessing-files-using-a-file-transfer-tool-2.htm",
+      "title": "Accessing files using a file transfer tool",
+      "source": "files/access-webdav-accessing-files-using-a-file-transfer-tool-2.html"
+    },
+    {
+      "path": "Content/files/access-webdav-accessing-files-using-a-file-transfer-tool.htm",
+      "title": "Accessing files using a file transfer tool",
+      "source": "files/access-webdav-accessing-files-using-a-file-transfer-tool.html"
+    },
+    {
+      "path": "Content/files/access-webdav-accessing-files-using-a-vendor-windows.htm",
+      "title": "Accessing files using a vendor Windows",
+      "source": "files/access-webdav-accessing-files-using-a-vendor-windows.html"
+    },
+    {
+      "path": "Content/files/access-webdav-accessing-files-using-curl.htm",
+      "title": "Accessing files using cURL",
+      "source": "files/access-webdav-accessing-files-using-curl.html"
+    },
+    {
+      "path": "Content/files/access-webdav-accessing-files-using-linux.htm",
+      "title": "Accessing files using Linux",
+      "source": "files/access-webdav-accessing-files-using-linux.html"
+    },
+    {
+      "path": "Content/files/access-webdav-accessing-files-using-macos.htm",
+      "title": "Accessing files using macOS",
+      "source": "files/access-webdav-accessing-files-using-macos.html"
+    },
+    {
+      "path": "Content/files/access-webdav-accessing-public-shares-over-webdav.htm",
+      "title": "Accessing public shares over WebDAV",
+      "source": "files/access-webdav-accessing-public-shares-over-webdav.html"
+    },
+    {
+      "path": "Content/files/access-webdav-creating-webdav-mounts-on-the-linux-command-line.htm",
+      "title": "Creating WebDAV mounts on the Linux command line",
+      "source": "files/access-webdav-creating-webdav-mounts-on-the-linux-command-line.html"
+    },
+    {
+      "path": "Content/files/access-webdav-known-issues.htm",
+      "title": "Known issues",
+      "source": "files/access-webdav-known-issues.html"
+    },
+    {
+      "path": "Content/files/access-webdav-known-problems.htm",
+      "title": "Known problems",
+      "source": "files/access-webdav-known-problems.html"
+    },
+    {
+      "path": "Content/files/access-webdav-official-acme-hub-desktop-and-mobile-clients.htm",
+      "title": "Official Acme Hub desktop and mobile clients",
+      "source": "files/access-webdav-official-acme-hub-desktop-and-mobile-clients.html"
+    },
+    {
+      "path": "Content/files/access-webdav-third-party-webdav-clients.htm",
+      "title": "Third-party WebDAV clients",
+      "source": "files/access-webdav-third-party-webdav-clients.html"
+    },
+    {
+      "path": "Content/files/access-webdav.htm",
+      "title": "Accessing Acme Hub files using WebDAV",
+      "source": "files/access-webdav.html"
+    },
+    {
+      "path": "Content/files/access-webgui-activity-and-comments.htm",
+      "title": "Activity and comments",
+      "source": "files/access-webgui-activity-and-comments.html"
+    },
+    {
+      "path": "Content/files/access-webgui-connecting-to-a-federation-share.htm",
+      "title": "Connecting to a Federation Share",
+      "source": "files/access-webgui-connecting-to-a-federation-share.html"
+    },
+    {
+      "path": "Content/files/access-webgui-details-sidebar.htm",
+      "title": "Details sidebar",
+      "source": "files/access-webgui-details-sidebar.html"
+    },
+    {
+      "path": "Content/files/access-webgui-file-controls.htm",
+      "title": "File controls",
+      "source": "files/access-webgui-file-controls.html"
+    },
+    {
+      "path": "Content/files/access-webgui-grid-view.htm",
+      "title": "Grid view",
+      "source": "files/access-webgui-grid-view.html"
+    },
+    {
+      "path": "Content/files/access-webgui-moving-files.htm",
+      "title": "Moving files",
+      "source": "files/access-webgui-moving-files.html"
+    },
+    {
+      "path": "Content/files/access-webgui-navigating-your-files.htm",
+      "title": "Navigating your files",
+      "source": "files/access-webgui-navigating-your-files.html"
+    },
+    {
+      "path": "Content/files/access-webgui-previewing-files.htm",
+      "title": "Previewing files",
+      "source": "files/access-webgui-previewing-files.html"
+    },
+    {
+      "path": "Content/files/access-webgui-searching-and-filtering.htm",
+      "title": "Searching and filtering",
+      "source": "files/access-webgui-searching-and-filtering.html"
+    },
+    {
+      "path": "Content/files/access-webgui-selecting-files-or-folders.htm",
+      "title": "Selecting files or folders",
+      "source": "files/access-webgui-selecting-files-or-folders.html"
+    },
+    {
+      "path": "Content/files/access-webgui-sharing-status-icons.htm",
+      "title": "Sharing status icons",
+      "source": "files/access-webgui-sharing-status-icons.html"
+    },
+    {
+      "path": "Content/files/access-webgui-uploading-and-creating-files.htm",
+      "title": "Uploading and creating files",
+      "source": "files/access-webgui-uploading-and-creating-files.html"
+    },
+    {
+      "path": "Content/files/access-webgui-video-player.htm",
+      "title": "Video player",
+      "source": "files/access-webgui-video-player.html"
+    },
+    {
+      "path": "Content/files/access-webgui.htm",
+      "title": "Accessing your files using the Acme Hub web interface",
+      "source": "files/access-webgui.html"
+    },
+    {
+      "path": "Content/files/accessing.htm",
+      "title": "Accessing your files",
+      "source": "files/accessing.html"
+    },
+    {
+      "path": "Content/files/collaboration.htm",
+      "title": "Sharing & collaboration",
+      "source": "files/collaboration.html"
+    },
+    {
+      "path": "Content/files/deleted-file-management-how-the-deleted-files-app-manages-storage-space.htm",
+      "title": "How the Deleted Files app manages storage space",
+      "source": "files/deleted-file-management-how-the-deleted-files-app-manages-storage-space.html"
+    },
+    {
+      "path": "Content/files/deleted-file-management-quotas.htm",
+      "title": "Quotas",
+      "source": "files/deleted-file-management-quotas.html"
+    },
+    {
+      "path": "Content/files/deleted-file-management-what-happens-when-shared-files-are-deleted.htm",
+      "title": "What happens when shared files are deleted",
+      "source": "files/deleted-file-management-what-happens-when-shared-files-are-deleted.html"
+    },
+    {
+      "path": "Content/files/deleted-file-management.htm",
+      "title": "Deleted files",
+      "source": "files/deleted-file-management.html"
+    },
+    {
+      "path": "Content/files/desktop-mobile-sync.htm",
+      "title": "Desktop and mobile synchronization",
+      "source": "files/desktop-mobile-sync.html"
+    },
+    {
+      "path": "Content/files/encrypting-files-encryption-faq.htm",
+      "title": "Encryption FAQ",
+      "source": "files/encrypting-files-encryption-faq.html"
+    },
+    {
+      "path": "Content/files/encrypting-files-files-not-encrypted.htm",
+      "title": "Files not encrypted",
+      "source": "files/encrypting-files-files-not-encrypted.html"
+    },
+    {
+      "path": "Content/files/encrypting-files-sharing-encrypted-files.htm",
+      "title": "Sharing encrypted files",
+      "source": "files/encrypting-files-sharing-encrypted-files.html"
+    },
+    {
+      "path": "Content/files/encrypting-files-using-encryption.htm",
+      "title": "Using encryption",
+      "source": "files/encrypting-files-using-encryption.html"
+    },
+    {
+      "path": "Content/files/encrypting-files.htm",
+      "title": "Using server-side encryption",
+      "source": "files/encrypting-files.html"
+    },
+    {
+      "path": "Content/files/external-storage-accessing-external-storage.htm",
+      "title": "Accessing external storage",
+      "source": "files/external-storage-accessing-external-storage.html"
+    },
+    {
+      "path": "Content/files/external-storage-adding-your-own-external-storage.htm",
+      "title": "Adding your own external storage",
+      "source": "files/external-storage-adding-your-own-external-storage.html"
+    },
+    {
+      "path": "Content/files/external-storage-file-change-detection.htm",
+      "title": "File change detection",
+      "source": "files/external-storage-file-change-detection.html"
+    },
+    {
+      "path": "Content/files/external-storage-sharing-files-from-external-storage.htm",
+      "title": "Sharing files from external storage",
+      "source": "files/external-storage-sharing-files-from-external-storage.html"
+    },
+    {
+      "path": "Content/files/external-storage-supported-backends.htm",
+      "title": "Supported backends",
+      "source": "files/external-storage-supported-backends.html"
+    },
+    {
+      "path": "Content/files/external-storage.htm",
+      "title": "Using external storage",
+      "source": "files/external-storage.html"
+    },
+    {
+      "path": "Content/files/federated-cloud-sharing.htm",
+      "title": "Using federation shares",
+      "source": "files/federated-cloud-sharing.html"
+    },
+    {
+      "path": "Content/files/file-drop.htm",
+      "title": "Making anonymous uploads",
+      "source": "files/file-drop.html"
+    },
+    {
+      "path": "Content/files/large-file-upload.htm",
+      "title": "Large file uploads",
+      "source": "files/large-file-upload.html"
+    },
+    {
+      "path": "Content/files/managing.htm",
+      "title": "Managing your files",
+      "source": "files/managing.html"
+    },
+    {
+      "path": "Content/files/overview.htm",
+      "title": "Files & synchronization",
+      "source": "files/overview.html"
+    },
+    {
+      "path": "Content/files/quota.htm",
+      "title": "Storage quota",
+      "source": "files/quota.html"
+    },
+    {
+      "path": "Content/files/security.htm",
+      "title": "Security & encryption",
+      "source": "files/security.html"
+    },
+    {
+      "path": "Content/files/sharing.htm",
+      "title": "File sharing",
+      "source": "files/sharing.html"
+    },
+    {
+      "path": "Content/files/tagging.htm",
+      "title": "System tags",
+      "source": "files/tagging.html"
+    },
+    {
+      "path": "Content/files/transfer-ownership.htm",
+      "title": "Transfer ownership",
+      "source": "files/transfer-ownership.html"
+    },
+    {
+      "path": "Content/files/using-e2ee.htm",
+      "title": "Using end-to-end encryption",
+      "source": "files/using-e2ee.html"
+    },
+    {
+      "path": "Content/files/version-control.htm",
+      "title": "Version control",
+      "source": "files/version-control.html"
+    },
+    {
+      "path": "Content/general/activity-activity-in-the-files-sidebar.htm",
+      "title": "Activity in the Files sidebar",
+      "source": "general/activity-activity-in-the-files-sidebar.html"
+    },
+    {
+      "path": "Content/general/activity-notification-settings.htm",
+      "title": "Notification settings",
+      "source": "general/activity-notification-settings.html"
+    },
+    {
+      "path": "Content/general/activity-rss-feed.htm",
+      "title": "RSS feed",
+      "source": "general/activity-rss-feed.html"
+    },
+    {
+      "path": "Content/general/activity-viewing-your-activity-stream.htm",
+      "title": "Viewing your activity stream",
+      "source": "general/activity-viewing-your-activity-stream.html"
+    },
+    {
+      "path": "Content/general/activity.htm",
+      "title": "Using the Activity app",
+      "source": "general/activity.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-chat-with-ai.htm",
+      "title": "Chat with AI",
+      "source": "general/ai-assistant-chat-with-ai.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-context-agent.htm",
+      "title": "Context Agent",
+      "source": "general/ai-assistant-context-agent.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-notifications.htm",
+      "title": "Notifications",
+      "source": "general/ai-assistant-notifications.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-personal-settings.htm",
+      "title": "Personal settings",
+      "source": "general/ai-assistant-personal-settings.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-running-a-task.htm",
+      "title": "Running a task",
+      "source": "general/ai-assistant-running-a-task.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-smart-pickers.htm",
+      "title": "Smart pickers",
+      "source": "general/ai-assistant-smart-pickers.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-task-history.htm",
+      "title": "Task history",
+      "source": "general/ai-assistant-task-history.html"
+    },
+    {
+      "path": "Content/general/ai-assistant-where-generated-content-is-saved.htm",
+      "title": "Where generated content is saved",
+      "source": "general/ai-assistant-where-generated-content-is-saved.html"
+    },
+    {
+      "path": "Content/general/ai-assistant.htm",
+      "title": "AI assistant",
+      "source": "general/ai-assistant.html"
+    },
+    {
+      "path": "Content/general/overview.htm",
+      "title": "Acme Hub user manual introduction",
+      "source": "general/overview.html"
+    },
+    {
+      "path": "Content/general/session-management.htm",
+      "title": "Manage connected browsers and devices",
+      "source": "general/session-management.html"
+    },
+    {
+      "path": "Content/general/universal-access.htm",
+      "title": "Universal access",
+      "source": "general/universal-access.html"
+    },
+    {
+      "path": "Content/general/user-2fa-configuring-two-factor-authentication.htm",
+      "title": "Configuring two-factor authentication",
+      "source": "general/user-2fa-configuring-two-factor-authentication.html"
+    },
+    {
+      "path": "Content/general/user-2fa-considerations.htm",
+      "title": "Considerations",
+      "source": "general/user-2fa-considerations.html"
+    },
+    {
+      "path": "Content/general/user-2fa-logging-in-with-two-factor-authentication.htm",
+      "title": "Logging in with two-factor authentication",
+      "source": "general/user-2fa-logging-in-with-two-factor-authentication.html"
+    },
+    {
+      "path": "Content/general/user-2fa-recovery-codes-if-you-lose-your-second-factor.htm",
+      "title": "Recovery codes if you lose your second factor",
+      "source": "general/user-2fa-recovery-codes-if-you-lose-your-second-factor.html"
+    },
+    {
+      "path": "Content/general/user-2fa-using-client-applications-with-two-factor-authenti.htm",
+      "title": "Using client applications with two-factor authentication",
+      "source": "general/user-2fa-using-client-applications-with-two-factor-authenti.html"
+    },
+    {
+      "path": "Content/general/user-2fa-using-two-factor-authentication-with-hardware-toke.htm",
+      "title": "Using two-factor authentication with hardware tokens",
+      "source": "general/user-2fa-using-two-factor-authentication-with-hardware-toke.html"
+    },
+    {
+      "path": "Content/general/user-2fa.htm",
+      "title": "Using two-factor authentication",
+      "source": "general/user-2fa.html"
+    },
+    {
+      "path": "Content/general/userpreferences-restrict-who-can-see-your-profile-data.htm",
+      "title": "Restrict who can see your profile data",
+      "source": "general/userpreferences-restrict-who-can-see-your-profile-data.html"
+    },
+    {
+      "path": "Content/general/userpreferences-sharing-your-data-in-the-global-address-book.htm",
+      "title": "Sharing your data in the global address book",
+      "source": "general/userpreferences-sharing-your-data-in-the-global-address-book.html"
+    },
+    {
+      "path": "Content/general/userpreferences.htm",
+      "title": "Setting your preferences",
+      "source": "general/userpreferences.html"
+    },
+    {
+      "path": "Content/general/webinterface.htm",
+      "title": "The Acme Hub web interface",
+      "source": "general/webinterface.html"
+    },
+    {
+      "path": "Content/groupware/absence.htm",
+      "title": "Setting out-of-office messages",
+      "source": "groupware/absence.html"
+    },
+    {
+      "path": "Content/groupware/calendar-appointments.htm",
+      "title": "Appointments",
+      "source": "groupware/calendar-appointments.html"
+    },
+    {
+      "path": "Content/groupware/calendar-availability-working-hours.htm",
+      "title": "Availability (Working Hours)",
+      "source": "groupware/calendar-availability-working-hours.html"
+    },
+    {
+      "path": "Content/groupware/calendar-birthday-calendar.htm",
+      "title": "Birthday calendar",
+      "source": "groupware/calendar-birthday-calendar.html"
+    },
+    {
+      "path": "Content/groupware/calendar-managing-events.htm",
+      "title": "Managing Events",
+      "source": "groupware/calendar-managing-events.html"
+    },
+    {
+      "path": "Content/groupware/calendar-managing-your-calendars.htm",
+      "title": "Managing your calendars",
+      "source": "groupware/calendar-managing-your-calendars.html"
+    },
+    {
+      "path": "Content/groupware/calendar-proposals.htm",
+      "title": "Proposals",
+      "source": "groupware/calendar-proposals.html"
+    },
+    {
+      "path": "Content/groupware/calendar-responding-to-invitations.htm",
+      "title": "Responding to invitations",
+      "source": "groupware/calendar-responding-to-invitations.html"
+    },
+    {
+      "path": "Content/groupware/calendar.htm",
+      "title": "Using the Calendar app",
+      "source": "groupware/calendar.html"
+    },
+    {
+      "path": "Content/groupware/contacts-adding-and-managing-address-books.htm",
+      "title": "Adding and Managing Address Books",
+      "source": "groupware/contacts-adding-and-managing-address-books.html"
+    },
+    {
+      "path": "Content/groupware/contacts-adding-contacts.htm",
+      "title": "Adding Contacts",
+      "source": "groupware/contacts-adding-contacts.html"
+    },
+    {
+      "path": "Content/groupware/contacts-managing-multiple-contacts-at-a-time.htm",
+      "title": "Managing multiple Contacts at a time",
+      "source": "groupware/contacts-managing-multiple-contacts-at-a-time.html"
+    },
+    {
+      "path": "Content/groupware/contacts-mark-contacts-as-favorite.htm",
+      "title": "Mark contacts as favorite",
+      "source": "groupware/contacts-mark-contacts-as-favorite.html"
+    },
+    {
+      "path": "Content/groupware/contacts-organize-your-contacts-with-contact-groups.htm",
+      "title": "Organize your Contacts with Contact Groups",
+      "source": "groupware/contacts-organize-your-contacts-with-contact-groups.html"
+    },
+    {
+      "path": "Content/groupware/contacts-teams.htm",
+      "title": "Teams",
+      "source": "groupware/contacts-teams.html"
+    },
+    {
+      "path": "Content/groupware/contacts.htm",
+      "title": "Using the Contacts app",
+      "source": "groupware/contacts.html"
+    },
+    {
+      "path": "Content/groupware/mail-calendar-integration.htm",
+      "title": "Calendar integration",
+      "source": "groupware/mail-calendar-integration.html"
+    },
+    {
+      "path": "Content/groupware/mail-compose-messages.htm",
+      "title": "Compose messages",
+      "source": "groupware/mail-compose-messages.html"
+    },
+    {
+      "path": "Content/groupware/mail-dashboard-integration.htm",
+      "title": "Dashboard integration",
+      "source": "groupware/mail-dashboard-integration.html"
+    },
+    {
+      "path": "Content/groupware/mail-envelope-actions.htm",
+      "title": "Envelope actions",
+      "source": "groupware/mail-envelope-actions.html"
+    },
+    {
+      "path": "Content/groupware/mail-filtering-and-autoresponder.htm",
+      "title": "Filtering and autoresponder",
+      "source": "groupware/mail-filtering-and-autoresponder.html"
+    },
+    {
+      "path": "Content/groupware/mail-folder-actions.htm",
+      "title": "Folder actions",
+      "source": "groupware/mail-folder-actions.html"
+    },
+    {
+      "path": "Content/groupware/mail-follow-up-reminders.htm",
+      "title": "Follow-up reminders",
+      "source": "groupware/mail-follow-up-reminders.html"
+    },
+    {
+      "path": "Content/groupware/mail-keyboard-shortcuts.htm",
+      "title": "Keyboard shortcuts",
+      "source": "groupware/mail-keyboard-shortcuts.html"
+    },
+    {
+      "path": "Content/groupware/mail-managing-your-mail-account.htm",
+      "title": "Managing your mail account",
+      "source": "groupware/mail-managing-your-mail-account.html"
+    },
+    {
+      "path": "Content/groupware/mail-mention-contacts.htm",
+      "title": "Mention contacts",
+      "source": "groupware/mail-mention-contacts.html"
+    },
+    {
+      "path": "Content/groupware/mail-message-actions.htm",
+      "title": "Message actions",
+      "source": "groupware/mail-message-actions.html"
+    },
+    {
+      "path": "Content/groupware/mail-outbox.htm",
+      "title": "Outbox",
+      "source": "groupware/mail-outbox.html"
+    },
+    {
+      "path": "Content/groupware/mail-quick-actions.htm",
+      "title": "Quick actions",
+      "source": "groupware/mail-quick-actions.html"
+    },
+    {
+      "path": "Content/groupware/mail-recipient-info-on-composer.htm",
+      "title": "Recipient info on composer",
+      "source": "groupware/mail-recipient-info-on-composer.html"
+    },
+    {
+      "path": "Content/groupware/mail-security.htm",
+      "title": "Security",
+      "source": "groupware/mail-security.html"
+    },
+    {
+      "path": "Content/groupware/mail-text-blocks.htm",
+      "title": "Text blocks",
+      "source": "groupware/mail-text-blocks.html"
+    },
+    {
+      "path": "Content/groupware/mail-thread-summary.htm",
+      "title": "Thread summary",
+      "source": "groupware/mail-thread-summary.html"
+    },
+    {
+      "path": "Content/groupware/mail.htm",
+      "title": "Using the Mail app",
+      "source": "groupware/mail.html"
+    },
+    {
+      "path": "Content/groupware/overview.htm",
+      "title": "Groupware",
+      "source": "groupware/overview.html"
+    },
+    {
+      "path": "Content/groupware/sync-android-contacts-and-calendar.htm",
+      "title": "Contacts and Calendar",
+      "source": "groupware/sync-android-contacts-and-calendar.html"
+    },
+    {
+      "path": "Content/groupware/sync-android-files-and-notifications.htm",
+      "title": "Files and notifications",
+      "source": "groupware/sync-android-files-and-notifications.html"
+    },
+    {
+      "path": "Content/groupware/sync-android.htm",
+      "title": "Synchronizing with Android",
+      "source": "groupware/sync-android.html"
+    },
+    {
+      "path": "Content/groupware/sync-ios.htm",
+      "title": "Synchronizing with iOS",
+      "source": "groupware/sync-ios.html"
+    },
+    {
+      "path": "Content/groupware/sync-osx.htm",
+      "title": "Synchronizing with macOS",
+      "source": "groupware/sync-osx.html"
+    },
+    {
+      "path": "Content/groupware/sync-windows10.htm",
+      "title": "Synchronizing with Windows 10",
+      "source": "groupware/sync-windows10.html"
+    },
+    {
+      "path": "Content/groupware/user-migration.htm",
+      "title": "Migrate data between instances",
+      "source": "groupware/user-migration.html"
+    },
+    {
+      "path": "Content/talk/appearance.htm",
+      "title": "Appearance",
+      "source": "talk/appearance.html"
+    },
+    {
+      "path": "Content/talk/attachments.htm",
+      "title": "Attachments",
+      "source": "talk/attachments.html"
+    },
+    {
+      "path": "Content/talk/bots.htm",
+      "title": "Bots and commands",
+      "source": "talk/bots.html"
+    },
+    {
+      "path": "Content/talk/breakout-rooms.htm",
+      "title": "Breakout rooms",
+      "source": "talk/breakout-rooms.html"
+    },
+    {
+      "path": "Content/talk/calendar-integration.htm",
+      "title": "Calendar integration with Talk",
+      "source": "talk/calendar-integration.html"
+    },
+    {
+      "path": "Content/talk/call-during-a-call.htm",
+      "title": "During a call",
+      "source": "talk/call-during-a-call.html"
+    },
+    {
+      "path": "Content/talk/call-from-anywhere.htm",
+      "title": "Call from anywhere",
+      "source": "talk/call-from-anywhere.html"
+    },
+    {
+      "path": "Content/talk/call-index.htm",
+      "title": "Calls",
+      "source": "talk/call-index.html"
+    },
+    {
+      "path": "Content/talk/call-recording.htm",
+      "title": "Call recording",
+      "source": "talk/call-recording.html"
+    },
+    {
+      "path": "Content/talk/call-screenshare.htm",
+      "title": "Screen sharing",
+      "source": "talk/call-screenshare.html"
+    },
+    {
+      "path": "Content/talk/call-starting-or-joining-a-call.htm",
+      "title": "Starting or joining a call",
+      "source": "talk/call-starting-or-joining-a-call.html"
+    },
+    {
+      "path": "Content/talk/call-transcription.htm",
+      "title": "Transcription and translation",
+      "source": "talk/call-transcription.html"
+    },
+    {
+      "path": "Content/talk/call-views.htm",
+      "title": "Call layout",
+      "source": "talk/call-views.html"
+    },
+    {
+      "path": "Content/talk/call.htm",
+      "title": "Joining a call",
+      "source": "talk/call.html"
+    },
+    {
+      "path": "Content/talk/chat-index.htm",
+      "title": "Chat",
+      "source": "talk/chat-index.html"
+    },
+    {
+      "path": "Content/talk/chat.htm",
+      "title": "Sending messages",
+      "source": "talk/chat.html"
+    },
+    {
+      "path": "Content/talk/conversation-index.htm",
+      "title": "Conversations",
+      "source": "talk/conversation-index.html"
+    },
+    {
+      "path": "Content/talk/conversation-organization.htm",
+      "title": "Organizing conversations",
+      "source": "talk/conversation-organization.html"
+    },
+    {
+      "path": "Content/talk/conversation-presets.htm",
+      "title": "Conversation presets",
+      "source": "talk/conversation-presets.html"
+    },
+    {
+      "path": "Content/talk/conversations-1-private-one-to-one-conversations.htm",
+      "title": "1. Private (one-to-one) conversations",
+      "source": "talk/conversations-1-private-one-to-one-conversations.html"
+    },
+    {
+      "path": "Content/talk/conversations-2-group-conversations.htm",
+      "title": "2. Group conversations",
+      "source": "talk/conversations-2-group-conversations.html"
+    },
+    {
+      "path": "Content/talk/conversations-3-note-to-self.htm",
+      "title": "3. Note to self",
+      "source": "talk/conversations-3-note-to-self.html"
+    },
+    {
+      "path": "Content/talk/conversations-4-disposable-conversations.htm",
+      "title": "4. Disposable conversations",
+      "source": "talk/conversations-4-disposable-conversations.html"
+    },
+    {
+      "path": "Content/talk/conversations.htm",
+      "title": "Conversations",
+      "source": "talk/conversations.html"
+    },
+    {
+      "path": "Content/talk/federation-index.htm",
+      "title": "Federation",
+      "source": "talk/federation-index.html"
+    },
+    {
+      "path": "Content/talk/files-integration.htm",
+      "title": "Files integration",
+      "source": "talk/files-integration.html"
+    },
+    {
+      "path": "Content/talk/guest.htm",
+      "title": "Join a call or chat as guest",
+      "source": "talk/guest.html"
+    },
+    {
+      "path": "Content/talk/integrations-index.htm",
+      "title": "Integrations",
+      "source": "talk/integrations-index.html"
+    },
+    {
+      "path": "Content/talk/message-integrations.htm",
+      "title": "Apps integrating with messages",
+      "source": "talk/message-integrations.html"
+    },
+    {
+      "path": "Content/talk/messages-editing-messages.htm",
+      "title": "Editing messages",
+      "source": "talk/messages-editing-messages.html"
+    },
+    {
+      "path": "Content/talk/messages-message-reactions.htm",
+      "title": "Message reactions",
+      "source": "talk/messages-message-reactions.html"
+    },
+    {
+      "path": "Content/talk/messages-messages-search-in-a-conversation.htm",
+      "title": "Messages search in a conversation",
+      "source": "talk/messages-messages-search-in-a-conversation.html"
+    },
+    {
+      "path": "Content/talk/messages-pinning-messages.htm",
+      "title": "Pinning messages",
+      "source": "talk/messages-pinning-messages.html"
+    },
+    {
+      "path": "Content/talk/messages-private-replies.htm",
+      "title": "Private replies",
+      "source": "talk/messages-private-replies.html"
+    },
+    {
+      "path": "Content/talk/messages-setting-reminder-on-messages.htm",
+      "title": "Setting reminder on messages",
+      "source": "talk/messages-setting-reminder-on-messages.html"
+    },
+    {
+      "path": "Content/talk/messages-threaded-messages.htm",
+      "title": "Threaded messages",
+      "source": "talk/messages-threaded-messages.html"
+    },
+    {
+      "path": "Content/talk/messages.htm",
+      "title": "Interacting with messages",
+      "source": "talk/messages.html"
+    },
+    {
+      "path": "Content/talk/moderator-index.htm",
+      "title": "For moderators",
+      "source": "talk/moderator-index.html"
+    },
+    {
+      "path": "Content/talk/open-conversations.htm",
+      "title": "Open conversations",
+      "source": "talk/open-conversations.html"
+    },
+    {
+      "path": "Content/talk/overview.htm",
+      "title": "Talk",
+      "source": "talk/overview.html"
+    },
+    {
+      "path": "Content/talk/webinar.htm",
+      "title": "Webinar and lobby",
+      "source": "talk/webinar.html"
+    }
+  ],
+  "variables": {
+    "General.CompanyName": "Acme Software",
+    "General.ProductName": "Acme Hub"
+  },
+  "snippets": [
+    "Content/Resources/Snippets/please-note-that-the.flsnp",
+    "Content/Resources/Snippets/restart-the-desktop-client.flsnp",
+    "Content/Resources/Snippets/the-sharing-options-you.flsnp",
+    "Content/Resources/Snippets/need-more-help-ask.flsnp",
+    "Content/Resources/Snippets/print-this-page-is.flsnp",
+    "Content/Resources/Snippets/screen-select-the-video.flsnp"
+  ],
+  "altDropped": [
+    "Content/files/encrypting-files-sharing-encrypted-files.htm|Content/Resources/Images/encryption3.png",
+    "Content/files/encrypting-files-using-encryption.htm|Content/Resources/Images/encryption1.png",
+    "Content/files/encrypting-files-using-encryption.htm|Content/Resources/Images/encryption2.png",
+    "Content/files/federated-cloud-sharing.htm|Content/Resources/Images/direct-share-1.png",
+    "Content/files/federated-cloud-sharing.htm|Content/Resources/Images/create-public-share-6.png",
+    "Content/files/federated-cloud-sharing.htm|Content/Resources/Images/create-public-share-8.png",
+    "Content/files/federated-cloud-sharing.htm|Content/Resources/Images/create-public-share-9.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-new.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-config-basics.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-config-calendar-settings.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-config-booking-hours.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-config-limits.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-config-options.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-booking-1.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-booking-2.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-booking-3.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-booking-confirmation-email.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-booking-confirmation-dialogue.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-booking-email-2.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-calendar-event.png",
+    "Content/groupware/calendar-appointments.htm|Content/Resources/Images/appointment-calendar-prep.png",
+    "Content/groupware/calendar-availability-working-hours.htm|Content/Resources/Images/caldav-availability.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-new-event-week.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-new-event-month.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/add-talk-room.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-event-menu.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-event-menu-modal.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-event-invitation-level.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-free-busy-modal.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/room-availability.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-adding-attachments.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-attachments-location.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-event-reminders.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-event-repeat.png",
+    "Content/groupware/calendar-managing-events.htm|Content/Resources/Images/calendar-trash-bin.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-create-1.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-create-2.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-importing.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-dropdown.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-settings.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-transparency.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-sharing-1.png",
+    "Content/groupware/calendar-managing-your-calendars.htm|Content/Resources/Images/calendar-sharing-2.png",
+    "Content/groupware/calendar-proposals.htm|Content/Resources/Images/calendar-proposal-list.png",
+    "Content/groupware/calendar-proposals.htm|Content/Resources/Images/calendar-proposal-create.png",
+    "Content/groupware/calendar-proposals.htm|Content/Resources/Images/calendar-proposal-view.png",
+    "Content/groupware/calendar-proposals.htm|Content/Resources/Images/calendar-proposal-respond.png",
+    "Content/groupware/calendar-responding-to-invitations.htm|Content/Resources/Images/calendar-accept-simple-editor.png",
+    "Content/groupware/calendar-responding-to-invitations.htm|Content/Resources/Images/calendar-accept-advanced-editor.png",
+    "Content/groupware/calendar.htm|Content/Resources/Images/calendar-application.png",
+    "Content/groupware/contacts-adding-contacts.htm|Content/Resources/Images/contacts-empty.png",
+    "Content/groupware/contacts-adding-contacts.htm|Content/Resources/Images/contact-new.png",
+    "Content/groupware/contacts-adding-contacts.htm|Content/Resources/Images/contact-view-mode.png",
+    "Content/groupware/contacts-adding-contacts.htm|Content/Resources/Images/contact-picture-options.png",
+    "Content/groupware/contacts-mark-contacts-as-favorite.htm|Content/Resources/Images/mark-favorite.png",
+    "Content/groupware/contacts-teams.htm|Content/Resources/Images/shared-items.png",
+    "Content/groupware/mail-compose-messages.htm|Content/Resources/Images/mail-minimize-composer.png",
+    "Content/groupware/mail-compose-messages.htm|Content/Resources/Images/mail-composer-indicator.png",
+    "Content/groupware/mail-envelope-actions.htm|Content/Resources/Images/change-tag-color.png",
+    "Content/groupware/mail-envelope-actions.htm|Content/Resources/Images/delete-tag.png",
+    "Content/groupware/mail-filtering-and-autoresponder.htm|Content/Resources/Images/mail-create-filter-from-message.png",
+    "Content/groupware/mail-folder-actions.htm|Content/Resources/Images/shared-mailbox-icon.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/mail-layout.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/use-compact-mode.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/mail-display-mode.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/new-mail-account.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/scheduled-msg.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/priority-inbox.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/mail-move-message-to-junk-folder.png",
+    "Content/groupware/mail-managing-your-mail-account.htm|Content/Resources/Images/mail-trash-retention-settings.png",
+    "Content/groupware/mail.htm|Content/Resources/Images/mail.png",
+    "Content/groupware/sync-osx.htm|Content/Resources/Images/macos-1.png",
+    "Content/groupware/sync-osx.htm|Content/Resources/Images/macos-2.png",
+    "Content/groupware/sync-osx.htm|Content/Resources/Images/macos-3.png",
+    "Content/groupware/sync-osx.htm|Content/Resources/Images/macos-4.png",
+    "Content/groupware/sync-osx.htm|Content/Resources/Images/macos-5.png",
+    "Content/groupware/sync-osx.htm|Content/Resources/Images/macos-6.png"
+  ],
+  "warnings": []
+}

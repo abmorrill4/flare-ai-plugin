@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Contacts and Calendar</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Contacts and Calendar</h1>
+        <h2>With the <MadCap:variable name="General.ProductName" /> mobile app</h2>
+        <ol>
+            <li><p>Install <a href="https://example.com/download/">a sync app (formerly known as DAVDroid)</a> on your Android device, <a href="https://example.com/store/apps/details?id=at.bitfire.davdroid">from a web provider app store</a> or <a href="https://example.com/packages/at.bitfire.davdroid/">from an app repository</a>.</p></li>
+            <li><p>In the <MadCap:variable name="General.ProductName" /> mobile, go to <b>Settings</b>/<b>More</b>, tap on "<b>Sync calendars &amp; contacts</b>".</p></li>
+            <li><p>Now, a sync app will open <MadCap:variable name="General.ProductName" />'s Webflow login window, where you will have to enter your credentials and grant access.</p></li>
+            <li><p>a sync app will open and ask you to create an account. Set the account name to one of your choosing, and set <b>Contact group method</b> to <b>Groups are per-contact categories</b>.</p></li>
+            <li><p>After this, a sync app will close and the <MadCap:variable name="General.ProductName" /> app reappears. In order to finish setup, you have to manually launch a sync app again.</p></li>
+            <li><p>Tap on the icon for the account a sync app has just created, when requested grant a sync app access to your calendars and contacts.</p></li>
+            <li><p>When you tap the icon for the account a sync app has set up, it will discover the available address books and calendars. Choose which ones you want to synchronize and finish.</p></li>
+        </ol>
+        <h2>Without the <MadCap:variable name="General.ProductName" /> mobile app</h2>
+        <p>If you do not want to install the <MadCap:variable name="General.ProductName" /> mobile app, the following steps are required:</p>
+        <ol>
+            <li><p>Install <a href="https://example.com/download/">a sync app (formerly known as DAVDroid)</a> on your Android device, <a href="https://example.com/store/apps/details?id=at.bitfire.davdroid">from a web provider app store</a> or <a href="https://example.com/packages/at.bitfire.davdroid/">from an app repository</a>.</p></li>
+            <li><p>Optionally install OpenTasks (<a href="https://example.com/store/apps/details?id=org.dmfs.tasks">a web provider app store</a> or <a href="https://example.com/packages/org.dmfs.tasks/">an app repository</a>).</p></li>
+            <li><p>Create a new account ("+" button).</p></li>
+            <li><p>Select <b>Connection with URL and username</b> and complete the form. <b>Base URL</b> is the URL of your <MadCap:variable name="General.ProductName" /> instance (e.g. https://sub.example.com/remote.php/dav), <b>Username</b> is your <MadCap:variable name="General.ProductName" /> username, and for <b>Password</b> use a <MadCap:xref href="../general/session-management.htm">dedicated App password</MadCap:xref> instead of your account password.</p></li>
+            <li><p>Click <b>Register</b>.</p></li>
+            <li><p>In <b>Contact group method</b>, choose the option Groups are per-contact categories; then select <b>Create Account</b>.</p></li>
+            <li><p>Select the data you want to sync.</p></li>
+            <li><p>When requested, grant access permissions to a sync app for your contacts, calendars and optionally tasks.</p></li>
+        </ol>
+        <p class="note">Enter your email address as a sync app account name (mandatory if you want to be able to send calendar invitation). If your email address is registered in your <MadCap:variable name="General.ProductName" /> preferences and you have set up your account using the <MadCap:variable name="General.ProductName" /> mobile app, this all should be already the case.</p>
+        <p class="note">Utilizing user name and password will not work if 2-Factor-Authentication is enabled and will throw a generic "Unknown resource" error. Use a <MadCap:xref href="../general/session-management.htm">dedicated App password</MadCap:xref> instead. If you enabled 2FA after already configuring a sync app update your a sync app account to replace your login password with an app password.</p>
+        <p class="tip">a sync app lists the calendar subscriptions made through the <MadCap:variable name="General.ProductName" /> Calendar app, but you need to install the <a href="https://example.com/">ICSx⁵ (formerly known as ICSDroid)</a> app on your Android device, <a href="https://example.com/store/apps/details?id=at.bitfire.icsdroid">from the a web provider app store</a> or <a href="https://example.com/packages/at.bitfire.icsdroid/">from an app repository</a> to sync them.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

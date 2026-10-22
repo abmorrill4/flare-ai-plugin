@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get data export consent state</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get data export consent state</h1>
+        <p><code>GET /export/realm/consents</code></p>
+        <p>Fetches which users have consented for their private data to be exported by organization administrators.</p>
+        <p><b>Changes</b>: Changes in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 430). Added an integer field <code>email_address_visibility</code> to the objects in the <code>export_consents</code> array.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 295).</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get the consents of users for their private data exports.
+result = client.call_endpoint(url="/export/realm/consents", method="GET")</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get data export consent state
+curl -sS -X GET https://chat.example.com/api/v1/export/realm/consents \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>export_consents</code></td>
+                    <td>array of objects</td>
+                    <td>An array of objects where each object contains a user ID, whether the user has consented for their private data to be exported, and their email visibility policy.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

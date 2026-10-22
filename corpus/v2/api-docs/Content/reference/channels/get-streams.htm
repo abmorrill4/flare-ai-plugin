@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get all channels</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get all channels</h1>
+        <p><code>GET /streams</code></p>
+        <p>Get all channels that the user has access to.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get all channels that the user has access to.
+result = client.get_streams()</pre>
+        <pre class="language-python"># You may pass in one or more of the query parameters mentioned above
+# as keyword arguments, like so:
+result = client.get_streams(include_public=False)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Get all channels that the user has access to
+console.log(await client.streams.retrieve());</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get all channels
+curl -sS -X GET https://chat.example.com/api/v1/streams \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'include_public=false' \
+    --data-urlencode 'include_web_public=true' \
+    --data-urlencode 'include_subscribed=false' \
+    --data-urlencode 'exclude_archived=true'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>include_public</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include all public channels.</td>
+                </tr>
+                <tr>
+                    <td><code>include_web_public</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include all web-public channels.</td>
+                </tr>
+                <tr>
+                    <td><code>include_subscribed</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include all channels that the user is subscribed to.</td>
+                </tr>
+                <tr>
+                    <td><code>exclude_archived</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether to exclude archived streams from the results.</td>
+                </tr>
+                <tr>
+                    <td><code>include_all_active</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Deprecated parameter to include all channels. The user must have administrative privileges to use this parameter.</td>
+                </tr>
+                <tr>
+                    <td><code>include_all</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include all channels that the user has metadata access to.</td>
+                </tr>
+                <tr>
+                    <td><code>include_default</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include all default channels for the user's realm.</td>
+                </tr>
+                <tr>
+                    <td><code>include_owner_subscribed</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>If the user is a bot, include all channels that the bot's owner is subscribed to.</td>
+                </tr>
+                <tr>
+                    <td><code>include_can_access_content</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include all the channels that the user has content access to.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>exclude_archived</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 315).</p>
+        <h4><code>include_all_active</code></h4>
+        <p><b>Changes</b>: Deprecated in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 356). Clients interacting with newer servers should use the equivalent <code>include_all</code> parameter, which does not incorrectly hint that this parameter, and not <code>exclude_archived</code>, controls whether archived channels appear in the response.</p>
+        <h4><code>include_all</code></h4>
+        <p>For organization administrators, this will be all channels in the organization, since organization administrators implicitly have metadata access to all channels.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 356). On older versions, use <code>include_all_active</code>, which this replaces.</p>
+        <h4><code>include_can_access_content</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 356).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>streams</code></td>
+                    <td>array of objects</td>
+                    <td>A list of channel objects with details on the requested channels.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

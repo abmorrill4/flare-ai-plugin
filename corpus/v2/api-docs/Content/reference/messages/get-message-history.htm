@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get a message's edit history</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get a message's edit history</h1>
+        <p><code>GET /messages/{message_id}/history</code></p>
+        <p>Fetch the message edit history of a previously edited message.</p>
+        <p>Note that edit history may be disabled in some organizations; see the <MadCap:variable name="General.ProductName" /> help center documentation on editing messages.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get the edit history for a message, given the message's ID.
+result = client.get_message_history(message_id)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get a message's edit history
+curl -sS -X GET https://chat.example.com/api/v1/messages/43/history \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The target message's ID.</td>
+                </tr>
+                <tr>
+                    <td><code>allow_empty_topic_name</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the topic names i.e. <code>topic</code> and <code>prev_topic</code> fields in the <code>message_history</code> objects returned can be empty string.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>allow_empty_topic_name</code></h4>
+        <p>If <code>false</code>, the value of <code>realm_empty_topic_display_name</code> found in the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response is returned replacing the empty string as the topic name.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 334).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_history</code></td>
+                    <td>array of objects</td>
+                    <td>A chronologically sorted, oldest to newest, array of <code>snapshot</code> objects, each one with the values of the message after the edit.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "msg": "Invalid message(s)",
+  "code": "BAD_REQUEST",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

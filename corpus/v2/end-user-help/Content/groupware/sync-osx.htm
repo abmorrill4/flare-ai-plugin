@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Synchronizing with macOS</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Synchronizing with macOS</h1>
+        <h2>Setup your Accounts</h2>
+        <p>In the following steps you will add <span class="uicontrol">CalDAV</span> (Calendar) and <span class="uicontrol">CardDAV</span> (Contacts) to your macOS integrated Calendar and Contacts applications. At the time of writing this guide, macOS is at version 26.3.1.</p>
+        <ol>
+            <li><p>Click on the <b>a vendor</b> menu and select <span class="uicontrol">System Settings...</span> from the dropdown menu.</p></li>
+        </ol>
+        <p> <img src="../Resources/Images/macos-1.png" /> </p>
+        <ol>
+            <li><p>Navigate to <span class="uicontrol">Internet Accounts</span>:</p></li>
+        </ol>
+        <p> <img src="../Resources/Images/macos-2.png" /> </p>
+        <ol>
+            <li><p>Click on the small blue <b>choose from a list.</b></p></li>
+        </ol>
+        <p> <img src="../Resources/Images/macos-3.png" /> </p>
+        <ol>
+            <li><p>Click on <b>add Other Account...</b></p></li>
+        </ol>
+        <p> <img src="../Resources/Images/macos-4.png" /> </p>
+        <ol>
+            <li><p>Select <span class="uicontrol">CalDAV Account</span> for calendar and <span class="uicontrol">CardDAV Account</span> for contacts.</p></li>
+        </ol>
+        <p> <img src="../Resources/Images/macos-5.png" /> </p>
+        <p class="note">You can not setup Calendar/Contacts together. You need to setup them <b>separately</b>. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <ol>
+            <li><p>Select <span class="uicontrol">Manual</span> as Account Type and type in your respective credentials:</p> <p><span class="uicontrol">Username</span>: Your <MadCap:variable name="General.ProductName" /> username or email</p> <p><span class="uicontrol">Password</span>: Either your password or if you use 2FA your generated app-password/token (<MadCap:xref href="../general/session-management.htm">Learn more</MadCap:xref>).</p> <p><span class="uicontrol">Server Address</span>: URL of your <MadCap:variable name="General.ProductName" /> server (e.g. https://docs.example.com)</p></li>
+        </ol>
+        <p> <img src="../Resources/Images/macos-6.png" /> </p>
+        <ol>
+            <li><p>Click on <span class="uicontrol">Sign In</span>.</p></li>
+        </ol>
+        <h2>Troubleshooting</h2>
+        <ul>
+            <li><p>macOS does <b>not</b> support syncing <MadCap:glossaryTerm>CalDAV</MadCap:glossaryTerm>/CardDAV over non-encrypted http:// connections. Make sure you have https:// enabled and configured on server- and client-side.</p></li>
+            <li><p><span class="uicontrol">Self-signed certificates</span> need to be properly set up in the macOS keychain.</p></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

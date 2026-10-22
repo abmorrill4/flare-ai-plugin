@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Acme Relay URLs</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1><MadCap:variable name="General.ProductName" /> URLs</h1>
+        <p>This page details how to properly construct and parse the URLs that the <MadCap:variable name="General.ProductName" /> web app uses for various types of views.</p>
+        <p>Because other clients needs to be able to resolve and process these links in order to implement equivalent behavior that navigates directly in say the mobile apps, it's important to have a clear specification of exactly how these URLs work.</p>
+        <p>Essentially all of the data is encoded in the URL fragment (<code>#</code>) part of a URL; the protocol, host and path will just be the canonical URL for the <MadCap:variable name="General.ProductName" /> server (In these examples, <code>https://example.com/</code>).</p>
+        <h2>Message feed views</h2>
+        <p>Most links in <MadCap:variable name="General.ProductName" /> are to message feed views, and for that reason these have the most developed syntax and legacy behavior.</p>
+        <p>Message feed URLs always start with <code>#narrow/</code>, follow by one or more <MadCap:xref href="construct-a-narrow.htm">search operator/operand pairs</MadCap:xref>, separated by <code>/</code>s. The operator may be negated by putting a <code>-</code> at the start of it. For example:</p>
+        <p><code>https://example.com/#narrow/is/starred/sender/17/-channel/14</code></p>
+        <p>is the feed of starred messages sent by user ID to everywhere but channel 14. The search documentation covers the valid operators and their meaning.</p>
+        <p>See also the relevant <MadCap:xref href="message-formatting.htm">message formatting documentation</MadCap:xref> for details on Markdown representations of Acme Relay-internal links that will be translated into HTML containing links that use these URLs.</p>
+        <p>Here, we describe some special encoding rules.</p>
+        <h3>Operand encoding and decoding</h3>
+        <p>Strings in operands are URL-encoded, and then additional substitution rules are applied to avoid over-zealous browser handling of certain characters in the URL fragment:</p>
+        <ul>
+            <li><code>%</code> =&gt; <code>.</code></li>
+            <li><code>(</code> =&gt; <code>.28</code></li>
+            <li><code>)</code> =&gt; <code>.29</code></li>
+            <li><code>.</code> =&gt; <code>.2E</code></li>
+        </ul>
+        <p>They can decoded by applying the reverse transformation: Replace all <code>.</code> characters with <code>%</code>, and then do standard URL-decoding.</p>
+        <h3>Encoding channels</h3>
+        <p>Channel operands must be encoded in one of the two modern fully supported formats:</p>
+        <ul>
+            <li><code>42</code>: Just the ID of the channel. Clients should simply parse the channel ID to look up the channel, which is of course not guaranteed to be accessible to the acting user or even exist.</li>
+            <li><code>42-channel-name</code>. The ID of the channel, with a human-readable hint of the channel name. Clients generating <MadCap:variable name="General.ProductName" /> URLs are recommended to include channel name hints where there is a readable URL-encoding of the channel name, but to skip doing so for channel names written in non-ascii languages or where otherwise the slug would not make the URL nicer for humans. Clients must parse this format by discarding everything after the <code>-</code> and treating it identically to the simpler integer-only format. Note that means nothing enforces that the string have anything to do with the channel name; functionally, it just an optional hint.</li>
+        </ul>
+        <p>These two formats allow <MadCap:variable name="General.ProductName" /> URLs to stably refer to a specific channel, even though channels can be renamed, while still allowing the URLs to have user-friendly name hints most of the time.</p>
+        <p>There is an additional legacy format that was utilized prior to 2018 that clients are required to support:</p>
+        <ul>
+            <li><code>channel-name</code>: Legacy format of just the channel name, URL-encoded and with spaces replaced with dashes. The legacy format should never take precedence over the modern format, so a link with <code>2016-election</code> as the slug must be parsed as the channel with ID 2016, even if theoretically it could have been originally intended as referring to a channel named <code>2016 election</code>.</li>
+        </ul>
+        <p>Clients are not recommended to ever generate this legacy format.</p>
+        <h2>relay:// links for mobile login</h2>
+        <p><MadCap:variable name="General.ProductName" />'s single-sign on login process for the mobile app ends with a redirect to <code>relay://login</code> with the following query parameters:</p>
+        <ul>
+            <li><code>email</code>: The email address for the authenticated account.</li>
+            <li><code>otp_encrypted_api_key</code>: The API key for the client, encrypted using the <code>mobile_flow_otp</code> that the client provided when initiating the login attempt.</li>
+            <li><code>realm</code>: The full URL of the <MadCap:variable name="General.ProductName" /> organization.</li>
+            <li><code>user_id</code>: The <MadCap:variable name="General.ProductName" /> user ID for the authenticated account.</li>
+        </ul>
+        <p><b>Changes</b>: The <code>user_id</code> field was added to the set of included query parameters in <MadCap:variable name="General.ProductName" /> 5.0 (feature level 128).</p>
+        <h2>Related articles</h2>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting API</MadCap:xref></li>
+            <li><MadCap:xref href="construct-a-narrow.htm">Construct a narrow</MadCap:xref> for search.</li>
+            <li>Markdown formatting help</li>
+            <li><MadCap:xref href="../reference/messages/send-message.htm">Send a message</MadCap:xref></li>
+        </ul>
+    </body>
+</html>

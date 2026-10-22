@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code REACTION_ALREADY_EXISTS</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code REACTION_ALREADY_EXISTS</h1>
+        <p>The <code>REACTION_ALREADY_EXISTS</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>An example JSON error response for when the reaction already exists. <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 8.0 (feature level 193). Previously, this error returned the <code>"BAD_REQUEST"</code> code.</p>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Reaction already exists.",
+  "code": "REACTION_ALREADY_EXISTS"
+}</pre>
+        <h2>Where it <b>will appear</b></h2>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/add-reaction.htm">Add an emoji reaction</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

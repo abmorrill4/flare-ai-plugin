@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Accessing files using a file transfer tool</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Accessing files using a file transfer tool</h1>
+        <p><a href="https://example.com/eng/docs/introduction/">a file transfer tool</a> is a free, open-source SFTP, FTP, <MadCap:glossaryTerm>WebDAV</MadCap:glossaryTerm>, object storage, and SCP client for Windows. Its main function is file transfer between a local and a remote computer. a file transfer tool also offers scripting and basic file management functionality.</p>
+        <p>You can <a href="https://example.com/eng/downloads.php/">download</a> the portable version of a file transfer tool and run it on Linux through <a href="https://example.com/Main_Page/">a compatibility layer</a>.</p>
+        <p>To run a file transfer tool on Linux, install a compatibility layer through your distribution's package manager, then run: wine a file transfer tool.exe.</p>
+        <p>To connect to <MadCap:variable name="General.ProductName" />:</p>
+        <ul>
+            <li><p>Start a file transfer tool</p></li>
+            <li><p>Press 'Session' in the menu</p></li>
+            <li><p>Press the 'New Session' menu option</p></li>
+            <li><p>Set the 'File protocol' dropdown to WebDAV</p></li>
+            <li><p>Set the 'Encryption' dropdown to TLS/<MadCap:glossaryTerm>SSL</MadCap:glossaryTerm> Implicit encryption</p></li>
+            <li><p>Fill in the hostname field: example.com</p></li>
+            <li><p>Fill in the username field: NEXTCLOUDUSERNAME</p></li>
+            <li><p>Fill in the password field: NEXTCLOUDPASSWORD</p></li>
+            <li><p>Simply press the 'Advanced...' button</p></li>
+            <li><p>Navigate to 'Environment', 'Directories' on the left side</p></li>
+            <li><p>Fill in the 'Remote directory' field with the following: /acmehub/remote.php/dav/files/NEXTCLOUDUSERNAME/</p></li>
+            <li><p>Press the 'OK' button</p></li>
+            <li><p>Press the 'Save' button</p></li>
+            <li><p>Select the desired options and press the 'OK' button</p></li>
+            <li><p>Press the 'Login' button to connect to <MadCap:variable name="General.ProductName" /></p></li>
+        </ul>
+        <p class="note">If you use <MadCap:glossaryTerm>TOTP</MadCap:glossaryTerm>, use an app password. At the time of writing (2022-11-07), a file transfer tool does not support TOTP with <MadCap:variable name="General.ProductName" />.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

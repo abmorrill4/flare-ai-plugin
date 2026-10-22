@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Add a navigation view</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Add a navigation view</h1>
+        <p><code>POST /navigation_views</code></p>
+        <p>Adds a new custom left sidebar navigation view configuration for the current user.</p>
+        <p>This can be used both to configure built-in navigation views, or to add new navigation views.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 390).</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Add a navigation view
+request = {
+    "fragment": "narrow/is/alerted",
+    "is_pinned": True,
+    "name": "Alert Word",
+}
+result = client.call_endpoint(
+    url="navigation_views",
+    method="POST",
+    request=request,
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Add a navigation view
+curl -sS -X POST https://chat.example.com/api/v1/navigation_views \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode fragment=narrow/is/alerted \
+    --data-urlencode 'is_pinned=true'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>fragment</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>A unique identifier for the view, used to determine navigation behavior when clicked.</td>
+                </tr>
+                <tr>
+                    <td><code>is_pinned</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>Yes</td>
+                    <td>Determines whether the view appears directly in the sidebar or is hidden in the "More Views" menu.</td>
+                </tr>
+                <tr>
+                    <td><code>name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The user-facing name for custom navigation views. Omit this field for built-in views.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>fragment</code></h4>
+        <p>Clients should use this value to navigate to the corresponding URL hash.</p>
+        <h4><code>is_pinned</code></h4>
+        <ul>
+            <li><code>true</code> - Pinned and visible in the sidebar.</li>
+            <li><code>false</code> - Hidden and accessible via the "More Views" menu.</li>
+        </ul>
+        <h2>Response</h2>
+        <p>Request succeeded.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+    </body>
+</html>

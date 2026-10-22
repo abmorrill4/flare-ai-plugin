@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Update a channel</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Update a channel</h1>
+        <p><code>PATCH /streams/{stream_id}</code></p>
+        <p>Configure the channel with the ID <code>stream_id</code>. This endpoint supports an organization administrator editing any property of a channel, including:</p>
+        <ul>
+            <li>Channel name and description</li>
+            <li>Channel permissions, including privacy and who can send.</li>
+        </ul>
+        <p>Note that an organization administrator's ability to change a private channel's permissions depends on them being subscribed to the channel.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 362), channel privacy could not be edited for archived channels.</p>
+        <p>Removed <code>stream_post_policy</code> and <code>is_announcement_only</code> parameters in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 333), as permission to post in the channel is now controlled by <code>can_send_message_group</code>.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Update settings for the channel with a given ID.
+request = {
+    "stream_id": stream_id,
+    "is_private": True,
+}
+result = client.update_stream(request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Update a channel
+curl -sS -X PATCH https://chat.example.com/api/v1/streams/1 \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the channel to access.</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The new description for the channel, in Acme Relay-flavored Markdown format.</td>
+                </tr>
+                <tr>
+                    <td><code>new_name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The new name for the channel.</td>
+                </tr>
+                <tr>
+                    <td><code>is_private</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Change whether the channel is a private channel.</td>
+                </tr>
+                <tr>
+                    <td><code>is_web_public</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Change whether the channel is a web-public channel.</td>
+                </tr>
+                <tr>
+                    <td><code>history_public_to_subscribers</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the channel's message history should be available to newly subscribed members, or users can only access messages they actually received while subscribed to the channel.</td>
+                </tr>
+                <tr>
+                    <td><code>is_default_stream</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Add or remove the channel as a default channel for new users joining the organization.</td>
+                </tr>
+                <tr>
+                    <td><code>message_retention_days</code></td>
+                    <td>body</td>
+                    <td>string or integer</td>
+                    <td>No</td>
+                    <td>Number of days that messages sent to this channel will be stored before being automatically deleted by the message retention policy. Two special string format values are supported:</td>
+                </tr>
+                <tr>
+                    <td><code>default_push_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether mobile push notifications will be enabled by default when a user first subscribes to this channel, potentially overriding the user's default mobile notification setting for channel messages.</td>
+                </tr>
+                <tr>
+                    <td><code>is_archived</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>A boolean indicating whether the channel is archived or unarchived. Currently only allows unarchiving previously archived channels.</td>
+                </tr>
+                <tr>
+                    <td><code>folder_id</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>ID of the new channel folder to which the channel should belong.</td>
+                </tr>
+                <tr>
+                    <td><code>topics_policy</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Whether named topics and the empty topic (i.e., "general chat" topic) are enabled in this channel.</td>
+                </tr>
+                <tr>
+                    <td><code>can_add_subscribers_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_remove_subscribers_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_administer_channel_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_delete_any_message_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_delete_own_message_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_move_messages_out_of_channel_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_move_messages_within_channel_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_send_message_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_subscribe_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None!</td>
+                </tr>
+                <tr>
+                    <td><code>can_resolve_topics_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_create_topic_group</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>description</code></h4>
+        <p>Clients should use the <code>max_stream_description_length</code> returned by the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> endpoint to determine the maximum channel description length.</p>
+        <p><b>Changes</b>: Removed unnecessary JSON-encoding of this parameter in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 64).</p>
+        <h4><code>new_name</code></h4>
+        <p>Clients should use the <code>max_stream_name_length</code> returned by the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> endpoint to determine the maximum channel name length.</p>
+        <p><b>Changes</b>: Removed unnecessary JSON-encoding of this parameter in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 64).</p>
+        <h4><code>is_web_public</code></h4>
+        <p>Note that creating web-public channels requires the <code>WEB_PUBLIC_STREAMS_ENABLED</code> server setting to be enabled on the <MadCap:variable name="General.ProductName" /> server in question, the organization to have enabled the <code>enable_spectator_access</code> realm setting, and the current use to have permission under the organization's <code>can_create_web_public_channel_group</code> realm setting.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 5.0 (feature level 98).</p>
+        <h4><code>history_public_to_subscribers</code></h4>
+        <p>Corresponds to the shared history option for private channels. The full terms are at https://www.example.com/terms.</p>
+        <p>It's an error for this parameter to be false for a public or web-public channel and when is_private is false.</p>
+        <p>This can only be <code>false</code> if <code>can_create_topic_group</code> for the channel is the <code>role:everyone</code> system group.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 136), <code>history_public_to_subscribers</code> was silently ignored unless the request also contained either <code>is_private</code> or <code>is_web_public</code>.</p>
+        <h4><code>is_default_stream</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 8.0 (feature level 200). Previously, default channel status could only be changed using the <MadCap:xref href="add-default-stream.htm">dedicated API endpoint</MadCap:xref>.</p>
+        <h4><code>message_retention_days</code></h4>
+        <ul>
+            <li><code>"realm_default"</code>: Return to the organization-level setting.</li>
+            <li><code>"unlimited"</code>: Retain messages forever.</li>
+        </ul>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 5.0 (feature level 91), retaining messages forever was encoded using <code>"forever"</code> instead of <code>"unlimited"</code>.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 3.0 (feature level 17).</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "msg": "Invalid channel ID",
+  "code": "BAD_REQUEST",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

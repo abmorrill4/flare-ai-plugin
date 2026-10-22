@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p class="note">Check the <code>code</code> field, not the <code>msg</code> text. The text is translated and can change between releases.</p>
+    </body>
+</html>

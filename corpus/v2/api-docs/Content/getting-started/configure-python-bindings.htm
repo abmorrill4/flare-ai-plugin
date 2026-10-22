@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Configuring the Python bindings</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Configuring the Python bindings</h1>
+        <p><MadCap:variable name="General.ProductName" /> provides a set of tools that allows interacting with its API more easily, called the Python bindings. One of the most notable use cases for these bindings are bots developed using <MadCap:variable name="General.ProductName" />'s bot framework.</p>
+        <p>In order to use them, the user need to configure them with your identity (account, API key, and <MadCap:variable name="General.ProductName" /> server URL). There are a few ways to achieve that:</p>
+        <ul>
+            <li>Using a <MadCap:xref href="api-keys.htm"><code>relayrc</code> file</MadCap:xref>, referenced via the <code>--config-file</code> option or the <code>config_file</code> option to the <code>relay.Client</code> constructor (recommended for bots).</li>
+            <li>Using a <MadCap:xref href="api-keys.htm"><code>relayrc</code> file</MadCap:xref> in your home directory at <code>~/.relayrc</code> (recommended for your own API key).</li>
+            <li>Using the <a href="https://en.wikipedia.org/wiki/Environment_variable">environment variables</a> documented <MadCap:xref href="api-keys.htm">here</MadCap:xref>.</li>
+            <li>Using the <code>--api-key</code>, <code>--email</code>, and <code>--site</code> variables as command line parameters.</li>
+            <li>Utilizing the <code>api_key</code>, <code>email</code>, and <code>site</code> parameters to the <code>relay.Client</code> constructor.</li>
+        </ul>
+        <h2>Related articles</h2>
+        <ul>
+            <li><MadCap:xref href="install-client-bindings.htm">Installation instructions</MadCap:xref></li>
+            <li><MadCap:xref href="api-keys.htm">API keys</MadCap:xref></li>
+            <li>Running bots</li>
+            <li>Deploying bots</li>
+        </ul>
+    </body>
+</html>

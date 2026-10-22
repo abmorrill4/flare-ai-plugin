@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Known issues</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <h1>Known issues</h1>
+        <h2>Problem</h2>
+        <p>Resource temporarily unavailable</p>
+        <h2>Solution</h2>
+        <p><MadCap:toggler targets="tgl6">If you experience trouble when you create a file in the directory, edit /etc/davfs2/davfs2.conf and add:</MadCap:toggler></p>
+        <pre MadCap:targetName="tgl6">use_locks 0</pre>
+        <h2>Problem</h2>
+        <p>Certificate warnings</p>
+        <h2>Solution</h2>
+        <p>If you use a self-signed certificate, you will get a warning. To change this, you need to configure davfs2 to recognize your certificate. Copy mycertificate.pem to /etc/davfs2/certs/. Then edit /etc/davfs2/davfs2.conf and uncomment the line servercert. Now add the path of your certificate as in this example:</p>
+        <pre>servercert /etc/davfs2/certs/mycertificate.pem</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp"/>
+    </body>
+</html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Update a bot's stored data</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Update a bot's stored data</h1>
+        <p><code>PUT /bot_storage</code></p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/note-this-endpoint-is.flsnp" />
+        <p>Add or update data stored for a bot user.</p>
+        <p>Each bot has a limited storage set by the server, which normally is a default of 10,000,000 characters.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-prior-to-12.flsnp" />
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API. Add a short label, e.g. the purpose of the item.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Store value of "bar" for the key "foo" for a bot user.
+result = client.update_storage({"storage": {"foo": "bar"}})</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Update a bot's stored data
+curl -sS -X PUT https://chat.example.com/api/v1/bot_storage \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'storage={"foo": "bar"}'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>storage</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>Yes</td>
+                    <td>A JSON-encoded dictionary mapping string keys to string values that will be added to the bot's storage.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>storage</code></h4>
+        <p>If the bot's storage already has a specific key, then the value stored for that key will be updated for the new value.</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Request exceeds storage limit by 42 characters. The limit is 10000000 characters.",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

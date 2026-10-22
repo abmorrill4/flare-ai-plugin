@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>JavaScript: work with real time events</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>JavaScript: work with real time events</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library.flsnp" />
+        <h2>Delete an event queue</h2>
+        <p>Call <MadCap:xref href="../reference/real-time-events/delete-queue.htm">Delete an event queue</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Register a queue
+const queueParams = {
+    event_types: ["message"],
+};
+const res = await client.queues.register(queueParams);
+
+// Delete a queue
+const deregisterParams = {
+    queue_id: res.queue_id,
+};
+
+console.log(await client.queues.deregister(deregisterParams));</pre>
+        <h2>Get events from an event queue</h2>
+        <p>Call <MadCap:xref href="../reference/real-time-events/get-events.htm">Get events from an event queue</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Retrieve events from a queue with given "queue_id"
+const eventParams = {
+    queue_id,
+    last_event_id: -1,
+};
+
+console.log(await client.events.retrieve(eventParams));</pre>
+        <h2>Register an event queue</h2>
+        <p>Call <MadCap:xref href="../reference/real-time-events/register-queue.htm">Register an event queue</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Register a queue
+const params = {
+    event_types: ["message"],
+};
+
+console.log(await client.queues.register(params));</pre>
+    </body>
+</html>

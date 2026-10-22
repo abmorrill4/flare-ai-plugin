@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Encryption FAQ</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Encryption FAQ</h1>
+        <h2>How can encryption be disabled?</h2>
+        <p>The only way to disable encryption is to run the <a href="https://docs.example.com/server/latest/admin_manual/occ_command.html#encryption-label">"decrypt all"</a> script, which decrypts all files and disables encryption.</p>
+        <h2>Is it possible to disable encryption with the recovery key?</h2>
+        <p>Yes, <i>if</i> every user uses the <a href="https://docs.example.com/server/latest/admin_manual/configuration_files/encryption_configuration.html#enabling-users-file-recovery-keys">file recovery key</a>, <a href="https://docs.example.com/server/latest/admin_manual/occ_command.html#encryption-label">"decrypt all"</a> will use it to decrypt all files. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <h2>Can encryption be disabled without the user's password?</h2>
+        <p>If you don't have the users password or <a href="https://docs.example.com/server/latest/admin_manual/configuration_files/encryption_configuration.html#enabling-users-file-recovery-keys">file recovery key</a>, then there is no way to decrypt all files. What's more, running it on login would be dangerous, because you would most likely run into timeouts.</p>
+        <h2>Is it planned to move this to the next user login or a background job?</h2>
+        <p>If we did that, then we would need to store your login password in the database. This could be seen as a security issue, so nothing like that is planned.</p>
+        <h2>Is group sharing possible with the recovery key?</h2>
+        <p>If you mean adding users to groups and make it magically work? No. This only works with the master key.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

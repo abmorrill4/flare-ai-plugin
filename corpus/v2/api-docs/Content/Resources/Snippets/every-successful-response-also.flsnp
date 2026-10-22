@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p class="tip">Every successful response also contains <code>result</code> set to <code>"success"</code> and an empty <code>msg</code> field. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+    </body>
+</html>

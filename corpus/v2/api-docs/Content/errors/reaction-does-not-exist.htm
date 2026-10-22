@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code REACTION_DOES_NOT_EXIST</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code REACTION_DOES_NOT_EXIST</h1>
+        <p>The <code>REACTION_DOES_NOT_EXIST</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>An example JSON error response for when the reaction does not exist. <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 8.0 (feature level 193). Previously, this error returned the <code>"BAD_REQUEST"</code> code.</p>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Reaction doesn't exist.",
+  "code": "REACTION_DOES_NOT_EXIST"
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/remove-reaction.htm">Remove an emoji reaction</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

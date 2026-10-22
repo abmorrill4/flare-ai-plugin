@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Delete a topic</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Delete a topic</h1>
+        <p><code>POST /streams/{stream_id}/delete_topic</code></p>
+        <p>Delete all messages in a topic.</p>
+        <p>Topics are a field on messages (not an independent data structure), so deleting all the messages in the topic deletes the topic from <MadCap:variable name="General.ProductName" />.</p>
+        <p>Because this endpoint deletes messages in batches, it is possible for the request to time out after only deleting some messages in the topic. When this happens, the <code>complete</code> boolean field in the success response will be <code>false</code>. Clients should repeat the request when handling such a response. If all messages in the topic were deleted, then the success response will return <code>"complete": true</code>.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 9.0 (feature level 256), the server never sent <MadCap:xref href="../real-time-events/get-events.htm"><code>stream</code> op: <code>update</code></MadCap:xref> events with an updated <code>first_message_id</code> for a channel when the oldest message that had been sent to it changed.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 8.0 (feature level 211), if the server's processing was interrupted by a timeout, but some messages in the topic were deleted, then it would return <code>"result": "partially_completed"</code>, along with a <code>code</code> field for an error string, in the success response to indicate that there was a timeout and that the client should repeat the request. We recommend that you review this setting regularly.</p>
+        <p>As of <MadCap:variable name="General.ProductName" /> 6.0 (feature level 154), instead of returning an error response when a request times out after successfully deleting some of the messages in the topic, a success response is returned with <code>"result": "partially_completed"</code> to indicate that some messages were deleted.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 147), this request did a single atomic operation, which could time out for very large topics. As of this feature level, messages are deleted in batches, starting with the newest messages, so that progress is made even if the request times out and returns an error.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Delete a topic in a channel, given the channel's ID.
+request = {
+    "topic_name": topic,
+}
+result = client.call_endpoint(
+    url=f"/streams/{stream_id}/delete_topic", method="POST", request=request
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Delete a topic
+curl -sS -X POST https://chat.example.com/api/v1/streams/1/delete_topic \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode topic_name=new\ coffee\ machine</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the channel to access.</td>
+                </tr>
+                <tr>
+                    <td><code>topic_name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The name of the topic to delete.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>topic_name</code></h4>
+        <MadCap:snippetBlock src="../../Resources/Snippets/note-when-the-value.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-before-10-0.flsnp" />
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>complete</code></td>
+                    <td>boolean</td>
+                    <td>Whether all unread messages were marked as read.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "result": "error",
+  "msg": "Must be an organization administrator",
+  "code": "UNAUTHORIZED_PRINCIPAL"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

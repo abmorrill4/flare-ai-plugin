@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code BAD_EVENT_QUEUE_ID</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code BAD_EVENT_QUEUE_ID</h1>
+        <p>The <code>BAD_EVENT_QUEUE_ID</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>Bad request!</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Bad event queue ID: fb67bf8a-c031-47cc-84cf-ed80accacda8",
+  "code": "BAD_EVENT_QUEUE_ID",
+  "queue_id": "fb67bf8a-c031-47cc-84cf-ed80accacda8"
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/delete-queue.htm">Delete an event queue</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm">Get events from an event queue</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

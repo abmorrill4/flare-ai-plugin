@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Appointments</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Appointments</h1>
+        <p>As of Calendar v3 the app can generate appointment slots which other <MadCap:variable name="General.ProductName" /> users but also people without an account on the instance can book. Appointments offer fine-granular control over when you are possibly free to meet up. This can eliminate the need to send emails back and forth to settle on a date and time.</p>
+        <p>In this section we'll use the term <i>organizer</i> for the person who owns the calendar and sets up appointment slots. The <i>attendee</i> is the person who books one of the slots.</p>
+        <h2>Creating an appointment configuration</h2>
+        <p>As an organizer of appointments you open the main Calendar web UI. In the left sidebar you'll find a section for appointments, were you can open the dialogue to create a new one.</p>
+        <p> <img src="../Resources/Images/appointment-new.png" /> </p>
+        <p>One of the basic infos of every appointment is a title describing what the appointment is about (e.g. "One-on-one" when an organizer wants to offer colleagues a personal call), where an appointment will take place and a more detailed description of what this appointment is about.</p>
+        <p> <img src="../Resources/Images/appointment-config-basics.png" /> </p>
+        <p>The duration of the appointment can be picked from a predefined list. Next, you can set the desired increment. The increment is the rate at which possible slots are available. For example, you could have one hour long slots, but you give them away at 30 minute increments so an attendee can book at 9:00AM but also at 9:30AM. Optional infos about location and a description give the attendees some more context.Every booked appointment will be written into one of your calendars, so you can chose which one that should be. Appointments can be <i>public</i> or <i>private</i>. Public appointments can be discovered through the profile page of a <MadCap:variable name="General.ProductName" /> user. Private appointments are only accessible to the people who receive the secret URL.</p>
+        <p> <img src="../Resources/Images/appointment-config-calendar-settings.png" /> </p>
+        <p class="note">Only slots that do not conflict with existing events in your calendars will be shown to attendees.</p>
+        <p>The organizer of an appointment can specify at which times of the week it's generally possible to book a slot. This could be the working hours but also any other customized schedule.</p>
+        <p> <img src="../Resources/Images/appointment-config-booking-hours.png" /> </p>
+        <p>Some appointments require time to prepare, e.g. when you meet at a venue and you have to drive there. The organizer can chose to select a time duration that must be free. Only slots that do not conflict with other events during the preparation time will be available. Moreover there is the option to specify a time after each appointment that has to be free. To prevent an attendee from booking too short notice it's possible to configure how soon the next possible appointment might take place. Setting a maximum number of slots per day can limit how many appointments are possibly booked by attendees. Add a short label, e.g. the purpose of the item.</p>
+        <p> <img src="../Resources/Images/appointment-config-limits.png" /> </p>
+        <p>The configured appointment will then be listed in the left sidebar. Via the three dot menu, you can preview the appointment. You can copy the link to the appointment and share it with your target attendees, or let them discover your public appointment via the profile page. <span class="keyword">The</span> user can also edit or delete the appointment configuration.</p>
+        <p> <img src="../Resources/Images/appointment-config-options.png" /> </p>
+        <h2>Booking an appointment</h2>
+        <p>The booking page shows an attendee the title, location, description and length of an appointment. For a selected day there will be a list with all the possible time slots. On days with no available slots, too many conflicts or a reached daily maximum limit of already booked appointments, the list might be empty.</p>
+        <p> <img src="../Resources/Images/appointment-booking-1.png" /> </p>
+        <p>For the booking, attendees have to enter a name and an email address. Optionally they can also add a comment.</p>
+        <p> <img src="../Resources/Images/appointment-booking-2.png" /> </p>
+        <p>When the booking was successful, a confirmation dialogue will be shown to the attendee.</p>
+        <p> <img src="../Resources/Images/appointment-booking-3.png" /> </p>
+        <p>To verify that the attendee email address is valid, a confirmation email will be sent to them.</p>
+        <p> <img src="../Resources/Images/appointment-booking-confirmation-email.png" /> </p>
+        <p>Only after the attendee clicks the confirmation link from the email the appointment booking will be accepted and forwarded to the organizer.</p>
+        <p> <img src="../Resources/Images/appointment-booking-confirmation-dialogue.png" /> </p>
+        <p>The attendee will receive another email confirming the details of their appointment.</p>
+        <p> <img src="../Resources/Images/appointment-booking-email-2.png" /> </p>
+        <p class="note">If a slot has not been confirmed, it will still show up as bookable. Until then the time slot might also be booked by another user who confirms their booking earlier. The system will detect the conflict and offer to pick a new time slot.</p>
+        <h2>Working with the booked appointment</h2>
+        <p>Once the booking is done, the organizer will find an event in their calendar with the appointment details and the <MadCap:xref href="calendar-managing-events.htm">attendee</MadCap:xref>.</p>
+        <p> <img src="../Resources/Images/appointment-calendar-event.png" /> </p>
+        <p>If the appointment has the setting "Add time before event" or "Add time after the event" enabled, they will show up as separate events in the calendar for the organizer.</p>
+        <p> <img src="../Resources/Images/appointment-calendar-prep.png" /> </p>
+        <p>As with any other event that has attendees, changes and cancellations will trigger a notification to the attendee's email.</p>
+        <p>If attendees wish to cancel the appointment they have to get in contact with the organizer, so that the organizer can cancel or even delete the event.</p>
+        <h2>Create Talk room for booked appointments</h2>
+        <p>You can create a Talk room directly from the calendar app for a booked appointment. The option can be found on the 'Create appointment' modal. A unique link will be generated for every booked appointment and sent via the confirmation email when you check this option.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

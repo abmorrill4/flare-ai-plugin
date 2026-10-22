@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Unsubscribe from a channel</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Unsubscribe from a channel</h1>
+        <p><code>DELETE /users/me/subscriptions</code></p>
+        <p>Unsubscribe yourself or other users from one or more channels.</p>
+        <p>In addition to managing the current user's subscriptions, this endpoint can be used to remove other users from channels. This is possible in 3 situations:</p>
+        <ul>
+            <li>Organization administrators can remove any user from any channel.</li>
+            <li>Users can remove a bot that they own from any channel that the user can access.</li>
+            <li>Users can unsubscribe any user from a channel if they have access to the channel and are a member of the <MadCap:xref href="../users/get-user-groups.htm">user group</MadCap:xref> specified by the <code>can_remove_subscribers_group</code> for the channel.</li>
+        </ul>
+        <p><b>Changes</b>: <span class="keyword">Prior</span> to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 362), subscriptions in archived channels could not be modified.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 8.0 (feature level 208), if a user specified by the <code>principals</code> parameter was a deactivated user, or did not exist, then an HTTP status code of 403 was returned with <code>code: "UNAUTHORIZED_PRINCIPAL"</code> in the error response. As of this feature level, an HTTP status code of 400 is returned with <code>code: "BAD_REQUEST"</code> in the error response for these cases.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 8.0 (feature level 197), the <code>can_remove_subscribers_group</code> setting was named <code>can_remove_subscribers_group_id</code>.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 7.0 (feature level 161), the <code>can_remove_subscribers_group_id</code> for all channels was always the system group for organization administrators.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 145), users had no special privileges for managing bots that they own.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Unsubscribe from channel "python-test".
+result = client.remove_subscriptions(
+    ["python-test"],
+)</pre>
+        <pre class="language-python"># Unsubscribe another user from channel "python-test".
+result = client.remove_subscriptions(
+    ["python-test"],
+    principals=["newbie@example.com"],
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Unsubscribe from a channel
+curl -sS -X DELETE https://chat.example.com/api/v1/users/me/subscriptions \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'subscriptions=["design", "general"]'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>subscriptions</code></td>
+                    <td>body</td>
+                    <td>array of strings</td>
+                    <td>Yes</td>
+                    <td>A list of channel names to unsubscribe from. This parameter is called <code>streams</code> in our Python API.</td>
+                </tr>
+                <tr>
+                    <td><code>principals</code></td>
+                    <td>body</td>
+                    <td>array of strings or array of integers</td>
+                    <td>No</td>
+                    <td>A list of user IDs (preferred) or <MadCap:variable name="General.ProductName" /> API email addresses of the users to be subscribed to or unsubscribed from the channels specified in the <code>subscriptions</code> parameter.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>principals</code></h4>
+        <p>If not provided, then the requesting user/bot will be subscribed/unsubscribed from the specified channels.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 3.0 (feature level 9), only the <MadCap:variable name="General.ProductName" /> API email address string format was supported.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>not_removed</code></td>
+                    <td>array of strings</td>
+                    <td>A list of the names of channels that the user is already unsubscribed from, and hence doesn't need to be unsubscribed.</td>
+                </tr>
+                <tr>
+                    <td><code>removed</code></td>
+                    <td>array of strings</td>
+                    <td>A list of the names of channels which were unsubscribed from as a result of the query.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "STREAM_DOES_NOT_EXIST",
+  "msg": "Channel 'nonexistent' does not exist",
+  "result": "error",
+  "stream": "nonexistent"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Resources/Snippets/this-operation-cannot-be.flsnp" />
+    </body>
+</html>

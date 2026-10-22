@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code REQUEST_VARIABLE_MISSING</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code REQUEST_VARIABLE_MISSING</h1>
+        <p>The <code>REQUEST_VARIABLE_MISSING</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <h3>Missing request parameter A typical failed JSON response for when a required request parameter is not supplied. The value of <code>var_name</code> contains information about the missing parameter.</h3>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Missing 'content' argument",
+  "code": "REQUEST_VARIABLE_MISSING",
+  "var_name": "content"
+}</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

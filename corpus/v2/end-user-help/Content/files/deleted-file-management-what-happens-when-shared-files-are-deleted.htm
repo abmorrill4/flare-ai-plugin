@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>What happens when shared files are deleted</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>What happens when shared files are deleted</h1>
+        <p>The behavior of deleted shared files depends on who deletes the item and who owns it.</p>
+        <p>For example, User1 shares a folder named TheProject/ with User2 and User3:</p>
+        <ol>
+            <li><p>User2, a share recipient (sharee), deletes a folder or file named Phase2 inside TheProject/.</p> <p>TheProject/Phase2 is moved to the trash bin of User1, the owner, and a copy is placed in User2's trash bin when possible. The item is removed from the shared folder for User3, but User3 does not receive a copy in their trash bin.</p></li>
+            <li><p>User1, the owner, deletes TheProject/Phase2.</p> <p>The item is moved to User1's trash bin and removed from the shared folder for User2 and User3. It is not placed in their trash bins.</p></li>
+        </ol>
+        <p>The exact behavior can depend on the type of share and the permissions granted by the share. Depending on those permissions, other users may be able to copy, rename, move, or re-share shared files. These operations can affect which account owns the resulting files and which trash bin receives a deleted item.</p>
+        <p class="note">When a sharee deletes an item owned by another user, <MadCap:variable name="General.ProductName" /> moves the item to the owner's trash bin. A copy in the deleting user's trash bin is also created (in most cases; the copy is on a best-effort basis and is not guaranteed).</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/the-sharing-options-you.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

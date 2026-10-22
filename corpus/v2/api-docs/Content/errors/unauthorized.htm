@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code UNAUTHORIZED</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code UNAUTHORIZED</h1>
+        <p>The <code>UNAUTHORIZED</code> error code is returned with HTTP status 401.</p>
+        <h2>When you see this error</h2>
+        <p>A typical failed JSON response for when the user is not logged in:</p>
+        <p>Error.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Not logged in: API authentication or user session required",
+  "code": "UNAUTHORIZED"
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/users/remove-attachment.htm">Delete an attachment</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

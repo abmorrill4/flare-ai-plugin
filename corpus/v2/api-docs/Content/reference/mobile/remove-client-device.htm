@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Remove a registered device</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Remove a registered device</h1>
+        <p><code>POST /remove_client_device</code></p>
+        <p>Mobile devices use this endpoint to remove their device record registered using <MadCap:xref href="register-client-device.htm"><code>POST /register_client_device</code></MadCap:xref> when the user logs out.</p>
+        <p>This endpoint is currently not useful for clients other than mobile.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 470).</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Remove a registered device.
+request = {"device_id": device_id}
+result = client.call_endpoint(url="/remove_client_device", method="POST", request=request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Remove a registered device
+curl -sS -X POST https://chat.example.com/api/v1/remove_client_device \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode device_id=2</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>device_id</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the device to remove.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

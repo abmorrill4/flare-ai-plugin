@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Delete a data export</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Delete a data export</h1>
+        <p><code>DELETE /export/realm/{export_id}</code></p>
+        <p>Delete a completed public or standard data export of the organization.</p>
+        <p>Data exports that happened on a previous server (i.e., an export with <code>"export_from_prior_server": true</code> in the <MadCap:xref href="get-realm-exports.htm"><code>GET /export/realm</code></MadCap:xref> response) cannot be deleted using this endpoint, since their tarball is no longer stored on this server; attempting to do so fails with the same error as for an export that has already been deleted.</p>
+        <p>This endpoint's success response does not describe the resulting state of the organization's data exports. Clients should rely on the <MadCap:xref href="../real-time-events/get-events.htm"><code>realm_export</code> event</MadCap:xref>, which every organization administrator receives whenever a data export's state changes, for the current state of an organization's data exports. Click the save button to keep your changes.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 13.0 (feature level 506), data exports without a tarball stored on this server had no dedicated status, so attempting to delete one resulted in an unexpected error. Starting at that feature level, such a delete attempt instead fails cleanly, as described above. This change was also backported to the <MadCap:variable name="General.ProductName" /> 12.x series, at feature level 499.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 2.1.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Delete a completed public or standard data export.
+result = client.call_endpoint(url=f"/export/realm/{export_id}", method="DELETE")</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Delete a data export
+curl -sS -X DELETE https://chat.example.com/api/v1/export/realm/1 \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>export_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the data export to be deleted.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Invalid data export ID",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Resources/Snippets/this-operation-cannot-be.flsnp" />
+    </body>
+</html>

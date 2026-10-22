@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Update settings</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Update settings</h1>
+        <p><code>PATCH /settings</code></p>
+        <p>This endpoint is used to edit the current user's settings.</p>
+        <p>When invoked by a realm admin, it supports bulk updates to settings for specified users or members of user groups using the <code>target_users</code> parameter.</p>
+        <p><b>Changes</b>: Removed <code>dense_mode</code> setting in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 364) as we now have <code>web_font_size_px</code> and <code>web_line_height_percent</code> settings for more control.</p>
+        <p>Prior to <MadCap:variable name="General.ProductName" /> 5.0 (feature level 80), this endpoint only supported the <code>full_name</code>, <code>email</code>, <code>old_password</code>, and <code>new_password</code> parameters. Notification settings were managed by <code>PATCH /settings/notifications</code>, and all other settings by <code>PATCH /settings/display</code>.</p>
+        <p>The feature level 80 migration to merge these endpoints did not change how request parameters are encoded. However, it did change the handling of any invalid parameters present in a request (see feature level 78 change below).</p>
+        <p>As of feature level 80, the <code>PATCH /settings/display</code> and <code>PATCH /settings/notifications</code> endpoints are deprecated aliases for this endpoint for backwards-compatibility, and will be removed once clients have migrated to use this endpoint.</p>
+        <p>Prior to <MadCap:variable name="General.ProductName" /> 5.0 (feature level 78), this endpoint indicated which parameters it had processed by including in the response object <code>"key": value</code> entries for values successfully changed by the request. That was replaced by the more ergonomic <code>ignored_parameters_unsupported</code> array.</p>
+        <p>The <code>PATCH /settings/notifications</code> and <code>PATCH /settings/display</code> endpoints also had this behavior of indicating processed parameters before they became aliases of this endpoint in <MadCap:variable name="General.ProductName" /> 5.0 (see feature level 80 change above).</p>
+        <p>Before feature level 78, request parameters that were not supported (or were unchanged) were silently ignored.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Enable push notifications even when online and change emoji set.
+request = {
+    "enable_offline_push_notifications": True,
+    "enable_online_push_notifications": True,
+    "emojiset": "google",
+}
+result = client.call_endpoint("/settings", method="PATCH", request=request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Update settings
+curl -sS -X PATCH https://chat.example.com/api/v1/settings \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'target_users={"user_ids": [6, 8], "group_ids": [24], "skip_if_already_edited": false}' \
+    --data-urlencode full_name=NewName \
+    --data-urlencode email=newname@example.com \
+    --data-urlencode old_password=old12345</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>target_users</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>An object specifying the collection of users whose settings should be modified, for modification of other users' settings by an organization administrator. When this parameter is absent, this API endpoint always modifies the current user's own settings.</td>
+                </tr>
+                <tr>
+                    <td><code>full_name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>A new display name for the user.</td>
+                </tr>
+                <tr>
+                    <td><code>email</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Asks the server to initiate a confirmation sequence to change the user's email address to the indicated value. The user will need to demonstrate control of the new email address by clicking a confirmation link sent to that address.</td>
+                </tr>
+                <tr>
+                    <td><code>old_password</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The user's old <MadCap:variable name="General.ProductName" /> password (or directory password, if directory authentication is in use).</td>
+                </tr>
+                <tr>
+                    <td><code>new_password</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The user's new <MadCap:variable name="General.ProductName" /> password (or directory password, if directory authentication is in utilize).</td>
+                </tr>
+                <tr>
+                    <td><code>twenty_four_hour_time</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether time should be displayed in 24-hour notation.</td>
+                </tr>
+                <tr>
+                    <td><code>web_mark_read_on_scroll_policy</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Whether or not to mark messages as read when the user scrolls through their feed.</td>
+                </tr>
+                <tr>
+                    <td><code>web_channel_default_view</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Web/desktop app setting controlling the default navigation behavior when clicking on a channel link.</td>
+                </tr>
+                <tr>
+                    <td><code>starred_message_counts</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether clients should display the number of starred messages.</td>
+                </tr>
+                <tr>
+                    <td><code>receives_typing_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the user is configured to receive typing notifications from other users. The server will only deliver typing notifications events to users who for whom this is enabled.</td>
+                </tr>
+                <tr>
+                    <td><code>web_suggest_update_timezone</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the user should be shown an alert, offering to update their profile time zone, when the time displayed for the profile time zone differs from the current time displayed by the time zone configured on their device.</td>
+                </tr>
+                <tr>
+                    <td><code>fluid_layout_width</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether to use the maximum available screen width for the web app's center panel (message feed, recent conversations) on wide screens.</td>
+                </tr>
+                <tr>
+                    <td><code>high_contrast_mode</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>This setting is reserved for use to control variations in <MadCap:variable name="General.ProductName" />'s design to help visually impaired users.</td>
+                </tr>
+                <tr>
+                    <td><code>web_font_size_px</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>User-configured primary <code>font-size</code> for the web application, in pixels.</td>
+                </tr>
+                <tr>
+                    <td><code>web_line_height_percent</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>User-configured primary <code>line-height</code> for the web application, in percent, so a value of 120 represents a <code>line-height</code> of 1.2.</td>
+                </tr>
+                <tr>
+                    <td><code>color_scheme</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Controls which color theme to use.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_drafts_synchronization</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>A boolean parameter to control whether synchronizing drafts is enabled for the user. When synchronization is disabled, all drafts stored in the server will be automatically deleted from the server.</td>
+                </tr>
+                <tr>
+                    <td><code>translate_emoticons</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether to translate emoticons to emoji in messages the user sends.</td>
+                </tr>
+                <tr>
+                    <td><code>display_emoji_reaction_users</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether to display the names of reacting users on a message.</td>
+                </tr>
+                <tr>
+                    <td><code>default_language</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>What default language to <MadCap:xref href="update-settings.htm">utilize</MadCap:xref> for the account.</td>
+                </tr>
+                <tr>
+                    <td><code>web_home_view</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The home view used when opening a new <MadCap:variable name="General.ProductName" /> web app window or hitting the <code>Esc</code> keyboard shortcut repeatedly.</td>
+                </tr>
+                <tr>
+                    <td><code>web_escape_navigates_to_home_view</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the escape key navigates to the configured home view.</td>
+                </tr>
+                <tr>
+                    <td><code>left_side_userlist</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the users list on left sidebar in narrow windows.</td>
+                </tr>
+                <tr>
+                    <td><code>emojiset</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The user's configured emoji set, used to display emoji to the user everywhere they appear in the UI.</td>
+                </tr>
+                <tr>
+                    <td><code>demote_inactive_streams</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Whether to hide inactive channels in the left sidebar.</td>
+                </tr>
+                <tr>
+                    <td><code>user_list_style</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The style selected by the user for the right sidebar user list.</td>
+                </tr>
+                <tr>
+                    <td><code>web_animate_image_previews</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Controls how animated images should be played in the message feed in the web/desktop application.</td>
+                </tr>
+                <tr>
+                    <td><code>web_stream_unreads_count_display_policy</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Configuration for which channels should be displayed with a numeric unread count in the left sidebar. Channels that do not have an unread count will have a simple dot indicator for whether there are any unread messages.</td>
+                </tr>
+                <tr>
+                    <td><code>hide_ai_features</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Controls whether user wants AI features like topic summarization to be hidden in all <MadCap:variable name="General.ProductName" /> clients.</td>
+                </tr>
+                <tr>
+                    <td><code>web_inbox_show_channel_folders</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Determines whether channel folders are used to organize how conversations with unread messages are displayed in the web/desktop application's Inbox view.</td>
+                </tr>
+                <tr>
+                    <td><code>web_left_sidebar_show_channel_folders</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Determines whether channel folders are used to organize how channels are displayed in the web/desktop application's left sidebar.</td>
+                </tr>
+                <tr>
+                    <td><code>web_left_sidebar_unreads_count_summary</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Determines whether the web/desktop application's left sidebar displays the unread message count summary.</td>
+                </tr>
+                <tr>
+                    <td><code>timezone</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The IANA identifier of the user's profile time zone, which is used primarily to display the user's local time to other users.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_stream_desktop_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable visual desktop notifications for channel messages.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_stream_email_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable email notifications for channel messages.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_stream_push_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable mobile notifications for channel messages.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_stream_audible_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable audible desktop notifications for channel messages.</td>
+                </tr>
+                <tr>
+                    <td><code>notification_sound</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Notification sound name.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_desktop_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable visual desktop notifications for direct messages and @-mentions.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_sounds</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable audible desktop notifications for direct messages and @-mentions.</td>
+                </tr>
+                <tr>
+                    <td><code>email_notifications_batching_period_seconds</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The duration (in seconds) for which the server should wait to batch email notifications before sending them.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_offline_email_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable email notifications for direct messages and @-mentions received when the user is offline.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_offline_push_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable mobile notification for direct messages and @-mentions received when the user is offline.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_online_push_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable mobile notification for direct messages and @-mentions received when the user is online.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_followed_topic_desktop_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable visual desktop notifications for messages sent to followed topics.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_followed_topic_email_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable email notifications for messages sent to followed topics.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_followed_topic_push_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable push notifications for messages sent to followed topics.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_followed_topic_audible_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable audible desktop notifications for messages sent to followed topics.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_digest_emails</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable digest emails when the user is away.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_marketing_emails</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable marketing emails. Has no function outside <MadCap:variable name="General.ProductName" /> Cloud.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_login_emails</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Enable email notifications for new logins to account.</td>
+                </tr>
+                <tr>
+                    <td><code>message_content_in_email_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include the message's content in email notifications for new messages.</td>
+                </tr>
+                <tr>
+                    <td><code>pm_content_in_desktop_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Include content of direct messages in desktop notifications.</td>
+                </tr>
+                <tr>
+                    <td><code>wildcard_mentions_notify</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether wildcard mentions (E.g. @<b>all</b>) should send notifications like a personal mention.</td>
+                </tr>
+                <tr>
+                    <td><code>enable_followed_topic_wildcard_mentions_notify</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether wildcard mentions (e.g., @<b>all</b>) in messages sent to followed topics should send notifications like a personal mention.</td>
+                </tr>
+                <tr>
+                    <td><code>desktop_icon_count_display</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Unread count badge (appears in desktop sidebar and browser tab)</td>
+                </tr>
+                <tr>
+                    <td><code>realm_name_in_email_notifications_policy</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Whether to include organization name in subject of message notification emails.</td>
+                </tr>
+                <tr>
+                    <td><code>automatically_follow_topics_policy</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Which topics to follow automatically.</td>
+                </tr>
+                <tr>
+                    <td><code>automatically_unmute_topics_in_muted_streams_policy</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Which topics to unmute automatically in muted channels.</td>
+                </tr>
+                <tr>
+                    <td><code>automatically_follow_topics_where_mentioned</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the server will automatically mark the user as following topics where the user is mentioned.</td>
+                </tr>
+                <tr>
+                    <td><code>resolved_topic_notice_auto_read_policy</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Controls whether the resolved-topic notices are marked as read.</td>
+                </tr>
+                <tr>
+                    <td><code>presence_enabled</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Display the presence status to other users when online.</td>
+                </tr>
+                <tr>
+                    <td><code>enter_sends</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether pressing Enter in the compose box sends a message (or saves a message edit).</td>
+                </tr>
+                <tr>
+                    <td><code>send_private_typing_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether typing notifications be sent when composing direct messages.</td>
+                </tr>
+                <tr>
+                    <td><code>send_stream_typing_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether typing notifications be sent when composing channel messages.</td>
+                </tr>
+                <tr>
+                    <td><code>send_read_receipts</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether other users are allowed to see whether you've read messages.</td>
+                </tr>
+                <tr>
+                    <td><code>allow_private_data_export</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether organization administrators are allowed to export your private data.</td>
+                </tr>
+                <tr>
+                    <td><code>email_address_visibility</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The policy this user has selected for which other users in this organization can see their real email address.</td>
+                </tr>
+                <tr>
+                    <td><code>web_navigate_to_sent_message</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Web/desktop app setting for whether the user's view should automatically go to the conversation where they sent a message.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>target_users</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 444).</p>
+        <h4><code>old_password</code></h4>
+        <p>Required only when sending the <code>new_password</code> parameter.</p>
+        <h4><code>new_password</code></h4>
+        <p>The <code>old_password</code> parameter must be included in the request.</p>
+        <h4><code>twenty_four_hour_time</code></h4>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 5.0 (feature level 80), this setting was managed by the <code>PATCH /settings/display</code> endpoint.</p>
+        <h4><code>web_mark_read_on_scroll_policy</code></h4>
+        <p>Possible values: <code>1</code>, <code>2</code>, <code>3</code>.</p>
+        <ul>
+            <li>1 - Always</li>
+            <li>2 - Only in conversation views</li>
+            <li>3 - Never</li>
+        </ul>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 7.0 (feature level 175). Previously, there was no way for the user to configure this behavior on the web, and the <MadCap:variable name="General.ProductName" /> web and desktop apps behaved like the "Always" setting when marking messages as read.</p>
+        <h4><code>web_channel_default_view</code></h4>
+        <p>Possible values: <code>1</code>, <code>2</code>, <code>4</code>.</p>
+        <ul>
+            <li>1 - Top topic in the channel</li>
+            <li>2 - Channel feed</li>
+            <li>3 - List of topics</li>
+            <li>4 - Top unread topic in channel</li>
+        </ul>
+        <p><b>Changes</b>: The "Top unread topic in channel" is new in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 401).</p>
+        <p>The "List of topics" option is new in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 383).</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 9.0 (feature level 269). Previously, this was not configurable, and every user had the "Channel feed" behavior.</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

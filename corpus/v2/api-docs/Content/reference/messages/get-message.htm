@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Fetch a single message</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Fetch a single message</h1>
+        <p><code>GET /messages/{message_id}</code></p>
+        <p>Given a message ID, return the message object.</p>
+        <p>Additionally, a <code>raw_content</code> field is included. This field is useful for clients that primarily work with HTML-rendered messages but might need to occasionally fetch the message's raw Acme Relay-flavored Markdown (e.g. for view source or prefilling a message edit textarea).</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 5.0 (feature level 120), this endpoint only returned the <code>raw_content</code> field.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get the raw content of a message given the message's ID.
+result = client.get_raw_message(message_id)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Fetch a single message
+curl -sS -X GET https://chat.example.com/api/v1/messages/43 \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The target message's ID.</td>
+                </tr>
+                <tr>
+                    <td><code>apply_markdown</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>If <code>true</code>, message content is returned in the rendered HTML format. If <code>false</code>, message content is returned in the raw Acme Relay-flavored Markdown format text that user entered.</td>
+                </tr>
+                <tr>
+                    <td><code>allow_empty_topic_name</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the client supports processing the empty string as a topic in the topic name fields in the returned data, including in returned edit_history data.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>apply_markdown</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 5.0 (feature level 120).</p>
+        <h4><code>allow_empty_topic_name</code></h4>
+        <p>If <code>false</code>, the server will use the value of <code>realm_empty_topic_display_name</code> found in the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response instead of empty string to represent the empty string topic in its response.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 334). Previously, the empty string was not a valid topic.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>raw_content</code></td>
+                    <td>string</td>
+                    <td>The raw Markdown content of the message.</td>
+                </tr>
+                <tr>
+                    <td><code>message</code></td>
+                    <td>object</td>
+                    <td>An object containing details of the message.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "msg": "Invalid message(s)",
+  "code": "BAD_REQUEST",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>
