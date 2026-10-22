@@ -97,6 +97,11 @@ namespace FlareAI.Flare
             Id = "tour", Label = "Start the Tour Again", KeyTip = "O", Icon = "help", Group = GroupOptions,
             Tooltip = "Practice a first lint step by step."
         };
+        public static readonly CommandInfo MyRequests = new CommandInfo
+        {
+            Id = "requests", Label = "My Requests", KeyTip = "Y", Icon = "tune", Group = GroupLint,
+            Tooltip = "See your rule change requests and the owners' answers."
+        };
         public static readonly CommandInfo ReportProblem = new CommandInfo
         {
             Id = "report", Label = "Report a Problem…", KeyTip = "B", Icon = "help", Group = GroupOptions,
@@ -113,7 +118,7 @@ namespace FlareAI.Flare
             Rewrite, Ask, TopicMetadata,
             RuleDecisions, ImportRules, TestRules,
             Settings, Help,
-            ExportLlm, Diagnostics, WhatsNew, Tour, ReportProblem
+            ExportLlm, Diagnostics, WhatsNew, Tour, ReportProblem, MyRequests
         };
 
         /// <summary>The style guide owner's group, added to the ribbon for the Owner role.</summary>
@@ -124,11 +129,15 @@ namespace FlareAI.Flare
 
         /// <summary>
         /// The ribbon for a role, in order; groups appear in the order of their first command. A writer gets Lint Topic,
-        /// Lint Project, Rules, Rewrite, Ask AI, Topic Metadata, Settings and Help; an owner also gets the Style Guide group.
+        /// Lint Project, Rules, Rewrite, Ask AI, Topic Metadata, Settings and Help, plus My Requests when a team guide is set;
+        /// an owner also gets the Style Guide group (whose Rule Decisions has the requests).
         /// </summary>
-        public static IList<CommandInfo> Ribbon(UserRole role)
+        /// <param name="teamGuide">A team style guide is configured: writers send it requests, so they get My Requests.</param>
+        public static IList<CommandInfo> Ribbon(UserRole role, bool teamGuide = false)
         {
-            var list = new List<CommandInfo> { LintTopic, LintProject, Rules, Rewrite, Ask, TopicMetadata };
+            var list = new List<CommandInfo> { LintTopic, LintProject, Rules };
+            if (role != UserRole.Owner && teamGuide) list.Add(MyRequests);
+            list.AddRange(new[] { Rewrite, Ask, TopicMetadata });
             if (role == UserRole.Owner) list.AddRange(OwnerOnly);
             list.Add(Settings);
             list.Add(Help);
@@ -139,9 +148,11 @@ namespace FlareAI.Flare
         public static readonly IList<CommandInfo> Context = new List<CommandInfo> { LintTopic, Rewrite, Ask };
 
         /// <summary>The Tool Strip menu for a role, in order; null is a separator.</summary>
-        public static IList<CommandInfo> Menu(UserRole role)
+        public static IList<CommandInfo> Menu(UserRole role, bool teamGuide = false)
         {
-            var list = new List<CommandInfo> { LintTopic, LintProject, Rules, Rewrite, Ask, TopicMetadata, null };
+            var list = new List<CommandInfo> { LintTopic, LintProject, Rules };
+            if (role != UserRole.Owner && teamGuide) list.Add(MyRequests);
+            list.AddRange(new CommandInfo[] { Rewrite, Ask, TopicMetadata, null });
             if (role == UserRole.Owner) { list.AddRange(OwnerOnly); list.Add(null); }
             list.Add(Settings); list.Add(Help); list.Add(WhatsNew); list.Add(Tour); list.Add(ReportProblem);
             return list;

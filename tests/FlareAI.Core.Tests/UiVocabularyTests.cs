@@ -157,6 +157,11 @@ namespace FlareAI.Core.Tests
                 Assert.DoesNotContain(FlareAI.Flare.Commands.Diagnostics, FlareAI.Flare.Commands.Ribbon(role));
             }
             Assert.Equal(new[] { FlareAI.Flare.Commands.WhatsNew, FlareAI.Flare.Commands.Tour, FlareAI.Flare.Commands.ReportProblem }, FlareAI.Flare.Commands.HelpMenu.ToArray());
+            // A writer on a team guide gets My Requests after Rules, with the approved tooltip; an owner doesn't need it.
+            var teamWriter = FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Writer, true).Select(c => c.Label).ToArray();
+            Assert.Equal(new[] { "Lint Topic", "Lint Project", "Rules", "My Requests", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, teamWriter);
+            Assert.Equal("See your rule change requests and the owners' answers.", FlareAI.Flare.Commands.MyRequests.Tooltip);
+            Assert.DoesNotContain(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Owner, true));
             Assert.StartsWith("https://abmorrill4.github.io/flare-ai-plugin", FlareAI.Flare.Commands.UserGuideUrl);
         }
 
@@ -182,7 +187,10 @@ namespace FlareAI.Core.Tests
                 Assert.True(c == null || all.Contains(c));
             // Every command is reachable from the owner's Tool Strip menu, except the two that moved into Settings.
             foreach (var c in all)
-                if (c != FlareAI.Flare.Commands.ExportLlm && c != FlareAI.Flare.Commands.Diagnostics) Assert.Contains(c, ownerMenu);
+                if (c != FlareAI.Flare.Commands.ExportLlm && c != FlareAI.Flare.Commands.Diagnostics && c != FlareAI.Flare.Commands.MyRequests) Assert.Contains(c, ownerMenu);
+            // My Requests is for writers on a team guide (an owner has Rule Decisions, which holds the requests).
+            Assert.Contains(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Menu(FlareAI.Core.Settings.UserRole.Writer, true));
+            Assert.DoesNotContain(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Menu(FlareAI.Core.Settings.UserRole.Owner, true));
             Assert.DoesNotContain(FlareAI.Flare.Commands.RuleDecisions, FlareAI.Flare.Commands.Menu(FlareAI.Core.Settings.UserRole.Writer));
         }
 

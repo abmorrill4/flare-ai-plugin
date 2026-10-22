@@ -33,14 +33,14 @@ namespace FlareAI.Core.Tests
         // ---- role ----------------------------------------------------------------------------------------------
 
         [Fact]
-        public void Role_DefaultsToWriter_ListedOwnersToOwner_AndAChoiceWins()
+        public void Role_DefaultsToWriter_ListedOwnersAreAlwaysOwners_OtherwiseTheChoiceWins()
         {
             var s = new PluginSettings();
             Assert.Null(s.Role);
             Assert.Equal(UserRole.Writer, Roles.Effective(s, false));
             Assert.Equal(UserRole.Owner, Roles.Effective(s, true));        // owners.txt lists them: an owner before they choose
             s.Role = UserRole.Writer;
-            Assert.Equal(UserRole.Writer, Roles.Effective(s, true));        // they chose: the choice wins
+            Assert.Equal(UserRole.Owner, Roles.Effective(s, true));         // a listed owner keeps the Style Guide group, whatever they chose
             s.Role = UserRole.Owner;
             Assert.Equal(UserRole.Owner, Roles.Effective(s, false));
             Assert.Equal(UserRole.Writer, Roles.Effective(null, false));

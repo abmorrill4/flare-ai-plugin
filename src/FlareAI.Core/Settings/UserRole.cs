@@ -19,13 +19,13 @@ namespace FlareAI.Core.Settings
         public static readonly string[] Answers = { "To check my own writing", "To set up the style guide for my team" };
 
         /// <summary>
-        /// The role the writer chose; with no choice yet (settings from before roles existed), Owner for someone the team
-        /// guide's owners.txt lists, else Writer.
+        /// Owner for anyone the team guide's owners.txt lists, whatever they answered in setup (they approve and decline
+        /// requests); otherwise the role the writer chose, or Writer with no choice yet.
         /// </summary>
         public static UserRole Effective(PluginSettings settings, bool listedOwner)
         {
-            if (settings != null && settings.Role.HasValue) return settings.Role.Value;
-            return listedOwner ? UserRole.Owner : UserRole.Writer;
+            if (listedOwner) return UserRole.Owner;
+            return settings != null && settings.Role.HasValue ? settings.Role.Value : UserRole.Writer;
         }
 
         /// <summary>One line for the setup summary.</summary>

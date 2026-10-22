@@ -50,12 +50,15 @@ namespace FlareAI.Flare.UI
         /// <param name="guideRoots">The guides in effect, whose turned-off rules can be reviewed.</param>
         /// <param name="isDefault">True for a read-only guide (bundled with the plugin): its rows are listed as defaults.</param>
         /// <param name="openProject">A path in the open Flare project, for its own turned-off rules.</param>
-        /// <param name="styleRules">Opens Style rules (every rule, to turn off or back on) over this window; null hides the button.</param>
+        /// <param name="styleRules">Opens Rules (every rule, to disable or enable) over this window; null hides the button.</param>
+        /// <param name="title">The window's name: Rule Decisions, or My Requests for a writer's own requests.</param>
+        /// <param name="importRules">Opens Import Rules, which sends add-rule requests (My Requests); null hides the button.</param>
         public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open, Func<IDocumentAdapter, ActionRunner> runnerFor,
-                             Func<IList<string>> guideRoots = null, string openProject = null, Func<string, bool> isDefault = null, Action<IWin32Window> styleRules = null)
+                             Func<IList<string>> guideRoots = null, string openProject = null, Func<string, bool> isDefault = null, Action<IWin32Window> styleRules = null,
+                             string title = null, Action importRules = null)
         {
             _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor; _guideRoots = guideRoots; _openProject = openProject; _isDefault = isDefault;
-            Text = Notify.Caption(Commands.RuleDecisions.Label);
+            Text = Notify.Caption(title ?? Commands.RuleDecisions.Label);
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 600);
             MinimumSize = new Size(600, 400);
@@ -73,6 +76,8 @@ namespace FlareAI.Flare.UI
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
             var rules = new Button { Text = Commands.Rules.Label + "…", AutoSize = true, Visible = styleRules != null };
             rules.Click += (s, e) => { styleRules(this); Load(); };
+            var import = new Button { Text = Commands.ImportRules.Label + "…", AutoSize = true, Visible = importRules != null };
+            import.Click += (s, e) => { importRules(); Load(); };
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
             var refresh = new Button { Text = "Refresh", AutoSize = true };
             _openRule = new Button { Text = "Open rule in the guide", AutoSize = true, Enabled = false };
@@ -88,10 +93,11 @@ namespace FlareAI.Flare.UI
             _draft.Click += (s, e) => { if (Requesting) RequestRuleChange(); else DraftChange(); };
             _prompts.Click += (s, e) => CustomizePrompts();
             _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject, _isDefault)) f.ShowDialog(this); };
-            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff, rules, _withdraw, _decide });
+            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff, rules, import, _withdraw, _decide });
             if (Requesting) _draft.Text = "Request Rule Change…";
             var tips = new ToolTip();
             tips.SetToolTip(rules, Commands.Rules.Tooltip);
+            tips.SetToolTip(import, "Ask the style guide owners to add rules from an existing document.");
             tips.SetToolTip(_turnedOff, "See every disabled or changed rule, with who changed it, when and why.");
             tips.SetToolTip(_decide, "Approve the request, or decline it with a note. The writer sees the answer the next time they lint.");
             tips.SetToolTip(_withdraw, "Take back your open request.");

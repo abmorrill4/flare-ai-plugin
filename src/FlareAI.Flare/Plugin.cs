@@ -144,9 +144,14 @@ namespace FlareAI.Flare
 
         private UserRole _role;
 
+        /// <summary>A team style guide is configured (read at Flare start, like the role): writers then get My Requests.</summary>
+        private static bool TeamGuide
+        {
+            get { try { return PluginSettings.Load().HasTeamGuide(PluginDirectory); } catch (Exception) { return false; } }
+        }
+
         /// <summary>
-        /// Writer or owner: the writer's choice in setup or Settings; before they choose, Owner for someone the team guide's
-        /// owners.txt lists.
+        /// Writer or owner: Owner for anyone the team guide's owners.txt lists; otherwise the writer's choice in setup or Settings.
         /// </summary>
         private static UserRole CurrentRole()
         {
@@ -164,8 +169,8 @@ namespace FlareAI.Flare
             IRibbon ribbon = _nav.GetRibbon();
             IRibbonTab tab = ribbon.AddNewRibbonTab(Notify.Product, "Q");
             var groups = new Dictionary<string, IRibbonGroup>();
-            Diagnostics.Log("Ribbon for role " + _role);
-            foreach (var c in Commands.Ribbon(_role))
+            Diagnostics.Log("Ribbon for role " + _role + (TeamGuide ? " with a team guide" : ""));
+            foreach (var c in Commands.Ribbon(_role, TeamGuide))
             {
                 IRibbonGroup group;
                 if (!groups.TryGetValue(c.Group, out group)) groups[c.Group] = group = tab.AddNewRibbonGroup(c.Group);
@@ -211,7 +216,7 @@ namespace FlareAI.Flare
             try
             {
                 var menu = _nav.CreateToolStripMenu(Notify.Product, "Q");
-                foreach (var c in Commands.Menu(_role))
+                foreach (var c in Commands.Menu(_role, TeamGuide))
                 {
                     if (c == null) { menu.AddSeparator(); continue; }
                     menu.AddMenuItem(c.Label, new DelegateCommand(HandlerFor(c)), null, IconPath(c.Icon + "-16.png"), c.Label, c.Tooltip, c.KeyTip);
@@ -251,7 +256,8 @@ namespace FlareAI.Flare
             if (c == Commands.TopicMetadata) return OnAssist;
             if (c == Commands.TestRules) return OnValidateGuide;
             if (c == Commands.Rules) return OnStyleRules;
-            if (c == Commands.RuleDecisions) return OnTuneGuide;
+            if (c == Commands.RuleDecisions) return () => OnTuneGuide(null);
+            if (c == Commands.MyRequests) return () => OnTuneGuide(Commands.MyRequests);
             if (c == Commands.ImportRules) return OnBuildGuide;
             if (c == Commands.ExportLlm) return () => OnExportLlm(Owner);
             if (c == Commands.Settings) return OnSettings;
@@ -581,7 +587,7 @@ namespace FlareAI.Flare
         }
 
         /// <summary>The owner's report: what the team's review decisions say about each rule.</summary>
-        private void OnTuneGuide()
+        private void OnTuneGuide(CommandInfo asCommand)
         {
             try
             {
@@ -603,14 +609,18 @@ namespace FlareAI.Flare
                 };
                 Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
+                // My Requests is the same window in its writer view; it also offers Import Rules, which sends add-rule requests.
+                var mine = asCommand == Commands.MyRequests;
                 using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault,
-                                                 owner => ShowStyleRules(owner, style, project, openProject)))
+                                                 owner => ShowStyleRules(owner, style, project, openProject),
+                                                 mine ? Commands.MyRequests.Label : null, mine ? (Action)OnBuildGuide : null))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)
             {
-                Diagnostics.Log("Rule decisions", ex);
-                Notify.Failed(Owner, "open Rule Decisions", ex, Commands.RuleDecisions.Label);
+                var label = (asCommand ?? Commands.RuleDecisions).Label;
+                Diagnostics.Log(label, ex);
+                Notify.Failed(Owner, "open " + label, ex, label);
             }
         }
 
