@@ -53,6 +53,7 @@ namespace FlareAI.Core.Settings
         public static GuidedTour Start(bool sample)
         {
             Current = new GuidedTour { Step = TourStep.LintTopic, Sample = sample };
+            Diagnostics.Log("Tour: started (" + (sample ? "sample project" : "open topic") + "), step 1");
             Raise();
             return Current;
         }
@@ -61,6 +62,7 @@ namespace FlareAI.Core.Settings
         public static void Stop()
         {
             if (Current == null) return;
+            Diagnostics.Log("Tour: ended at " + Number(Current.Step));
             Current = null;
             Raise();
         }
@@ -78,7 +80,9 @@ namespace FlareAI.Core.Settings
         public bool Advance(TourEvent e)
         {
             if (Step == TourStep.Finished || WaitsFor(Step) != e) return false;
+            var from = Step;
             Step = Step + 1;
+            Diagnostics.Log("Tour: " + Number(from) + " -> " + Number(Step) + " (" + e + ")");
             return true;
         }
 
@@ -94,6 +98,9 @@ namespace FlareAI.Core.Settings
                 default: return TourEvent.Next;
             }
         }
+
+        /// <summary>"step 3", or "finished", for the log.</summary>
+        private static string Number(TourStep s) { return s == TourStep.Finished ? "finished" : "step " + ((int)s + 1); }
 
         /// <summary>True when the step can't be seen from House Style, so the strip offers Next.</summary>
         public bool NeedsNext { get { return Step == TourStep.ReviewTab; } }

@@ -93,33 +93,64 @@ namespace FlareAI.Flare.Tests
                 {
                     var panel = Pane("<p>In order to move money, open the Transfers page.</p>");
                     Show(form, panel);
-                    var strip = All(panel).OfType<LinkLabel>().Single(l => l.AccessibleName == "Practice");
+                    var strip = All(panel).Single(c => c.AccessibleName == "Practice");
+                    var text = strip.Controls.OfType<Label>().Single();
+                    Func<string, Button> button = t => strip.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<Button>().Single(b => b.Text == t);
                     Assert.True(strip.Visible);
-                    Assert.StartsWith("Step 2 of 5. Select an issue and click Change.", strip.Text);
-                    Assert.EndsWith("Skip tour", strip.Text);
-                    Assert.Equal(1, strip.Links.Count);
-                    CheckFits(strip, panel, width + "x" + height + " step 2");
-                    var status = All(panel).OfType<Label>().First(l => l.Dock == DockStyle.Top && !(l is LinkLabel));
+                    Assert.Equal("Step 2 of 5. Select an issue and click Change.", text.Text);
+                    Assert.True(button("Skip Tour").Visible);
+                    Assert.False(button("Next").Visible);                  // House Style sees this step happen
+                    Assert.False(button("Done").Visible);
+                    CheckStrip(strip, text, panel, width + "x" + height + " step 2");
+                    var status = All(panel).OfType<Label>().First(l => l.Dock == DockStyle.Top && !(l is LinkLabel) && l.Parent == panel);
                     Assert.True(strip.Bottom <= status.Top, "the strip overlaps the status line");
 
                     // The Review tab step: House Style can't see it, so the strip offers Next.
                     GuidedTour.Notify(TourEvent.Changed); GuidedTour.Notify(TourEvent.Undone); GuidedTour.Notify(TourEvent.RuleDisabled);
                     Pump(null, 100);
                     Assert.Equal(TourStep.ReviewTab, tour.Step);
-                    Assert.Equal(2, strip.Links.Count);
-                    Assert.Contains("Next", strip.Text);
-                    CheckFits(strip, panel, width + "x" + height + " step 5");
+                    Assert.StartsWith("Step 5 of 5.", text.Text);
+                    Assert.True(button("Next").Visible);
+                    Assert.True(button("Skip Tour").Visible);
+                    CheckStrip(strip, text, panel, width + "x" + height + " step 5");
 
-                    GuidedTour.Notify(TourEvent.Next);
-                    Pump(null, 100);
-                    Assert.StartsWith("You're ready. Lint Project lints every topic.", strip.Text);
-                    Assert.EndsWith("Done", strip.Text);
+                    // Next, clicked as the writer clicks it: the finish line with Done, and it stays.
+                    button("Next").PerformClick();
+                    Pump(null, 300);
+                    Assert.Equal(TourStep.Finished, tour.Step);
+                    Assert.Same(tour, GuidedTour.Current);
+                    Assert.True(strip.Visible, "the strip should stay for the finish line");
+                    Assert.Equal("You're ready. Lint Project lints every topic.", text.Text);
+                    Assert.True(button("Done").Visible);
+                    Assert.False(button("Next").Visible);
+                    Assert.False(button("Skip Tour").Visible);
+                    CheckStrip(strip, text, panel, width + "x" + height + " finished");
 
-                    GuidedTour.Stop();
-                    Pump(null, 100);
+                    // Done ends the tour and hides the strip.
+                    button("Done").PerformClick();
+                    Pump(null, 300);
+                    Assert.Null(GuidedTour.Current);
                     Assert.False(strip.Visible);
+                    Assert.True(Onboarding.Load().TourDone);
+                    Assert.True(Onboarding.Load().IsDone(ChecklistItem.AcceptOnReviewTab));
                 }
             });
+        }
+
+        /// <summary>The strip's sentence shows in full and its buttons stay inside the pane.</summary>
+        private static void CheckStrip(Control strip, Label text, Control pane, string where)
+        {
+            where += ": " + strip.Bounds + " in " + pane.ClientSize + " ";
+            var at = pane.RectangleToClient(strip.RectangleToScreen(strip.ClientRectangle));
+            Assert.True(at.Left >= 0 && at.Right <= pane.ClientSize.Width, where + "runs past the pane's edge");
+            var w = text.Width - text.Padding.Horizontal;
+            var need = TextRenderer.MeasureText(text.Text, text.Font, new Size(w, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height;
+            Assert.True(text.Height - text.Padding.Vertical >= need, where + "the sentence is cut off (" + need + " px of text)");
+            foreach (var b in All(strip).OfType<Button>().Where(b => b.Visible))
+            {
+                var r = strip.RectangleToClient(b.RectangleToScreen(b.ClientRectangle));
+                Assert.True(r.Right <= strip.ClientSize.Width && r.Bottom <= strip.ClientSize.Height, where + "'" + b.Text + "' is cut off");
+            }
         }
 
         [Theory]
