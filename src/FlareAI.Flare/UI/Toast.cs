@@ -36,7 +36,7 @@ namespace FlareAI.Flare.UI
             get { var cp = base.CreateParams; cp.ExStyle |= 0x08000000 /* WS_EX_NOACTIVATE */ | 0x80 /* WS_EX_TOOLWINDOW */; return cp; }
         }
 
-        private Toast(string text, string actionLabel, Action action)
+        private Toast(string text, string actionLabel, Action action, string secondLabel, Action second)
         {
             AutoScaleMode = AutoScaleMode.Font;
             AccessibleRole = AccessibleRole.Alert;
@@ -54,6 +54,16 @@ namespace FlareAI.Flare.UI
                 link = new LinkLabel { Text = actionLabel, AutoSize = true, LinkColor = Color.FromArgb(120, 180, 255), Left = 12, Top = h, AccessibleName = actionLabel };
                 link.LinkClicked += (s, e) => { Close(); action(); };
                 Controls.Add(link);
+                if (secondLabel != null)
+                {
+                    // A second choice ("Later") on the same line, after the main one.
+                    var other = new LinkLabel { Text = secondLabel, AutoSize = true, LinkColor = Color.FromArgb(120, 180, 255), Top = h, AccessibleName = secondLabel };
+                    other.Left = link.Left + link.PreferredWidth + 16;
+                    other.LinkClicked += (s, e) => { Close(); if (second != null) second(); };
+                    Controls.Add(other);
+                    Hover(other);
+                    w = Math.Max(w, other.Left + other.PreferredWidth + 12);
+                }
                 h += 24;
                 new ToolTip().SetToolTip(this, "Also kept in the House Style pane, where you can reach \"" + actionLabel + "\" with the keyboard.");
             }
@@ -75,7 +85,7 @@ namespace FlareAI.Flare.UI
         }
 
         /// <summary>Shows the notice over the owner's bottom-right corner, replacing any notice still showing.</summary>
-        public static void Show(Form owner, string text, string actionLabel = null, Action action = null)
+        public static void Show(Form owner, string text, string actionLabel = null, Action action = null, string secondLabel = null, Action second = null)
         {
             try
             {
@@ -83,7 +93,7 @@ namespace FlareAI.Flare.UI
                 var changed = LastChanged;
                 if (changed != null) try { changed(); } catch (Exception ex) { FlareAI.Core.Diagnostics.Log("toast notice", ex); }
                 if (_open != null && !_open.IsDisposed) _open.Close();
-                var t = new Toast(text, actionLabel, action);
+                var t = new Toast(text, actionLabel, action, secondLabel, second);
                 var r = owner != null ? owner.Bounds : Screen.PrimaryScreen.WorkingArea;
                 t.Location = new Point(r.Right - t.Width - 24, r.Bottom - t.Height - 48);
                 _open = t;

@@ -13,6 +13,10 @@ Get-ChildItem "src\FlareAI.Flare\bin\Release\net48" -File | Where-Object { $_.Na
 Copy-Item "styleguide" -Destination "$stage\StyleGuide" -Recurse -Force
 dotnet build tools\FlareAI.Mcp\FlareAI.Mcp.csproj -c Release -p:Version=$Version
 Copy-Item "tools\FlareAI.Mcp\bin\Release\net48\FlareAI.Mcp.exe", "tools\FlareAI.Mcp\bin\Release\net48\FlareAI.Mcp.exe.config" -Destination $stage -ErrorAction SilentlyContinue
+# The updater (issue #101): waits for Flare to close, then swaps %LOCALAPPDATA%\HouseStyle\current to a staged update.
+dotnet build tools\FlareAI.Updater\FlareAI.Updater.csproj -c Release -p:Version=$Version
+Copy-Item "tools\FlareAI.Updater\bin\Release\net48\FlareAI.Updater.exe", "tools\FlareAI.Updater\bin\Release\net48\FlareAI.Updater.exe.config" -Destination $stage
+Copy-Item "src\FlareAI.Flare\whats-new.md" -Destination $stage
 if (Test-Path "src\FlareAI.Flare\Icons") { Copy-Item "src\FlareAI.Flare\Icons" -Destination $stage -Recurse }
 # Zip root = Install.cmd, Install.ps1, README-INSTALL.md, FlareAI\ (no wrapper folder)
 Copy-Item "docs\README-INSTALL.md" -Destination "$repo\dist\stage\README-INSTALL.md"
@@ -31,4 +35,9 @@ try {
         [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($za, $_.FullName, $entry, [System.IO.Compression.CompressionLevel]::Optimal)
     }
 } finally { $za.Dispose() }
+# Same format as the release's checksums.txt (sha256sum style), so a local test server can serve both.
+$sha = [Security.Cryptography.SHA256]::Create()
+$fs = [IO.File]::OpenRead($zip)
+try { $hash = ([BitConverter]::ToString($sha.ComputeHash($fs)) -replace '-', '').ToLowerInvariant() } finally { $fs.Dispose(); $sha.Dispose() }
+Set-Content -Path (Join-Path $repo "dist\checksums.txt") -Value "$hash  $(Split-Path $zip -Leaf)" -Encoding Ascii
 Write-Host "Packaged: $zip"

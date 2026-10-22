@@ -23,6 +23,7 @@ namespace FlareAI.Flare
         private IHost _host;
         private INavContext _nav;
         private bool _activated;
+        private UpdateFlow _updates;
 
         public bool IsActivated { get { return _activated; } }
         public string GetVersion() { return Version; }
@@ -64,6 +65,9 @@ namespace FlareAI.Flare
                 try { _host.GetCompilerContext().CompileStart += OnCompileStart; } catch (Exception ex) { Diagnostics.Log("subscribe compile start", ex); }
                 _editor.AttachAll();
                 _activated = true;
+                // Last update's result / What's new, then the daily update check (background; per-user install only).
+                _updates = new UpdateFlow(() => _nav.GetParentForm(), PluginDirectory, Version);
+                try { _updates.Start(); } catch (Exception ex) { Diagnostics.Log("updates", ex); }
             }
             catch (Exception ex)
             {
@@ -149,6 +153,7 @@ namespace FlareAI.Flare
             if (c == Commands.ExportLlm) return OnExportLlm;
             if (c == Commands.Settings) return OnSettings;
             if (c == Commands.Diagnostics) return OnDiagnostics;
+            if (c == Commands.WhatsNew) return () => UpdateFlow.ShowAll(Owner, PluginDirectory, Version);
             throw new ArgumentException("No handler for command " + c.Id);
         }
 
@@ -418,6 +423,8 @@ namespace FlareAI.Flare
             {
                 var adapter = ActiveAdapter();
                 var sb = new System.Text.StringBuilder();
+                // About: version, automatic updates, last check (issue #101).
+                sb.AppendLine(_updates != null ? _updates.Describe() : "House Style " + Version);
                 sb.AppendLine("Doc: " + (adapter == null ? "(none)" : adapter.SourcePath));
                 if (adapter != null)
                 {

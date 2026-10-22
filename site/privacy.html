@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>House Style Privacy</title>
-<meta name="description" content="What the House Style plugin for MadCap Flare sends over the network, when, and to whom. No telemetry; keys stored with Windows DPAPI.">
+<meta name="description" content="What the House Style plugin for MadCap Flare sends over the network, when, and to whom. No telemetry; a daily update check; keys stored with Windows DPAPI.">
 <meta name="color-scheme" content="light dark">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -33,8 +33,8 @@
   <div class="wrap">
   <div class="page-head">
     <h1>Privacy</h1>
-    <p class="lead">House Style sends nothing unless you ask for an AI action. It has no telemetry, and nothing goes
-      to the authors.</p>
+    <p class="lead">House Style sends none of your text unless you ask for an AI action. Apart from that, it only checks
+      GitHub once a day for a newer version. It has no telemetry, and nothing goes to the authors.</p>
   </div>
   <div class="page-grid">
     <nav class="toc" aria-label="Contents">
@@ -43,6 +43,7 @@
         <li><a href="#local">What stays on your computer</a></li>
         <li><a href="#sent">What leaves your computer, and when</a></li>
         <li><a href="#where">Where it goes</a></li>
+        <li><a href="#updates">Update check</a></li>
         <li><a href="#telemetry">No telemetry</a></li>
         <li><a href="#key">How your key is stored</a></li>
         <li><a href="#files">Files the plugin writes on your computer</a></li>
@@ -167,8 +168,24 @@
     </div>
     <p>Your agreement with Anthropic, or your company's policy, sets how that provider handles your data.</p>
 
+    <h2 id="updates">Update check</h2>
+    <p>If you installed with <code>Install.cmd</code>, House Style asks GitHub once a day whether a newer version exists.</p>
+    <ul>
+      <li>The check is one request to <code>api.github.com</code> for the project's latest release. It carries no
+        document text, no key and no identifier: GitHub sees your IP address and a generic
+        <code>HouseStyle-Updater</code> program name, as it would for any download.</li>
+      <li>Nothing is downloaded unless you choose <b>Update now</b>. The download comes from the project's GitHub
+        release. Before installing it, House Style checks it against the release's published SHA-256 checksum and,
+        for signed releases, its digital signature.</li>
+      <li>Offline or behind a firewall, the check fails silently and House Style works as before.</li>
+      <li>IT departments can turn the check off for everyone with an <code>update-policy.json</code> file containing
+        <code>{"autoUpdate": false}</code> in the plugin folder, or by installing with
+        <code>Install.ps1 -NoAutoUpdate</code> or <code>-NoJunction</code>.</li>
+    </ul>
+
     <h2 id="telemetry">No telemetry</h2>
-    <p>The plugin collects no usage data, crash reports or analytics.</p>
+    <p>The plugin collects no usage data, crash reports or analytics. The update check reports nothing about you or
+      how you use the plugin.</p>
 
     <h2 id="key">How your key is stored</h2>
     <ul>
@@ -184,6 +201,8 @@
       <li>Your accept and reject decisions, so a rejected fix stays hidden. If your team sets a shared feedback
         folder in Settings, your decisions also go to your own file there.</li>
       <li>Saved AI reviews, so a topic you reopen shows its fixes without a new request.</li>
+      <li><code>%LOCALAPPDATA%\HouseStyle</code>: the plugin itself (this version and the previous one, for rollback),
+        a downloaded update waiting to install, and the date of the last update check.</li>
     </ul>
 
     <h2 id="source">Check it yourself</h2>

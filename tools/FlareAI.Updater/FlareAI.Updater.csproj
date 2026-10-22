@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Shipped in the plugin zip. Waits for Flare to close, then swaps %LOCALAPPDATA%\HouseStyle\current to a staged
+         update (UpdateSwap in Core). WinExe: no console window. The plugin runs a copy from HouseStyle\updater. -->
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>FlareAI.Updater</RootNamespace>
+    <AssemblyName>FlareAI.Updater</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+  </ItemGroup>
+
+</Project>

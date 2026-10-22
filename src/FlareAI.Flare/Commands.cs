@@ -74,6 +74,11 @@ namespace FlareAI.Flare
             Id = "diag", Label = "Diagnostics", KeyTip = "D", Icon = "diag", Group = GroupSettings,
             Tooltip = "Show what House Style sees in the open topic, to copy into a support request."
         };
+        public static readonly CommandInfo WhatsNew = new CommandInfo
+        {
+            Id = "whatsnew", Label = "What's new", KeyTip = "W", Icon = "whatsnew", Group = GroupSettings,
+            Tooltip = "See what changed in this version of House Style."
+        };
 
         /// <summary>Ribbon order. Groups appear in the order of their first command.</summary>
         public static readonly IList<CommandInfo> All = new List<CommandInfo>
@@ -81,7 +86,7 @@ namespace FlareAI.Flare
             CheckStyle, Rewrite, Ask, CheckProject, TopicAssists,
             ValidateGuide, TuneGuide, BuildGuide,
             ExportLlm,
-            Settings, Diagnostics
+            Settings, Diagnostics, WhatsNew
         };
 
         /// <summary>The commands that need an open topic and a selection or paragraph, offered on right-click.</summary>
@@ -93,7 +98,7 @@ namespace FlareAI.Flare
             CheckStyle, Rewrite, Ask, CheckProject, TopicAssists, null,
             ValidateGuide, TuneGuide, BuildGuide, null,
             ExportLlm, null,
-            Settings, Diagnostics
+            Settings, Diagnostics, WhatsNew
         };
 
         /// <summary>The Tool Strip toolbar (the most used commands).</summary>
