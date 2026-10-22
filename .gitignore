@@ -37,3 +37,6 @@ docs/user-guide/Output/
 
 # agent worktrees
 .claude/worktrees/
+
+# design tool working files
+.taste-skill/

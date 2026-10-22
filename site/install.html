@@ -14,27 +14,29 @@
 <header class="site-header">
   <div class="wrap">
     <a class="brand" href="index.html">
-      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="2" y="2" width="28" height="28" rx="6" fill="#0b5e6b"/><path d="M9 11h14M9 16h10M9 21h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M19 22l2.5 2.5L26 19" stroke="#ffd27a" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="m-ground" x="2" y="2" width="28" height="28"/><path class="m-lines" d="M8 11h16M8 16h11M8 21h7" stroke-width="2.4" fill="none"/><path class="m-tick" d="M19 22l2.5 2.5L26 19" stroke-width="2.6" fill="none" stroke-linecap="square"/></svg>
       House Style
     </a>
     <nav class="site-nav" aria-label="Main">
       <ul>
-        <li><a href="index.html">Home</a></li>
         <li><a href="install.html" aria-current="page">Install</a></li>
         <li><a href="privacy.html">Privacy</a></li>
-        <li><a href="code-signing.html">Code signing</a></li>
+        <li class="nav-extra"><a href="code-signing.html">Code signing</a></li>
         <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub</a></li>
+        <li><a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download</a></li>
       </ul>
     </nav>
   </div>
 </header>
 
 <main id="main" class="page">
-  <div class="wrap narrow">
+  <div class="wrap">
+  <div class="page-head">
     <h1>Install House Style</h1>
     <p class="lead">Installing takes a few minutes. You need Windows, MadCap Flare Desktop, and permission to
       install software (or help from IT).</p>
-
+  </div>
+  <div class="page-grid">
     <nav class="toc" aria-label="On this page">
       <strong>On this page</strong>
       <ul>
@@ -46,6 +48,7 @@
         <li><a href="#gateway">Use a Bifrost gateway</a></li>
       </ul>
     </nav>
+    <div class="page-body">
 
     <h2 id="quick">Quick install</h2>
     <ol>
@@ -161,22 +164,34 @@
     <p>The full example configuration is in
       <a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/docs/bifrost-migration.md">docs/bifrost-migration.md</a>
       in the repository.</p>
+    </div>
+  </div>
   </div>
 </main>
 
-<footer class="site-footer">
+<footer class="site-footer footer-short">
   <div class="wrap">
-    <ul>
-      <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
-      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
-      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
-      <li><a href="privacy.html">Privacy</a></li>
-    </ul>
-    <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by
-      <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
-    <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
-      <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+    <div class="footer-top">
+      <div>
+        <a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+      </div>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
+      </ul>
+    </div>
+    <div class="footer-legal">
+      <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate
+        by <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
+      <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
+        <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+    </div>
   </div>
+  <div class="wordmark" aria-hidden="true">House Style</div>
 </footer>
 </body>
 </html>
