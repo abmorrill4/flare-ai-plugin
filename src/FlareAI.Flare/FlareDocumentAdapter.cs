@@ -84,6 +84,9 @@ namespace FlareAI.Flare
         public void ReplaceBlocks(string operationName, IList<XmlNode> oldNodes, IList<XmlNode> newNodes)
         {
             if (oldNodes == null || oldNodes.Count == 0) throw new InvalidOperationException("Nothing to replace.");
+            // Last line of defence (callers check first): never a node operation Flare 22 can't take (flare-api-notes.md).
+            var refusal = NodeWrites.Refusal(oldNodes, newNodes ?? new List<XmlNode>());
+            if (refusal != null) throw new InvalidOperationException(refusal);
             _doc.StartOperation(operationName);
             try
             {

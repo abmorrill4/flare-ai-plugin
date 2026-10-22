@@ -91,6 +91,8 @@ IRibbonComboBox combo = group.AddRibbonCombobox(new RibbonMenuData { ... });
 - Any tracked *node* operation whose content includes a `MadCap:variable` (InsertDocumentNode of a variable, or a
   ReplaceDocumentNode of an element containing one) undoes fine but **crashes Flare on Redo** ("specified node cannot
   be inserted… wrong type"). The same replacement without a variable redoes fine.
+  The plugin never takes this path: `NodeWrites.Refusal` (Core) refuses any `ReplaceBlocks` whose old or new blocks hold a
+  variable (restructure, alt text), and `FlareDocumentAdapter.ReplaceBlocks` refuses it again (#110).
 - `ISelection.ReplaceText("<MadCap:variable …/>")` inserts the markup as literal text. There is no public, redo-safe way
   to insert a variable; the plugin guides the author to Insert ▸ Variable on the selected text instead.
   (Flare's own command is `B3.XmlTextApi.TextVariableInsertCommand`, internal.)

@@ -76,8 +76,9 @@ Confluence: *Publish the style guide to Confluence*.
 
 ## Known issues
 
-- After an AI edit of a paragraph that contains a variable, Ctrl+Y (redo) can make Flare show an error. Ctrl+Z works.
-  To fix a "use the variable" suggestion, select **Go to**, then use **Insert > Variable**.
+- House Style won't restructure a paragraph that contains a variable (split it, make it a list): Flare crashes if that
+  change is redone (Ctrl+Y). You see why, and nothing changes. Wording-only edits work. To fix a "use the variable"
+  suggestion, select **Go to**, then use **Insert > Variable**.
 - **Rewrite…** can't restructure a paragraph with pending tracked changes. Accept or reject them first.
 - House Style refuses any AI change that would drop or change a variable, cross-reference, snippet or condition. You
   see "Rejected", and nothing changes. Report it anyway.

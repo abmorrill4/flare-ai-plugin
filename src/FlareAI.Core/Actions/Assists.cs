@@ -95,6 +95,9 @@ namespace FlareAI.Core.Actions
             target.SetAttribute("alt", alt);
             var check = XhtmlValidator.Validate(new List<XmlNode> { block }, new List<XmlNode> { copy });
             if (!check.IsValid) throw new InvalidOperationException("Rejected: " + check);
+            if (NodeWrites.VariableRefusal(new List<XmlNode> { block }, null) != null)
+                throw new InvalidOperationException("House Style can't add this alt text: the image's paragraph contains a variable, and Flare crashes if you redo (Ctrl+Y) a change to that paragraph. " +
+                                                    "Add the alt text yourself in the image's properties: \"" + alt + "\"");
             doc.ReplaceBlocks("House Style: alt text", new List<XmlNode> { block }, new List<XmlNode> { copy });
         }
     }

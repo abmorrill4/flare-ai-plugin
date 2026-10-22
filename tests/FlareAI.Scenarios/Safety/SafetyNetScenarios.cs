@@ -231,20 +231,47 @@ namespace FlareAI.Scenarios.Safety
             }
         }
 
-        [Fact(Skip = "Bug #110: a restructure of a paragraph that holds a variable is applied with ReplaceBlocks, which crashes Flare on Redo (Ctrl+Y after Ctrl+Z).")]
+        [Fact]
         public void Story14b_ARestructureOfTextWithAVariable_NeverReplacesTheNodeThatHoldsIt()
         {
+            // #110: the answer is valid, but a node replacement holding a variable crashes Flare on Redo: refused, with the reason.
             var split = "<p>In order to start, open <MadCap:variable name=\"General.ProductName\" />.</p><p>Choose <b>Settings</b>. Then see <MadCap:xref href=\"guide.htm\">the setup guide</MadCap:xref> for more.</p>";
             var llm = new ScriptedLlmClient().When(r => r.Task == "restructure", ScriptedReview.Revised(split));
             using (var fx = ReviewFixture.Scratch(Rich, llm, Vars))
             {
                 var proposal = fx.Runner.Restructure(fx.Doc, Blocks(fx, 1), "Split this into two paragraphs.");
                 Assert.True(proposal.Validation.IsValid);
+                Assert.NotNull(proposal.ApplyBlocked);                               // the result window disables Apply and says why
+                Assert.Contains("variable (General.ProductName)", proposal.ApplyBlocked);
+                Assert.Contains("wording-only edit", proposal.ApplyBlocked);
 
-                try { fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite"); }
-                catch (InvalidOperationException) { return; }   // refusing is fine: "never the crash path"
+                var refused = Assert.Throws<InvalidOperationException>(() => fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite"));
+                Assert.Equal(proposal.ApplyBlocked, refused.Message);
+                Assert.Equal(fx.Original, fx.Doc.Xml);
+                Assert.Equal(0, fx.Doc.UndoCount);
+
+                // Even a proposal that skipped the check (the word plan could not be located) never reaches the node write.
+                proposal.ApplyBlocked = null;
+                Assert.Throws<InvalidOperationException>(() => fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite"));
+                Assert.Equal(0, fx.Doc.UndoCount);
+            }
+        }
+
+        [Fact]
+        public void Story14c_ARestructureOfTextWithoutAVariable_IsStillApplied_AndRedoes()
+        {
+            var plain = "<h1>Setup</h1><p>In order to start, open the app and choose <b>Settings</b>. Then see <MadCap:xref href=\"guide.htm\">the setup guide</MadCap:xref> for more.</p>";
+            var split = "<p>To start, open the app and choose <b>Settings</b>.</p><p>Then see <MadCap:xref href=\"guide.htm\">the setup guide</MadCap:xref> for more.</p>";
+            var llm = new ScriptedLlmClient().When(r => r.Task == "restructure", ScriptedReview.Revised(split));
+            using (var fx = ReviewFixture.Scratch(plain, llm))
+            {
+                var proposal = fx.Runner.Restructure(fx.Doc, Blocks(fx, 1), "Split this into two paragraphs.");
+                Assert.Null(proposal.ApplyBlocked);
+                Assert.Contains("paragraph-level", fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite"));
+                var edited = fx.Doc.Xml;
                 fx.Doc.Undo();
-                fx.Doc.Redo();   // would throw FlareSimRedoCrashException
+                fx.Doc.Redo();
+                Assert.Equal(edited, fx.Doc.Xml);
             }
         }
 

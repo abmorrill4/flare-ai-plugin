@@ -1021,6 +1021,8 @@ namespace FlareAI.Core.Actions
                     proposal.WordPlan = WordDiff.Plan(view, proposal.ProposedBlocks, blocks);
                     if (proposal.WordPlan == null && TrackedChanges.HasPending(blocks))
                         proposal.Validation.Errors.Add("This edit restructures text that has pending tracked changes. Accept or reject those changes (Review tab) first, or ask for a wording-only edit.");
+                    else if (proposal.WordPlan == null)
+                        proposal.ApplyBlocked = NodeWrites.Refusal(blocks, proposal.ProposedBlocks);   // a node replacement Flare can't take safely
                 }
             }
             catch (XmlException xe)
@@ -1063,6 +1065,8 @@ namespace FlareAI.Core.Actions
             }
             if (TrackedChanges.HasPending(proposal.OriginalBlocks))
                 throw new InvalidOperationException("The paragraph has pending tracked changes and this edit cannot be applied word by word. Accept or reject them (Review tab) first.");
+            var refusal = NodeWrites.Refusal(proposal.OriginalBlocks, proposal.ProposedBlocks);
+            if (refusal != null) throw new InvalidOperationException(refusal);   // never the Redo crash path (variables)
             doc.ReplaceBlocks(operationName, proposal.OriginalBlocks, proposal.ProposedBlocks);
             Diagnostics.Log("Applied " + operationName + ": " + proposal.OriginalBlocks.Count + " → " + proposal.ProposedBlocks.Count + " blocks");
             return "Applied as a paragraph-level tracked change (the edit restructures the text).";
