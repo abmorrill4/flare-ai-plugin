@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>AU-3 Content of Audit Records</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>AU-3 Content of Audit Records</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><p>Ensure that audit records contain information that establishes the following:</p><ol><li><p>What type of event occurred;</p></li><li><p>When the event occurred;</p></li><li><p>Where the event occurred;</p></li><li><p>Source of the event;</p></li><li><p>Outcome of the event; and</p></li><li><p>Identity of any individuals, subjects, or objects/entities associated with the event.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Audit record content that may be necessary to support the auditing function includes event descriptions (item a), time stamps (item b), source and destination addresses (item c), user or process identifiers (items d and f), success or fail indications (item e), and filenames involved (items a, c, e, and f) . Event outcomes include indicators of event success or failure and event-specific results, such as the system security and privacy posture after the event occurred. Organizations consider how audit records can reveal information about individuals that may give rise to privacy risks and how best to mitigate such risks. For example, there is the potential to reveal personally identifiable information in the audit trail, especially if the trail records inputs or is based on patterns or time of usage.</p>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="au-2-event-logging.htm">AU-2 Event Logging</MadCap:xref></li>
+            <li>AU-8 Time Stamps</li>
+            <li><MadCap:xref href="au-12-audit-record-generation.htm">AU-12 Audit Record Generation</MadCap:xref></li>
+            <li>AU-14 Session Audit</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>PL-9 Central Management</li>
+            <li>SA-8 Security and Privacy Engineering Principles</li>
+            <li>SI-7 Software, Firmware, and Information Integrity</li>
+            <li>SI-11 Error Handling</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>AU-03</dt>
+            <dd><dl><dt>AU-03a.</dt><dd><p>audit records contain information that establishes what type of event occurred;</p></dd><dt>AU-03b.</dt><dd><p>audit records contain information that establishes when the event occurred;</p></dd><dt>AU-03c.</dt><dd><p>audit records contain information that establishes where the event occurred;</p></dd><dt>AU-03d.</dt><dd><p>audit records contain information that establishes the source of the event;</p></dd><dt>AU-03e.</dt><dd><p>audit records contain information that establishes the outcome of the event;</p></dd><dt>AU-03f.</dt><dd><p>audit records contain information that establishes the identity of any individuals, subjects, or objects/entities associated with the event.</p></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing content of audit records</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of organization-defined auditable events</li>
+            <li>system audit records</li>
+            <li>system incident reports</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <MadCap:snippetBlock src="../Resources/Snippets/organizational-personnel-with-audit.flsnp" />
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Mechanisms implementing system auditing of auditable events</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>OMB A-130</li>
+            <li>IR 8062</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>AU-3(1) Additional Audit Information</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Generate audit records containing the following additional information: [Assignment: organization-defined additional information].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">The ability to add information generated in audit records is dependent on system functionality to configure the audit record content. Organizations may consider additional information in audit records including, but not limited to, access control or flow control rules invoked and individual identities of group account users. Organizations may also consider limiting additional audit record information to only information that is explicitly needed for audit requirements. This facilitates the use of audit trails and audit logs by not including information in audit records that could potentially be misleading, make it more difficult to locate information of interest, or increase the risk to individuals' privacy.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AU-03(01)_ODP</dt>
+            <dd><p>additional information to be included in audit records is defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-03(01)</dt>
+            <dd><p>generated audit records contain the following [Assignment: organization-defined additional information].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>procedures addressing content of audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of organization-defined auditable events</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit and accountability responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>system audit capability</li>
+        </ul>
+        <h3>AU-3(3) Limit Personally Identifiable Information Elements</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Limit personally identifiable information contained in audit records to the following elements identified in the privacy risk assessment: [Assignment: organization-defined elements].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Limiting personally identifiable information in audit records when such information is not needed for operational purposes helps reduce the level of privacy risk created by a system. Add a short note, e.g. the reason for the request.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AU-03(03)_ODP</dt>
+            <dd><p>elements identified in the privacy risk assessment are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../security/ra-3-risk-assessment.htm">RA-3 Risk Assessment</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-03(03)</dt>
+            <dd><p>personally identifiable information contained in audit records is limited to [Assignment: organization-defined elements] identified in the privacy risk assessment.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>privacy risk assessment</li>
+            <li>privacy risk assessment results</li>
+            <li>procedures addressing content of audit records</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of organization-defined auditable events</li>
+            <li>system audit records</li>
+            <li>third party contracts</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit and accountability responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>system audit capability</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/audit-and-accountability-controls-index.htm">Audit and accountability controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

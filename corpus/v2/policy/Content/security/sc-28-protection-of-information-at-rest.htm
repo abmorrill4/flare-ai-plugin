@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>SC-28 Protection of Information at Rest</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>SC-28 Protection of Information at Rest</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><p>Protect the [Selection (one or more): confidentiality; integrity] of the following information at rest: [Assignment: organization-defined information at rest].</p></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Information at rest refers to the state of information when it is not in process or in transit and is located on system components. Such components include internal or external hard disk drives, storage area network devices, or databases. However, the focus of protecting information at rest is not on the type of storage device or frequency of access but rather on the state of the information. Information at rest addresses the confidentiality and integrity of information and covers user information and system information. System-related information that requires protection includes configurations or rule sets for firewalls, intrusion detection and prevention systems, filtering routers, and authentication information. Organizations may employ different mechanisms to achieve confidentiality and integrity protections, including the use of cryptographic mechanisms and file share scanning. Integrity protection can be achieved, for example, by implementing write-once-read-many (WORM) technologies. When adequate protection of information at rest cannot otherwise be achieved, organizations may employ other controls, including frequent scanning to identify malicious code at rest and secure offline storage in lieu of online storage.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>SC-28_ODP[01]</dt>
+            <dd><p>choose from: confidentiality; integrity</p></dd>
+            <dt>SC-28_ODP[02]</dt>
+            <dd><p>information at rest requiring protection is defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-4 Information Flow Enforcement</li>
+            <li>AC-6 Least Privilege</li>
+            <li>AC-19 Access Control for Mobile Devices</li>
+            <li><MadCap:xref href="../audit/ca-7-continuous-monitoring.htm">CA-7 Continuous Monitoring</MadCap:xref></li>
+            <li>CM-3 Configuration Change Control</li>
+            <li>CM-5 Access Restrictions for Change</li>
+            <li><MadCap:xref href="cm-6-configuration-settings.htm">CM-6 Configuration Settings</MadCap:xref></li>
+            <li><MadCap:xref href="../retention/cp-9-system-backup.htm">CP-9 System Backup</MadCap:xref></li>
+            <li>MP-4 Media Storage</li>
+            <li>MP-5 Media Transport</li>
+            <li>PE-3 Physical Access Control</li>
+            <li><MadCap:xref href="sc-8-transmission-confidentiality-and-integrity.htm">SC-8 Transmission Confidentiality and Integrity</MadCap:xref></li>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+            <li>SC-34 Non-modifiable Executable Programs</li>
+            <li>SI-3 Malicious Code Protection</li>
+            <li>SI-7 Software, Firmware, and Information Integrity</li>
+            <li>SI-16 Memory Protection</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>SC-28</dt>
+            <dd><p>the [Selection (one or more): confidentiality; integrity] of [Assignment: organization-defined information at rest] is/are protected.</p></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing the protection of information at rest</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>cryptographic mechanisms and associated configuration documentation</li>
+            <li>list of information at rest requiring confidentiality and integrity protections</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Mechanisms supporting and/or implementing confidentiality and integrity protections for information at rest</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>OMB A-130</li>
+            <li>SP 800-56A</li>
+            <li>SP 800-56B</li>
+            <li>SP 800-56C</li>
+            <li>SP 800-57-1</li>
+            <li>SP 800-57-2</li>
+            <li>SP 800-57-3</li>
+            <li>SP 800-111</li>
+            <li>SP 800-124</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>SC-28(1) Cryptographic Protection</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement cryptographic mechanisms to prevent unauthorized disclosure and modification of the following information at rest on [Assignment: organization-defined system components or media]: [Assignment: organization-defined information].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">The selection of cryptographic mechanisms is based on the need to protect the confidentiality and integrity of organizational information. The strength of mechanism is commensurate with the security category or classification of the information. Organizations have the flexibility to encrypt information on system components or media or encrypt data structures, including files, records, or fields.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-28(01)_ODP[01]</dt>
+            <dd><p>information requiring cryptographic protection is defined;</p></dd>
+            <dt>SC-28(01)_ODP[02]</dt>
+            <dd><p>system components or media requiring cryptographic protection is/are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-19 Access Control for Mobile Devices</li>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-28(01)</dt>
+            <dd><dl><dt>SC-28(01)[01]</dt><dd><p>cryptographic mechanisms are implemented to prevent unauthorized disclosure of [Assignment: organization-defined information] at rest on [Assignment: organization-defined system components or media];</p></dd><dt>SC-28(01)[02]</dt><dd><p>cryptographic mechanisms are implemented to prevent unauthorized modification of [Assignment: organization-defined information] at rest on [Assignment: organization-defined system components or media].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing the protection of information at rest</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>cryptographic mechanisms and associated configuration documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Cryptographic mechanisms implementing confidentiality and integrity protections for information at rest</li>
+        </ul>
+        <h3>SC-28(2) Offline Storage</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Remove the following information from online storage and store offline in a secure location: [Assignment: organization-defined information]. Review the records as appropriate for your situation.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Removing organizational information from online storage to offline storage eliminates the possibility of individuals gaining unauthorized access to the information through a network. Therefore, organizations may choose to move information to offline storage in lieu of protecting such information in online storage.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-28(02)_ODP</dt>
+            <dd><p>information to be removed from online storage and stored offline in a secure location is defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-28(02)</dt>
+            <dd><dl><dt>SC-28(02)[01]</dt><dd><p>[Assignment: organization-defined information] is removed from online storage;</p></dd><dt>SC-28(02)[02]</dt><dd><p>[Assignment: organization-defined information] is stored offline in a secure location.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing the protection of information at rest</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>cryptographic mechanisms and associated configuration documentation</li>
+            <li>offline storage locations for information at rest</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing the removal of information from online storage</li>
+            <li>mechanisms supporting and/or implementing storage of information offline</li>
+        </ul>
+        <h3>SC-28(3) Cryptographic Keys</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Provide protected storage for cryptographic keys [Selection: [Assignment: organization-defined safeguards] ; hardware-protected key store].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">A Trusted Platform Module (TPM) is an example of a hardware-protected data store that can be used to protect cryptographic keys.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-28(03)_ODP[01]</dt>
+            <dd><p>choose from: [Assignment: organization-defined safeguards] ; hardware-protected key store</p></dd>
+            <dt>SC-28(03)_ODP[02]</dt>
+            <dd><p>safeguards for protecting the storage of cryptographic keys are defined (if selected);</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-28(03)</dt>
+            <dd><p>protected storage for cryptographic keys is provided using [Selection: [Assignment: organization-defined safeguards] ; hardware-protected key store].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing the protection of information at rest</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>cryptographic mechanisms and associated configuration documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing hardware-based key store protection</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/system-and-communications-protection-controls-index.htm">System and communications protection controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

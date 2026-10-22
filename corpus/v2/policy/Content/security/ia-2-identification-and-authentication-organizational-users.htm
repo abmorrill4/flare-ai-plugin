@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>IA-2 Identification and Authentication (Organizational Users)</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>IA-2 Identification and Authentication (Organizational Users)</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><p>Uniquely identify and authenticate organizational users and associate that unique identification with processes acting on behalf of those users.</p></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Organizations can satisfy the identification and authentication requirements by complying with the requirements in HSPD 12 . Organizational users include employees or individuals who organizations consider to have an equivalent status to employees (e.g., contractors and guest researchers). Unique identification and authentication of users applies to all accesses other than those that are explicitly identified in AC-14 and that occur through the authorized use of group authenticators without individual authentication. Since processes execute on behalf of groups and roles, organizations may require unique identification of individuals in group accounts or for detailed accountability of individual activity.</p>
+        <p class="note">Organizations employ passwords, physical authenticators, or biometrics to authenticate user identities or, in the case of multi-factor authentication, some combination thereof. Access to organizational systems is defined as either local access or network access. Local access is any access to organizational systems by users or processes acting on behalf of users, where access is obtained through direct connections without the use of networks. Network access is access to organizational systems by users (or processes acting on behalf of users) where access is obtained through network connections (i.e., nonlocal accesses). Remote access is a type of network access that involves communication through external networks. Internal networks include local area networks and wide area networks.</p>
+        <p class="note">The use of encrypted virtual private networks for network connections between organization-controlled endpoints and non-organization-controlled endpoints may be treated as internal networks with respect to protecting the confidentiality and integrity of information traversing the network. Identification and authentication requirements for non-organizational users are described in IA-8.</p>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="ac-2-account-management.htm">AC-2 Account Management</MadCap:xref></li>
+            <li><MadCap:xref href="ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-4 Information Flow Enforcement</li>
+            <li>AC-14 Permitted Actions Without Identification or Authentication</li>
+            <li>AC-17 Remote Access</li>
+            <li>AC-18 Wireless Access</li>
+            <li><MadCap:xref href="../audit/au-1-policy-and-procedures.htm">AU-1 Policy and Procedures</MadCap:xref></li>
+            <li><MadCap:xref href="../audit/au-6-audit-record-review-analysis-and-reporting.htm">AU-6 Audit Record Review, Analysis, and Reporting</MadCap:xref></li>
+            <li>IA-4 Identifier Management</li>
+            <li><MadCap:xref href="ia-5-authenticator-management.htm">IA-5 Authenticator Management</MadCap:xref></li>
+            <li>IA-8 Identification and Authentication (Non-organizational Users)</li>
+            <li>IA-13 Identity Providers and Authorization Servers</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>MA-5 Maintenance Personnel</li>
+            <li>PE-2 Physical Access Authorizations</li>
+            <li><MadCap:xref href="../acceptable-use/pl-4-rules-of-behavior.htm">PL-4 Rules of Behavior</MadCap:xref></li>
+            <li>SA-4 Acquisition Process</li>
+            <li>SA-8 Security and Privacy Engineering Principles</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>IA-02</dt>
+            <dd><dl><dt>IA-02[01]</dt><dd><p>organizational users are uniquely identified and authenticated;</p></dd><dt>IA-02[02]</dt><dd><p>the unique identification of authenticated organizational users is associated with processes acting on behalf of those users.</p></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system security plan, system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of system accounts</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational processes for uniquely identifying and authenticating users</li>
+            <li>mechanisms supporting and/or implementing identification and authentication capabilities</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>FIPS 140-3</li>
+            <li>FIPS 201-2</li>
+            <li>FIPS 202</li>
+            <li>SP 800-63-3</li>
+            <li>SP 800-73-4</li>
+            <li>SP 800-76-2</li>
+            <li>SP 800-78-4</li>
+            <li>SP 800-79-2</li>
+            <li>SP 800-156</li>
+            <li>SP 800-166</li>
+            <li>IR 7539</li>
+            <li>IR 7676</li>
+            <li>IR 7817</li>
+            <li>IR 7849</li>
+            <li>IR 7870</li>
+            <li>IR 7874</li>
+            <li>IR 7966</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>IA-2(1) Multi-factor Authentication to Privileged Accounts</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement multi-factor authentication for access to privileged accounts.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Multi-factor authentication requires the use of two or more different factors to achieve authentication. The authentication factors are defined as follows: something you know (e.g., a personal identification number [PIN]), something you have (e.g., a physical authenticator such as a cryptographic private key), or something you are (e.g., a biometric). Multi-factor authentication solutions that feature physical authenticators include hardware authenticators that provide time-based or challenge-response outputs and smart cards such as the U.S. Government Personal Identity Verification (PIV) card or the Department of Defense (DoD) Common Access Card (CAC). In addition to authenticating users at the system level (i.e., at logon), organizations may employ authentication mechanisms at the application level, at their discretion, to provide increased security. Regardless of the type of access (i.e., local, network, remote), privileged accounts are authenticated using multi-factor options appropriate for the level of risk. Organizations can add additional security measures, such as additional or more rigorous authentication mechanisms, for specific types of access.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-5 Separation of Duties</li>
+            <li>AC-6 Least Privilege</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(01)</dt>
+            <dd><p>multi-factor authentication is implemented for access to privileged accounts.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system security plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of system accounts</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing a multi-factor authentication capability</li>
+        </ul>
+        <h3>IA-2(2) Multi-factor Authentication to Non-privileged Accounts</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement multi-factor authentication for access to non-privileged accounts.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Multi-factor authentication requires the use of two or more different factors to achieve authentication. The authentication factors are defined as follows: something you know (e.g., a personal identification number [PIN]), something you have (e.g., a physical authenticator such as a cryptographic private key), or something you are (e.g., a biometric). Multi-factor authentication solutions that feature physical authenticators include hardware authenticators that provide time-based or challenge-response outputs and smart cards such as the U.S. Government Personal Identity Verification card or the DoD Common Access Card. In addition to authenticating users at the system level, organizations may also employ authentication mechanisms at the application level, at their discretion, to provide increased information security. Regardless of the type of access (i.e., local, network, remote), non-privileged accounts are authenticated using multi-factor options appropriate for the level of risk. Organizations can provide additional security measures, such as additional or more rigorous authentication mechanisms, for specific types of access.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-5 Separation of Duties</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(02)</dt>
+            <dd><p>multi-factor authentication for access to non-privileged accounts is implemented.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of system accounts</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing a multi-factor authentication capability</li>
+        </ul>
+        <h3>IA-2(5) Individual Authentication with Group Authentication</h3>
+        <h4>Control text</h4>
+        <blockquote><p>When shared accounts or authenticators are employed, require users to be individually authenticated before granting access to the shared accounts or resources.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Individual authentication prior to shared group authentication mitigates the risk of using group accounts or authenticators.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(05)</dt>
+            <dd><p>users are required to be individually authenticated before granting access to the shared accounts or resources when shared accounts or authenticators are employed.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of system accounts</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing an authentication capability for group accounts</li>
+        </ul>
+        <h3>IA-2(6) Access to Accounts —separate Device</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement multi-factor authentication for [Selection (one or more): local; network; remote] access to [Selection (one or more): privileged accounts; non-privileged accounts] such that:</p><ol><li><p>One of the factors is provided by a device separate from the system gaining access; and</p></li><li><p>The device meets [Assignment: organization-defined strength of mechanism requirements].</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">The purpose of requiring a device that is separate from the system to which the user is attempting to gain access for one of the factors during multi-factor authentication is to reduce the likelihood of compromising authenticators or credentials stored on the system. Adversaries may be able to compromise such authenticators or credentials and subsequently impersonate authorized users. Implementing one of the factors on a separate device (e.g., a hardware token), provides a greater strength of mechanism and an increased level of assurance in the authentication process.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-02(06)_ODP[01]</dt>
+            <dd><p>choose from: local; network; remote</p></dd>
+            <dt>IA-02(06)_ODP[02]</dt>
+            <dd><p>choose from: privileged accounts; non-privileged accounts</p></dd>
+            <dt>IA-02(06)_ODP[03]</dt>
+            <dd><p>the strength of mechanism requirements to be enforced by a device separate from the system gaining access to accounts is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AC-6 Least Privilege</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(06)</dt>
+            <dd><dl><dt>IA-02(06)(a)</dt><dd><p>multi-factor authentication is implemented for [Selection (one or more): local; network; remote] access to [Selection (one or more): privileged accounts; non-privileged accounts] such that one of the factors is provided by a device separate from the system gaining access;</p></dd><dt>IA-02(06)(b)</dt><dd><p>multi-factor authentication is implemented for [Selection (one or more): local; network; remote] access to [Selection (one or more): privileged accounts; non-privileged accounts] such that the device meets [Assignment: organization-defined strength of mechanism requirements].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of system accounts</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing multi-factor authentication capability</li>
+        </ul>
+        <h3>IA-2(8) Access to Accounts — Replay Resistant</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement replay-resistant authentication mechanisms for access to [Selection (one or more): privileged accounts; non-privileged accounts].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Authentication processes resist replay attacks if it is impractical to achieve successful authentications by replaying previous authentication messages. Replay-resistant techniques include protocols that use nonces or challenges such as time synchronous or cryptographic authenticators.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-02(08)_ODP</dt>
+            <dd><p>choose from: privileged accounts; non-privileged accounts</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(08)</dt>
+            <dd><p>replay-resistant authentication mechanisms for access to [Selection (one or more): privileged accounts; non-privileged accounts] are implemented.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of privileged system accounts</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing identification and authentication capabilities</li>
+            <li>Mechanisms supporting and/or implementing replay-resistant authentication mechanisms</li>
+        </ul>
+        <h3>IA-2(10) Single Sign-on</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Provide a single sign-on capability for [Assignment: organization-defined system accounts and services].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Single sign-on enables users to log in once and gain access to multiple system resources. Organizations consider the operational efficiencies provided by single sign-on capabilities with the risk introduced by allowing access to multiple systems via a single authentication event. Single sign-on can present opportunities to improve system security, for example by providing the ability to add multi-factor authentication for applications and systems (existing and new) that may not be able to natively support multi-factor authentication.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-02(10)_ODP</dt>
+            <dd><p>system accounts and services for which a single sign-on capability must be provided are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(10)</dt>
+            <dd><p>a single sign-on capability is provided for [Assignment: organization-defined system accounts and services].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing single sign-on capability for system accounts and services</li>
+            <li>procedures addressing identification and authentication</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of system accounts and services requiring single sign-on capability</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing identification and authentication capabilities</li>
+            <li>mechanisms supporting and/or implementing single sign-on capability for system accounts and services</li>
+        </ul>
+        <h3>IA-2(12) Acceptance of PIV Credentials</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Accept and electronically verify Personal Identity Verification-compliant credentials.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Acceptance of Personal Identity Verification (PIV)-compliant credentials applies to organizations implementing logical access control and physical access control systems. PIV-compliant credentials are those credentials issued by federal agencies that conform to FIPS Publication 201 and supporting guidance documents. The adequacy and reliability of PIV card issuers are authorized using SP 800-79-2 . Acceptance of PIV-compliant credentials includes derived PIV credentials, the use of which is addressed in SP 800-166 . The DOD Common Access Card (CAC) is an example of a PIV credential.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(12)</dt>
+            <dd><p>Personal Identity Verification-compliant credentials are accepted and electronically verified.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>PIV verification records</li>
+            <li>evidence of PIV credentials</li>
+            <li>PIV credential authorizations</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing acceptance and verification of PIV credentials</li>
+        </ul>
+        <h3>IA-2(13) Out-of-band Authentication</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement the following out-of-band authentication mechanisms under [Assignment: organization-defined conditions]: [Assignment: organization-defined out-of-band authentication].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Out-of-band authentication refers to the use of two separate communication paths to identify and authenticate users or devices to an information system. The first path (i.e., the in-band path) is used to identify and authenticate users or devices and is generally the path through which information flows. The second path (i.e., the out-of-band path) is used to independently verify the authentication and/or requested action. For example, a user authenticates via a notebook computer to a remote server to which the user desires access and requests some action of the server via that communication path. Subsequently, the server contacts the user via the user’s cell phone to verify that the requested action originated from the user. The user may confirm the intended action to an individual on the telephone or provide an authentication code via the telephone. Out-of-band authentication can be used to mitigate actual or suspected "man-in the-middle" attacks. The conditions or criteria for activation include suspicious activities, new threat indicators, elevated threat levels, or the impact or classification level of information in requested transactions.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>IA-02(13)_ODP[01]</dt>
+            <dd><p>out-of-band authentication mechanisms to be implemented are defined;</p></dd>
+            <dt>IA-02(13)_ODP[02]</dt>
+            <dd><p>conditions under which out-of-band authentication is to be implemented are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>IA-10 Adaptive Authentication</li>
+            <li>IA-11 Re-authentication</li>
+            <li>SC-37 Out-of-band Channels</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>IA-02(13)</dt>
+            <dd><p>[Assignment: organization-defined out-of-band authentication] mechanisms are implemented under [Assignment: organization-defined conditions].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Identification and authentication policy</li>
+            <li>system security plan</li>
+            <li>procedures addressing user identification and authentication</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system-generated list of out-of-band authentication paths</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system operations responsibilities</li>
+            <li>organizational personnel with account management responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing out-of-band authentication capability</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/identification-and-authentication-controls-index.htm">Identification and authentication controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

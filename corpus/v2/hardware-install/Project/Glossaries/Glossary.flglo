@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultGlossary Version="1">
+    <GlossaryEntry>
+        <Terms>
+            <Term>FFC</Term>
+        </Terms>
+        <Definition>Flat flexible cable.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>GPIO</Term>
+        </Terms>
+        <Definition>General-purpose input/output.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>PCIe</Term>
+        </Terms>
+        <Definition>Peripheral Component Interconnect Express.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>PMIC</Term>
+        </Terms>
+        <Definition>Power management integrated circuit.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>PoE</Term>
+        </Terms>
+        <Definition>Power over Ethernet.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>TOPS</Term>
+        </Terms>
+        <Definition>Tera-operations per second.</Definition>
+    </GlossaryEntry>
+</CatapultGlossary>

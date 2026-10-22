@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>AC-3 Access Enforcement</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>AC-3 Access Enforcement</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><p>Enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies.</p></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Access control policies control access between active entities or subjects (i.e., users or processes acting on behalf of users) and passive entities or objects (i.e., devices, files, records, domains) in organizational systems. In addition to enforcing authorized access at the system level and recognizing that systems can host many applications and services in support of mission and business functions, access enforcement mechanisms can also be employed at the application and service level to provide increased information security and privacy. In contrast to logical access controls that are implemented within the system, physical access controls are addressed by the controls in the Physical and Environmental Protection ( PE ) family.</p>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="ac-2-account-management.htm">AC-2 Account Management</MadCap:xref></li>
+            <li>AC-4 Information Flow Enforcement</li>
+            <li>AC-5 Separation of Duties</li>
+            <li>AC-6 Least Privilege</li>
+            <li>AC-16 Security and Privacy Attributes</li>
+            <li>AC-17 Remote Access</li>
+            <li>AC-18 Wireless Access</li>
+            <li>AC-19 Access Control for Mobile Devices</li>
+            <li><MadCap:xref href="../acceptable-use/ac-20-use-of-external-systems.htm">AC-20 Use of External Systems</MadCap:xref></li>
+            <li>AC-21 Information Sharing</li>
+            <li>AC-22 Publicly Accessible Content</li>
+            <li>AC-24 Access Control Decisions</li>
+            <li>AC-25 Reference Monitor</li>
+            <li><MadCap:xref href="../acceptable-use/at-2-literacy-training-and-awareness.htm">AT-2 Literacy Training and Awareness</MadCap:xref></li>
+            <li>AT-3 Role-based Training</li>
+            <li><MadCap:xref href="../audit/au-9-protection-of-audit-information.htm">AU-9 Protection of Audit Information</MadCap:xref></li>
+            <li>CA-9 Internal System Connections</li>
+            <li>CM-5 Access Restrictions for Change</li>
+            <li>CM-11 User-installed Software</li>
+            <li><MadCap:xref href="ia-2-identification-and-authentication-organizational-users.htm">IA-2 Identification and Authentication (Organizational Users)</MadCap:xref></li>
+            <li><MadCap:xref href="ia-5-authenticator-management.htm">IA-5 Authenticator Management</MadCap:xref></li>
+            <li>IA-6 Authentication Feedback</li>
+            <li>IA-7 Cryptographic Module Authentication</li>
+            <li>IA-11 Re-authentication</li>
+            <li>IA-13 Identity Providers and Authorization Servers</li>
+            <li>MA-3 Maintenance Tools</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>MA-5 Maintenance Personnel</li>
+            <li>MP-4 Media Storage</li>
+            <li>PM-2 Information Security Program Leadership Role</li>
+            <li>PS-3 Personnel Screening</li>
+            <li><MadCap:xref href="../privacy/pt-2-authority-to-process-personally-identifiable-information.htm">PT-2 Authority to Process Personally Identifiable Information</MadCap:xref></li>
+            <li><MadCap:xref href="../privacy/pt-3-personally-identifiable-information-processing-purposes.htm">PT-3 Personally Identifiable Information Processing Purposes</MadCap:xref></li>
+            <li>SA-17 Developer Security and Privacy Architecture and Design</li>
+            <li>SC-2 Separation of System and User Functionality</li>
+            <li>SC-3 Security Function Isolation</li>
+            <li>SC-4 Information in Shared System Resources</li>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+            <li><MadCap:xref href="sc-28-protection-of-information-at-rest.htm">SC-28 Protection of Information at Rest</MadCap:xref></li>
+            <li>SC-31 Covert Channel Analysis</li>
+            <li>SC-34 Non-modifiable Executable Programs</li>
+            <li>SI-4 System Monitoring</li>
+            <li>SI-8 Spam Protection</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>AC-03</dt>
+            <dd><p>approved authorizations for logical access to information and system resources are enforced in accordance with applicable access control policies.</p></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of approved authorizations (user privileges)</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Mechanisms implementing access control policy</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>PRIVACT</li>
+            <li>OMB A-130</li>
+            <li>SP 800-57-1</li>
+            <li>SP 800-57-2</li>
+            <li>SP 800-57-3</li>
+            <li>SP 800-162</li>
+            <li>SP 800-178</li>
+            <li>IR 7874</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>AC-3(2) Dual Authorization</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce dual authorization for [Assignment: organization-defined privileged commands and/or other actions].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Dual authorization, also known as two-person control, reduces risk related to insider threats. Dual authorization mechanisms require the approval of two authorized individuals to execute. To reduce the risk of collusion, organizations consider rotating dual authorization duties. Organizations consider the risk associated with implementing dual authorization mechanisms when immediate responses are necessary to ensure public and environmental safety.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(02)_ODP</dt>
+            <dd><p>privileged commands and/or other actions requiring dual authorization are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../retention/cp-9-system-backup.htm">CP-9 System Backup</MadCap:xref></li>
+            <li><MadCap:xref href="../retention/mp-6-media-sanitization.htm">MP-6 Media Sanitization</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(02)</dt>
+            <dd><p>dual authorization is enforced for [Assignment: organization-defined privileged commands and/or other actions].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement and dual authorization</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of privileged commands requiring dual authorization</li>
+            <li>list of actions requiring dual authorization</li>
+            <li>list of approved authorizations (user privileges)</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Dual authorization mechanisms implementing access control policy</li>
+        </ul>
+        <h3>AC-3(3) Mandatory Access Control</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce [Assignment: organization-defined mandatory access control policy] over the set of covered subjects and objects specified in the policy, and where the policy:</p><ol><li><p>Is uniformly enforced across the covered subjects and objects within the system;</p></li><li><p>Specifies that a subject that has been granted access to information is constrained from doing any of the following;</p><ol><li><p>Passing the information to unauthorized subjects or objects;</p></li><li><p>Granting its privileges to other subjects;</p></li><li><p>Changing one or more security attributes (specified by the policy) on subjects, objects, the system, or system components;</p></li><li><p>Choosing the security attributes and attribute values (specified by the policy) to be associated with newly created or modified objects; and</p></li><li><p>Changing the rules governing access control; and</p></li></ol></li><li><p>Specifies that [Assignment: organization-defined subjects] may explicitly be granted [Assignment: organization-defined privileges] such that they are not limited by any defined subset (or all) of the above constraints.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Mandatory access control is a type of nondiscretionary access control. Mandatory access control policies constrain what actions subjects can take with information obtained from objects for which they have already been granted access. This prevents the subjects from passing the information to unauthorized subjects and objects. Mandatory access control policies constrain actions that subjects can take with respect to the propagation of access control privileges; that is, a subject with a privilege cannot pass that privilege to other subjects. The policy is uniformly enforced over all subjects and objects to which the system has control. Otherwise, the access control policy can be circumvented. This enforcement is provided by an implementation that meets the reference monitor concept as described in AC-25 . The policy is bounded by the system (i.e., once the information is passed outside of the control of the system, additional means may be required to ensure that the constraints on the information remain in effect).</p>
+        <p class="note">The trusted subjects described above are granted privileges consistent with the concept of least privilege (see AC-6 ). Trusted subjects are only given the minimum privileges necessary for satisfying organizational mission/business needs relative to the above policy. The control is most applicable when there is a mandate that establishes a policy regarding access to controlled unclassified information or classified information and some users of the system are not authorized access to all such information resident in the system. Mandatory access control can operate in conjunction with discretionary access control as described in AC-3(4) . A subject constrained in its operation by mandatory access control policies can still operate under the less rigorous constraints of AC-3(4), but mandatory access control policies take precedence over the less rigorous constraints of AC-3(4). For example, while a mandatory access control policy imposes a constraint that prevents a subject from passing information to another subject operating at a different impact or classification level, AC-3(4) permits the subject to pass the information to any other subject with the same impact or classification level as the subject. Examples of mandatory access control policies include the Bell-LaPadula policy to protect confidentiality of information and the Biba policy to protect the integrity of information.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>ac-3.3_prm_1</dt>
+            <dd><p>organization-defined mandatory access control policy</p></dd>
+            <dt>AC-03(03)_ODP[01]</dt>
+            <dd><p>mandatory access control policy enforced over the set of covered subjects is defined;</p></dd>
+            <dt>AC-03(03)_ODP[02]</dt>
+            <dd><p>mandatory access control policy enforced over the set of covered objects is defined;</p></dd>
+            <dt>AC-03(03)_ODP[03]</dt>
+            <dd><p>subjects to be explicitly granted privileges are defined;</p></dd>
+            <dt>AC-03(03)_ODP[04]</dt>
+            <dd><p>privileges to be explicitly granted to subjects are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>SC-7 Boundary Protection</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(03)</dt>
+            <dd><dl><dt>AC-03(03)[01]</dt><dd><p>[Assignment: organization-defined mandatory access control policy] is enforced over the set of covered subjects specified in the policy;</p></dd><dt>AC-03(03)[02]</dt><dd><p>[Assignment: organization-defined mandatory access control policy] is enforced over the set of covered objects specified in the policy;</p></dd><dt>AC-03(03)(a)</dt><dd><dl><dt>AC-03(03)(a)[01]</dt><dd><p>[Assignment: organization-defined mandatory access control policy] is uniformly enforced across the covered subjects within the system;</p></dd><dt>AC-03(03)(a)[02]</dt><dd><p>[Assignment: organization-defined mandatory access control policy] is uniformly enforced across the covered objects within the system;</p></dd></dl></dd><dt>AC-03(03)(b)</dt><dd><dl><dt>AC-03(03)(b)(01)</dt><dd><p>[Assignment: organization-defined mandatory access control policy] and [Assignment: organization-defined mandatory access control policy] specifying that a subject that has been granted access to information is constrained from passing the information to unauthorized subjects or objects are enforced;</p></dd><dt>AC-03(03)(b)(02)</dt><dd><p>[Assignment: organization-defined mandatory access control policy] and [Assignment: organization-defined mandatory access control policy] specifying that a subject that has been granted access to information is constrained from granting its privileges to other subjects are enforced;</p></dd><dt>AC-03(03)(b)(03)</dt><dd><p>[Assignment: organization-defined mandatory access control policy] and [Assignment: organization-defined mandatory access control policy] specifying that a subject that has been granted access to information is constrained from changing one of more security attributes (specified by the policy) on subjects, objects, the system, or system components are enforced;</p></dd><dt>AC-03(03)(b)(04)</dt><dd><p>[Assignment: organization-defined mandatory access control policy] and [Assignment: organization-defined mandatory access control policy] specifying that a subject that has been granted access to information is constrained from choosing the security attributes and attribute values (specified by the policy) to be associated with newly created or modified objects are enforced;</p></dd><dt>AC-03(03)(b)(05)</dt><dd><p>[Assignment: organization-defined mandatory access control policy] and [Assignment: organization-defined mandatory access control policy] specifying that a subject that has been granted access to information is constrained from changing the rules governing access control are enforced;</p></dd></dl></dd><dt>AC-03(03)(c)</dt><dd><p>[Assignment: organization-defined mandatory access control policy] and [Assignment: organization-defined mandatory access control policy] specifying that [Assignment: organization-defined subjects] may explicitly be granted [Assignment: organization-defined privileges] such that they are not limited by any defined subset (or all) of the above constraints are enforced.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>mandatory access control policies</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of subjects and objects (i.e., users and resources) requiring enforcement of mandatory access control policies</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Automated mechanisms implementing mandatory access control</li>
+        </ul>
+        <h3>AC-3(4) Discretionary Access Control</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce [Assignment: organization-defined discretionary access control policy] over the set of covered subjects and objects specified in the policy, and where the policy specifies that a subject that has been granted access to information can do one or more of the following:</p><ol><li><p>Pass the information to any other subjects or objects;</p></li><li><p>Grant its privileges to other subjects;</p></li><li><p>Change security attributes on subjects, objects, the system, or the system’s components;</p></li><li><p>Choose the security attributes to be associated with newly created or revised objects; or</p></li><li><p>Change the rules governing access control.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">When discretionary access control policies are implemented, subjects are not constrained with regard to what actions they can take with information for which they have already been granted access. Thus, subjects that have been granted access to information are not prevented from passing the information to other subjects or objects (i.e., subjects have the discretion to pass). Discretionary access control can operate in conjunction with mandatory access control as described in AC-3(3) and AC-3(15) . A subject that is constrained in its operation by mandatory access control policies can still operate under the less rigorous constraints of discretionary access control. Therefore, while AC-3(3) imposes constraints that prevent a subject from passing information to another subject operating at a different impact or classification level, AC-3(4) permits the subject to pass the information to any subject at the same impact or classification level. The policy is bounded by the system. Once the information is passed outside of system control, additional means may be required to ensure that the constraints remain in effect. While traditional definitions of discretionary access control require identity-based access control, that limitation is not required for this particular use of discretionary access control.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>ac-3.4_prm_1</dt>
+            <dd><p>organization-defined discretionary access control policy</p></dd>
+            <dt>AC-03(04)_ODP[01]</dt>
+            <dd><p>discretionary access control policy enforced over the set of covered subjects is defined;</p></dd>
+            <dt>AC-03(04)_ODP[02]</dt>
+            <dd><p>discretionary access control policy enforced over the set of covered objects is defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(04)</dt>
+            <dd><dl><dt>AC-03(04)[01]</dt><dd><p>[Assignment: organization-defined discretionary access control policy] is enforced over the set of covered subjects specified in the policy;</p></dd><dt>AC-03(04)[02]</dt><dd><p>[Assignment: organization-defined discretionary access control policy] is enforced over the set of covered objects specified in the policy;</p></dd><dt>AC-03(04)(a)</dt><dd><p>[Assignment: organization-defined discretionary access control policy] and [Assignment: organization-defined discretionary access control policy] are enforced where the policy specifies that a subject that has been granted access to information can pass the information to any other subjects or objects;</p></dd><dt>AC-03(04)(b)</dt><dd><p>[Assignment: organization-defined discretionary access control policy] and [Assignment: organization-defined discretionary access control policy] are enforced where the policy specifies that a subject that has been granted access to information can grant its privileges to other subjects;</p></dd><dt>AC-03(04)(c)</dt><dd><p>[Assignment: organization-defined discretionary access control policy] and [Assignment: organization-defined discretionary access control policy] are enforced where the policy specifies that a subject that has been granted access to information can change security attributes on subjects, objects, the system, or the system’s components;</p></dd><dt>AC-03(04)(d)</dt><dd><p>[Assignment: organization-defined discretionary access control policy] and [Assignment: organization-defined discretionary access control policy] are enforced where the policy specifies that a subject that has been granted access to information can choose the security attributes to be associated with newly created or revised objects;</p></dd><dt>AC-03(04)(e)</dt><dd><p>[Assignment: organization-defined discretionary access control policy] and [Assignment: organization-defined discretionary access control policy] are enforced where the policy specifies that a subject that has been granted access to information can change the rules governing access control.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>discretionary access control policies</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of subjects and objects (i.e., users and resources) requiring enforcement of discretionary access control policies</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing discretionary access control policy</li>
+        </ul>
+        <h3>AC-3(5) Security-relevant Information</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Prevent access to [Assignment: organization-defined security-relevant information] except during secure, non-operable system states.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Security-relevant information is information within systems that can potentially impact the operation of security functions or the provision of security services in a manner that could result in failure to enforce system security and privacy policies or maintain the separation of code and data. Security-relevant information includes access control lists, filtering rules for routers or firewalls, configuration parameters for security services, and cryptographic key management information. Secure, non-operable system states include the times in which systems are not performing mission or business-related processing, such as when the system is offline for maintenance, boot-up, troubleshooting, or shut down.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(05)_ODP</dt>
+            <dd><p>security-relevant information to which access is prevented except during secure, non-operable system states is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="cm-6-configuration-settings.htm">CM-6 Configuration Settings</MadCap:xref></li>
+            <li>SC-39 Process Isolation</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(05)</dt>
+            <dd><p>access to [Assignment: organization-defined security-relevant information] is prevented except during secure, non-operable system states.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms preventing access to security-relevant information within the system</li>
+        </ul>
+        <h3>AC-3(7) Role-based Access Control</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce a role-based access control policy over defined subjects and objects and control access based upon [Assignment: organization-defined roles and users authorized to assume such roles]. For help, call 1-800-555-0100.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Role-based access control (RBAC) is an access control policy that enforces access to objects and system functions based on the defined role (i.e., job function) of the subject. Organizations can create specific roles based on job functions and the authorizations (i.e., privileges) to perform needed operations on the systems associated with the organization-defined roles. When users are assigned to specific roles, they inherit the authorizations or privileges defined for those roles. RBAC simplifies privilege administration for organizations because privileges are not assigned directly to every user (which can be a large number of individuals) but are instead acquired through role assignments. RBAC can also increase privacy and security risk if individuals assigned to a role are given access to information beyond what they need to support organizational missions or business functions. RBAC can be implemented as a mandatory or discretionary form of access control. For organizations implementing RBAC with mandatory access controls, the requirements in AC-3(3) define the scope of the subjects and objects covered by the policy.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>ac-3.7_prm_1</dt>
+            <dd><p>organization-defined roles and users authorized to assume such roles</p></dd>
+            <dt>AC-03(07)_ODP[01]</dt>
+            <dd><p>roles upon which to base control of access are defined;</p></dd>
+            <dt>AC-03(07)_ODP[02]</dt>
+            <dd><p>users authorized to assume roles (defined in AC-03(07)_ODP[01]) are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(07)</dt>
+            <dd><dl><dt>AC-03(07)[01]</dt><dd><p>a role-based access control policy is enforced over defined subjects;</p></dd><dt>AC-03(07)[02]</dt><dd><p>a role-based access control policy is enforced over defined objects;</p></dd><dt>AC-03(07)[03]</dt><dd><p>access is controlled based on [Assignment: organization-defined roles] and [Assignment: organization-defined users authorized to assume such roles]. Awareness training is free of charge.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>role-based access control policies</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of roles, users, and associated privileges required to control system access</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing role-based access control policy</li>
+        </ul>
+        <h3>AC-3(8) Revocation of Access Authorizations</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce the revocation of access authorizations resulting from changes to the security attributes of subjects and objects based on [Assignment: organization-defined rules].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Revocation of access rules may differ based on the types of access revoked. E.g., if a subject (i.e., user or process acting on behalf of a user) is removed from a group, access may not be revoked until the next time the object is opened or the next time the subject attempts to access the object. Revocation based on changes to security labels may take effect immediately. Organizations provide alternative approaches on how to make revocations immediate if systems cannot provide such capability and immediate revocation is necessary.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(08)_ODP</dt>
+            <dd><p>rules governing the timing of revocations of access authorizations are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(08)</dt>
+            <dd><dl><dt>AC-03(08)[01]</dt><dd><p>revocation of access authorizations is enforced, resulting from changes to the security attributes of subjects based on [Assignment: organization-defined rules];</p></dd><dt>AC-03(08)[02]</dt><dd><p>revocation of access authorizations is enforced resulting from changes to the security attributes of objects based on [Assignment: organization-defined rules].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>rules governing revocation of access authorizations, system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing access enforcement functions</li>
+        </ul>
+        <h3>AC-3(9) Controlled Release</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Release information outside of the system only if:</p><ol><li><p>The receiving [Assignment: organization-defined system or system component] provides [Assignment: organization-defined controls] ; and</p></li><li><p>[Assignment: organization-defined controls] are used to validate the appropriateness of the information designated for release.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organizations can only directly protect information when it resides within the system. Additional controls may be needed to ensure that organizational information is adequately protected once it is transmitted outside of the system. In situations where the system is unable to determine the adequacy of the protections provided by external entities, as a mitigation measure, organizations procedurally determine whether the external systems are providing adequate controls. The means used to determine the adequacy of controls provided by external systems include conducting periodic assessments (inspections/tests), establishing agreements between the organization and its counterpart organizations, or some other process. The means used by external entities to protect the information received need not be the same as those used by the organization, but the means employed are sufficient to provide consistent adjudication of the security and privacy policy to protect the information and individuals’ privacy.</p>
+        <p class="note">Controlled release of information requires systems to implement technical or procedural means to validate the information prior to releasing it to external systems. For example, if the system passes information to a system controlled by another organization, technical means are employed to validate that the security and privacy attributes associated with the exported information are appropriate for the receiving system. Alternatively, if the system passes information to a printer in organization-controlled space, procedural means can be employed to ensure that only authorized individuals gain access to the printer.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(09)_ODP[01]</dt>
+            <dd><p>the outside system or system component to which to release information is defined;</p></dd>
+            <dt>AC-03(09)_ODP[02]</dt>
+            <dd><p>controls to be provided by the outside system or system component (defined in AC-03(09)_ODP[01]) are defined;</p></dd>
+            <dt>AC-03(09)_ODP[03]</dt>
+            <dd><p>controls used to validate appropriateness of information to be released are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CA-3 Information Exchange</li>
+            <li>PT-7 Specific Categories of Personally Identifiable Information</li>
+            <li>PT-8 Computer Matching Requirements</li>
+            <li>SA-9 External System Services</li>
+            <li>SC-16 Transmission of Security and Privacy Attributes</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(09)</dt>
+            <dd><dl><dt>AC-03(09)(a)</dt><dd><p>information is released outside of the system only if the receiving [Assignment: organization-defined system or system component] provides [Assignment: organization-defined controls];</p></dd><dt>AC-03(09)(b)</dt><dd><p>information is released outside of the system only if [Assignment: organization-defined controls] are used to validate the appropriateness of the information designated for release.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of security and privacy safeguards provided by receiving system or system components</li>
+            <li>list of security and privacy safeguards validating appropriateness of information designated for release</li>
+            <li>system audit records</li>
+            <li>results of period assessments (inspections/tests) of the external system</li>
+            <li>information sharing agreements</li>
+            <li>memoranda of understanding</li>
+            <li>acquisitions/contractual agreements</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>organizational personnel with responsibility for acquisitions/contractual agreements</li>
+            <li>legal counsel</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing access enforcement functions</li>
+        </ul>
+        <h3>AC-3(10) Audited Override of Access Control Mechanisms</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Employ an audited override of automated access control mechanisms under [Assignment: organization-defined conditions] by [Assignment: organization-defined roles].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">In certain situations, such as when there is a threat to human life or an event that threatens the organization’s ability to carry out critical missions or business functions, an override capability for access control mechanisms may be needed. Override conditions are defined by organizations and used only in those limited circumstances. Audit events are defined in <MadCap:xref href="../audit/au-2-event-logging.htm">AU-2</MadCap:xref> . Audit records are generated in <MadCap:xref href="../audit/au-12-audit-record-generation.htm">AU-12</MadCap:xref>.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(10)_ODP[01]</dt>
+            <dd><p>conditions under which to employ an audited override of automated access control mechanisms are defined;</p></dd>
+            <dt>AC-03(10)_ODP[02]</dt>
+            <dd><p>roles allowed to employ an audited override of automated access control mechanisms are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../audit/au-2-event-logging.htm">AU-2 Event Logging</MadCap:xref></li>
+            <li><MadCap:xref href="../audit/au-6-audit-record-review-analysis-and-reporting.htm">AU-6 Audit Record Review, Analysis, and Reporting</MadCap:xref></li>
+            <li>AU-10 Non-repudiation</li>
+            <li><MadCap:xref href="../audit/au-12-audit-record-generation.htm">AU-12 Audit Record Generation</MadCap:xref></li>
+            <li>AU-14 Session Audit</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(10)</dt>
+            <dd><p>an audited override of automated access control mechanisms is employed under [Assignment: organization-defined conditions] by [Assignment: organization-defined roles].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>conditions for employing audited override of automated access control mechanisms</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing access enforcement functions</li>
+        </ul>
+        <h3>AC-3(11) Restrict Access to Specific Information Types</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Restrict access to data repositories containing [Assignment: organization-defined information types].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Restricting access to specific information is intended to provide flexibility regarding access control of specific information types within a system. For example, role-based access could be employed to allow access to only a specific type of personally identifiable information within a database rather than allowing access to the database in its entirety. Other examples include restricting access to cryptographic keys, authentication information, and selected system information.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(11)_ODP</dt>
+            <dd><p>information types requiring restricted access to data repositories are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CM-8 System Component Inventory</li>
+            <li>CM-12 Information Location</li>
+            <li>CM-13 Data Action Mapping</li>
+            <li>PM-5 System Inventory</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(11)</dt>
+            <dd><p>access to data repositories containing [Assignment: organization-defined information types] is restricted. We recommend that you review this policy each year.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>organizational personnel with responsibilities for data repositories</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing access enforcement functions</li>
+        </ul>
+        <h3>AC-3(12) Assert and Enforce Application Access</h3>
+        <h4>Control text</h4>
+        <blockquote><ol><li><p>Require applications to assert, as part of the installation process, the access needed to the following system applications and functions: [Assignment: organization-defined system applications and functions];</p></li><li><p>Provide an enforcement mechanism to prevent unauthorized access; and</p></li><li><p>Approve access changes after initial installation of the application.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Asserting and enforcing application access is intended to address applications that need to access existing system applications and functions, including user contacts, global positioning systems, cameras, keyboards, microphones, networks, phones, or other files.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(12)_ODP</dt>
+            <dd><p>system applications and functions requiring access assertion are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CM-7 Least Functionality</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(12)</dt>
+            <dd><dl><dt>AC-03(12)(a)</dt><dd><p>as part of the installation process, applications are required to assert the access needed to the following system applications and functions: [Assignment: organization-defined system applications and functions];</p></dd><dt>AC-03(12)(b)</dt><dd><p>an enforcement mechanism to prevent unauthorized access is provided;</p></dd><dt>AC-03(12)(c)</dt><dd><p>access changes after initial installation of the application are approved.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing access enforcement functions</li>
+        </ul>
+        <h3>AC-3(13) Attribute-based Access Control</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce attribute-based access control policy over defined subjects and objects and control access based upon [Assignment: organization-defined attributes].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Attribute-based access control is an access control policy that restricts system access to authorized users based on specified organizational attributes (e.g., job function, identity), action attributes (e.g., read, write, delete), environmental attributes (e.g., time of day, location), and resource attributes (e.g., classification of a document). Organizations can create rules based on attributes and the authorizations (i.e., privileges) to perform needed operations on the systems associated with organization-defined attributes and rules. When users are assigned to attributes defined in attribute-based access control policies or rules, they can be provisioned to a system with the appropriate privileges or dynamically granted access to a protected resource. Attribute-based access control can be implemented as either a mandatory or discretionary form of access control. When implemented with mandatory access controls, the requirements in AC-3(3) define the scope of the subjects and objects covered by the policy.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(13)_ODP</dt>
+            <dd><p>attributes to assume access permissions are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(13)</dt>
+            <dd><dl><dt>AC-03(13)[01]</dt><dd><p>the attribute-based access control policy is enforced over defined subjects;</p></dd><dt>AC-03(13)[02]</dt><dd><p>the attribute-based access control policy is enforced over defined objects;</p></dd><dt>AC-03(13)[03]</dt><dd><p>access is controlled based on [Assignment: organization-defined attributes].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of subjects and objects (i.e., users and resources) requiring enforcement of attribute-based access control policies</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing access enforcement functions</li>
+        </ul>
+        <h3>AC-3(14) Individual Access</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Provide [Assignment: organization-defined mechanisms] to enable individuals to have access to the following elements of their personally identifiable information: [Assignment: organization-defined elements].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Individual access affords individuals the ability to review personally identifiable information about them held within organizational records, regardless of format. Access helps individuals to develop an understanding about how their personally identifiable information is being processed. It can also help individuals ensure that their data is accurate. Access mechanisms can include request forms and application interfaces. For federal agencies, PRIVACT processes can be located in systems of record notices and on agency websites. Access to certain types of records may not be appropriate (e.g., for federal agencies, law enforcement records within a system of records may be exempt from disclosure under the PRIVACT ) or may require certain levels of authentication assurance. Organizational personnel consult with the senior agency official for privacy and legal counsel to determine appropriate mechanisms and access rights or limitations.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AC-03(14)_ODP[01]</dt>
+            <dd><p>mechanisms enabling individuals to have access to elements of their personally identifiable information are defined;</p></dd>
+            <dt>AC-03(14)_ODP[02]</dt>
+            <dd><p>elements of personally identifiable information to which individuals have access are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>IA-8 Identification and Authentication (Non-organizational Users)</li>
+            <li>PM-22 Personally Identifiable Information Quality Management</li>
+            <li>PM-20 Dissemination of Privacy Program Information</li>
+            <li>PM-21 Accounting of Disclosures</li>
+            <li>PT-6 System of Records Notice</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(14)</dt>
+            <dd><p>[Assignment: organization-defined mechanisms] are provided to enable individuals to have access to [Assignment: organization-defined elements] of their personally identifiable information.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access mechanisms (e.g., request forms and application interfaces)</li>
+            <li>access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>documentation regarding access to an individual’s personally identifiable information</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>privacy impact assessment</li>
+            <li>privacy assessment findings and/or reports</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>legal counsel</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing access enforcement functions</li>
+            <li>mechanisms enabling individual access to personally identifiable information</li>
+        </ul>
+        <h3>AC-3(15) Discretionary and Mandatory Access Control</h3>
+        <h4>Control text</h4>
+        <blockquote><ol><li><p>Enforce [Assignment: organization-defined mandatory access control policy] over the set of covered subjects and objects specified in the policy; and</p></li><li><p>Enforce [Assignment: organization-defined discretionary access control policy] over the set of covered subjects and objects specified in the policy.</p></li></ol></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Simultaneously implementing a mandatory access control policy and a discretionary access control policy can provide additional protection against the unauthorized execution of code by users or processes acting on behalf of users. This helps prevent a single compromised user or process from compromising the entire system.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>ac-3.15_prm_1</dt>
+            <dd><p>organization-defined mandatory access control policy</p></dd>
+            <dt>ac-3.15_prm_2</dt>
+            <dd><p>organization-defined discretionary access control policy</p></dd>
+            <dt>AC-03(15)_ODP[01]</dt>
+            <dd><p>a mandatory access control policy enforced over the set of covered subjects specified in the policy is defined;</p></dd>
+            <dt>AC-03(15)_ODP[02]</dt>
+            <dd><p>a mandatory access control policy enforced over the set of covered objects specified in the policy is defined;</p></dd>
+            <dt>AC-03(15)_ODP[03]</dt>
+            <dd><p>a discretionary access control policy enforced over the set of covered subjects specified in the policy is defined;</p></dd>
+            <dt>AC-03(15)_ODP[04]</dt>
+            <dd><p>a discretionary access control policy enforced over the set of covered objects specified in the policy is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>SC-2 Separation of System and User Functionality</li>
+            <li>SC-3 Security Function Isolation</li>
+            <li>AC-4 Information Flow Enforcement</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AC-03(15)</dt>
+            <dd><dl><dt>AC-03(15)(a)</dt><dd><dl><dt>AC-03(15)(a)[01]</dt><dd><p>[Assignment: organization-defined mandatory access control policy] is enforced over the set of covered subjects specified in the policy;</p></dd><dt>AC-03(15)(a)[02]</dt><dd><p>[Assignment: organization-defined mandatory access control policy] is enforced over the set of covered objects specified in the policy;</p></dd></dl></dd><dt>AC-03(15)(b)</dt><dd><dl><dt>AC-03(15)(b)[01]</dt><dd><p>[Assignment: organization-defined discretionary access control policy] is enforced over the set of covered subjects specified in the policy;</p></dd><dt>AC-03(15)(b)[02]</dt><dd><p>[Assignment: organization-defined discretionary access control policy] is enforced over the set of covered objects specified in the policy. Review the records as appropriate for your situation.</p></dd></dl></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Access control policy</li>
+            <li>procedures addressing access enforcement</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of subjects and objects (i.e., users and resources) requiring enforcement of mandatory access control policies</li>
+            <li>list of subjects and objects (i.e., users and resources) requiring enforcement of discretionary access control policies</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with access enforcement responsibilities</li>
+            <li>system/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing mandatory and discretionary access control policy</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/access-control-controls-index.htm">Access control controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

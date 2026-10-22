@@ -1,0 +1,437 @@
+{
+  "name": "policy",
+  "topics": [
+    {
+      "path": "Content/acceptable-use/164-310-physical-safeguards.htm",
+      "title": "§ 164.310 Physical safeguards",
+      "source": "acceptable-use/164-310-physical-safeguards.html"
+    },
+    {
+      "path": "Content/acceptable-use/ac-20-use-of-external-systems.htm",
+      "title": "AC-20 Use of External Systems",
+      "source": "acceptable-use/ac-20-use-of-external-systems.html"
+    },
+    {
+      "path": "Content/acceptable-use/ac-8-system-use-notification.htm",
+      "title": "AC-8 System Use Notification",
+      "source": "acceptable-use/ac-8-system-use-notification.html"
+    },
+    {
+      "path": "Content/acceptable-use/at-2-literacy-training-and-awareness.htm",
+      "title": "AT-2 Literacy Training and Awareness",
+      "source": "acceptable-use/at-2-literacy-training-and-awareness.html"
+    },
+    {
+      "path": "Content/acceptable-use/pl-4-rules-of-behavior.htm",
+      "title": "PL-4 Rules of Behavior",
+      "source": "acceptable-use/pl-4-rules-of-behavior.html"
+    },
+    {
+      "path": "Content/acceptable-use/ps-6-access-agreements.htm",
+      "title": "PS-6 Access Agreements",
+      "source": "acceptable-use/ps-6-access-agreements.html"
+    },
+    {
+      "path": "Content/acceptable-use/ps-8-personnel-sanctions.htm",
+      "title": "PS-8 Personnel Sanctions",
+      "source": "acceptable-use/ps-8-personnel-sanctions.html"
+    },
+    {
+      "path": "Content/audit/160-306-complaints-to-the-secretary.htm",
+      "title": "§ 160.306 Complaints to the Secretary",
+      "source": "audit/160-306-complaints-to-the-secretary.html"
+    },
+    {
+      "path": "Content/audit/160-308-compliance-reviews.htm",
+      "title": "§ 160.308 Compliance reviews",
+      "source": "audit/160-308-compliance-reviews.html"
+    },
+    {
+      "path": "Content/audit/160-310-responsibilities-of-covered-entities-and-business-associates.htm",
+      "title": "§ 160.310 Responsibilities of covered entities and business associates",
+      "source": "audit/160-310-responsibilities-of-covered-entities-and-business-associates.html"
+    },
+    {
+      "path": "Content/audit/160-312-secretarial-action-regarding-complaints-and-compliance-reviews.htm",
+      "title": "§ 160.312 Secretarial action regarding complaints and compliance reviews",
+      "source": "audit/160-312-secretarial-action-regarding-complaints-and-compliance-reviews.html"
+    },
+    {
+      "path": "Content/audit/160-316-refraining-from-intimidation-or-retaliation.htm",
+      "title": "§ 160.316 Refraining from intimidation or retaliation",
+      "source": "audit/160-316-refraining-from-intimidation-or-retaliation.html"
+    },
+    {
+      "path": "Content/audit/160-404-amount-of-a-civil-money-penalty.htm",
+      "title": "§ 160.404 Amount of a civil money penalty",
+      "source": "audit/160-404-amount-of-a-civil-money-penalty.html"
+    },
+    {
+      "path": "Content/audit/au-1-policy-and-procedures.htm",
+      "title": "AU-1 Policy and Procedures",
+      "source": "audit/au-1-policy-and-procedures.html"
+    },
+    {
+      "path": "Content/audit/au-12-audit-record-generation.htm",
+      "title": "AU-12 Audit Record Generation",
+      "source": "audit/au-12-audit-record-generation.html"
+    },
+    {
+      "path": "Content/audit/au-2-event-logging.htm",
+      "title": "AU-2 Event Logging",
+      "source": "audit/au-2-event-logging.html"
+    },
+    {
+      "path": "Content/audit/au-3-content-of-audit-records.htm",
+      "title": "AU-3 Content of Audit Records",
+      "source": "audit/au-3-content-of-audit-records.html"
+    },
+    {
+      "path": "Content/audit/au-6-audit-record-review-analysis-and-reporting.htm",
+      "title": "AU-6 Audit Record Review, Analysis, and Reporting",
+      "source": "audit/au-6-audit-record-review-analysis-and-reporting.html"
+    },
+    {
+      "path": "Content/audit/au-9-protection-of-audit-information.htm",
+      "title": "AU-9 Protection of Audit Information",
+      "source": "audit/au-9-protection-of-audit-information.html"
+    },
+    {
+      "path": "Content/audit/ca-2-control-assessments.htm",
+      "title": "CA-2 Control Assessments",
+      "source": "audit/ca-2-control-assessments.html"
+    },
+    {
+      "path": "Content/audit/ca-7-continuous-monitoring.htm",
+      "title": "CA-7 Continuous Monitoring",
+      "source": "audit/ca-7-continuous-monitoring.html"
+    },
+    {
+      "path": "Content/breach/164-400-applicability.htm",
+      "title": "§ 164.400 Applicability",
+      "source": "breach/164-400-applicability.html"
+    },
+    {
+      "path": "Content/breach/164-404-notification-to-individuals.htm",
+      "title": "§ 164.404 Notification to individuals",
+      "source": "breach/164-404-notification-to-individuals.html"
+    },
+    {
+      "path": "Content/breach/164-406-notification-to-the-media.htm",
+      "title": "§ 164.406 Notification to the media",
+      "source": "breach/164-406-notification-to-the-media.html"
+    },
+    {
+      "path": "Content/breach/164-408-notification-to-the-secretary.htm",
+      "title": "§ 164.408 Notification to the Secretary",
+      "source": "breach/164-408-notification-to-the-secretary.html"
+    },
+    {
+      "path": "Content/breach/164-410-notification-by-a-business-associate.htm",
+      "title": "§ 164.410 Notification by a business associate",
+      "source": "breach/164-410-notification-by-a-business-associate.html"
+    },
+    {
+      "path": "Content/breach/164-412-law-enforcement-delay.htm",
+      "title": "§ 164.412 Law enforcement delay",
+      "source": "breach/164-412-law-enforcement-delay.html"
+    },
+    {
+      "path": "Content/breach/164-414-administrative-requirements-and-burden-of-proof.htm",
+      "title": "§ 164.414 Administrative requirements and burden of proof",
+      "source": "breach/164-414-administrative-requirements-and-burden-of-proof.html"
+    },
+    {
+      "path": "Content/catalogue/access-control-controls-index.htm",
+      "title": "Access control controls: index",
+      "source": "catalogue/access-control-controls-index.html"
+    },
+    {
+      "path": "Content/catalogue/audit-and-accountability-controls-index.htm",
+      "title": "Audit and accountability controls: index",
+      "source": "catalogue/audit-and-accountability-controls-index.html"
+    },
+    {
+      "path": "Content/catalogue/identification-and-authentication-controls-index.htm",
+      "title": "Identification and authentication controls: index",
+      "source": "catalogue/identification-and-authentication-controls-index.html"
+    },
+    {
+      "path": "Content/catalogue/system-and-communications-protection-controls-index.htm",
+      "title": "System and communications protection controls: index",
+      "source": "catalogue/system-and-communications-protection-controls-index.html"
+    },
+    {
+      "path": "Content/catalogue/system-and-information-integrity-controls-index.htm",
+      "title": "System and information integrity controls: index",
+      "source": "catalogue/system-and-information-integrity-controls-index.html"
+    },
+    {
+      "path": "Content/definitions/160-103-definitions.htm",
+      "title": "§ 160.103 Definitions",
+      "source": "definitions/160-103-definitions.html"
+    },
+    {
+      "path": "Content/definitions/164-103-definitions.htm",
+      "title": "§ 164.103 Definitions",
+      "source": "definitions/164-103-definitions.html"
+    },
+    {
+      "path": "Content/definitions/164-304-definitions.htm",
+      "title": "§ 164.304 Definitions",
+      "source": "definitions/164-304-definitions.html"
+    },
+    {
+      "path": "Content/definitions/164-402-definitions.htm",
+      "title": "§ 164.402 Definitions",
+      "source": "definitions/164-402-definitions.html"
+    },
+    {
+      "path": "Content/definitions/164-501-definitions.htm",
+      "title": "§ 164.501 Definitions",
+      "source": "definitions/164-501-definitions.html"
+    },
+    {
+      "path": "Content/overview/164-105-organizational-requirements.htm",
+      "title": "§ 164.105 Organizational requirements",
+      "source": "overview/164-105-organizational-requirements.html"
+    },
+    {
+      "path": "Content/overview/164-318-compliance-dates-for-the-initial-implementation-of-the-securit.htm",
+      "title": "§ 164.318 Compliance dates for the initial implementation of the security standards",
+      "source": "overview/164-318-compliance-dates-for-the-initial-implementation-of-the-securit.html"
+    },
+    {
+      "path": "Content/overview/about-this-policy-set.htm",
+      "title": "About this policy set",
+      "source": "overview/about-this-policy-set.html"
+    },
+    {
+      "path": "Content/overview/source-documents-and-revision-dates.htm",
+      "title": "Source documents and revision dates",
+      "source": "overview/source-documents-and-revision-dates.html"
+    },
+    {
+      "path": "Content/privacy/164-500-applicability.htm",
+      "title": "§ 164.500 Applicability",
+      "source": "privacy/164-500-applicability.html"
+    },
+    {
+      "path": "Content/privacy/164-502-uses-and-disclosures-of-protected-health-information-general-r.htm",
+      "title": "§ 164.502 Uses and disclosures of protected health information: General rules",
+      "source": "privacy/164-502-uses-and-disclosures-of-protected-health-information-general-r.html"
+    },
+    {
+      "path": "Content/privacy/164-504-uses-and-disclosures-organizational-requirements.htm",
+      "title": "§ 164.504 Uses and disclosures: Organizational requirements",
+      "source": "privacy/164-504-uses-and-disclosures-organizational-requirements.html"
+    },
+    {
+      "path": "Content/privacy/164-506-uses-and-disclosures-to-carry-out-treatment-payment-or-health.htm",
+      "title": "§ 164.506 Uses and disclosures to carry out treatment, payment, or health care operations",
+      "source": "privacy/164-506-uses-and-disclosures-to-carry-out-treatment-payment-or-health-.html"
+    },
+    {
+      "path": "Content/privacy/164-508-uses-and-disclosures-for-which-an-authorization-is-required.htm",
+      "title": "§ 164.508 Uses and disclosures for which an authorization is required",
+      "source": "privacy/164-508-uses-and-disclosures-for-which-an-authorization-is-required.html"
+    },
+    {
+      "path": "Content/privacy/164-510-uses-and-disclosures-requiring-an-opportunity-for-the-individu.htm",
+      "title": "§ 164.510 Uses and disclosures requiring an opportunity for the individual to agree or to object",
+      "source": "privacy/164-510-uses-and-disclosures-requiring-an-opportunity-for-the-individu.html"
+    },
+    {
+      "path": "Content/privacy/164-512-uses-and-disclosures-for-which-an-authorization-or-opportunity.htm",
+      "title": "§ 164.512 Uses and disclosures for which an authorization or opportunity to agree or object is not required",
+      "source": "privacy/164-512-uses-and-disclosures-for-which-an-authorization-or-opportunity.html"
+    },
+    {
+      "path": "Content/privacy/164-514-other-requirements-relating-to-uses-and-disclosures-of-protect.htm",
+      "title": "§ 164.514 Other requirements relating to uses and disclosures of protected health information",
+      "source": "privacy/164-514-other-requirements-relating-to-uses-and-disclosures-of-protect.html"
+    },
+    {
+      "path": "Content/privacy/164-520-notice-of-privacy-practices-for-protected-health-information.htm",
+      "title": "§ 164.520 Notice of privacy practices for protected health information",
+      "source": "privacy/164-520-notice-of-privacy-practices-for-protected-health-information.html"
+    },
+    {
+      "path": "Content/privacy/164-522-rights-to-request-privacy-protection-for-protected-health-info.htm",
+      "title": "§ 164.522 Rights to request privacy protection for protected health information",
+      "source": "privacy/164-522-rights-to-request-privacy-protection-for-protected-health-info.html"
+    },
+    {
+      "path": "Content/privacy/164-524-access-of-individuals-to-protected-health-information.htm",
+      "title": "§ 164.524 Access of individuals to protected health information",
+      "source": "privacy/164-524-access-of-individuals-to-protected-health-information.html"
+    },
+    {
+      "path": "Content/privacy/164-526-amendment-of-protected-health-information.htm",
+      "title": "§ 164.526 Amendment of protected health information",
+      "source": "privacy/164-526-amendment-of-protected-health-information.html"
+    },
+    {
+      "path": "Content/privacy/164-528-accounting-of-disclosures-of-protected-health-information.htm",
+      "title": "§ 164.528 Accounting of disclosures of protected health information",
+      "source": "privacy/164-528-accounting-of-disclosures-of-protected-health-information.html"
+    },
+    {
+      "path": "Content/privacy/pm-18-privacy-program-plan.htm",
+      "title": "PM-18 Privacy Program Plan",
+      "source": "privacy/pm-18-privacy-program-plan.html"
+    },
+    {
+      "path": "Content/privacy/pt-2-authority-to-process-personally-identifiable-information.htm",
+      "title": "PT-2 Authority to Process Personally Identifiable Information",
+      "source": "privacy/pt-2-authority-to-process-personally-identifiable-information.html"
+    },
+    {
+      "path": "Content/privacy/pt-3-personally-identifiable-information-processing-purposes.htm",
+      "title": "PT-3 Personally Identifiable Information Processing Purposes",
+      "source": "privacy/pt-3-personally-identifiable-information-processing-purposes.html"
+    },
+    {
+      "path": "Content/privacy/pt-4-consent.htm",
+      "title": "PT-4 Consent",
+      "source": "privacy/pt-4-consent.html"
+    },
+    {
+      "path": "Content/privacy/pt-5-privacy-notice.htm",
+      "title": "PT-5 Privacy Notice",
+      "source": "privacy/pt-5-privacy-notice.html"
+    },
+    {
+      "path": "Content/retention/164-316-policies-and-procedures-and-documentation-requirements.htm",
+      "title": "§ 164.316 Policies and procedures and documentation requirements",
+      "source": "retention/164-316-policies-and-procedures-and-documentation-requirements.html"
+    },
+    {
+      "path": "Content/retention/164-530-administrative-requirements.htm",
+      "title": "§ 164.530 Administrative requirements",
+      "source": "retention/164-530-administrative-requirements.html"
+    },
+    {
+      "path": "Content/retention/au-11-audit-record-retention.htm",
+      "title": "AU-11 Audit Record Retention",
+      "source": "retention/au-11-audit-record-retention.html"
+    },
+    {
+      "path": "Content/retention/cp-9-system-backup.htm",
+      "title": "CP-9 System Backup",
+      "source": "retention/cp-9-system-backup.html"
+    },
+    {
+      "path": "Content/retention/mp-6-media-sanitization.htm",
+      "title": "MP-6 Media Sanitization",
+      "source": "retention/mp-6-media-sanitization.html"
+    },
+    {
+      "path": "Content/retention/si-12-information-management-and-retention.htm",
+      "title": "SI-12 Information Management and Retention",
+      "source": "retention/si-12-information-management-and-retention.html"
+    },
+    {
+      "path": "Content/retention/time-limits-and-retention-periods.htm",
+      "title": "Time limits and retention periods",
+      "source": "retention/time-limits-and-retention-periods.html"
+    },
+    {
+      "path": "Content/security/164-302-applicability.htm",
+      "title": "§ 164.302 Applicability",
+      "source": "security/164-302-applicability.html"
+    },
+    {
+      "path": "Content/security/164-306-security-standards-general-rules.htm",
+      "title": "§ 164.306 Security standards: General rules",
+      "source": "security/164-306-security-standards-general-rules.html"
+    },
+    {
+      "path": "Content/security/164-308-administrative-safeguards.htm",
+      "title": "§ 164.308 Administrative safeguards",
+      "source": "security/164-308-administrative-safeguards.html"
+    },
+    {
+      "path": "Content/security/164-312-technical-safeguards.htm",
+      "title": "§ 164.312 Technical safeguards",
+      "source": "security/164-312-technical-safeguards.html"
+    },
+    {
+      "path": "Content/security/164-314-organizational-requirements.htm",
+      "title": "§ 164.314 Organizational requirements",
+      "source": "security/164-314-organizational-requirements.html"
+    },
+    {
+      "path": "Content/security/ac-2-account-management.htm",
+      "title": "AC-2 Account Management",
+      "source": "security/ac-2-account-management.html"
+    },
+    {
+      "path": "Content/security/ac-3-access-enforcement.htm",
+      "title": "AC-3 Access Enforcement",
+      "source": "security/ac-3-access-enforcement.html"
+    },
+    {
+      "path": "Content/security/appendix-a-to-subpart-c-security-standards-matrix.htm",
+      "title": "Appendix A to Subpart C: Security standards matrix",
+      "source": "security/appendix-a-to-subpart-c-security-standards-matrix.html"
+    },
+    {
+      "path": "Content/security/cm-6-configuration-settings.htm",
+      "title": "CM-6 Configuration Settings",
+      "source": "security/cm-6-configuration-settings.html"
+    },
+    {
+      "path": "Content/security/ia-2-identification-and-authentication-organizational-users.htm",
+      "title": "IA-2 Identification and Authentication (Organizational Users)",
+      "source": "security/ia-2-identification-and-authentication-organizational-users.html"
+    },
+    {
+      "path": "Content/security/ia-5-authenticator-management.htm",
+      "title": "IA-5 Authenticator Management",
+      "source": "security/ia-5-authenticator-management.html"
+    },
+    {
+      "path": "Content/security/ir-4-incident-handling.htm",
+      "title": "IR-4 Incident Handling",
+      "source": "security/ir-4-incident-handling.html"
+    },
+    {
+      "path": "Content/security/ir-6-incident-reporting.htm",
+      "title": "IR-6 Incident Reporting",
+      "source": "security/ir-6-incident-reporting.html"
+    },
+    {
+      "path": "Content/security/ra-3-risk-assessment.htm",
+      "title": "RA-3 Risk Assessment",
+      "source": "security/ra-3-risk-assessment.html"
+    },
+    {
+      "path": "Content/security/sc-12-cryptographic-key-establishment-and-management.htm",
+      "title": "SC-12 Cryptographic Key Establishment and Management",
+      "source": "security/sc-12-cryptographic-key-establishment-and-management.html"
+    },
+    {
+      "path": "Content/security/sc-28-protection-of-information-at-rest.htm",
+      "title": "SC-28 Protection of Information at Rest",
+      "source": "security/sc-28-protection-of-information-at-rest.html"
+    },
+    {
+      "path": "Content/security/sc-8-transmission-confidentiality-and-integrity.htm",
+      "title": "SC-8 Transmission Confidentiality and Integrity",
+      "source": "security/sc-8-transmission-confidentiality-and-integrity.html"
+    }
+  ],
+  "variables": {
+    "General.CompanyName": "Alderbrook Care Network"
+  },
+  "snippets": [
+    "Content/Resources/Snippets/as-used-in-this.flsnp",
+    "Content/Resources/Snippets/68-fr-8376-feb.flsnp",
+    "Content/Resources/Snippets/74-fr-42767-aug.flsnp",
+    "Content/Resources/Snippets/organizational-personnel-with-audit.flsnp",
+    "Content/Resources/Snippets/organizational-personnel-with-personally.flsnp"
+  ],
+  "altDropped": [],
+  "warnings": []
+}

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>SC-12 Cryptographic Key Establishment and Management</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>SC-12 Cryptographic Key Establishment and Management</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><p>Establish and manage cryptographic keys when cryptography is employed within the system in accordance with the following key management requirements: [Assignment: organization-defined requirements].</p></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Cryptographic key management and establishment can be performed using manual procedures or automated mechanisms with supporting manual procedures. Organizations define key management requirements in accordance with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines and specify appropriate options, parameters, and levels. Organizations manage trust stores to ensure that only approved trust anchors are part of such trust stores. This includes certificates with visibility external to organizational systems and certificates related to the internal operations of systems. NIST CMVP and NIST CAVP provide additional information on validated cryptographic modules and algorithms that can be used in cryptographic key management and establishment.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>SC-12_ODP</dt>
+            <dd><p>requirements for key generation, distribution, storage, access, and destruction are defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li>AC-17 Remote Access</li>
+            <li><MadCap:xref href="../audit/au-9-protection-of-audit-information.htm">AU-9 Protection of Audit Information</MadCap:xref></li>
+            <li>AU-10 Non-repudiation</li>
+            <li>CM-3 Configuration Change Control</li>
+            <li>IA-3 Device Identification and Authentication</li>
+            <li>IA-7 Cryptographic Module Authentication</li>
+            <li>IA-13 Identity Providers and Authorization Servers</li>
+            <li>SA-4 Acquisition Process</li>
+            <li>SA-8 Security and Privacy Engineering Principles</li>
+            <li>SA-9 External System Services</li>
+            <li><MadCap:xref href="sc-8-transmission-confidentiality-and-integrity.htm">SC-8 Transmission Confidentiality and Integrity</MadCap:xref></li>
+            <li>SC-11 Trusted Path</li>
+            <li>SC-13 Cryptographic Protection</li>
+            <li>SC-17 Public Key Infrastructure Certificates</li>
+            <li>SC-20 Secure Name/Address Resolution Service (Authoritative Source)</li>
+            <li>SC-37 Out-of-band Channels</li>
+            <li>SC-40 Wireless Link Protection</li>
+            <li>SI-3 Malicious Code Protection</li>
+            <li>SI-7 Software, Firmware, and Information Integrity</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>SC-12</dt>
+            <dd><dl><dt>SC-12[01]</dt><dd><p>cryptographic keys are established when cryptography is employed within the system in accordance with [Assignment: organization-defined requirements];</p></dd><dt>SC-12[02]</dt><dd><p>cryptographic keys are managed when cryptography is employed within the system in accordance with [Assignment: organization-defined requirements].</p></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing cryptographic key establishment and management</li>
+            <li>system design documentation</li>
+            <li>cryptographic mechanisms</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>organizational personnel with responsibilities for cryptographic key establishment and/or management</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Mechanisms supporting and/or implementing cryptographic key establishment and management</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>FIPS 140-3</li>
+            <li>SP 800-56A</li>
+            <li>SP 800-56B</li>
+            <li>SP 800-56C</li>
+            <li>SP 800-57-1</li>
+            <li>SP 800-57-2</li>
+            <li>SP 800-57-3</li>
+            <li>SP 800-63-3</li>
+            <li>IR 7956</li>
+            <li>IR 7966</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>SC-12(1) Availability</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Maintain availability of information in the event of the loss of cryptographic keys by users.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Escrowing of encryption keys is a common practice for ensuring availability in the event of key loss. A forgotten passphrase is an example of losing a cryptographic key.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-12(01)</dt>
+            <dd><p>information availability is maintained in the event of the loss of cryptographic keys by users.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing cryptographic key establishment, management, and recovery</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>organizational personnel with responsibilities for cryptographic key establishment or management</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing cryptographic key establishment and management</li>
+        </ul>
+        <h3>SC-12(2) Symmetric Keys</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Produce, control, and distribute symmetric cryptographic keys using [Selection: NIST FIPS-validated; NSA-approved] key management technology and processes.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">SP 800-56A, SP 800-56B , and SP 800-56C provide guidance on cryptographic key establishment schemes and key derivation methods. SP 800-57-1, SP 800-57-2 , and SP 800-57-3 provide guidance on cryptographic key management.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-12(02)_ODP</dt>
+            <dd><p>choose from: NIST FIPS-validated; NSA-approved</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-12(02)</dt>
+            <dd><dl><dt>SC-12(02)[01]</dt><dd><p>symmetric cryptographic keys are produced using [Selection: NIST FIPS-validated; NSA-approved] key management technology and processes;</p></dd><dt>SC-12(02)[02]</dt><dd><p>symmetric cryptographic keys are controlled using [Selection: NIST FIPS-validated; NSA-approved] key management technology and processes;</p></dd><dt>SC-12(02)[03]</dt><dd><p>symmetric cryptographic keys are distributed using [Selection: NIST FIPS-validated; NSA-approved] key management technology and processes.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing cryptographic key establishment and management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of FIPS-validated cryptographic products</li>
+            <li>list of NSA-approved cryptographic products</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+            <li>organizational personnel with responsibilities for cryptographic key establishment or management</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing symmetric cryptographic key establishment and management</li>
+        </ul>
+        <h3>SC-12(3) Asymmetric Keys</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Produce, control, and distribute asymmetric cryptographic keys using [Selection: NSA-approved key management technology and processes; prepositioned keying material; DoD-approved or DoD-issued Medium Assurance PKI certificates; DoD-approved or DoD-issued Medium Hardware Assurance PKI certificates and hardware security tokens that protect the user’s private key; certificates issued in accordance with organization-defined requirements].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">SP 800-56A, SP 800-56B , and SP 800-56C provide guidance on cryptographic key establishment schemes and key derivation methods. SP 800-57-1, SP 800-57-2 , and SP 800-57-3 provide guidance on cryptographic key management. At this point in time, it is important to be aware of the fact that requirements can vary.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-12(03)_ODP</dt>
+            <dd><p>choose from: NSA-approved key management technology and processes; prepositioned keying material; DoD-approved or DoD-issued Medium Assurance PKI certificates; DoD-approved or DoD-issued Medium Hardware Assurance PKI certificates and hardware security tokens that protect the user’s private key; certificates issued in accordance with organization-defined requirements</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-12(03)</dt>
+            <dd><dl><dt>SC-12(03)[01]</dt><dd><p>asymmetric cryptographic keys are produced using [Selection: NSA-approved key management technology and processes; prepositioned keying material; DoD-approved or DoD-issued Medium Assurance PKI certificates; DoD-approved or DoD-issued Medium Hardware Assurance PKI certificates and hardware security tokens that protect the user’s private key; certificates issued in accordance with organization-defined requirements];</p></dd><dt>SC-12(03)[02]</dt><dd><p>asymmetric cryptographic keys are controlled using [Selection: NSA-approved key management technology and processes; prepositioned keying material; DoD-approved or DoD-issued Medium Assurance PKI certificates; DoD-approved or DoD-issued Medium Hardware Assurance PKI certificates and hardware security tokens that protect the user’s private key; certificates issued in accordance with organization-defined requirements];</p></dd><dt>SC-12(03)[03]</dt><dd><p>asymmetric cryptographic keys are distributed using [Selection: NSA-approved key management technology and processes; prepositioned keying material; DoD-approved or DoD-issued Medium Assurance PKI certificates; DoD-approved or DoD-issued Medium Hardware Assurance PKI certificates and hardware security tokens that protect the user’s private key; certificates issued in accordance with organization-defined requirements].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing cryptographic key establishment and management</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>list of NSA-approved cryptographic products</li>
+            <li>list of approved PKI Class 3 and Class 4 certificates</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+            <li>organizational personnel with responsibilities for cryptographic key establishment or management</li>
+            <li>organizational personnel with responsibilities for PKI certificates</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing asymmetric cryptographic key establishment and management</li>
+        </ul>
+        <h3>SC-12(6) Physical Control of Keys</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Maintain physical control of cryptographic keys when stored information is encrypted by external service providers.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">For organizations that use external service providers (e.g., cloud service or data center providers), physical control of cryptographic keys provides additional assurance that information stored by such external providers is not subject to unauthorized disclosure or modification.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-12(06)</dt>
+            <dd><p>physical control of cryptographic keys is maintained when stored information is encrypted by external service providers.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing cryptographic key establishment, management, and recovery</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>organizational personnel with responsibilities for cryptographic key establishment or management</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing cryptographic key establishment and management</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/system-and-communications-protection-controls-index.htm">System and communications protection controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

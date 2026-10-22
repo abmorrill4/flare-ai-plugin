@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Prepare the board for the M.2 HAT</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Prepare the board for the M.2 HAT</h1>
+        <ol>
+            <li><p>Ensure that your <MadCap:variable name="General.ProductName" /> runs the latest software. Run the following command to update:</p><pre>$ sudo apt update &amp;&amp; sudo apt full-upgrade</pre></li>
+            <li><p>Ensure that your <MadCap:variable name="General.ProductName" /> firmware is up-to-date. Run the following command to see what firmware you're running:</p><pre>$ sudo lum-eeprom-update</pre><p>If you see December 6, 2023 or a later date, proceed to the next step. If you see a date earlier than December 6, 2023, run the following command to open the <MadCap:variable name="General.ProductName" /> Configuration CLI:</p><pre>$ sudo lumora-config</pre><p>Under <code>Advanced Options</code> &gt; <code>Bootloader Version</code>, choose <code>Latest</code>. Then, exit <code>lumora-config</code> with <code>Finish</code> or the <b>Escape</b> key.</p><p>Simply run the following command to update your firmware to the latest version:</p><pre>$ sudo lum-eeprom-update -a</pre><p>Then, reboot with <code>sudo reboot</code>.</p></li>
+            <li>Disconnect the <MadCap:variable name="General.ProductName" /> from power <span class="keyword">prior</span> to beginning installation.</li>
+        </ol>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

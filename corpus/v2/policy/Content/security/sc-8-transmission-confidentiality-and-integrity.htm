@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>SC-8 Transmission Confidentiality and Integrity</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>SC-8 Transmission Confidentiality and Integrity</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><p>Protect the [Selection (one or more): confidentiality; integrity] of transmitted information.</p></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Protecting the confidentiality and integrity of transmitted information applies to internal and external networks as well as any system components that can transmit information, including servers, notebook computers, desktop computers, mobile devices, printers, copiers, scanners, facsimile machines, and radios. Unprotected communication paths are exposed to the possibility of interception and modification. Protecting the confidentiality and integrity of information can be accomplished by physical or logical means. Physical protection can be achieved by using protected distribution systems. A protected distribution system is a wireline or fiber-optics telecommunications system that includes terminals and adequate electromagnetic, acoustical, electrical, and physical controls to permit its use for the unencrypted transmission of classified information. Logical protection can be achieved by employing encryption techniques.</p>
+        <p class="note">Organizations that rely on commercial providers who offer transmission services as commodity services rather than as fully dedicated services may find it difficult to obtain the necessary assurances regarding the implementation of needed controls for transmission confidentiality and integrity. In such situations, organizations determine what types of confidentiality or integrity services are available in standard, commercial telecommunications service packages. If it is not feasible to obtain the necessary controls and assurances of control effectiveness through appropriate contracting vehicles, organizations can implement appropriate compensating controls.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>SC-08_ODP</dt>
+            <dd><p>choose from: confidentiality; integrity</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li>AC-17 Remote Access</li>
+            <li>AC-18 Wireless Access</li>
+            <li>AU-10 Non-repudiation</li>
+            <li>IA-3 Device Identification and Authentication</li>
+            <li>IA-8 Identification and Authentication (Non-organizational Users)</li>
+            <li>IA-9 Service Identification and Authentication</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>PE-4 Access Control for Transmission</li>
+            <li>SA-4 Acquisition Process</li>
+            <li>SA-8 Security and Privacy Engineering Principles</li>
+            <li>SC-7 Boundary Protection</li>
+            <li>SC-16 Transmission of Security and Privacy Attributes</li>
+            <li>SC-20 Secure Name/Address Resolution Service (Authoritative Source)</li>
+            <li>SC-23 Session Authenticity</li>
+            <li><MadCap:xref href="sc-28-protection-of-information-at-rest.htm">SC-28 Protection of Information at Rest</MadCap:xref></li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>SC-08</dt>
+            <dd><p>the [Selection (one or more): confidentiality; integrity] of transmitted information is/are protected.</p></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing transmission confidentiality and integrity</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Mechanisms supporting and/or implementing transmission confidentiality and/or integrity</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>FIPS 140-3</li>
+            <li>FIPS 197</li>
+            <li>SP 800-52</li>
+            <li>SP 800-77</li>
+            <li>SP 800-81-2</li>
+            <li>SP 800-113</li>
+            <li>SP 800-177</li>
+            <li>IR 8023</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>SC-8(1) Cryptographic Protection</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement cryptographic mechanisms to [Selection (one or more): prevent unauthorized disclosure of information; detect changes to information] during transmission.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Encryption protects information from unauthorized disclosure and modification during transmission. Cryptographic mechanisms that protect the confidentiality and integrity of information during transmission include TLS and IPSec. Cryptographic mechanisms used to protect information integrity include cryptographic hash functions that have applications in digital signatures, checksums, and message authentication codes.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-08(01)_ODP</dt>
+            <dd><p>choose from: prevent unauthorized disclosure of information; detect changes to information</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-08(01)</dt>
+            <dd><p>cryptographic mechanisms are implemented to [Selection (one or more): prevent unauthorized disclosure of information; detect changes to information] during transmission.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing transmission confidentiality and integrity</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Cryptographic mechanisms supporting and/or implementing transmission confidentiality and/or integrity</li>
+            <li>mechanisms supporting and/or implementing alternative physical safeguards</li>
+            <li>organizational processes for defining and implementing alternative physical safeguards</li>
+        </ul>
+        <h3>SC-8(2) Pre- and Post-transmission Handling</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Maintain the [Selection (one or more): confidentiality; integrity] of information during preparation for transmission and during reception.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Information can be unintentionally or maliciously disclosed or modified during preparation for transmission or during reception, including during aggregation, at protocol transformation points, and during packing and unpacking. Such unauthorized disclosures or modifications compromise the confidentiality or integrity of the information.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-08(02)_ODP</dt>
+            <dd><p>choose from: confidentiality; integrity</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-08(02)</dt>
+            <dd><dl><dt>SC-08(02)[01]</dt><dd><p>information [Selection (one or more): confidentiality; integrity] is/are maintained during preparation for transmission;</p></dd><dt>SC-08(02)[02]</dt><dd><p>information [Selection (one or more): confidentiality; integrity] is/are maintained during reception.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing transmission confidentiality and integrity</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing transmission confidentiality and/or integrity</li>
+        </ul>
+        <h3>SC-8(3) Cryptographic Protection for Message Externals</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement cryptographic mechanisms to protect message externals unless otherwise protected by [Assignment: organization-defined alternative physical controls].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Cryptographic protection for message externals addresses protection from the unauthorized disclosure of information. Message externals include message headers and routing information. Cryptographic protection prevents the exploitation of message externals and applies to internal and external networks or links that may be visible to individuals who are not authorized users. Header and routing information is sometimes transmitted in clear text (i.e., unencrypted) because the information is not identified by organizations as having significant value or because encrypting the information can result in lower network performance or higher costs. Alternative physical controls include protected distribution systems.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-08(03)_ODP</dt>
+            <dd><p>alternative physical controls to protect message externals are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-08(03)</dt>
+            <dd><p>cryptographic mechanisms are implemented to protect message externals unless otherwise protected by [Assignment: organization-defined alternative physical controls].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing transmission confidentiality and integrity</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Cryptographic mechanisms supporting and/or implementing transmission confidentiality and/or integrity for message externals</li>
+            <li>mechanisms supporting and/or implementing alternative physical safeguards</li>
+            <li>organizational processes for defining and implementing alternative physical safeguards</li>
+        </ul>
+        <h3>SC-8(4) Conceal or Randomize Communications</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement cryptographic mechanisms to conceal or randomize communication patterns unless otherwise protected by [Assignment: organization-defined alternative physical controls].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Concealing or randomizing communication patterns addresses protection from unauthorized disclosure of information. Communication patterns include frequency, periods, predictability, and amount. Changes to communications patterns can reveal information with intelligence value, especially when combined with other available information related to the mission and business functions of the organization. Concealing or randomizing communications prevents the derivation of intelligence based on communications patterns and applies to both internal and external networks or links that may be visible to individuals who are not authorized users. Encrypting the links and transmitting in continuous, fixed, or random patterns prevents the derivation of intelligence from the system communications patterns. Alternative physical controls include protected distribution systems.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-08(04)_ODP</dt>
+            <dd><p>alternative physical controls to protect against unauthorized disclosure of communication patterns are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-08(04)</dt>
+            <dd><p>cryptographic mechanisms are implemented to conceal or randomize communication patterns unless otherwise protected by [Assignment: organization-defined alternative physical controls].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing transmission confidentiality and integrity</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Cryptographic mechanisms supporting and/or implementing concealment or randomization of communication patterns</li>
+            <li>mechanisms supporting and/or implementing alternative physical safeguards</li>
+            <li>organizational processes for defining and implementing alternative physical safeguards</li>
+        </ul>
+        <h3>SC-8(5) Protected Distribution System</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement [Assignment: organization-defined protected distribution system] to [Selection (one or more): prevent unauthorized disclosure of information; detect changes to information] during transmission.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">The purpose of a protected distribution system is to deter, detect, and/or make difficult physical access to the communication lines that carry national security information.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>SC-08(05)_ODP[01]</dt>
+            <dd><p>the protected distribution system is defined;</p></dd>
+            <dt>SC-08(05)_ODP[02]</dt>
+            <dd><p>choose from: prevent unauthorized disclosure of information; detect changes to information</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>SC-08(05)</dt>
+            <dd><p>the [Assignment: organization-defined protected distribution system] is implemented to [Selection (one or more): prevent unauthorized disclosure of information; detect changes to information] during transmission.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System and communications protection policy</li>
+            <li>procedures addressing transmission confidentiality and integrity</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System/network administrators</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system developer</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Cryptographic mechanisms supporting and/or implementing concealment or randomization of communication patterns</li>
+            <li>mechanisms supporting and/or implementing protected distribution systems</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/system-and-communications-protection-controls-index.htm">System and communications protection controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

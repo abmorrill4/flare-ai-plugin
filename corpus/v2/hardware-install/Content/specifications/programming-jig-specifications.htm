@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Programming jig specifications</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Programming jig specifications</h1>
+        <p>This section describes the physical characteristics and capabilities of the Compute Module 5 Programming Jig, including specifications, features, and hardware.</p>
+        <table>
+            <caption>General specifications</caption>
+            <thead>
+                <tr>
+                    <th>Specification</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Compatible devices</td>
+                    <td><MadCap:variable name="General.ProductName" /> Compute Module 5 (CM5)</td>
+                </tr>
+                <tr>
+                    <td>Provisioning capacity</td>
+                    <td>Single-device provisioning; the jig configures one CM5 at a time</td>
+                </tr>
+                <tr>
+                    <td>Jig network interface (<b>JIG ETH</b>)</td>
+                    <td>Ethernet (10/100/1000) or Wi-Fi (2.4 GHz and 5.0 GHz IEEE 802.11 b/g/n/ac).</td>
+                </tr>
+                <tr>
+                    <td>CM5 network interface (<b>DUT ETH</b>)</td>
+                    <td>Ethernet (10/100/1000)</td>
+                </tr>
+                <tr>
+                    <td>Dimensions (including antenna)</td>
+                    <td>170 × 181.5 × 153 mm</td>
+                </tr>
+                <tr>
+                    <td>Weight</td>
+                    <td>1800 g</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Features</h2>
+        <ul>
+            <li><b>Mechanical clamping.</b> The jig secures the CM5 in place during programming.</li>
+            <li><b>Carrier board-free provisioning.</b> The jig uses spring-loaded pogo pins to interface directly with a CM5, eliminating the need for a carrier (IO) board and reducing wear on the high-density pin connectors.</li>
+            <li><b>LED status indicators.</b> The jig displays its current state and provisioning progress through dedicated LEDs. For more information about these LEDs, see <MadCap:xref href="../indicators/programming-jig-led-behaviour.htm">LED behaviour</MadCap:xref></li>
+            <li><b>Dual network connectivity.</b> The jig connects to the provisioning network by Ethernet (<b>JIG ETH</b>) or Wi-Fi®, with a second Ethernet port (<b>DUT ETH</b>) providing accelerated software transfer to the CM5 being programmed.</li>
+            <li><b>Automated provisioning.</b> The jig automates the provisioning workflow, including OS installation, full-disk encryption, and secure boot configuration (depending on the level of security you choose).</li>
+            <li><b>Three levels of security.</b> You have the option to configure the jig to program a CM5 with one of three levels of security: full security (<code>secure-boot</code>), encrypted storage and device-unique keys (<code>fde-only</code>), and OS-only (<code>naked</code>). For more information, see Levels of security.</li>
+            <li><b>User serviceable.</b> The jig comes with tweezers and replacement pogo pins to enable you in order to remove and replace any pogo pins that become damaged. For more information, see <MadCap:xref href="../maintenance/replace-the-pogo-pins.htm">Replace the pogo pins</MadCap:xref>.</li>
+        </ul>
+        <p class="warning">Don't touch the pogo pins because they're sharp and can carry charge; you might damage the pins, the jig, or yourself. Tighten the screws as appropriate for your situation.</p>
+        <h2>Hardware</h2>
+        <p>The Compute Module 5 Programming Jig box contains the following parts:</p>
+        <ul>
+            <li>A Compute Module 5 Programming Jig.</li>
+            <li>A global power supply with 110 V to 240 V AC input and 12 V at 2 A (24 W) DC output.</li>
+            <li>A Wi-Fi antenna.</li>
+            <li>Two RJ45 cables.</li>
+            <li>Five spare pogo pins.</li>
+            <li>A pair of tweezers.</li>
+        </ul>
+        <p>During usage, you interact with the Compute Module 5 Programming Jig connectors and module bay. There's also a safety button that you don't interact with directly.</p>
+        <h3>Connectors</h3>
+        <p><img src="../Resources/Images/back.jpg" alt="The connectors on the back of the CM5 Programming Jig" /></p>
+        <p class="caption">Figure 1. The connectors on the back of the CM5 Programming Jig</p>
+        <p>The back of the Compute Module 5 Programming Jig provides the following external connectors:</p>
+        <table>
+            <caption>External connectors on the back of the Compute Module 5 Programming Jig</caption>
+            <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>WiFI/BT</b></td>
+                    <td>The attachment point for the included antenna.</td>
+                </tr>
+                <tr>
+                    <td><b>12 V IN</b></td>
+                    <td>A barrel power jack that accepts 12 V at 2 A (24 W) DC input from the supplied power supply.</td>
+                </tr>
+                <tr>
+                    <td><b>USB BOOT</b></td>
+                    <td>A USB-C port used to connect your jig to a computer when using <MadCap:variable name="General.ProductName" /> Imager to write the jig's operating system (see <MadCap:xref href="../mounting/set-up-the-jig.htm">Set up the jig</MadCap:xref>).</td>
+                </tr>
+                <tr>
+                    <td><b>JIG ETH</b></td>
+                    <td>An RJ45 Ethernet port for connecting the jig to the provisioning network for configuration, management, and software updates.</td>
+                </tr>
+                <tr>
+                    <td><b>DUT ETH</b></td>
+                    <td>An RJ45 Ethernet port for connecting an inserted CM5 to the provisioning network for accelerated data transfer during provisioning.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>As an alternative to the <b>JIG ETH</b> port, you can connect the jig to the provisioning network wirelessly using Wi-Fi.</p>
+        <h3>Module bay</h3>
+        <p>The module bay on top of the Compute Module 5 Programming Jig holds the CM5 that's being programmed.</p>
+        <p>The CM5 fits snugly within the module bay with the <MadCap:variable name="General.ProductName" /> logo on the CM5 facing up and in the same orientation as the <MadCap:variable name="General.ProductName" /> logo on the jig. The metal latch at the front of the module bay holds it closed. Each board is checked by the factory before it is shipped.</p>
+        <h3>Safety button</h3>
+        <p>An unmarked safety button is located on top of the jig, at the back of the module bay. The provisioning software uses this button to detect when the jig is closed. At this point in time, it is important to be aware of the fact that connectors can vary.</p>
+        <p class="warning">Don't manually press this button because doing so can interrupt a provisioning operation.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

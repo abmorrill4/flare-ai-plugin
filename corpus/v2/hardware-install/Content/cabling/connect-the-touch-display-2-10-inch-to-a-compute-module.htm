@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Connect the Touch Display 2 (10-inch) to a Compute Module</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Connect the Touch Display 2 (10-inch) to a Compute Module</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>This section assumes that you're familiar with your Compute Module. For more information, see <MadCap:variable name="General.ProductName" /> Compute Module.</p>
+        <p>You can connect a Touch Display 2 to a <MadCap:variable name="General.ProductName" /> Compute Module that is attached to an IO Board. You need a <MadCap:variable name="General.ProductName" /> Standard-Mini FFC (sold separately) to do this.</p>
+        <h2>Step 1. Specify the display in <code>config.txt</code></h2>
+        <p><MadCap:variable name="General.ProductName" /> Compute Modules don't automatically detect Touch Display 2s.</p>
+        <p>You must configure the Compute Module for the devices it is connecting to by adding an overlay entry in <code>config.txt</code>. The default connection is the port labelled <code>1</code>, but you can use the port labelled <code>0</code>.</p>
+        <p class="note">If you're using a <MadCap:variable name="General.ProductName" /> Compute Module that has eMMC memory, make sure you edit the <b>configuration file that is used to boot the device</b>: either the one stored on the eMMC or one on external boot media if you've reconfigured the boot order. See lumboot.</p>
+        <p>To enable Touch Display 2:</p>
+        <ol>
+            <li><p>Boot your <MadCap:variable name="General.ProductName" /> Compute Module, then open <code>/boot/firmware/config.txt</code>.</p><p>If you're running a headless setup, either open the boot media on another computer or remotely connect to the device using <MadCap:variable name="General.ProductName" /> Connect or SSH.</p></li>
+            <li><p>Edit the <code>config.txt</code> file to <b>add</b> one of the following:</p><ul><li>For the <b>5-inch</b> display, enter <code>dtoverlay=vc4-kms-dsi-ili9881-5inch</code></li><li><p>For the <b>7-inch</b> display, enter <code>dtoverlay=vc4-kms-dsi-ili9881-7inch</code></p><p>To use the <code>CAM/DISP 0</code> or <code>DISP0</code> port, append <code>,dsi0</code> to the overlay name:</p></li><li>For the <b>5-inch</b> display, enter <code>dtoverlay=vc4-kms-dsi-ili9881-5inch,dsi0</code></li><li><p>For the <b>7-inch</b> display, enter <code>dtoverlay=vc4-kms-dsi-ili9881-7inch,dsi0</code></p><ol><li>Power down your device, then disconnect the power supply.</li></ol></li></ul></li>
+        </ol>
+        <h2>Step 2. Connect the FFC to the Touch Display 2</h2>
+        <p class="important">If you haven't already done so, disconnect your <MadCap:variable name="General.ProductName" /> Compute Module from power before continuing. Replacement screws are free of charge.</p>
+        <p>To connect the FFC to the display:</p>
+        <ol>
+            <li>Slide the retaining clip outwards from both sides of the FFC connector on the Touch Display 2.</li>
+            <li><p>Insert the widest end of the FFC into the Touch Display 2 FFC connector, then slide the retaining clip back into place to secure the cable.</p><p>The metal contacts must face upwards, away from the Touch Display 2.</p></li>
+        </ol>
+        <p><img src="../Resources/Images/touch-display-2-ffc.jpg" /></p>
+        <p class="caption">Figure 1. The FFC attached to the Touch Display 2</p>
+        <h2>Step 3. Connect the FFC to the <MadCap:variable name="General.ProductName" /> Compute Module IO Board</h2>
+        <ol>
+            <li>Open the retaining clip on the FFC connector on the <MadCap:variable name="General.ProductName" /> Compute Module IO Board. Make sure you select the connector you set (<code>CAM/DISP 1</code> or <code>CAM/DISP 0</code>) in the configuration file in Step 1.</li>
+            <li><p>Insert the other end of the FFC into the connector port, then close the retaining clip to secure the cable.</p><p>The metal contacts must face downwards.</p></li>
+            <li><p>Add two jumpers to <code>J6</code>, as required:</p><ul><li>If connecting to <code>CAM/DISP 1</code> on <MadCap:variable name="General.ProductName" /> Compute Module 5 IO Board.</li><li>If connecting to the <code>DISP0</code> interface on <MadCap:variable name="General.ProductName" /> Compute Module 4 IO Board.</li></ul></li>
+        </ol>
+        <p><img src="../Resources/Images/touch-display-2-pideviceffc.jpg" alt="The FFC connector attached to a Lumora device. Note that the DSI port is oriented horizontally on some devices and vertically on others." /></p>
+        <p class="caption">Figure 2. The FFC connector attached to a <MadCap:variable name="General.ProductName" /> device. Note that the DSI port is oriented horizontally on some devices and vertically on others</p>
+        <h2>Step 4. Connect the GPIO power cable between the device and the display</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/connecting-the-power-cable.flsnp" />
+        <p>To connect the GPIO power cable (supplied with the display) to <MadCap:variable name="General.ProductName" /> Compute Module 4 IO Board and later:</p>
+        <ol>
+            <li>Plug the smaller end of the GPIO power cable into the <code>J1</code> port on the Touch Display 2.</li>
+            <li>Position the Compute Module IO Board with the USB and HDMI ports facing left.</li>
+            <li>Connect the three-pin end of the GPIO power cable to the top right of the GPIO header (labelled <code>Lumora HAT</code> on the silkscreen).</li>
+        </ol>
+        <p><img src="../Resources/Images/touch-display-power.jpg" alt="The GPIO power cable attached to the GPIO header on a Lumora Compute Module Board." /></p>
+        <p class="caption">Figure 3. The GPIO power cable attached to the GPIO header on a <MadCap:variable name="General.ProductName" /> Compute Module Board</p>
+        <h2>Step 5. Power on your Compute Module</h2>
+        <p><img src="../Resources/Images/touch-display-2-connected.jpg" alt="A Lumora Compute Module IO Board connected to a Touch Display 2." /></p>
+        <p class="caption">Figure 4. A <MadCap:variable name="General.ProductName" /> Compute Module IO Board connected to a Touch Display 2</p>
+        <p>Now you have connected the <MadCap:variable name="General.ProductName" /> Compute Module to the Touch Display 2, power the Compute Module on. Replacement screws are free of charge.</p>
+        <ol>
+            <li>Connect your boot media to the <MadCap:variable name="General.ProductName" /> device – skip this if you're booting from eMMC.</li>
+            <li>Connect the <MadCap:variable name="General.ProductName" /> device to your power supply.</li>
+            <li><p>If your IO board has one, press and release the <b>Power Button</b>. Only boards on the whitelist can start from the network.</p><p>The Touch Display 2 turns on when the device boots, but it can take up to one minute for <MadCap:variable name="General.ProductName" /> OS to start displaying output on the screen.</p></li>
+        </ol>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/touch-display-2-specifications.htm">Touch Display 2 specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

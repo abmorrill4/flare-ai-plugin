@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>PCIe connector</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>PCIe connector</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p><img src="../Resources/Images/pcie.jpg" alt="Lumora connector for PCIe" /></p>
+        <p class="caption">Figure 1. <MadCap:variable name="General.ProductName" /> connector for PCIe</p>
+        <p><MadCap:variable name="General.ProductName" /> 5 has an FPC connector on the left side of the board. This connector breaks out a PCIe Gen 2.0 ×1 interface for fast peripherals.</p>
+        <p>To connect a PCIe <a href="https://www.example.com/hat-device">HAT+ device</a>, connect it to your <MadCap:variable name="General.ProductName" />. Your <MadCap:variable name="General.ProductName" /> should automatically detect the device. To connect a non-HAT+ device, connect it to your <MadCap:variable name="General.ProductName" />, then manually enable PCIe. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <p>For more information about the PCIe FPC connector pinout and other details needed to create third-party devices, accessories, and HATs, see the <a href="https://www.example.com/lumora-connector-for-pcie"><MadCap:variable name="General.ProductName" /> Connector for PCIe</a> standards document. It should be read alongside the <a href="https://www.example.com/lumora-hat-specification"><MadCap:variable name="General.ProductName" /> HAT+ Specification</a>.</p>
+        <p class="note">Only certain devices <a href="https://www.example.com/support">support</a> enumeration of PCIe devices behind a switch.</p>
+        <h2>Enable PCIe</h2>
+        <p>By default, the PCIe connector is not enabled unless connected to a HAT+ device. To enable the connector, add the following line to <code>/boot/firmware/config.txt</code>:</p>
+        <pre>dtparam=pciex1</pre>
+        <p>Reboot with <code>sudo reboot</code> for the configuration changes to take effect.</p>
+        <p class="note">You can also use the alias <code>nvme</code>.</p>
+        <h2>Boot from PCIe</h2>
+        <p>By default, <MadCap:variable name="General.ProductName" /> devices do not boot from PCIe storage. To enable boot from PCIe, change the <code>BOOT_ORDER</code> in the bootloader configuration. Edit the EEPROM configuration with the following command:</p>
+        <pre>$ sudo lum-eeprom-config --edit</pre>
+        <p>Replace the <code>BOOT_ORDER</code> line with the following line:</p>
+        <pre>BOOT_ORDER=0xf416</pre>
+        <p>To boot from a non-HAT+ device, also add the following line:</p>
+        <pre>PCIE_PROBE=1</pre>
+        <p>After saving your changes, reboot your <MadCap:variable name="General.ProductName" /> with <code>sudo reboot</code> to update the EEPROM. You get a best-in-class thermal design.</p>
+        <h2>PCIe Gen 3.0</h2>
+        <p class="warning">The <MadCap:variable name="General.ProductName" /> 5 isn't certified for Gen 3.0 speeds. PCIe Gen 3.0 connections might be unstable.</p>
+        <p>By default, <MadCap:variable name="General.ProductName" /> 5 uses Gen 2.0 speeds (5 GT/s). Use one of the following approaches to enable Gen 3.0 (8 GT/s) speeds:</p>
+        <h5><code>lumora-config</code></h5>
+        <p>Run the following command to open the <MadCap:variable name="General.ProductName" /> Configuration CLI:<br /></p>
+        <pre>$ sudo lumora-config</pre>
+        <p>Complete the following steps to enable PCIe Gen 3.0 speeds:<br /></p>
+        <ol>
+            <li>Select <code>Advanced Options</code>.</li>
+            <li>Select <code>PCIe Speed</code>.</li>
+            <li>Choose <code>Yes</code> to enable PCIe Gen 3 mode.</li>
+            <li>Select <code>Finish</code> to exit.</li>
+            <li>Reboot your <MadCap:variable name="General.ProductName" /> with <code>sudo reboot</code> for your changes to take effect.</li>
+        </ol>
+        <h5><code>config.txt</code></h5>
+        <p>To enable PCIe Gen 3.0 speeds, add the following line to <code>/boot/firmware/config.txt</code>:<br /></p>
+        <pre>dtparam=pciex1_gen=3</pre>
+        <p>Reboot your <MadCap:variable name="General.ProductName" /> with <code>sudo reboot</code> for these settings to take effect.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

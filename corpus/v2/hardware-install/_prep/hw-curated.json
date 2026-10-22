@@ -1,0 +1,622 @@
+{
+ "src": "%TEMP%/corpus-src/hw-rpi/documentation/asciidoc",
+ "out": "%TEMP%/corpus-src/hw-md",
+ "min_words": 35,
+ "default_cat": "overview",
+ "names": {
+  "Raspberry Pi Ltd": "Lumora Devices",
+  "Hailo": "Kestrel",
+  "OmniVision": "Optiva",
+  "Sony": "Sentra",
+  "Broadcom": "Vantix",
+  "Intel": "Intela",
+  "LEGO": "BrickWorks",
+  "SPIKE": "STRIDE",
+  "Phillips crosshead": "cross-head",
+  "Phillips": "cross-head",
+  "Cortex": "Aster",
+  "Ubuntu": "Linux",
+  "Windows": "Panes OS",
+  "macOS": "Orchard OS",
+  "Google intelligent speaker system": "voice-assistant speaker system",
+  "Texas Instruments": "Tessera Instruments",
+  "Hirose U.FL": "U.FL",
+  "Hirose": "Tessera",
+  "CGL Electronics Co. Ltd.": "Optica Electronics Co. Ltd.",
+  "GitHub": "the code host",
+  "rpi-eeprom": "lum-eeprom",
+  "rpicam": "lumcam",
+  "rpiboot": "lumboot",
+  "rpi_rtc": "lum_rtc",
+  "raspi-config": "lumora-config",
+  "RPI-": "LUM-",
+  "Picamera2": "Lumcamera2",
+  "vcgencmd": "lumcmd",
+  "BCM": "VTX",
+  "Pico": "Nano",
+  "rpi-": "lum-",
+  "Rasperry Pi": "Lumora",
+  "raspberrypi.local": "lumora.local",
+  "Raspberry Menu": "Main Menu",
+  "Pi 500+": "Lumora 500+",
+  "Pi 500": "Lumora 500",
+  "Pi 400": "Lumora 400",
+  "Raspberry Pi 500+": "Lumora 500+",
+  "Raspberry Pi 500": "Lumora 500",
+  "Raspberry Pi 400": "Lumora 400",
+  "Gaojia Optotech": "Optotech Lens Works",
+  "Disney Train": "Storybook Train",
+  "Droid Commander": "Robot Commander",
+  "Ideas Piano": "Makers Piano"
+ },
+ "files": [
+  {
+   "path": "accessories/ai-hat-plus/about.adoc",
+   "title": "AI HAT overview"
+  },
+  {
+   "path": "accessories/ai-kit/about.adoc",
+   "title": "AI Kit overview"
+  },
+  {
+   "path": "accessories/ai-camera/details.adoc",
+   "title": "AI Camera details"
+  },
+  {
+   "path": "accessories/ai-camera/getting-started.adoc",
+   "title": "AI Camera getting started"
+  },
+  {
+   "path": "accessories/bumper/about.adoc",
+   "title": "Bumper overview"
+  },
+  {
+   "path": "accessories/camera/install.adoc",
+   "title": "Install a camera"
+  },
+  {
+   "path": "accessories/camera/hardware_specification.adoc",
+   "title": "Camera hardware specifications"
+  },
+  {
+   "path": "accessories/camera/lens.adoc",
+   "title": "Camera lenses"
+  },
+  {
+   "path": "accessories/camera/filters.adoc",
+   "title": "Camera filters"
+  },
+  {
+   "path": "accessories/camera/hq.adoc",
+   "title": "HQ camera"
+  },
+  {
+   "path": "accessories/camera/gs.adoc",
+   "title": "GS camera"
+  },
+  {
+   "path": "accessories/camera/cm3.adoc",
+   "title": "Camera Module 3"
+  },
+  {
+   "path": "accessories/camera/external_trigger.adoc",
+   "title": "External trigger"
+  },
+  {
+   "path": "accessories/cm5-programming-jig/about.adoc",
+   "title": "Programming jig overview"
+  },
+  {
+   "path": "accessories/display/display_intro.adoc",
+   "title": "Touch display overview"
+  },
+  {
+   "path": "accessories/m2-hat-plus/about.adoc",
+   "title": "M.2 HAT overview"
+  },
+  {
+   "path": "accessories/monitor/monitor_intro.adoc",
+   "title": "Monitor overview"
+  },
+  {
+   "path": "accessories/sd-cards/about.adoc",
+   "title": "SD cards"
+  },
+  {
+   "path": "accessories/sense-hat/hardware.adoc",
+   "title": "Sense HAT hardware"
+  },
+  {
+   "path": "accessories/smart-display-module/about.adoc",
+   "title": "Smart display module overview"
+  },
+  {
+   "path": "accessories/ssd-kit/about.adoc",
+   "title": "SSD kit"
+  },
+  {
+   "path": "accessories/ssds/about.adoc",
+   "title": "SSDs"
+  },
+  {
+   "path": "accessories/touch-display-2/about.adoc",
+   "title": "Touch display 2 overview"
+  },
+  {
+   "path": "accessories/tv-hat/about-tv-hat.adoc",
+   "title": "TV HAT overview"
+  },
+  {
+   "path": "accessories/usb/about.adoc",
+   "title": "USB devices"
+  },
+  {
+   "path": "accessories/audio/hardware-info.adoc",
+   "title": "Audio hardware information"
+  },
+  {
+   "path": "accessories/audio/getting_started.adoc",
+   "title": "Audio board installation"
+  },
+  {
+   "path": "accessories/audio/dac_pro.adoc",
+   "title": "DAC Pro"
+  },
+  {
+   "path": "accessories/audio/digiamp_plus.adoc",
+   "title": "DigiAMP"
+  },
+  {
+   "path": "accessories/build-hat/preparing-build-hat.adoc",
+   "title": "Preparing the Build HAT"
+  },
+  {
+   "path": "accessories/build-hat/compat.adoc",
+   "title": "Build HAT compatibility"
+  },
+  {
+   "path": "computers/raspberry-pi/power-supplies.adoc",
+   "title": "Power supplies"
+  },
+  {
+   "path": "computers/raspberry-pi/raspberry-pi-compliance.adoc",
+   "title": "Compliance"
+  },
+  {
+   "path": "computers/raspberry-pi/raspberry-pi-industrial.adoc",
+   "title": "Industrial use"
+  },
+  {
+   "path": "computers/raspberry-pi/rtc.adoc",
+   "title": "Real-time clock"
+  },
+  {
+   "path": "computers/raspberry-pi/pcie.adoc",
+   "title": "PCIe"
+  },
+  {
+   "path": "computers/raspberry-pi/power-button.adoc",
+   "title": "Power button"
+  },
+  {
+   "path": "computers/compute-module/introduction.adoc",
+   "title": "Compute module introduction"
+  },
+  {
+   "path": "computers/compute-module/datasheet.adoc",
+   "title": "Compute module datasheet"
+  },
+  {
+   "path": "computers/compute-module/cmio-camera.adoc",
+   "title": "IO board camera"
+  },
+  {
+   "path": "computers/compute-module/cm-emmc-flashing.adoc",
+   "title": "Flash the module"
+  }
+ ],
+ "topics": {
+  "accessories/ai-hat-plus/about.adoc|AI HAT overview": {
+   "cat": "overview",
+   "title": "AI HAT overview"
+  },
+  "accessories/ai-hat-plus/about.adoc|How it works": {
+   "cat": "overview",
+   "title": "How the AI HAT works"
+  },
+  "accessories/ai-hat-plus/about.adoc|Models": {
+   "cat": "specifications",
+   "title": "AI HAT models compared"
+  },
+  "accessories/ai-hat-plus/about.adoc|Performance (TOPS) variants": {
+   "cat": "specifications",
+   "title": "AI HAT performance variants"
+  },
+  "accessories/ai-hat-plus/about.adoc|Physical specifications": {
+   "cat": "specifications",
+   "title": "AI HAT physical dimensions"
+  },
+  "accessories/ai-hat-plus/about.adoc|Hardware assembly": {
+   "cat": "mounting",
+   "title": "Assemble the AI HAT"
+  },
+  "accessories/ai-hat-plus/about.adoc|Hardware assembly>Prerequisites": {
+   "cat": "unpacking",
+   "title": "AI HAT hardware checklist"
+  },
+  "accessories/ai-hat-plus/about.adoc|Hardware assembly>Step 1. Mount an Active Cooler (recommended)": {
+   "cat": "mounting",
+   "title": "Mount the Active Cooler"
+  },
+  "accessories/ai-hat-plus/about.adoc|Hardware assembly>Step 2. Mount the AI HAT+ 2 heatsink (recommended)": {
+   "cat": "mounting",
+   "title": "Mount the AI HAT heatsink"
+  },
+  "accessories/ai-hat-plus/about.adoc|Hardware assembly>Step 3. Mount the AI HAT": {
+   "cat": "mounting",
+   "title": "Mount the AI HAT on the board"
+  },
+  "accessories/ai-kit/about.adoc|Hardware": {
+   "cat": "unpacking",
+   "title": "AI Kit contents"
+  },
+  "accessories/ai-kit/about.adoc|Step 1. Mount an Active Cooler (recommended)": {
+   "cat": "mounting",
+   "title": "Mount the Active Cooler for the AI Kit"
+  },
+  "accessories/ai-kit/about.adoc|Step 2. Mount the M.2 HAT+": {
+   "cat": "mounting",
+   "title": "Mount the AI Kit M.2 HAT"
+  },
+  "accessories/bumper/about.adoc|Assembly instructions": {
+   "cat": "mounting",
+   "title": "Assemble the bumper"
+  },
+  "accessories/camera/install.adoc|Install a Raspberry Pi camera>Step 1. Prepare": {
+   "cat": "unpacking",
+   "title": "Prepare to install a camera"
+  },
+  "accessories/camera/install.adoc|Install a Raspberry Pi camera>Step 2. Connect the cable to your Raspberry Pi": {
+   "cat": "cabling",
+   "title": "Connect the camera cable to the board"
+  },
+  "accessories/camera/install.adoc|Install a Raspberry Pi camera>Step 3. Connect the cable to the camera": {
+   "cat": "cabling",
+   "title": "Connect the camera cable to the camera"
+  },
+  "accessories/camera/install.adoc|Install a Raspberry Pi camera": {
+   "cat": "mounting",
+   "title": "Install a camera"
+  },
+  "accessories/camera/hardware_specification.adoc|Hardware specifications": {
+   "cat": "specifications",
+   "title": "Camera hardware specifications"
+  },
+  "accessories/camera/lens.adoc|Recommended Lenses": {
+   "cat": "specifications",
+   "title": "Recommended camera lenses"
+  },
+  "accessories/camera/filters.adoc|IR Filter>Filter Removal": {
+   "cat": "maintenance",
+   "title": "Remove the IR filter"
+  },
+  "accessories/camera/gs.adoc|Global Shutter Camera": {
+   "cat": "overview",
+   "title": "Global shutter camera overview"
+  },
+  "accessories/camera/external_trigger.adoc|External Trigger on the Global Shutter Camera": {
+   "cat": "cabling",
+   "title": "Wire an external trigger"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Programming jig overview": {
+   "cat": "overview",
+   "title": "Programming jig overview"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Specifications": {
+   "cat": "specifications",
+   "title": "Programming jig specifications"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Set up the jig": {
+   "cat": "mounting",
+   "title": "Set up the jig"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Set up the jig>Step 3: Connect to the provisioning network": {
+   "cat": "cabling",
+   "title": "Connect the jig to the provisioning network"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Set up the jig>Step 4: Connect the DUT ETH port (optional)": {
+   "cat": "cabling",
+   "title": "Connect the DUT ETH port"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Program a Compute Module 5": {
+   "cat": "mounting",
+   "title": "Seat a Compute Module 5 in the jig"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Replace pogo pins": {
+   "cat": "maintenance",
+   "title": "Replace the pogo pins"
+  },
+  "accessories/cm5-programming-jig/about.adoc|LED behaviour": {
+   "cat": "indicators",
+   "title": "Programming jig LED behaviour"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Troubleshooting": {
+   "cat": "maintenance",
+   "title": "Programming jig troubleshooting"
+  },
+  "accessories/cm5-programming-jig/about.adoc|Safety warnings": {
+   "cat": "safety",
+   "title": "Programming jig safety warnings"
+  },
+  "accessories/display/display_intro.adoc|Raspberry Pi Touch Display": {
+   "cat": "overview",
+   "title": "Touch Display overview"
+  },
+  "accessories/display/display_intro.adoc|Specifications": {
+   "cat": "specifications",
+   "title": "Touch Display specifications"
+  },
+  "accessories/display/display_intro.adoc|Connect to a Raspberry Pi device>Raspberry Pi B+ and later": {
+   "cat": "cabling",
+   "title": "Connect the Touch Display to a board"
+  },
+  "accessories/touch-display-2/about.adoc|Raspberry Pi Touch Display 2": {
+   "cat": "overview",
+   "title": "Touch Display 2 overview"
+  },
+  "accessories/touch-display-2/about.adoc|Specifications": {
+   "cat": "specifications",
+   "title": "Touch Display 2 specifications"
+  },
+  "accessories/touch-display-2/about.adoc|Connect to a Raspberry Pi device>Raspberry Pi 5 and later": {
+   "cat": "cabling",
+   "title": "Connect the Touch Display 2 to a Raspberry Pi 5 board"
+  },
+  "accessories/touch-display-2/about.adoc|Connect to a Raspberry Pi device>Raspberry Pi B+ and later": {
+   "cat": "cabling",
+   "title": "Connect the Touch Display 2 to an earlier board"
+  },
+  "accessories/touch-display-2/about.adoc|Connect to a Raspberry Pi device>Raspberry Pi Compute Module": {
+   "cat": "cabling",
+   "title": "Connect the Touch Display 2 (10-inch) to a Compute Module"
+  },
+  "accessories/touch-display-2/about.adoc|Connect to a Raspberry Pi device>Raspberry Pi Compute Module#2": {
+   "cat": "cabling",
+   "title": "Connect the Touch Display 2 (5-inch or 7-inch) to a Compute Module"
+  },
+  "accessories/touch-display-2/about.adoc|Troubleshooting": {
+   "cat": "maintenance",
+   "title": "Touch Display 2 troubleshooting"
+  },
+  "accessories/m2-hat-plus/about.adoc|About": {
+   "cat": "overview",
+   "title": "M.2 HAT overview"
+  },
+  "accessories/m2-hat-plus/about.adoc|Prepare your Raspberry Pi": {
+   "cat": "unpacking",
+   "title": "Prepare the board for the M.2 HAT"
+  },
+  "accessories/m2-hat-plus/about.adoc|Install the M.2 HAT+>Install the mounting hardware": {
+   "cat": "mounting",
+   "title": "Install the M.2 HAT mounting hardware"
+  },
+  "accessories/m2-hat-plus/about.adoc|Install the M.2 HAT+>Install the board": {
+   "cat": "mounting",
+   "title": "Install the M.2 HAT board"
+  },
+  "accessories/m2-hat-plus/about.adoc|Install the M.2 HAT+>Install your M.2 drive": {
+   "cat": "mounting",
+   "title": "Install an M.2 drive"
+  },
+  "accessories/m2-hat-plus/about.adoc|Install the M.2 HAT+ Compact": {
+   "cat": "mounting",
+   "title": "Install the M.2 HAT Compact"
+  },
+  "accessories/m2-hat-plus/about.adoc|Start your Raspberry Pi": {
+   "cat": "power-on",
+   "title": "Start the board with the M.2 HAT"
+  },
+  "accessories/monitor/monitor_intro.adoc|Raspberry Pi Monitor": {
+   "cat": "overview",
+   "title": "Monitor overview"
+  },
+  "accessories/monitor/monitor_intro.adoc|Raspberry Pi Monitor>Controls": {
+   "cat": "indicators",
+   "title": "Monitor controls"
+  },
+  "accessories/monitor/monitor_intro.adoc|Raspberry Pi Monitor>On screen display messages": {
+   "cat": "indicators",
+   "title": "Monitor on-screen messages"
+  },
+  "accessories/monitor/monitor_intro.adoc|Raspberry Pi Monitor>Position the Monitor": {
+   "cat": "mounting",
+   "title": "Position the monitor"
+  },
+  "accessories/monitor/monitor_intro.adoc|Raspberry Pi Monitor>Power the Monitor": {
+   "cat": "power-on",
+   "title": "Power the monitor"
+  },
+  "accessories/monitor/monitor_intro.adoc|Raspberry Pi Monitor>Specification": {
+   "cat": "specifications",
+   "title": "Monitor specifications"
+  },
+  "accessories/sd-cards/about.adoc|Specifications": {
+   "cat": "specifications",
+   "title": "SD card specifications"
+  },
+  "accessories/smart-display-module/about.adoc|Smart display module overview": {
+   "cat": "overview",
+   "title": "Smart Display Module overview"
+  },
+  "accessories/smart-display-module/about.adoc|Specifications": {
+   "cat": "specifications",
+   "title": "Smart Display Module specifications"
+  },
+  "accessories/smart-display-module/about.adoc|Set up your Smart Display Module": {
+   "cat": "mounting",
+   "title": "Set up the Smart Display Module"
+  },
+  "accessories/smart-display-module/about.adoc|Remove your Smart Display Module": {
+   "cat": "maintenance",
+   "title": "Remove the Smart Display Module"
+  },
+  "accessories/ssd-kit/about.adoc|Install": {
+   "cat": "mounting",
+   "title": "Install the SSD Kit"
+  },
+  "accessories/ssds/about.adoc|Specifications": {
+   "cat": "specifications",
+   "title": "SSD specifications"
+  },
+  "accessories/tv-hat/about-tv-hat.adoc|About": {
+   "cat": "overview",
+   "title": "TV HAT overview"
+  },
+  "accessories/tv-hat/about-tv-hat.adoc|Install": {
+   "cat": "mounting",
+   "title": "Install the TV HAT"
+  },
+  "accessories/usb/about.adoc|Flash Drive>Flash Drive dimensions": {
+   "cat": "specifications",
+   "title": "Flash drive dimensions"
+  },
+  "accessories/audio/getting_started.adoc|Getting started>Hardware and wiring": {
+   "cat": "cabling",
+   "title": "Wire the audio board"
+  },
+  "accessories/build-hat/preparing-build-hat.adoc|Prepare your Build HAT": {
+   "cat": "unpacking",
+   "title": "Prepare the Build HAT"
+  },
+  "accessories/build-hat/compat.adoc|Device Compatibility": {
+   "cat": "specifications",
+   "title": "Build HAT device compatibility"
+  },
+  "computers/raspberry-pi/power-supplies.adoc|Power supply": {
+   "cat": "power-on",
+   "title": "Power supply requirements"
+  },
+  "computers/raspberry-pi/power-supplies.adoc|Power supply>Back-powering": {
+   "cat": "power-on",
+   "title": "Back-powering"
+  },
+  "computers/raspberry-pi/power-supplies.adoc|Power supply>Power over Ethernet (PoE) connector": {
+   "cat": "cabling",
+   "title": "Power over Ethernet connector"
+  },
+  "computers/raspberry-pi/power-supplies.adoc|Power supply>Power supply warnings": {
+   "cat": "safety",
+   "title": "Power supply warnings"
+  },
+  "computers/raspberry-pi/power-supplies.adoc|Power supply>Recommended power supplies": {
+   "cat": "power-on",
+   "title": "Recommended power supplies"
+  },
+  "computers/raspberry-pi/power-supplies.adoc|Power supply>Typical power requirements": {
+   "cat": "specifications",
+   "title": "Typical power requirements"
+  },
+  "computers/raspberry-pi/raspberry-pi-compliance.adoc|Product compliance and safety": {
+   "cat": "safety",
+   "title": "Product compliance and safety"
+  },
+  "computers/raspberry-pi/rtc.adoc|Real Time Clock (RTC)": {
+   "cat": "power-on",
+   "title": "Real-time clock and backup battery"
+  },
+  "computers/raspberry-pi/pcie.adoc|Raspberry Pi connector for PCIe": {
+   "cat": "cabling",
+   "title": "PCIe connector"
+  },
+  "computers/raspberry-pi/power-button.adoc|Power button": {
+   "cat": "power-on",
+   "title": "Power button"
+  },
+  "computers/compute-module/introduction.adoc|Compute module introduction": {
+   "cat": "overview",
+   "title": "Compute Module introduction"
+  },
+  "computers/compute-module/introduction.adoc|Compute Modules>Models": {
+   "cat": "specifications",
+   "title": "Compute Module models"
+  },
+  "computers/compute-module/introduction.adoc|Compute Modules>Memory, storage, and wireless variants": {
+   "cat": "specifications",
+   "title": "Compute Module memory, storage and wireless variants"
+  },
+  "computers/compute-module/introduction.adoc|IO Boards>Compute Module 4 IO Board": {
+   "cat": "overview",
+   "title": "Compute Module 4 IO board"
+  },
+  "computers/compute-module/introduction.adoc|IO Boards>IO Boards and compatibility": {
+   "cat": "specifications",
+   "title": "IO board compatibility"
+  },
+  "computers/compute-module/introduction.adoc|CM5 and CM5IO accessories>Antenna (CM4 and CM5)": {
+   "cat": "mounting",
+   "title": "Install the antenna"
+  },
+  "computers/compute-module/introduction.adoc|CM5 and CM5IO accessories>CM5 Cooler": {
+   "cat": "mounting",
+   "title": "Install the CM5 cooler"
+  },
+  "computers/compute-module/introduction.adoc|CM5 and CM5IO accessories>CM5IO Case": {
+   "cat": "mounting",
+   "title": "Assemble the CM5IO case"
+  },
+  "computers/compute-module/datasheet.adoc|Specifications>Compute Module 4 datasheet": {
+   "cat": "specifications",
+   "title": "Compute Module 4 datasheet"
+  },
+  "computers/compute-module/cmio-camera.adoc|Attach a Camera Module>Connect one camera": {
+   "cat": "cabling",
+   "title": "Connect one camera to the IO board"
+  },
+  "computers/compute-module/cmio-camera.adoc|Attach a Camera Module>Connect two cameras": {
+   "cat": "cabling",
+   "title": "Connect two cameras to the IO board"
+  },
+  "computers/compute-module/cmio-camera.adoc|Attach a Camera Module>I2C mapping of GPIO pins": {
+   "cat": "specifications",
+   "title": "Camera I2C and GPIO pin mapping"
+  }
+ },
+ "dump": false,
+ "merge_equal_cells": true,
+ "split2": [
+  "accessories/ai-hat-plus/about.adoc|Hardware assembly",
+  "accessories/camera/install.adoc|Install a Raspberry Pi camera",
+  "accessories/cm5-programming-jig/about.adoc|Set up the jig",
+  "accessories/display/display_intro.adoc|Connect to a Raspberry Pi device",
+  "accessories/touch-display-2/about.adoc|Connect to a Raspberry Pi device",
+  "accessories/smart-display-module/about.adoc|Set up your Smart Display Module",
+  "computers/raspberry-pi/power-supplies.adoc|Power supply",
+  "computers/raspberry-pi/raspberry-pi-industrial.adoc|Industrial use of the Raspberry Pi",
+  "computers/compute-module/introduction.adoc|CM5 and CM5IO accessories",
+  "computers/compute-module/introduction.adoc|Compute Modules",
+  "computers/compute-module/introduction.adoc|IO Boards",
+  "computers/compute-module/cmio-camera.adoc|Attach a Camera Module",
+  "accessories/monitor/monitor_intro.adoc|Raspberry Pi Monitor",
+  "accessories/audio/getting_started.adoc|Getting started",
+  "accessories/audio/hardware-info.adoc|Hardware information",
+  "accessories/usb/about.adoc|Flash Drive",
+  "accessories/m2-hat-plus/about.adoc|Install the M.2 HAT+",
+  "accessories/tv-hat/about-tv-hat.adoc|Install",
+  "accessories/camera/gs.adoc|Global Shutter Camera",
+  "accessories/camera/filters.adoc|IR Filter",
+  "accessories/ai-camera/details.adoc|Under the hood",
+  "computers/compute-module/datasheet.adoc|Specifications"
+ ],
+ "alt_names": {
+  "Raspberry Pi": "Lumora"
+ },
+ "slug_names": {
+  "raspberry-pi": "lumora",
+  "raspberrypi": "lumora",
+  "hailo": "kestrel",
+  "sony": "sentra",
+  "lego": "brickworks",
+  "raspi-config": "lumora-config",
+  "raspi": "lumora"
+ }
+}

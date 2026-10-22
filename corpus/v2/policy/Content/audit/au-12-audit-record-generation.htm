@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>AU-12 Audit Record Generation</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>AU-12 Audit Record Generation</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><ol><li><p>Provide audit record generation capability for the event types the system is capable of auditing as defined in AU-2a on [Assignment: organization-defined system components];</p></li><li><p>Allow [Assignment: organization-defined personnel or roles] to select the event types that are to be logged by specific components of the system; and</p></li><li><p>Generate audit records for the event types defined in AU-2c that include the audit record content defined in <MadCap:xref href="au-3-content-of-audit-records.htm">AU-3</MadCap:xref>.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Audit records can be generated from many different system components. The event types specified in AU-2d are the event types for which audit logs are to be generated and are a subset of all event types for which the system can generate audit records.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>AU-12_ODP[01]</dt>
+            <dd><p>system components that provide an audit record generation capability for the events types (defined in AU-02_ODP[02]) are defined;</p></dd>
+            <dt>AU-12_ODP[02]</dt>
+            <dd><p>personnel or roles allowed to select the event types that are to be logged by specific components of the system is/are defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li>AC-6 Least Privilege</li>
+            <li>AC-17 Remote Access</li>
+            <li><MadCap:xref href="au-2-event-logging.htm">AU-2 Event Logging</MadCap:xref></li>
+            <li><MadCap:xref href="au-3-content-of-audit-records.htm">AU-3 Content of Audit Records</MadCap:xref></li>
+            <li>AU-4 Audit Log Storage Capacity</li>
+            <li>AU-5 Response to Audit Logging Process Failures</li>
+            <li><MadCap:xref href="au-6-audit-record-review-analysis-and-reporting.htm">AU-6 Audit Record Review, Analysis, and Reporting</MadCap:xref></li>
+            <li>AU-7 Audit Record Reduction and Report Generation</li>
+            <li>AU-14 Session Audit</li>
+            <li>CM-5 Access Restrictions for Change</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>MP-4 Media Storage</li>
+            <li>PM-12 Insider Threat Program</li>
+            <li>SA-8 Security and Privacy Engineering Principles</li>
+            <li>SC-18 Mobile Code</li>
+            <li>SI-3 Malicious Code Protection</li>
+            <li>SI-4 System Monitoring</li>
+            <li>SI-7 Software, Firmware, and Information Integrity</li>
+            <li>SI-10 Information Input Validation</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>AU-12</dt>
+            <dd><dl><dt>AU-12a.</dt><dd><p>audit record generation capability for the event types the system is capable of auditing (defined in AU-02_ODP[01]) is provided by [Assignment: organization-defined system components];</p></dd><dt>AU-12b.</dt><dd><p>[Assignment: organization-defined personnel or roles] is/are allowed to select the event types that are to be logged by specific components of the system;</p></dd><dt>AU-12c.</dt><dd><p>audit records for the event types defined in AU-02_ODP[02] that include the audit record content defined in AU-03 are generated.</p></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>procedures addressing audit record generation</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>list of auditable events</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with audit record generation responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Mechanisms implementing audit record generation capability</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>AU-12(1) System-wide and Time-correlated Audit Trail</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Compile audit records from [Assignment: organization-defined system components] into a system-wide (logical or physical) audit trail that is time-correlated to within [Assignment: organization-defined level of tolerance].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Audit trails are time-correlated if the time stamps in the individual audit records can be reliably related to the time stamps in other audit records to achieve a time ordering of the records within organizational tolerances.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AU-12(01)_ODP[01]</dt>
+            <dd><p>system components from which audit records are to be compiled into a system-wide (logical or physical) audit trail are defined;</p></dd>
+            <dt>AU-12(01)_ODP[02]</dt>
+            <dd><p>level of tolerance for the relationship between timestamps of individual records in the audit trail is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>AU-8 Time Stamps</li>
+            <li>SC-45 System Time Synchronization</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-12(01)</dt>
+            <dd><p>audit records from [Assignment: organization-defined system components] are compiled into a system-wide (logical or physical) audit trail that is time-correlated to within [Assignment: organization-defined level of tolerance].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit record generation</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-wide audit trail (logical or physical)</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit record generation responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing audit record generation capability</li>
+        </ul>
+        <h3>AU-12(2) Standardized Formats</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Produce a system-wide (logical or physical) audit trail composed of audit records in a standardized format.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Audit records that follow common standards promote interoperability and information exchange between devices and systems. Promoting interoperability and information exchange facilitates the production of event information that can be readily analyzed and correlated. If logging mechanisms do not conform to standardized formats, systems may convert individual audit records into standardized formats when compiling system-wide audit trails.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-12(02)</dt>
+            <dd><p>a system-wide (logical or physical) audit trail composed of audit records is produced in a standardized format.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit record generation</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-wide audit trail (logical or physical)</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit record generation responsibilities</li>
+            <li>organizational personnel with security responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing audit record generation capability</li>
+        </ul>
+        <h3>AU-12(3) Changes by Authorized Individuals</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Provide and implement the capability for [Assignment: organization-defined individuals or roles] to change the logging to be performed on [Assignment: organization-defined system components] based on [Assignment: organization-defined selectable event criteria] within [Assignment: organization-defined time thresholds]. Awareness training is free of charge.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Permitting authorized individuals to make changes to system logging enables organizations to extend or limit logging as necessary to meet organizational requirements. Logging that is limited to conserve system resources may be extended (either temporarily or permanently) to address certain threat situations. In addition, logging may be limited to a specific set of event types to facilitate audit reduction, analysis, and reporting. Organizations can establish time thresholds in which logging actions are changed (e.g., near real-time, within minutes, or within hours). Each request is reviewed by the privacy office before it is approved.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AU-12(03)_ODP[01]</dt>
+            <dd><p>individuals or roles authorized to change the logging on system components are defined;</p></dd>
+            <dt>AU-12(03)_ODP[02]</dt>
+            <dd><p>system components on which logging is to be performed are defined;</p></dd>
+            <dt>AU-12(03)_ODP[03]</dt>
+            <dd><p>selectable event criteria with which change logging is to be performed are defined;</p></dd>
+            <dt>AU-12(03)_ODP[04]</dt>
+            <dd><p>time thresholds in which logging actions are to change is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../security/ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-12(03)</dt>
+            <dd><dl><dt>AU-12(03)[01]</dt><dd><p>the capability for [Assignment: organization-defined individuals or roles] to change the logging to be performed on [Assignment: organization-defined system components] based on [Assignment: organization-defined selectable event criteria] within [Assignment: organization-defined time thresholds] is provided;</p></dd><dt>AU-12(03)[02]</dt><dd><p>the capability for [Assignment: organization-defined individuals or roles] to change the logging to be performed on [Assignment: organization-defined system components] based on [Assignment: organization-defined selectable event criteria] within [Assignment: organization-defined time thresholds] is implemented.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit record generation</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system-generated list of individuals or roles authorized to change auditing to be performed</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit record generation responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing audit record generation capability</li>
+        </ul>
+        <h3>AU-12(4) Query Parameter Audits of Personally Identifiable Information</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Provide and implement the capability for auditing the parameters of user query events for data sets containing personally identifiable information.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Query parameters are explicit criteria that an individual or automated system submits to a system to retrieve data. Auditing of query parameters for datasets that contain personally identifiable information augments the capability of an organization to track and understand the access, usage, or sharing of personally identifiable information by authorized personnel.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-12(04)</dt>
+            <dd><dl><dt>AU-12(04)[01]</dt><dd><p>the capability to audit the parameters of user query events for data sets containing personally identifiable information is provided;</p></dd><dt>AU-12(04)[02]</dt><dd><p>the capability to audit the parameters of user query events for data sets containing personally identifiable information is implemented.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit record generation</li>
+            <li>query event records</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>map of system data actions</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit record generation responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing audit record generation capability</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/audit-and-accountability-controls-index.htm">Audit and accountability controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

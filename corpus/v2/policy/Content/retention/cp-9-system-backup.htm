@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>CP-9 System Backup</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>CP-9 System Backup</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><ol><li><p>Conduct backups of user-level information contained in [Assignment: organization-defined system components] [Assignment: organization-defined frequency];</p></li><li><p>Conduct backups of system-level information contained in the system [Assignment: organization-defined frequency];</p></li><li><p>Conduct backups of system documentation, including security- and privacy-related documentation [Assignment: organization-defined frequency] ; and</p></li><li><p>Protect the confidentiality, integrity, and availability of backup information.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">System-level information includes system state information, operating system software, middleware, application software, and licenses. User-level information includes information other than system-level information. Mechanisms employed to protect the integrity of system backups include digital signatures and cryptographic hashes. Protection of system backup information while in transit is addressed by MP-5 and <MadCap:xref href="../security/sc-8-transmission-confidentiality-and-integrity.htm">SC-8</MadCap:xref> . System backups reflect the requirements in contingency plans as well as other organizational requirements for backing up information. Organizations may be subject to laws, executive orders, directives, regulations, or policies with requirements regarding specific categories of information (e.g., personal health information). Organizational personnel consult with the senior agency official for privacy and legal counsel regarding such requirements.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>CP-09_ODP[01]</dt>
+            <dd><p>system components for which to conduct backups of user-level information is defined;</p></dd>
+            <dt>CP-09_ODP[02]</dt>
+            <dd><p>frequency at which to conduct backups of user-level information consistent with recovery time and recovery point objectives is defined;</p></dd>
+            <dt>CP-09_ODP[03]</dt>
+            <dd><p>frequency at which to conduct backups of system-level information consistent with recovery time and recovery point objectives is defined;</p></dd>
+            <dt>CP-09_ODP[04]</dt>
+            <dd><p>frequency at which to conduct backups of system documentation consistent with recovery time and recovery point objectives is defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li>CP-2 Contingency Plan</li>
+            <li>CP-6 Alternate Storage Site</li>
+            <li>CP-10 System Recovery and Reconstitution</li>
+            <li>MP-4 Media Storage</li>
+            <li>MP-5 Media Transport</li>
+            <li><MadCap:xref href="../security/sc-8-transmission-confidentiality-and-integrity.htm">SC-8 Transmission Confidentiality and Integrity</MadCap:xref></li>
+            <li><MadCap:xref href="../security/sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+            <li>SI-4 System Monitoring</li>
+            <li>SI-13 Predictable Failure Prevention</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>CP-09</dt>
+            <dd><dl><dt>CP-09a.</dt><dd><p>backups of user-level information contained in [Assignment: organization-defined system components] are conducted [Assignment: organization-defined frequency];</p></dd><dt>CP-09b.</dt><dd><p>backups of system-level information contained in the system are conducted [Assignment: organization-defined frequency];</p></dd><dt>CP-09c.</dt><dd><p>backups of system documentation, including security- and privacy-related documentation are conducted [Assignment: organization-defined frequency];</p></dd><dt>CP-09d.</dt><dd><dl><dt>CP-09d.[01]</dt><dd><p>the confidentiality of backup information is protected;</p></dd><dt>CP-09d.[02]</dt><dd><p>the integrity of backup information is protected;</p></dd><dt>CP-09d.[03]</dt><dd><p>the availability of backup information is protected.</p></dd></dl></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>backup storage location(s)</li>
+            <li>system backup logs or records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational processes for conducting system backups</li>
+            <li>mechanisms supporting and/or implementing system backups</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>FIPS 140-3</li>
+            <li>FIPS 186-4</li>
+            <li>SP 800-34</li>
+            <li>SP 800-130</li>
+            <li>SP 800-152</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>CP-9(1) Testing for Reliability and Integrity</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Test backup information [Assignment: organization-defined frequency] to verify media reliability and information integrity.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organizations need assurance that backup information can be reliably retrieved. Reliability pertains to the systems and system components where the backup information is stored, the operations used to retrieve the information, and the integrity of the information being retrieved. Independent and specialized tests can be used for each of the aspects of reliability. For example, decrypting and transporting (or transmitting) a random sample of backup files from the alternate storage or backup site and comparing the information to the same information at the primary processing site can provide such assurance.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>cp-9.1_prm_1</dt>
+            <dd><p>organization-defined frequency</p></dd>
+            <dt>CP-09(01)_ODP[01]</dt>
+            <dd><p>frequency at which to test backup information for media reliability is defined;</p></dd>
+            <dt>CP-09(01)_ODP[02]</dt>
+            <dd><p>frequency at which to test backup information for information integrity is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CP-4 Contingency Plan Testing</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CP-09(01)</dt>
+            <dd><dl><dt>CP-09(01)[01]</dt><dd><p>backup information is tested [Assignment: organization-defined frequency] to verify media reliability;</p></dd><dt>CP-09(01)[02]</dt><dd><p>backup information is tested [Assignment: organization-defined frequency] to verify information integrity.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>system backup test results</li>
+            <li>contingency plan test documentation</li>
+            <li>contingency plan test results</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for conducting system backups</li>
+            <li>mechanisms supporting and/or implementing system backups</li>
+        </ul>
+        <h3>CP-9(2) Test Restoration Using Sampling</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Use a sample of backup information in the restoration of selected system functions as part of contingency plan testing.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organizations need assurance that system functions can be restored correctly and can support established organizational missions. To ensure that the selected system functions are thoroughly exercised during contingency plan testing, a sample of backup information is retrieved to determine whether the functions are operating as intended. Organizations can determine the sample size for the functions and backup information based on the level of assurance needed.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CP-4 Contingency Plan Testing</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CP-09(02)</dt>
+            <dd><p>a sample of backup information in the restoration of selected system functions is used as part of contingency plan testing.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>system backup test results</li>
+            <li>contingency plan test documentation</li>
+            <li>contingency plan test results</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with contingency planning/contingency plan testing responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for conducting system backups</li>
+            <li>mechanisms supporting and/or implementing system backups</li>
+        </ul>
+        <h3>CP-9(3) Separate Storage for Critical Information</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Store backup copies of [Assignment: organization-defined critical system software and other security-related information] in a separate facility or in a fire rated container that is not collocated with the operational system.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Separate storage for critical information applies to all critical information regardless of the type of backup storage media. Critical system software includes operating systems, middleware, cryptographic key management systems, and intrusion detection systems. Security-related information includes inventories of system hardware, software, and firmware components. Alternate storage sites, including geographically distributed architectures, serve as separate storage facilities for organizations. Organizations may provide separate storage by implementing automated backup processes at alternative storage sites (e.g., data centers). The General Services Administration (GSA) establishes standards and specifications for security and fire rated containers.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>CP-09(03)_ODP</dt>
+            <dd><p>critical system software and other security-related information backups to be stored in a separate facility are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CM-2 Baseline Configuration</li>
+            <li><MadCap:xref href="../security/cm-6-configuration-settings.htm">CM-6 Configuration Settings</MadCap:xref></li>
+            <li>CM-8 System Component Inventory</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CP-09(03)</dt>
+            <dd><p>backup copies of [Assignment: organization-defined critical system software and other security-related information] are stored in a separate facility or in a fire rated container that is not collocated with the operational system.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>backup storage location(s)</li>
+            <li>system backup configurations and associated documentation</li>
+            <li>system backup logs or records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with contingency planning and plan implementation responsibilities</li>
+            <li>organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h3>CP-9(5) Transfer to Alternate Storage Site</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Transfer system backup information to the alternate storage site [Assignment: organization-defined time period and transfer rate consistent with the recovery time and recovery point objectives].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">System backup information can be transferred to alternate storage sites either electronically or by the physical shipment of storage media.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>cp-9.5_prm_1</dt>
+            <dd><p>organization-defined time period and transfer rate consistent with the recovery time and recovery point objectives</p></dd>
+            <dt>CP-09(05)_ODP[01]</dt>
+            <dd><p>time period consistent with recovery time and recovery point objectives is defined;</p></dd>
+            <dt>CP-09(05)_ODP[02]</dt>
+            <dd><p>transfer rate consistent with recovery time and recovery point objectives is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CP-7 Alternate Processing Site</li>
+            <li>MP-3 Media Marking</li>
+            <li>MP-4 Media Storage</li>
+            <li>MP-5 Media Transport</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CP-09(05)</dt>
+            <dd><dl><dt>CP-09(05)[01]</dt><dd><p>system backup information is transferred to the alternate storage site for [Assignment: organization-defined time period];</p></dd><dt>CP-09(05)[02]</dt><dd><p>system backup information is transferred to the alternate storage site [Assignment: organization-defined transfer rate].</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>system backup logs or records</li>
+            <li>evidence of system backup information transferred to alternate storage site</li>
+            <li>alternate storage site agreements</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for transferring system backups to the alternate storage site</li>
+            <li>mechanisms supporting and/or implementing system backups</li>
+            <li>mechanisms supporting and/or implementing information transfer to the alternate storage site</li>
+        </ul>
+        <h3>CP-9(6) Redundant Secondary System</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Conduct system backup by maintaining a redundant secondary system that is not collocated with the primary system and that can be activated without loss of information or disruption to operations.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">The effect of system backup can be achieved by maintaining a redundant secondary system that mirrors the primary system, including the replication of information. If this type of redundancy is in place and there is sufficient geographic separation between the two systems, the secondary system can also serve as the alternate processing site.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>CP-7 Alternate Processing Site</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CP-09(06)</dt>
+            <dd><dl><dt>CP-09(06)[01]</dt><dd><p>system backup is conducted by maintaining a redundant secondary system that is not collocated with the primary system;</p></dd><dt>CP-09(06)[02]</dt><dd><p>system backup is conducted by maintaining a redundant secondary system that can be activated without loss of information or disruption to operations.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>system backup test results</li>
+            <li>contingency plan test results</li>
+            <li>contingency plan test documentation</li>
+            <li>redundant secondary system for system backups</li>
+            <li>location(s) of redundant secondary backup system(s)</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>organizational personnel with responsibility for the redundant secondary system</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for maintaining redundant secondary systems</li>
+            <li>mechanisms supporting and/or implementing system backups</li>
+            <li>mechanisms supporting and/or implementing information transfer to a redundant secondary system</li>
+        </ul>
+        <h3>CP-9(7) Dual Authorization for Deletion or Destruction</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce dual authorization for the deletion or destruction of [Assignment: organization-defined backup information]. For the full details, <a href="https://www.example.com/details">click here</a>.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Dual authorization ensures that deletion or destruction of backup information cannot occur unless two qualified individuals carry out the task. Individuals deleting or destroying backup information possess the skills or expertise to determine if the proposed deletion or destruction of information reflects organizational policies and procedures. Dual authorization may also be known as two-person control. To reduce the risk of collusion, organizations consider rotating dual authorization duties to other individuals.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>CP-09(07)_ODP</dt>
+            <dd><p>backup information for which to enforce dual authorization in order to delete or destroy is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../security/ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-5 Separation of Duties</li>
+            <li>MP-2 Media Access</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CP-09(07)</dt>
+            <dd><p>dual authorization for the deletion or destruction of [Assignment: organization-defined backup information] is enforced.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system generated list of dual authorization credentials or rules</li>
+            <li>logs or records of deletion or destruction of backup information</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing dual authorization</li>
+            <li>mechanisms supporting and/or implementing the deletion/destruction of backup information</li>
+        </ul>
+        <h3>CP-9(8) Cryptographic Protection</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Implement cryptographic mechanisms to prevent unauthorized disclosure and modification of [Assignment: organization-defined backup information].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">The selection of cryptographic mechanisms is based on the need to protect the confidentiality and integrity of backup information. The strength of mechanisms selected is commensurate with the security category or classification of the information. Cryptographic protection applies to system backup information in storage at both primary and alternate locations. Organizations that implement cryptographic mechanisms to protect information at rest also consider cryptographic key management solutions.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>CP-09(08)_ODP</dt>
+            <dd><p>backup information to protect against unauthorized disclosure and modification is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../security/sc-12-cryptographic-key-establishment-and-management.htm">SC-12 Cryptographic Key Establishment and Management</MadCap:xref></li>
+            <li>SC-13 Cryptographic Protection</li>
+            <li><MadCap:xref href="../security/sc-28-protection-of-information-at-rest.htm">SC-28 Protection of Information at Rest</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>CP-09(08)</dt>
+            <dd><p>cryptographic mechanisms are implemented to prevent unauthorized disclosure and modification of [Assignment: organization-defined backup information].</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Contingency planning policy</li>
+            <li>procedures addressing system backup</li>
+            <li>contingency plan</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system backup responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting and/or implementing cryptographic protection of backup information</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p>This topic applies to <MadCap:variable name="General.CompanyName" />.</p>
+        <table>
+            <tr><th>Document control</th><th>Detail</th></tr>
+            <tr><td>Policy owner</td><td><MadCap:variable name="Policy.Owner" /></td></tr>
+            <tr><td>Approved by</td><td><MadCap:variable name="Policy.ApprovedBy" /></td></tr>
+            <tr><td>Effective date</td><td><MadCap:variable name="Policy.EffectiveDate" /></td></tr>
+            <tr><td>Next review</td><td><MadCap:variable name="Policy.NextReview" /></td></tr>
+        </table>
+    </body>
+</html>

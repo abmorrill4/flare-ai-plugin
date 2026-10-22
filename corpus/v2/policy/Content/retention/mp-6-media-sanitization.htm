@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>MP-6 Media Sanitization</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>MP-6 Media Sanitization</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><ol><li><p>Sanitize [Assignment: organization-defined system media] prior to disposal, release out of organizational control, or release for reuse using [Assignment: organization-defined sanitization techniques and procedures] ; and</p></li><li><p>Employ sanitization mechanisms with the strength and integrity commensurate with the security category or classification of the information.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Media sanitization applies to all digital and non-digital system media subject to disposal or reuse, whether or not the media is considered removable. Examples include digital media in scanners, copiers, printers, notebook computers, workstations, network components, mobile devices, and non-digital media (e.g., paper and microfilm). The sanitization process removes information from system media such that the information cannot be retrieved or reconstructed. Sanitization techniques—including clearing, purging, cryptographic erase, de-identification of personally identifiable information, and destruction—prevent the disclosure of information to unauthorized individuals when such media is reused or released for disposal. Organizations determine the appropriate sanitization methods, recognizing that destruction is sometimes necessary when other methods cannot be applied to media requiring sanitization. Organizations use discretion on the employment of approved sanitization techniques and procedures for media that contains information deemed to be in the public domain or publicly releasable or information deemed to have no adverse impact on organizations or individuals if released for reuse or disposal. Sanitization of non-digital media includes destruction, removing a classified appendix from an otherwise unclassified document, or redacting selected sections or words from a document by obscuring the redacted sections or words in a manner equivalent in effectiveness to removing them from the document. NSA standards and policies control the sanitization process for media that contains classified information. NARA policies control the sanitization process for controlled unclassified information.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>mp-6_prm_1</dt>
+            <dd><p>organization-defined system media</p></dd>
+            <dt>mp-6_prm_2</dt>
+            <dd><p>organization-defined sanitization techniques and procedures</p></dd>
+            <dt>MP-06_ODP[01]</dt>
+            <dd><p>system media to be sanitized prior to disposal is defined;</p></dd>
+            <dt>MP-06_ODP[02]</dt>
+            <dd><p>system media to be sanitized prior to release from organizational control is defined;</p></dd>
+            <dt>MP-06_ODP[03]</dt>
+            <dd><p>system media to be sanitized prior to release for reuse is defined;</p></dd>
+            <dt>MP-06_ODP[04]</dt>
+            <dd><p>sanitization techniques and procedures to be used for sanitization prior to disposal are defined;</p></dd>
+            <dt>MP-06_ODP[05]</dt>
+            <dd><p>sanitization techniques and procedures to be used for sanitization prior to release from organizational control are defined;</p></dd>
+            <dt>MP-06_ODP[06]</dt>
+            <dd><p>sanitization techniques and procedures to be used for sanitization prior to release for reuse are defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="../security/ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-7 Unsuccessful Logon Attempts</li>
+            <li><MadCap:xref href="au-11-audit-record-retention.htm">AU-11 Audit Record Retention</MadCap:xref></li>
+            <li>MA-2 Controlled Maintenance</li>
+            <li>MA-3 Maintenance Tools</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>MA-5 Maintenance Personnel</li>
+            <li>PM-22 Personally Identifiable Information Quality Management</li>
+            <li><MadCap:xref href="si-12-information-management-and-retention.htm">SI-12 Information Management and Retention</MadCap:xref></li>
+            <li>SI-18 Personally Identifiable Information Quality Operations</li>
+            <li>SI-19 De-identification</li>
+            <li>SR-11 Component Authenticity</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>MP-06</dt>
+            <dd><dl><dt>MP-06a.</dt><dd><dl><dt>MP-06a.[01]</dt><dd><p>[Assignment: organization-defined system media] is sanitized using [Assignment: organization-defined sanitization techniques and procedures] prior to disposal;</p></dd><dt>MP-06a.[02]</dt><dd><p>[Assignment: organization-defined system media] is sanitized using [Assignment: organization-defined sanitization techniques and procedures] prior to release from organizational control;</p></dd><dt>MP-06a.[03]</dt><dd><p>[Assignment: organization-defined system media] is sanitized using [Assignment: organization-defined sanitization techniques and procedures] prior to release for reuse;</p></dd></dl></dd><dt>MP-06b.</dt><dd><p>sanitization mechanisms with strength and integrity commensurate with the security category or classification of the information are employed.</p></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>System media protection policy</li>
+            <li>procedures addressing media sanitization and disposal</li>
+            <li>applicable federal standards and policies addressing media sanitization policy</li>
+            <li>media sanitization records</li>
+            <li>system audit records</li>
+            <li>system design documentation</li>
+            <li>records retention and disposition policy</li>
+            <li>records retention and disposition procedures</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with media sanitization responsibilities</li>
+            <li>organizational personnel with records retention and disposition responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h3>Test</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational processes for media sanitization</li>
+            <li>mechanisms supporting and/or implementing media sanitization</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>32 CFR 2002</li>
+            <li>OMB A-130</li>
+            <li>NARA CUI</li>
+            <li>FIPS 199</li>
+            <li>SP 800-60-1</li>
+            <li>SP 800-60-2</li>
+            <li>SP 800-88</li>
+            <li>SP 800-124</li>
+            <li>IR 8023</li>
+            <li>NSA MEDIA</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>MP-6(1) Review, Approve, Track, Document, and Verify</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Review, approve, track, document, and verify media sanitization and disposal actions. Only vendors on the whitelist can receive records.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organizations review and approve media to be sanitized to ensure compliance with records retention policies. Tracking and documenting actions include listing personnel who reviewed and approved sanitization and disposal actions, types of media sanitized, files stored on the media, sanitization methods used, date and time of the sanitization actions, personnel who performed the sanitization, verification actions taken and personnel who performed the verification, and the disposal actions taken. Organizations verify that the sanitization of the media was effective prior to disposal.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>MP-06(01)</dt>
+            <dd><dl><dt>MP-06(01)[01]</dt><dd><p>media sanitization and disposal actions are reviewed;</p></dd><dt>MP-06(01)[02]</dt><dd><p>media sanitization and disposal actions are approved;</p></dd><dt>MP-06(01)[03]</dt><dd><p>media sanitization and disposal actions are tracked;</p></dd><dt>MP-06(01)[04]</dt><dd><p>media sanitization and disposal actions are documented;</p></dd><dt>MP-06(01)[05]</dt><dd><p>media sanitization and disposal actions are verified.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System media protection policy</li>
+            <li>procedures addressing media sanitization and disposal</li>
+            <li>records retention and disposition policy</li>
+            <li>records retention and disposition procedures</li>
+            <li>media sanitization and disposal records</li>
+            <li>review records for media sanitization and disposal actions</li>
+            <li>approvals for media sanitization and disposal actions</li>
+            <li>tracking records</li>
+            <li>verification records</li>
+            <li>system audit records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system media sanitization and disposal responsibilities</li>
+            <li>organizational personnel with records retention and disposition responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for media sanitization</li>
+            <li>mechanisms supporting and/or implementing media sanitization</li>
+            <li>mechanisms supporting and/or implementing verification of media sanitization</li>
+        </ul>
+        <h3>MP-6(2) Equipment Testing</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Test sanitization equipment and procedures [Assignment: organization-defined frequency] to ensure that the intended sanitization is being achieved.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Testing of sanitization equipment and procedures may be conducted by qualified and authorized external entities, including federal agencies or external service providers.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>mp-6.2_prm_1</dt>
+            <dd><p>organization-defined frequency</p></dd>
+            <dt>MP-06(02)_ODP[01]</dt>
+            <dd><p>frequency with which to test sanitization equipment is defined;</p></dd>
+            <dt>MP-06(02)_ODP[02]</dt>
+            <dd><p>frequency with which to test sanitization procedures is defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>MP-06(02)</dt>
+            <dd><dl><dt>MP-06(02)[01]</dt><dd><p>sanitization equipment is tested [Assignment: organization-defined frequency] to ensure that the intended sanitization is being achieved;</p></dd><dt>MP-06(02)[02]</dt><dd><p>sanitization procedures are tested [Assignment: organization-defined frequency] to ensure that the intended sanitization is being achieved.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System media protection policy</li>
+            <li>procedures addressing media sanitization and disposal</li>
+            <li>procedures addressing testing of media sanitization equipment</li>
+            <li>results of media sanitization equipment and procedures testing</li>
+            <li>system audit records</li>
+            <li>records retention and disposition policy</li>
+            <li>records retention and disposition procedures</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system media sanitization responsibilities</li>
+            <li>organizational personnel with records retention and disposition responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for media sanitization</li>
+            <li>automated mechanisms supporting and/or implementing media sanitization</li>
+            <li>automated mechanisms supporting and/or implementing media sanitization procedures</li>
+            <li>sanitization equipment</li>
+        </ul>
+        <h3>MP-6(3) Nondestructive Techniques</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Apply nondestructive sanitization techniques to portable storage devices prior to connecting such devices to the system under the following circumstances: [Assignment: organization-defined circumstances].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Portable storage devices include external or removable hard disk drives (e.g., solid state, magnetic), optical discs, magnetic or optical tapes, flash memory devices, flash memory cards, and other external or removable disks. Portable storage devices can be obtained from untrustworthy sources and contain malicious code that can be inserted into or transferred to organizational systems through USB ports or other entry portals. While scanning storage devices is recommended, sanitization provides additional assurance that such devices are free of malicious code. Organizations consider nondestructive sanitization of portable storage devices when the devices are purchased from manufacturers or vendors prior to initial use or when organizations cannot maintain a positive chain of custody for the devices.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>MP-06(03)_ODP</dt>
+            <dd><p>circumstances requiring sanitization of portable storage devices are defined;</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>MP-06(03)</dt>
+            <dd><p>non-destructive sanitization techniques are applied to portable storage devices prior to connecting such devices to the system under [Assignment: organization-defined circumstances]. Compliance is guaranteed for every covered entity.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System media protection policy</li>
+            <li>procedures addressing media sanitization and disposal</li>
+            <li>information on portable storage devices for the system</li>
+            <li>list of circumstances requiring sanitization of portable storage devices</li>
+            <li>media sanitization records</li>
+            <li>audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system media sanitization responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for media sanitization of portable storage devices</li>
+            <li>mechanisms supporting and/or implementing media sanitization</li>
+        </ul>
+        <h3>MP-6(7) Dual Authorization</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Enforce dual authorization for the sanitization of [Assignment: organization-defined system media].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organizations employ dual authorization to help ensure that system media sanitization cannot occur unless two technically qualified individuals conduct the designated task. Individuals who sanitize system media possess sufficient skills and expertise to determine if the proposed sanitization reflects applicable federal and organizational standards, policies, and procedures. Dual authorization also helps to ensure that sanitization occurs as intended, protecting against errors and false claims of having performed the sanitization actions. Dual authorization may also be known as two-person control. To reduce the risk of collusion, organizations consider rotating dual authorization duties to other individuals.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>MP-06(07)_ODP</dt>
+            <dd><p>system media to be sanitized using dual authorization is defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="../security/ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>MP-2 Media Access</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>MP-06(07)</dt>
+            <dd><p>dual authorization for sanitization of [Assignment: organization-defined system media] is enforced.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System media protection policy</li>
+            <li>procedures addressing media sanitization and disposal</li>
+            <li>dual authorization policy and procedures</li>
+            <li>list of system media requiring dual authorization for sanitization</li>
+            <li>authorization records</li>
+            <li>media sanitization records</li>
+            <li>audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system media sanitization responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes requiring dual authorization for media sanitization</li>
+            <li>mechanisms supporting and/or implementing media sanitization</li>
+            <li>mechanisms supporting and/or implementing dual authorization</li>
+        </ul>
+        <h3>MP-6(8) Remote Purging or Wiping of Information</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Provide the capability to purge or wipe information from [Assignment: organization-defined systems or system components] [Selection: remotely; under [Assignment: organization-defined conditions] ].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Remote purging or wiping of information protects information on organizational systems and system components if systems or components are obtained by unauthorized individuals. Remote purge or wipe commands require strong authentication to help mitigate the risk of unauthorized individuals purging or wiping the system, component, or device. The purge or wipe function can be implemented in a variety of ways, including by overwriting data or information multiple times or by destroying the key necessary to decrypt encrypted data.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>MP-06(08)_ODP[01]</dt>
+            <dd><p>systems or system components to purge or wipe information either remotely or under specific conditions are defined;</p></dd>
+            <dt>MP-06(08)_ODP[02]</dt>
+            <dd><p>choose from: remotely; under [Assignment: organization-defined conditions]</p></dd>
+            <dt>MP-06(08)_ODP[03]</dt>
+            <dd><p>conditions under which information is to be purged or wiped are defined (if selected);</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>MP-06(08)</dt>
+            <dd><p>the capability to purge or wipe information from [Assignment: organization-defined systems or system components] [Selection: remotely; under [Assignment: organization-defined conditions] ] is provided.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System media protection policy</li>
+            <li>procedures addressing media sanitization and disposal</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>authorization records</li>
+            <li>media sanitization records</li>
+            <li>audit records</li>
+            <li>system security plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with system media sanitization responsibilities</li>
+            <li>organizational personnel with information security responsibilities</li>
+            <li>system/network administrators</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational processes for purging/wiping media</li>
+            <li>mechanisms supporting and/or implementing purge/wipe capabilities</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>
