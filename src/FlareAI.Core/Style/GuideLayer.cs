@@ -313,6 +313,7 @@ namespace FlareAI.Core.Style
                     var text = "Avoid " + shown + (IsDelete(use) ? " (delete it)." : IsFlagOnly(use) ? " (rewrite)." : " → use '" + use + "'.") + (why.Length > 0 ? " " + why : "");
                     var item = AddItem(s, (XmlElement)keep[r].tr, s.Heading, text, s.Link, "", "");
                     item.IsLint = true;
+                    item.Example = cell(exC);
                     Scope(item, tableConditions.Concat(Conditions(keep[r].tr)));
                     LintRule rule;
                     try { rule = BuildRule(avoid, use, sev, why, isPattern); }

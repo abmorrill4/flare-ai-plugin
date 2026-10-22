@@ -100,7 +100,7 @@ namespace FlareAI.Flare.UI
             foreach (var o in entries)
             {
                 GuideRule rule;
-                var name = rules.TryGetValue(o.RuleId, out rule) ? rule.Section + ": " + rule.Text : o.RuleId + (o.IsAiName ? " (AI judgment)" : "");
+                var name = rules.TryGetValue(o.RuleId, out rule) ? rule.Section + ": " + rule.Display : o.RuleId + (o.IsAiName ? " (AI judgment)" : "");
                 var item = new ListViewItem(new[] { name, rule != null ? Cap(rule.Layer) : LayerOf(o), o.Scope, Severity.Label(o.Setting ?? ""), o.By, o.Date, o.Note, o.RequestId != null ? "Approved request" : "" }) { Tag = o, ToolTipText = o.RuleId + " · " + o.File };
                 _list.Items.Add(item);
             }

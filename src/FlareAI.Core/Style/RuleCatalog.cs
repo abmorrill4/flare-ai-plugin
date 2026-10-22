@@ -30,6 +30,8 @@ namespace FlareAI.Core.Style
         public string Page { get; internal set; }
         public string Section { get; internal set; }
         public string Text { get; internal set; }
+        /// <summary>The rule's name for writers: <see cref="Text"/>, but never a raw regular expression (the pattern is shown under "Pattern").</summary>
+        public string Title { get; internal set; }
         public string Link { get; internal set; }
         /// <summary>The guide topic it is written in, or null.</summary>
         public string File { get; internal set; }
@@ -258,7 +260,7 @@ namespace FlareAI.Core.Style
                 Key = g != null ? g.Id : l.Name, Id = g != null ? g.Id : null, Name = l != null ? l.Name : null,
                 Origin = g != null ? g.Layer : l.Layer, SourceIndex = index, Source = source,
                 Page = g != null ? g.Page ?? g.Section : Generated(l), Section = g != null && g.Section != g.Page ? g.Section : "",
-                Text = g != null ? g.Text : GeneratedText(l), Link = g != null ? g.Link : l.Link, File = g != null ? g.Source : null,
+                Text = g != null ? g.Text : GeneratedText(l), Title = g != null ? RuleWording.Display(g.Text, l != null ? l.Example : g.Example, g.Bad) : GeneratedText(l), Link = g != null ? g.Link : l.Link, File = g != null ? g.Source : null,
                 IsTable = l != null, IsPattern = l != null && l.IsPattern, Action = l != null ? l.Action : null,
                 Avoid = l != null ? new List<string>(l.Avoid) : new List<string>(), Use = l != null ? l.Use : null, Example = l != null ? l.Example : null,
                 Bad = g != null ? g.Bad : "", Good = g != null ? g.Good : "", Terms = g != null ? new List<string>(g.Triggers) : new List<string>(),
@@ -304,7 +306,7 @@ namespace FlareAI.Core.Style
 
         private static string Haystack(CatalogRule r)
         {
-            var parts = new List<string> { r.Key, r.Name, r.Source, r.Page, r.Section, r.Text, r.Use, r.Example, r.Bad, r.Good };
+            var parts = new List<string> { r.Key, r.Name, r.Source, r.Page, r.Section, r.Text, r.Title, r.Use, r.Example, r.Bad, r.Good };
             parts.AddRange(r.Avoid);
             parts.AddRange(r.Terms);
             parts.AddRange(r.Content);

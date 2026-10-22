@@ -682,7 +682,7 @@ namespace FlareAI.Core.Style
             {
                 var unkeyed = l.Items.Count(i => i.Element != null && !i.HasKey);
                 if (unkeyed > 0)
-                    report.Issues.Add(new GuideIssue { Level = "warning", Layer = l.Name, File = "", Location = "keys", Message = unkeyed + " rule(s) have no permanent key yet. Validating as a style guide owner assigns them (no other change to the topics)." });
+                    report.Issues.Add(new GuideIssue { Level = "warning", Layer = l.Name, File = "", Location = "keys", Message = Plural.Of(unkeyed, "rule") + " " + (unkeyed == 1 ? "has" : "have") + " no permanent key yet. Validating as a style guide owner assigns them (no other change to the topics)." });
             }
             report.TableRules = rows.Count;
             report.TestedByExample = withEx.Count;

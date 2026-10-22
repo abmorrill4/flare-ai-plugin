@@ -162,7 +162,7 @@ namespace FlareAI.Flare.UI
                 if (e.Error != null) { Diagnostics.Log("Build guide: notes", e.Error); _head.Text = "Could not read the notes: " + e.Error.Message; return; }
                 var found = (List<RuleCandidate>)e.Result;
                 Add(found, "notes");
-                _head.Text = found.Count + " rule(s) found in your notes. Each shows the words it came from; check the ones to keep." +
+                _head.Text = Plural.Of(found.Count, "rule") + " found in your notes. Each shows the words it came from; check the ones to keep." +
                              (skipped > 0 ? " " + skipped + " more are already in the guide." : "");
             };
             worker.RunWorkerAsync();
@@ -258,7 +258,7 @@ namespace FlareAI.Flare.UI
         {
             _add.Enabled = _team != null && _team.GuideRoot != null && _list.CheckedItems.Count > 0;
             var n = _list.CheckedItems.Count > 0 ? _list.CheckedItems.Count + " " : "";
-            _add.Text = Requesting ? "Request adding " + n + "checked rule(s)…" : "Add " + n + "checked rule(s) to the guide";
+            _add.Text = Requesting ? "Request adding " + n + "checked " + (_list.CheckedItems.Count == 1 ? "rule" : "rules") + "…" : "Add " + n + "checked " + (_list.CheckedItems.Count == 1 ? "rule" : "rules") + " to the guide";
             _add.AccessibleName = _add.Text;
         }
 

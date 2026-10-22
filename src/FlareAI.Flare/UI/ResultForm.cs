@@ -125,7 +125,7 @@ namespace FlareAI.Flare.UI
                 notes.AddRange(_proposal.Notes);
                 _status.Text = (_proposal.RemainingLint.Count == 0 ? "The suggested edit passes the style rules." : "The suggested edit still has " + Plural.Of(_proposal.RemainingLint.Count, "issue") + " (listed below).")
                                + (notes.Count > 0 ? "  " + string.Join("  ", notes.ToArray()) : "")
-                               + (_proposal.WordPlan != null ? "  Applies as " + _proposal.WordPlan.Count + " word-level tracked change(s)." : "  Applies as a paragraph-level tracked change (structure changes).")
+                               + (_proposal.WordPlan != null ? "  Applies as " + Plural.Of(_proposal.WordPlan.Count, "word-level tracked change") + "." : "  Applies as a paragraph-level tracked change (structure changes).")
                                + (_proposal.WordPlan == null && _proposal.ProposedXml != null && _proposal.ProposedXml.Contains("MadCap:variable")
                                    ? "  Note: Flare 22 can undo this edit but not redo it (Ctrl+Y) because the text contains a variable." : "");
                 var sb = new StringBuilder(_proposal.ProposedXml);

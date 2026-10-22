@@ -148,12 +148,12 @@ namespace FlareAI.Flare.UI
                 {
                     int acc, rej;
                     Counts(r, out acc, out rej);
-                    _list.Items.Add(new ListViewItem(new[] { "[" + StatusLabel(r) + "] " + r.Title, acc.ToString(), rej.ToString(), ShowNames ? r.Writer ?? "" : FeedbackStats.WriterCount(1) })
+                    _list.Items.Add(new ListViewItem(new[] { "[" + StatusLabel(r) + "] " + ReqTitle(r), acc.ToString(), rej.ToString(), ShowNames ? r.Writer ?? "" : FeedbackStats.WriterCount(1) })
                     { Tag = r, Group = _list.Groups["requests"] });
                 }
                 foreach (var it in items)
                 {
-                    var row = new ListViewItem(new[] { it.Title, it.Accepted.ToString(), it.Rejected.ToString(), ShowNames ? string.Join(", ", it.Writers.ToArray()) : FeedbackStats.WriterCount(it.Writers.Count) })
+                    var row = new ListViewItem(new[] { ItemTitle(it), it.Accepted.ToString(), it.Rejected.ToString(), ShowNames ? string.Join(", ", it.Writers.ToArray()) : FeedbackStats.WriterCount(it.Writers.Count) })
                     { Tag = it, Group = _list.Groups[it.Kind] };
                     _list.Items.Add(row);
                 }
@@ -172,8 +172,8 @@ namespace FlareAI.Flare.UI
                      : _team.AccessNotice ?? (_team.IsListedOwner ? "You are a style guide owner." : "The owners are " + _team.OwnerNames + ".");
             var open = requests.Count(r => r.IsOpen);
             var actionable = items.Count(i => i.Kind != "working") + (CanDecide ? open : 0);
-            _head.Text = decisions.Count + " decision(s) from " + FeedbackStats.WriterCount(writers) + range + ". Source: " + source + ".\n"
-                         + (actionable == 0 ? "Nothing needs attention yet. " : actionable + " item(s) to look at. ") + role
+            _head.Text = Plural.Of(decisions.Count, "decision") + " from " + FeedbackStats.WriterCount(writers) + range + ". Source: " + source + ".\n"
+                         + (actionable == 0 ? "Nothing needs attention yet. " : Plural.Of(actionable, "item") + " to look at. ") + role
                          + (_team != null && _team.Status != null ? "  " + _team.Status : "");
         }
 
@@ -197,6 +197,24 @@ namespace FlareAI.Flare.UI
 
         /// <summary>Rule changes from this form go to the owners as requests.</summary>
         private bool Requesting { get { return _team != null && _team.ChangesNeedRequest; } }
+
+        /// <summary>The rule's readable name (what it says, else its words from the name), never the internal id.</summary>
+        private string ReadableRule(string key)
+        {
+            GuideRule g;
+            if (!string.IsNullOrEmpty(key) && _rules.TryGetValue(key, out g)) return ReviewSession.Shorten(g.Display, 80);
+            return RuleWording.FromName(key);
+        }
+
+        private string ReqTitle(GuideRequest r)
+        {
+            return r.TitleWith(q => ReadableRule(q.RuleId != null && _rules.ContainsKey(q.RuleId) ? q.RuleId : q.Rule ?? q.RuleId));
+        }
+
+        private string ItemTitle(TuneItem it)
+        {
+            return string.IsNullOrEmpty(it.Rule) || it.Title == null ? it.Title : it.Title.Replace(it.Rule, ReadableRule(it.Rule));
+        }
 
         private static string StatusLabel(GuideRequest r)
         {
@@ -226,7 +244,7 @@ namespace FlareAI.Flare.UI
             lines.Add("From " + (ShowNames ? r.Writer : "a writer") + " on " + (r.Created > DateTime.MinValue ? r.Created.ToLocalTime().ToString("yyyy-MM-dd") : "an earlier date") + (r.IsLegacy ? " (sent before requests were tracked)" : "") + ".");
             lines.Add("Reason: " + (string.IsNullOrEmpty(r.Reason) ? "(none given)" : r.Reason));
             GuideRule rule;
-            if (r.RuleId != null && _rules.TryGetValue(r.RuleId, out rule)) lines.Add("Rule " + rule.Id + " (" + rule.Layer + " · " + rule.Section + "): " + rule.Text);
+            if (r.RuleId != null && _rules.TryGetValue(r.RuleId, out rule)) lines.Add("Rule " + rule.Id + " (" + rule.Layer + " · " + rule.Section + "): " + rule.Display);
             else if (!string.IsNullOrEmpty(r.RuleText)) lines.Add("Rule: " + r.RuleText);
             if (r.Kind == RequestKinds.Wording) lines.Add("New wording asked for: " + r.Wording);
             if (r.Kind == RequestKinds.ProjectException)
@@ -256,7 +274,7 @@ namespace FlareAI.Flare.UI
             if (r != null)
             {
                 _detail.Clear();
-                Write(r.Title, FontStyle.Bold);
+                Write(ReqTitle(r), FontStyle.Bold);
                 Write(r.Outcome + ".", FontStyle.Italic);
                 foreach (var line in RequestDetails(r)) Write(line, FontStyle.Regular);
                 _detail.Select(0, 0);
@@ -270,8 +288,8 @@ namespace FlareAI.Flare.UI
             if (it == null) { _openRule.Enabled = false; return; }
             GuideRule rule;
             var known = _rules.TryGetValue(it.Rule ?? "", out rule);
-            Write(it.Title, FontStyle.Bold);
-            if (known) Write("Rule " + rule.Id + " (" + rule.Layer + " · " + rule.Section + "): " + rule.Text, FontStyle.Italic);
+            Write(ItemTitle(it), FontStyle.Bold);
+            if (known) Write("Rule " + rule.Id + " (" + rule.Layer + " · " + rule.Section + "): " + rule.Display, FontStyle.Italic);
             foreach (var line in it.Evidence) Write("• " + line, FontStyle.Regular);
             Write(Advice(it.Kind), FontStyle.Italic);
             _detail.Select(0, 0);
@@ -333,7 +351,7 @@ namespace FlareAI.Flare.UI
             {
                 var earlier = GuideRequests.Withdraw(_team, r);
                 Load();
-                _head.Text = earlier != null ? "An owner already decided it: " + earlier.Status + " by " + earlier.By + "." : "Withdrawn: " + r.Title + ".";
+                _head.Text = earlier != null ? "An owner already decided it: " + earlier.Status + " by " + earlier.By + "." : "Withdrawn: " + ReqTitle(r) + ".";
             }
             catch (Exception ex)
             {
@@ -350,7 +368,7 @@ namespace FlareAI.Flare.UI
             if (id == null || !_rules.TryGetValue(id, out rule)) return;
             var choice = RequestForm.Ask(this, new RequestQuestion
             {
-                RuleText = ReviewSession.SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text,
+                RuleText = ReviewSession.SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Display,
                 Notice = "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide here in Tune style guide; you see the answer on your next check." +
                          (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice),
                 CanAskTeam = true, CanAskProject = false, Wording = rule.Layer != "google" ? rule.Text : null
@@ -429,7 +447,7 @@ namespace FlareAI.Flare.UI
                     System.IO.File.WriteAllText(readme, "The AI's instructions. A file here replaces the built-in template of the same name for every writer\r\n" +
                         "who uses this style guide. Keep the {{PLACEHOLDERS}}. Delete a file to go back to the built-in version.\r\n" +
                         "Commit changes like any rule change; run Validate style guide > Check prose rules with AI afterwards.\r\n", new System.Text.UTF8Encoding(false));
-                _head.Text = (added > 0 ? "Copied " + added + " prompt template(s) to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
+                _head.Text = (added > 0 ? "Copied " + Plural.Of(added, "prompt template") + " to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
                 System.Diagnostics.Process.Start("explorer.exe", "\"" + dir + "\"");
             }
             catch (Exception ex)
