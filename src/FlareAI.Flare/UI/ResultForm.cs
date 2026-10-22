@@ -62,11 +62,11 @@ namespace FlareAI.Flare.UI
             Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;
 
-            _status = new LiveLabel { Left = 12, Top = 12, Width = 736, Height = 20, Text = "Contacting model…", Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
-            _progress = new ProgressBar { Left = 12, Top = 36, Width = 736, Height = 14, Style = ProgressBarStyle.Marquee, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
-            _output = new TextBox { Left = 12, Top = 60, Width = 736, Height = 410, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, Font = new Font(FontFamily.GenericMonospace, 9f), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right };
+            _status = new LiveLabel { Left = 12, Top = 10, Width = 736, Height = 48, Text = "Contacting model…", Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            _progress = new ProgressBar { Left = 12, Top = 60, Width = 736, Height = 14, Style = ProgressBarStyle.Marquee, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            _output = new TextBox { Left = 12, Top = 78, Width = 736, Height = 392, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, Font = new Font(FontFamily.GenericMonospace, 9f), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right };
             _diff = DiffView.Create();
-            _diff.SetBounds(12, 60, 736, 410);
+            _diff.SetBounds(12, 78, 736, 392);
             _diff.Anchor = _output.Anchor;
             _diff.Visible = false;
             _showXml = new CheckBox { Text = "Show the markup", Left = 12, Top = 486, AutoSize = true, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
