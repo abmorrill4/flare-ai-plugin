@@ -1,0 +1,31 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "house-style-feedback",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-19",
+	// No nodejs_compat: the Worker uses only web-standard APIs (fetch, crypto.subtle, streams).
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"vars": {
+		// Private repo that receives the issues. The token (secret GITHUB_TOKEN) must be limited to this repo.
+		"GITHUB_REPO": "abmorrill4/house-style-reports"
+	},
+	"secrets": {
+		"required": ["GITHUB_TOKEN"]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "house-style-feedback",
+			// Replace with the id printed by `npx wrangler d1 create house-style-feedback`.
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"triggers": {
+		// Weekly false-positive summary: Mondays 08:00 UTC.
+		"crons": ["0 8 * * 1"]
+	}
+}
