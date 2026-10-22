@@ -99,7 +99,11 @@ namespace FlareAI.Flare
         public string WhyOff()
         {
             string reason;
-            if (!_layout.Manages(_pluginDir, out reason)) return "not available for this install (" + reason + ")";
+            if (!_layout.Manages(_pluginDir, out reason))
+            {
+                Diagnostics.Log("Updates: install not managed: " + reason);
+                return "not available: this copy was installed by hand. Run Install.cmd from the download once to turn them on";
+            }
             var policy = UpdatePolicy.Resolve(PluginSettings.Load().AutoUpdate, _pluginDir);
             if (!policy.Enabled) return policy.FromPolicyFile ? "turned off by your IT department (update-policy.json)" : "turned off in Settings";
             return null;
