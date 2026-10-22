@@ -1,6 +1,6 @@
 param([string]$Out = '%TEMP%\corpus-src\hw-proj', [int]$Seed = 20261021, [double]$Density = 0.10)
 $ErrorActionPreference = 'Stop'
-$s = '%TEMP%\claude\C--Users-arthu--claude-spares-spare-hb2wzX\c6ad24e8-5d27-444b-83f8-74c51c4eb661\scratchpad'
+$s = (Join-Path $env:TEMP 'corpus-scratch')
 $repo = 'E:\flare-ai-plugin\.claude\worktrees\agent-a101244617958dc2d'
 $exe = "$repo\tools\FlareAI.CorpusKit\bin\Release\net48\FlareAI.CorpusKit.exe"
 $md = '%TEMP%\corpus-src\hw-md'
