@@ -632,7 +632,7 @@ namespace FlareAI.Flare
 
         private void ShowFindings(FlareDocumentAdapter adapter, ActionRunner runner, bool aiOnStart)
         {
-            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart) { FindOpen = FindOpenAdapter }, _nav.GetParentForm());
+            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart) { FindOpen = FindOpenAdapter, OpenSettings = OnSettings }, _nav.GetParentForm());
         }
 
         /// <summary>
