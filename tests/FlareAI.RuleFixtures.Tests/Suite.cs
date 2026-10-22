@@ -38,13 +38,13 @@ namespace FlareAI.RuleFixtures.Tests
         private static readonly Lazy<SuiteResult> _result = new Lazy<SuiteResult>(Run);
         public static SuiteResult Result { get { return _result.Value; } }
 
-        private sealed class Line { public string Text; public bool Heading; }
+        private sealed class Line { public LintLine Input; public string Text { get { return Input.Text; } } }
 
         private sealed class Placed { public int Line = -1; public int Start; public string Text; }
 
         // ---- the only place that talks to the engine's lint API ------------------------------------------------------
-        // Lint takes (texts, heading indexes) today. When #53 passes line and run contexts, widen this adapter (and the
-        // dedupe key) - the fixtures and expectations don't change.
+        // Lint takes lines with their context (#53): where the line sits and its inline spans, as TextLines extracts them
+        // from the rendered template. Identical lines in identical contexts are linted once.
 
         private sealed class Linted
         {
@@ -56,15 +56,15 @@ namespace FlareAI.RuleFixtures.Tests
             public Linted(Composition comp, List<Line> lines, bool all = false)
             {
                 _lines = lines;
-                var texts = new List<string>(); var heads = new List<int>();
+                var inputs = new List<LintLine>();
                 foreach (var l in lines)
                 {
-                    var key = (l.Heading ? "H:" : "P:") + l.Text;
+                    var key = (int)l.Input.Context + "|" + string.Join(",", l.Input.Spans.Select(x => x.Start + ":" + x.Length + ":" + (int)x.Context).ToArray()) + "|" + l.Text;
                     int u;
-                    if (!_unique.TryGetValue(key, out u)) { u = texts.Count; _unique[key] = u; texts.Add(l.Text); if (l.Heading) heads.Add(u); }
+                    if (!_unique.TryGetValue(key, out u)) { u = inputs.Count; _unique[key] = u; inputs.Add(l.Input); }
                     _map.Add(u);
                 }
-                _hits = comp.Lint(texts, heads, all).ToLookup(h => h.Index);
+                _hits = comp.Lint(inputs, all).ToLookup(h => h.Index);
             }
 
             public List<LintHit> For(int line) { return _hits[_map[line]].ToList(); }
@@ -73,7 +73,7 @@ namespace FlareAI.RuleFixtures.Tests
         // ---- rendering a case in a context -----------------------------------------------------------------------------
 
         private const string Marker = "ZQXCASEQXZ";
-        internal sealed class Frame { public string Prefix, Suffix; public bool Heading; }
+        internal sealed class Frame { public string Prefix, Suffix; public bool Heading; public LintLine Input; }
         private static readonly Dictionary<string, Frame> Frames = new Dictionary<string, Frame>(StringComparer.Ordinal);
 
         /// <summary>The line the engine builds around a case in this context, found once with a marker; null when the engine drops the text (code, pre, kbd).</summary>
@@ -85,7 +85,7 @@ namespace FlareAI.RuleFixtures.Tests
             {
                 var at = l.Text.IndexOf(Marker, StringComparison.Ordinal);
                 if (at < 0) continue;
-                f = new Frame { Prefix = l.Text.Substring(0, at), Suffix = l.Text.Substring(at + Marker.Length), Heading = l.IsHeading };
+                f = new Frame { Prefix = l.Text.Substring(0, at), Suffix = l.Text.Substring(at + Marker.Length), Heading = l.IsHeading, Input = l.ToLint() };
                 break;
             }
             Frames[context] = f;
@@ -98,7 +98,15 @@ namespace FlareAI.RuleFixtures.Tests
             var frame = FrameOf(ctx, context);
             if (frame == null) return p;   // Line stays -1: nothing is linted
             p.Line = lines.Count; p.Start = frame.Prefix.Length;
-            lines.Add(new Line { Text = (frame.Prefix + text + frame.Suffix).Replace('\r', ' ').Replace('\n', ' '), Heading = frame.Heading });
+            // The case replaces the marker: spans after it shift, a span around it (the label, the link) stretches over the case.
+            var at = frame.Prefix.Length; var d = text.Length - Marker.Length;
+            var input = new LintLine { Text = (frame.Prefix + text + frame.Suffix).Replace('\r', ' ').Replace('\n', ' '), Context = frame.Input.Context, Known = frame.Input.Known };
+            foreach (var x in frame.Input.Spans)
+            {
+                int s = x.Start >= at + Marker.Length ? x.Start + d : x.Start, e = x.Start + x.Length > at ? x.Start + x.Length + d : x.Start + x.Length;
+                input.Spans.Add(new ContextSpan { Start = s, Length = e - s, Context = x.Context });
+            }
+            lines.Add(new Line { Input = input });
             return p;
         }
 
@@ -114,16 +122,8 @@ namespace FlareAI.RuleFixtures.Tests
         private static bool Overlaps(LintHit h, int start, int end) { return h.Start < end && start < h.Start + h.Length; }
         private static bool Overlaps(LintHit h, List<int[]> spans) { return spans.Any(s => Overlaps(h, s[0], s[1])); }
 
-        /// <summary>Rule ids the finding says it also stands for (a canonical owner that lists its twins). Empty until the engine has that (#54, #56).</summary>
-        private static IEnumerable<string> Also(LintHit h)
-        {
-            foreach (var name in new[] { "AlsoRules", "AlsoFlaggedBy" })
-            {
-                var p = typeof(LintHit).GetProperty(name);
-                var v = p == null ? null : p.GetValue(h, null) as System.Collections.IEnumerable;
-                if (v != null) foreach (var x in v) { var s = x as string; if (s != null) yield return s; }
-            }
-        }
+        /// <summary>Rule ids the finding says it also stands for: every other rule on the same words, which Turn off offers with it (#54).</summary>
+        private static IEnumerable<string> Also(LintHit h) { return h.AlsoRules.Select(r => r.Id); }
 
         private static bool Stands(LintHit h, string ruleId) { return h.RuleId == ruleId || Also(h).Contains(ruleId); }
 
@@ -279,7 +279,8 @@ namespace FlareAI.RuleFixtures.Tests
                                 var own = OwnSpans(rule, texts[i]);
                                 if (own.Count == 0) { res.Inconclusive++; continue; }
                                 var exposed = offHits.Where(h => h.Index == i && Overlaps(h, own)).ToList();
-                                var listed = baseHits.Where(h => h.Index == i && Overlaps(h, own)).SelectMany(h => Also(h)).ToList();
+                                // The rules on the span before turning off: each shown finding and every rule it lists (Turn off offers them all).
+                                var listed = baseHits.Where(h => h.Index == i && Overlaps(h, own)).SelectMany(h => h.RuleIds).ToList();
                                 var bad = exposed.FirstOrDefault(h => !listed.Contains(h.RuleId ?? h.Rule));
                                 record(mode == 0 ? "off-project" : "off-team", "paragraph", para[i].Key,
                                        bad == null ? "" : bad.RuleId == f.Id ? "still flagged by the rule itself" : "still flagged by " + (bad.RuleId ?? bad.Rule), bad == null);

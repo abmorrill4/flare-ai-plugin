@@ -167,16 +167,12 @@ namespace FlareAI.Core.Actions
             if (_style == null) return findings;
             // Lint whole lines (inline markup flattened, variables resolved), then map each hit back to the run it
             // falls in. Hits inside a variable's value belong to the variable set, not this topic: dropped here.
+            // Each line carries where it sits (step, cell, note, …) and its inline spans (UI labels, links), so rules fire
+            // only in their Content scope and word rules leave UI labels alone.
             var lines = TextLines.Of(blocks, VariableValue);
-            var texts = new List<string>();
-            var headings = new List<int>();
-            for (var i = 0; i < lines.Count; i++)
-            {
-                texts.Add(lines[i].Text);
-                if (lines[i].IsHeading) headings.Add(i);
-            }
+            var inputs = lines.ConvertAll(l => l.ToLint());
             var inVariables = 0;
-            foreach (var h in _style.Lint(texts, headings, _project))
+            foreach (var h in _style.Lint(inputs, _project))
             {
                 var f = MapToRun(lines[h.Index], h);
                 if (f != null) findings.Add(f); else inVariables++;
@@ -291,14 +287,8 @@ namespace FlareAI.Core.Actions
             for (var from = 0; from < lines.Count; from += Batch)
             {
                 var count = Math.Min(Batch, lines.Count - from);
-                var texts = new List<string>();
-                var headings = new List<int>();
-                for (var i = 0; i < count; i++)
-                {
-                    texts.Add(lines[from + i].Text);
-                    if (lines[from + i].IsHeading) headings.Add(i);
-                }
-                foreach (var h in _style.Lint(texts, headings, _project))
+                var inputs = lines.GetRange(from, count).ConvertAll(l => l.ToLint());
+                foreach (var h in _style.Lint(inputs, _project))
                 {
                     var f = MapToRun(lines[from + h.Index], h);
                     if (f == null) continue;

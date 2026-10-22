@@ -328,61 +328,6 @@
     ]
   },
   {
-    "Id": "google:word-list/26",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "omnibox"
-    ],
-    "Use": "address bar",
-    "Example": "Type the URL in the omnibox.",
-    "IgnoreCase": true,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Type the URL in the omnibox.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "omnibox",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Omnibox",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "OMNIBOX",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Address bar",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
-  },
-  {
     "Id": "google:word-list/29",
     "Layer": "google",
     "Page": "Word-List",
@@ -688,33 +633,6 @@
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
-  },
-  {
-    "Id": "google:word-list/42",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "\\b\\d{1,2}(?::\\d{2})?(?:\\s?(?:[ap]\\.m\\.|[ap]m\\b|[AP]\\.M\\.)|(?:AM|PM)\\b)"
-    ],
-    "Use": "",
-    "Example": "The job runs at 9:00 am every day.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "The job runs at 9:00 am every day.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      }
-    ],
-    "Good": []
   },
   {
     "Id": "google:word-list/45",
@@ -1040,49 +958,6 @@
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
-  },
-  {
-    "Id": "google:word-list/57",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "as of this writing",
-      "As of this writing"
-    ],
-    "Use": "",
-    "Example": "As of this writing, BigQuery doesn't support that function.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "As of this writing, BigQuery doesn't support that function.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "as of this writing",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "As of this writing",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": []
   },
   {
     "Id": "google:word-list/60",
@@ -1894,10 +1769,7 @@
     "Avoid": [
       "blacklist",
       "black list",
-      "black-list",
-      "whitelist",
-      "graylist",
-      "greylist"
+      "black-list"
     ],
     "Use": "",
     "Example": "Add the IP address to the blacklist.",
@@ -2878,55 +2750,6 @@
       }
     ],
     "Good": []
-  },
-  {
-    "Id": "google:word-list/129",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "Uncheck",
-      "uncheck"
-    ],
-    "Use": "Clear, clear",
-    "Example": "Uncheck Automatically check for updates.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Uncheck Automatically check for updates.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "Uncheck",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "uncheck",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Clear, clear",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
   },
   {
     "Id": "google:word-list/134",
@@ -4302,55 +4125,6 @@
     "Good": []
   },
   {
-    "Id": "google:word-list/202",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "Uncheck",
-      "uncheck"
-    ],
-    "Use": "Clear, clear",
-    "Example": "Uncheck Automatically check for updates.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Uncheck Automatically check for updates.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "Uncheck",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "uncheck",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Clear, clear",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
-  },
-  {
     "Id": "google:word-list/203",
     "Layer": "google",
     "Page": "Word-List",
@@ -4865,61 +4639,6 @@
       {
         "Source": "use",
         "Text": "Documentation set",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
-  },
-  {
-    "Id": "google:word-list/223",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "does not yet"
-    ],
-    "Use": "doesn't",
-    "Example": "The Google Cloud console does not yet support this IAM role.",
-    "IgnoreCase": true,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "The Google Cloud console does not yet support this IAM role.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "does not yet",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Does not yet",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "DOES NOT YET",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Doesn't",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -5506,7 +5225,7 @@
       "e.g.",
       "E.g."
     ],
-    "Use": "for example, For example",
+    "Use": "for example,",
     "Example": "Use a supported format, e.g. JSON.",
     "IgnoreCase": false,
     "MarkupOnly": false,
@@ -5538,7 +5257,7 @@
     "Good": [
       {
         "Source": "use",
-        "Text": "For example, For example",
+        "Text": "For example,",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -5656,8 +5375,7 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "enables you to",
-      "allows you to"
+      "enables you to"
     ],
     "Use": "lets you",
     "Example": "The API enables you to detect features in images.",
@@ -5690,27 +5408,6 @@
       {
         "Source": "avoid-variant",
         "Text": "ENABLES YOU TO",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "allows you to",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Allows you to",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "ALLOWS YOU TO",
         "Expect": {
           "fires": "paragraph"
         }
@@ -5828,12 +5525,12 @@
     "Page": "Word-List",
     "Row": 2,
     "Severity": "error",
-    "Action": "replace",
+    "Action": "flag",
     "Tags": [],
     "Avoid": [
       "\\betc\\b(?!\\.)"
     ],
-    "Use": "etc.",
+    "Use": "",
     "Example": "If your app experiences instability, high latency, etc, follow these steps:",
     "IgnoreCase": false,
     "MarkupOnly": false,
@@ -5847,13 +5544,7 @@
         }
       }
     ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Etc.",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
+    "Good": []
   },
   {
     "Id": "google:word-list/273",
@@ -5984,16 +5675,14 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "unarchive",
       "uncompress",
       "untar",
       "unzip",
-      "Unarchive",
       "Uncompress",
       "Untar",
       "Unzip"
     ],
-    "Use": "extract, extract, extract, extract, Extract, Extract, Extract, Extract",
+    "Use": "extract, extract, extract, Extract, Extract, Extract",
     "Example": "Unzip the downloaded file to a local folder.",
     "IgnoreCase": false,
     "MarkupOnly": false,
@@ -6008,17 +5697,10 @@
       },
       {
         "Source": "avoid",
-        "Text": "unarchive",
+        "Text": "uncompress",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "uncompress",
-        "Expect": {
-          "fires": "paragraph"
         }
       },
       {
@@ -6027,12 +5709,19 @@
         "Expect": {
           "fires": "paragraph"
         }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "unzip",
+        "Expect": {
+          "fires": "paragraph"
+        }
       }
     ],
     "Good": [
       {
         "Source": "use",
-        "Text": "Extract, extract, extract, extract, Extract, Extract, Extract, Extract",
+        "Text": "Extract, extract, extract, Extract, Extract, Extract",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -6680,49 +6369,6 @@
     ]
   },
   {
-    "Id": "google:word-list/301",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "suggestion",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "in the future",
-      "In the future"
-    ],
-    "Use": "",
-    "Example": "In the future, this API will support streaming.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "In the future, this API will support streaming.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "in the future",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "In the future",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": []
-  },
-  {
     "Id": "google:word-list/302",
     "Layer": "google",
     "Page": "Word-List",
@@ -6762,142 +6408,6 @@
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
-  },
-  {
-    "Id": "google:word-list/303",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "Gb/s"
-    ],
-    "Use": "Gbps",
-    "Example": "The link supports 10 Gb/s.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "The link supports 10 Gb/s.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "Gb/s",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Gbps",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
-  },
-  {
-    "Id": "google:word-list/306",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "he/she",
-      "(s)he",
-      "s/he",
-      "him/her",
-      "his/her"
-    ],
-    "Use": "",
-    "Example": "When a user signs in, he/she sees the dashboard.",
-    "IgnoreCase": true,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "When a user signs in, he/she sees the dashboard.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "he/she",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "He/she",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "HE/SHE",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "s/he",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "S/he",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "S/HE",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "him/her",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Him/her",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "HIM/HER",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": []
   },
   {
     "Id": "google:word-list/308",
@@ -8029,7 +7539,8 @@
     "Avoid": [
       "hamburger menu",
       "hamburger icon",
-      "Hamburger menu"
+      "Hamburger menu",
+      "Hamburger icon"
     ],
     "Use": "",
     "Example": "Click the hamburger menu.",
@@ -8480,55 +7991,6 @@
       }
     ],
     "Good": []
-  },
-  {
-    "Id": "google:word-list/368",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "hover over",
-      "Hover over"
-    ],
-    "Use": "hold the pointer over, Hold the pointer over",
-    "Example": "In the Admin menu, hover over File, and then click New.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "In the Admin menu, hover over File, and then click New.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "hover over",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Hover over",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Hold the pointer over, Hold the pointer over",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
   },
   {
     "Id": "google:word-list/369",
@@ -10186,7 +9648,7 @@
       "manhours",
       "man-hours"
     ],
-    "Use": "person hours",
+    "Use": "person-hours",
     "Example": "The migration took 40 man-hours.",
     "IgnoreCase": true,
     "MarkupOnly": false,
@@ -10267,7 +9729,7 @@
     "Good": [
       {
         "Source": "use",
-        "Text": "Person hours",
+        "Text": "Person-hours",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -10992,116 +10454,6 @@
       {
         "Source": "use",
         "Text": "Microservices",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
-  },
-  {
-    "Id": "google:word-list/478",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "cellular data"
-    ],
-    "Use": "mobile data",
-    "Example": "Turn off cellular data to save battery.",
-    "IgnoreCase": true,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Turn off cellular data to save battery.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "cellular data",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Cellular data",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "CELLULAR DATA",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Mobile data",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
-  },
-  {
-    "Id": "google:word-list/480",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
-    "Tags": [],
-    "Avoid": [
-      "cellular network"
-    ],
-    "Use": "mobile network",
-    "Example": "Connect to a cellular network.",
-    "IgnoreCase": true,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Connect to a cellular network.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "cellular network",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Cellular network",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "CELLULAR NETWORK",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "Mobile network",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -13197,58 +12549,6 @@
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
-  },
-  {
-    "Id": "google:word-list/577",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "presently",
-      "Presently",
-      "at present",
-      "At present"
-    ],
-    "Use": "",
-    "Example": "At present, this setting is required.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "At present, this setting is required.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "presently",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Presently",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "at present",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": []
   },
   {
     "Id": "google:word-list/580",
@@ -16154,19 +15454,16 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "unarchive",
-      "uncompress",
-      "untar",
-      "unzip"
+      "unarchive"
     ],
     "Use": "extract",
-    "Example": "To get the files, unzip the downloaded archive.",
+    "Example": "To get the files, unarchive the downloaded archive.",
     "IgnoreCase": true,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "To get the files, unzip the downloaded archive.",
+        "Text": "To get the files, unarchive the downloaded archive.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -16190,48 +15487,6 @@
       {
         "Source": "avoid-variant",
         "Text": "UNARCHIVE",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "uncompress",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Uncompress",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "UNCOMPRESS",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "untar",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Untar",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "UNTAR",
         "Expect": {
           "fires": "paragraph"
         }
@@ -17495,17 +16750,13 @@
       "whitelist",
       "white list",
       "white-list",
-      "whitelisted",
       "white listed",
       "white-listed",
-      "whitelisting",
       "white listing",
       "white-listing",
       "Whitelist",
       "White list",
-      "White-list",
-      "Whitelisted",
-      "Whitelisting"
+      "White-list"
     ],
     "Use": "",
     "Example": "Add the IP address to the whitelist.",
@@ -18272,55 +17523,6 @@
       {
         "Source": "avoid-variant",
         "Text": "GREY OUT",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      }
-    ],
-    "Good": []
-  },
-  {
-    "Id": "google:word-list/512",
-    "Layer": "google",
-    "Page": "Word-List",
-    "Row": 3,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "noops"
-    ],
-    "Use": "",
-    "Example": "The platform is noops by design.",
-    "IgnoreCase": true,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "The platform is noops by design.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "noops",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Noops",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "NOOPS",
         "Expect": {
           "fires": "paragraph"
         }

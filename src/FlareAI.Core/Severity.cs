@@ -24,6 +24,7 @@ namespace FlareAI.Core
                 case Warning: return "Warning";
                 case Tip: return "Tip";
                 case "off": return "Off";
+                case "on": return "On";
                 default: return token ?? "";
             }
         }

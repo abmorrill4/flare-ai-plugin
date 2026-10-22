@@ -123,6 +123,7 @@ namespace FlareAI.Core.Tests
         private sealed class BrokenStyleService : IStyleService
         {
             public System.Collections.Generic.IList<LintHit> Lint(System.Collections.Generic.IList<string> texts, System.Collections.Generic.IList<int> headings, string project) { throw new InvalidOperationException("style engine failed"); }
+            public System.Collections.Generic.IList<LintHit> Lint(System.Collections.Generic.IList<LintLine> lines, string project) { throw new InvalidOperationException("style engine failed"); }
             public string Guide(string project) { throw new InvalidOperationException("style engine failed"); }
             public System.Collections.Generic.IList<string> RuleIdsFor(string project, GuideScope scope) { throw new InvalidOperationException("style engine failed"); }
             public string[] GuideFor(string project, GuideScope scope) { throw new InvalidOperationException("style engine failed"); }

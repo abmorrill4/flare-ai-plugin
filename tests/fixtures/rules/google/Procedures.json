@@ -29,51 +29,6 @@
     "Good": []
   },
   {
-    "Id": "google:procedures/39",
-    "Layer": "google",
-    "Page": "Procedures",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "remove",
-    "Tags": [
-      "Steps"
-    ],
-    "Avoid": [
-      "please",
-      "Please"
-    ],
-    "Use": "(delete)",
-    "Example": "To open a document, please click File > Open.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "To open a document, please click File > Open.",
-        "Expect": {
-          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "step, step-p"
-        }
-      },
-      {
-        "Source": "avoid",
-        "Text": "please",
-        "Expect": {
-          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "step, step-p"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Please",
-        "Expect": {
-          "clean": "paragraph"
-        }
-      }
-    ],
-    "Good": []
-  },
-  {
     "Id": "google:procedures/40",
     "Layer": "google",
     "Page": "Procedures",
