@@ -14,8 +14,8 @@ import sys
 import xml.etree.ElementTree as ET
 
 OUT = sys.argv[1]
-SRC = 'C:/Users/arthu/AppData/Local/Temp/corpus-src/pol-src'
-OSCAL = 'C:/Users/arthu/AppData/Local/Temp/corpus-src/pol-oscal/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json'
+SRC = '%TEMP%/corpus-src/pol-src'
+OSCAL = '%TEMP%/corpus-src/pol-oscal/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json'
 NL = chr(10)
 TEMPLATE = ('<!DOCTYPE html>' + NL + '<html><head><meta charset="utf-8"/><title>%s</title></head><body>' + NL +
             '%s' + NL + '</body></html>' + NL)

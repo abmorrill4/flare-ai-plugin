@@ -13,7 +13,7 @@
   {"name": "Raspberry Pi Documentation", "url": "https://github.com/raspberrypi/documentation", "commit": "ddea98e98dafe9419feb4fd82710c2fbdef7dc44", "commitDate": "2026-10-13T13:44:27+01:00", "retrieved": "2026-10-21", "licence": "CC BY-SA 4.0 (LICENSE.md at that commit)", "sourcePrefix": ""}
  ],
  "authors": ["Source text: Raspberry Pi Ltd and contributors (see NOTICE.md)", "Adaptation: FlareAI corpus build, CorpusKit"],
- "topicsTsv": "C:/Users/arthu/AppData/Local/Temp/corpus-src/hw-md/topics.tsv",
+ "topicsTsv": "%TEMP%/corpus-src/hw-md/topics.tsv",
  "blocks": 2069,
  "howMade": [
   "**Seeded violations (origin `seeded`, status `proposed`, by `generator`).** `corpuskit inject` inserted each defect and wrote an exact span label from the final DOM, so the span is right by construction. The injector's catalog is the CorpusKit default with the appended sentences rewritten for a device guide and a `unit_space` kind added (`_prep/hw-defects.yaml`); the shared `corpus/schema/defects.yaml` has no operations, so it cannot be passed to `inject --defects`. The generator's rule hints were mapped to the rule ids the engine and `corpus/DigitalBanking` use (for example `structure:alt-text` to `structure:AltText`, `company:plain-language` to `company:plain-language/*`). `heading_skip` labels cover the whole heading and carry no quote, as in DigitalBanking, because the quote would span a variable value that `FlareAI.Scoring validate` does not resolve. They stay `proposed` until the two-labeller pass confirms the sentence still reads naturally.",

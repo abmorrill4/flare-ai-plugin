@@ -14,7 +14,7 @@
   {"name": "NIST SP 800-53 Rev. 5.2.0 controls and SP 800-53A Rev. 5.2.0 assessment procedures (OSCAL catalog)", "url": "https://github.com/usnistgov/oscal-content", "commit": "78650f02ad9321bb7b817846f8fbd4f2bcd620de", "commitDate": "2026-05-13T05:13:20Z", "path": "nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json", "retrieved": "2026-10-21", "licence": "Public domain in the United States, waived worldwide under CC0 1.0 (LICENSE.md at that commit)", "sourcePrefix": "NIST"}
  ],
  "authors": ["Source text: US Office of the Federal Register; National Institute of Standards and Technology (see NOTICE.md)", "Adaptation: FlareAI corpus build, CorpusKit"],
- "topicsTsv": "C:/Users/arthu/AppData/Local/Temp/corpus-src/pol-md/topics.tsv",
+ "topicsTsv": "%TEMP%/corpus-src/pol-md/topics.tsv",
  "blocks": 12959,
  "howMade": [
   "**Seeded violations (origin `seeded`, status `proposed`, by `generator`).** `corpuskit inject` inserted each defect and wrote an exact span label from the final DOM. The catalog is the CorpusKit default with the appended sentences rewritten for a policy set and a `date_format` kind added (`_prep/pol-defects.yaml`); the shared `corpus/schema/defects.yaml` has no operations, so it cannot be passed to `inject --defects`. Rule hints were mapped to the rule ids the engine and `corpus/DigitalBanking` use, and `heading_skip` labels cover the whole heading with no quote (see the hardware-install project for the reason). They stay `proposed` until the two-labeller pass runs.",

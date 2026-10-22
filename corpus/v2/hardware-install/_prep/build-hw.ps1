@@ -1,9 +1,9 @@
-param([string]$Out = 'C:\Users\arthu\AppData\Local\Temp\corpus-src\hw-proj', [int]$Seed = 20261021, [double]$Density = 0.10)
+param([string]$Out = '%TEMP%\corpus-src\hw-proj', [int]$Seed = 20261021, [double]$Density = 0.10)
 $ErrorActionPreference = 'Stop'
-$s = 'C:\Users\arthu\AppData\Local\Temp\claude\C--Users-arthu--claude-spares-spare-hb2wzX\c6ad24e8-5d27-444b-83f8-74c51c4eb661\scratchpad'
+$s = '%TEMP%\claude\C--Users-arthu--claude-spares-spare-hb2wzX\c6ad24e8-5d27-444b-83f8-74c51c4eb661\scratchpad'
 $repo = 'E:\flare-ai-plugin\.claude\worktrees\agent-a101244617958dc2d'
 $exe = "$repo\tools\FlareAI.CorpusKit\bin\Release\net48\FlareAI.CorpusKit.exe"
-$md = 'C:\Users\arthu\AppData\Local\Temp\corpus-src\hw-md'
+$md = '%TEMP%\corpus-src\hw-md'
 python -I "$s\addnames.py" | Out-Null
 python -I "$s\adoc2html.py" "$s\hw-curated.json"
 uv run --no-project --with pillow python "$s\shrink_images.py" "$md\images" | Select-Object -Last 1

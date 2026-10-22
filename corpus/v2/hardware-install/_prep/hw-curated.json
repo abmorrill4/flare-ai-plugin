@@ -1,6 +1,6 @@
 {
- "src": "C:/Users/arthu/AppData/Local/Temp/corpus-src/hw-rpi/documentation/asciidoc",
- "out": "C:/Users/arthu/AppData/Local/Temp/corpus-src/hw-md",
+ "src": "%TEMP%/corpus-src/hw-rpi/documentation/asciidoc",
+ "out": "%TEMP%/corpus-src/hw-md",
  "min_words": 35,
  "default_cat": "overview",
  "names": {

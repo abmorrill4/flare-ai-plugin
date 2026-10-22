@@ -1,9 +1,9 @@
-param([string]$Out = 'C:\Users\arthu\AppData\Local\Temp\corpus-src\pol-proj', [int]$Seed = 20261022, [double]$Density = 0.05)
+param([string]$Out = '%TEMP%\corpus-src\pol-proj', [int]$Seed = 20261022, [double]$Density = 0.05)
 $ErrorActionPreference = 'Stop'
-$s = 'C:\Users\arthu\AppData\Local\Temp\claude\C--Users-arthu--claude-spares-spare-hb2wzX\c6ad24e8-5d27-444b-83f8-74c51c4eb661\scratchpad'
+$s = '%TEMP%\claude\C--Users-arthu--claude-spares-spare-hb2wzX\c6ad24e8-5d27-444b-83f8-74c51c4eb661\scratchpad'
 $repo = 'E:\flare-ai-plugin\.claude\worktrees\agent-a101244617958dc2d'
 $exe = "$repo\tools\FlareAI.CorpusKit\bin\Release\net48\FlareAI.CorpusKit.exe"
-$md = 'C:\Users\arthu\AppData\Local\Temp\corpus-src\pol-md'
+$md = '%TEMP%\corpus-src\pol-md'
 python -I "$s\policy_build.py" $md
 python -I "$s\fixdefects_pol.py"
 if (Test-Path $Out) { Remove-Item $Out -Recurse -Force }

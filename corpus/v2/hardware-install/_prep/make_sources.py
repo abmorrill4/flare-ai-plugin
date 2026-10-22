@@ -7,7 +7,7 @@ import sys
 
 profile, proj = sys.argv[1], sys.argv[2]
 NL = "\n"
-TSV = {"hardware": "C:/Users/arthu/AppData/Local/Temp/corpus-src/hw-md/topics.tsv", "policy": "C:/Users/arthu/AppData/Local/Temp/corpus-src/pol-md/topics.tsv"}[profile]
+TSV = {"hardware": "%TEMP%/corpus-src/hw-md/topics.tsv", "policy": "%TEMP%/corpus-src/pol-md/topics.tsv"}[profile]
 src_count = collections.OrderedDict()
 cats = collections.Counter()
 for line in open(TSV, encoding="utf-8").read().split(NL):
@@ -71,7 +71,7 @@ This project is an adaptation of the Raspberry Pi Documentation.
 - This adaptation is licensed under the same licence (CC BY-SA 4.0). It is test data for a documentation tool. It is not a Raspberry Pi publication and does not imply any endorsement by Raspberry Pi Ltd.
 - Trademarks: the photographs and drawings show the original product marks. Those marks belong to their owners and are not licensed by this notice.
 """)
-    lic = open("C:/Users/arthu/AppData/Local/Temp/corpus-src/hw-rpi/LICENSE.md", encoding="utf-8").read().split("\n")
+    lic = open("%TEMP%/corpus-src/hw-rpi/LICENSE.md", encoding="utf-8").read().split("\n")
     w("LICENSE", "\n".join(lic[4:]).rstrip("\n") + "\n")
 else:
     cfr = "\n".join("| `%s` | %d |" % (k, v) for k, v in src_count.items() if k.startswith("45 CFR"))
