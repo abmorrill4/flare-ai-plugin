@@ -112,7 +112,7 @@ namespace FlareAI.Flare.UI
             d.Heading("You're ready");
             d.Note("Open a topic and choose Check style to see suggestions for it, or Check project to check every topic in the project.", true, false);
             _summary = d.Status(4, true);
-            var guideLink = d.Add(new LinkLabel { Text = "Open the tester guide", AutoSize = true, Left = d.LabelLeft, Top = d.Y });
+            var guideLink = d.Add(new LinkLabel { Text = "Open the getting started guide", AutoSize = true, Left = d.LabelLeft, Top = d.Y });
             guideLink.LinkClicked += (s, e) => OpenGuide();
             d.Y += guideLink.PreferredHeight + d.S(8);
             d.Note("Change any of this later in House Style > Settings.", true);
@@ -146,7 +146,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_browse, "Browse for the team style guide folder");
             A11y.Name(_folderStatus, "Style guide folder status");
             A11y.Name(_summary, "What was set up");
-            A11y.Name(guideLink, "Open the tester guide", "Opens the page in your browser.");
+            A11y.Name(guideLink, "Open the getting started guide", "Opens the page in your browser.");
             A11y.Name(_skipStep, "Skip this step", "Keeps your current choice for this step and goes on.");
 
             _aiChoices[Array.IndexOf(AiChoices.All, _answers.Ai)].Checked = true;

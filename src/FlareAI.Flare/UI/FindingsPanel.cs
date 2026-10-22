@@ -458,10 +458,10 @@ namespace FlareAI.Flare.UI
                         : "AI review failed: " + e.Error.Message);
                 }
                 else if (_aiOff)
-                    _status.Text = Summary() + "  These come from style rules only (free, no AI used).";
+                    _status.Text = Open().Count == 0 ? Summary() : Summary() + "  These come from style rules only (free, no AI used).";
                 else if (!_aiOnStart && !cachedAny)
                     _status.Text = Summary() + "  These come from style rules only (free, no AI used). Check again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
-                else _status.Text = Open().Count == 0 ? "No open suggestions." : Summary();
+                else _status.Text = Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
                 _aiOffNote.Visible = _aiOff && _aiHidden;
                 var guide = _runner.GuideNotice;

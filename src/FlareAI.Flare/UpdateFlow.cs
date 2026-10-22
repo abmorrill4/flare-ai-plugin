@@ -70,6 +70,8 @@ namespace FlareAI.Flare
                 ShowWhatsNew(state, "Updated to House Style " + _version + ". Here's what's new.");
                 return;
             }
+            // A writer with no settings yet has never used an earlier version: nothing is "new" to them, so skip the window.
+            if (!File.Exists(PluginSettings.SettingsPath)) { state.WhatsNewSeen = _version; state.Save(_layout.StatePath); return; }
             if (WhatsNew.Load(_pluginDir).Unseen(state.WhatsNewSeen, _version).Count > 0) ShowWhatsNew(state, null);
         }
 

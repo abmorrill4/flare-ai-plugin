@@ -202,7 +202,7 @@ namespace FlareAI.Core.Actions
         {
             if (_project) return BacklogSummary();
             var open = Open();
-            if (open.Count == 0) return "No open suggestions.";
+            if (open.Count == 0) return "Nothing to fix: this text follows your style rules.";
             int fixes = 0, rewords = 0, needsYou = 0;
             var sections = new HashSet<string>();
             foreach (var f in open)
