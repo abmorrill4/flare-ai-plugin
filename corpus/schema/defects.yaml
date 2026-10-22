@@ -289,13 +289,13 @@
 - id: unit_space
   group: numbers
   detect: lint
-  status: planned
+  status: active
   summary: Missing or wrong space between a number and its unit.
   bad: 10MB
 - id: date_format
   group: numbers
   detect: lint
-  status: planned
+  status: active
   summary: Date written in an ambiguous or disallowed format.
   bad: 03/04/2026
 - id: heading_case

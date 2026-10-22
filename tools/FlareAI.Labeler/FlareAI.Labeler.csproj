@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Dev tool, never shipped: label normalisation, deterministic label QA, and the blind two-labeller pass (#78). -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>FlareAI.Labeler</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core only for ILlmClient, AnthropicClient and Usage (prices). Never its style engine: labellers must not see lint patterns. -->
+    <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+    <ProjectReference Include="..\FlareAI.Scoring\FlareAI.Scoring.csproj" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <InternalsVisibleTo Include="FlareAI.Labeler.Tests" />
+  </ItemGroup>
+
+</Project>

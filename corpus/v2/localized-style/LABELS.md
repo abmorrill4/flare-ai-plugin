@@ -41,7 +41,7 @@ Span labels for the 30-topic localized-style project.
 - **Authored violations** (`origin: seeded`, `seed.generator` names the author script: `release-notes-author@1`, `localized-style-author@1` or `legacy-gen@1`, `by: [generator]`, `status: verified`): the generator that wrote the text knows exactly which spans it made defective, so these labels are exact. The quote, prefix and suffix are computed from the final DOM.
 - **Injected violations** (`seed.generator: corpuskit/inject@1`): `corpuskit inject --seed N` on the finished text, in blocks that carry no other label. CorpusKit writes `status: proposed` and rule hints that are not scorer rule ids (`company:plain-language`, `structure:hard-coded-value`); a post-step replaces `rules` with the scorer's families (`google:*`, `company:*`, `structure:AltText`, `structure:HardCoded`, ...) and sets `status: verified`, because the generator is exact. No label comes from running the linter.
 - **`clean` and `exempt`** (`by: [hand-read]`, `status: verified`): derived from the markup by rule, then read as a class, not span by span: bold UI labels in numbered steps, `code` and `kbd` text, quoted program messages, values with units in table cells, and boilerplate. Each carries a `reason`.
-- **`block-complete`** (`status: proposed`, `by: [generator]`): one label per block. It asserts that every lint-detectable problem in the block is labelled. That is true of the generator-authored text by construction only for the defect kinds in `corpus/schema/defects.yaml`; it has **not** been confirmed by the blind two-labeller pass of design 1.4 (no labeller tool exists yet), so the labels are `proposed` and the scorer ignores them until that pass promotes them. Do not read the 100% as a verified figure.
+- **`block-complete`** (`status: proposed`, `by: [generator]`): one label per block. It asserts that every lint-detectable problem in the block is labelled. That is true of the generator-authored text by construction only for the defect kinds in `corpus/schema/defects.yaml`; it has **not** been confirmed by the blind two-labeller pass of design 1.4 (`tools/FlareAI.Labeler`, #78, exists but the pass has not been run), so the labels are `proposed` and the scorer ignores them until that pass promotes them. Do not read the 100% as a verified figure.
 - Contexts (`context.line`, `context.span`) are written by `corpuskit contexts --update`, never by `FlareAI.Core`.
 - `split`: FNV-1a bucket of the file path (CorpusKit `Rng.Bucket`, seed 0), below 70 is `dev`; if that left fewer than 30% of the files in `test`, the remaining files with the highest bucket were added to `test`. The list is in `project.json`.
 
@@ -57,3 +57,26 @@ Span labels for the 30-topic localized-style project.
 - Defects in the taxonomy only: wording problems that no kind names (for example a misspelling in the real changelog text, or a Google rule with no taxonomy kind) are not labelled, so a finding there is "unscored", not a false positive, until a block is promoted to `block-complete` after the blind pass.
 - Hard-coded email addresses are labelled with kind `url` (hard-coded value) because the taxonomy has no email kind; `structure:HardCoded` flags them.
 - Inter-annotator agreement (kappa) is not recorded: there was one author and no second labeller.
+
+<!-- labeler:qa -->
+## Label QA
+
+Written by `FlareAI.Labeler qa --update-labels-md`; deterministic (no model, no linter). Rerun after any label change.
+
+| | |
+|---|---|
+| Result | 0 errors, 0 warnings, 0 notes |
+| Topics, snippets | 30, 2 |
+| Blocks with text, with at least one label | 425, 425 (100.0%) |
+| `block-complete` blocks, verified | 425, 0 |
+| Violations, verified (scored) | 29, 29 |
+| Verified violations in `test` | 9 |
+| Violations per topic | 0.97 |
+| Scored labels (verified, not ambiguous or block-complete) | 256 |
+| Share of files in `test` | 31.2% |
+
+Labels by type and status: block-complete proposed 425, clean verified 169, exempt verified 58, violation verified 29.
+
+Kinds with fewer than 3 verified violations in `test` (their per-kind recall there is noise): bank (2 in test), customer (1 in test), idp (0 in test), oidc (0 in test), please (1 in test), saml2 (0 in test), simply (1 in test), sso_spelling (0 in test), utilize (0 in test), we (0 in test), whitelist (0 in test), will (1 in test).
+
+<!-- /labeler:qa -->
