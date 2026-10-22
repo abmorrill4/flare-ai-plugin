@@ -12,6 +12,7 @@ using FlareAI.Core.Actions;
 using FlareAI.Core.Editing;
 using FlareAI.Core.Llm;
 using FlareAI.Core.Style;
+using FlareAI.Scoring;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -26,6 +27,12 @@ namespace FlareAI.Bench
     ///                 [--sample 40] [--no-ai] [--rewrites 10] [--parallel 3] [--out bench-out\name]
     ///                 [--gateway http://host:port]   (Bifrost; virtual key from BIFROST_VK)
     ///   FlareAI.Bench summarize bench-out
+    ///
+    /// Label scoring (Bench v2, docs/testing/BENCH.md): when the corpus has labels.jsonl the findings are scored per rule, layer,
+    /// context, project and split. Lint-only runs can be gated against the committed baseline:
+    ///   FlareAI.Bench --no-ai --check              compare with tests/baselines/bench-lint.json, exit 1 on a regression
+    ///   FlareAI.Bench --no-ai --update-baseline    rewrite the baseline from this run
+    ///   FlareAI.Bench baseline-diff old.json new.json   rule rows that differ (for the PR-body check)
     /// </summary>
     internal static class Program
     {
@@ -34,6 +41,11 @@ namespace FlareAI.Bench
             try
             {
                 if (args.Length > 0 && args[0] == "summarize") { Console.Write(Summarize(args.Length > 1 ? args[1] : "bench-out")); return 0; }
+                if (args.Length > 0 && args[0] == "baseline-diff")
+                {
+                    foreach (var r in LabelScoring.ChangedRules(JObject.Parse(File.ReadAllText(args[1])), JObject.Parse(File.ReadAllText(args[2])))) Console.WriteLine(r);
+                    return 0;
+                }
                 return new Bench(Options.Parse(args)).Run();
             }
             catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
@@ -59,7 +71,9 @@ namespace FlareAI.Bench
         public string Corpus = "corpus", Model = "claude-sonnet-5-5", Effort = "medium", Unit = "section", Out, Guide, Gateway;
         public int Sample, Rewrites, Parallel = 3, Examples;
         public string ExamplesFrom;
-        public bool NoAi;
+        public bool NoAi, Check, UpdateBaseline;
+        public string Baseline, GateSplit = "all";
+        public readonly List<string> Labels = new List<string>();
 
         public static Options Parse(string[] a)
         {
@@ -82,9 +96,16 @@ namespace FlareAI.Bench
                     case "--out": o.Out = next(); break;
                     case "--guide": o.Guide = next(); break;
                     case "--gateway": o.Gateway = next(); break;
+                    case "--labels": o.Labels.Add(next()); break;
+                    case "--check": o.Check = true; break;
+                    case "--update-baseline": o.UpdateBaseline = true; break;
+                    case "--baseline": o.Baseline = next(); break;
+                    case "--gate-split": o.GateSplit = next(); break;
                     default: throw new ArgumentException("Unknown option " + a[i]);
                 }
             }
+            if ((o.Check || o.UpdateBaseline) && (!o.NoAi || o.Sample > 0 || o.Examples > 0 || o.Rewrites > 0))
+                throw new ArgumentException("--check / --update-baseline need a full lint-only run (--no-ai, no --sample, --examples or --rewrites): the baseline is deterministic and offline.");
             if (o.Out == null) o.Out = Path.Combine("bench-out", (o.NoAi ? "lint" : o.Model.Replace("claude-", "") + "-" + o.Effort) + "-" + o.Unit + (o.Sample > 0 ? "-s" + o.Sample : ""));
             return o;
         }
@@ -260,6 +281,63 @@ namespace FlareAI.Bench
             Diagnostics.Sink = null;
             log.Dispose();
             Console.WriteLine(File.ReadAllText(Path.Combine(_o.Out, "report.md")).Split(new[] { "\n## " }, StringSplitOptions.None)[0]);
+            return ScoreLabels(repo, vars, _o.Sample > 0 ? inScope : null, files.Count);
+        }
+
+        // ---- label scoring, baseline and gate ----------------------------------------------------------------------
+
+        private int ScoreLabels(string repo, Dictionary<string, string> vars, ISet<string> onlyFiles, int topics)
+        {
+            var paths = _o.Labels.Count > 0 ? _o.Labels.Select(Path.GetFullPath).ToList()
+                : new[] { Path.Combine(_project, "labels.jsonl"), Path.Combine(_root, "labels.jsonl") }.Where(File.Exists).Distinct().ToList();
+            if (paths.Count == 0)
+            {
+                if (_o.Check || _o.UpdateBaseline) { Console.Error.WriteLine("No labels.jsonl under " + _root + "; pass --labels."); return 2; }
+                return 0;
+            }
+            var labels = LabelScoring.LoadLabels(paths, onlyFiles);
+            var findings = new List<ScoreFinding>();
+            var n = 0;
+            foreach (var f in _found)   // same property names as the v1 findings.jsonl; FindingIO maps Structure.X / Project.X to rule ids
+                findings.Add(FindingIO.FromJson(new JObject { ["file"] = f.File, ["origin"] = f.Origin, ["rule"] = f.Rule, ["ruleId"] = f.RuleId, ["excerpt"] = f.Excerpt, ["kind"] = f.Kind }, ++n));
+            var reports = LabelScoring.ScoreAll(labels, findings, new CorpusBlockTextSource(_project, name => { string v; return vars.TryGetValue(name ?? "", out v) ? v : null; }));
+            var doc = LabelScoring.BaselineJson(reports, Path.GetFileName(_project), topics);
+            File.WriteAllText(Path.Combine(_o.Out, "score.json"), doc.ToString(), new UTF8Encoding(false));
+            File.WriteAllLines(Path.Combine(_o.Out, "scored-findings.jsonl"), reports["all"].Findings.Select(r => JsonConvert.SerializeObject(new
+            {
+                id = r.Finding.Id, file = r.Finding.File, rule = r.Finding.RuleId, origin = r.Finding.Origin, excerpt = r.Finding.Excerpt,
+                outcome = r.Outcome.ToString(), label = r.Label == null ? null : r.Label.Id, reason = r.Reason
+            })), new UTF8Encoding(false));
+            File.AppendAllText(Path.Combine(_o.Out, "report.md"), LabelScoring.ReportSection(reports), new UTF8Encoding(false));
+            var t = reports["all"].Overall;
+            Console.WriteLine("Labels: " + labels.Count + " (" + paths.Count + " file(s)). Findings TP " + t.Tp + ", FP " + t.Fp + ", wrong rule " + t.WrongRule + ", unscored " + t.Unscored +
+                "; violations " + t.Support + ", detected " + t.Detected + "; precision " + t.Precision.ToString("P1") + ", recall " + t.Recall.ToString("P1") + ", coverage " + reports["all"].Coverage.ToString("P1"));
+            foreach (var kv in reports["all"].By[ScoreReport.Layer].Where(k => k.Key == "google" || k.Key == "company" || k.Key == "project" || k.Key == "structure"))
+                Console.WriteLine("  " + kv.Key.PadRight(10) + " TP " + kv.Value.Tp + "/" + kv.Value.ScoredFindings + " scored (precision " + kv.Value.Precision.ToString("P1") + "), detected " + kv.Value.Detected + "/" + kv.Value.Support);
+
+            var baseline = _o.Baseline ?? Path.Combine(repo, "tests", "baselines", "bench-lint.json");
+            if (_o.UpdateBaseline)
+            {
+                var old = File.Exists(baseline) ? JObject.Parse(File.ReadAllText(baseline)) : null;
+                Directory.CreateDirectory(Path.GetDirectoryName(baseline));
+                File.WriteAllText(baseline, doc.ToString() + "\n", new UTF8Encoding(false));
+                Console.WriteLine("Baseline written: " + baseline);
+                if (old != null)
+                {
+                    var changed = LabelScoring.ChangedRules(old, doc);
+                    Console.WriteLine(changed.Count == 0 ? "No rule rows changed." : "Rule rows changed (list each in the PR body):\n  " + string.Join("\n  ", changed));
+                }
+                return 0;
+            }
+            if (_o.Check)
+            {
+                if (!File.Exists(baseline)) { Console.Error.WriteLine("No baseline at " + baseline + "; create it with --update-baseline."); return 2; }
+                var gate = LabelScoring.Compare(JObject.Parse(File.ReadAllText(baseline)), doc, _o.GateSplit);
+                var text = LabelScoring.GateText(gate, baseline.Replace(repo + Path.DirectorySeparatorChar, ""), _o.GateSplit);
+                File.WriteAllText(Path.Combine(_o.Out, "delta.md"), "```\n" + text + "```\n", new UTF8Encoding(false));
+                Console.WriteLine(text);
+                return gate.Passed ? 0 : 1;
+            }
             return 0;
         }
 
