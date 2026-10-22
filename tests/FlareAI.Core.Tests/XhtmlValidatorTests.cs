@@ -104,5 +104,26 @@ namespace FlareAI.Core.Tests
             Assert.True(r.IsValid, r.ToString());
             Assert.Equal("ul", proposed.First().LocalName);
         }
+
+        private static ValidationResult ListTo(string proposedXml)
+        {
+            var doc = new System.Xml.XmlDocument();
+            doc.LoadXml("<body xmlns:MadCap=\"" + BlockSelector.MadCapNs + "\"><ul><li>Alpha step</li><li MadCap:conditions=\"Default.Print\">Beta step</li><li>Gamma step</li></ul></body>");
+            var blocks = new System.Collections.Generic.List<System.Xml.XmlNode> { doc.DocumentElement.FirstChild };
+            return XhtmlValidator.Validate(blocks, XhtmlFragment.ParseInto(proposedXml, doc));
+        }
+
+        [Theory]
+        [InlineData("<table><tbody><tr><td>Alpha step</td></tr><tr MadCap:conditions=\"Default.Print\"><td>Beta step</td></tr><tr><td>Gamma step</td></tr></tbody></table>", true)]
+        [InlineData("<ol><li>Alpha step</li><li MadCap:conditions=\"Default.Print\">Run the beta step</li><li>Gamma step</li></ol>", true)]
+        [InlineData("<table><tbody><tr><td>Alpha step</td></tr><tr><td>Beta step</td></tr><tr MadCap:conditions=\"Default.Print\"><td>Gamma step</td></tr></tbody></table>", false)]
+        [InlineData("<ul><li MadCap:conditions=\"Default.Print\">Alpha step</li><li>Beta step</li><li>Gamma step</li></ul>", false)]
+        [InlineData("<ul MadCap:conditions=\"Default.Print\"><li>Alpha step</li><li>Beta step</li><li>Gamma step</li></ul>", false)]
+        public void Condition_MayMoveToAnotherTag_ButNotToOtherText(string proposed, bool valid)
+        {
+            var r = ListTo(proposed);
+            Assert.Equal(valid, r.IsValid);
+            if (!valid) Assert.Contains(r.Errors, e => e.StartsWith("Moved a condition: MadCap:conditions=\"Default.Print\" marked \"Beta step\"", System.StringComparison.Ordinal));
+        }
     }
 }

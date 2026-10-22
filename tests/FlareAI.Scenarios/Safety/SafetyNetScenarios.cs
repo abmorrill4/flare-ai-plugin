@@ -196,7 +196,7 @@ namespace FlareAI.Scenarios.Safety
             }
         }
 
-        [Fact(Skip = "Bug #109: the validator counts condition values but not where they sit, so an answer that moves a condition to a different item or row is accepted.")]
+        [Fact]
         public void Story13b_AnAnswerThatMovesTheConditionToAnotherRow_IsRefused()
         {
             var wrong = "<table><tbody><tr><td>Alpha step</td></tr><tr><td>Beta step</td></tr><tr MadCap:conditions=\"Default.Print\"><td>Gamma step</td></tr></tbody></table>";
@@ -206,6 +206,8 @@ namespace FlareAI.Scenarios.Safety
                 var proposal = fx.Runner.Restructure(fx.Doc, Blocks(fx, 1), "Make this a table.");
 
                 Assert.False(proposal.Validation.IsValid);
+                Assert.Contains(proposal.Validation.Errors, e => e.Contains("Moved a condition") && e.Contains("\"Beta step\"") && e.Contains("\"Gamma step\""));
+                Assert.Throws<InvalidOperationException>(() => fx.Runner.Apply(fx.Doc, proposal, "House Style: rewrite"));
                 Assert.Equal(fx.Original, fx.Doc.Xml);
             }
         }
