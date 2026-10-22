@@ -22,6 +22,10 @@ is first used in a session. The improvements below (scope Validate, cache lifeti
 re-checks) would cut a typical writer month from about $22 to about $10-12 and the owner's from $19 to $2 (estimated from
 the measured token mix, not measured), with no change in what the writer sees.
 
+> **Since this measurement** most of the improvements have been made (branch `ai-quality`). The figures in this report are
+> the measurement as it was; [Changes since the measurement](#changes-since-the-measurement) lists what changed and gives
+> **estimated** new costs: about **$6 / $13 / $30** a writer-month and **$1.50** for the owner, about **$65** for a team of 5.
+
 ## Method
 
 - A throwaway harness (`dist/ai-run/`, git-ignored) drives the real Core code: `ActionRunner` (`PickCheckBlocks`, `Lint`,
@@ -262,6 +266,73 @@ comment it has nothing to do with.
 
 Routing itself looks right: Haiku for refine and assists costs fractions of a cent with good results; Opus for drafts is
 only noticeable because of its cold write ($0.28), which change 2 removes.
+
+## Changes since the measurement
+
+Made on branch `ai-quality`, one commit per item, each covered by scripted-client tests in
+`tests/FlareAI.Core.Tests/AiCostTests.cs` that assert on request shape (what is sent, what is cached, which schema). **No
+paid calls were made for this section: every cost below is an estimate** from the measured token mix above (per-call
+averages from the 635 recorded calls) and the list prices, not a new measurement.
+
+| # | Change | What it does |
+|---|---|---|
+| 1 | Validate's AI check scoped | Runs the team's layers (company, team, personal, project) by default; Google's ~620 examples are compiled and validated offline. "Include Google's rules (slow, ~$15)" adds them back. Calls run `Parallelism` at a time after a cache-warming first call. |
+| 2 | Cache lifetime per task; one shared prefix | `Routing.CacheFor`: 1 hour for review, rewrite and restructure; 5 minutes for draft (Opus), extract and refine (Haiku); none for alt and assists. Review, rewrite and restructure now use one schema (`Contracts.EditSchema`) and the same system prompt, so they share **one** cache entry; which fields to fill is said in the user message, after the cached block. Teams can change a lifetime in `models.json` (`"cache"`). The comment in `ActionRunner.Ask` that assumed one entry for every task is corrected. |
+| 3 | No guide for alt text and assists | A short system prompt (`system-plain.md`), nothing cached. |
+| 4 | Smaller rewrite prompts | Word (term) rules were already sent only when the text uses their trigger words (about 1k characters a paragraph). The ~25k characters a one-paragraph rewrite carried were content packs, mostly the Code pack (code font, command syntax, placeholders). Run-level rewrites now leave out formatting packs (Code, Images, Tables, Math, Footnotes, Emphasis); review and restructure keep them. Measured offline on 633 dense paragraphs of the v2 corpora: 32.0k → 20.7k characters of rules per rewrite (−35%). |
+| 5 | Re-check re-anchors | After the author applies the review's own fixes (or the linter's), the review cache re-anchors the remaining findings instead of re-reviewing: if every change to a unit's text is one of those fixes, no model call. Any other edit still gets a fresh review. |
+| 6 | Fewer rewrite retries | The prompt lists the runs that finish a sentence begun before inline markup, with the words they must start with; when the model drops those words and starts a new sentence, they are put back instead of retrying. |
+| 7 | Quality | Modal verbs and code/API terms protected (prompts, plus `MeaningGuard`: a review fix that adds or changes a modal or drops a code term becomes a needs-author finding; such a rewrite change is held back with the reason). Citations name the team's rule when it overrides the cited Google rule (15 of 15 marketing claims cited Google's). Apply is disabled on a wording-only proposal that deleted the sentence it meant to move. Alt text held to 125 characters (one retry, then cut; structured outputs don't accept `maxLength`, so the limit is in the field description and checked after the answer). `.docx` notes chunked like `.txt` (26 chunks from either copy of the synthetic guide, was 3 vs 18). Context-dependent words ("here", "once", "setup", …) become prose rules, not blanket Avoid rows. Refine keeps the earlier suggestion when the instruction doesn't apply. |
+
+Not done: halving the 100k-character always-on block (recommendation 4's first half). It is now one shared entry, but every
+review and rewrite still reads it (31% of review cost).
+
+### Estimated cost per action (warm, Sonnet unless noted)
+
+| Action | Measured | **Estimated now** | Why |
+|---|---|---|---|
+| Check style, AI review | $0.053 | **$0.054** | Unchanged work; the shared schema adds about 20 output tokens of empty fields per call |
+| Re-check after applying fixes | $0.046 | **about $0.012** | Assumes 3 of 4 changed units are re-anchored (in the measured runs every edit was an applied fix, so all 75 missed units would have been) |
+| Rewrite selection (one paragraph) | $0.049 | **$0.036** | About 2.2k fewer uncached tokens a call (change 4); about 1.45 calls an action instead of 1.7 (change 6, assuming most continuation retries go) |
+| Ask (wording pass, then Restructure when needed) | $0.044 | **$0.043** | Cheaper wording pass; restructure unchanged when warm |
+| Refine (Haiku) | $0.0007 | $0.0007 | |
+| Topic assists (Haiku, 3 calls) | $0.003 | **$0.002** | No 33k-token cache read per call |
+| Suggest alt text | $0.009 | **about $0.004** | No guide: about $0.0023 a call; includes a retry for the 13 in 20 that ran long |
+| Build style guide import, .txt | $0.24 + $0.14 cold | **about $0.35 + $0.09 cold** | 26 chunks instead of 18 (headings start a chunk); 5-minute cache write |
+| Build style guide import, .docx | $0.12 | **about $0.35 + $0.09 cold** | Same 26 chunks as the .txt: costs more, loses fewer rules |
+| Validate style guide, AI check | $17.10 per run, 34 min | **about $0.14**, seconds | Team layers only (5 example rules in the bundled guide). With Google's: about $15-17, about 6 minutes at Parallelism 6 |
+| Tune "Draft a change" (Opus), cold | $0.30 | **about $0.20** | 5-minute write (1.25x) instead of 1 hour (2x) |
+
+### Estimated cold starts
+
+| Cache entry | Measured: premium per cold start | **Estimated now** |
+|---|---|---|
+| Sonnet review | $0.133 | **$0.133**, shared with rewrite and restructure: one write per session covers all three |
+| Sonnet rewrite, restructure | $0.133 each | **$0** when review (or the other) was used in the last hour, else the shared write |
+| Sonnet alt | $0.133 | **$0** (nothing cached) |
+| Sonnet extract | $0.133 | **about $0.08** (5 minutes) |
+| Opus draft | $0.27 | **about $0.17** (5 minutes) |
+| Haiku refine, assists | $0.007 each | refine about $0.004 (5 minutes); assists $0 |
+
+### Estimated per writer and team
+
+Same usage model and session counts as "Per writer" above; one shared Sonnet write per session.
+
+| | Light | Typical | Heavy |
+|---|---|---|---|
+| Work (warm calls) per week | $0.91 → **$0.76** | $2.42 → **$1.93** | $6.83 → **$5.57** |
+| Cold starts per week | $0.93 → **$0.53** (4 shared writes) | $2.66 → **$1.06** (8) | $4.23 → **$1.33** (10) |
+| **Per month (4.33 weeks)** | $8 → **about $6** | $22 → **about $13** | $48 → **about $30** |
+
+| | Measured | **Estimated now** |
+|---|---|---|
+| Style guide owner, per month on top of writing | $19 | **about $1.50** (Validate $0.14, import $0.45, 3 drafts $0.60-0.75); about $16.50 if they tick "Include Google's rules" once |
+| Team of 5, typical / heavy month | $130 / $260 | **about $65 / $150** |
+| Recommended gateway budget for 5 | $200/month, per-key $60 | **$120/month** with alerts at 50% and 80%, per-key limit **$40/month** (a heavy writer is about $30) |
+
+Worth measuring on the next paid run: the shared-entry cache hit rate in real sessions (the estimate assumes rewrite and
+restructure ride on the review's entry), how often re-checks re-anchor when authors also hand-edit, how many continuation
+retries remain, and alt-text length with the clearer description.
 
 ## Reproduce
 
