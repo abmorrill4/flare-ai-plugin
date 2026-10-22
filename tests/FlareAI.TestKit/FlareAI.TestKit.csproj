@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Test-support library for scenario tests: a Flare-faithful fake editor (FlareSimDocument), the adapter conformance
+    suite, recorded/scripted LLM clients, a localhost LLM mock server and a temp workspace. No test-framework dependency,
+    so the conformance suite can also run inside Flare against FlareDocumentAdapter (the in-Flare self-test, #82).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
+    <RootNamespace>FlareAI.TestKit</RootNamespace>
+    <AssemblyName>FlareAI.TestKit</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+  </ItemGroup>
+
+</Project>

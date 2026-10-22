@@ -21,7 +21,7 @@ namespace FlareAI.Core.Actions
         private readonly LinkedList<string> _order = new LinkedList<string>();
         private readonly object _gate = new object();
 
-        /// <param name="path">JSON file to load from and save to; null keeps the cache in memory only.</param>
+        /// <param name="path">JSON file to load from and save to (the host uses <see cref="Paths.Reviews"/>); null keeps the cache in memory only.</param>
         public ReviewCache(int capacity = 300, string path = null)
         {
             _capacity = capacity;

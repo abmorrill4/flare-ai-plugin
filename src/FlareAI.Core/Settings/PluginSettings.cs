@@ -134,10 +134,10 @@ namespace FlareAI.Core.Settings
 
         public static string SettingsDirectory
         {
-            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FlareAI"); }
+            get { return FlareAI.Core.Paths.Root; }   // %APPDATA%\FlareAI unless redirected
         }
 
-        public static string SettingsPath { get { return Path.Combine(SettingsDirectory, "settings.json"); } }
+        public static string SettingsPath { get { return FlareAI.Core.Paths.Settings; } }
 
         public static PluginSettings Load()
         {

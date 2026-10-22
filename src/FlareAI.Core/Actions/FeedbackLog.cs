@@ -15,7 +15,7 @@ namespace FlareAI.Core.Actions
     {
         private static readonly object Gate = new object();
 
-        /// <summary>The personal log; set by the host.</summary>
+        /// <summary>The personal log; set by the host (normally <see cref="Paths.Feedback"/>).</summary>
         public static string PersonalPath { get; set; }
 
         public static void Record(StyleFinding f, string topicPath, string decision, string reason = null)

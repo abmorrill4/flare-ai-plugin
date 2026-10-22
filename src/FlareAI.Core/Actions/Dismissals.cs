@@ -8,7 +8,7 @@ namespace FlareAI.Core.Actions
 {
     /// <summary>
     /// Findings the author dismissed ("not an issue here"), remembered per file by rule + text + context so they
-    /// stay hidden on later checks and across sessions. Stored in %APPDATA%\FlareAI\dismissed.json (personal).
+    /// stay hidden on later checks and across sessions. Stored in %APPDATA%\FlareAI\dismissed.json (personal, <see cref="Paths.Dismissed"/>).
     /// </summary>
     public sealed class Dismissals
     {
