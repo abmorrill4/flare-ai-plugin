@@ -11,9 +11,11 @@ House Style adds a **House Style** tab to MadCap Flare Desktop. Every edit it ma
 4. It unblocks the files, copies the plugin to `%LOCALAPPDATA%\HouseStyle`, links your Flare to it and prints what to
    do next. The administrator prompt is needed only this first time: updates install by themselves when you close
    Flare (House Style checks GitHub once a day; see the privacy page).
-5. Start Flare > **File > Options > Plugins > House Style > Enable**, then **restart Flare again**.
-6. **House Style > Settings**: paste your Anthropic API key, or the gateway virtual key you were given (set
-   **Provider** to *Bifrost gateway* and enter the Base URL). Save.
+5. Start Flare > **File > Options > Plugins > House Style > Enable**. The **House Style** tab appears. If it
+   doesn't, restart Flare.
+6. Click any **House Style** button. A short setup asks how to use AI (none, your Anthropic API key, or your
+   company's gateway key and address) and which style guide to follow. Upgrading from 0.1? Open
+   **House Style > Settings > Run setup again** to see it.
 
 If you have several Flare versions, the installer picks the newest. To pick another, open PowerShell in the unzipped
 folder and run `.\Install.ps1 -Flare 21` (use the folder number from the table below).

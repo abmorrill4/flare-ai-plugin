@@ -95,4 +95,7 @@ jobs:
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           Set-Content -Path dist/checksums.txt -Value "$hash  $(Split-Path $zip -Leaf)" -Encoding Ascii
           $note = if ($src -eq 'dist/signed') { 'Signed by SignPath Foundation.' } else { 'Unsigned build: right-click the zip > Properties > Unblock before installing.' }
-          gh release create $env:GITHUB_REF_NAME $zip dist/checksums.txt --title "House Style ${{ steps.v.outputs.version }}" --notes "$note`n`nInstall: see the README." --verify-tag
+          $notesFile = "docs/release-notes/${{ steps.v.outputs.version }}.md"
+          $body = if (Test-Path $notesFile) { "$note`n`n" + (Get-Content $notesFile -Raw) } else { "$note`n`nInstall: see the README." }
+          $body | Set-Content release-body.md -Encoding utf8
+          gh release create $env:GITHUB_REF_NAME $zip dist/checksums.txt --title "House Style ${{ steps.v.outputs.version }}" --notes-file release-body.md --verify-tag

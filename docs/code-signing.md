@@ -4,7 +4,7 @@ Free code signing provided by [SignPath.io](https://about.signpath.io), certific
 [SignPath Foundation](https://signpath.org).
 
 ## What is signed
-Releases on GitHub (`HouseStyle-<version>.zip`): `FlareAI.Core.dll`, `FlareAI.Flare.dll` and `FlareAI.Mcp.exe`.
+Releases on GitHub (`HouseStyle-<version>.zip`): `FlareAI.Core.dll`, `FlareAI.Flare.dll`, `FlareAI.Mcp.exe` and `FlareAI.Updater.exe`.
 They are built by GitHub Actions (`.github/workflows/build.yml`) from the tagged commit in this repository and signed
 only through that workflow. Third-party files in the zip (`Newtonsoft.Json.dll`, already signed by its author) are not
 re-signed. MadCap's DLLs are never included.
@@ -40,6 +40,7 @@ identifier; the user or IT can turn this off. It sends no telemetry. See the Pri
            <pe-file path="FlareAI.Core.dll"><authenticode-sign/></pe-file>
            <pe-file path="FlareAI.Flare.dll"><authenticode-sign/></pe-file>
            <pe-file path="FlareAI.Mcp.exe"><authenticode-sign/></pe-file>
+           <pe-file path="FlareAI.Updater.exe"><authenticode-sign/></pe-file>
          </directory>
        </zip-file>
      </artifact-configuration>
