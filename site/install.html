@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install House Style</title>
+<meta name="description" content="How to install the House Style plugin into MadCap Flare Desktop, set up an Anthropic key or a Bifrost gateway, and fix a plugin that doesn't appear.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="m-ground" x="2" y="2" width="28" height="28"/><path class="m-lines" d="M8 11h16M8 16h11M8 21h7" stroke-width="2.4" fill="none"/><path class="m-tick" d="M19 22l2.5 2.5L26 19" stroke-width="2.6" fill="none" stroke-linecap="square"/></svg>
+      House Style
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="install.html" aria-current="page">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li class="nav-extra"><a href="code-signing.html">Code signing</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub</a></li>
+        <li><a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <div class="wrap">
+  <div class="page-head">
+    <h1>Install House Style</h1>
+    <p class="lead">Installing takes a few minutes. You need Windows, MadCap Flare Desktop, and permission to
+      install software (or help from IT).</p>
+  </div>
+  <div class="page-grid">
+    <nav class="toc" aria-label="On this page">
+      <strong>On this page</strong>
+      <ul>
+        <li><a href="#quick">Quick install</a></li>
+        <li><a href="#versions">Which Flare is which</a></li>
+        <li><a href="#manual">Manual install</a></li>
+        <li><a href="#missing">If House Style isn't in the Plugins list</a></li>
+        <li><a href="#key">Add your Anthropic key</a></li>
+        <li><a href="#gateway">Use a Bifrost gateway</a></li>
+      </ul>
+    </nav>
+    <div class="page-body">
+
+    <h2 id="quick">Quick install</h2>
+    <ol>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+        (<code>HouseStyle-&lt;version&gt;.zip</code>).</li>
+      <li>Unzip the whole download to a normal folder, such as your Desktop (right-click &gt; <strong>Extract
+        All</strong>). Don't run anything from inside the zip.</li>
+      <li>Close Flare.</li>
+      <li>Double-click <strong><code>Install.cmd</code></strong>, and say yes to the administrator prompt. It
+        unblocks the files, finds your Flare, copies the plugin, and tells you what to do next.</li>
+      <li>Start Flare. Go to <strong>File &gt; Options &gt; Plugins</strong>, select <strong>House
+        Style</strong>, and click <strong>Enable</strong>.</li>
+      <li><strong>Restart Flare again.</strong> The House Style tab appears on the ribbon.</li>
+    </ol>
+    <p>If you use the tool strip instead of the ribbon, switch to Ribbon UI mode (<strong>View &gt;
+      Interface</strong>).</p>
+    <p>Several Flare versions installed? The installer picks the newest. To pick another, open PowerShell in the
+      unzipped folder and run <code>.\Install.ps1 -Flare 21</code>, using the folder number from the table
+      below.</p>
+
+    <!-- screenshot: File > Options > Plugins in Flare 2026 with House Style selected and the Enable button. Add when a real screenshot exists. -->
+
+    <h2 id="versions">Which Flare is which</h2>
+    <p>Flare's install folder number isn't the same as its year. House Style loads separately for each Flare
+      version, so install it into the one you open.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Folders are under <code>C:\Program Files\MadCap Software\</code>.</caption>
+        <thead>
+          <tr><th scope="col">Install folder</th><th scope="col">Flare version</th><th scope="col">Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>MadCap Flare 22</code></td><td>Flare 2026</td><td>Tested</td></tr>
+          <tr><td><code>MadCap Flare 21</code></td><td>Flare 2025 (including 2025 R2)</td><td>Not tested</td></tr>
+          <tr><td><code>MadCap Flare 20</code></td><td>Flare 2024</td><td>Not tested</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="manual">Manual install</h2>
+    <p>Use this if <code>Install.cmd</code> doesn't work.</p>
+    <ol>
+      <li><strong>Unblock the zip first.</strong> Right-click the zip &gt; <strong>Properties</strong> &gt; tick
+        <strong>Unblock</strong> &gt; <strong>OK</strong>. Then unzip it.
+        <p>Already unzipped? Run this in PowerShell, with your folder path:</p>
+        <pre><code>Get-ChildItem "C:\path\to\unzipped folder" -Recurse | Unblock-File</code></pre>
+        <p>If you skip this, Windows quietly stops Flare from loading the plugin, and it never appears.</p>
+      </li>
+      <li>Close Flare.</li>
+      <li>Copy the <strong><code>FlareAI</code></strong> folder to
+        <code>C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins\</code>. Change
+        <code>22</code> to match your version.</li>
+      <li><strong>Check that there's no extra folder.</strong> This file must exist:
+        <code>...\Flare.app\Plugins\FlareAI\FlareAI.Flare.dll</code>. If you see
+        <code>Plugins\HouseStyle-0.1.3\FlareAI\...</code>, your unzip tool added a wrapper folder. Move the inner
+        <code>FlareAI</code> folder up into <code>Plugins</code>, and delete the wrapper.</li>
+      <li>Start Flare. Go to <strong>File &gt; Options &gt; Plugins &gt; House Style &gt; Enable</strong>.</li>
+      <li><strong>Restart Flare.</strong></li>
+    </ol>
+
+    <div class="note">
+      <p><strong>Two restarts.</strong> Flare needs one start to find the plugin, and one restart after you enable
+        it. If the House Style tab is missing after you enable it, restart Flare once more.</p>
+    </div>
+
+    <h2 id="missing">If House Style isn't in the Plugins list</h2>
+    <ul>
+      <li>Check for a wrapper folder (step 4 of the manual install).</li>
+      <li>Check that the files are unblocked (step 1).</li>
+      <li>Check that you installed into the Flare version you're running. See the
+        <a href="#versions">table above</a>.</li>
+      <li>Flare must be fully closed while you copy, and restarted afterward.</li>
+    </ul>
+    <p>Still stuck? <code>%APPDATA%\FlareAI\diag.log</code> lists timings and errors. It contains no document text
+      and no key. Attach it to an
+      <a href="https://github.com/abmorrill4/flare-ai-plugin/issues">issue on GitHub</a>.</p>
+
+    <h2 id="key">Add your Anthropic key</h2>
+    <p>You need a key only for AI review, Rewrite selection, Ask and Topic assists. Style checks work without
+      one.</p>
+    <ol>
+      <li>Create a key in the <a href="https://console.anthropic.com/settings/keys">Anthropic Console</a>.</li>
+      <li>In Flare, open <strong>House Style &gt; Settings</strong>.</li>
+      <li>Paste the key, and click <strong>Save</strong>.</li>
+    </ol>
+    <p>The key is encrypted for your Windows account, so nobody else on the computer can read it. See
+      <a href="privacy.html">Privacy</a>.</p>
+
+    <h2 id="gateway">Use a Bifrost gateway</h2>
+    <p>If your company gave you a Bifrost gateway address and virtual key instead of an Anthropic key:</p>
+    <ol>
+      <li>Open <strong>House Style &gt; Settings</strong>.</li>
+      <li>Set <strong>Provider</strong> to <em>Bifrost gateway</em>.</li>
+      <li>In <strong>Base URL</strong>, enter the gateway address you were given.</li>
+      <li>Paste the virtual key, and click <strong>Save</strong>. The models are set for you.</li>
+      <li>Click <strong>Test connection</strong> to check it.</li>
+    </ol>
+
+    <h3 id="checklist">Gateway key checklist (for gateway admins)</h3>
+    <p>Before you give a virtual key to a writer, check these:</p>
+    <ul>
+      <li>The Base URL starts with <code>https://</code>, with no path and no trailing slash. The plugin adds
+        <code>/v1/chat/completions</code>.</li>
+      <li>The writer pastes the whole key (<code>sk-bf-...</code>), with no spaces or line breaks.</li>
+      <li>The virtual key allows all three models: <code>anthropic/claude-sonnet-5-5</code>,
+        <code>anthropic/claude-haiku-5-5</code> and <code>anthropic/claude-opus-5-5</code>.</li>
+      <li>Bifrost v1.5 and later treat an empty allow-list as "deny all". Set <code>allowed_models</code> on the
+        virtual key's provider config, set <code>key_ids: ["*"]</code>, and list the models on the Anthropic
+        provider key. Otherwise every request fails with <code>no keys found for provider: anthropic</code>.</li>
+      <li>Set an expiry and a budget on the key.</li>
+      <li>Writers' computers can reach the gateway address.</li>
+    </ul>
+    <p>The full example configuration is in
+      <a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/docs/bifrost-migration.md">docs/bifrost-migration.md</a>
+      in the repository.</p>
+    </div>
+  </div>
+  </div>
+</main>
+
+<footer class="site-footer footer-short">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+      </div>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
+      </ul>
+    </div>
+    <div class="footer-legal">
+      <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate
+        by <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
+      <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
+        <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+    </div>
+  </div>
+  <div class="wordmark" aria-hidden="true">House Style</div>
+</footer>
+</body>
+</html>

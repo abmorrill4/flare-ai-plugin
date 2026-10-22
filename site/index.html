@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Style for MadCap Flare</title>
+<meta name="description" content="A free, open-source MadCap Flare Desktop plugin that checks topics against the Google developer documentation style guide and your team's own rules. Every fix arrives as a tracked change.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="m-ground" x="2" y="2" width="28" height="28"/><path class="m-lines" d="M8 11h16M8 16h11M8 21h7" stroke-width="2.4" fill="none"/><path class="m-tick" d="M19 22l2.5 2.5L26 19" stroke-width="2.6" fill="none" stroke-linecap="square"/></svg>
+      House Style
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li class="nav-extra"><a href="code-signing.html">Code signing</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub</a></li>
+        <li><a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <h1 id="hero-title"><span class="word">House</span> <span class="slot" data-ui aria-hidden="true"><span class="fix"><del>click on</del> <ins>click</ins></span><span class="fix"><del>e-mail</del> <ins>email</ins></span><span class="fix"><del>allows you to</del> <ins>lets you</ins></span><span class="fix"><del>check box</del> <ins>checkbox</ins></span></span> <span class="word">Style</span></h1>
+      <p class="hero-strip" data-ui aria-hidden="true"><del>click on</del> <ins>click</ins></p>
+      <div class="hero-foot">
+        <p class="lead">A free MadCap Flare plugin that checks your topics against the Google developer documentation
+          style guide and your team’s own rules. Every fix arrives as a tracked change.</p>
+        <div class="hero-actions">
+          <a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+          <a class="text-link" href="install.html">How to install</a>
+        </div>
+        <p class="hero-note">Free and open source (MIT). For Windows and MadCap Flare Desktop. Tested on Flare 2026.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section try" id="try" aria-labelledby="try-title">
+    <div class="wrap">
+      <div class="section-intro reveal">
+        <h2 id="try-title">Try a sentence</h2>
+        <p>Type or paste a sentence below. A handful of real rules from the Google guide check it here, in your
+          browser. The plugin checks the whole guide, and your team’s rules, inside Flare.</p>
+      </div>
+      <div data-ui>
+        <label class="sr-only" for="try-input">A sentence to check</label>
+        <input class="try-input" id="try-input" type="text" spellcheck="false" autocomplete="off"
+          value="To send it, please hover over the e-mail icon and click on Send.">
+        <div class="try-out" aria-live="polite">
+          <p class="try-result" id="try-result">To send it, <del>please </del><del>hover over</del> <ins>point to</ins> the <del>e-mail</del> <ins>email</ins> icon and <del>click on</del> <ins>click</ins> Send.</p>
+          <ul class="try-findings" id="try-findings">
+            <li><b>Delete “please” in instructions.</b><span class="src">Google: Procedures</span></li>
+            <li><b>Use “point to”, not “hover over”.</b><span class="src">Google: Inclusive documentation</span></li>
+            <li><b>Use “email”, not “e-mail”.</b><span class="src">Google: Word list</span></li>
+            <li><b>Use “click”, not “click on”.</b><span class="src">Google: Word list</span></li>
+          </ul>
+        </div>
+        <div class="try-examples" id="try-examples" hidden>
+          <button type="button">This setting allows you to approx. double the cache.</button>
+          <button type="button">Select the check box, e.g. for a back-end job.</button>
+          <button type="button">For more information on tokens, see the API guide.</button>
+        </div>
+      </div>
+      <p class="try-note">In Flare, each fix lands in your topic as a tracked change, and the review pane shows the
+        rule behind it.</p>
+    </div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-title">
+    <div class="wrap how-grid">
+      <div>
+        <h2 id="how-title">How it works</h2>
+        <ol class="stepped">
+          <li><span class="line">First, install the plugin.</span>
+            <p>Download the zip, unzip it, and double-click <code>Install.cmd</code>. Enable House Style in Flare.
+              There’s nothing else to install.</p></li>
+          <li><span class="line">Then check a topic.</span>
+            <p>Click <strong>Check style</strong>. Rule checks appear right away, on your computer. If you set up
+              AI, a review of the wording follows.</p></li>
+          <li><span class="line">Read why each fix is suggested.</span>
+            <p>The review pane names the rule, shows its bad and good example, and says where it comes from:
+              Google, your company, or an AI judgment call.</p></li>
+          <li><span class="line">Accept or reject it in Flare.</span>
+            <p>Each fix arrives as a Flare tracked change. Accept it, reject it, or undo it with Ctrl+Z, the same
+              way you handle any reviewer’s edit.</p></li>
+        </ol>
+      </div>
+      <figure class="diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" class="hsf" viewBox="0 0 360 536" width="360" height="536" role="img" aria-labelledby="how-it-works-title how-it-works-desc" style="width:100%;max-width:520px;height:auto;display:block">
+  <title id="how-it-works-title">How House Style works in Flare</title>
+  <desc id="how-it-works-desc">A writer opens a topic and House Style checks it on the computer against the Google guide and the team guide. Only if the writer asks, an AI review goes over the network to Anthropic or the company gateway. Proposals appear in a review pane, Accept writes a Flare tracked change, and a reviewer accepts or rejects it in Flare's Review tab.</desc>
+  <style>
+    .hsf { --i: var(--text, #1b2326); --m: var(--text-muted, #4a5559); --b: var(--border, #d5dcde); --p: var(--surface, #ffffff); --z: var(--bg-alt, #f4f6f7); --a: var(--accent, #0b5e6b); --at: var(--accent-text, #ffffff); --nb: var(--note-bg, #fff7e6); --nl: var(--note-border, #b7791f); }
+    @media (prefers-color-scheme: dark) { .hsf { --i: var(--text, #e6ecee); --m: var(--text-muted, #b3c0c4); --b: var(--border, #33444a); --p: var(--surface, #1b262a); --z: var(--bg-alt, #172024); --a: var(--accent, #5fc4d2); --at: var(--accent-text, #0b1a1d); --nb: var(--note-bg, #2a2416); --nl: var(--note-border, #d9a441); } }
+    .hsf text { stroke: none; font-family: var(--font, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); fill: var(--i); }
+    .hsf .eb { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.06em; fill: var(--m); }
+    .hsf .nm { font-size: 13px; font-weight: 600; }
+    .hsf .sb { font-size: 11px; fill: var(--m); }
+    .hsf .al { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.04em; fill: var(--m); }
+    .hsf .zl { fill: var(--z); stroke: var(--b); stroke-width: 1; }
+    .hsf .zn { fill: var(--nb); stroke: var(--nl); stroke-width: 1; stroke-dasharray: 5 4; }
+    .hsf .nd { fill: var(--p); stroke: var(--i); stroke-width: 1; }
+    .hsf .nopt { fill: var(--p); stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .nf { fill: var(--a); stroke: var(--a); stroke-width: 1; }
+    .hsf .nf text { fill: var(--at); }
+    .hsf .bd { fill: none; stroke: var(--m); stroke-width: 1.25; }
+    .hsf .bn { fill: none; stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .bg { fill: var(--i); } .hsf .bgt { fill: var(--p); font-size: 10px; font-weight: 700; text-anchor: middle; }
+    .hsf .mk { fill: var(--p); }
+    .hsf .mkn { fill: var(--nb); }
+    .hsf .ar { fill: var(--m); } .hsf .arn { fill: var(--nl); }
+  </style>
+  <defs>
+    <marker id="how-it-works-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="ar"/></marker>
+    <marker id="how-it-works-ahn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="arn"/></marker>
+  </defs>
+
+  <!-- zones -->
+  <rect class="zl" x="12" y="12" width="336" height="176" rx="6"/>
+  <rect class="zn" x="12" y="188" width="336" height="108"/>
+  <rect class="zl" x="12" y="296" width="336" height="228" rx="6"/>
+  <text class="eb" x="24" y="30">ON YOUR COMPUTER</text>
+  <text class="eb" x="24" y="206">NETWORK</text>
+  <text class="eb" x="24" y="314">ON YOUR COMPUTER</text>
+
+  <!-- arrows (drawn before boxes) -->
+  <line class="bd" x1="150" y1="88" x2="150" y2="112" marker-end="url(#how-it-works-ah)"/>
+  <line class="bn" x1="150" y1="172" x2="150" y2="222" marker-end="url(#how-it-works-ahn)"/>
+  <line class="bn" x1="150" y1="282" x2="150" y2="328" marker-end="url(#how-it-works-ahn)"/>
+  <path class="bd" d="M268 142 H296 A8 8 0 0 1 304 150 V342 A8 8 0 0 1 296 350 H268" marker-end="url(#how-it-works-ah)"/>
+  <line class="bd" x1="150" y1="372" x2="150" y2="396" marker-end="url(#how-it-works-ah)"/>
+  <line class="bd" x1="150" y1="440" x2="150" y2="464" marker-end="url(#how-it-works-ah)"/>
+
+  <!-- arrow labels -->
+  <rect class="mkn" x="158" y="188" width="70" height="16"/>
+  <text class="al" x="162" y="200">ON REQUEST</text>
+  <rect class="mkn" x="158" y="287" width="64" height="16"/>
+  <text class="al" x="162" y="299">PROPOSALS</text>
+  <text class="al" x="312" y="250">NO AI</text>
+
+  <!-- 1 -->
+  <rect class="nd" x="32" y="44" width="236" height="44" rx="6"/>
+  <circle class="bg" cx="52" cy="66" r="9"/><text class="bgt" x="52" y="70">1</text>
+  <text class="nm" x="72" y="62">Writer opens a topic</text>
+  <text class="sb" x="72" y="78">in Flare Desktop</text>
+  <!-- 2 -->
+  <rect class="nd" x="32" y="112" width="236" height="60" rx="6"/>
+  <circle class="bg" cx="52" cy="142" r="9"/><text class="bgt" x="52" y="146">2</text>
+  <text class="nm" x="72" y="134">House Style checks it</text>
+  <text class="sb" x="72" y="150">Google guide + team guide</text>
+  <text class="sb" x="72" y="164">Local, free, instant</text>
+  <!-- 3 -->
+  <rect class="nopt" x="32" y="222" width="236" height="60" rx="6"/>
+  <circle class="bg" cx="52" cy="252" r="9"/><text class="bgt" x="52" y="256">3</text>
+  <text class="nm" x="72" y="244">Optional AI review</text>
+  <text class="sb" x="72" y="260">Your own Anthropic key, or</text>
+  <text class="sb" x="72" y="274">your company's gateway</text>
+  <!-- 4 -->
+  <rect class="nd" x="32" y="328" width="236" height="44" rx="6"/>
+  <circle class="bg" cx="52" cy="350" r="9"/><text class="bgt" x="52" y="354">4</text>
+  <text class="nm" x="72" y="346">Proposals in a review pane</text>
+  <text class="sb" x="72" y="362">You decide on each one</text>
+  <!-- 5 focal -->
+  <g class="nf">
+    <rect x="32" y="396" width="236" height="44" rx="6"/>
+    <circle cx="52" cy="418" r="9" style="fill:var(--at);stroke:none"/><text class="bgt" x="52" y="422" style="fill:var(--a)">5</text>
+    <text class="nm" x="72" y="414">Accept</text>
+    <text class="sb" x="72" y="430" style="fill:var(--at)">Writes a Flare tracked change</text>
+  </g>
+  <!-- 6 -->
+  <rect class="nd" x="32" y="464" width="236" height="44" rx="6"/>
+  <circle class="bg" cx="52" cy="486" r="9"/><text class="bgt" x="52" y="490">6</text>
+  <text class="nm" x="72" y="482">Reviewer signs off</text>
+  <text class="sb" x="72" y="498">Accept or reject in Review tab</text>
+</svg>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="review" aria-labelledby="review-title">
+    <div class="wrap">
+      <div class="section-intro reveal">
+        <h2 id="review-title">Every fix shows its reason</h2>
+        <p>Check style opens a review pane beside your topic. It lists every proposal in reading order, grouped
+          under the topic’s headings.</p>
+      </div>
+      <div class="plate-grid">
+        <div class="notes left reveal">
+          <div><h3>What changes</h3><p>The words around each fix, with removed text struck and added text
+            underlined, as Flare shows them.</p></div>
+          <div><h3>Why</h3><p>The rule it applies, with its bad and good example when the guide has one, and its
+            source: Google, a section of your company guide, or the AI.</p></div>
+          <div><h3>What a style checker can’t see</h3><p>Images without alt text, skipped heading levels, tables
+            without a header row, “click here” links, and typed-in phone numbers, email addresses and URLs.</p></div>
+        </div>
+
+        <figure class="plate">
+          <div class="pane" data-ui aria-hidden="true">
+            <div class="pane-title"><span>House Style</span><span>Saving-Changes.htm</span></div>
+            <div class="pane-sum">12 proposals in 3 sections: 7 mechanical, 3 wording, 2 need a rewrite</div>
+            <div class="pane-group">Save your changes</div>
+            <div class="pane-row sel"><span><del>click on</del> <ins>click</ins></span><span class="k">Google</span></div>
+            <div class="pane-card">
+              <h4>What changes</h4>
+              <p>To keep your edits, <del>click on</del> <ins>click</ins> <strong>Save</strong>.</p>
+              <h4>Why</h4>
+              <p>Use “click”, not “click on”. Google: Word list.</p>
+              <p class="ex">Bad: Click on Save. Good: Click Save.</p>
+              <div class="pane-btns"><span>Accept</span><span>Reject ▾</span><span>Edit…</span><span>Refine…</span></div>
+            </div>
+            <div class="pane-row"><span><del>e-mail</del> <ins>email</ins></span><span class="k">Google</span></div>
+            <div class="pane-row"><span>Image has no alt text</span><span class="k">Suggest alt text…</span></div>
+            <div class="pane-group">Restore an earlier version</div>
+            <div class="pane-row"><span>Long sentence, two ideas</span><span class="k">AI · Company: Tone</span></div>
+            <div class="pane-row"><span><del>sign on</del> <ins>sign in</ins></span><span class="k">Company</span></div>
+          </div>
+          <figcaption>Illustration of the review pane, not a screenshot. The file name and proposals are examples.</figcaption>
+        </figure>
+
+        <div class="notes right reveal">
+          <div><h3>Accept, reject or edit</h3><p>Accept writes a tracked change. Reject asks why, so the rule can
+            be tuned. Edit or Refine lets you change the wording first.</p></div>
+          <div><h3>AI review, when you want it</h3><p>With a key, an AI review catches unclear or wordy sentences
+            that rules can’t. Rewrite selection and Ask return tracked changes too.</p></div>
+          <div><h3>Your markup stays intact</h3><p>House Style refuses any AI result that would drop or change a
+            variable, cross-reference, snippet or condition. Nothing changes, and you see why.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <div class="section-intro reveal">
+        <h2 id="features-title">What runs where</h2>
+        <p>Everything happens in Flare, so you never copy text into a chat window and paste it back. Most of the
+          tab runs on your computer and costs nothing.</p>
+      </div>
+      <table class="runs">
+        <caption class="sr-only">House Style features, what each does, and whether it runs on your computer or uses AI</caption>
+        <thead><tr><th scope="col">Feature</th><th scope="col">What it does</th><th scope="col">Where it runs</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Check style</th><td>Checks the topic or selection against the Google guide, compiled into rules, plus your team’s rules.</td><td class="where">On your computer</td></tr>
+          <tr><th scope="row">Check project</th><td>Checks every topic and snippet in the project at once. Results are grouped by file.</td><td class="where">On your computer</td></tr>
+          <tr><th scope="row">Accessibility and structure</th><td>Flags missing alt text, skipped heading levels, tables without a header row, vague link text and typed-in contact details.</td><td class="where">On your computer</td></tr>
+          <tr><th scope="row">Export for LLMs</th><td>Turns built HTML output into one Markdown file per topic, plus <code>llms.txt</code> and <code>llms-full.txt</code>, so AI assistants can read your docs.</td><td class="where">On your computer</td></tr>
+          <tr><th scope="row">AI review</th><td>Reviews the wording for what rules can’t catch, such as unclear or wordy sentences.</td><td class="where ai">With AI, on your key</td></tr>
+          <tr><th scope="row">Rewrite selection</th><td>Rewrites the paragraphs you select, as word-level tracked changes.</td><td class="where ai">With AI, on your key</td></tr>
+          <tr><th scope="row">Ask</th><td>Does what you type, like “make this a numbered list” or “shorten to two sentences”.</td><td class="where ai">With AI, on your key</td></tr>
+          <tr><th scope="row">Topic assists</th><td>Drafts a meta description, index keywords, search synonyms, micro content and glossary terms. You copy the ones you keep.</td><td class="where ai">With AI, on your key</td></tr>
+          <tr><th scope="row">Suggest alt text</th><td>Looks at an image without alt text and drafts it for you to edit.</td><td class="where ai">With AI, on your key</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" id="rules" aria-labelledby="rules-title">
+    <div class="wrap">
+      <h2 id="rules-title">Your rules, kept in Flare</h2>
+      <div class="rules-grid">
+        <ul class="facts">
+          <li><b>A Flare project</b>Tables and bullet lists</li>
+          <li><b>Kept in git</b>Every writer uses the same clone</li>
+          <li><b>Your rules win</b>Over Google’s, rule by rule</li>
+        </ul>
+        <div class="reveal">
+          <div class="rule-cap" data-ui aria-hidden="true"><span class="h">Avoid</span><span><del>sign on</del></span><span class="h">Use</span><span><ins>sign in</ins></span></div>
+          <p class="statement">Your team’s rules live in a Flare project you keep in git. Each row becomes a one-click fix.</p>
+          <div class="rules-body">
+            <p>Your rules win over Google’s, and a docs project can add its own variables and glossary on top. Owners
+              can turn a rule off for the whole team or for one project, and only the owners listed in the guide
+              change shared rules.</p>
+            <p><strong>Build style guide</strong> suggests rules from your own content, with counts and real
+              sentences. <strong>Tune style guide</strong> shows which rules writers keep rejecting.
+              <strong>Validate style guide</strong> tests every rule against its examples.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="privacy" aria-labelledby="privacy-title">
+    <div class="wrap privacy-grid">
+      <figure class="diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" class="hsf" viewBox="0 0 360 548" width="360" height="548" role="img" aria-labelledby="data-flow-title data-flow-desc" style="width:100%;max-width:520px;height:auto;display:block">
+  <title id="data-flow-title">What stays on your computer and what is sent</title>
+  <desc id="data-flow-desc">Topics, the style guide, the linter, the encrypted API key and the diagnostic log all stay on the writer's computer. Only when the writer asks for an AI action, the paragraphs being checked and the relevant rules are sent to the Anthropic API or the company gateway. House Style sends no telemetry.</desc>
+  <style>
+    .hsf { --i: var(--text, #1b2326); --m: var(--text-muted, #4a5559); --b: var(--border, #d5dcde); --p: var(--surface, #ffffff); --z: var(--bg-alt, #f4f6f7); --a: var(--accent, #0b5e6b); --at: var(--accent-text, #ffffff); --nb: var(--note-bg, #fff7e6); --nl: var(--note-border, #b7791f); }
+    @media (prefers-color-scheme: dark) { .hsf { --i: var(--text, #e6ecee); --m: var(--text-muted, #b3c0c4); --b: var(--border, #33444a); --p: var(--surface, #1b262a); --z: var(--bg-alt, #172024); --a: var(--accent, #5fc4d2); --at: var(--accent-text, #0b1a1d); --nb: var(--note-bg, #2a2416); --nl: var(--note-border, #d9a441); } }
+    .hsf text { stroke: none; font-family: var(--font, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); fill: var(--i); }
+    .hsf .eb { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.06em; fill: var(--m); }
+    .hsf .nm { font-size: 13px; font-weight: 600; }
+    .hsf .sb { font-size: 11px; fill: var(--m); }
+    .hsf .al { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.04em; fill: var(--m); }
+    .hsf .zl { fill: var(--z); stroke: var(--b); stroke-width: 1; }
+    .hsf .zn { fill: var(--nb); stroke: var(--nl); stroke-width: 1; stroke-dasharray: 5 4; }
+    .hsf .nd { fill: var(--p); stroke: var(--i); stroke-width: 1; }
+    .hsf .nopt { fill: var(--p); stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .nf { fill: var(--a); stroke: var(--a); stroke-width: 1; }
+    .hsf .nf text { fill: var(--at); }
+    .hsf .bd { fill: none; stroke: var(--m); stroke-width: 1.25; }
+    .hsf .bn { fill: none; stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .bg { fill: var(--i); } .hsf .bgt { fill: var(--p); font-size: 10px; font-weight: 700; text-anchor: middle; }
+    .hsf .mk { fill: var(--p); }
+    .hsf .mkn { fill: var(--nb); }
+    .hsf .ar { fill: var(--m); } .hsf .arn { fill: var(--nl); }
+  </style>
+  <defs>
+    <marker id="data-flow-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="ar"/></marker>
+    <marker id="data-flow-ahn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="arn"/></marker>
+  </defs>
+
+  <!-- zones -->
+  <rect class="zl" x="12" y="12" width="336" height="252" rx="6"/>
+  <rect class="zn" x="12" y="264" width="336" height="200"/>
+  <text class="eb" x="24" y="30">STAYS ON YOUR COMPUTER</text>
+  <text class="eb" x="24" y="282">LEAVES YOUR COMPUTER</text>
+
+  <!-- arrows -->
+  <line class="bn" x1="280" y1="248" x2="280" y2="296" marker-end="url(#data-flow-ahn)"/>
+  <line class="bn" x1="100" y1="368" x2="100" y2="396" marker-end="url(#data-flow-ahn)"/>
+  <line class="bn" x1="260" y1="368" x2="260" y2="396" marker-end="url(#data-flow-ahn)"/>
+  <rect class="mkn" x="196" y="264" width="76" height="16"/>
+  <text class="al" x="200" y="276">ON REQUEST</text>
+
+  <!-- local -->
+  <rect class="nd" x="24" y="44" width="152" height="52" rx="6"/>
+  <text class="nm" x="36" y="64">Your topics</text>
+  <text class="sb" x="36" y="80">Flare project files</text>
+  <rect class="nd" x="184" y="44" width="152" height="52" rx="6"/>
+  <text class="nm" x="196" y="64">Style guides</text>
+  <text class="sb" x="196" y="80">Google + your team's</text>
+  <rect class="nd" x="24" y="120" width="152" height="52" rx="6"/>
+  <text class="nm" x="36" y="140">Your API key</text>
+  <text class="sb" x="36" y="156">Encrypted with DPAPI</text>
+  <rect class="nd" x="184" y="120" width="152" height="52" rx="6"/>
+  <text class="nm" x="196" y="140">Diagnostic log</text>
+  <text class="sb" x="196" y="156">Timings, no text or key</text>
+  <rect class="nd" x="24" y="196" width="312" height="52" rx="6"/>
+  <text class="nm" x="36" y="216">Linter and plugin</text>
+  <text class="sb" x="36" y="232">Style checks run here: free, instant</text>
+
+  <!-- sent -->
+  <rect class="nopt" x="24" y="296" width="312" height="72" rx="6"/>
+  <text class="nm" x="36" y="316">What is sent</text>
+  <text class="sb" x="36" y="332">The paragraphs being checked</text>
+  <text class="sb" x="36" y="346">+ the style rules that apply</text>
+  <text class="sb" x="36" y="360">(alt text: the image)</text>
+  <rect class="nd" x="24" y="396" width="152" height="52" rx="6"/>
+  <text class="nm" x="36" y="416">Anthropic API</text>
+  <text class="sb" x="36" y="432">Under your own key</text>
+  <rect class="nd" x="184" y="396" width="152" height="52" rx="6"/>
+  <text class="nm" x="196" y="416">Company gateway</text>
+  <text class="sb" x="196" y="432">The one you configured</text>
+
+  <!-- telemetry -->
+  <g class="nf">
+    <rect x="12" y="480" width="336" height="52" rx="6"/>
+    <text class="nm" x="24" y="500">No telemetry</text>
+    <text class="sb" x="24" y="516" style="fill:var(--at)">Nothing is sent to the authors</text>
+  </g>
+</svg>
+      </figure>
+      <div class="reveal">
+        <h2 id="privacy-title">What leaves your computer</h2>
+        <p class="lead">Nothing, unless you ask for an AI action.</p>
+        <ul class="plain-list">
+          <li>Style checks, Check project and Export for LLMs never leave your computer.</li>
+          <li>When you ask for an AI action, the text being checked and the rules that apply go to Anthropic
+            under your key, or to the gateway you set up.</li>
+          <li>No telemetry. Nothing is sent to the authors.</li>
+          <li>Your key is encrypted with Windows DPAPI and never logged.</li>
+        </ul>
+        <p><a class="text-link" href="privacy.html">Read the privacy details</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="price-field" id="cost" aria-labelledby="cost-title">
+    <div class="wrap">
+      <h2 id="cost-title">Free, with AI at <span class="price-tag">about 2¢</span> a&nbsp;topic</h2>
+      <div class="price-foot">
+        <div>
+          <p class="lead">The plugin, style checks, Check project and Export for LLMs cost nothing.</p>
+          <p>AI features are optional. They run on your own Anthropic API key, or on your company’s Bifrost
+            gateway if your team uses one. You pay Anthropic, or the gateway’s budget covers it. An AI review costs
+            about 2 cents per topic. Without a key, every rule check still works.</p>
+        </div>
+        <div class="price-actions">
+          <a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+          <a class="text-link" href="install.html#key">Set up a key or a gateway</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <h2 id="faq-title">Questions before you install</h2>
+      <div class="faq-list">
+        <details>
+          <summary>Which versions of Flare does it work with?</summary>
+          <div><p>House Style is tested on MadCap Flare 2026, which installs into the <code>MadCap Flare 22</code>
+            folder. It needs Flare Desktop on Windows, in Ribbon UI mode. See the
+            <a href="install.html#versions">version table</a>.</p></div>
+        </details>
+        <details>
+          <summary>Do I need to install anything else?</summary>
+          <div><p>No. The style guide, the checker and the LLM export all ship inside the plugin folder. You don’t
+            need Python or any other tool.</p></div>
+        </details>
+        <details>
+          <summary>Can it change my topics without me knowing?</summary>
+          <div><p>No. Every edit is a Flare tracked change, so you review it like any reviewer’s edit. Ctrl+Z
+            undoes it in one step. Rule checks change nothing until you click Fix.</p></div>
+        </details>
+        <details>
+          <summary>Do I need an AI key?</summary>
+          <div><p>Only for AI review, Rewrite selection, Ask, Topic assists and Suggest alt text. Style checks,
+            Check project and Export for LLMs work without one.</p></div>
+        </details>
+        <details>
+          <summary>Can we use our own style rules?</summary>
+          <div><p>Yes. Your team’s rules live in a Flare project with simple tables and bullet lists. Your rules
+            win over Google’s, and a project can add its own variables and glossary on top. Rule owners can turn a
+            rule off for the whole team or for one project.</p></div>
+        </details>
+        <details>
+          <summary>Our company routes AI through a gateway. Does that work?</summary>
+          <div><p>Yes. In <strong>House Style &gt; Settings</strong>, set Provider to <em>Bifrost gateway</em>,
+            enter the gateway address and paste the virtual key you were given. See
+            <a href="install.html#gateway">gateway setup</a>.</p></div>
+        </details>
+        <details>
+          <summary>Windows warns me about the download. Is it safe?</summary>
+          <div><p>Releases are built from this public repository by GitHub Actions. They aren’t code signed yet, so
+            Windows marks the files as blocked. The <a href="install.html">installer</a> unblocks them for you.
+            See <a href="code-signing.html">code signing</a> for the plan.</p></div>
+        </details>
+        <details>
+          <summary>Is this made by MadCap or Google?</summary>
+          <div><p>No. House Style is an independent open-source project. It isn’t affiliated with MadCap Software
+            or Google. The Google rules come from the Google developer documentation style guide, used under
+            CC BY 4.0.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <h2>Try it on your next topic</h2>
+        <a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+      </div>
+      <ul class="footer-links">
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
+      </ul>
+    </div>
+    <div class="footer-legal">
+      <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate
+        by <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
+      <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
+        <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+    </div>
+  </div>
+  <div class="wordmark" aria-hidden="true">House Style</div>
+</footer>
+
+<script>
+/* Optional: re-checks the sentence as you type. Without it the page shows the example above. */
+(function () {
+  var R = [["click on","click","Word list"],["allows you to","lets you","Word list"],["e-mail","email","Word list"],
+    ["check box","checkbox","Word list"],["back-end","backend","Word list"],["please","","Procedures"],
+    ["hover over","point to","Inclusive documentation"],["e.g.","for example","Abbreviations"],
+    ["i.e.","that is","Abbreviations"],["approx.","approximately","Abbreviations"],
+    ["more information on","more information about","Cross-references"],["cancelled","canceled","Word list"]];
+  var inp = document.getElementById("try-input"), out = document.getElementById("try-result"),
+      list = document.getElementById("try-findings"), ex = document.getElementById("try-examples");
+  if (!inp || !out || !list) return;
+  var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
+  var re = new RegExp("(?<![\\w-])("+ R.map(function (r) { return r[0].replace(/[.*+?^${}()|[\]\\-]/g, "\\$&"); }).join("|") + ")(?![\\w-])( ?)", "gi");
+  function run() {
+    var s = inp.value, html = "", notes = [], last = 0, m;
+    re.lastIndex = 0;
+    while ((m = re.exec(s))) {
+      var at = m.index, word = m[1], rule = R.filter(function (r) { return r[0] === word.toLowerCase(); })[0];
+      var cap = /^[A-Z]/.test(word) || (at > 0 && at === last && /^\s*please\s*$/i.test(s.slice(0, at)));
+      var use = rule[1] && cap ? rule[1][0].toUpperCase() + rule[1].slice(1) : rule[1];
+      html += esc(s.slice(last, at)) + (use ? "<del>" + esc(word) + "</del> <ins>" + esc(use) + "</ins>" + m[2] : "<del>" + esc(word + m[2]) + "</del>");
+      notes.push("<li><b>" + (use ? "Use “" + esc(rule[1]) + "”, not “" + esc(rule[0]) + "”." : "Delete “" + esc(rule[0]) + "” in instructions.") + "</b><span class=\"src\">Google: " + rule[2] + "</span></li>");
+      last = at + word.length + m[2].length;
+    }
+    out.innerHTML = html + esc(s.slice(last));
+    list.innerHTML = notes.length ? notes.join("") : "<li><b>No findings from these sample rules.</b><span class=\"src\">The plugin checks the whole guide in Flare.</span></li>";
+  }
+  inp.addEventListener("input", run);
+  if (ex) { ex.hidden = false; ex.addEventListener("click", function (e) { if (e.target.tagName === "BUTTON") { inp.value = e.target.textContent; run(); } }); }
+})();
+</script>
+</body>
+</html>

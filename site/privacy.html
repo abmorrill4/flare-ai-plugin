@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Style Privacy</title>
+<meta name="description" content="What the House Style plugin for MadCap Flare sends over the network, when, and to whom. No telemetry; keys stored with Windows DPAPI.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="m-ground" x="2" y="2" width="28" height="28"/><path class="m-lines" d="M8 11h16M8 16h11M8 21h7" stroke-width="2.4" fill="none"/><path class="m-tick" d="M19 22l2.5 2.5L26 19" stroke-width="2.6" fill="none" stroke-linecap="square"/></svg>
+      House Style
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html" aria-current="page">Privacy</a></li>
+        <li class="nav-extra"><a href="code-signing.html">Code signing</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub</a></li>
+        <li><a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <div class="wrap">
+  <div class="page-head">
+    <h1>Privacy</h1>
+    <p class="lead">House Style sends nothing unless you ask for an AI action. It has no telemetry, and nothing goes
+      to the authors.</p>
+  </div>
+  <div class="page-grid">
+    <nav class="toc" aria-label="On this page">
+      <strong>On this page</strong>
+      <ul>
+        <li><a href="#local">What stays on your computer</a></li>
+        <li><a href="#sent">What leaves your computer, and when</a></li>
+        <li><a href="#where">Where it goes</a></li>
+        <li><a href="#telemetry">No telemetry</a></li>
+        <li><a href="#key">How your key is stored</a></li>
+        <li><a href="#files">Files the plugin writes on your computer</a></li>
+        <li><a href="#source">Check it yourself</a></li>
+      </ul>
+    </nav>
+    <div class="page-body">
+
+    <figure class="diagram">
+<svg xmlns="http://www.w3.org/2000/svg" class="hsf" viewBox="0 0 360 548" width="360" height="548" role="img" aria-labelledby="data-flow-title data-flow-desc" style="width:100%;max-width:520px;height:auto;display:block">
+  <title id="data-flow-title">What stays on your computer and what is sent</title>
+  <desc id="data-flow-desc">Topics, the style guide, the linter, the encrypted API key and the diagnostic log all stay on the writer's computer. Only when the writer asks for an AI action, the paragraphs being checked and the relevant rules are sent to the Anthropic API or the company gateway. House Style sends no telemetry.</desc>
+  <style>
+    .hsf { --i: var(--text, #1b2326); --m: var(--text-muted, #4a5559); --b: var(--border, #d5dcde); --p: var(--surface, #ffffff); --z: var(--bg-alt, #f4f6f7); --a: var(--accent, #0b5e6b); --at: var(--accent-text, #ffffff); --nb: var(--note-bg, #fff7e6); --nl: var(--note-border, #b7791f); }
+    @media (prefers-color-scheme: dark) { .hsf { --i: var(--text, #e6ecee); --m: var(--text-muted, #b3c0c4); --b: var(--border, #33444a); --p: var(--surface, #1b262a); --z: var(--bg-alt, #172024); --a: var(--accent, #5fc4d2); --at: var(--accent-text, #0b1a1d); --nb: var(--note-bg, #2a2416); --nl: var(--note-border, #d9a441); } }
+    .hsf text { stroke: none; font-family: var(--font, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); fill: var(--i); }
+    .hsf .eb { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.06em; fill: var(--m); }
+    .hsf .nm { font-size: 13px; font-weight: 600; }
+    .hsf .sb { font-size: 11px; fill: var(--m); }
+    .hsf .al { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.04em; fill: var(--m); }
+    .hsf .zl { fill: var(--z); stroke: var(--b); stroke-width: 1; }
+    .hsf .zn { fill: var(--nb); stroke: var(--nl); stroke-width: 1; stroke-dasharray: 5 4; }
+    .hsf .nd { fill: var(--p); stroke: var(--i); stroke-width: 1; }
+    .hsf .nopt { fill: var(--p); stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .nf { fill: var(--a); stroke: var(--a); stroke-width: 1; }
+    .hsf .nf text { fill: var(--at); }
+    .hsf .bd { fill: none; stroke: var(--m); stroke-width: 1.25; }
+    .hsf .bn { fill: none; stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .bg { fill: var(--i); } .hsf .bgt { fill: var(--p); font-size: 10px; font-weight: 700; text-anchor: middle; }
+    .hsf .mk { fill: var(--p); }
+    .hsf .mkn { fill: var(--nb); }
+    .hsf .ar { fill: var(--m); } .hsf .arn { fill: var(--nl); }
+  </style>
+  <defs>
+    <marker id="data-flow-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="ar"/></marker>
+    <marker id="data-flow-ahn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="arn"/></marker>
+  </defs>
+
+  <!-- zones -->
+  <rect class="zl" x="12" y="12" width="336" height="252" rx="6"/>
+  <rect class="zn" x="12" y="264" width="336" height="200"/>
+  <text class="eb" x="24" y="30">STAYS ON YOUR COMPUTER</text>
+  <text class="eb" x="24" y="282">LEAVES YOUR COMPUTER</text>
+
+  <!-- arrows -->
+  <line class="bn" x1="280" y1="248" x2="280" y2="296" marker-end="url(#data-flow-ahn)"/>
+  <line class="bn" x1="100" y1="368" x2="100" y2="396" marker-end="url(#data-flow-ahn)"/>
+  <line class="bn" x1="260" y1="368" x2="260" y2="396" marker-end="url(#data-flow-ahn)"/>
+  <rect class="mkn" x="196" y="264" width="76" height="16"/>
+  <text class="al" x="200" y="276">ON REQUEST</text>
+
+  <!-- local -->
+  <rect class="nd" x="24" y="44" width="152" height="52" rx="6"/>
+  <text class="nm" x="36" y="64">Your topics</text>
+  <text class="sb" x="36" y="80">Flare project files</text>
+  <rect class="nd" x="184" y="44" width="152" height="52" rx="6"/>
+  <text class="nm" x="196" y="64">Style guides</text>
+  <text class="sb" x="196" y="80">Google + your team's</text>
+  <rect class="nd" x="24" y="120" width="152" height="52" rx="6"/>
+  <text class="nm" x="36" y="140">Your API key</text>
+  <text class="sb" x="36" y="156">Encrypted with DPAPI</text>
+  <rect class="nd" x="184" y="120" width="152" height="52" rx="6"/>
+  <text class="nm" x="196" y="140">Diagnostic log</text>
+  <text class="sb" x="196" y="156">Timings, no text or key</text>
+  <rect class="nd" x="24" y="196" width="312" height="52" rx="6"/>
+  <text class="nm" x="36" y="216">Linter and plugin</text>
+  <text class="sb" x="36" y="232">Style checks run here: free, instant</text>
+
+  <!-- sent -->
+  <rect class="nopt" x="24" y="296" width="312" height="72" rx="6"/>
+  <text class="nm" x="36" y="316">What is sent</text>
+  <text class="sb" x="36" y="332">The paragraphs being checked</text>
+  <text class="sb" x="36" y="346">+ the style rules that apply</text>
+  <text class="sb" x="36" y="360">(alt text: the image)</text>
+  <rect class="nd" x="24" y="396" width="152" height="52" rx="6"/>
+  <text class="nm" x="36" y="416">Anthropic API</text>
+  <text class="sb" x="36" y="432">Under your own key</text>
+  <rect class="nd" x="184" y="396" width="152" height="52" rx="6"/>
+  <text class="nm" x="196" y="416">Company gateway</text>
+  <text class="sb" x="196" y="432">The one you configured</text>
+
+  <!-- telemetry -->
+  <g class="nf">
+    <rect x="12" y="480" width="336" height="52" rx="6"/>
+    <text class="nm" x="24" y="500">No telemetry</text>
+    <text class="sb" x="24" y="516" style="fill:var(--at)">Nothing is sent to the authors</text>
+  </g>
+</svg>
+    </figure>
+
+    <h2 id="local">What stays on your computer</h2>
+    <p>These features run entirely inside the plugin and never send your text anywhere:</p>
+    <ul>
+      <li>Style checks against the Google guide and your team's rules</li>
+      <li>Check project</li>
+      <li>Accessibility and structure checks</li>
+      <li>Validate style guide (except the optional AI check of prose rules)</li>
+      <li>Export for LLMs</li>
+    </ul>
+
+    <h2 id="sent">What leaves your computer, and when</h2>
+    <p>Only when you ask for an AI action: AI review, Rewrite selection, Ask, Topic assists, Suggest alt text, or an
+      AI step in Build, Tune or Validate style guide. Each request carries:</p>
+    <ul>
+      <li>the text of the sections being checked,</li>
+      <li>for alt text, the image,</li>
+      <li>the style rules that apply to those sections.</li>
+    </ul>
+    <p>Nothing else is sent.</p>
+
+    <h2 id="where">Where it goes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Provider in Settings</th><th scope="col">Where requests go</th><th scope="col">Under which key</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Anthropic (default)</td><td>The Anthropic API</td><td>Your own Anthropic API key</td></tr>
+          <tr><td>Bifrost gateway</td><td>The gateway address you enter</td><td>The virtual key you were given</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>How the provider handles your data is set by your agreement with Anthropic, or by your company's gateway
+      policy.</p>
+
+    <h2 id="telemetry">No telemetry</h2>
+    <p>The plugin doesn't collect usage data, crash reports or analytics. Nothing is sent to the authors of House
+      Style.</p>
+
+    <h2 id="key">How your key is stored</h2>
+    <ul>
+      <li>Your key is encrypted with Windows DPAPI and saved in <code>%APPDATA%\FlareAI\settings.json</code>. Only
+        your Windows account can decrypt it.</li>
+      <li>The key is never written to a log.</li>
+    </ul>
+
+    <h2 id="files">Files the plugin writes on your computer</h2>
+    <ul>
+      <li><code>%APPDATA%\FlareAI\diag.log</code>: timings and errors, to help with bug reports. It contains no
+        document text and no key.</li>
+      <li>Review decisions, so a rejected suggestion stays hidden and the team can tune its rules. If your team sets
+        a shared feedback folder in Settings, your decisions are added to your own file there.</li>
+      <li>Saved AI reviews, so reopening a topic shows its suggestions without a new request.</li>
+    </ul>
+
+    <h2 id="source">Check it yourself</h2>
+    <p>House Style is open source. You can read every line that sends a request in the
+      <a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a>.</p>
+    </div>
+  </div>
+  </div>
+</main>
+
+<footer class="site-footer footer-short">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a class="button" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+      </div>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
+      </ul>
+    </div>
+    <div class="footer-legal">
+      <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate
+        by <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
+      <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
+        <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+    </div>
+  </div>
+  <div class="wordmark" aria-hidden="true">House Style</div>
+</footer>
+</body>
+</html>

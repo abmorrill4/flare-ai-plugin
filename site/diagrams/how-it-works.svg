@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="hsf" viewBox="0 0 360 536" width="360" height="536" role="img" aria-labelledby="how-it-works-title how-it-works-desc" style="width:100%;max-width:520px;height:auto;display:block">
+  <title id="how-it-works-title">How House Style works in Flare</title>
+  <desc id="how-it-works-desc">A writer opens a topic and House Style checks it on the computer against the Google guide and the team guide. Only if the writer asks, an AI review goes over the network to Anthropic or the company gateway. Proposals appear in a review pane, Accept writes a Flare tracked change, and a reviewer accepts or rejects it in Flare's Review tab.</desc>
+  <style>
+    .hsf { --i: var(--text, #1b2326); --m: var(--text-muted, #4a5559); --b: var(--border, #d5dcde); --p: var(--surface, #ffffff); --z: var(--bg-alt, #f4f6f7); --a: var(--accent, #0b5e6b); --at: var(--accent-text, #ffffff); --nb: var(--note-bg, #fff7e6); --nl: var(--note-border, #b7791f); }
+    @media (prefers-color-scheme: dark) { .hsf { --i: var(--text, #e6ecee); --m: var(--text-muted, #b3c0c4); --b: var(--border, #33444a); --p: var(--surface, #1b262a); --z: var(--bg-alt, #172024); --a: var(--accent, #5fc4d2); --at: var(--accent-text, #0b1a1d); --nb: var(--note-bg, #2a2416); --nl: var(--note-border, #d9a441); } }
+    .hsf text { stroke: none; font-family: var(--font, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); fill: var(--i); }
+    .hsf .eb { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.06em; fill: var(--m); }
+    .hsf .nm { font-size: 13px; font-weight: 600; }
+    .hsf .sb { font-size: 11px; fill: var(--m); }
+    .hsf .al { font-family: var(--mono, ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace); font-size: 10px; letter-spacing: 0.04em; fill: var(--m); }
+    .hsf .zl { fill: var(--z); stroke: var(--b); stroke-width: 1; }
+    .hsf .zn { fill: var(--nb); stroke: var(--nl); stroke-width: 1; stroke-dasharray: 5 4; }
+    .hsf .nd { fill: var(--p); stroke: var(--i); stroke-width: 1; }
+    .hsf .nopt { fill: var(--p); stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .nf { fill: var(--a); stroke: var(--a); stroke-width: 1; }
+    .hsf .nf text { fill: var(--at); }
+    .hsf .bd { fill: none; stroke: var(--m); stroke-width: 1.25; }
+    .hsf .bn { fill: none; stroke: var(--nl); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .hsf .bg { fill: var(--i); } .hsf .bgt { fill: var(--p); font-size: 10px; font-weight: 700; text-anchor: middle; }
+    .hsf .mk { fill: var(--p); }
+    .hsf .mkn { fill: var(--nb); }
+    .hsf .ar { fill: var(--m); } .hsf .arn { fill: var(--nl); }
+  </style>
+  <defs>
+    <marker id="how-it-works-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="ar"/></marker>
+    <marker id="how-it-works-ahn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" class="arn"/></marker>
+  </defs>
+
+  <!-- zones -->
+  <rect class="zl" x="12" y="12" width="336" height="176" rx="6"/>
+  <rect class="zn" x="12" y="188" width="336" height="108"/>
+  <rect class="zl" x="12" y="296" width="336" height="228" rx="6"/>
+  <text class="eb" x="24" y="30">ON YOUR COMPUTER</text>
+  <text class="eb" x="24" y="206">NETWORK</text>
+  <text class="eb" x="24" y="314">ON YOUR COMPUTER</text>
+
+  <!-- arrows (drawn before boxes) -->
+  <line class="bd" x1="150" y1="88" x2="150" y2="112" marker-end="url(#how-it-works-ah)"/>
+  <line class="bn" x1="150" y1="172" x2="150" y2="222" marker-end="url(#how-it-works-ahn)"/>
+  <line class="bn" x1="150" y1="282" x2="150" y2="328" marker-end="url(#how-it-works-ahn)"/>
+  <path class="bd" d="M268 142 H296 A8 8 0 0 1 304 150 V342 A8 8 0 0 1 296 350 H268" marker-end="url(#how-it-works-ah)"/>
+  <line class="bd" x1="150" y1="372" x2="150" y2="396" marker-end="url(#how-it-works-ah)"/>
+  <line class="bd" x1="150" y1="440" x2="150" y2="464" marker-end="url(#how-it-works-ah)"/>
+
+  <!-- arrow labels -->
+  <rect class="mkn" x="158" y="188" width="70" height="16"/>
+  <text class="al" x="162" y="200">ON REQUEST</text>
+  <rect class="mkn" x="158" y="287" width="64" height="16"/>
+  <text class="al" x="162" y="299">PROPOSALS</text>
+  <text class="al" x="312" y="250">NO AI</text>
+
+  <!-- 1 -->
+  <rect class="nd" x="32" y="44" width="236" height="44" rx="6"/>
+  <circle class="bg" cx="52" cy="66" r="9"/><text class="bgt" x="52" y="70">1</text>
+  <text class="nm" x="72" y="62">Writer opens a topic</text>
+  <text class="sb" x="72" y="78">in Flare Desktop</text>
+  <!-- 2 -->
+  <rect class="nd" x="32" y="112" width="236" height="60" rx="6"/>
+  <circle class="bg" cx="52" cy="142" r="9"/><text class="bgt" x="52" y="146">2</text>
+  <text class="nm" x="72" y="134">House Style checks it</text>
+  <text class="sb" x="72" y="150">Google guide + team guide</text>
+  <text class="sb" x="72" y="164">Local, free, instant</text>
+  <!-- 3 -->
+  <rect class="nopt" x="32" y="222" width="236" height="60" rx="6"/>
+  <circle class="bg" cx="52" cy="252" r="9"/><text class="bgt" x="52" y="256">3</text>
+  <text class="nm" x="72" y="244">Optional AI review</text>
+  <text class="sb" x="72" y="260">Your own Anthropic key, or</text>
+  <text class="sb" x="72" y="274">your company's gateway</text>
+  <!-- 4 -->
+  <rect class="nd" x="32" y="328" width="236" height="44" rx="6"/>
+  <circle class="bg" cx="52" cy="350" r="9"/><text class="bgt" x="52" y="354">4</text>
+  <text class="nm" x="72" y="346">Proposals in a review pane</text>
+  <text class="sb" x="72" y="362">You decide on each one</text>
+  <!-- 5 focal -->
+  <g class="nf">
+    <rect x="32" y="396" width="236" height="44" rx="6"/>
+    <circle cx="52" cy="418" r="9" style="fill:var(--at);stroke:none"/><text class="bgt" x="52" y="422" style="fill:var(--a)">5</text>
+    <text class="nm" x="72" y="414">Accept</text>
+    <text class="sb" x="72" y="430" style="fill:var(--at)">Writes a Flare tracked change</text>
+  </g>
+  <!-- 6 -->
+  <rect class="nd" x="32" y="464" width="236" height="44" rx="6"/>
+  <circle class="bg" cx="52" cy="486" r="9"/><text class="bgt" x="52" y="490">6</text>
+  <text class="nm" x="72" y="482">Reviewer signs off</text>
+  <text class="sb" x="72" y="498">Accept or reject in Review tab</text>
+</svg>
