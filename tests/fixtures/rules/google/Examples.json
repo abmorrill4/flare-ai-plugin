@@ -1,0 +1,107 @@
+[
+  {
+    "Id": "google:examples/18",
+    "Layer": "google",
+    "Page": "Examples",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Examples"
+    ],
+    "Avoid": [
+      "\\b(?!800[-‑.]555[-‑.]01\\d\\d\\b)\\d{3}[-‑.]\\d{3}[-‑.]\\d{4}\\b"
+    ],
+    "Use": "",
+    "Example": "Call 650-253-0000 for support.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Call 650-253-0000 for support.",
+        "Expect": {
+          "any": "code-inline, pre, kbd",
+          "clean": "ui-b, ui-span",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:examples/27",
+    "Layer": "google",
+    "Page": "Examples",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [
+      "Examples"
+    ],
+    "Avoid": [
+      "foo",
+      "baz"
+    ],
+    "Use": "",
+    "Example": "Create a project named foo.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Create a project named foo.",
+        "Expect": {
+          "any": "code-inline, pre, kbd",
+          "clean": "ui-b, ui-span",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "foo",
+        "Expect": {
+          "any": "code-inline, pre, kbd",
+          "clean": "ui-b, ui-span",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Foo",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "FOO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "baz",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Baz",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "BAZ",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

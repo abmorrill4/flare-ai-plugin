@@ -1,0 +1,240 @@
+[
+  {
+    "Id": "google:hyphens/15",
+    "Layer": "google",
+    "Page": "Hyphens",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Hyphens"
+    ],
+    "Avoid": [
+      "\\b(?:[A-Za-z]{2,}(?:ically|ally|ently|antly|ously|ively|ately|edly|licly)|[A-Za-z]*fully)-[a-z]+"
+    ],
+    "Use": "",
+    "Example": "Publicly-available implementations",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Publicly-available implementations",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:hyphens/19",
+    "Layer": "google",
+    "Page": "Hyphens",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "Hyphens"
+    ],
+    "Avoid": [
+      "web page",
+      "host name",
+      "trade-off",
+      "work-around"
+    ],
+    "Use": "webpage, hostname, tradeoff, workaround",
+    "Example": "Open the web page in a browser.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Open the web page in a browser.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "web page",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Web page",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "WEB PAGE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "host name",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Host name",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "HOST NAME",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "trade-off",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Trade-off",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "TRADE-OFF",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Webpage, hostname, tradeoff, workaround",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:hyphens/26",
+    "Layer": "google",
+    "Page": "Hyphens",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Hyphens"
+    ],
+    "Avoid": [
+      "\\b\\d+-(?:KB|MB|GB|TB|PB|Kbps|Mbps|Gbps|KiB|MiB|GiB|TiB|MHz|GHz)\\b"
+    ],
+    "Use": "",
+    "Example": "Attach a 200-GB disk to the instance.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Attach a 200-GB disk to the instance.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:hyphens/30",
+    "Layer": "google",
+    "Page": "Hyphens",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Hyphens"
+    ],
+    "Avoid": [
+      "(?<=\\d)(?:–|&ndash;)(?=\\d)"
+    ],
+    "Use": "-",
+    "Example": "Upload 8–20 files.",
+    "IgnoreCase": false,
+    "MarkupOnly": true,
+    "Bad": [],
+    "Good": []
+  },
+  {
+    "Id": "google:hyphens/33",
+    "Layer": "google",
+    "Page": "Hyphens",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Hyphens"
+    ],
+    "Avoid": [
+      "(?<=[a-z]) - (?=[a-z])"
+    ],
+    "Use": "",
+    "Example": "The app is fast - and secure.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The app is fast - and secure.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:hyphens/31",
+    "Layer": "google",
+    "Page": "Hyphens",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Hyphens"
+    ],
+    "Avoid": [
+      "\\b(?:[Ff]rom|[Bb]etween) \\d[\\d,.]*\\s?-\\s?\\d"
+    ],
+    "Use": "",
+    "Example": "Upload from 8-20 files.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Upload from 8-20 files.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

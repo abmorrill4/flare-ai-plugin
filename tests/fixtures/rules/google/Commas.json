@@ -1,0 +1,29 @@
+[
+  {
+    "Id": "google:commas/10",
+    "Layer": "google",
+    "Page": "Commas",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      ";\\s*(?:otherwise|however|therefore)(?=\\s)"
+    ],
+    "Use": "",
+    "Example": "The variable must have a value; otherwise the server returns an error.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The variable must have a value; otherwise the server returns an error.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

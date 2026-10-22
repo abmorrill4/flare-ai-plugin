@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Dev tool, never shipped: builds realistic Flare projects (import, scaffold, inject defects, contexts, check). -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>FlareAI.CorpusKit</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Deliberately independent of FlareAI.Core: contexts and labels must not share the engine's extractor. -->
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <EmbeddedResource Include="Inject\defects.default.yaml" LogicalName="defects.default.yaml" />
+    <InternalsVisibleTo Include="FlareAI.CorpusKit.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -15,7 +15,7 @@ namespace FlareAI.Core.Actions
     {
         private static readonly object Gate = new object();
 
-        /// <summary>The personal log; set by the host.</summary>
+        /// <summary>The personal log; set by the host (normally <see cref="Paths.Feedback"/>).</summary>
         public static string PersonalPath { get; set; }
 
         /// <summary>Records the decision. Returns the file that couldn't be written (logged), or null when every write worked.</summary>

@@ -1,0 +1,60 @@
+[
+  {
+    "Id": "google:dashes/3",
+    "Layer": "google",
+    "Page": "Dashes",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Dashes"
+    ],
+    "Avoid": [
+      "[ \\u00A0]\\u2014|\\u2014[ \\u00A0]"
+    ],
+    "Use": "",
+    "Example": "The update is complete — restart the app.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The update is complete — restart the app.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:dashes/4",
+    "Layer": "google",
+    "Page": "Dashes",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Dashes"
+    ],
+    "Avoid": [
+      "\\u2013"
+    ],
+    "Use": "",
+    "Example": "Choose a value from 1–10.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Choose a value from 1–10.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

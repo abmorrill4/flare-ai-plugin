@@ -1,0 +1,225 @@
+[
+  {
+    "Id": "google:numbers/2",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d+(?:st|nd|rd|th)\\b"
+    ],
+    "Use": "",
+    "Example": "Select the 1st option in the list.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Select the 1st option in the list.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:numbers/25",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "(?<=^|\\s)\\.\\d+\\b"
+    ],
+    "Use": "",
+    "Example": "Set the margin to .3 inches.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Set the margin to .3 inches.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:numbers/32",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d+(?:\\.\\d+)?\\s+%"
+    ],
+    "Use": "",
+    "Example": "Usage rose to 40 % this month.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Usage rose to 40 % this month.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:numbers/35",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\d\\s*(?:–|&ndash;)\\s*\\d"
+    ],
+    "Use": "",
+    "Example": "The project ran from 2012–2016.",
+    "IgnoreCase": false,
+    "MarkupOnly": true,
+    "Bad": [],
+    "Good": []
+  },
+  {
+    "Id": "google:numbers/42",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\$\\d{1,3}(?: \\d{3})+\\b"
+    ],
+    "Use": "",
+    "Example": "$10 000 in fees is out of reach for many developers.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "$10 000 in fees is out of reach for many developers.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:numbers/50",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d+(?: [xX×] ?| ?[xX×] |X|×)\\d+\\b"
+    ],
+    "Use": "",
+    "Example": "The icon must be 192 x 192 pixels.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The icon must be 192 x 192 pixels.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:numbers/33",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d+(?:\\.\\d+)?[ \\u00A0]?percent\\b"
+    ],
+    "Use": "",
+    "Example": "Only 40 percent of the files were copied.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Only 40 percent of the files were copied.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:numbers/43",
+    "Layer": "google",
+    "Page": "Numbers",
+    "Row": 3,
+    "Severity": "error",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\$\\d[\\d,]*\\.\\d+(?:[, ]\\d{3})+\\b"
+    ],
+    "Use": "",
+    "Example": "The price is $0.006,653 per vCPU hour.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The price is $0.006,653 per vCPU hour.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

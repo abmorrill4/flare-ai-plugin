@@ -1,0 +1,60 @@
+[
+  {
+    "Id": "google:contractions/6",
+    "Layer": "google",
+    "Page": "Contractions",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Apostrophes"
+    ],
+    "Avoid": [
+      "\\b[A-Za-z]+s['’]re\\b"
+    ],
+    "Use": "",
+    "Example": "The guides're available online.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The guides're available online.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:contractions/7",
+    "Layer": "google",
+    "Page": "Contractions",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Apostrophes"
+    ],
+    "Avoid": [
+      "\\b[A-Za-z]+(?:n['’]t|['’]d|['’]ll)['’]ve\\b"
+    ],
+    "Use": "",
+    "Example": "You mightn't've seen the warning.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "You mightn't've seen the warning.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

@@ -5,13 +5,13 @@ using FlareAI.Core.Settings;
 
 namespace FlareAI.Core
 {
-    /// <summary>Append-only log at %APPDATA%\FlareAI\diag.log. Never log secrets or full prompts by default.</summary>
+    /// <summary>Append-only log at %APPDATA%\FlareAI\diag.log (<see cref="Paths.DiagLog"/>). Never log secrets or full prompts by default.</summary>
     public static class Diagnostics
     {
         private static readonly object Gate = new object();
         public static bool Enabled = true;
 
-        public static string LogPath { get { return Path.Combine(PluginSettings.SettingsDirectory, "diag.log"); } }
+        public static string LogPath { get { return Paths.DiagLog; } }
 
         /// <summary>When set, receives every line instead of the log file (the stress harness counts them).</summary>
         public static Action<string> Sink;
@@ -25,7 +25,7 @@ namespace FlareAI.Core
             {
                 lock (Gate)
                 {
-                    Directory.CreateDirectory(PluginSettings.SettingsDirectory);
+                    Directory.CreateDirectory(Paths.Root);
                     File.AppendAllText(LogPath, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "  " + message + Environment.NewLine, Encoding.UTF8);
                 }
             }

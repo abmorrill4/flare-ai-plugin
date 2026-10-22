@@ -1,0 +1,137 @@
+[
+  {
+    "Id": "google:images/40",
+    "Layer": "google",
+    "Page": "Images",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Images"
+    ],
+    "Avoid": [
+      "the image above",
+      "the image below",
+      "the figure above",
+      "the figure below",
+      "the diagram above",
+      "the diagram below",
+      "the screenshot above",
+      "the screenshot below"
+    ],
+    "Use": "",
+    "Example": "As shown in the image above, the app has three services.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "As shown in the image above, the app has three services.",
+        "Expect": {
+          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, table-cell, note, caption"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "the image above",
+        "Expect": {
+          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, table-cell, note, caption"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "The image above",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THE IMAGE ABOVE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "the image below",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "The image below",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THE IMAGE BELOW",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "the figure above",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "The figure above",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THE FIGURE ABOVE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:images/41",
+    "Layer": "google",
+    "Page": "Images",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "Images"
+    ],
+    "Avoid": [
+      "(?<=\\b[a-z]+,? )Figure(?= \\d)"
+    ],
+    "Use": "figure",
+    "Example": "The services are as shown in Figure 1.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The services are as shown in Figure 1.",
+        "Expect": {
+          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, table-cell, note, caption"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Figure",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  }
+]

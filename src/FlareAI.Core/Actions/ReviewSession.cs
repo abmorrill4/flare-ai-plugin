@@ -1,0 +1,639 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Xml;
+using FlareAI.Core.Editing;
+using FlareAI.Core.Style;
+
+namespace FlareAI.Core.Actions
+{
+    /// <summary>What <see cref="ReviewSession.Accept"/> did, so the view can run the flows that need its own dialogs.</summary>
+    public enum AcceptOutcome
+    {
+        /// <summary>Nothing selected, or it is already applied.</summary>
+        None,
+        /// <summary>The text changed since the check; the status says to check the paragraph again.</summary>
+        Stale,
+        /// <summary>A variable or manual fix: the text is selected in the editor and the status says what to do.</summary>
+        WentTo,
+        /// <summary>Needs a rewrite of the paragraph: the view runs the rewrite (see <see cref="ReviewSession.RewriteTarget"/>).</summary>
+        Rewrite,
+        /// <summary>An image without alt text: the view runs the alt-text flow (see <see cref="ReviewSession.AltTextApplied"/>).</summary>
+        AltText,
+        /// <summary>The author said no to changing a shared snippet.</summary>
+        Declined,
+        /// <summary>Written as a tracked change; the next suggestion is selected.</summary>
+        Applied,
+        /// <summary>Tried, but nothing was written (the status says why).</summary>
+        NotApplied
+    }
+
+    /// <summary>
+    /// The review pane's decisions, without the pane: the list of suggestions in reading order, which one is selected, and
+    /// what Apply, Apply all fixes, Write all as tracked changes, Reject, Skip, Edit, Turn off this rule and Go to do to the
+    /// topic, its snippets, the feedback log and the style guide. The Flare pane renders it and forwards clicks; tests drive
+    /// it directly. No WinForms or Flare types.
+    /// </summary>
+    public sealed class ReviewSession
+    {
+        private readonly ActionRunner _runner;
+        private readonly IDocumentAdapter _doc;
+        private readonly IReviewHost _host;
+        private readonly Dismissals _dismissed;
+        private readonly bool _project;
+        private readonly List<StyleFinding> _findings = new List<StyleFinding>();
+        private readonly Dictionary<string, int> _usage = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private HashSet<string> _ignoredAi;
+        private string _status;
+
+        /// <param name="topic">The checked topic (in a project report: the topic that was active).</param>
+        /// <param name="dismissed">Where rejected suggestions are remembered.</param>
+        /// <param name="projectReport">True for a project-wide check: findings are grouped by file, and files opened for a batch are saved and closed.</param>
+        public ReviewSession(ActionRunner runner, IDocumentAdapter topic, IReviewHost host, Dismissals dismissed, bool projectReport)
+        {
+            _runner = runner; _doc = topic; _host = host; _dismissed = dismissed; _project = projectReport;
+        }
+
+        // ---- seams (defaults are the real stores; tests replace them) ---------------------------
+
+        /// <summary>The team context in effect.</summary>
+        public Func<Team> CurrentTeam { get; set; } = () => Team.Current;
+        /// <summary>Records a decision (finding, topic path, decision, reason); returns the file it couldn't write, or null.</summary>
+        public Func<StyleFinding, string, string, string, string> RecordFeedback { get; set; } = FeedbackLog.Record;
+        /// <summary>Sets a rule in the team's (or the writer's own) guide; returns the file written.</summary>
+        public Func<Team, string, string, string, string> SetGuideRule { get; set; } = GuideOverrides.Set;
+        /// <summary>Sets a rule for the project of a path (path, finding, setting, reason, by).</summary>
+        public Action<string, StyleFinding, string, string, string> SetProjectRule { get; set; } = ProjectRules.Ignore;
+        /// <summary>The project overrides file for a path, or null.</summary>
+        public Func<string, string> ProjectOverridesPath { get; set; } = ProjectRules.OverridesPath;
+        /// <summary>The AI rule names a project ignores.</summary>
+        public Func<string, HashSet<string>> IgnoredAiRules { get; set; } = ProjectRules.IgnoredAiRules;
+        /// <summary>Why a file can't be written, or null.</summary>
+        public Func<string, string> WhyNotWritable { get; set; } = BatchPlan.WhyNotWritable;
+        /// <summary>How many topics use a snippet.</summary>
+        public Func<string, int> SnippetUsage { get; set; } = ActionRunner.SnippetUsage;
+
+        // ---- state the view reads ---------------------------------------------------------------
+
+        /// <summary>The suggestions, in reading order (by file in a project report).</summary>
+        public ReadOnlyCollection<StyleFinding> Findings { get { return _findings.AsReadOnly(); } }
+
+        public IDocumentAdapter Topic { get { return _doc; } }
+        public bool IsProjectReport { get { return _project; } }
+
+        /// <summary>The selected suggestion, or null. The view keeps it in step with its list.</summary>
+        public StyleFinding Current { get; set; }
+
+        /// <summary>The last status line the session wrote.</summary>
+        public string Status
+        {
+            get { return _status; }
+            private set { _status = value; var h = StatusChanged; if (h != null) h(value); }
+        }
+
+        /// <summary>The list changed (added, applied, removed, re-sorted): redraw it, keeping <see cref="Current"/> selected.</summary>
+        public event Action ListChanged;
+        /// <summary>The session moved the selection (null clears it).</summary>
+        public event Action<StyleFinding> SelectRequested;
+        public event Action<string> StatusChanged;
+        /// <summary>A batch finished: the per-file outcome, for the pane to show when it has more to say than the status line.</summary>
+        public event Action<BatchResult> BatchReported;
+
+        // ---- the list ---------------------------------------------------------------------------
+
+        /// <summary>Forgets every suggestion (a new check starts).</summary>
+        public void Clear()
+        {
+            _findings.Clear();
+            Current = null;
+        }
+
+        /// <summary>Adds suggestions, leaving out rejected ones and AI rules the project ignores, and labels them by guide section.</summary>
+        public void Add(IEnumerable<StyleFinding> found)
+        {
+            var ignoredAi = IgnoredAi();
+            foreach (var f in found)
+            {
+                if (_dismissed != null && _dismissed.IsDismissed(f, _doc.SourcePath)) continue;
+                if (f.Layer == "ai" && ignoredAi.Contains(f.Rule ?? "")) continue;
+                if (f.Layer != "ai" && f.RuleSection == null)
+                {
+                    var rule = _runner.RuleFor(f.RuleId);   // company/project table rules: label by guide section
+                    if (rule != null) f.RuleSection = rule.Section;
+                }
+                if (f.RuleText == null && f.RuleId != null)
+                {
+                    var cited = _runner.RuleFor(f.RuleId);   // its wording now: feedback records a fingerprint of it
+                    if (cited != null) f.RuleText = cited.Text;
+                }
+                _findings.Add(f);
+            }
+            Sort();
+        }
+
+        /// <summary>
+        /// Live check: replaces the topic's style-rule and structure findings with fresh ones (the author typed); AI findings
+        /// stay, and any whose text changed show as stale. Not in a project report.
+        /// </summary>
+        public void RefreshLint(List<StyleFinding> lint)
+        {
+            if (_project) return;
+            _findings.RemoveAll(f => f.Source != "ai" && f.DocumentPath == null && !f.IsFixed);
+            Add(lint);
+        }
+
+        /// <summary>Re-sorts into reading order (which also marks suggestions whose text is gone as stale) and tells the view.</summary>
+        public void Sort()
+        {
+            if (!_project) ReviewOrder.Annotate(_doc.Document, _findings);
+            _findings.Sort((a, b) => _project
+                ? string.Compare(a.DocumentPath, b.DocumentPath, StringComparison.OrdinalIgnoreCase)
+                : a.Order.CompareTo(b.Order));
+            var h = ListChanged;
+            if (h != null) h();
+        }
+
+        /// <summary>Suggestions not yet applied whose text is still there.</summary>
+        public List<StyleFinding> Open() { return _findings.FindAll(f => !f.IsFixed && !f.IsStale); }
+
+        /// <summary>Open proposals in the topic itself (not in snippets), for the editor markers.</summary>
+        public List<StyleFinding> OpenTopicFindings() { return _findings.FindAll(f => !f.IsFixed && !f.IsStale && f.DocumentPath == null); }
+
+        /// <summary>What "Apply all fixes" would apply: exact rule fixes in the topic (in a project report: everywhere).</summary>
+        public List<StyleFinding> FixAllCandidates()
+        {
+            return _findings.FindAll(f => f.CanFix && f.Kind == "mechanical" && (f.DocumentPath == null || _project));
+        }
+
+        /// <summary>What "Write all as tracked changes" would write: every exact suggestion in the topic.</summary>
+        public List<StyleFinding> WriteAllCandidates()
+        {
+            return _findings.FindAll(f => f.CanFix && (f.Kind == "mechanical" || f.Kind == "wording") && f.DocumentPath == null);
+        }
+
+        /// <summary>"5 suggestions in 2 sections: 2 Fix · 2 Reword · 1 Needs you."</summary>
+        public string Summary()
+        {
+            var open = Open();
+            if (open.Count == 0) return "No open suggestions.";
+            int fixes = 0, rewords = 0, needsYou = 0;
+            var sections = new HashSet<string>();
+            foreach (var f in open)
+            {
+                sections.Add(f.Section ?? "");
+                if (f.Kind == "mechanical") fixes++; else if (f.Kind == "manual" || f.Kind == "variable") needsYou++; else rewords++;
+            }
+            return Plural.Of(open.Count, "suggestion") + (sections.Count > 1 ? " in " + sections.Count + " sections" : "") + ": "
+                   + fixes + " Fix · " + rewords + " Reword" + (needsYou > 0 ? " · " + needsYou + " Needs you" : "") + ".";
+        }
+
+        /// <summary>How many topics use a snippet (asked once per path).</summary>
+        public int SnippetUses(string path)
+        {
+            int uses;
+            if (!_usage.TryGetValue(path, out uses)) _usage[path] = uses = SnippetUsage(path);
+            return uses;
+        }
+
+        /// <summary>The use count if it is already known (the list's group headings don't scan the project).</summary>
+        public bool KnownSnippetUses(string path, out int uses) { return _usage.TryGetValue(path, out uses); }
+
+        /// <summary>Counts snippet uses ahead of time, off the UI thread, for the findings that live in snippets.</summary>
+        public void PrimeSnippetUses(IEnumerable<StyleFinding> found)
+        {
+            foreach (var f in found)
+                if (f.DocumentPath != null && !_usage.ContainsKey(f.DocumentPath)) _usage[f.DocumentPath] = SnippetUsage(f.DocumentPath);
+        }
+
+        // ---- selection --------------------------------------------------------------------------
+
+        /// <summary>The author selected a row: a suggestion in the topic is selected in the editor too (quietly).</summary>
+        public void OnSelected(StyleFinding f)
+        {
+            Current = f;
+            if (f != null && f.DocumentPath == null) GoTo(f, false);
+        }
+
+        /// <summary>Selects a suggestion (null clears the selection).</summary>
+        public void Select(StyleFinding f)
+        {
+            Current = f != null && _findings.Contains(f) ? f : null;
+            var h = SelectRequested;
+            if (h != null) h(f);
+        }
+
+        /// <summary>Selects the next open proposal after the current one (wrapping), or clears the selection. Also "Skip for now".</summary>
+        public void Next() { Select(NextAfter(Current)); }
+
+        public StyleFinding NextAfter(StyleFinding cur)
+        {
+            var open = Open();
+            if (open.Count == 0) return null;
+            var start = cur == null ? -1 : _findings.IndexOf(cur);
+            for (var i = 1; i <= _findings.Count; i++)
+            {
+                var f = _findings[(start + i + _findings.Count) % _findings.Count];
+                if (f != cur && !f.IsFixed && !f.IsStale) return f;
+            }
+            return null;
+        }
+
+        /// <summary>Go to button and Ctrl+Enter: open the topic or snippet and select the flagged text.</summary>
+        public void GoToCurrent()
+        {
+            var f = Current;
+            if (f != null) GoTo(f, true);
+        }
+
+        /// <summary>Selects the finding's text in its document; <paramref name="report"/> opens a snippet and says when the text is gone.</summary>
+        public void GoTo(StyleFinding f, bool report)
+        {
+            if (f.IsFixed) return;
+            var doc = DocOf(f, report);
+            if (doc == null) { if (report) Status = "Could not open " + f.DocumentPath; return; }
+            var ok = false;
+            try { ok = _runner.GoTo(doc, f); } catch (Exception ex) { Diagnostics.Log("GoTo", ex); }
+            if (!ok && report) Status = "That text is no longer in the topic (it was edited). Check this paragraph again.";
+        }
+
+        // ---- decisions --------------------------------------------------------------------------
+
+        /// <summary>Apply (Enter, double-click): writes the selected suggestion, or says what the author must do instead.</summary>
+        public AcceptOutcome Accept()
+        {
+            var f = Current;
+            if (f == null || f.IsFixed) return AcceptOutcome.None;
+            if (f.IsStale) { Status = "Text changed: check this paragraph again."; return AcceptOutcome.Stale; }
+            if (f.Kind == "variable")
+            {
+                GoTo(f, true);
+                Status = "The text is selected: use Insert ▸ Variable ▸ " + f.Variable + " (Flare replaces the selection).";
+                return AcceptOutcome.WentTo;
+            }
+            if (f.Kind == "restructure") return AcceptOutcome.Rewrite;
+            if (f.Rule == "Structure.AltText" && f.DocumentPath == null) return AcceptOutcome.AltText;
+            if (f.Kind == "manual")
+            {
+                GoTo(f, true);
+                Status = "Fix it in the editor (" + f.Suggestion + "), then check this paragraph again.";
+                return AcceptOutcome.WentTo;
+            }
+            if (!ConfirmSnippet(f)) return AcceptOutcome.Declined;
+            if (Apply(new List<StyleFinding> { f }, "House Style: " + f.Rule) > 0)
+            {
+                RecordFeedback(f, _doc.SourcePath, "accepted", null);
+                Next();
+                return AcceptOutcome.Applied;
+            }
+            return AcceptOutcome.NotApplied;
+        }
+
+        /// <summary>One question before a snippet changes: it is shared, so every topic that includes it changes too.</summary>
+        public bool ConfirmSnippet(StyleFinding f)
+        {
+            if (f.DocumentPath == null || !f.DocumentPath.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)) return true;
+            return _host.Confirm(BatchPlan.SnippetQuestion(f.DocumentPath, SnippetUses(f.DocumentPath)) + "\n\nThe change is tracked.", null);
+        }
+
+        /// <summary>Apply all fixes: exact rule fixes as tracked changes; a batch that reaches another file is previewed first.</summary>
+        public void FixAll()
+        {
+            var todo = FixAllCandidates();
+            if (todo.Count == 0) return;
+            // One policy for every batch: anything that reaches a file other than the open topic is previewed first;
+            // a batch only in the open topic writes directly (one Ctrl+Z).
+            var plan = BatchPlan.Build(todo, _doc.SourcePath, WhyNotWritable, SnippetUsage);
+            if ((plan.NeedsPreview || plan.Skipped.Count > 0) && plan.Groups.Count > 0)
+            {
+                if (!_host.PreviewBatch(plan)) return;
+            }
+            var chosen = plan.SelectedFindings;
+            if (chosen.Count == 0 && plan.Skipped.Count == 0) return;
+            ApplyBatch(chosen, chosen.Count == 1 ? "House Style: " + chosen[0].Rule : "House Style: " + chosen.Count + " style fixes", plan);
+            foreach (var f in chosen) if (f.IsFixed) RecordFeedback(f, _doc.SourcePath, "accepted", null);
+            var inSnippets = _findings.FindAll(f => f.CanFix && f.DocumentPath != null && !_project).Count;
+            if (inSnippets > 0) Status = Status + "  " + inSnippets + " more in snippets: select one to apply it there.";
+            Next();
+        }
+
+        /// <summary>Bulk mode: every exact suggestion in the topic becomes a tracked change, for review in Flare's own tools.</summary>
+        public void WriteAll()
+        {
+            var todo = WriteAllCandidates();
+            if (todo.Count == 0) return;
+            if (!_host.Confirm("Write " + Plural.Of(todo.Count, "suggestion") + " into the topic as tracked changes?\n\nReview them in Flare's Review tab (Accept / Reject change), " +
+                    "or send the topic out in a review package. One Ctrl+Z removes them all.", "Write all as tracked changes")) return;
+            var n = Apply(todo, "House Style: " + Plural.Of(todo.Count, "suggestion"));
+            foreach (var f in todo) if (f.IsFixed) RecordFeedback(f, _doc.SourcePath, "proposed", "bulk");
+            Status = Summary() + "  Wrote " + Plural.Of(n, "tracked change") + " — review them in the Review tab. Suggestions that need a rewrite or your attention are still listed.";
+            Next();
+        }
+
+        /// <summary>Applies exact replacements as tracked changes; returns how many were applied.</summary>
+        public int Apply(List<StyleFinding> todo, string operation)
+        {
+            return ApplyBatch(todo, operation, null).FixesApplied;
+        }
+
+        /// <summary>
+        /// Applies exact replacements as tracked changes, one undo step per document, and reports what happened to each
+        /// file. Files that can't be written (read-only, missing) are skipped, not attempted. Snippet fixes open the
+        /// snippet (that is where they must be tracked), then the topic is brought back to the front. In a project report,
+        /// a file the plugin opened just for this is saved and closed.
+        /// </summary>
+        public BatchResult ApplyBatch(List<StyleFinding> todo, string operation, BatchPlan plan)
+        {
+            var result = new BatchResult();
+            if (plan != null) foreach (var sk in plan.Skipped) result.AddSkipped(sk.Path, sk.Fixes, sk.Reason);
+            try
+            {
+                foreach (var group in GroupByDocument(todo))
+                {
+                    var path = group[0].DocumentPath ?? _doc.SourcePath;
+                    var elsewhere = group[0].DocumentPath != null && !string.Equals(path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase);
+                    if (elsewhere)
+                    {
+                        var why = WhyNotWritable(path);
+                        if (why != null) { result.AddSkipped(path, group.Count, why); continue; }
+                    }
+                    try
+                    {
+                        var doc = DocOf(group[0], true);
+                        if (doc == null) { Diagnostics.Log("Apply: could not open " + path); result.AddFailed(path, group.Count, "could not open it in Flare"); continue; }
+                        var n = _runner.ApplyFixes(doc, group, operation);
+                        var saved = false;
+                        // Project-wide: a file opened just for this is saved and closed (one tab per file crashes Flare at ~100).
+                        if (_project && doc != _doc)
+                        {
+                            try { saved = _host.SaveAndClose(doc); }
+                            catch (Exception ex) { Diagnostics.Log("Apply: save/close " + doc.SourcePath, ex); }
+                        }
+                        if (n > 0) result.AddChanged(path, n, saved);
+                        if (n < group.Count) result.AddSkipped(path, group.Count - n, "text changed");
+                    }
+                    catch (Exception ex)
+                    {
+                        Diagnostics.Log("Apply " + path, ex);
+                        result.AddFailed(path, group.Count, ex.Message);
+                    }
+                }
+                if (!_project && todo.Exists(f => f.DocumentPath != null)) _host.OpenDocument(_doc.SourcePath); // back to the topic
+                Sort();
+                var status = Summary() + "  " + result.Status();
+                if (!_project && result.Changed.Exists(e => !string.Equals(e.Path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase)))
+                    status += " The snippet stays open in its own tab, unsaved.";
+                Status = status;
+                var h = BatchReported;
+                if (h != null) h(result);
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Apply", ex);
+                Status = "Could not apply: " + ex.Message;
+            }
+            return result;
+        }
+
+        /// <summary>Reject with a reason: hidden for this text from now on, recorded for tuning, and the next one is selected.</summary>
+        public void Reject(string reason)
+        {
+            var f = Current;
+            if (f == null) return;
+            if (_dismissed != null) _dismissed.Dismiss(f, _doc.SourcePath);
+            RecordFeedback(f, _doc.SourcePath, "rejected", reason);
+            var next = NextAfter(f);
+            _findings.Remove(f);
+            Sort();
+            Select(next);
+            Status = Summary() + "  Rejected (" + reason + "); it stays hidden for this text.";
+        }
+
+        /// <summary>Skip for now: the next suggestion, nothing recorded.</summary>
+        public void Skip() { Next(); }
+
+        /// <summary>Edit…: the author changes the suggested text, then it is applied as a tracked change.</summary>
+        public void Edit()
+        {
+            var f = Current;
+            if (f == null || f.IsFixed || f.IsStale) return;
+            var text = _host.AskText("Edit suggestion", "Replace \"" + Shorten(f.Excerpt, 80) + "\" with:", f.Replacement ?? f.Excerpt, false);
+            if (text == null || text == f.Excerpt) return;
+            var edited = Clone(f);
+            edited.Replacement = text;
+            if (!ConfirmSnippet(f)) return;
+            if (Apply(new List<StyleFinding> { edited }, "House Style: " + f.Rule + " (edited)") > 0)
+            {
+                f.IsFixed = true;
+                RecordFeedback(edited, _doc.SourcePath, "edited", f.Replacement);
+                Sort();
+                Next();
+            }
+        }
+
+        /// <summary>Refine… came back: "keep it" rejects the suggestion as fine here; anything else replaces it.</summary>
+        public void Refined(StyleFinding f, StyleFinding refined, string instruction)
+        {
+            RecordFeedback(f, _doc.SourcePath, "refined", instruction);
+            if (refined.Replacement != null && refined.Replacement == f.Excerpt)
+            {
+                // The author's instruction amounts to "keep it": nothing to apply.
+                Select(f);
+                Reject("fine here (refined: " + refined.Suggestion + ")");
+                return;
+            }
+            _findings[_findings.IndexOf(f)] = refined;
+            Sort();
+            Select(refined);
+            Status = Summary() + "  Refined. Apply, edit, or refine again.";
+        }
+
+        /// <summary>The paragraph "Check this paragraph again" would check, or null (the status says why).</summary>
+        public XmlNode ReanalyzeTarget(StyleFinding f)
+        {
+            if (f == null || f.DocumentPath != null) { Status = "Check this paragraph again works on the topic's paragraphs."; return null; }
+            var block = _runner.LocateBlock(_doc, f) ?? f.Block;
+            if (block == null || block.ParentNode == null) { Status = "That paragraph is gone. Use Check again for the topic."; return null; }
+            return block;
+        }
+
+        /// <summary>The paragraph was checked again: its open suggestions (and stale ones from it) give way to the fresh ones.</summary>
+        public void Reanalyzed(StyleFinding f, XmlNode block, List<StyleFinding> fresh)
+        {
+            _findings.RemoveAll(x => !x.IsFixed && x.DocumentPath == null && (x.Block == block || (x.IsStale && x.Block == f.Block)));
+            Add(fresh);
+            Select(fresh.Count > 0 ? fresh[0] : null);
+            Status = Summary() + "  Paragraph checked again: " + Plural.Of(fresh.Count, "suggestion") + ".";
+        }
+
+        /// <summary>The paragraph a Rewrite… of <paramref name="f"/> changes, and every open suggestion in it; null when it can't (the status says why).</summary>
+        public XmlNode RewriteTarget(StyleFinding f, out List<StyleFinding> related)
+        {
+            related = null;
+            if (f.DocumentPath != null) { Status = "Open the snippet and use Rewrite selection there."; return null; }
+            var block = _runner.LocateBlock(_doc, f);
+            if (block == null) { Status = "That text is no longer in the topic. Check this paragraph again, or use Check again."; return null; }
+            related = _findings.FindAll(x => !x.IsFixed && x.DocumentPath == null && _runner.LocateBlock(_doc, x) == block);
+            return block;
+        }
+
+        /// <summary>The rewrite was applied: the suggestions it resolved are done.</summary>
+        public void Rewritten(List<StyleFinding> related, string appliedSummary)
+        {
+            foreach (var x in related) { x.IsFixed = true; RecordFeedback(x, _doc.SourcePath, "accepted", "rewrite"); }
+            Sort();
+            Status = Summary() + "  " + appliedSummary;
+            Next();
+        }
+
+        /// <summary>The author's alt text was written: the suggestion is done (edited when it differs from the AI's).</summary>
+        public void AltTextApplied(StyleFinding f, string suggestion, string alt)
+        {
+            f.IsFixed = true;
+            RecordFeedback(f, _doc.SourcePath, suggestion != null && alt == suggestion ? "accepted" : "edited", alt);
+            Sort();
+            Status = Summary() + "  Alt text added as a tracked change.";
+            Next();
+        }
+
+        /// <summary>
+        /// Turn off this rule…: a writer on a team with owners asks the owner; an owner (or a writer without a team) turns
+        /// the rule off or changes its level for the guide or this project, optionally with the other rules on the same words.
+        /// </summary>
+        public void TurnOffRule()
+        {
+            var f = Current;
+            if (f == null) { Status = "Select a suggestion whose rule you want to change."; return; }
+            var team = CurrentTeam();
+            if (team != null && !team.IsOwner)
+            {
+                // Strict ownership: writers suggest, the style-guide owner decides (Tune style guide shows the requests).
+                var why = _host.AskText("Suggest changing this rule", "Ask the style guide owner (" + string.Join(", ", new List<string>(team.Owners).ToArray()) + ") to change or turn off \"" + f.Rule + "\". Why?", "", true);
+                if (why == null) return;
+                var unsent = RecordFeedback(f, _doc.SourcePath, "propose-ignore", why.Trim());
+                if (unsent != null)
+                {
+                    _host.ShowError("House Style couldn't send your request: it couldn't write to " + unsent + ".",
+                                    "Check that the team feedback folder (Settings) is available, then try again.", null, "Suggest changing this rule");
+                    return;
+                }
+                Status = Summary() + "  Sent to the style guide owner" + (team.FeedbackFolder == null ? " (set a team feedback folder in Settings so they receive it)." : ".");
+                return;
+            }
+            // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
+            var rule = _runner.RuleFor(f.RuleId);
+            var guide = team != null ? team.GuideRoot : null;
+            var personal = team != null && team.IsPersonal;
+            var described = rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
+            var others = rule != null ? f.AlsoRules : null;   // other rules on the same words: turning off this one would expose them
+            if (others != null)
+            {
+                var readable = new List<RuleRef>();   // the rule's text, not its id
+                foreach (var o in others)
+                {
+                    var r = _runner.RuleFor(o.Id);
+                    readable.Add(new RuleRef { Id = o.Id, Layer = o.Layer, Name = r != null ? SourceName(r.Layer) + " · " + r.Section + ": " + r.Text : o.Name });
+                }
+                others = readable;
+            }
+            var choice = _host.ChooseRuleSetting(described, rule != null && guide != null, personal, others);
+            if (choice == null) return;
+            var path = f.DocumentPath ?? _doc.SourcePath;
+            var target = choice.ForTeam ? guide : ProjectOverridesPath(path);
+            var changed = new List<string>();
+            var all = new List<StyleFinding> { f };
+            if (choice.AlsoOthers && others != null) foreach (var o in others) all.Add(new StyleFinding { RuleId = o.Id, Rule = o.Name, Layer = o.Layer, Source = "lint" });
+            foreach (var one in all)
+            {
+                try
+                {
+                    // Owners only; records who and when; the writer's own guide is created on first use (never the plugin folder).
+                    if (choice.ForTeam) target = SetGuideRule(team, one.RuleId, choice.Setting, choice.Reason);
+                    else SetProjectRule(path, one, choice.Setting, choice.Reason, team != null ? team.Writer : null);
+                    changed.Add(one.RuleId);
+                }
+                catch (Exception ex)
+                {
+                    Diagnostics.Log("Change rule", ex);
+                    _host.ShowError("House Style couldn't change " + (one == f ? "the rule" : "\"" + one.Rule + "\"") + (target == null ? "." : " in " + target + "."),
+                                    ex.Message + Environment.NewLine + Environment.NewLine + (one == f ? "Nothing was changed: the rule still applies." : "This rule and any after it were not changed: they still apply."), ex, "Turn off this rule");
+                    if (one == f) { Status = Summary() + "  The rule was not changed."; return; }
+                    break;
+                }
+            }
+            RecordFeedback(f, _doc.SourcePath, choice.Setting == "off" ? "rule ignored" : "rule changed", choice.Reason);
+            if (choice.Setting == "off")
+            {
+                if (f.Layer == "ai" && f.RuleId == null) IgnoredAi().Add(f.Rule);
+                _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId || changed.Contains(x.RuleId) : x.Rule == f.Rule);
+                Sort();
+            }
+            Status = Summary() + "  Rule" + (changed.Count > 1 ? "s" : "") + " set to " + choice.Setting +
+                     (!choice.ForTeam ? " for this project (in " + target + ")."
+                      : personal ? " in your style guide (" + target + ")."
+                      : " for the team (in " + target + "; commit it so everyone gets it).") +
+                     (changed.Count < all.Count ? " " + (all.Count - changed.Count) + " could not be changed." : "");
+        }
+
+        // ---- helpers ----------------------------------------------------------------------------
+
+        /// <summary>Where a rule comes from, in the writer's words: Google, Our rules, This project, AI.</summary>
+        public static string SourceName(string layer)
+        {
+            switch ((layer ?? "").ToLowerInvariant())
+            {
+                case "google": return "Google";
+                case "company": return "Our rules";
+                case "project": return "This project";
+                case "ai": return "AI";
+                default: return Cap(layer ?? "");
+            }
+        }
+
+        private static string Cap(string s) { return s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s.Substring(1); }
+
+        /// <summary>Cuts <paramref name="s"/> to <paramref name="n"/> characters with an ellipsis.</summary>
+        public static string Shorten(string s, int n) { s = s ?? ""; return s.Length <= n ? s : s.Substring(0, n - 1) + "…"; }
+
+        private HashSet<string> IgnoredAi()
+        {
+            if (_ignoredAi == null) _ignoredAi = IgnoredAiRules(_doc.SourcePath);
+            return _ignoredAi;
+        }
+
+        /// <summary>The document a finding lives in: the topic, or its snippet (opened in the editor on demand).</summary>
+        private IDocumentAdapter DocOf(StyleFinding f, bool open)
+        {
+            var path = f.DocumentPath ?? _doc.SourcePath;
+            if (open && path != null)
+            {
+                var opened = _host.OpenDocument(path);
+                if (opened != null && f.DocumentPath == null) return _doc; // keep the adapter whose DOM the findings came from
+                if (opened != null) return opened;
+            }
+            return f.DocumentPath == null ? _doc : null;
+        }
+
+        private static List<List<StyleFinding>> GroupByDocument(List<StyleFinding> findings)
+        {
+            var groups = new List<List<StyleFinding>>();
+            foreach (var f in findings)
+            {
+                var g = groups.Find(x => x[0].DocumentPath == f.DocumentPath);
+                if (g == null) groups.Add(g = new List<StyleFinding>());
+                g.Add(f);
+            }
+            groups.Sort((a, b) => (a[0].DocumentPath == null ? 0 : 1).CompareTo(b[0].DocumentPath == null ? 0 : 1));
+            return groups;
+        }
+
+        private static StyleFinding Clone(StyleFinding f)
+        {
+            return new StyleFinding
+            {
+                Source = f.Source, Rule = f.Rule, Severity = f.Severity, Excerpt = f.Excerpt, Suggestion = f.Suggestion, Replacement = f.Replacement,
+                Before = f.Before, Block = f.Block, Layer = f.Layer, Link = f.Link, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, RuleText = f.RuleText, AlsoRules = f.AlsoRules,
+                DocumentPath = f.DocumentPath, Variable = f.Variable, Section = f.Section, Order = f.Order
+            };
+        }
+    }
+}

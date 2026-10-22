@@ -1,0 +1,62 @@
+# Where each lint rule should fire, as a table keyed by the rule's Content tags. This is the oracle of the rule
+# fixtures: it is NOT derived from engine code, so a linter that ignores context fails the cases it should fail
+# (#53). Edit this file, then regenerate (tools/FlareAI.FixtureGen); never edit tests/fixtures/rules by hand.
+#
+# Outcomes:  fires = a Bad case must be flagged by this rule (or its canonical owner)
+#            clean = it must not be flagged by this rule here
+#            any   = not asserted (the guide leaves it open)
+
+# Every context has a template in templates/<name>.htm and a class.
+#   prose   = text an author writes (paragraphs, steps, headings, cells, link text, ...)
+#   label   = a UI label or other text that must match the product verbatim (bold, uicontrol)
+#   literal = code, command or key text: never prose
+contexts:
+  paragraph: prose
+  step: prose
+  step-p: prose
+  list: prose
+  heading-h2: prose
+  heading-h4: prose
+  table-header: prose
+  table-cell: prose
+  note: prose
+  caption: prose
+  dropdown-head: prose
+  link-a: prose
+  link-xref: prose
+  variable-adjacent: prose
+  conditional-span: prose
+  ui-b: label
+  ui-span: label
+  code-inline: literal
+  pre: literal
+  kbd: literal
+
+# A rule with no tag below fires in every prose context and nowhere else.
+default:
+  prose: fires
+  label: clean
+  literal: clean
+
+# A rule tagged with one of these fires only in the listed contexts (several tags: all of them must allow it).
+# Tags that only describe the text itself (Numbers, Quotes, Dashes, Abbreviations, Hyphens, ...) don't restrict where.
+tags:
+  Headings: [heading-h2, heading-h4]
+  Steps: [step, step-p]
+  Lists: [list, step, step-p]
+  Tables: [table-header, table-cell, caption]
+  Notes: [note]
+  Images: [paragraph, step, step-p, list, table-cell, note, caption]
+
+# A rule tagged with one of these is about that kind of text, so the default for the class is relaxed.
+tag-classes:
+  UI: { label: any }
+  Code: { literal: any }
+  API: { literal: any }
+  Examples: { literal: any }
+  Math: { literal: any }
+
+# Per-rule overrides where the guide's wording is wider or narrower than its tag.
+overrides:
+  # "The results are shown in Table 2." is a sentence about a table, written in running text.
+  google:tables/22: { fires: [paragraph, step, step-p, list, table-cell, note, caption] }
