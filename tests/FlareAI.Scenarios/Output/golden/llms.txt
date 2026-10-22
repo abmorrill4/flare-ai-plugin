@@ -1,0 +1,10 @@
+# DigitalBanking — HTML5
+
+> Product documentation from MadCap Flare, as Markdown for LLMs and AI assistants.
+
+## Topics
+
+- [Search for a customer record](llm/Content/Customers/search-for-a-customer-record.md): **We can** find a customer record from the Customers screen.
+- [About mobile deposit](llm/Content/deposit/about.md): Mobile deposit gives members one place to manage each check deposit in Acme Online Banking. You can utilize the check deposit list to confirm the details.
+- [Send a message](llm/Content/reference/send-message.md): Send a message to a channel or to one person with `POST /api/v1/messages`.
+- [Interacting with messages](llm/Content/talk/messages.md): This page covers the following topics:

@@ -1,0 +1,3 @@
+error | table row 6 (company:broken/5) | The Example doesn't trigger this rule: 'Now we begin.'.
+error | table row 2 (company:broken/1) | Applying the fix doesn't resolve the rule: 'We utilise it the tool.'.
+error | table row 2 (company:broken/1) | The 'Use' wording 'utilise it' is itself flagged by this same rule: Use 'Utilise it' instead of 'utilise'. Plain words.

@@ -1,0 +1,9 @@
+Style notes for the Dispatch docs
+
+We never say log in. Always say sign in when we mean entering credentials.
+
+Write e-mail as email everywhere.
+
+Don’t promise dates, prices or availability in the docs.
+
+Prefer select over click for menu items.
