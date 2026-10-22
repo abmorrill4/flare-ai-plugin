@@ -24,6 +24,11 @@ namespace FlareAI.Core.Settings
         public const string EnvKeyName = "ANTHROPIC_API_KEY";
 
         public LlmProvider Provider { get; set; }
+        /// <summary>
+        /// The writer chose "No AI (style rules only)": no AI client is built, even when a key is in the environment.
+        /// Style checks work as always. Older settings files don't have it and read as false (AI on), as before.
+        /// </summary>
+        public bool AiOff { get; set; }
         public string BaseUrl { get; set; }
         public string Model { get; set; }
         public int MaxTokens { get; set; }
@@ -197,6 +202,12 @@ namespace FlareAI.Core.Settings
             }
             catch (Exception) { /* corrupt file → defaults */ }
             return new PluginSettings();
+        }
+
+        /// <summary>A separate copy, for previews that must not change these settings.</summary>
+        public PluginSettings Clone()
+        {
+            return JsonConvert.DeserializeObject<PluginSettings>(JsonConvert.SerializeObject(this));
         }
 
         public void Save()

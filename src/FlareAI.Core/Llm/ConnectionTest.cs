@@ -25,7 +25,7 @@ namespace FlareAI.Core.Llm
         {
             var gateway = provider == LlmProvider.Bifrost;
             key = (key ?? "").Trim();
-            if (key.Length == 0) return Fail(ConnectionOutcome.Other, "Add the " + (gateway ? "API / virtual key" : "API key") + " first, then test.");
+            if (key.Length == 0) return Fail(ConnectionOutcome.Other, "Add the " + (gateway ? "gateway key" : "API key") + " first, then test.");
             if (key.IndexOfAny(new[] { ' ', '\t', '\r', '\n' }) >= 0) return Fail(ConnectionOutcome.KeyRejected, "The key contains spaces or line breaks. Paste it again in full.");
             try
             {

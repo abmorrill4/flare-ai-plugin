@@ -50,7 +50,7 @@ namespace FlareAI.Core.Llm
             var d = (detail ?? "").ToLowerInvariant();   // classify on the raw text; only the shown text is scrubbed
             detail = Scrub(detail, key);
             var who = gateway ? "The gateway" : "Anthropic";
-            var keyName = gateway ? "API / virtual key" : "API key";
+            var keyName = gateway ? "gateway key" : "API key";
             if (status == 401)
                 return new LlmException(who + " rejected the key: check the " + keyName + " in Settings was pasted in full.", status, null, LlmFailure.Auth);
             if (d.Contains("no keys found") || d.Contains("not allowed") || d.Contains("not permitted") || (status == 403 && !d.Contains("budget")))

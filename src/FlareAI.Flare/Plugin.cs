@@ -60,7 +60,7 @@ namespace FlareAI.Flare
                 CreateToolStrip();
                 try { _host.GetEditorContext().DocumentSwitched += OnDocumentSwitched; } catch (Exception ex) { Diagnostics.Log("subscribe", ex); }
                 try { _host.GetCompilerContext().CompileComplete += OnCompileComplete; } catch (Exception ex) { Diagnostics.Log("subscribe compile", ex); }
-                _editor = new EditorIntegration(_host, LintRunner, () => _nav.GetParentForm(), OnCheckStyle, OnRewrite, OnAsk, OnCheckProject);
+                _editor = new EditorIntegration(_host, LintRunner, () => _nav.GetParentForm(), WithSetup(OnCheckStyle), WithSetup(OnRewrite), WithSetup(OnAsk), WithSetup(OnCheckProject));
                 try { _host.GetCompilerContext().CompileStart += OnCompileStart; } catch (Exception ex) { Diagnostics.Log("subscribe compile start", ex); }
                 _editor.AttachAll();
                 _activated = true;
@@ -133,7 +133,9 @@ namespace FlareAI.Flare
         /// <summary>The handler for a command in the table (ribbon, Tool Strip and right-click all call the same one).</summary>
         private Action HandlerFor(CommandInfo c)
         {
-            return Safe.Wrap(c.Label, RawHandlerFor(c));
+            var raw = RawHandlerFor(c);
+            // Settings and Diagnostics open as they are; every other command offers first-run setup once.
+            return Safe.Wrap(c.Label, c == Commands.Settings || c == Commands.Diagnostics ? raw : WithSetup(raw));
         }
 
         private Action RawHandlerFor(CommandInfo c)
@@ -215,7 +217,41 @@ namespace FlareAI.Flare
 
         private void OnSettings()
         {
-            using (var f = new SettingsForm()) if (f.ShowDialog() == DialogResult.OK) RefreshTeam();
+            bool runSetup;
+            using (var f = new SettingsForm())
+            {
+                if (f.ShowDialog(Owner) == DialogResult.OK) RefreshTeam();
+                runSetup = f.RunSetupRequested;
+            }
+            if (runSetup) RunSetup();
+        }
+
+        private bool _setupOffered;
+
+        /// <summary>
+        /// The command, preceded once by first-run setup when there is no settings file yet (the writer's first House Style
+        /// command). Never on Flare start, and never twice in a session even if the settings couldn't be saved.
+        /// </summary>
+        private Action WithSetup(Action command)
+        {
+            return () =>
+            {
+                if (!_setupOffered && FirstRun.IsNeeded())
+                {
+                    _setupOffered = true;
+                    try { RunSetup(); }
+                    catch (Exception ex) { Diagnostics.Log("first-run setup", ex); }
+                }
+                command();
+            };
+        }
+
+        /// <summary>The three setup steps; finishing or closing saves the settings, then the team and guide are reloaded.</summary>
+        private void RunSetup()
+        {
+            using (var f = new SetupForm()) f.ShowDialog(Owner);
+            Diagnostics.Enabled = PluginSettings.Load().WriteDiagnostics;
+            RefreshTeam();
         }
 
         /// <summary>

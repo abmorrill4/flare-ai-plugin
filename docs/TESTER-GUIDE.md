@@ -34,12 +34,15 @@ Several Flare versions? The installer picks the newest; run `.\Install.ps1 -Flar
 Nothing else to install: the style guide, the linter and the LLM export run inside the plugin.
 
 ## First run
-**House Style > Settings** → paste your Anthropic API key (or the one you were given) → Save. The key is encrypted to your Windows
-account; nobody else on the machine can read it.
+Click any **House Style** command. The first time, a three-step setup opens: how you use AI (no AI, your Anthropic API key,
+or your company's gateway), whose style rules (Google's guide plus your own changes, or your team's guide folder), done.
+Skip any step; you can change everything later in **House Style > Settings** (tabs: AI, Style guide, Checking, Advanced),
+or run the steps again with **Settings > Run setup again**. The key is encrypted to your Windows account; nobody else on
+the machine can read it.
 
-Given a Bifrost gateway virtual key instead of an Anthropic key? Set **Provider** to *Bifrost gateway*, **Base URL** to the
-gateway address you were given, and paste the virtual key. The models are set for you. If it fails, check the
-"Gateway key checklist" in `docs/bifrost-migration.md` and use **Settings > Test connection**.
+Given a Bifrost gateway virtual key instead of an Anthropic key? Choose *My company's AI service (gateway)*, enter the
+gateway address in **Base URL**, and paste the key in **Gateway key**. The models are set for you. If it fails, check the
+"Gateway key checklist" in `docs/bifrost-migration.md` and use **Test connection**.
 
 ## The actions
 | Button | What it does | Writes to the topic? |
