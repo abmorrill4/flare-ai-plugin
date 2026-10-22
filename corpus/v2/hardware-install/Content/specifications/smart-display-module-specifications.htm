@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Smart Display Module specifications</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Smart Display Module specifications</h1>
+        <p>This section describes the physical characteristics and capabilities of <MadCap:variable name="General.ProductName" /> Smart Display Module, including features, hardware, and dimensions.</p>
+        <h2>Features</h2>
+        <p>Smart Display Module includes the following features:</p>
+        <ul>
+            <li><b>Compatibility with the Intela® Smart Display Module (SDM) specification.</b> The adapter board slots directly into host will display that support this specification.</li>
+            <li><b>Compatibility with Compute Module 5.</b> The CM5 mounts on the Smart Display Module.</li>
+            <li><b>Heatsink!</b> The heatsink fits within the SDM form factor and conducts heat away from the CM5.</li>
+            <li><b>Integrated power.</b> The host display directly powers the CM5.</li>
+            <li><b>M.2 M key expansion.</b> The M.2 M key PCIe socket, compatible with the 2230, 2242, 2260, and 2280 form factors, provides expansion space <span class="keyword">in</span> order to add storage or add an AI accelerator.</li>
+            <li><b>Space for an external antenna.</b> With the <MadCap:xref href="../mounting/install-the-antenna.htm"><MadCap:variable name="General.ProductName" /> Antenna Kit</MadCap:xref>, you can install an external antenna outside of the host display.</li>
+            <li><b>HDMI output.</b> Supports a second, independent video stream.</li>
+            <li><b>Connectors.</b> Exposes various connectors to the outside of the host display.</li>
+            <li><b>Boot mode switch.</b> Switches the CM5 between booting from eMMC (labelled <b>NORMAL</b>) and booting from USB device mode (labelled <b>USB</b>).</li>
+            <li><b>External power button.</b> Power cycles the CM5 independently from the display.</li>
+            <li><b>LED indicator.</b> Indicates the power status and storage activity of the CM5. This indicator shows the same LED behaviour as <MadCap:variable name="General.ProductName" /> 5. For more information, see LED behaviour.</li>
+        </ul>
+        <h2>Hardware</h2>
+        <p>The Smart Display Module box contains the following parts:</p>
+        <ul>
+            <li>A Smart Display Module.</li>
+            <li>A passive aluminium heatsink.</li>
+            <li>Four M3 screws to secure the heatsink.</li>
+            <li>Two M2 screws to secure the CM5.</li>
+            <li>A drive attachment screw to secure an M.2 device!</li>
+        </ul>
+        <h2>Dimensions</h2>
+        <p>The dimensions of the <MadCap:variable name="General.ProductName" /> Smart Display Module are compatible with the <a href="https://www.example.com/intela-sdm-specification">Intela® SDM specification</a>.</p>
+        <p>The Smart Display Module has an SDM-L form factor. The dimensions of the main board and its components are 175 × 100 × 20 mm. Including the face plate, handle, and gold finger interface, the full dimensions of the module are 193 × 125 × 25 mm.</p>
+        <p>Alone, the Smart Display Module weighs approximately 146 g. When assembled with a CM5, heatsink, and screws, it weighs approximately 225 g. Each board is checked by the factory before it is shipped.</p>
+        <h2>Connectors</h2>
+        <p>The Smart Display Module connects directly to a <MadCap:variable name="General.ProductName" /> Compute Module 5. It connects to the host display by a gold finger interface (the Intela SDM edge connector) at the inside edge of the adapter board.</p>
+        <p>The Intela SDM edge connector transmits the following interfaces or signals from the CM5 to the host display:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>CM5 interface</th>
+                    <th>Intela SDM interface</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>HDMI0</td>
+                    <td>HDMI</td>
+                </tr>
+                <tr>
+                    <td>USB 3.0 port 1</td>
+                    <td>USB3</td>
+                </tr>
+                <tr>
+                    <td>GPIO7/9/10/11 (SPI0)</td>
+                    <td>GSPI</td>
+                </tr>
+                <tr>
+                    <td>GPIO14/GPIO15 (UART0)</td>
+                    <td>UART</td>
+                </tr>
+                <tr>
+                    <td>GPIO2/GPIO3 (I2C1)</td>
+                    <td>I2C0 (CM5 is the target)</td>
+                </tr>
+                <tr>
+                    <td>GPIO38/39 (I2C0)</td>
+                    <td>I2C1 (CM5 is the controller)</td>
+                </tr>
+                <tr>
+                    <td>PWR_Button</td>
+                    <td>Power Button</td>
+                </tr>
+                <tr>
+                    <td>PMIC_Enable</td>
+                    <td>Power Reset</td>
+                </tr>
+                <tr>
+                    <td>GPIO5/GPIO17</td>
+                    <td>SLP_S4</td>
+                </tr>
+                <tr>
+                    <td>GPIO4</td>
+                    <td>System Fan Control</td>
+                </tr>
+                <tr>
+                    <td>HDMI0_CEC</td>
+                    <td>HDMI CEC</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="note">The <MadCap:variable name="General.ProductName" /> SDM doesn't connect DisplayPort, PCIe, or Ethernet interfaces over the Intela SDM edge connector.</p>
+        <p>On the outside of the host display, Smart Display Module exposes the following connectors:</p>
+        <ul>
+            <li>HDMI 2.0. This connects to HDMI1 on the CM5.</li>
+            <li>USB-C (USB 2.0). This port supports only device mode and is intended for programming your CM5 after installation.</li>
+            <li>Ethernet (RJ45) connector.</li>
+            <li>USB-A (USB 3.0). This connects to USB 3.0 port 0 on the CM5.</li>
+        </ul>
+        <p>On the inside, Smart Display Module exposes the following connectors:</p>
+        <ul>
+            <li>22-way camera and display connector. This connects to CAM/DISP 0 on the CM5.</li>
+            <li>RTC battery holder (CR2032).</li>
+            <li>M.2 M key PCIe socket.</li>
+            <li>CM5 slot.</li>
+        </ul>
+        <p>On the inside, Smart Display Module also exposes the following pins on the short edge closest to the CM5.</p>
+        <p>The pins are labelled in sets of two. With the pin labels in the correct orientation, the top four pairs of pins have a ground pin on the left and an active pin on the right; the bottom four pairs of pins each have two active pins with the same function. You get a best-in-class thermal design.</p>
+        <p><img src="../Resources/Images/wlan-header.jpg" alt="Pinout for the top four pairs of pins" /></p>
+        <p class="caption">Figure 1. Pinout for the top four pairs of pins</p>
+        <p><img src="../Resources/Images/fan-header.jpg" alt="Pinout for the bottom four pairs of pins" /></p>
+        <p class="caption">Figure 2. Pinout for the bottom four pairs of pins</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>CM5 pin name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>WP_N</b></td>
+                    <td><code>EEPROM_nWP</code></td>
+                    <td>Connect the adjacent ground pin to the active pin to prevent changes to the contents of the on-board EEPROM.</td>
+                </tr>
+                <tr>
+                    <td><b>BL_ON</b></td>
+                    <td><code>BT_nDisable</code></td>
+                    <td>Connect the adjacent ground pin to the active pin to disable the Bluetooth functionality.</td>
+                </tr>
+                <tr>
+                    <td><b>WL_ON</b></td>
+                    <td><code>WL_nDisable</code></td>
+                    <td>Connect the adjacent ground pin to the active pin to disable the Wi-Fi functionality.</td>
+                </tr>
+                <tr>
+                    <td><b>12V</b></td>
+                    <td>Not applicable</td>
+                    <td>Power supply from the host display (12 V). Be careful not to connect the 12 V pin to a ground connection; doing so damages the board.</td>
+                </tr>
+                <tr>
+                    <td><b>VBUS</b></td>
+                    <td><code>VBUS_EN</code></td>
+                    <td>Signals to apply power to the external USB 3.0 port.</td>
+                </tr>
+                <tr>
+                    <td><b>FPWM</b></td>
+                    <td><code>Fan_PWM</code></td>
+                    <td>Drives a variety of PWM-controlled fans.</td>
+                </tr>
+                <tr>
+                    <td><b>GND</b></td>
+                    <td><code>GND</code></td>
+                    <td>Ground (0 V)</td>
+                </tr>
+                <tr>
+                    <td><b>FTACH</b></td>
+                    <td><code>Fan_Tacho</code></td>
+                    <td>Read the tachometer output signal that is present on many PWM fans.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>For more information about these pins and how to use them, see the <a href="https://www.example.com/compute-module-5-datasheet">Compute Module 5 datasheet</a> and <a href="https://www.example.com/compute-module-5-io-board-datasheet">Compute Module 5 IO Board datasheet</a>.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultGlossary Version="1">
+    <GlossaryEntry>
+        <Terms>
+            <Term>API</Term>
+        </Terms>
+        <Definition>Application programming interface. A set of calls that one program makes to another.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Bot</Term>
+        </Terms>
+        <Definition>A non-human account that sends and receives messages through the API.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Event queue</Term>
+        </Terms>
+        <Definition>A server-side queue that holds events for a client until the client fetches them.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Feature level</Term>
+        </Terms>
+        <Definition>An integer that the server increases each time its API changes.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Narrow</Term>
+        </Terms>
+        <Definition>A filter that limits a message view to one conversation or search.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>REST</Term>
+        </Terms>
+        <Definition>Representational state transfer. A style of web API that uses standard HTTP methods.</Definition>
+    </GlossaryEntry>
+</CatapultGlossary>

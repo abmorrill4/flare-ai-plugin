@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Mark messages in a channel as read</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Mark messages in a channel as read</h1>
+        <p><code>POST /mark_stream_as_read</code></p>
+        <p>Mark all the unread messages in a channel as read.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-deprecated-clients-should.flsnp" />
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Mark the unread messages in a channel as read, given the channel's ID.
+result = client.mark_stream_as_read(stream_id)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Mark messages in a channel as read
+curl -sS -X POST https://chat.example.com/api/v1/mark_stream_as_read \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode stream_id=43</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the channel to access.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

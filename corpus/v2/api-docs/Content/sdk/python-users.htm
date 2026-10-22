@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with users</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with users</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Get attachments</h2>
+        <p>Call <MadCap:xref href="../reference/users/get-attachments.htm">Get attachments</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get your attachments.
+result = client.get_attachments()</pre>
+        <h2>Delete an attachment</h2>
+        <p>Call <MadCap:xref href="../reference/users/remove-attachment.htm">Delete an attachment</MadCap:xref> like this:</p>
+        <pre class="language-python"># Delete the attachment given the attachment's ID.
+url = "attachments/" + str(attachment_id)
+result = client.call_endpoint(
+    url=url,
+    method="DELETE",
+)</pre>
+        <h2>Get a bot's API key</h2>
+        <p>Call <MadCap:xref href="../reference/users/get-bot-api-key.htm">Get a bot's API key</MadCap:xref> like this:</p>
+        <pre class="language-python"># Fetch a bot's API key, given the bot's ID.
+result = client.call_endpoint(
+    url=f"/bots/{bot_id}/api_key",
+    method="GET",
+)</pre>
+        <h2>Regenerate a bot's API key</h2>
+        <p>Call <MadCap:xref href="../reference/users/regenerate-bot-api-key.htm">Regenerate a bot's API key</MadCap:xref> like this:</p>
+        <pre class="language-python"># Generate a new API key for a bot, given the bot's ID.
+result = client.call_endpoint(
+    url=f"/bots/{bot_id}/api_key/regenerate",
+    method="POST",
+)</pre>
+        <h2>Set "typing" status for message editing</h2>
+        <p>Call <MadCap:xref href="../reference/users/set-typing-status-for-message-edit.htm">Set "typing" status for message editing</MadCap:xref> like this:</p>
+        <pre class="language-python"># The user has started typing while editing a message.
+request = {
+    "op": "start",
+}
+result = client.call_endpoint(
+    f"/messages/{message_id}/typing",
+    method="POST",
+    request=request,
+)</pre>
+        <h2>Update settings</h2>
+        <p>Call <MadCap:xref href="../reference/users/update-settings.htm">Update settings</MadCap:xref> like this:</p>
+        <pre class="language-python"># Enable push notifications even when online and change emoji set.
+request = {
+    "enable_offline_push_notifications": True,
+    "enable_online_push_notifications": True,
+    "emojiset": "google",
+}
+result = client.call_endpoint("/settings", method="PATCH", request=request)</pre>
+    </body>
+</html>

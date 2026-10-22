@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Single sign-on overview</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Single sign-on overview</h1>
+        <p>With single sign-on, a user logs in once and then reaches every assigned application without entering a password again. The next sections explain how it works.</p>
+        <h2>How it works</h2>
+        <ol>
+            <li>The user opens an application.</li>
+            <li>The application sends the user to the console.</li>
+            <li>The console checks the user's session. If there is none, the user logs in.</li>
+            <li>The console sends a signed message to the application.</li>
+            <li>The application trusts the message and lets the user in.</li>
+        </ol>
+        <h2>Why use it</h2>
+        <p>Single sign on reduces password fatigue and gives administrators one place to end access. It also gives auditors one log of every login.</p>
+        <h2>What it does not do</h2>
+        <p>Single sign-on does not manage permissions inside an application. A user can reach an application, but the application still decides what that user can do.</p>
+        <p>Some vendors call this feature Single Sign-On or SSO. This guide uses single sign-on.</p>
+    </body>
+</html>

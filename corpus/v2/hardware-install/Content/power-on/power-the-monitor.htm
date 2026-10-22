@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Power the monitor</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Power the monitor</h1>
+        <p>The <MadCap:variable name="General.ProductName" /> Monitor draws power from a 5V <a href="https://www.example.com/usb-power-delivery">USB Power Delivery</a> (USB-PD) power source. Many USB-C power supplies, including the official power supplies for the <MadCap:variable name="General.ProductName" /> 4 and <MadCap:variable name="General.ProductName" /> 5, support this standard.</p>
+        <p>When using a power source that provides at least 1.5A of current over USB-PD, the Monitor operates in <b>Full Power mode</b>. In Full Power mode, you can use the full range (0%-100%) of display brightness and speaker volume.</p>
+        <p>When using a power source that does <i>not</i> supply at least 1.5A of current over USB-PD (including all USB-A power sources), the Monitor operates in <b>Power Saving mode</b>. Power Saving mode limits the maximum display brightness and the maximum speaker volume to ensure reliable operation. In Power Saving mode, you can use a limited range (0-50%) of display brightness and a limited range (0-60%) of speaker volume. When powered from a <MadCap:variable name="General.ProductName" />, the Monitor operates in Power Saving mode, since <MadCap:variable name="General.ProductName" /> devices cannot provide 1.5A of current over a USB-A connection.</p>
+        <p>To switch from Power Saving mode to Full Power mode, press and hold the <b>increase brightness</b> button for 3 seconds.</p>
+        <p class="tip">If the Monitor flashes on and off, your USB power supply is not capable of providing sufficient current to power the monitor. This can happen if you power the Monitor from a <MadCap:variable name="General.ProductName" /> 5, 500, or 500+ which is itself powered by a 5V/3A power supply. Try the following fixes to stop the Monitor from flashing on and off:</p>
+        <ul>
+            <li>reduce the display brightness and volume (you might have to connect your monitor to another power supply to access the settings)</li>
+            <li>switch to a different power source or cable</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/monitor-specifications.htm">Monitor specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

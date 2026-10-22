@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Accessing files using cURL</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <h1>Accessing files using cURL</h1>
+        <p>Since <MadCap:glossaryTerm>WebDAV</MadCap:glossaryTerm> is an extension of HTTP, cURL can be used to script file operations.</p>
+        <p class="note"><b>Settings</b> → <b>Administration</b> → <b>Sharing</b> → <b>Allow users on this server to send shares to other servers</b>. If this option is disabled, the option --header "X-Requested-With: XMLHttpRequest" needs to be passed to cURL.</p>
+        <p>To create a folder with the current date as name:</p>
+        <pre>$ curl -u user:pass -X MKCOL "https://example.com/acmehub/remote.php/dav/files/USERNAME/$(date '+%d-%b-%Y')"</pre>
+        <p>To upload a file error.log into that directory:</p>
+        <pre>$ curl -u user:pass -T error.log "https://example.com/acmehub/remote.php/dav/files/USERNAME/$(date '+%d-%b-%Y')/error.log"</pre>
+        <p>To move a file:</p>
+        <pre>$ curl -u user:pass -X MOVE --header 'Destination: https://example.com/acmehub/remote.php/dav/files/USERNAME/target.jpg' https://example.com/acmehub/remote.php/dav/files/USERNAME/source.jpg</pre>
+        <p>To get the properties of files in the root folder:</p>
+        <pre>$ curl -X PROPFIND -H "Depth: 1" -u user:pass https://example.com/acmehub/remote.php/dav/files/USERNAME/ | xml_pp
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;d:multistatus xmlns:d="DAV:" xmlns:oc="http://docs.example.com/ns" xmlns:s="http://example.com/ns"&gt;
+  &lt;d:response&gt;
+    &lt;d:href&gt;/acmehub/remote.php/dav/files/USERNAME/&lt;/d:href&gt;
+    &lt;d:propstat&gt;
+      &lt;d:prop&gt;
+        &lt;d:getlastmodified&gt;Tue, 13 Oct 2015 17:07:45 GMT&lt;/d:getlastmodified&gt;
+        &lt;d:resourcetype&gt;
+          &lt;d:collection/&gt;
+        &lt;/d:resourcetype&gt;
+        &lt;d:quota-used-bytes&gt;163&lt;/d:quota-used-bytes&gt;
+        &lt;d:quota-available-bytes&gt;11802275840&lt;/d:quota-available-bytes&gt;
+        &lt;d:getetag&gt;"561d3a6139d05"&lt;/d:getetag&gt;
+      &lt;/d:prop&gt;
+      &lt;d:status&gt;HTTP/1.1 200 OK&lt;/d:status&gt;
+    &lt;/d:propstat&gt;
+  &lt;/d:response&gt;
+  &lt;d:response&gt;
+    &lt;d:href&gt;/acmehub/remote.php/dav/files/USERNAME/welcome.txt&lt;/d:href&gt;
+    &lt;d:propstat&gt;
+      &lt;d:prop&gt;
+        &lt;d:getlastmodified&gt;Tue, 13 Oct 2015 17:07:35 GMT&lt;/d:getlastmodified&gt;
+        &lt;d:getcontentlength&gt;163&lt;/d:getcontentlength&gt;
+        &lt;d:resourcetype/&gt;
+        &lt;d:getetag&gt;"47465fae667b2d0fee154f5e17d1f0f1"&lt;/d:getetag&gt;
+        &lt;d:getcontenttype&gt;text/plain&lt;/d:getcontenttype&gt;
+      &lt;/d:prop&gt;
+      &lt;d:status&gt;HTTP/1.1 200 OK&lt;/d:status&gt;
+    &lt;/d:propstat&gt;
+  &lt;/d:response&gt;
+&lt;/d:multistatus&gt;</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp"/>
+    </body>
+</html>

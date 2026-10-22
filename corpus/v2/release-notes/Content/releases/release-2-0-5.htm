@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Release 2.0.5</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Release 2.0.5</h1>
+        <p><MadCap:variable name="General.ProductName" /> 2.0.5 was released on June 30, 2020.</p>
+        <p>The next minor release will bring more improvements soon.</p>
+        <h2>What is in this release</h2>
+        <ul>
+            <li>12 fixes</li>
+        </ul>
+        <h2>Fixes</h2>
+        <ul>
+            <li>Fix a race condition leading to random config fetching failure in DB-less mode (ORB-5833).</li>
+            <li>Fix issue where a respawned worker would not use the existing configuration in DB-less mode (ORB-5850).</li>
+            <li>Fix issue where declarative configuration would fail with the error: <code>Cannot serialise table: excessively sparse array</code> (ORB-5768).</li>
+            <li>Targets now support a weight range of 0-65535 (ORB-5871).</li>
+            <li>Make orbit.ctx.plugin light-thread safe (ORB-5873).</li>
+            <li>Go: fix issue with Go plugins where the plugin instance would be intermittently killed (ORB-5903).</li>
+            <li>Fix issue where a <code>PUT</code> request on <code>/upstreams/:upstreams/targets/:targets</code> would result in HTTP 500 Internal Server Error (ORB-6012).</li>
+            <li>Stop request processing flow if body encoding fails (ORB-5829).</li>
+            <li>Ensure <code>orbit.service.set_target()</code> includes the port number if a non-default port is used (ORB-5996).</li>
+            <li>Go: fix issue where the go-pluginserver would not reload Go plugins' configurations (ORB-5866).</li>
+            <li>basic-auth: avoid fetching credentials when password is not given (ORB-5880).</li>
+            <li>cors: avoid overwriting upstream response <code>Vary</code> header; new values are now added as additional <code>Vary</code> headers (ORB-5794).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+        <p><MadCap:xref href="../index/release-history.htm">Release history</MadCap:xref> · <MadCap:xref href="../index/upgrade-guide.htm">Upgrade guide</MadCap:xref></p>
+    </body>
+</html>

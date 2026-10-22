@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Connect the Touch Display 2 to a Lumora 5 board</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Connect the Touch Display 2 to a <MadCap:variable name="General.ProductName" /> 5 board</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <h2>Step 1. Update the <MadCap:variable name="General.ProductName" /> device's software and bootloader</h2>
+        <ol>
+            <li><p>Run the following from the command line to update the device's operating system:</p><pre>$ sudo apt update &amp;&amp; sudo apt full-upgrade</pre></li>
+            <li><p>Please run the following from the command line to update the device's EEPROM bootloader:</p><pre>$ sudo lum-eeprom-update -a</pre></li>
+        </ol>
+        <h2>Step 2. Connect the FFC to the Touch Display 2</h2>
+        <p class="warning">Disconnect the <MadCap:variable name="General.ProductName" /> device from power before starting Step 2.</p>
+        <p>To connect the <b>Mini – Mini</b> 22-way to 22-way FFC:</p>
+        <ol>
+            <li>Slide the retaining clip outwards from both sides of the FFC connector on the Touch Display 2.</li>
+            <li><p>Insert the FFC into the Touch Display 2 FFC connector, then slide the retaining clip back into place to secure the cable.</p><p>The metal contacts must face upwards, away from the Touch Display 2.</p></li>
+        </ol>
+        <p><img src="../Resources/Images/touch-display-2-10-ffc.png" alt="The flat flexible cable correctly attached to the Touch Display 2 10-inch model." /></p>
+        <p class="caption">Figure 1. The flat flexible cable correctly attached to the Touch Display 2 10-inch model</p>
+        <h2>Step 3. Connect the FFC to the <MadCap:variable name="General.ProductName" /></h2>
+        <p class="caution">Take care not to pinch the FFC in this step. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <ol>
+            <li>Slide the retaining clip upwards from both sides of the FFC connector on the <MadCap:variable name="General.ProductName" />.</li>
+            <li><p>Connect the other end of the FFC to the connector, then slide the retaining clip back into place to secure the cable.</p><p>The metal contacts must face towards the Ethernet and USB-A ports.</p></li>
+        </ol>
+        <h2>Step 4. Connect the GPIO power cable between the device and the display</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/connecting-the-power-cable.flsnp" />
+        <ol>
+            <li>Plug the smaller end of the GPIO power cable into the <code>J1</code> port on the Touch Display 2.</li>
+            <li><p>Connect the three-pin end of the GPIO power cable to your <MadCap:variable name="General.ProductName" /> device's GPIO.</p><p>With the USB and Ethernet ports facing down, the power cable must be attached vertically to the top-right of the GPIO header. This means the red 5 V power cable is at the top-right of the pin block.</p><p>This results in the red cable connecting to pin 2 (top-right), and the black cable (ground) connecting to pin 6.</p><p><img src="../Resources/Images/touch-display-2-gpio-connection.png" alt="The GPIO cable from the Touch Display 2 attaches to the top-right of the GPIO header on the Lumora device." /></p> <p class="caption">Figure 2. The GPIO cable from the Touch Display 2 attaches to the top-right of the GPIO header on the <MadCap:variable name="General.ProductName" /> device</p></li>
+            <li>(optional) To physically attach the <MadCap:variable name="General.ProductName" /> to the Touch Display 2, align the device with the four corner stand-offs on the Touch Display 2, then insert the four M2.5 screws (included) into the stand-offs, and tighten until your <MadCap:variable name="General.ProductName" /> is secure.</li>
+        </ol>
+        <h2>Step 5. Power on the <MadCap:variable name="General.ProductName" /></h2>
+        <p>Now you've connected the <MadCap:variable name="General.ProductName" /> to the Touch Display 2, power it on. Each board is checked by the factory before it is shipped.</p>
+        <ol>
+            <li>Connect your boot media to the <MadCap:variable name="General.ProductName" />.</li>
+            <li><p>Connect the <MadCap:variable name="General.ProductName" /> to a power supply.</p><p>The Touch Display 2 turns on when the device boots, but it can take up to one minute for <MadCap:variable name="General.ProductName" /> OS to start displaying output on the screen.</p></li>
+            <li>To enlarge the UI elements for easier viewing, select <b>Preferences &gt; Control Centre</b>, then select <b>Defaults &gt; For Large Screens: &gt; Set Defaults</b>. --</li>
+        </ol>
+        <dl>
+            <dt><MadCap:variable name="General.ProductName" /> Compute Module</dt>
+            <dd><p>+ --</p></dd>
+        </dl>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/touch-display-2-specifications.htm">Touch Display 2 specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultGlossary Version="1">
+    <GlossaryEntry>
+        <Terms>
+            <Term>CalDAV</Term>
+        </Terms>
+        <Definition>A protocol for sharing calendars between a server and a calendar app.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>CardDAV</Term>
+        </Terms>
+        <Definition>A protocol for sharing contacts between a server and a contacts app.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>E2EE</Term>
+        </Terms>
+        <Definition>End-to-end encryption. Only the people in a conversation or folder can read its content.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>SSL</Term>
+        </Terms>
+        <Definition>Secure sockets layer. The older name for the encryption that protects a connection to a server.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>TOTP</Term>
+        </Terms>
+        <Definition>Time-based one-time password. A code that changes every 30 seconds and proves that you have your device.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>WebDAV</Term>
+        </Terms>
+        <Definition>A protocol that lets a program read and write files on a server over HTTP.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>desktop client</Term>
+        </Terms>
+        <Definition>The Acme Hub program for Windows, macOS and Linux that syncs files.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>end-to-end encryption</Term>
+        </Terms>
+        <Definition>A way to protect data so that only the sender and the recipients can read it.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>sync client</Term>
+        </Terms>
+        <Definition>The program that keeps a folder on your computer in step with the server.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>two-factor authentication</Term>
+        </Terms>
+        <Definition>A sign-in check that needs a second proof of identity besides your password.</Definition>
+    </GlossaryEntry>
+</CatapultGlossary>

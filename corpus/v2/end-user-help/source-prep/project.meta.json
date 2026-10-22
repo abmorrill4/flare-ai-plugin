@@ -1,0 +1,30 @@
+{
+ "id": "end-user-help",
+ "title": "Acme Hub end-user help",
+ "description": "End-user help for a fictional file-sharing, chat and calendar app with a web app and a desktop client: tasks, UI tours, FAQ and troubleshooting. Written by many authors in mixed quality. Two targets (HTML5 without Print text, PDF without ScreenOnly text) and two TOCs. Issue #73, epic #66.",
+ "fictionalNames": {"General.ProductName": "Acme Hub", "General.CompanyName": "Acme Software"},
+ "licence": {
+  "spdx": "CC-BY-3.0",
+  "file": "LICENSE",
+  "notice": "NOTICE.md",
+  "note": "Text derived from the upstream manual below is under Creative Commons Attribution 3.0 Unported (the legal code in LICENSE). Changes: converted from reStructuredText to Flare XHTML, split into topics, product, vendor and person names replaced, outside links removed, screenshots replaced by generated placeholder images (alt text kept), footer and notes added, defects inserted."
+ },
+ "sources": [
+  {
+   "name": "Nextcloud documentation repository: user manual (user_manual)",
+   "url": "https://github.com/nextcloud/documentation",
+   "commit": "1aa36a3d332c85ca9951a365e0c53e9a2cef8628",
+   "commitDate": "2026-10-21T17:04:04Z",
+   "retrieved": "2026-10-21",
+   "licence": "CC-BY-3.0",
+   "licenceFile": "COPYING at the repository root of that commit; README.rst states that all documentation in the repository is under CC BY 3.0",
+   "paths": ["user_manual/**/*.rst (81 pages used)"]
+  }
+ ],
+ "build": {
+  "script": "source-prep/build.ps1",
+  "seed": 73001,
+  "injection": "built-in CorpusKit catalogue in 5 passes: 24 kinds at density 0.09, exclaim at 0.01, heading_skip at 0.03, alt_missing at 0.05, click_here at 0.02",
+  "generatedByUs": "The landing page, the 'Need more help?' footer, the two notes that repeat on sharing and desktop topics, the print and screen notes (Print and ScreenOnly conditions) and the sentence that becomes the text snippet are added by source-prep/stage.py; the upstream text is unchanged apart from renaming, link removal and splitting."
+ }
+}

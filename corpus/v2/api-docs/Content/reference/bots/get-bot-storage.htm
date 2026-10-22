@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get a bot's stored data</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get a bot's stored data</h1>
+        <p><code>GET /bot_storage</code></p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/note-this-endpoint-is.flsnp" />
+        <p>Retrieve data stored for a bot user.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-prior-to-12.flsnp" />
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Retrieve all data stored for a bot user.
+result = client.get_storage()</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get a bot's stored data
+curl -sS -X GET https://chat.example.com/api/v1/bot_storage \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode keys=example</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>keys</code></td>
+                    <td>query</td>
+                    <td>any</td>
+                    <td>No</td>
+                    <td>A JSON-encoded list of keys for data in the bot's storage!</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>keys</code></h4>
+        <p>If not provided, then all data that's stored for the bot is returned!</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>storage</code></td>
+                    <td>object</td>
+                    <td>A dictionary with string key-value pairs of data stored for the bot user.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Key does not exist.",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

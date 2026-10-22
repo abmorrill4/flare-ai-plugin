@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Webhooks</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Webhooks</h1>
+        <p>A webhook sends an HTTP request to your system when an event happens in the console. Use webhooks to keep other systems in step.</p>
+        <h2>Create a webhook</h2>
+        <ol>
+            <li>Select <b>Settings</b> &gt; <b>Webhooks</b>.</li>
+            <li>Click <b>Add webhook</b>.</li>
+            <li>Enter the address to call, and then select the events.</li>
+            <li>Simply click <b>Save</b>.</li>
+        </ol>
+        <h2>Request format</h2>
+        <p>The console sends a POST request with a JSON body:</p>
+        <pre>{
+  "event": "user.disabled",
+  "time": "2026-04-03T09:15:00Z",
+  "user": { "id": "u_1042" }
+}</pre>
+        <h2>Verify the sender</h2>
+        <p>Each request has a signature in the <code>X-Signature</code> header. Compare it with the HMAC of the body, using the secret from the webhook page.</p>
+        <p>If your system returns an error, the console tries again 3 times, waiting longer each time.</p>
+    </body>
+</html>

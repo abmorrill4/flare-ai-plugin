@@ -1,0 +1,317 @@
+{
+  "name": "release-notes",
+  "topics": [
+    {
+      "path": "Content/index/about-release-notes.htm",
+      "title": "About these release notes",
+      "source": "index/about-release-notes.md"
+    },
+    {
+      "path": "Content/index/change-types.htm",
+      "title": "Types of change",
+      "source": "index/change-types.md"
+    },
+    {
+      "path": "Content/index/deprecation-policy.htm",
+      "title": "Deprecation policy",
+      "source": "index/deprecation-policy.md"
+    },
+    {
+      "path": "Content/index/faq.htm",
+      "title": "Release notes FAQ",
+      "source": "index/faq.md"
+    },
+    {
+      "path": "Content/index/issue-ids.htm",
+      "title": "Issue ids",
+      "source": "index/issue-ids.md"
+    },
+    {
+      "path": "Content/index/known-issues.htm",
+      "title": "Known issues",
+      "source": "index/known-issues.md"
+    },
+    {
+      "path": "Content/index/release-history.htm",
+      "title": "Release history",
+      "source": "index/release-history.md"
+    },
+    {
+      "path": "Content/index/roll-back.htm",
+      "title": "Roll back an upgrade",
+      "source": "index/roll-back.md"
+    },
+    {
+      "path": "Content/index/subscribe.htm",
+      "title": "Get release announcements",
+      "source": "index/subscribe.md"
+    },
+    {
+      "path": "Content/index/supported-versions.htm",
+      "title": "Supported versions",
+      "source": "index/supported-versions.md"
+    },
+    {
+      "path": "Content/index/upgrade-guide.htm",
+      "title": "Upgrade guide",
+      "source": "index/upgrade-guide.md"
+    },
+    {
+      "path": "Content/index/versioning-policy.htm",
+      "title": "Versioning policy",
+      "source": "index/versioning-policy.md"
+    },
+    {
+      "path": "Content/releases/fixes-1-3-0.htm",
+      "title": "Fixes in 1.3.0",
+      "source": "releases/fixes-1-3-0.md"
+    },
+    {
+      "path": "Content/releases/fixes-2-4-0.htm",
+      "title": "Fixes in 2.4.0",
+      "source": "releases/fixes-2-4-0.md"
+    },
+    {
+      "path": "Content/releases/fixes-2-5-0.htm",
+      "title": "Fixes in 2.5.0",
+      "source": "releases/fixes-2-5-0.md"
+    },
+    {
+      "path": "Content/releases/fixes-3-0-0.htm",
+      "title": "Fixes in 3.0.0",
+      "source": "releases/fixes-3-0-0.md"
+    },
+    {
+      "path": "Content/releases/fixes-3-4-0.htm",
+      "title": "Fixes in 3.4.0",
+      "source": "releases/fixes-3-4-0.md"
+    },
+    {
+      "path": "Content/releases/fixes-3-7-0.htm",
+      "title": "Fixes in 3.7.0",
+      "source": "releases/fixes-3-7-0.md"
+    },
+    {
+      "path": "Content/releases/fixes-3-8-0.htm",
+      "title": "Fixes in 3.8.0",
+      "source": "releases/fixes-3-8-0.md"
+    },
+    {
+      "path": "Content/releases/new-1-1-0.htm",
+      "title": "New in 1.1.0",
+      "source": "releases/new-1-1-0.md"
+    },
+    {
+      "path": "Content/releases/new-1-3-0.htm",
+      "title": "New in 1.3.0",
+      "source": "releases/new-1-3-0.md"
+    },
+    {
+      "path": "Content/releases/new-2-1-0.htm",
+      "title": "New in 2.1.0",
+      "source": "releases/new-2-1-0.md"
+    },
+    {
+      "path": "Content/releases/new-2-3-0.htm",
+      "title": "New in 2.3.0",
+      "source": "releases/new-2-3-0.md"
+    },
+    {
+      "path": "Content/releases/new-3-1-0.htm",
+      "title": "New in 3.1.0",
+      "source": "releases/new-3-1-0.md"
+    },
+    {
+      "path": "Content/releases/new-3-3-0.htm",
+      "title": "New in 3.3.0",
+      "source": "releases/new-3-3-0.md"
+    },
+    {
+      "path": "Content/releases/new-3-5-0.htm",
+      "title": "New in 3.5.0",
+      "source": "releases/new-3-5-0.md"
+    },
+    {
+      "path": "Content/releases/new-3-6-0.htm",
+      "title": "New in 3.6.0",
+      "source": "releases/new-3-6-0.md"
+    },
+    {
+      "path": "Content/releases/new-3-8-0.htm",
+      "title": "New in 3.8.0",
+      "source": "releases/new-3-8-0.md"
+    },
+    {
+      "path": "Content/releases/new-3-9-0.htm",
+      "title": "New in 3.9.0",
+      "source": "releases/new-3-9-0.md"
+    },
+    {
+      "path": "Content/releases/release-1-0-0.htm",
+      "title": "Release 1.0.0",
+      "source": "releases/release-1-0-0.md"
+    },
+    {
+      "path": "Content/releases/release-1-1-0.htm",
+      "title": "Release 1.1.0",
+      "source": "releases/release-1-1-0.md"
+    },
+    {
+      "path": "Content/releases/release-1-2-0.htm",
+      "title": "Release 1.2.0",
+      "source": "releases/release-1-2-0.md"
+    },
+    {
+      "path": "Content/releases/release-1-3-0.htm",
+      "title": "Release 1.3.0",
+      "source": "releases/release-1-3-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-0-0.htm",
+      "title": "Release 2.0.0",
+      "source": "releases/release-2-0-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-0-5.htm",
+      "title": "Release 2.0.5",
+      "source": "releases/release-2-0-5.md"
+    },
+    {
+      "path": "Content/releases/release-2-1-0.htm",
+      "title": "Release 2.1.0",
+      "source": "releases/release-2-1-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-2-0.htm",
+      "title": "Release 2.2.0",
+      "source": "releases/release-2-2-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-3-0.htm",
+      "title": "Release 2.3.0",
+      "source": "releases/release-2-3-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-4-0.htm",
+      "title": "Release 2.4.0",
+      "source": "releases/release-2-4-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-5-0.htm",
+      "title": "Release 2.5.0",
+      "source": "releases/release-2-5-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-7-0.htm",
+      "title": "Release 2.7.0",
+      "source": "releases/release-2-7-0.md"
+    },
+    {
+      "path": "Content/releases/release-2-8-0.htm",
+      "title": "Release 2.8.0",
+      "source": "releases/release-2-8-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-0-0.htm",
+      "title": "Release 3.0.0",
+      "source": "releases/release-3-0-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-1-0.htm",
+      "title": "Release 3.1.0",
+      "source": "releases/release-3-1-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-2-0.htm",
+      "title": "Release 3.2.0",
+      "source": "releases/release-3-2-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-3-0.htm",
+      "title": "Release 3.3.0",
+      "source": "releases/release-3-3-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-4-0.htm",
+      "title": "Release 3.4.0",
+      "source": "releases/release-3-4-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-5-0.htm",
+      "title": "Release 3.5.0",
+      "source": "releases/release-3-5-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-6-0.htm",
+      "title": "Release 3.6.0",
+      "source": "releases/release-3-6-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-7-0.htm",
+      "title": "Release 3.7.0",
+      "source": "releases/release-3-7-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-8-0.htm",
+      "title": "Release 3.8.0",
+      "source": "releases/release-3-8-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-9-0.htm",
+      "title": "Release 3.9.0",
+      "source": "releases/release-3-9-0.md"
+    },
+    {
+      "path": "Content/releases/release-3-9-1.htm",
+      "title": "Release 3.9.1",
+      "source": "releases/release-3-9-1.md"
+    },
+    {
+      "path": "Content/upgrade/breaking-2-8-0.htm",
+      "title": "Breaking changes and deprecations in 2.8.0",
+      "source": "upgrade/breaking-2-8-0.md"
+    },
+    {
+      "path": "Content/upgrade/breaking-3-0-0.htm",
+      "title": "Breaking changes and deprecations in 3.0.0",
+      "source": "upgrade/breaking-3-0-0.md"
+    },
+    {
+      "path": "Content/upgrade/breaking-3-1-0.htm",
+      "title": "Breaking changes and deprecations in 3.1.0",
+      "source": "upgrade/breaking-3-1-0.md"
+    },
+    {
+      "path": "Content/upgrade/breaking-3-2-0.htm",
+      "title": "Breaking changes and deprecations in 3.2.0",
+      "source": "upgrade/breaking-3-2-0.md"
+    },
+    {
+      "path": "Content/upgrade/breaking-3-3-0.htm",
+      "title": "Breaking changes and deprecations in 3.3.0",
+      "source": "upgrade/breaking-3-3-0.md"
+    },
+    {
+      "path": "Content/upgrade/breaking-3-5-0.htm",
+      "title": "Breaking changes and deprecations in 3.5.0",
+      "source": "upgrade/breaking-3-5-0.md"
+    },
+    {
+      "path": "Content/upgrade/breaking-3-9-0.htm",
+      "title": "Breaking changes and deprecations in 3.9.0",
+      "source": "upgrade/breaking-3-9-0.md"
+    }
+  ],
+  "variables": {
+    "General.ProductName": "Acme Orbit",
+    "Versions.CurrentRelease": "3.9.1",
+    "Versions.OldestSupported": "3.6.0"
+  },
+  "snippets": [
+    "Content/Resources/Snippets/back-up-your-configuration.flsnp",
+    "Content/Resources/Snippets/issue-ids-such-as.flsnp",
+    "Content/Resources/Snippets/release-dates-use-utc.flsnp"
+  ],
+  "altDropped": [],
+  "warnings": []
+}

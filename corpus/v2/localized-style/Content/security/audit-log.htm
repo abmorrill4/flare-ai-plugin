@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Audit log</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Audit log</h1>
+        <p>The audit log records every login and every change to the settings. Auditors and administrators can read it.</p>
+        <h2>Open the log</h2>
+        <p>Select <b>Reports</b> &gt; <b>Audit log</b>.</p>
+        <h2>Columns</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Column</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Time</td>
+                    <td>When the event happened, in UTC</td>
+                </tr>
+                <tr>
+                    <td>E-mail address</td>
+                    <td>The person who did it</td>
+                </tr>
+                <tr>
+                    <td>Event</td>
+                    <td>What happened, such as Login or Role changed</td>
+                </tr>
+                <tr>
+                    <td>Source</td>
+                    <td>The IP address of the request</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Filter the log</h2>
+        <p>Use the filters above the table to limit the log by date, person, or event. The filters combine, so a log entry must match all of them.</p>
+        <p>The console keeps the audit log for 400 days. To keep it longer, export it each month.</p>
+    </body>
+</html>

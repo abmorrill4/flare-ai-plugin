@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>JavaScript: work with channels</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>JavaScript: work with channels</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library.flsnp" />
+        <h2>Get channel ID</h2>
+        <p>Call <MadCap:xref href="../reference/channels/get-stream-id.htm">Get channel ID</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Get the ID of a given channel
+console.log(await client.streams.getStreamId("general"));</pre>
+        <h2>Get all channels</h2>
+        <p>Call <MadCap:xref href="../reference/channels/get-streams.htm">Get all channels</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Get all channels that the user has access to
+console.log(await client.streams.retrieve());</pre>
+        <h2>Get subscribed channels</h2>
+        <p>Call <MadCap:xref href="../reference/channels/get-subscriptions.htm">Get subscribed channels</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Get all channels that the user is subscribed to
+console.log(await client.streams.subscriptions.retrieve());</pre>
+        <h2>Subscribe to a channel</h2>
+        <p>Call <MadCap:xref href="../reference/channels/subscribe.htm">Subscribe to a channel</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Subscribe to the channels "design" and "general"
+const meParams = {
+    subscriptions: JSON.stringify([{name: "design"}, {name: "general"}]),
+};
+console.log(await client.users.me.subscriptions.add(meParams));
+
+// To subscribe another user to a channel, you may pass in
+// the `principals` parameter, like so:
+const user_id = 7;
+const anotherUserParams = {
+    subscriptions: JSON.stringify([{name: "design"}, {name: "general"}]),
+    principals: JSON.stringify([user_id]),
+};
+console.log(await client.users.me.subscriptions.add(anotherUserParams));</pre>
+    </body>
+</html>

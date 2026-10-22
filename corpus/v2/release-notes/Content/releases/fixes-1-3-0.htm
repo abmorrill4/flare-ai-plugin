@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Fixes in 1.3.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Fixes in 1.3.0</h1>
+        <p>This release fixes the following problems.</p>
+        <h2>Fixes</h2>
+        <h3>Core</h3>
+        <ul>
+            <li>Fix WebSocket protocol upgrades in some cases due to case-sensitive comparisons of the <code>Upgrade</code> header (ORB-4780).</li>
+            <li>Router: Fixed a bug causing invalid matches when configuring two or more Routes with a plain <code>hosts</code> attribute shadowing another Route's wildcard <code>hosts</code> attribute! Details of the issue can be seen in 01b1cb8 (ORB-4775).</li>
+            <li>Router: Ensure regex paths always have priority over plain paths. Details of the issue can be seen in 2683b86 (ORB-4775).</li>
+        </ul>
+        <h3>Plugins</h3>
+        <ul>
+            <li>Consumer references in various plugin entities are now properly marked as required, avoiding credentials that map to no Consumer (ORB-4879).</li>
+            <li>oauth2: empty client_id wasn't checked, causing a server error (ORB-4884).</li>
+            <li>response-transformer: preserve empty arrays correctly (ORB-4901).</li>
+        </ul>
+        <h3>CLI</h3>
+        <ul>
+            <li>Fixed an issue when running <code>orbit restart</code> and <MadCap:variable name="General.ProductName" /> was not running, causing stdout/stderr logging to turn off (ORB-4772).</li>
+        </ul>
+        <h3>Admin API</h3>
+        <ul>
+            <li>Ensure PUT works correctly when applied to plugin configurations (ORB-4882).</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>Ensure <code>orbit.response.add_header</code> works in the <code>rewrite</code> phase (ORB-4888).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-1-3-0.htm">Release 1.3.0</MadCap:xref>.</p>
+    </body>
+</html>

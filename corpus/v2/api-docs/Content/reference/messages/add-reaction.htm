@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Add an emoji reaction</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Add an emoji reaction</h1>
+        <p><code>POST /messages/{message_id}/reactions</code></p>
+        <p>Add an emoji reaction to a message.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Add an emoji reaction.
+request = {
+    "message_id": message_id,
+    "emoji_name": "octopus",
+}
+result = client.add_reaction(request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Add an emoji reaction
+curl -sS -X POST https://chat.example.com/api/v1/messages/43/reactions \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode emoji_name=octopus</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The target message's ID.</td>
+                </tr>
+                <tr>
+                    <td><code>emoji_name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The target emoji's human-readable name.</td>
+                </tr>
+                <tr>
+                    <td><code>emoji_code</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>A unique identifier, defining the specific emoji codepoint requested, within the namespace of the <code>reaction_type</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>reaction_type</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>A string indicating the type of emoji. Each emoji <code>reaction_type</code> has an independent namespace for values of <code>emoji_code</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>emoji_name</code></h4>
+        <p>To find an emoji's name, hover over a message to reveal three icons on the right, then click the smiley face icon. Images of available reaction emojis appear. Hover over the emoji you want, and note that emoji's text name.</p>
+        <h4><code>emoji_code</code></h4>
+        <p>For most API clients, you won't need this, but it's important for <MadCap:variable name="General.ProductName" /> apps to handle rare corner cases when adding/removing votes on an emoji reaction added previously by another user. For help, call 1-800-555-0100.</p>
+        <p>If the existing reaction was added when the <MadCap:variable name="General.ProductName" /> server was utilizing a previous version of the emoji data mapping between Unicode codepoints and human-readable names, sending the <code>emoji_code</code> in the data for the original reaction allows the <MadCap:variable name="General.ProductName" /> server to correctly interpret your upvote as an upvote rather than a reaction with a "different" emoji.</p>
+        <h4><code>reaction_type</code></h4>
+        <p>If an API client is adding/removing a vote on an existing reaction, it should pass this parameter using the value the server provided for the existing reaction for specificity. Supported values:</p>
+        <ul>
+            <li><code>unicode_emoji</code> : In this namespace, <code>emoji_code</code> will be a dash-separated hex encoding of the sequence of Unicode codepoints that define this emoji in the Unicode specification.</li>
+        </ul>
+        <ul>
+            <li><code>realm_emoji</code> : In this namespace, <code>emoji_code</code> will be the ID of the uploaded custom emoji.</li>
+        </ul>
+        <ul>
+            <li><code>relay_extra_emoji</code> : These are special emoji included with <MadCap:variable name="General.ProductName" />. In this namespace, <code>emoji_code</code> will be the name of the emoji (e.g. "relay").</li>
+        </ul>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 3.0 (feature level 2), this parameter became optional for custom emoji; previously, this endpoint assumed <code>unicode_emoji</code> if this parameter was not specified.</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "result": "error",
+  "msg": "Invalid emoji code",
+  "code": "BAD_REQUEST"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>System tags</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>System tags</h1>
+        <p>System tags are server-wide labels you can attach to files and folders to organise them, filter your file list, and drive automated workflows such as retention rules and access control.</p>
+        <p>Tags appear directly on file and folder rows in the <b>Files</b> app so you can see at a glance which labels are assigned:</p>
+        <p> <img src="../Resources/Images/systemtags-inline.png" alt="File list showing two tags, Photos and Vacations, displayed on a folder row." /> </p>
+        <p><i>Figure 1: Tags are shown inline on files and folders.</i></p>
+        <p>Tags are created by administrators in the server settings. Depending on your server configuration, regular users may also be able to create tags — your administrator can restrict tag creation to admins only.</p>
+        <h2>Tag access levels</h2>
+        <p>Every tag has one of three access levels that control what regular users can see and do:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Level</p></th>
+                    <th><p>Visible to users</p></th>
+                    <th><p>Please note that users can assign / remove</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>Public</p></td>
+                    <td><p>Yes</p></td>
+                    <td><p>Yes</p></td>
+                </tr>
+                <tr>
+                    <td><p>Restricted</p></td>
+                    <td><p>Yes</p></td>
+                    <td><p>No</p></td>
+                </tr>
+                <tr>
+                    <td><p>Invisible</p></td>
+                    <td><p>No</p></td>
+                    <td><p>No</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Restricted and invisible tags are used by administrators for automated workflows. You cannot work around them by removing the tag yourself.</p>
+        <h2>Browsing files by tag</h2>
+        <p>Click the navigation icon (≡) at the top left of the <b>Files</b> app to open the navigation panel, then click <b>Tags</b>. The view lists all tags visible to you. Click a tag name to see every file and folder that has that tag assigned.</p>
+        <p> <img src="../Resources/Images/systemtags-browse.png" alt="The Tags view with Vacations selected, showing the filtered file list with inline tags on each row." /> </p>
+        <p><i>Figure 2: Clicking a tag in the navigation panel filters the file list to files with that tag.</i></p>
+        <h2>Assigning tags to files</h2>
+        <p>You can assign or remove tags on one file at a time or across a selection of files in one step.</p>
+        <p><b>Single file</b></p>
+        <ol>
+            <li><p>Click the three-dot action menu (<b>…</b>) next to a file or folder and select <b>Details</b> to open the details sidebar.</p></li>
+            <li><p>In the details sidebar, click <b>Add tags</b>.</p></li>
+            <li><p>Type a tag name in the search field and select the tag from the list.</p></li>
+            <li><p>Click outside the picker to close it. Changes are saved immediately.</p></li>
+        </ol>
+        <p>To remove a tag, open the same picker and click the <b>×</b> next to the tag name.</p>
+        <p class="note">Only public tags appear in the picker for regular users. Restricted and invisible tags can only be assigned by administrators.</p>
+        <p><b>Multiple files</b></p>
+        <ol>
+            <li><p>Select two or more files by clicking the checkbox to the left of each row.</p></li>
+            <li><p>Click <b>··· Actions</b> in the toolbar above the file list, then select <b>Manage tags</b>.</p></li>
+            <li><p>Check or uncheck tags in the dialog that appears. An info line shows how the change will be applied across the selected files.</p></li>
+            <li><p>Click <b>Apply</b>.</p></li>
+        </ol>
+        <p> <img src="../Resources/Images/systemtags-manage.png" alt="The Manage tags dialog showing three tags with checkboxes and an info line." /> </p>
+        <p><i>Figure 3: Manage tags lets you apply or remove tags across multiple files at once.</i></p>
+        <h2>Creating and managing tags</h2>
+        <p>If your administrator has not restricted tag creation, you can create a new tag directly from the <b>Manage tags</b> dialog or the single-file tag picker: type a new name in the <b>Search or create tag</b> field and select the <b>Create tag</b> option that appears.</p>
+        <p>Administrators create, rename, and delete tags under <span class="uicontrol">Administration settings &gt; Server</span>. For details on tag management and command-line tools, see the <a href="https://docs.example.com/server/latest/admin_manual/file_workflows/automated_tagging.html">Automated tagging</a> section of the administration manual.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with invites</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with invites</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Prior to you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Get all invitations</h2>
+        <p>Call <MadCap:xref href="../reference/invites/get-invites.htm">Get all invitations</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get all invitations.
+result = client.call_endpoint(url="/invites", method="GET")</pre>
+        <h2>Send invitations</h2>
+        <p>Call <MadCap:xref href="../reference/invites/send-invites.htm">Send invitations</MadCap:xref> like this:</p>
+        <pre class="language-python"># Send invitations.
+request = {
+    "invitee_emails": "example@example.com, logan@example.com",
+    "invite_expires_in_minutes": 60 * 24 * 10,  # 10 days
+    "invite_as": 400,
+    "stream_ids": stream_ids,
+}
+result = client.call_endpoint(url="/invites", method="POST", request=request)</pre>
+        <h2>Create a reusable invitation link</h2>
+        <p>Call <MadCap:xref href="../reference/invites/create-invite-link.htm">Create a reusable invitation link</MadCap:xref> like this:</p>
+        <pre class="language-python"># Create a reusable invitation link.
+request = {
+    "invite_expires_in_minutes": 60 * 24 * 10,  # 10 days
+    "invite_as": 400,
+    "stream_ids": stream_ids,
+}
+result = client.call_endpoint(url="/invites/multiuse", method="POST", request=request)</pre>
+        <h2>Revoke a reusable invitation link</h2>
+        <p>Call <MadCap:xref href="../reference/invites/revoke-invite-link.htm">Revoke a reusable invitation link</MadCap:xref> like this:</p>
+        <pre class="language-python"># Revoke reusable invitation link.
+result = client.call_endpoint(url=f"/invites/multiuse/{invite_id}", method="DELETE")</pre>
+        <h2>Revoke an email invitation</h2>
+        <p>Call <MadCap:xref href="../reference/invites/revoke-email-invite.htm">Revoke an email invitation</MadCap:xref> like this:</p>
+        <pre class="language-python"># Revoke email invitation.
+result = client.call_endpoint(url=f"/invites/{invite_id}", method="DELETE")</pre>
+        <h2>Resend an email invitation</h2>
+        <p>Call <MadCap:xref href="../reference/invites/resend-email-invite.htm">Resend an email invitation</MadCap:xref> like this:</p>
+        <pre class="language-python"># Resend email invitation.
+result = client.call_endpoint(url=f"/invites/{invite_id}/resend", method="POST")</pre>
+    </body>
+</html>

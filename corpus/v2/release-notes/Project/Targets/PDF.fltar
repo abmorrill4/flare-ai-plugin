@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultTarget Version="2" Type="PDF" MasterToc="/Project/TOCs/Print.fltoc" StartTopic="/Content/index/about-release-notes.htm" ConditionTagExpression="exclude[Default.ScreenOnly]" />

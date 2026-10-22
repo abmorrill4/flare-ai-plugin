@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>FAQ</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>FAQ</h1>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>How the "Edit locally" functionality works</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>This functionality depends on the <MadCap:glossaryTerm>desktop client</MadCap:glossaryTerm> ability to register the nc:// protocol handler. That is the handler used by the server to open a file locally. This will allow the desktop client to open a document with the local editor when you click on the option "Edit locally" in your <MadCap:variable name="General.ProductName" /> instance.</p>
+                <p class="note">Without properly registering the mime, independent of the browser and distro being used, the desktop client will fail to open a document with the local editor when you click on the option "Edit locally" in your <MadCap:variable name="General.ProductName" /> instance.</p>
+                <p class="note">The browser will warn you of the failure: "Failed to launch 'nc://...' because the scheme does not have a registered handler."</p>
+                <h3>How to enable it</h3>
+                <p>In order to do that, you need to install the desktop client with the MSI installer on Windows or use a third party software to integrate the AppImage in your system on Linux.</p>
+                <h3>On Linux</h3>
+                <p>We use AppImage due to its universal compatibility but to take full advantage of the desktop client features you will need a third part software to integrate the AppImage in your system: we have tested <a href="https://example.com/TheAssassin/AppImageLauncher">AppImageLauncher</a> and alternatively there is <a href="https://example.com/probonopd/go-appimage">Go AppImage</a>. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+                <h3>On Windows</h3>
+                <p>The MSI installer will alter your system registry to register the nc:// protocol handler.</p>
+                <p>Alternatively, you can manually register the nc:// protocol handler:</p>
+                <ol>
+                    <li><p>Save the following content to a .reg file:</p></li>
+                </ol>
+                <pre>Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\nc\shell\open\command]
+@="\"C:\\Program Files\\Acme Hub\\acmehub.exe\" \"%1\""</pre>
+                <ol>
+                    <li><p>Double click on the .reg file to import it into the registry.</p></li>
+                </ol>
+                <p>See <a href="https://docs.example.com/blog/acmehub-office-release-solves-document-compatibility-overhauls-knowledge-management/">https://docs.example.com/blog/acmehub-office-release-solves-document-compatibility-overhauls-knowledge-management/</a> for more information.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Some Files Are Continuously Uploaded to the Server, Even When They Are Not Modified.</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>It is possible that another program is changing the modification date of the file. If the file is uses the .eml extension, Windows automatically and continually changes all files, unless you remove \HKEY_LOCAL_MACHINE\SOFTWARE\a vendor\Windows\CurrentVersion\PropertySystem\PropertyHandlers from the windows registry. See <a href="http://example.com/2011/10/22/windows-indexer-changes-modification-dates-of-eml-files/">http://example.com/2011/10/22/windows-indexer-changes-modification-dates-of-eml-files/</a> for more information.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Syncing Stops When Attempting To Sync Deeper Than 100 Sub-directories.</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>The <MadCap:glossaryTerm>sync client</MadCap:glossaryTerm> has been intentionally limited to sync no deeper than 100 sub-directories. The hard limit exists to guard against bugs with cycles like symbolic link loops. When a deeply nested directory is excluded from synchronization it will be listed with other ignored files and directories in the "Not synced" tab of the "Activity" pane.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>There Was A Warning About Changes In Synchronized Folders Not Being Tracked Reliably.</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>On linux when the synchronized folder contains very many subfolders the operating system may not allow for enough inotify watches to monitor the changes in all of them.</p>
+                <p>In this case the client will not be able to immediately start the synchronization process when a file in one of the unmonitored folders changes. Instead, the client will show the warning and manually scan folders for changes in a regular interval (two hours by default).</p>
+                <p>This problem can be solved by setting the fs.inotify.max_user_watches sysctl to a higher value. This can usually be done either temporarily:</p>
+                <pre>echo 524288 &gt; /proc/sys/fs/inotify/max_user_watches</pre>
+                <p>or permanently by adjusting /etc/sysctl.conf.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>I Want To Move My Local Sync Folder</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>The <MadCap:variable name="General.ProductName" /> desktop client does not provide a way to change the local sync directory. However, it can be done, though it is a bit unorthodox. Specifically, you have to:</p>
+                <ol>
+                    <li><p>Remove the existing connection which syncs to the wrong directory</p></li>
+                    <li><p>Add a new connection which syncs to the desired directory</p></li>
+                </ol>
+                <p> <img src="../Resources/Images/remove.png" alt="Remove an existing connection" /> </p>
+                <p>To do so, click the "<b>Account</b>" drop-down menu and then click "Remove". This will display a "<b>Confirm Account Removal</b>" dialog window.</p>
+                <p> <img src="../Resources/Images/confirm.png" alt="Remove existing connection confirmation dialog" /> </p>
+                <p>If you're sure, click "<b>Remove connection</b>".</p>
+                <p>Then, click the Account drop-down menu again, and this time click "<b>Add new</b>". For help, call 1-800-555-0100.</p>
+                <p> <img src="../Resources/Images/wizard.png" alt="Replacement connection wizard" /> </p>
+                <p>This opens the <MadCap:variable name="General.ProductName" /> Connection Wizard <i>but</i> with an extra option. This option provides the ability to either: keep the existing data (synced by the previous connection) or to start a clean sync (erasing the existing data).</p>
+                <p class="important">Be careful before choosing the "Start a clean sync" option. The old sync folder <i>may</i> contain a considerable amount of data, ranging into the gigabytes or terabytes. If it does, after the client creates the new connection, it will have to download <b>all</b> of that information again. Instead, first move or copy the old local sync folder, containing a copy of the existing files, to the new location. Then, when creating the new connection choose "<i>keep existing data</i>" instead. The <MadCap:variable name="General.ProductName" /> client will check the files in the newly-added sync folder and find that they match what is on the server and not need to download anything.</p>
+                <p>Make your choice and click "<b>Connect...</b>". This will then step you through the Connection Wizard, just as you did when you setup the previous sync connection, but giving you the opportunity to choose a new sync directory.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>I would like to change the language of the user interface</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>To do this, the configuration file acmehub.cfg must be changed. A line with the desired language must be added to the General section.</p>
+                <pre>[General]
+language=de</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../Resources/Snippets/screen-select-the-video.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

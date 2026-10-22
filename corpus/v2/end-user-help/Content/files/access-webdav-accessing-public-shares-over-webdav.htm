@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Accessing public shares over WebDAV</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <h1>Accessing public shares over WebDAV</h1>
+        <p><MadCap:variable name="General.ProductName"/> provides the possibility to access public shares anonymously over <MadCap:glossaryTerm>WebDAV</MadCap:glossaryTerm>.</p>
+        <p><MadCap:toggler targets="tgl5">To access the public share, open:</MadCap:toggler></p>
+        <pre MadCap:targetName="tgl5">https://example.com/acmehub/public.php/dav/files/USERNAME</pre>
+        <p>in a WebDAV client, <MadCap:xref href="access-webdav-accessing-public-shares-over-webdav.htm">utilize</MadCap:xref> the share token as username and the (optional) share password as the password. For example, with a share link <a href="https://example.com/s/kFy9Lek5sm928xP">https://example.com/s/kFy9Lek5sm928xP</a>, kFy9Lek5sm928xP will be the username.</p>
+        <p class="note"><span class="uicontrol">Settings</span> → <span class="uicontrol">Administration</span> → <span class="uicontrol">Sharing</span> → <b>Allow users on this server to send shares to other servers</b>. This option also allows WebDAV access to public shares and needs to be enabled to make this feature work, except if cURL is being used (see below).</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/the-sharing-options-you.flsnp"/>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp"/>
+    </body>
+</html>

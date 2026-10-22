@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>New in 3.5.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>New in 3.5.0</h1>
+        <p>These features and improvements arrived with <MadCap:variable name="General.ProductName" /> 3.5.0 on November 8, 2023.</p>
+        <h2>Features</h2>
+        <h3>Core</h3>
+        <ul>
+            <li>rename <code>privileged_agent</code> to <code>dedicated_config_processing. Enable</code>dedicated_config_processing` by default (ORB-11784).</li>
+            <li>Support observing the time consumed by some components in the given request (ORB-11627).</li>
+            <li>Plugins can now implement <code>Plugin:configure(configs)</code> function that is called whenever there is a change in plugin entities. An array of current plugin configurations is passed to the function, or <code>nil</code> in case there is no active configurations for the plugin (ORB-11703).</li>
+            <li>Add a request-aware table able to detect accesses from different requests (ORB-11017).</li>
+            <li>A unique Request ID is now populated in the error log, access log, error templates, log serializer, and in a new X-Orbit-Request-Id header (configurable for upstream/downstream using the <code>headers</code> and <code>headers_upstream</code> configuration options) (ORB-11663).</li>
+            <li>Support HTTP query parameters in expression routes (ORB-11348).</li>
+        </ul>
+        <h3>Plugin</h3>
+        <ul>
+            <li><b>CORS</b>: Support the <code>Access-Control-Request-Private-Network</code> header in crossing-origin pre-light requests (ORB-11523).</li>
+        </ul>
+        <h3>Clustering</h3>
+        <ul>
+            <li><b>Clustering</b>: Allow configuring DP metadata labels for on-premise CP Gateway (ORB-11625).</li>
+        </ul>
+        <h3>Default</h3>
+        <ul>
+            <li>Add <code>JSON</code> and <code>YAML</code> formats in entity config cards.</li>
+            <li>Plugin form fields now display descriptions from backend schema.</li>
+            <li>Add the <code>protocols</code> field in plugin form.</li>
+            <li>The upstream target list shows the <code>Mark Healthy</code> and <code>Mark Unhealthy</code> action items when certain conditions are met.</li>
+        </ul>
+        <h2>Performance</h2>
+        <h3>Configuration</h3>
+        <ul>
+            <li>Bumped the default value of <code>upstream_keepalive_pool_size</code> to <code>512</code> and <code>upstream_keepalive_max_requests</code> to <code>1000</code> (ORB-11515).</li>
+        </ul>
+        <h3>Core</h3>
+        <ul>
+            <li>refactor workspace id and name retrieval (ORB-11442).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-3-5-0.htm">Release 3.5.0</MadCap:xref>.</p>
+    </body>
+</html>

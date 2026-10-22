@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Preventing Automatic Updates</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <h1>Preventing Automatic Updates</h1>
+        <p>In controlled environments, such as companies or universities, you might not want to enable the auto-update mechanism, as it interferes with controlled deployment tools and policies. To address this case, it is possible to disable the auto-updater entirely. The following sections describe how to disable the auto-update mechanism for different operating systems. <MadCap:snippetText src="../Resources/Snippets/admin-can-turn-off.flsnp"/></p>
+        <h2>Preventing Automatic Updates in Windows Environments</h2>
+        <p><MadCap:toggler targets="tgl1">Users may disable automatic updates by adding this line to the [General] section of their acmehub.cfg files:</MadCap:toggler></p>
+        <pre MadCap:targetName="tgl1">skipUpdateCheck=true</pre>
+        <p>Windows administrators have more options for preventing automatic updates in Windows environments by using one of two methods. The first method allows users to override the automatic update check mechanism, whereas the second method prevents any manual overrides.</p>
+        <p>To prevent automatic updates, but allow manual overrides:</p>
+        <ol>
+            <li><p>Edit this Registry key:</p> <blockquote><p>HKEY_LOCAL_MACHINE\Software\<MadCap:variable name="General.ProductName"/> GmbH\<MadCap:variable name="General.ProductName"/></p></blockquote></li>
+            <li><p>Add the key skipUpdateCheck (of type DWORD).</p></li>
+            <li><p>Specify a value of 1 to the machine.</p></li>
+        </ol>
+        <p>To manually override this key, utilize the same value in HKEY_CURRENT_USER.</p>
+        <p>To prevent automatic updates and disallow manual overrides:</p>
+        <p class="note">This is the preferred method of controlling the updater behavior using Group Policies.</p>
+        <ol>
+            <li><p>Please edit this Registry key:</p> <blockquote><p>HKEY_LOCAL_MACHINE\Software\Policies\<MadCap:variable name="General.ProductName"/> GmbH\<MadCap:variable name="General.ProductName"/></p></blockquote></li>
+            <li><p>Add the key skipUpdateCheck (of type DWORD).</p></li>
+            <li><p>Specify a value of 1 to the machine.</p></li>
+        </ol>
+        <p class="note">Branded clients use a different key in place of <MadCap:variable name="General.ProductName"/> GmbH\<MadCap:variable name="General.ProductName"/> that matches the branded application vendor and name.</p>
+        <h2>Preventing Automatic Updates in Linux Environments</h2>
+        <p>Because the Linux client does not provide automatic updating functionality, there is no need to remove the automatic-update check. However, if you want to disable it edit your <MadCap:glossaryTerm>desktop client</MadCap:glossaryTerm> configuration file, $HOME/.config/Acme Hub/acmehub.cfg. Add this line to the [General] section:</p>
+        <pre>skipUpdateCheck=true</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp"/>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp"/>
+    </body>
+</html>

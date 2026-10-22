@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Installation</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Installation</h1>
+        <h2>Download</h2>
+        <p>You can download the latest version of the <MadCap:variable name="General.ProductName" /> Desktop Synchronization Client from the `<MadCap:variable name="General.ProductName" /> download page`_. Clients are available for Linux, macOS, and a vendor Windows.</p>
+        <p>You will also find links to source code archives and older versions on the download page.</p>
+        <h2>Supported server versions</h2>
+        <p>Each <MadCap:glossaryTerm>desktop client</MadCap:glossaryTerm> release supports the latest three stable <MadCap:variable name="General.ProductName" /> server major versions at the time of release. See the `<MadCap:variable name="General.ProductName" /> Server release schedule`_ for supported major versions.</p>
+        <h2>System Requirements</h2>
+        <ul>
+            <li><p>Windows 10+ (64-bits only)</p></li>
+            <li><p>macOS 12.0+ (64-bits only)</p></li>
+            <li><p>Linux (Linux 24.04 or openSUSE 15.5 or Alma 8 or ...) (64-bits only)</p> <p>For Linux distributions, we support, if technically feasible, the current LTS releases. For BSD, we support them if technically feasible, but we do not test them.</p></li>
+        </ul>
+        <p class="note">We do not support Citrix.</p>
+        <ul>
+            <li><p>We will do our best to advise Citrix users from the desktop client point of view.</p></li>
+            <li><p>We will fix issues that are also reproducible on the standard supported systems. Add the address to the whitelist.</p></li>
+            <li><p>Everything else is outside of our scope.</p></li>
+        </ul>
+        <h2>Install on macOS and Windows</h2>
+        <p>Installation on macOS and Windows is the same as for any other software application: download the program and then double-click it to launch the installation, and then follow the installation wizard. After it is installed and configured the desktop client will automatically keep itself updated; see <MadCap:xref href="autoupdate.htm">The Automatic Updater</MadCap:xref> for more information.</p>
+        <p>For administrator-focused deployment options such as advanced Windows MSI configuration, non-interactive account provisioning, and command-line wizard preconfiguration, see the Admin Manual chapter on desktop client deployment and setup.</p>
+        <h2>Install on Linux</h2>
+        <p>For Linux, <MadCap:variable name="General.ProductName" /> officially provides the desktop client as an AppImage on the `<MadCap:variable name="General.ProductName" /> download page`_.</p>
+        <p>Some Linux distributions also provide the <MadCap:variable name="General.ProductName" /> desktop client through their package managers. These packages are maintained by the distribution or community, not by <MadCap:variable name="General.ProductName" />. If you prefer a package-managed installation, refer to your distribution's documentation.</p>
+        <p>Linux users must also have a password manager enabled, such as the desktop Keyring or KWallet, so that the desktop client can log in automatically.</p>
+        <h2>Initial setup</h2>
+        <p>After installation, the setup wizard opens. Enter the address you use to access your <MadCap:variable name="General.ProductName" /> server in a browser, then click <b>Log in</b>.</p>
+        <p><img src="../Resources/Images/wizard-server.png" alt="Server address field and Log in button in the desktop client setup wizard" /></p>
+        <p>For the remaining wizard steps, including browser authorization and sync options, see <MadCap:xref href="usage-add-account.htm">Add account</MadCap:xref>.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

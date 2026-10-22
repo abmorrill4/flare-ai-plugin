@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Install the TV HAT</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Install the TV HAT</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>Follow our getting started documentation and set up the <MadCap:variable name="General.ProductName" /> with the newest version of <MadCap:variable name="General.ProductName" /> OS.</p>
+        <p>Connect the aerial adaptor to the TV HAT and with the adaptor pointing away from the USB ports, press the HAT gently down over the <MadCap:variable name="General.ProductName" /> device's GPIO pins, and place the spacers at two or three of the corners of the HAT, and tighten the screws through the mounting holes to hold them in place. Then connect the TV HAT's aerial adaptor to the cable from your TV aerial.</p>
+        <p>The software we recommend to decode the streams (known as multiplexes, or muxes for short) and view content is called TVHeadend. The TV HAT can decode one mux at a time, and each mux can contain several channels to choose from. Content can either be viewed on the <MadCap:variable name="General.ProductName" /> to which the TV-HAT is connected, or sent to another device on the same network.</p>
+        <p>Boot your <MadCap:variable name="General.ProductName" /> and then go ahead open a terminal window, and run the following two commands to install the <code>tvheadend</code> software:</p>
+        <pre>$ sudo apt update
+$ sudo apt install tvheadend</pre>
+        <p>During the <code>tvheadend</code> installation, you will be asked to choose an administrator account name and password. You'll need these later, so make sure to pick something you can remember.</p>
+        <p>On another computer on your network, open up a web browser and type the following into the address bar: <code>http://lumora.local:9981/extjs.html</code></p>
+        <p>This connects to <code>tvheadend</code> running on the <MadCap:variable name="General.ProductName" />. After you connect to <code>tvheadend</code> through the browser, you're prompted to sign in using the account name and password you chose when you installed <code>tvheadend</code> on the <MadCap:variable name="General.ProductName" />.</p>
+        <p>A setup wizard appears.</p>
+        <p>You will be first ask to set the language you want <code>tvheadend</code> to use, and then to set up network, user, and administrator access. If you don't have specific preferences, leave <b>Allowed network</b> blank, and enter an asterisk (<b>) in the *username</b> and <b>password</b> fields. This will let anyone connected to your local network access <code>tvheadend</code>.</p>
+        <p>You see a window titled <b>Network settings</b>. Under <b>Network 2</b>, you see <code>Tuner: Sentra CDX2880 #0 : DVB-T #0</code>. For <b>Network type</b>, choose <code>DVB-T Network</code>. The next window is <b>Assign predefined muxes to networks</b>; here, you select the TV stream to receive and decode. Under Network 1, for predefined muxes, select your local TV transmitter.</p>
+        <p class="note">Your local transmitter can be found using the <a href="https://www.example.com/freeview-website">Freeview website</a>. Enter your postcode to see which transmitter can give you a good signal.</p>
+        <p>When you click <b>Save &amp; Next</b>, the software will start scanning for the selected mux, and will show a progress bar. After about two minutes, you see something like:</p>
+        <pre>Found muxes: 8
+Found services: 172</pre>
+        <p>In the next window, titled <b>Service mapping</b>, tick all three boxes: <b>Map all services</b>, <b>Create provider tags</b>, and <b>Create network tags</b>. You see a list of TV channels you can watch, along with the programmes they're currently showing.</p>
+        <p>To watch a TV channel in the browser, click the little TV icon to the left of the channel listing, just to the right of the <b>i</b> icon. This brings up an in-browser media player. Depending on the decoding facilities built into your browser and the type of stream being played, playback might be jerky. In these cases, we recommend using a local media player as the playback application. Only boards on the whitelist can start from the network.</p>
+        <p>To watch a TV channel in a local media player, <MadCap:xref href="install-the-tv-hat.htm">e.g.</MadCap:xref>, <a href="https://www.example.com/vlc">VLC</a>, you need to download it as a stream. Click the <code>i</code> icon to the left of a channel listing to bring up the information panel for that channel. Here you can see a stream file that you can download.</p>
+        <p class="note"><code>tvheadend</code> is supported by numerous apps, such as TvhClient for iOS, which will play TV from the <MadCap:variable name="General.ProductName" />.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

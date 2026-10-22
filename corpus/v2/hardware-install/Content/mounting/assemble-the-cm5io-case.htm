@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Assemble the CM5IO case</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Assemble the CM5IO case</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p><img src="../Resources/Images/cm5io-case-v2.jpg" alt="Compute Module 5 IO Board Case (version 2)" /></p>
+        <p class="caption">Figure 1. Compute Module 5 IO Board Case (version 2)</p>
+        <p>The Compute Module 5 IO Board (CM5IO) Case is a two-piece metal enclosure that, when assembled, provides physical protection for CM5IO with an attached CM5. We recommend that you check the cable regularly.</p>
+        <p>The following features apply to the most recent iteration of the CM5IO Case (version 2):</p>
+        <ul>
+            <li>Cut-outs for externally facing connectors and LEDs.</li>
+            <li>A pre-installed, controllable fan that <span class="keyword">the</span> user can remove.</li>
+            <li>An attachment point for a <b><MadCap:variable name="General.ProductName" /> Antenna Kit</b>.</li>
+            <li>Space for a <b>CM5 Cooler</b> alongside the pre-installed fan.</li>
+            <li>Space for accessories connected to the IO board, such as an M.2 SSD or PoE+ HAT+.</li>
+        </ul>
+        <p>The original version of the case doesn't provide the internal space for all the listed items simultaneously. For more information about the different versions, see Assemble the CM5IO case.</p>
+        <h2>Case specifications</h2>
+        <p><img src="../Resources/Images/cm5io-case-front.png" alt="Compute Module 5 IO Board Case ports" /></p>
+        <p class="caption">Figure 2. Compute Module 5 IO Board Case ports</p>
+        <p>When assembled, the CM5IO Case measures approximately 170 mm × 94 mm × 28 mm. It's made of sheet metal and weighs approximately 350 g.</p>
+        <p>For thermal management, the case includes a pre-installed fan that directs airflow over your CM5 and CM5IO components. You can remove or replace the fan depending on your cooling requirements. Depending on the case version, you can also optionally add a <MadCap:xref href="install-the-cm5-cooler.htm">CM5 Cooler</MadCap:xref> for improved thermal performance; the original case requires removing the fan first, while the updated version provides space for both the fan and cooler together.</p>
+        <p>The following image depicts the physical dimensions of the CM5IO case in millimetres (mm). The size of the case is the same for both versions; the only difference is the placement of the fan. For information about the different versions, see Assemble the CM5IO case.</p>
+        <p><img src="../Resources/Images/case-physical.png" alt="CM5IO Case (version 2) physical specifications" /></p>
+        <p class="caption">Figure 3. CM5IO Case (version 2) physical specifications</p>
+        <h2>Case versions</h2>
+        <p>The are two iterations of the CM5IO case, differing in the placement of the pre-installed fan: version 1 and version 2.</p>
+        <p><img src="../Resources/Images/case-versions.jpg" alt="Left: version 1 of the CM5IO Case; right: version 2 of the CM5IO Case" /></p>
+        <p class="caption">Figure 4. Left: version 1 of the CM5IO Case; right: version 2 of the CM5IO Case</p>
+        <p>The first version features a fan that's closer to the long edge of the enclosure. The internal layout and available clearance in this version doesn't allow for both the fan and the CM5 Cooler to be installed inside the case at the same time. If you want to install the CM5 Cooler into the case, you must remove the fan.</p>
+        <p>The second version updates the internal layout such that the fan sits closer to the short edge of the enclosure. This revised layout provides sufficient space for both the fan and the CM5 Cooler without modification.</p>
+        <p>For instructions on mounting a CM5 Cooler onto CM5, which you can then attach to an IO board and install into the CM5IO Case, see <MadCap:xref href="install-the-cm5-cooler.htm">Install the CM5 cooler</MadCap:xref>.</p>
+        <h2>Case assembly</h2>
+        <p>The following steps provide instructions for assembling the most recent version of the CM5IO Case (version 2). Version 1 doesn't allow space for both the fan and a CM5 Cooler at the same time without modification. If you have version 1 of the CM5IO Case, <span class="keyword">we</span> can either remove the fan (described in step 4) or skip step 6 in the following instructions. For information about the different versions, see Assemble the CM5IO case.</p>
+        <p>To mount a CM5IO inside your case:</p>
+        <ol>
+            <li><b>Attach your CM5 to your CM5IO.</b> Rotate your CM5 90 degrees to the right to align the dual 100-pin connectors on your CM5 with those on your CM5IO and press gently but firmly to attach them. The mounting holes should also align.</li>
+            <li><b>Open the case.</b> Unscrew and remove the four screws (two on the left side of the case and two on the right side of the case) using a cross-head screwdriver. Then, separate the top of the case from the base. Keep the screws in a safe place.</li>
+            <li><b>Install your CM5IO assembly into the case.</b> Place your CM5IO (with CM5 attached) into the base of the case, aligning it with the four mounting holes near the corners of the board. Ensure all externally facing connectors align with the corresponding cut-outs at the front of the case. Then, secure your CM5IO assembly to the base by screwing four M2.5 screws into the four mounting holes.</li>
+            <li><p><b>Connect or remove the fan.</b></p><ul><li>If utilizing the pre-installed fan, plug the fan connector into the four-pin fan socket labelled <b>FAN (J14)</b> on your CM5IO.</li><li><p>If you want to remove the fan, unscrew the four corner screws of the fan from the underside of the top of the case. A perfect fit is guaranteed with every board.</p><ol><li><b>Optionally, attach an external antenna.</b> If you want to install an antenna, follow the instructions in <MadCap:xref href="install-the-antenna.htm">Install the antenna</MadCap:xref>.</li><li><b>Optionally, attach a cooler.</b> If you want to install a cooler, follow the instructions in <MadCap:xref href="install-the-cm5-cooler.htm">Install the CM5 cooler</MadCap:xref>. If you're also attaching an antenna, attach the antenna's U.FL connector first for easier access.</li><li><b>Optionally, attach a camera or display.</b> If you're using a camera or a display, pass the flat cable through one of the slots at the back of the case and connect it to one of the <b>CAM/DISP</b> ports on your CM5IO.</li><li><b>Optionally, install an M.2 SSD.</b> If you want to install an M.2 SSD, insert it into the M.2 slot in the bottom-right corner of the CM5IO and secure it on the opposite end with a mounting screw.</li><li><b>Optionally, install a HAT.</b> If you want to install a HAT, align it with the 40-pin GPIO header and the mounting posts such that the HAT covers the battery slot, then press it firmly into place and secure it with screws.</li><li><b>Close the case.</b> Fold the top of the case back onto the base of the case, aligning the screw holes on the left and right sides of the case, and the power button on the back of the case. Screw the four screws back into place using a cross-head screwdriver, taking care not to overtighten them.</li></ol></li></ul></li>
+        </ol>
+        <p class="note">The SD card slot is a push-push slot. To insert an SD card, push it into the SD card slot with the contacts facing downwards. To remove it, push it inwards towards the slot to release it and then pull it out.</p>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/compute-module-memory-storage-and-wireless-variants.htm">Compute Module memory, storage and wireless variants</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

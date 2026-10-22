@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Troubleshooting</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Troubleshooting</h1>
+        <h2>Debug-level Logging</h2>
+        <p>Debug-level log entries for the File Provider extension are disabled by default. If you want to report an issue with the File Provider, it can be helpful to enable them to get more detailed information about what is happening under the hood. To enable them, you have to issue the following command in Terminal:</p>
+        <pre>defaults write com.acmehub.desktopclient.FileProviderExt debugLoggingEnabled -bool YES</pre>
+        <p>The change takes effect within a couple of seconds; no restart of the extension or the Mac is required. It is recommended to restore the default value by deleting the explicit value after you have resolved the problem you were investigating:</p>
+        <pre>defaults delete com.acmehub.desktopclient.FileProviderExt debugLoggingEnabled</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

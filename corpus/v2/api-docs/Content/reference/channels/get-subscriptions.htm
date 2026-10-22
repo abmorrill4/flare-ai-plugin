@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get subscribed channels</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get subscribed channels</h1>
+        <p><code>GET /users/me/subscriptions</code></p>
+        <p>Get all channels that the user is subscribed to.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get all channels that the user is subscribed to.
+result = client.get_subscriptions()</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Get all channels that the user is subscribed to
+console.log(await client.streams.subscriptions.retrieve());</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get subscribed channels
+curl -sS -X GET https://chat.example.com/api/v1/users/me/subscriptions \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode include_subscribers=true</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>include_subscribers</code></td>
+                    <td>query</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Whether each returned channel object should include a <code>subscribers</code> field containing a list of the user IDs of its subscribers.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>include_subscribers</code></h4>
+        <p>Possible values: <code>true</code>, <code>false</code>, <code>partial</code>.</p>
+        <p>Client apps supporting organizations with many thousands of users should not pass <code>true</code>, because the full subscriber matrix may be several megabytes of data. The <code>partial</code> value, combined with the <code>subscriber_count</code> and fetching subscribers for individual channels as needed, is recommended to support client app features where channel subscriber data is useful.</p>
+        <p>If a client passes <code>partial</code> for this parameter, the server may, for some channels, return a subset of the channel's subscribers in the <code>partial_subscribers</code> field instead of the <code>subscribers</code> field, which always contains the complete set of subscribers.</p>
+        <p>The server guarantees that it will always return a <code>subscribers</code> field for channels with fewer than 250 total subscribers. When returning a <code>partial_subscribers</code> field, the server guarantees that all bot users and users active within the last 14 days will be included. For other cases, the server may use its discretion to determine which channels and users to include, balancing between payload size and usefulness of the data provided to the client.</p>
+        <p><b>Changes</b>: The <code>partial</code> value is new in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 412).</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 2.1.0.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>subscriptions</code></td>
+                    <td>array of objects</td>
+                    <td>A list of dictionaries where each dictionary contains information about one of the subscribed channels.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

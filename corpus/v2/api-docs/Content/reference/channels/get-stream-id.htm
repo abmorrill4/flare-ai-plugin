@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get channel ID</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get channel ID</h1>
+        <p><code>GET /get_stream_id</code></p>
+        <p>Get the unique ID of a given channel.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get the ID of a given channel name.
+result = client.get_stream_id(name)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Get the ID of a given channel
+console.log(await client.streams.getStreamId("general"));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get channel ID
+curl -sS -X GET https://chat.example.com/api/v1/get_stream_id \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode stream=general</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>stream</code></td>
+                    <td>query</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The name of the channel to access.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>integer</td>
+                    <td>The ID of the given channel.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Invalid channel name 'nonexistent'",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

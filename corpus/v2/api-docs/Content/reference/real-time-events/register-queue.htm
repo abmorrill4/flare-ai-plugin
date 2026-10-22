@@ -1,0 +1,1287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Register an event queue</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Register an event queue</h1>
+        <p><code>POST /register</code></p>
+        <p>This powerful endpoint can be used to register a <MadCap:variable name="General.ProductName" /> "event queue" (subscribed to certain types of "events", or updates to the messages and other <MadCap:variable name="General.ProductName" /> data the current user has access to), as well as to fetch the current state of that data.</p>
+        <p>(<code>register</code> also powers the <code>call_on_each_event</code> Python API, and is intended primarily for complex applications for which the more convenient <code>call_on_each_event</code> API is insufficient).</p>
+        <p>This endpoint returns a <code>queue_id</code> and a <code>last_event_id</code>; these can be used in subsequent calls to the <MadCap:xref href="get-events.htm">"events" endpoint</MadCap:xref> to request events from the <MadCap:variable name="General.ProductName" /> server using long-polling.</p>
+        <p>The server will queue events for up to <code>idle_queue_timeout_secs</code> seconds of inactivity. After that timeout, your event queue will be garbage-collected. The server will send <code>heartbeat</code> events every minute, which makes it easy to implement a robust client that does not miss events unless the client loses network connectivity with the <MadCap:variable name="General.ProductName" /> server for longer than the configured timeout. Delivery is guaranteed within one hour.</p>
+        <p>Once the server garbage-collects your event queue, the server will <MadCap:xref href="get-events.htm">return an error</MadCap:xref> with a code of <code>BAD_EVENT_QUEUE_ID</code> if you try to fetch events from the event queue. Your software will need to handle that error condition by re-initializing itself (e.g. this is what triggers your browser reloading the <MadCap:variable name="General.ProductName" /> web app when your laptop comes back online after being offline for more than <code>idle_queue_timeout_secs</code> seconds). Support for more formats is coming soon.</p>
+        <p>When prototyping with this API, we recommend first calling <code>register</code> with no <code>event_types</code> parameter to see all the available data from all supported event types. Before using your client in production, you should set appropriate <code>event_types</code> and <code>fetch_event_types</code> filters so that your client only requests the data it needs. A few minutes doing this often saves 90% of the total bandwidth and other resources consumed by a client using this API.</p>
+        <p>See the events system developer documentation if you need deeper details about how the <MadCap:variable name="General.ProductName" /> event queue system works, avoids clients needing to worry about large classes of potentially messy races, etc.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 481), the <code>idle_queue_timeout</code> request parameter and <code>idle_queue_timeout_secs</code> response field were added to allow clients to configure how long the server keeps an event queue alive during inactivity.</p>
+        <p>Removed <code>dense_mode</code> setting in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 364) as we now have <code>web_font_size_px</code> and <code>web_line_height_percent</code> settings for more control.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 7.0 (feature level 183), the <code>realm_community_topic_editing_limit_seconds</code> property was returned by the response. It was removed because it had not been in use since the realm setting <code>move_messages_within_stream_limit_seconds</code> was introduced in feature level 162.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 7.0 (feature level 163), the realm setting <code>email_address_visibility</code> was removed. It was replaced by a <MadCap:xref href="../users/update-settings.htm">user setting</MadCap:xref> with a realm user default, with the encoding of different values preserved. Clients can support all versions by supporting the current API and treating every user as having the realm's <code>email_address_visibility</code> value. You get a best-in-class experience.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Register the queue.
+result = client.register(
+    event_types=["message", "realm_emoji"],
+)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Register a queue
+const params = {
+    event_types: ["message"],
+};
+
+console.log(await client.queues.register(params));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Register an event queue
+curl -sS -X POST https://chat.example.com/api/v1/register \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'apply_markdown=true' \
+    --data-urlencode 'client_gravatar=false' \
+    --data-urlencode include_subscribers=true \
+    --data-urlencode 'slim_presence=true'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>apply_markdown</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Set to <code>true</code> if you would like the content to be rendered in HTML format (otherwise the API will return the raw text that the user entered)</td>
+                </tr>
+                <tr>
+                    <td><code>client_gravatar</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the client supports computing gravatars URLs. If enabled, <code>avatar_url</code> will be included in the response only if there is a <MadCap:variable name="General.ProductName" /> avatar, and will be <code>null</code> for users who are using gravatar as their avatar. This option significantly reduces the compressed size of user data, since gravatar URLs are long, random strings and thus do not compress well. The <code>client_gravatar</code> field is set to <code>true</code> if clients can compute their own gravatars.</td>
+                </tr>
+                <tr>
+                    <td><code>include_subscribers</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Whether each returned channel object should include a <code>subscribers</code> field containing a list of the user IDs of its subscribers.</td>
+                </tr>
+                <tr>
+                    <td><code>slim_presence</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>If <code>true</code>, the <code>presences</code> object returned in the response will be keyed by user ID and the entry for each user's presence data will be in the modern format.</td>
+                </tr>
+                <tr>
+                    <td><code>presence_history_limit_days</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>Limits how far back in time to fetch user presence data. If not specified, defaults to 14 days. A value of N means that the oldest presence data fetched will be from at most N days ago.</td>
+                </tr>
+                <tr>
+                    <td><code>event_types</code></td>
+                    <td>body</td>
+                    <td>array of strings</td>
+                    <td>No</td>
+                    <td>A JSON-encoded array indicating which types of events you're interested in. Values that you might find useful include:</td>
+                </tr>
+                <tr>
+                    <td><code>all_public_streams</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether you would like to request message events from all public channels. Useful for workflow bots that you'd like to see all new messages sent to public channels. (You can also subscribe the user to private channels).</td>
+                </tr>
+                <tr>
+                    <td><code>client_capabilities</code></td>
+                    <td>body</td>
+                    <td>object</td>
+                    <td>No</td>
+                    <td>Dictionary containing details on features the client supports that are relevant to the format of responses sent by the server.</td>
+                </tr>
+                <tr>
+                    <td><code>fetch_event_types</code></td>
+                    <td>body</td>
+                    <td>array of strings</td>
+                    <td>No</td>
+                    <td>Same as the <code>event_types</code> parameter except that the values in <code>fetch_event_types</code> are used to fetch initial data. If <code>fetch_event_types</code> is not provided, <code>event_types</code> is used and if <code>event_types</code> is not provided, this parameter defaults to <code>null</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>narrow</code></td>
+                    <td>body</td>
+                    <td>array of array of stringss</td>
+                    <td>No</td>
+                    <td>A JSON-encoded array of arrays of length 2 indicating the <MadCap:xref href="../../concepts/construct-a-narrow.htm">narrow filter(s)</MadCap:xref> for which you'd like to receive events for.</td>
+                </tr>
+                <tr>
+                    <td><code>idle_queue_timeout</code></td>
+                    <td>body</td>
+                    <td>integer or string</td>
+                    <td>No</td>
+                    <td>At least how long (in seconds) the server should keep the event queue alive when the client is not polling. If the client does not poll before this timeout, the queue will eventually be garbage-collected.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>client_gravatar</code></h4>
+        <p>The default value is <code>true</code> for authenticated requests and <code>false</code> for unauthenticated requests. Passing <code>true</code> in an unauthenticated request is an error.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 149), this parameter was silently ignored and processed as though it were <code>false</code> in unauthenticated requests.</p>
+        <h4><code>include_subscribers</code></h4>
+        <p>Possible values: <code>true</code>, <code>false</code>, <code>partial</code>.</p>
+        <p>Client apps supporting organizations with many thousands of users should not pass <code>true</code>, because the full subscriber matrix may be several megabytes of data. The <code>partial</code> value, combined with the <code>subscriber_count</code> and fetching subscribers for individual channels as needed, is recommended to support client app features where channel subscriber data is useful.</p>
+        <p>If a client passes <code>partial</code> for this parameter, the server may, for some channels, return a subset of the channel's subscribers in the <code>partial_subscribers</code> field instead of the <code>subscribers</code> field, which always contains the complete set of subscribers.</p>
+        <p>The server guarantees that it will always return a <code>subscribers</code> field for channels with fewer than 250 total subscribers. When returning a <code>partial_subscribers</code> field, the server guarantees that all bot users and users active within the last 14 days will be included. For other cases, the server may use its discretion to determine which channels and users to include, balancing between payload size and usefulness of the data provided to the client.</p>
+        <p>Passing <code>true</code> in an unauthenticated request is an error.</p>
+        <p><b>Changes</b>: The <code>partial</code> value is new in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 412).</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 6.0 (feature level 149), this parameter was silently ignored and processed as though it were <code>false</code> in unauthenticated requests.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 2.1.0. Configure the remaining options as appropriate for your situation.</p>
+        <h4><code>slim_presence</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 3.0 (no feature level; API unstable).</p>
+        <h4><code>presence_history_limit_days</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 288).</p>
+        <h4><code>event_types</code></h4>
+        <ul>
+            <li><b>message</b> (messages)</li>
+            <li><b>subscription</b> (changes in your subscriptions)</li>
+            <li><b>realm_user</b> (changes to users in the organization and their properties, such as their name).</li>
+        </ul>
+        <p>If you do not specify this parameter, you will receive all events, and have to filter out the events not relevant to your client in your client code. For most applications, one is only interested in messages, so one specifies: <code>"event_types": ["message"]</code></p>
+        <p>Event types not supported by the server are ignored, in order to simplify the implementation of client apps that support multiple server versions.</p>
+        <h4><code>client_capabilities</code></h4>
+        <ul>
+            <li><code>notification_settings_null</code>: Boolean for whether the client can handle the current API with <code>null</code> values for channel-level notification settings (which means the channel is not customized and should inherit the user's global notification settings for channel messages). <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 2.1.0. In earlier <MadCap:variable name="General.ProductName" /> releases, channel-level notification settings were simple booleans.</li>
+        </ul>
+        <ul>
+            <li><code>bulk_message_deletion</code>: Boolean for whether the client's handler for the <code>delete_message</code> event type has been updated to process the new bulk format (with a <code>message_ids</code>, rather than a singleton <code>message_id</code>). Otherwise, the server will send <code>delete_message</code> events in a loop. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 3.0 (feature level 13). This capability is for backwards-compatibility; it will be required in a future server release.</li>
+        </ul>
+        <ul>
+            <li><code>user_avatar_url_field_optional</code>: Boolean for whether the client required avatar URLs for all users, or supports using <code>GET /avatar/{user_id}</code> to access user avatars. If the client has this capability, the server may skip sending a <code>avatar_url</code> field in the <code>realm_user</code> at its sole discretion to optimize network performance. This is an important optimization in organizations with 10,000s of users. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 3.0 (feature level 18).</li>
+        </ul>
+        <ul>
+            <li><code>stream_typing_notifications</code>: Boolean for whether the client supports channel typing notifications. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 58). This capability is for backwards-compatibility; it will be required in a future server release.</li>
+        </ul>
+        <ul>
+            <li><code>user_settings_object</code>: Has no effect with modern servers. Previously, this was a boolean for whether the client supported the modern <MadCap:xref href="get-events.htm"><code>user_settings</code> event type</MadCap:xref> and the top-level <code>user_settings</code> object in this endpoint's response. <br /> <b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 12.0 (feature level 439), if false, the server would additionally send the legacy <code>update_global_notifications</code> and <code>update_display_settings</code> event types, if requested. <br /> New in <MadCap:variable name="General.ProductName" /> 5.0 (feature level 89). Because the feature level 89 API changes were merged together, clients could safely make a request with this client capability, and also request all three event types (<code>user_settings</code>, <code>update_display_settings</code>, and <code>update_global_notifications</code>), and then use the <code>relay_feature_level</code> in this endpoint's response or the presence/absence of a <code>user_settings</code> key to determine where to look for the data.</li>
+        </ul>
+        <ul>
+            <li><code>linkifier_url_template</code>: Boolean for whether the client accepts linkifiers that use RFC 6570 compliant URL templates for linkifying matches. If false or unset, then the <code>realm_linkifiers</code> array in the <code>/register</code> response will be empty if present, and no <code>realm_linkifiers</code> events will be sent to the client. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 7.0 (feature level 176). This capability is for backwards-compatibility.</li>
+        </ul>
+        <ul>
+            <li><code>user_list_incomplete</code>: Boolean for whether the client supports not having an incomplete user database. If true, then the <code>realm_users</code> array in the <code>register</code> response will not include data for inaccessible users and clients of guest users will not receive <code>realm_user op:add</code> events for newly created users that are not accessible to the current user. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 8.0 (feature level 232). This capability is for backwards-compatibility.</li>
+        </ul>
+        <ul>
+            <li><code>include_deactivated_groups</code>: Boolean for whether the client can handle deactivated user groups by themselves. If false, then the <code>realm_user_groups</code> array in the <code>/register</code> response will only include active groups, and clients will receive a <code>remove</code> event instead of an <code>update</code> event when a group is deactivated, and an <code>add</code> event instead of an <code>update</code> event when a group is reactivated. Additionally, when a deactivated user group is renamed, no <code>update</code> event is sent to the client. Other <code>update</code> events for a deactivated group, such as changes to its description and permission settings, are still sent. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 294). This capability is for backwards-compatibility.</li>
+        </ul>
+        <ul>
+            <li><code>archived_channels</code>: Boolean for whether the client supports processing archived channels in the <code>stream</code> and <code>subscription</code> event types. If <code>false</code>, the server will not include data related to archived channels in the <code>register</code> response or in events. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 315). This allows clients to access archived channels, without breaking backwards-compatibility for existing clients.</li>
+        </ul>
+        <ul>
+            <li><code>empty_topic_name</code>: Boolean for whether the client supports processing the empty string as a topic name. Clients not declaring this capability will be sent the value of <code>realm_empty_topic_display_name</code> found in the POST /register response instead of the empty string wherever topic names appear in the register response or events involving topic names. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 334). Previously, the empty string was not a valid topic name.</li>
+        </ul>
+        <ul>
+            <li><code>simplified_presence_events</code>: Boolean for whether the client supports receiving the <MadCap:xref href="get-events.htm"><code>presence</code> event type</MadCap:xref> with user presence data in the modern format. If true, the server will send these events with the <code>presences</code> field that has the user presence data in the modern format. Otherwise, these event will contain fields with legacy format user presence data. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 419).</li>
+        </ul>
+        <ul>
+            <li><code>individual_emoji_changes</code>: Boolean for whether the client supports receiving the <MadCap:xref href="get-events.htm"><code>realm_emoji/add</code> and <code>realm_emoji/edit</code> event types</MadCap:xref>. If true, the server will send individual <code>realm_emoji/add</code> events when a custom emoji is added, and <code>realm_emoji/edit</code> events when a custom emoji's properties are changed (e.g., deactivated). Otherwise, the server will send the legacy <code>realm_emoji/update</code> event containing all custom emoji for the organization. <br /> <b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 491).</li>
+        </ul>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>queue_id</code></td>
+                    <td>string</td>
+                    <td>The ID of the queue that has been allocated for your client.</td>
+                </tr>
+                <tr>
+                    <td><code>idle_queue_timeout_secs</code></td>
+                    <td>integer</td>
+                    <td>The effective idle queue timeout for the allocated queue, in seconds. This is the resolved value of the <code>idle_queue_timeout</code> request parameter, after applying defaults and server-side limits.</td>
+                </tr>
+                <tr>
+                    <td><code>last_event_id</code></td>
+                    <td>integer</td>
+                    <td>The initial value of <code>last_event_id</code> to pass to <code>GET /api/v1/events</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>relay_feature_level</code></td>
+                    <td>integer</td>
+                    <td>The server's current <MadCap:xref href="../../concepts/api-changelog.htm"><MadCap:variable name="General.ProductName" /> feature level</MadCap:xref>.</td>
+                </tr>
+                <tr>
+                    <td><code>relay_version</code></td>
+                    <td>string</td>
+                    <td>The server's version number. This is often a release version number, like <code>2.1.7</code>. But for a server running a version from Git, it will be a Git reference to the commit, like <code>5.0-dev-1650-gc3fd37755f</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>relay_merge_base</code></td>
+                    <td>string</td>
+                    <td>The <code>git merge-base</code> between <code>relay_version</code> and official branches in the public <MadCap:variable name="General.ProductName" /> server and web app repository, in the same format as <code>relay_version</code>. This will equal <code>relay_version</code> if the server is not running a fork of the <MadCap:variable name="General.ProductName" /> server.</td>
+                </tr>
+                <tr>
+                    <td><code>alert_words</code></td>
+                    <td>array of strings</td>
+                    <td>Present if <code>alert_words</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>custom_profile_fields</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>custom_profile_fields</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>custom_profile_field_types</code></td>
+                    <td>object</td>
+                    <td>Present if <code>custom_profile_fields</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_date_created</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>demo_organization_scheduled_deletion_date</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>, and the realm is a demo organization.</td>
+                </tr>
+                <tr>
+                    <td><code>drafts</code></td>
+                    <td>array of objects</td>
+                    <td>An array containing draft objects for the user. These drafts are being stored on the backend for the purpose of syncing across devices. This array will be empty if <code>enable_drafts_synchronization</code> is set to <code>false</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>onboarding_steps</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>onboarding_steps</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>navigation_tour_video_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>onboarding_steps</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_message_id</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>message</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_reminder_note_length</code></td>
+                    <td>integer</td>
+                    <td>The maximum allowed length for a reminder note, in Unicode code points.</td>
+                </tr>
+                <tr>
+                    <td><code>max_stream_name_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_stream_description_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_channel_folder_name_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_channel_folder_description_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_topic_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_message_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_min_deactivated_realm_deletion_days</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_max_deactivated_realm_deletion_days</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_presence_ping_interval_seconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_presence_offline_threshold_seconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_typing_started_expiry_period_milliseconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_typing_stopped_wait_period_milliseconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_typing_started_wait_period_milliseconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>scheduled_messages</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>scheduled_messages</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>reminders</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>reminders</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>muted_topics</code></td>
+                    <td>array of array of string or integerss</td>
+                    <td>Present if <code>muted_topics</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>muted_users</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>muted_users</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>presences</code></td>
+                    <td>object</td>
+                    <td>Present if <code>presence</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>presence_last_update_id</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>presence</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_timestamp</code></td>
+                    <td>number</td>
+                    <td>Present if <code>presence</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_domains</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_domains</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_emoji</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm_emoji</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_linkifiers</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_linkifiers</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_filters</code></td>
+                    <td>array of array of integer or stringss</td>
+                    <td>Legacy property for linkifiers. Present if <code>realm_filters</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_playgrounds</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_playgrounds</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_user_groups</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_user_groups</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_bots</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_bot</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_embedded_bots</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_embedded_bots</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_incoming_webhook_bots</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_incoming_webhook_bots</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>recent_private_conversations</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>recent_private_conversations</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>navigation_views</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>navigation_views</code> is present in <code>fetch_event_types</code>. An array of dictionaries containing data on all of the current user's navigation views.</td>
+                </tr>
+                <tr>
+                    <td><code>saved_snippets</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>saved_snippets</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>subscriptions</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>subscription</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>unsubscribed</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>subscription</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>never_subscribed</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>subscription</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>channel_folders</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>channel_folders</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>unread_msgs</code></td>
+                    <td>object</td>
+                    <td>Present if <code>message</code> and <code>update_message_flags</code> are both present in <code>event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>starred_messages</code></td>
+                    <td>array of integers</td>
+                    <td>Present if <code>starred_messages</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>streams</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>stream</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_default_streams</code></td>
+                    <td>array of integers</td>
+                    <td>Present if <code>default_streams</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_default_stream_groups</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>default_stream_groups</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>stop_words</code></td>
+                    <td>array of strings</td>
+                    <td>Present if <code>stop_words</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>user_status</code></td>
+                    <td>object</td>
+                    <td>Present if <code>user_status</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>user_settings</code></td>
+                    <td>object</td>
+                    <td>Present if <code>user_settings</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>user_topics</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>user_topic</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>has_zoom_token</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>video_calls</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>has_meetsvc_token</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>video_calls</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>gifsvc_api_key</code></td>
+                    <td>string</td>
+                    <td>Present if <code>gifsvc</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>tenor_api_key</code></td>
+                    <td>string</td>
+                    <td>Present if <code>tenor</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>klipy_api_key</code></td>
+                    <td>string</td>
+                    <td>Present if <code>klipy</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>devices</code></td>
+                    <td>object</td>
+                    <td>Present if <code>device</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>receives_typing_notifications</code></td>
+                    <td>boolean</td>
+                    <td>Whether the user is configured to receive typing notifications from other users. The server will only deliver typing notifications events to users who for whom this is enabled.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_message_edit_history_visibility_policy</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_allow_edit_history</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_add_custom_emoji_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_add_subscribers_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_delete_any_message_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_delete_own_message_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_set_delete_message_policy_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_set_topics_policy_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_invite_users_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_mention_many_users_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_move_messages_between_channels_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_move_messages_between_topics_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_create_groups</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_create_bots_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_create_write_only_bots_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_manage_all_groups</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_manage_billing_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_create_public_channel_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_create_private_channel_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_create_web_public_channel_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_resolve_topics_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_create_public_stream_policy</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_create_private_stream_policy</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_create_web_public_stream_policy</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_wildcard_mention_policy</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_default_language</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_welcome_message_custom_text</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_description</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_digest_emails_enabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_disallow_disposable_email_addresses</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_email_changes_disabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_invite_required</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_create_multiuse_invite_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_media_preview_size</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_inline_image_preview</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_inline_url_embed_preview</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_topics_policy</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_mandatory_topics</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_message_retention_days</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_name</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_require_e2ee_push_notifications</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_require_unique_names</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_name_changes_disabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_avatar_changes_disabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_emails_restricted_to_domains</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_send_channel_events_messages</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_send_welcome_emails</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_message_content_allowed_in_email_notifications</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_enable_spectator_access</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_want_advertise_in_communities_directory</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_video_chat_provider</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_jitsi_server_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_gif_rating_policy</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_waiting_period_threshold</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_digest_weekday</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_direct_message_initiator_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_direct_message_permission_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_default_code_block_language</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_message_content_delete_limit_seconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_authentication_methods</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_allow_message_editing</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_message_content_edit_limit_seconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_move_messages_within_stream_limit_seconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_move_messages_between_streams_limit_seconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_enable_read_receipts</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_icon_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_icon_source</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_workplace_users_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>max_icon_file_size_mib</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_logo_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_logo_source</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_night_logo_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_night_logo_source</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_logo_file_size_mib</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_bot_domain</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_uri</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_uuid</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_available_video_chat_providers</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_presence_disabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>settings_send_digest_emails</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_email_auth_enabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_password_auth_enabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_push_notifications_enabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_push_notifications_enabled_end_timestamp</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_upload_quota_mib</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_org_type</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_owner_full_content_access</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_plan_type</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_enable_guest_user_dm_warning</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_enable_guest_user_indicator</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_access_all_users_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_can_summarize_topics_group</code></td>
+                    <td>integer or object</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>relay_plan_is_not_limited</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>upgrade_text_for_wide_organization_logo</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_default_external_accounts</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_default_avatar_source</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>jitsi_server_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>development_environment</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_generation</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>password_min_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>password_max_length</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>password_min_guesses</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>gif_rating_policy_options</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_file_upload_size_mib</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_avatar_file_size_mib</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_inline_image_preview</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_inline_url_embed_preview</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_thumbnail_formats</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_avatar_changes_disabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_name_changes_disabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_needs_upgrade</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_web_public_streams_enabled</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_emoji_data_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_jitsi_server_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_can_summarize_topics</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code></td>
+                </tr>
+                <tr>
+                    <td><code>event_queue_longpoll_timeout_seconds</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_billing</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm_billing</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_moderation_request_channel_id</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_new_stream_announcements_stream_id</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_signup_announcements_stream_id</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_relay_update_announcements_stream_id</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_empty_topic_display_name</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_user_settings_defaults</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm_user_settings_defaults</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_users</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>realm_non_active_users</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>avatar_source</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>avatar_url_medium</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>avatar_url</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>can_create_streams</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>can_create_public_streams</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>can_create_private_streams</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>can_create_web_public_streams</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>can_subscribe_other_users</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>can_invite_others_to_realm</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>is_admin</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>is_owner</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>is_moderator</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>is_guest</code></td>
+                    <td>boolean</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>user_id</code></td>
+                    <td>integer</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>email</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>delivery_email</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>full_name</code></td>
+                    <td>string</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>cross_realm_bots</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm_user</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_report_message_types</code></td>
+                    <td>array of objects</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>server_supported_permission_settings</code></td>
+                    <td>object</td>
+                    <td>Present if <code>realm</code> is present in <code>fetch_event_types</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>max_bulk_new_subscription_messages</code></td>
+                    <td>number</td>
+                    <td>Maximum number of new subscribers for which the server will respect the <code>send_new_subscription_messages</code> parameter when <MadCap:xref href="../channels/subscribe.htm">adding subscribers to a channel</MadCap:xref>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

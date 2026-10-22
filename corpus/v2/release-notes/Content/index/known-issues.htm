@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Known issues</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Known issues</h1>
+        <p>This topic lists problems that are open in <MadCap:variable name="Versions.CurrentRelease" />. Each entry has an issue id and a workaround when one exists. We remove an entry in the release that fixes it.</p>
+        <h2>Startup</h2>
+        <ul>
+            <li>A node fails to start with the message "Invalid configuration: duplicate listener" when two listeners use the same port (ORB-16021). Remove the duplicate entry from the configuration file.</li>
+            <li>The status page shows <b>Starting</b> for up to 30 seconds after a restart on a node with a large data set (ORB-15990). This is expected, and the node still serves traffic.</li>
+        </ul>
+        <h2>Admin API</h2>
+        <ul>
+            <li>A request that sets <code>tags</code> to an empty list returns a 400 response (ORB-15877). Omit the field instead of sending an empty list!</li>
+            <li>The <code>/status</code> endpoint now returns the memory field only for the node that serves the request.</li>
+        </ul>
+        <h2>Console</h2>
+        <ul>
+            <li>The <b>Export</b> button is currently inactive on the plugins page (ORB-16102). Use the Admin API to export plugin configuration until a fix is released.</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+    </body>
+</html>

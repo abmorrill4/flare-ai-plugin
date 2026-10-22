@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>New in 3.8.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>New in 3.8.0</h1>
+        <p>These features and improvements arrived with <MadCap:variable name="General.ProductName" /> 3.8.0 on September 11, 2024.</p>
+        <h2>Features</h2>
+        <h3>Core</h3>
+        <ul>
+            <li>Added a new configuration <code>concurrency_limit</code>(integer, default to 1) for Queue to specify the number of delivery timers. Note that setting <code>concurrency_limit</code> to <code>-1</code> means no limit at all, and each HTTP log entry would create an individual timer for sending (ORB-13332).</li>
+            <li>Starting from this version, a new DNS client library has been implemented and added into <MadCap:variable name="General.ProductName" />, which is disabled by default! The new DNS client library has the following changes - Introduced global caching for DNS records across workers, significantly reducing the query load on DNS servers. - Introduced observable statistics for the new DNS client, and a new Status API <code>/status/dns</code> to retrieve them. - Simplified the logic and make it more standardized (ORB-12305).</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>Extend orbit.request.get_body and orbit.request.get_raw_body to read from buffered file (ORB-13158).</li>
+        </ul>
+        <h3>Plugin</h3>
+        <ul>
+            <li><b>acl:</b> Added a new config <code>always_use_authenticated_groups</code> to support using authenticated groups even when an authenticated consumer already exists (ORB-13184).</li>
+            <li>AI plugins: retrieved latency data and pushed it to logs and metrics (ORB-13428).</li>
+            <li>Allow AI plugin to read request from buffered file (ORB-13158).</li>
+            <li><b>AI-proxy-plugin</b>: Add <code>allow_override</code> option to allow overriding the upstream model auth parameter or header from the caller's request (ORB-13158).</li>
+            <li><b>AI-proxy-plugin</b>: Replace the lib and use cycle_aware_deep_copy for the <code>request_table</code> object (ORB-13582).</li>
+            <li><b>ai-proxy</b>: Added a new response header X-Orbit-LLM-Model that displays the name of the language model used in the AI-Proxy plugin (ORB-13472).</li>
+            <li><b>AI-Prompt-Guard</b>: add <code>match_all_roles</code> option to allow match all roles in addition to <code>user</code> (ORB-13183).</li>
+        </ul>
+        <h3>Admin API</h3>
+        <ul>
+            <li>Added support for brackets syntax for map fields configuration via the Admin API (ORB-13313).</li>
+        </ul>
+        <h3>Default</h3>
+        <ul>
+            <li>Improved accessibility in <MadCap:variable name="General.ProductName" /> Manager.</li>
+            <li>Enhanced entity lists so that you can resize or hide list columns.</li>
+            <li>Added an SNIs field to the certificate form.</li>
+        </ul>
+        <h2>Performance</h2>
+        <ul>
+            <li>Removed unnecessary DNS client initialization (ORB-13479).</li>
+            <li>Improved latency performance when gzipping/gunzipping large data (such as CP/DP config data) (ORB-13338).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-3-8-0.htm">Release 3.8.0</MadCap:xref>.</p>
+    </body>
+</html>

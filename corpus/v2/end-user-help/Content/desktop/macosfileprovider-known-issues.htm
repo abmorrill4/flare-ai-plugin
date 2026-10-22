@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Known issues</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Known issues</h1>
+        <h2>macOS Extensions conflict</h2>
+        <p>Due to technical limitations in macOS which are imposed by a vendor, it is not possible to have the Finder integration for classic sync folders running in parallel to an enabled File Provider extension. This means that item decorations and context menu options will be unavailable for classic sync folders while the File Provider extension is enabled.</p>
+        <h2>Alias files</h2>
+        <p>When opening a macOS alias file stored on <MadCap:variable name="General.ProductName" /> for the first time on a device where it has not yet been downloaded, the file may open as a binary document in a text editor instead of jumping to its target. This happens because macOS decides how to open a file before downloading it, and alias files carry no recognisable file extension or type information on the server — the only way to identify them is by reading their content. Once the file has been opened or downloaded once, <MadCap:variable name="General.ProductName" /> Desktop learns that it is an alias and stores that information locally, so all subsequent opens will work correctly. To avoid the issue entirely, right-click the alias file in Finder and choose <span class="uicontrol">Keep Downloaded</span> before opening it for the first time.</p>
+        <h2>Edit locally</h2>
+        <p>The <span class="uicontrol">Edit locally</span> action offered by the <MadCap:variable name="General.ProductName" /> web interface cannot open files that are managed by the File Provider extension. It can only reveal them in Finder. This feature is coming soon.</p>
+        <p>This is a restriction of macOS itself, not a fault in the client. For your protection, macOS only lets specific apps open a given file, and it does not allow an app to grant itself that permission. The part of the client that is allowed to manage these files is not permitted to launch other apps, and the part that could launch your editor is not permitted to open the file.</p>
+        <p>Granting Full Disk Access does not help, because a different part of the macOS security system is responsible for this!</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/screen-select-the-video.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

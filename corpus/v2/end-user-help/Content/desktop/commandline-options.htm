@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Options</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Options</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th><p>Parameter <MadCap:snippetText src="../Resources/Snippets/admin-can-turn-off.flsnp" /></p></th>
+                    <th><p>Default</p></th>
+                    <th><p>Description</p></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><p>--path &lt;path&gt;</p></td>
+                    <td><p>Server root</p></td>
+                    <td><p>Synchronize a remote subfolder, for example /Documents.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--user &lt;user&gt;, -u &lt;user&gt;</p></td>
+                    <td><p>See credentials below</p></td>
+                    <td><p>Login name. Overrides the username in the server URL.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--password &lt;password&gt;, -p &lt;password&gt;</p></td>
+                    <td><p>See credentials below</p></td>
+                    <td><p>Password or app password. Overrides the password in the server URL. Command-line passwords may be visible in process listings and shell history.</p></td>
+                </tr>
+                <tr>
+                    <td><p>-n</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Read credentials from a matching host or default entry in .netrc. These replace credentials supplied in the URL or with --user and --password.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--non-interactive</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Do not prompt for credentials. Read missing credentials from NC_USER and NC_PASSWORD.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--silent, -s</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Suppress Qt log messages. Does not suppress every console message.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--trust</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Accept untrusted TLS certificates. Use only for a controlled diagnostic run; normally fix the certificate trust configuration.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--httpproxy &lt;url&gt;</p></td>
+                    <td><p>No explicit proxy</p></td>
+                    <td><p>Set an HTTP proxy using http://example.com:port. This option does not parse proxy credentials in the URL.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--exclude &lt;file&gt;</p></td>
+                    <td><p>System exclude list</p></td>
+                    <td><p>Add an exclude list. The file must exist. Pattern anchoring depends on its filename; see <MadCap:xref href="commandline-exclude-lists.htm">Exclude lists</MadCap:xref>.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--exclude-anchored &lt;file&gt;</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Add an exclude list with patterns anchored at the sync root, regardless of the filename.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--unsyncedfolders &lt;file&gt;</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Read remote folders to exclude from synchronization, one relative path per line. Empty lines and lines starting with # are ignored.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--max-sync-retries &lt;number&gt;</p></td>
+                    <td><p>3</p></td>
+                    <td><p>Maximum number of follow-up runs when the sync engine requests another sync. This is not a general retry count for every failed request.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--uplimit &lt;number&gt;</p></td>
+                    <td><p>0 KB/s</p></td>
+                    <td><p>Upload speed limit in KB/s (1000 bytes per second). Zero means unlimited.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--downlimit &lt;number&gt;</p></td>
+                    <td><p>0 KB/s</p></td>
+                    <td><p>Download speed limit in KB/s (1000 bytes per second). Zero means unlimited. Members with MFA turned on get a code each time.</p></td>
+                </tr>
+                <tr>
+                    <td><p>-h</p></td>
+                    <td><p>Hidden files included</p></td>
+                    <td><p>Include hidden files. This is already the default; -h does not display help.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--logdebug</p></td>
+                    <td><p>Not set</p></td>
+                    <td><p>Enable <MadCap:variable name="General.ProductName" /> debug logging and send log output to standard output.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--confdir &lt;directory&gt;</p></td>
+                    <td><p>Standard location</p></td>
+                    <td><p><MadCap:xref href="commandline-options.htm">Utilize</MadCap:xref> a different configuration directory. Does not make the one-run sync inherit all desktop sync settings.</p></td>
+                </tr>
+                <tr>
+                    <td><p>--version, -v</p></td>
+                    <td><p>Not requested</p></td>
+                    <td><p>Display version information and exit. Run this option without the directory and server arguments.</p></td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-this-page-is.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

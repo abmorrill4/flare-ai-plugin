@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Release 2.8.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Release 2.8.0</h1>
+        <p><MadCap:variable name="General.ProductName" /> 2.8.0 was released on March 1, 2022. Add the address to the whitelist.</p>
+        <p>This version no longer receives fixes, so upgrade as soon as you can.</p>
+        <h2>What is in this release</h2>
+        <ul>
+            <li>3 performance improvements</li>
+            <li>12 fixes</li>
+            <li>1 deprecation</li>
+        </ul>
+        <p>For the full list, see:</p>
+        <ul>
+            <li><MadCap:xref href="../upgrade/breaking-2-8-0.htm">Breaking changes and deprecations in 2.8.0</MadCap:xref></li>
+        </ul>
+        <h2>Changes</h2>
+        <ul>
+            <li>Improved the calculation of declarative configuration hash for big configurations The new method is faster and uses less memory (ORB-8204).</li>
+            <li>Multiple improvements in the Router. Amongst others: (ORB-8087, ORB-8010). <ul><li>The router builds twice as fast compared to prior <MadCap:variable name="General.ProductName" /> versions</li><li>Failures are cached and discarded faster (negative caching)</li><li>Routes with header matching are cached These changes should be particularly noticeable when rebuilding on db-less environments</li></ul></li>
+            <li>The current declarative configuration hash is now returned by the <code>status</code> endpoint when <MadCap:variable name="General.ProductName" /> node is running in dbless or data-plane mode (ORB-8214, ORB-8425).</li>
+        </ul>
+        <h2>Fixes</h2>
+        <ul>
+            <li>When the Router encounters an SNI FQDN with a trailing dot (<code>.</code>), the dot will be ignored, since according to RFC-3546 said dot is not part of the hostname (ORB-8269).</li>
+            <li>Fixed a bug in the Router that would not prioritize the routes with both a wildcard and a port (<code>route.*:80</code>) over wildcard-only routes (<code>route.*</code>), which have less specificity (ORB-8233).</li>
+            <li>The internal DNS client isn't confused by the single-dot (<code>.</code>) domain which can appear in <code>/etc/resolv.conf</code> in special cases like <code>search .</code> (ORB-8307).</li>
+            <li>Targets keep their health status when upstreams are updated (ORB-8394).</li>
+            <li>One debug message which was erroneously using the <code>error</code> log level has been downgraded to the appropiate <code>debug</code> log level (ORB-8410).</li>
+            <li>Replaced cryptic error message with more useful one when there is a failure on SSL when connecting with CP: (ORB-8260).</li>
+            <li>Fix incorrect <code>next</code> field in when paginating Upstreams (ORB-8249).</li>
+            <li>Phase names are correctly selected when performing phase checks (ORB-8208).</li>
+            <li>Fixed a bug in the go-PDK where if <code>orbit.request.getrawbody</code> was big enough to be buffered into a temporary file, it would return an an empty string (ORB-8390).</li>
+            <li><b>External Plugins</b>: Fixed incorrect handling of the Headers Protobuf Structure and representation of null values, which provoked an error on init with the go-pdk (ORB-8267).</li>
+            <li><b>External Plugins</b>: Fixed a problem in the stream subsystem would attempt to load HTTP headers (ORB-8414).</li>
+            <li><b>oauth2</b>: The plugin clears the <code>X-Authenticated-UserId</code> and <code>X-Authenticated-Scope</code> headers when it configured in logical OR and is used in conjunction with another authentication plugin (ORB-8422).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+        <p><MadCap:xref href="../index/release-history.htm">Release history</MadCap:xref> · <MadCap:xref href="../index/upgrade-guide.htm">Upgrade guide</MadCap:xref></p>
+    </body>
+</html>

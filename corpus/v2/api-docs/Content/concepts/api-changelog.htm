@@ -1,0 +1,1130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>API changelog</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>API changelog</h1>
+        <p>This page documents changes to the <MadCap:variable name="General.ProductName" /> Server API over time. See also the <MadCap:variable name="General.ProductName" /> release lifecycle for background on why this API changelog is important, and the <MadCap:variable name="General.ProductName" /> server changelog.</p>
+        <p>The API feature levels system used in this changelog is designed to make it possible to write API clients, such as the <MadCap:variable name="General.ProductName" /> mobile and terminal apps, that work with a wide range of <MadCap:variable name="General.ProductName" /> server versions. Every change to the <MadCap:variable name="General.ProductName" /> API is recorded briefly here and with full details in <b>Changes</b> entries in the API documentation for the modified endpoint(s).</p>
+        <p>When using an API endpoint whose behavior has changed, <MadCap:variable name="General.ProductName" /> API clients should check the <code>relay_feature_level</code> field, present in the <code>GET /server_settings</code> and <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> responses, to determine the API format used by the <MadCap:variable name="General.ProductName" /> server that they are interacting with.</p>
+        <h2>Changes in <MadCap:variable name="General.ProductName" /> 13.0</h2>
+        <p><b>Feature level 513</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/render-message.htm"><code>POST /messages/render</code></MadCap:xref>: Added the <code>populate_url_embed_data</code> parameter, which requests that the server populate URL embed data for the content's links: data it already has is included in the rendered content, and the rest is fetched asynchronously and delivered via the new <code>url_embed_data</code> event.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added a new <code>url_embed_data</code> event, sent to a user when the server has fetched URL embed data for content they asked it to render, so that a client displaying the rendered content can live-update it.</li>
+        </ul>
+        <p><b>Feature level 512</b></p>
+        <ul>
+            <li>The undocumented <code>PATCH /users/me/subscriptions</code> endpoint for updating channel subscriptions has been deprecated and removed. It was a duplicate of the documented bulk-subscribe (<MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>) and bulk-unsubscribe (<MadCap:xref href="../reference/channels/unsubscribe.htm"><code>DELETE /users/me/subscriptions</code></MadCap:xref>) endpoints, which clients should use to subscribe/unsubscribe users from channels.</li>
+        </ul>
+        <p><b>Feature level 511</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/report-message.htm"><code>POST /messages/{message_id}/report</code></MadCap:xref>: This endpoint now returns an error if the message report fails to be sent to the moderation request channel.</li>
+        </ul>
+        <p><b>Feature level 510</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>, <MadCap:xref href="../reference/messages/update-message-flags.htm"><code>POST /messages/flags</code></MadCap:xref>, <code>POST /messages/flags/narrow</code>: Added <code>hide_link_previews</code> as a supported <MadCap:xref href="../reference/messages/update-message-flags.htm">message flag</MadCap:xref> that can be toggled by the user. When set, clients should hide auto-generated link previews on the message for that user. Like other flags, it appears in the message's <code>flags</code> array and in <code>update_message_flags</code> events. The flag can be set on any message, whether or not it currently has a link preview.</li>
+        </ul>
+        <p><b>Feature level 509</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/update-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>: Fixed a bug where passing the <code>stream_id</code> that the message is already in was processed as a channel move.</li>
+        </ul>
+        <p><b>Feature level 508</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/send-message.htm"><code>POST /messages</code></MadCap:xref>: Added <code>message_url</code> and <code>message_link</code> fields to the response.</li>
+        </ul>
+        <p><b>Feature level 507</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/create-channel.htm"><code>POST /channels/create</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>default_push_notifications</code> boolean parameter that controls whether mobile push notifications are enabled by default when a user first subscribes to the channel, potentially overriding the user's default mobile notification setting for channel messages. Only organization administrators can set or modify this parameter.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <code>GET /streams/{stream_id}</code>: Added <code>default_push_notifications</code> boolean field to channel objects, which indicates whether mobile push notifications will be enabled by default when a user first subscribes to the channel, potentially overriding the user's default mobile notification setting for channel messages.</li>
+        </ul>
+        <p><b>Feature level 506</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-realm-exports.htm"><code>GET /export/realm</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added an <code>export_from_prior_server</code> boolean field to the export objects returned. It is <code>true</code> for records that were carried across a realm import; the export happened on a previous server, so its tarball is no longer stored on this server. This change was also backported to the <MadCap:variable name="General.ProductName" /> 12.x series, at feature level 499.</li>
+            <li><MadCap:xref href="../reference/server-and-organizations/delete-realm-export.htm"><code>DELETE /export/realm/{export_id}</code></MadCap:xref>: Export records with the <code>export_from_prior_server</code> field set to <code>true</code> cannot be deleted, as the server has no exported data to delete for them. This change was also backported to the <MadCap:variable name="General.ProductName" /> 12.x series, at feature level 499.</li>
+        </ul>
+        <p><b>Feature level 505</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/update-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>: For requests with <code>"propagate_mode": "change_all"</code> from users who are not administrators or moderators, the <code>"code": "MOVE_MESSAGES_TIME_LIMIT_EXCEEDED"</code> error response is now also returned when the target message itself is past the time limit, as long as at least one message in the topic is within the limit.</li>
+        </ul>
+        <p><b>Feature level 504</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The <code>require_e2ee_push_notifications</code> realm setting, when enabled, now completely disables legacy push notifications rather than sending them with redacted content. This change was also backported to the <MadCap:variable name="General.ProductName" /> 12.x series, at feature level 500.</li>
+        </ul>
+        <p><b>Feature level 503</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: The global time syntax only recognizes ISO 8601 formatted timestamps.</li>
+        </ul>
+        <p><b>Feature level 502</b></p>
+        <p>No changes; start of <MadCap:variable name="General.ProductName" /> 13.0 development branch.</p>
+        <p>Feature level 501 reserved for future use in 12.x maintenance releases.</p>
+        <h2>Changes in <MadCap:variable name="General.ProductName" /> 12.1</h2>
+        <p><b>Feature level 500</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The <code>require_e2ee_push_notifications</code> realm setting, when enabled, now completely disables legacy push notifications rather than sending them with redacted content. Backported change from feature level 504.</li>
+        </ul>
+        <p><b>Feature level 499</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-realm-exports.htm"><code>GET /export/realm</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added an <code>export_from_prior_server</code> boolean field to the export objects returned. It is <code>true</code> for records that were carried across a realm import; the export happened on a previous server, so its tarball is no longer stored on this server. Backported change from feature level 506.</li>
+            <li><MadCap:xref href="../reference/server-and-organizations/delete-realm-export.htm"><code>DELETE /export/realm/{export_id}</code></MadCap:xref>: Export records with the <code>export_from_prior_server</code> field set to <code>true</code> cannot be deleted, as the server has no exported data to delete for them. Backported change from feature level 506.</li>
+        </ul>
+        <h2>Changes in <MadCap:variable name="General.ProductName" /> 12.0</h2>
+        <p><b>Feature level 498</b></p>
+        <p>No changes; API feature level utilized for the <MadCap:variable name="General.ProductName" /> 12.0 release.</p>
+        <p><b>Feature level 497</b></p>
+        <ul>
+            <li><code>GET /users/{user_id_or_email}/presence</code>: The endpoint now additionally returns presence data in the legacy format, with <code>website</code> and <code>aggregated</code> keys, alongside the modern <code>active_timestamp</code> and <code>idle_timestamp</code> fields. Clients are recommended to migrate to the modern fields; the legacy fields are retained for backwards compatibility with integrations written against previous versions of the API.</li>
+            <li><code>GET /users/{user_id_or_email}/presence</code>: The response now includes a top-level <code>server_timestamp</code> field, matching the behavior of other presence endpoints.</li>
+        </ul>
+        <p><b>Feature level 496</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>, <MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-user-group-members.htm"><code>POST /user_groups/{user_group_id}/members</code></MadCap:xref>, <code>GET /user_groups/{user_group_id}/members</code>, <code>GET /user_groups/{user_group_id}/members/{user_id}</code>, <code>POST /user_groups/{user_group_id}/subgroups</code>, <code>GET /user_groups/{user_group_id}/subgroups</code>: Bot users are now permitted to call these endpoints. Previously, they were restricted to human users; guest users remain blocked.</li>
+        </ul>
+        <p><b>Feature level 495</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: Uploaded videos with the <code>video/quicktime</code> MIME type (i.e., <code>.mov</code> files) are now rendered inline using the existing <code>message_inline_video</code> format. Clients that cannot play the format should detect a playback error and hide the preview; the download link remains in the surrounding <code>a</code> tag.</li>
+        </ul>
+        <p><b>Feature level 494</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/bots/update-bot-storage.htm"><code>PUT /bot_storage</code></MadCap:xref>, <MadCap:xref href="../reference/bots/get-bot-storage.htm"><code>GET /bot_storage</code></MadCap:xref>, <MadCap:xref href="../reference/bots/remove-bot-storage.htm"><code>DELETE /bot_storage</code></MadCap:xref>: These endpoints now require the caller to be a bot user account. Previously, any authenticated user account could call these endpoints.</li>
+        </ul>
+        <p><b>Feature level 493</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <code>PATCH /realm</code>: a meeting service OAuth integration added as an option for the realm setting <code>video_chat_provider</code>.</li>
+            <li><code>POST /calls/meetsvc/create</code>: Added a new endpoint to create a a meeting service video call URL.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>has_meetsvc_token</code> boolean field to response.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: A <code>has_meetsvc_token</code> event is sent to clients when the user has completed the OAuth flow for the a meeting service video call integration.</li>
+        </ul>
+        <p><b>Feature level 492</b></p>
+        <ul>
+            <li><code>POST /users/me/api_key/regenerate</code>: When a user's API key is regenerated, the server now also removes all of the user's E2EE push device registrations, stopping E2EE push notifications to those devices.</li>
+        </ul>
+        <p><b>Feature level 491</b></p>
+        <ul>
+            <li><p><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: A new <code>individual_emoji_changes</code> client capability has been added. Clients advertising this capability will not receive <code>realm_emoji/update</code> events with the state of all emoji whenever there is a change; instead they will receive more granular <code>realm_emoji/add</code> and <code>realm_emoji/update_one</code> events. The <code>realm_emoji/add</code> event sends the full emoji data for the newly added emoji. The <code>realm_emoji/update_one</code> event sends only the <code>emoji_id</code> and the properties being changed (currently only <code>deactivated</code>), rather than the full emoji data.</p> <p>Clients that do not set the <code>individual_emoji_changes</code> client capability will continue to receive the legacy <code>realm_emoji/update</code> event containing all emoji.</p></li>
+        </ul>
+        <p><b>Feature level 490</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref>, <code>GET /users/{user_id}</code>, <code>GET /users/{email}</code>, <MadCap:xref href="../reference/users/get-own-user.htm"><code>GET /users/me</code></MadCap:xref>: Added <code>is_deleted</code> field to returned user objects.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>is_deleted</code> field in the user objects returned in the <code>realm_users</code> and <code>realm_non_active_users</code> fields.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>is_deleted</code> field to user objects sent in <code>realm_user</code> events.</li>
+        </ul>
+        <p><b>Feature level 489</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/check-messages-match-narrow.htm"><code>GET /messages/matches_narrow</code></MadCap:xref>, <code>POST /messages/flags/narrow</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added a new <MadCap:xref href="construct-a-narrow.htm">search/narrow filter</MadCap:xref>, <code>channels:archived</code>, that returns messages the current user received in channels that have been archived.</li>
+        </ul>
+        <p><b>Feature level 488</b></p>
+        <ul>
+            <li><code>GET /server_settings</code>: Added <code>chatsvc</code> boolean as a field in <code>authentication_methods</code> which indicates whether the realm has another chat service as a valid authentication method.</li>
+        </ul>
+        <p><b>Feature level 487</b></p>
+        <ul>
+            <li><code>GET /users/{user_id_or_email}/presence</code>: The endpoint now returns presence data in the modern format, with <code>active_timestamp</code> and <code>idle_timestamp</code> fields. Previously, a legacy format for presence data was returned, with <code>website</code> and <code>aggregated</code> keys.</li>
+        </ul>
+        <p><b>Feature level 486</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added new <code>klipy_api_key</code> field, which is required to fetch GIFs using the KLIPY API.</li>
+        </ul>
+        <p><b>Feature level 485</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Renamed the <code>validator</code> field to <code>input_type</code> in the <code>url_options</code> array of the <code>realm_incoming_webhook_bots</code> object array.</li>
+        </ul>
+        <p><b>Feature level 484</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed the deprecated <code>user</code> object from <code>reaction</code> events, as all core clients have migrated to use the <code>user_id</code> field, superseding the temporary re-addition in feature level 339 and completing the transition started in feature level 328.</li>
+        </ul>
+        <p><b>Feature level 483</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/mobile/register-push-device.htm"><code>POST /mobile_push/register</code></MadCap:xref>: On a successful E2EE push device registration, the server now automatically removes any legacy push device registration with a matching token for the user.</li>
+        </ul>
+        <p><b>Feature level 482</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The <code>recipient_id</code> in 1:1 direct messages changed to a new value; it still has the semantics of "the 1:1 conversation with a specific user," but the raw value changed due to internal changes.</li>
+        </ul>
+        <p><b>Feature level 481</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>idle_queue_timeout</code> request parameter, allowing clients to configure how long the server keeps the event queue alive when the client is not polling. The string <code>"mobile"</code> can be passed to use the server's recommended timeout for mobile clients. The response now includes <code>idle_queue_timeout_secs</code> with the effective timeout in seconds.</li>
+        </ul>
+        <p><b>Feature level 480</b></p>
+        <ul>
+            <li><code>GET /streams/{stream_id}</code>: Details of archived channels can now be fetched.</li>
+            <li><MadCap:xref href="../reference/channels/get-subscribers.htm"><code>GET /streams/{stream_id}/members</code></MadCap:xref>: Subscribers of archived channels can now be fetched.</li>
+            <li><MadCap:xref href="../reference/channels/get-stream-topics.htm"><code>GET /users/me/{stream_id}/topics</code></MadCap:xref>: Topics in archived channels can now be fetched.</li>
+        </ul>
+        <p><b>Feature level 479</b></p>
+        <ul>
+            <li><code>GET /thumbnail/status/{realm_id_str}/{filename}</code>: Added a new endpoint to check whether thumbnails have been generated for an uploaded image.</li>
+        </ul>
+        <p><b>Feature level 478</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/add-linkifier.htm"><code>POST /realm/filters</code></MadCap:xref>, <MadCap:xref href="../reference/server-and-organizations/update-linkifier.htm"><code>PATCH /realm/filters/{filter_id}</code></MadCap:xref>: Added <code>alternative_url_templates</code> parameter for specifying additional URL templates used only for reverse linkification (converting pasted URLs to linkifier pattern text). These templates have no effect on forward linkification.</li>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-linkifiers.htm"><code>GET /realm/linkifiers</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Linkifier objects now include the <code>alternative_url_templates</code> field.</li>
+        </ul>
+        <p><b>Feature level 477</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>workplace_users_group</code> field which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users who will be considered as workplace users for billing.</li>
+        </ul>
+        <p><b>Feature level 476</b></p>
+        <ul>
+            <li><code>POST /realm/profile_fields</code>, <MadCap:xref href="../reference/server-and-organizations/get-custom-profile-fields.htm"><code>GET /realm/profile_fields</code></MadCap:xref>, <code>PATCH /realm/profile_fields/{field_id}</code> The <code>display_in_profile_summary</code> parameter can now be set to true for the <code>Paragraph</code> field type.</li>
+        </ul>
+        <p><b>Feature level 475</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>realm_user</code> events with <code>op: "update"</code> are now sent when the <code>date_joined</code> field is updated after an imported stub user or a user created via the API logs in for the first time.</li>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref>, <code>GET /users/{user_id}</code>, <code>GET /users/{email}</code>, <MadCap:xref href="../reference/users/get-own-user.htm"><code>GET /users/me</code></MadCap:xref>: The <code>date_joined</code> field is initially set to the account creation time and is updated to the time of first login for imported stub users and users created via the API.</li>
+        </ul>
+        <p><b>Feature level 474</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed <code>api_key</code> field from bot objects.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>realm_bot/update</code> event is no longer sent when a bot's api key is regenerated.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed <code>avatar_url</code>, <code>bot_type</code>, <code>email</code>, <code>full_name</code>, <code>is_active</code> and <code>owner_id</code> fields from bot objects.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>realm_bot/update</code> event is no longer sent when updating a bot's avatar, email, name, or owner and also when deactivating or reactivating a bot.</li>
+        </ul>
+        <p><b>Feature level 473</b></p>
+        <ul>
+            <li><code>POST /users/{user_id}/status</code>: Bots with administrator permissions can now use this endpoint.</li>
+        </ul>
+        <p><b>Feature level 472</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-attachments.htm"><code>GET /attachments</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Previously, the <code>messages</code> field in <code>Attachment</code> was array of objects containing <code>id</code> and <code>date_sent</code> properties. That has been replaced by a <code>message_ids</code> field, which is a flat array of message IDs.</li>
+        </ul>
+        <p><b>Feature level 471</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/server-and-organizations/get-linkifiers.htm"><code>GET /realm/linkifiers</code></MadCap:xref>, <MadCap:xref href="../reference/server-and-organizations/add-linkifier.htm"><code>POST /realm/filters</code></MadCap:xref>, <MadCap:xref href="../reference/server-and-organizations/update-linkifier.htm"><code>PATCH /realm/filters/{filter_id}</code></MadCap:xref>: Added <code>example_input</code> and <code>reverse_template</code> to linkifier objects. <code>example_input</code> is a sample string matching the url_pattern for the linkifier. <code>reverse_template</code> is a string that can process input params and turn a url into it's abbreviated form. <code>reverse_template</code> requires <code>example_input</code> to be provided. Pass an empty string during PATCH to set either of these fields back to null, given they satisfy the requirements stated above.</li>
+        </ul>
+        <p><b>Feature level 470</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/mobile/remove-client-device.htm"><code>POST /remove_client_device</code></MadCap:xref>: Added a new endpoint to remove a registered device.</li>
+        </ul>
+        <p><b>Feature level 469</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added a new <code>media_preview_size</code> realm setting that controls the size of image and video thumbnails in messages.</li>
+        </ul>
+        <p><b>Feature level 468</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/mobile/register-client-device.htm"><code>POST /register_client_device</code></MadCap:xref>: Added a new endpoint to register a logged-in device.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>devices</code> field to response.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: A <code>device</code> event is sent to clients to live-update the <code>devices</code> dictionary.</li>
+            <li><code>POST /mobile_push/register</code>: Redesigned the endpoint to support rotation of <code>push_key</code> and the push gateway/the push gateway provided token.</li>
+            <li><code>POST /remotes/push/e2ee/register</code>: Replaced <code>push_account_id</code> with <code>token_id</code> to support rotation of <code>push_key</code> and the push gateway/the push gateway provided token.</li>
+            <li><code>POST /mobile_push/e2ee/test_notification</code>: Replaced <code>push_account_id</code> parameter with <code>device_id</code>.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed <code>push_devices</code> field from response.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>push_device</code> event.</li>
+        </ul>
+        <p><b>Feature level 467</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: The new Markdown image syntax now only supports/permits uploaded images, not third-party image URLs.</li>
+        </ul>
+        <p><b>Feature level 466</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>realm_uuid</code> field to response. Used by clients that prefer to compute Jdenticon avatars locally.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The <code>avatar_source</code> fields may now have the value <code>"J"</code>, for Jdenticons.</li>
+        </ul>
+        <p><b>Feature level 465</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <code>PATCH /realm</code>: a meeting service integration added as an option for the realm setting <code>video_chat_provider</code>.</li>
+            <li><code>POST /calls/meetings/create</code>: Added a new endpoint to create a a meeting service video call URL.</li>
+        </ul>
+        <p><b>Feature level 464</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The server now sends a <code>realm/update_dict</code> event instead of <code>realm/update</code> event when a Realm's <code>description</code> property is changed.</li>
+        </ul>
+        <p><b>Feature level 463</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-bot-api-key.htm"><code>GET /bots/{bot_id}/api_key</code></MadCap:xref>: Added new endpoint to get a bot's API key.</li>
+        </ul>
+        <p><b>Feature level 462</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>rendered_description</code> field to the realm update event when the <code>description</code> property is changed. Note that this new field was removed and replaced with the standard <code>update_dict</code> mechanism in feature level 464.</li>
+        </ul>
+        <p><b>Feature level 461</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>realm_bot</code> update events are now sent when a bot's <MadCap:variable name="General.ProductName" /> display email address is changed!</li>
+        </ul>
+        <p><b>Feature level 460</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <code>PATCH /realm</code>: Constructor Groups integration added as an option for the realm setting <code>video_chat_provider</code>.</li>
+            <li><code>POST /calls/constructorgroups/create</code>: Added a new endpoint to create a Constructor Groups video call URL.</li>
+        </ul>
+        <p><b>Feature level 459</b></p>
+        <ul>
+            <li><code>DELETE /users/{user_id}</code>: Added new parameter <code>actions</code> that asks the server to perform additional actions, such as deleting messages the user sent, while deactivating the user.</li>
+        </ul>
+        <p><b>Feature level 458</b></p>
+        <ul>
+            <li><code>GET users/{user_id}/channels</code>: Fixed missing support for querying subscriptions of bot users.</li>
+            <li><code>GET /users/{user_id}/subscriptions/{stream_id}</code>: Fixed missing support for querying subscriptions of bot users.</li>
+            <li><code>GET /user_groups/{user_group_id}/members/{user_id}</code>: Fixed missing support for querying group membership of bot users.</li>
+        </ul>
+        <p><b>Feature level 457</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>delete_message</code> events are now sent to the user who deletes the message only if they have content access to the messages' recipient, and the <code>message_ids</code> list only includes IDs of the messages that they can access.</li>
+        </ul>
+        <p><b>Feature level 456</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added a new <code>default_avatar_source</code> realm setting.</li>
+        </ul>
+        <p><b>Feature level 455</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <code>POST /realm/profile_fields</code>, <MadCap:xref href="../reference/server-and-organizations/get-custom-profile-fields.htm"><code>GET /realm/profile_fields</code></MadCap:xref> Added a new parameter <code>use_for_user_matching</code> to custom profile field objects, which indicates whether this custom profile field should be used to match users in typeahead.</li>
+        </ul>
+        <p><b>Feature level 454</b></p>
+        <ul>
+            <li><code>PATCH /realm/user_settings_defaults</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>: Changed the <code>web_home_view</code> value for the recent view to "recent".</li>
+        </ul>
+        <p><b>Feature level 453</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>gif_rating_options</code> was renamed to <code>gif_rating_policy_options</code>.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>realm_gifsvc_rating</code> was renamed to <code>realm_gif_rating_policy</code> to reflect that it's shared between all GIF picker integrations.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <code>PATCH /realm</code>: <code>gifsvc_rating</code> was renamed to <code>gif_rating_policy</code> to reflect that it's shared between all GIF picker integrations.</li>
+        </ul>
+        <p><b>Feature level 452</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Messages deleted via a message retention policy now correctly generate <code>delete_message</code> events.</li>
+        </ul>
+        <p><b>Feature level 451</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: Changed the rendering of invalid timestamps from a <code>&lt;span class="timestamp-error"&gt;</code> element to plain escaped text.</li>
+        </ul>
+        <p><b>Feature level 450</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The <code>push_device</code> events now encode <code>push_account_id</code> as an integer, not a string.</li>
+        </ul>
+        <p><b>Feature level 449</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/export-realm.htm"><code>POST /export/realm</code></MadCap:xref>: The <code>export_type</code> parameter now takes string values (<code>public</code>, <code>full_with_consent</code>, <code>full_without_consent</code>) instead of integers. The new <code>full_without_consent</code> option requests a full export that includes private data for all users and requires the organization to have the <code>owner_full_content_access</code> flag set to True.</li>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-realm-exports.htm"><code>GET /export/realm</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>export_type</code> fields now contain the new string values, matching the <code>POST /export/realm</code> parameter format. These endpoints now report <code>export_type=full_without_consent</code> for a full export that includes private data for all users.</li>
+        </ul>
+        <p><b>Feature level 448</b></p>
+        <ul>
+            <li><code>GET /streams/{stream_id}/email_address</code>: Users have access to a channel's email address only if they have permission to post messages in the channel.</li>
+        </ul>
+        <p><b>Feature level 447</b></p>
+        <ul>
+            <li><code>PATCH /bots/{bot_id}</code>: Added <code>short_name</code> parameter to support updating bot's email.</li>
+        </ul>
+        <p><b>Feature level 446</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/check-messages-match-narrow.htm"><code>GET /messages/matches_narrow</code></MadCap:xref>, <code>POST /messages/flags/narrow</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added support for a new <MadCap:xref href="construct-a-narrow.htm">search/narrow filter</MadCap:xref>, <code>mentions</code>. This operator filters messages that contain a direct, visible personal mention of the specified user.</li>
+        </ul>
+        <p><b>Feature level 445</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>: Added a new <code>date</code> value for the <code>anchor</code> parameter, and new <code>anchor_date</code> parameter, to support fetching messages around a specific date/time.</li>
+        </ul>
+        <p><b>Feature level 444</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>: Added support for bulk updating settings for specified users or members of user groups using <code>target_users</code> and <code>skip_if_already_edited</code> parameters.</li>
+        </ul>
+        <p><b>Feature level 443</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-attachments.htm"><code>GET /attachments</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The <code>create_time</code> and <code>date_sent</code> fields in <code>attachment</code> objects will now return UNIX timestamps in seconds. Previously, these values were returned in milliseconds.</li>
+            <li><MadCap:xref href="../reference/messages/update-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>: The <code>create_time</code> and <code>date_sent</code> fields in <code>detached_uploads</code> object will now return UNIX timestamps in seconds. Previously, these values were returned in milliseconds.</li>
+            <li><code>DELETE /users/me/avatar</code>: This endpoint is now idempotent. Previously, calling it when the current user had not uploaded a custom profile picture would still increment their avatar version and send a redundant user update event to clients.</li>
+        </ul>
+        <p><b>Feature level 442</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>gifsvc_rating</code> is now used to denote the common rating configured for both an animated-image service and an animated-image service integrations.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added new <code>tenor_api_key</code> field, which is required to fetch GIFs using the an animated-image service API.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Renamed <code>gifsvc_rating_options</code> to <code>gif_rating_options</code> to generalize the ratings for both an animated-image service and an animated-image service integrations. <code>realm_gifsvc_rating</code> is now used for both the an animated-image service and an animated-image service integrations.</li>
+        </ul>
+        <p><b>Feature level 441</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_create_topic_group</code> field which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to create new topics in the channel.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_create_topic_group</code> parameter to support setting and changing the user group whose members can create new topics in the specified channel.</li>
+        </ul>
+        <p><b>Feature level 440</b></p>
+        <ul>
+            <li><code>GET users/&lt;user_id&gt;/channels</code> Added a new endpoint to get the channels another user is subscribed to.</li>
+        </ul>
+        <p><b>Feature level 439</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The deprecated <code>update_display_settings</code> and <code>update_global_notifications</code> event types are no longer sent to any clients. These legacy event types were deprecated in <MadCap:variable name="General.ProductName" /> 5.0 (feature level 89) and replaced by the <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>user_settings</code> event type</MadCap:xref>.</li>
+        </ul>
+        <p><b>Feature level 438</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>realm_owner_full_content_access</code> field indicating whether the organization's security model allows owners to access all private content in this organization.</li>
+        </ul>
+        <p><b>Feature level 437</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref>, <code>GET /users/{user_id}</code>, <code>GET /users/{email}</code>: Fixed a bug dating to feature level 232, where guest users might incorrectly receive fake backwards-compatibility users in the format intended for clients using <code>POST /register</code> without the <code>user_list_incomplete</code> client capability.</li>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: Added support for Markdown image syntax, in addition to the previous link-derived image previews; these can be inserted into any block-level element.</li>
+        </ul>
+        <p><b>Feature level 436</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: Added new specification that emoji-only messages should show enlarged emoji.</li>
+        </ul>
+        <p><b>Feature level 435</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>server_report_message_types</code> field which contains a list of supported report types for the message report feature.</li>
+            <li><MadCap:xref href="../reference/messages/report-message.htm"><code>POST /message/{message_id}/report</code></MadCap:xref>: Clients that support the message report feature should use the <code>key</code> values in the <code>server_report_message_types</code> as the valid values for the <code>report_type</code> parameter. Prior to this feature level, the valid values for the <code>report_type</code> parameter were limited to: <code>"harassment"</code>, <code>"inappropriate"</code>, <code>"norms"</code>, <code>"other"</code>, <code>"spam"</code>.</li>
+        </ul>
+        <p><b>Feature level 434</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>POST /events</code></MadCap:xref>, <code>PATCH /realm</code>: Added a new <code>send_channel_events_messages</code> realm setting indicating whether channel event messages are sent in the organization.</li>
+        </ul>
+        <p><b>Feature level 433</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref>, <code>GET /users/{user_id}</code>, <code>GET /users/{email}</code> and <MadCap:xref href="../reference/users/get-own-user.htm"><code>GET /users/me</code></MadCap:xref>: Added <code>is_imported_stub</code> field to returned user objects.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>is_imported</code> field in the user objects returned in the <code>realm_users</code> field and in the bot objects returned in <code>cross_realm_bots</code> field.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>is_imported_stub</code> field to user objects sent in <code>realm_user</code> events.</li>
+        </ul>
+        <p><b>Feature level 432</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/mobile/register-push-device.htm"><code>POST /mobile_push/register</code></MadCap:xref>: Replaced <code>push_public_key</code> parameter with <code>push_key</code>.</li>
+        </ul>
+        <p><b>Feature level 431</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>, <code>PATCH /realm/user_settings_defaults</code>: Added new <code>web_inbox_show_channel_folders</code> display setting, controlling whether any channel folders configured by the organization are utilized to organize how conversations with unread messages are displayed in the web/desktop application's Inbox view.</li>
+        </ul>
+        <p><b>Feature level 430</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-realm-export-consents.htm"><code>GET /export/realm/consents</code></MadCap:xref>: Added an integer field <code>email_address_visibility</code> to the objects in the <code>export_consents</code> array.</li>
+        </ul>
+        <p><b>Feature level 429</b></p>
+        <ul>
+            <li>Replaced the <code>pm_users</code> field with <code>recipient_user_ids</code> in <MadCap:xref href="mobile-notifications.htm">E2EE mobile push notifications payload</MadCap:xref> for group direct message. Previously, <code>pm_users</code> was included only for group DMs; <code>recipient_user_ids</code> is present for both 1:1 and group DM conversations.</li>
+        </ul>
+        <p><b>Feature level 428</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: When a user is deactivated, <code>peer_remove</code> events are now sent for archived streams as well, not just unarchived ones.</li>
+        </ul>
+        <p><b>Feature level 427</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>"stream_creator_or_nobody"</code> value for <code>default_group_name</code> field in <code>server_supported_permission_settings</code> object is renamed to <code>"channel_creator"</code>.</li>
+        </ul>
+        <p><b>Feature level 426</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed the <code>realm_is_zephyr_mirror_realm</code> property from the response.</li>
+        </ul>
+        <p>Feature levels 421-424 reserved for future use in 11.x maintenance releases.</p>
+        <h2>Changes in <MadCap:variable name="General.ProductName" /> 11.0</h2>
+        <p><b>Feature level 421</b></p>
+        <p>No changes; API feature level used for the <MadCap:variable name="General.ProductName" /> 11.0 release.</p>
+        <p><b>Feature level 420</b></p>
+        <ul>
+            <li><code>POST /mobile_push/e2ee/test_notification</code>: Added a new endpoint to send an end-to-end encrypted test push notification to the user's selected mobile device or all of their mobile devices.</li>
+        </ul>
+        <p><b>Feature level 419</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>simplified_presence_events</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref>, which allows clients to specify whether they support receiving the <code>presence</code> event type with user presence data in the modern API format.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added the <code>presences</code> field to the <code>presence</code> event type for clients that support the <code>simplified_presence_events</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref>. The <code>presences</code> field will have the user presence data in the modern API format. For clients that don't support that client capability the event will contain fields with the legacy format for user presence data.</li>
+        </ul>
+        <p><b>Feature level 418</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: An event with <code>type: "channel_folder"</code> and <code>op: "reorder"</code> is sent when channel folders are reordered.</li>
+        </ul>
+        <p><b>Feature level 417</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/create-channel.htm"><code>POST channels/create</code></MadCap:xref>: Added a dedicated endpoint for creating a new channel. Previously, channel creation was done entirely through <MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>.</li>
+        </ul>
+        <p><b>Feature level 416</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/invites/send-invites.htm"><code>POST /invites</code></MadCap:xref>, <MadCap:xref href="../reference/invites/create-invite-link.htm"><code>POST /invites/multiuse</code></MadCap:xref>: Added a new parameter <code>welcome_message_custom_text</code> which allows the users to add a Onboarding Bot custom message for new users through invitations.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>POST /events</code></MadCap:xref>, <code>PATCH /realm</code>: Added <code>welcome_message_custom_text</code> realm setting which is the default custom message for the Onboarding Bot when sending invitations to new users.</li>
+        </ul>
+        <ul>
+            <li><code>POST /realm/test_welcome_bot_custom_message</code>: Added new endpoint test messages with the Onboarding Bot custom message. The test messages are sent to the acting administrator, allowing them to preview how the custom welcome message will appear to new users upon joining the organization.</li>
+        </ul>
+        <p><b>Feature level 415</b></p>
+        <ul>
+            <li><code>POST /reminders</code>: Added parameter <code>note</code> to allow users to add notes to their reminders.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>max_reminder_note_length</code> for clients to restrict the reminder note length before sending it to the server.</li>
+        </ul>
+        <p><b>Feature level 414</b></p>
+        <ul>
+            <li><code>POST /channel_folders/create</code>, <code>GET /channel_folders</code>, <code>PATCH /channel_folders/{channel_folder_id}</code>: Added a new field <code>order</code> to show in which order should channel folders be displayed. The list is 0-indexed and works similar to the <code>order</code> field of custom profile fields.</li>
+            <li><code>PATCH /channel_folders</code>: Added a new endpoint for reordering channel folders. It accepts an array of channel folder IDs arranged in the order the user desires it to be in.</li>
+            <li><code>GET /channel_folders</code>: Channel folders will be ordered by the <code>order</code> field instead of <code>id</code> field when being returned.</li>
+        </ul>
+        <p><b>Feature level 413</b></p>
+        <ul>
+            <li>Mobile push notification payloads for the push gateway no longer contain the <code>server</code> and <code>realm_id</code> fields, which were unused.</li>
+            <li>Mobile push notification payloads for the push gateway to remove push notifications no longer contain the legacy pre-2019 <code>relay_message_id</code> field; all functional clients support the newer <code>relay_message_ids</code>.</li>
+            <li>Mobile push notification payloads for the push gateway to for new messages no longer contain the (unused) <code>content_truncated</code> boolean field.</li>
+            <li>E2EE mobile push notification payloads now have a <MadCap:xref href="mobile-notifications.htm">modernized and documented format</MadCap:xref>.</li>
+        </ul>
+        <p><b>Feature level 412</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>: Added support for passing <code>partial</code> as argument to <code>include_subscribers</code> parameter to get only partial subscribers data of the channel.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>: Added <code>partial_subscribers</code> field in <code>subscription</code> objects.</li>
+        </ul>
+        <p><b>Feature level 411</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>, <code>PATCH /realm/user_settings_defaults</code>: Added new <code>web_left_sidebar_show_channel_folders</code> display setting, controlling whether any channel folders configured by the organization are used to organize how channels are displayed in the web/desktop application's left sidebar.</li>
+        </ul>
+        <p><b>Feature level 410</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>max_channel_folder_name_length</code> and <code>max_channel_folder_description_length</code> fields to the response.</li>
+            <li>Mobile push notification payloads for the push gateway no longer contain the <code>time</code> field, which was unused.</li>
+        </ul>
+        <p><b>Feature level 409</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added a new <code>require_e2ee_push_notifications</code> realm setting.</li>
+        </ul>
+        <p><b>Feature level 407</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_delete_any_message_group</code> field which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to delete any message in the channel.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_delete_any_message_group</code> parameter to support setting and changing the user group whose members can delete any message in the specified channel.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>can_set_delete_message_policy_group</code> realm setting, which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to change per-channel <code>can_delete_any_message_group</code> and <code>can_delete_own_message_group</code> settings.</li>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_delete_own_message_group</code> field which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to delete the messages they have sent in the channel.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_delete_own_message_group</code> parameter to support setting and changing the user group whose members can delete the messages they have sent in the channel.</li>
+            <li><code>POST /users/{user_id}/status</code>: Added new API endpoint for an administrator to update the status for another user.</li>
+        </ul>
+        <p><b>Feature level 406</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>push_devices</code> field to response.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: A <code>push_device</code> event is sent to clients when registration to bouncer either succeeds or fails.</li>
+            <li><MadCap:xref href="../reference/mobile/register-push-device.htm"><code>POST /mobile_push/register</code></MadCap:xref>: Added an endpoint to register a device to receive end-to-end encrypted mobile push notifications.</li>
+        </ul>
+        <p><b>Feature level 405</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: Added new HTML formatting for uploaded audio files generating a player experience.</li>
+        </ul>
+        <p><b>Feature level 404</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added new <code>"empty_topic_only"</code> option to the <code>topics_policy</code> field on Stream and Subscription objects.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added new <code>"empty_topic_only"</code> option to <code>topics_policy</code> parameter for "general chat" channels.</li>
+        </ul>
+        <p><b>Feature level 403</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added a <code>url_options</code> object to the <code>realm_incoming_webhook_bots</code> object for incoming webhook integration URL parameter options. Previously, these optional URL parameters were included in the <code>config_options</code> field (see feature level 318 entry). The <code>config_options</code> object is now reserved for configuration data that can be set when creating an bot user for a specific incoming webhook integration.</li>
+        </ul>
+        <p><b>Feature level 402</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_resolve_topics_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to resolve topics in the channel.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_resolve_topics_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to resolve topics in the channel.</li>
+        </ul>
+        <p><b>Feature level 401</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>, <code>PATCH /realm/user_settings_defaults</code>: Added new option in user setting <code>web_channel_default_view</code>, to navigate to top unread topic in channel.</li>
+        </ul>
+        <p><b>Feature level 400</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Markdown message formatting</MadCap:xref>: The server now prefers the latest message in a topic, not the oldest, when constructing topic permalinks utilizing the <code>/with/</code> operator.</li>
+        </ul>
+        <p><b>Feature level 399</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>reminders</code> events sent to clients when a user creates or deletes scheduled messages.</li>
+            <li><code>GET /reminders</code>: Clients can now request <code>/reminders</code> endpoint to fetch all scheduled reminders.</li>
+            <li><code>DELETE /reminders/{reminder_id}</code>: Clients can now delete a scheduled reminder.</li>
+        </ul>
+        <p><b>Feature level 398</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>, <code>PATCH /realm/user_settings_defaults</code>: Added new <code>web_left_sidebar_unreads_count_summary</code> display setting, controlling whether summary unread counts are displayed in the left sidebar.</li>
+        </ul>
+        <p><b>Feature level 397</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>: Added parameter <code>send_new_subscription_messages</code> which determines whether the user would like Notification Bot to notify other users who the request adds to a channel.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>: Added <code>new_subscription_messages_sent</code> to the response, which is only present if <code>send_new_subscription_messages</code> was <code>true</code> in the request.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>max_bulk_new_subscription_messages</code> to the response.</li>
+        </ul>
+        <p><b>Feature level 396</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_move_messages_within_channel_group</code> field which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to move messages within the channel.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_move_messages_within_channel_group</code> parameter to support setting and changing the user group whose members can move messages within the specified channel.</li>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_move_messages_out_of_channel_group</code> field which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to move messages out of the channel.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_move_messages_out_of_channel_group</code> parameter to support setting and changing the user group whose members can move messages out of the specified channel.</li>
+        </ul>
+        <p><b>Feature level 395</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Markdown message formatting</MadCap:xref>: Previously, <MadCap:variable name="General.ProductName" />'s Markdown syntax had special support for previewing <MadCap:variable name="General.CompanyName" /> albums. <MadCap:variable name="General.CompanyName" /> albums no longer exist, and links to <MadCap:variable name="General.CompanyName" /> folders now consistently use <MadCap:variable name="General.ProductName" />'s standard open graph preview markup.</li>
+        </ul>
+        <p><b>Feature level 394</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <code>GET /streams/{stream_id}</code>: Added a new field <code>subscriber_count</code> to Stream and Subscription objects with the total number of non-deactivated users who are subscribed to the channel.</li>
+        </ul>
+        <p><b>Feature level 393</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/delete-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: In <code>delete_message</code> event, all the <code>message_ids</code> will now be sorted in increasing order.</li>
+            <li><MadCap:xref href="../reference/messages/update-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: In <code>update_message</code> event, all the <code>message_ids</code> will now be sorted in increasing order.</li>
+        </ul>
+        <p><b>Feature level 392</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added the <code>topics_policy</code> field to Stream and Subscription objects to support channel-level configurations for sending messages to the empty "general chat" topic.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>topics_policy</code> parameter to support setting and updating the channel-level configuration for sending messages to the empty "general chat" topic.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_set_topics_policy_group</code> realm setting, which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to change the per-channel <code>topics_policy</code> setting.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added a new realm <code>topics_policy</code> setting for the organization's default policy for sending channel messages to the empty "general chat" topic.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Deprecated the realm <code>mandatory_topics</code> setting in favor of the new realm <code>topics_policy</code> setting.</li>
+            <li><code>PATCH /realm</code>: Removed the <code>mandatory_topics</code> parameter as it is now replaced by the realm <code>topics_policy</code> setting.</li>
+        </ul>
+        <p><b>Feature level 391</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/update-user-group-members.htm"><code>POST /user_groups/{user_group_id}/members</code></MadCap:xref>, <code>POST /user_groups/{user_group_id}/subgroups</code>: Adding/removing members and subgroups to a deactivated group is now allowed.</li>
+        </ul>
+        <p><b>Feature level 390</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Events with <code>type: "navigation_view"</code> are sent to the user when a navigation view is created, updated, or removed.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>navigation_views</code> field in response.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/navigation-views/get-navigation-views.htm"><code>GET /navigation_views</code></MadCap:xref>: Added a new endpoint for fetching all navigation views of the user.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/navigation-views/add-navigation-view.htm"><code>POST /navigation_views</code></MadCap:xref>: Added a new endpoint for creating a new navigation view.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/navigation-views/edit-navigation-view.htm"><code>PATCH /navigation_views/{fragment}</code></MadCap:xref>: Added a new endpoint for editing the details of a navigation view.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/navigation-views/remove-navigation-view.htm"><code>DELETE /navigation_views/{fragment}</code></MadCap:xref>: Added a new endpoint for removing a navigation view.</li>
+        </ul>
+        <p><b>Feature level 389</b></p>
+        <ul>
+            <li><code>POST /channel_folders/create</code>: Added a new endpoint for creating a new channel folder.</li>
+            <li><code>GET /channel_folders</code>: Added a new endpoint to get all channel folders in the realm.</li>
+            <li><code>PATCH /channel_folders/{channel_folder_id}</code>: Added a new endpoint to update channel folder.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>channel_folders</code> field to response.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: An event with <code>type: "channel_folder"</code> is sent to all users when a channel folder is created.</li>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>folder_id</code> field to Stream and Subscription objects.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>: Added support to add newly created channels to folder using <code>folder_id</code> parameter.</li>
+            <li><MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added support for updating folder to which the channel belongs.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: An event with <code>type: "channel_folder"</code> is sent to all users when a channel folder is updated.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: <code>value</code> field in <code>stream/update</code> events can have <code>null</code> when channel is removed from a folder.</li>
+        </ul>
+        <p><b>Feature level 388</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>is_archived</code> parameter to support unarchiving previously archived channels.</li>
+        </ul>
+        <p><b>Feature level 387</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref>: This endpoint no longer requires authentication for organizations using the public access option.</li>
+        </ul>
+        <p><b>Feature level 386</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>: Added support to reactivate groups by passing <code>deactivated</code> parameter as <code>False</code>.</li>
+        </ul>
+        <p><b>Feature level 385</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH/settings</code></MadCap:xref>, <code>PATCH/realm/user_settings_defaults</code>: Added new <code>resolved_topic_notice_auto_read_policy</code> setting, which controls how resolved-topic notices are marked as read for a user.</li>
+        </ul>
+        <p><b>Feature level 384</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref>: Added <code>user_ids</code> query parameter to fetch data only for the provided <code>user_ids</code>.</li>
+        </ul>
+        <p><b>Feature level 383</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>, <code>PATCH /realm/user_settings_defaults</code>: Added new option in user setting <code>web_channel_default_view</code>, to show inbox view style list of topics.</li>
+        </ul>
+        <p><b>Feature level 382</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/report-message.htm"><code>POST /message/{message_id}/report</code></MadCap:xref>: Added a new endpoint for submitting a moderation request for a message.</li>
+        </ul>
+        <p><b>Feature level 381</b></p>
+        <ul>
+            <li><code>POST /reminders</code>: Added a new endpoint to schedule personal reminder for a message.</li>
+        </ul>
+        <p><b>Feature level 380</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The <code>is_moderator</code> convenience field now is true for organization administrators, matching how <code>is_admin</code> works for organization owners.</li>
+        </ul>
+        <p><b>Feature level 379</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/update-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>: Added optional parameter <code>prev_content_sha256</code>, which clients can use to prevent races with the message being edited by another client.</li>
+        </ul>
+        <p><b>Feature level 378</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Archiving and unarchiving streams now send <code>update</code> events to clients that declared the <code>archived_channels</code> client capability. <code>delete</code> and <code>create</code> events are still sent to clients that did not declare <code>archived_channels</code> client capability.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: The <code>streams</code> data structure now includes archived channels for clients that declared the <code>archived_channels</code> client capability.</li>
+        </ul>
+        <p><b>Feature level 377</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: When a user is deactivate, send <code>peer_remove</code> event to all the subscribers of the streams that the user was subscribed to.</li>
+        </ul>
+        <p>Feature levels 373-376 reserved for future use in 10.x maintenance releases.</p>
+        <h2>Changes in <MadCap:variable name="General.ProductName" /> 10.1</h2>
+        <p><b>Feature level 372</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/set-typing-status.htm"><code>POST /typing</code></MadCap:xref>: The <code>"(no topic)"</code> value when used for <code>topic</code> parameter is now interpreted as an empty string.</li>
+        </ul>
+        <h2>Changes in <MadCap:variable name="General.ProductName" /> 10.0</h2>
+        <p><b>Feature level 371</b></p>
+        <p>No changes; feature level used for <MadCap:variable name="General.ProductName" /> 10.0 release.</p>
+        <p><b>Feature level 370</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/send-message.htm"><code>POST /messages</code></MadCap:xref>, <MadCap:xref href="../getting-started/schedule-a-message.htm"><code>POST /scheduled_messages</code></MadCap:xref>, <code>PATCH /scheduled_messages/&lt;int:scheduled_message_id&gt;</code>: The <code>"(no topic)"</code> value when utilized for <code>topic</code> parameter is now interpreted as an empty string.</li>
+        </ul>
+        <p><b>Feature level 369</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>navigation_tour_video_url</code> to the response.</li>
+        </ul>
+        <p><b>Feature level 368</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: An event with <code>type: "saved_snippet"</code> and <code>op: "update"</code> is sent to the current user when a saved snippet is edited.</li>
+            <li><MadCap:xref href="../reference/drafts/edit-saved-snippet.htm"><code>PATCH /saved_snippets/{saved_snippet_id}</code></MadCap:xref>: Added a new endpoint for editing a saved snippet.</li>
+        </ul>
+        <p><b>Feature level 367</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>POST /events</code></MadCap:xref>: Added new <code>can_resolve_topics_group</code> realm setting, which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to resolve topics in a stream.</li>
+        </ul>
+        <p><b>Feature level 366</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/check-messages-match-narrow.htm"><code>GET /messages/matches_narrow</code></MadCap:xref>, <code>POST /messages/flags/narrow</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added a new <MadCap:xref href="construct-a-narrow.htm">search/narrow filter</MadCap:xref>, <code>is:muted</code>, matching messages in topics and channels that the user has muted.</li>
+        </ul>
+        <p><b>Feature level 365</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>: Added <code>last_moved_timestamp</code> field to message objects for when the message was last moved to a different channel or topic. If the message's topic has only been resolved or unresolved, then the field is not present. Clients should use this field, rather than parsing the message object's <code>edit_history</code> array, to display an indicator that the message has been moved.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>: The <code>last_edit_timestamp</code> field on message objects is only present if the message's content has been edited. Previously, this field was present if the message's content had been edited or moved to a different channel or topic. Clients should use this field, rather than parsing the message object's <code>edit_history</code> array, to display an indicator that the message has been edited.</li>
+        </ul>
+        <p><b>Feature level 364</b></p>
+        <ul>
+            <li><code>PATCH /realm/user_settings_defaults</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref> <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>dense_mode</code> setting.</li>
+        </ul>
+        <p><b>Feature level 363</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_manage_billing_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission manage plans and billing for the organization.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added a new <code>realm_billing</code> object containing additional information about the organization's billing state, such as sponsorship request status.</li>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref>, <code>GET /users/{user_id}</code>, <code>GET /users/{email}</code>, <MadCap:xref href="../reference/users/get-own-user.htm"><code>GET /users/me</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed <code>is_billing_admin</code> field from user objects, as the permission to manage plans and billing in the organization is now controlled by <code>can_manage_billing_group</code>.</li>
+        </ul>
+        <p><b>Feature level 362</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/unsubscribe.htm"><code>DELETE /users/me/subscriptions</code></MadCap:xref>: Subscriptions in archived channels can now be edited by users with the appropriate permission, just like in non-archived channels.</li>
+            <li><MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Archived channels can now be converted between public and private channels, just like non-archived channels.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: The <code>never_subscribed</code> data structure now includes archived channels for clients that declared the <code>archived_channels</code> client capability.</li>
+        </ul>
+        <p><b>Feature level 361</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/set-typing-status-for-message-edit.htm"><code>POST /messages/{message_id}/typing</code></MadCap:xref>: Renamed <code>POST /messages/{message_id}/typing</code> to <code>POST /message_edit_typing</code>, passing the one <code>message_id</code> parameter in the URL path, for consistency with the rest of the API.</li>
+        </ul>
+        <p><b>Feature level 360</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-read-receipts.htm"><code>GET /messages/{message_id}/read_receipts</code></MadCap:xref>: Messages from an archived channels can now be read through these API endpoints, if the channel's access control permissions permit doing so.</li>
+        </ul>
+        <p><b>Feature level 359</b></p>
+        <ul>
+            <li><code>PATCH /bots/{bot_user_id}</code>: Previously, changing the owner of a bot unsubscribed the bot from any channels that the new owner was not subscribed to. This behavior was removed in favor of documenting the security trade-off associated with giving bots read access to sensitive channel content.</li>
+        </ul>
+        <p><b>Feature level 358</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Changed <code>allow_edit_history</code> boolean field to <code>message_edit_history_visibility_policy</code> integer field to support an intermediate field for <code>Moves only</code> edit history of messages.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>realm_allow_edit_history</code> field is deprecated and has been replaced by <code>realm_message_edit_history_visibility_policy</code>. The value of <code>realm_allow_edit_history</code> is set to <code>False</code> if <code>realm_message_edit_history_visibility_policy</code> is configured as "None", and <code>True</code> for "Moves only" or "All" message edit history.</li>
+        </ul>
+        <p><b>Feature level 357</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_subscribe_group</code> field to Stream and Subscription objects.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_subscribe_group</code> parameter to support setting and changing the user group whose members can subscribe to the specified stream.</li>
+        </ul>
+        <p><b>Feature level 356</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>: The new parameter <code>include_can_access_content</code>, if set to True, returns all the channels that the user making the request has content access to.</li>
+            <li><MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>: Rename <code>include_all_active</code> to <code>include_all</code> since the separate <code>exclude_archived</code> parameter is what controls whether to include archived channels. The <code>include_all</code> parameter is now supported for non-administrators.</li>
+        </ul>
+        <p><b>Feature level 355</b></p>
+        <ul>
+            <li><code>POST /messages/flags/narrow</code>, <MadCap:xref href="../reference/messages/update-message-flags.htm"><code>POST /messages/flags</code></MadCap:xref>: Added <code>ignored_because_not_subscribed_channels</code> field in the response, which is a list of the channels whose messages were skipped to mark as unread because the user is not subscribed to them.</li>
+        </ul>
+        <p><b>Feature level 354</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>, [<code>POST /messages/flags/narrow</code>]: Users can access messages in unsubscribed private channels that are accessible only via groups that grant content access.</li>
+            <li><MadCap:xref href="../reference/messages/get-read-receipts.htm"><code>GET /messages/{message_id}/read_receipts</code></MadCap:xref>: Users can access read receipts in unsubscribed private channels that are accessible only via groups that grant content access.</li>
+            <li><MadCap:xref href="../reference/messages/add-reaction.htm"><code>POST /messages/{message_id}/reactions</code></MadCap:xref>, <MadCap:xref href="../reference/messages/remove-reaction.htm"><code>DELETE /messages/{message_id}/reactions</code></MadCap:xref>: Users can react to messages in unsubscribed private channels that are accessible only via groups that grant content access.</li>
+            <li><code>POST /submessage</code>: Users can interact with polls and similar widgets in messages in unsubscribed private channels that are accessible only via groups that grant content access.</li>
+            <li><MadCap:xref href="../reference/messages/update-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>: Users can edit messages they have posted in unsubscribed private channels that are accessible only via groups that grant content access.</li>
+            <li><MadCap:xref href="../reference/users/set-typing-status-for-message-edit.htm"><code>POST /message_edit_typing</code></MadCap:xref>: Users can generate typing notifications when editing messages in unsubscribed private channels that are accessible only via groups that grant content access.</li>
+            <li><MadCap:xref href="../reference/messages/send-message.htm"><code>POST /messages</code></MadCap:xref>: Users can send messages to private channels with shared history without subscribing if they are part of groups that grant content access and also in <code>can_send_message_group</code>.</li>
+        </ul>
+        <p><b>Feature level 353</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <code>PATCH /realm</code>: Zoom Server to Server OAuth integration added as an option for the realm setting <code>video_chat_provider</code>.</li>
+        </ul>
+        <p><b>Feature level 352</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>can_mention_many_users_group</code> realm setting, which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to use wildcard mentions in large channels.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>wildcard_mention_policy</code> property, as the permission to use wildcard mentions in large channels is now controlled by <code>can_mention_many_users_group</code> setting.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>realm_wildcard_mention_policy</code> field is deprecated, having been replaced by <code>can_mention_many_users_group</code>. Notably, this backwards-compatible <code>realm_wildcard_mention_policy</code> value now contains the superset of the true value that best approximates the actual permission setting.</li>
+        </ul>
+        <p><b>Feature level 351</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/set-typing-status-for-message-edit.htm"><code>POST /message_edit_typing</code></MadCap:xref>: Added a new endpoint for sending typing notification when a message is being edited both in streams and direct messages.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The new <code>typing_edit_message</code> event is sent when a user starts editing a message.</li>
+        </ul>
+        <p><b>Feature level 350</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>server_can_summarize_topics</code> to the response.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>POST /events</code></MadCap:xref>, <code>PATCH /realm</code>: Added <code>can_summarize_topics_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to use AI summarization.</li>
+            <li><code>PATCH /realm/user_settings_defaults</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>: Added new <code>hide_ai_features</code> option for hiding all AI features in the UI.</li>
+        </ul>
+        <p><b>Feature level 349</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>: Users belonging to <code>can_add_subscribers_group</code> should be able to add subscribers to a private channel without being subscribed to it.</li>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>DELETE /users/me/subscriptions</code></MadCap:xref>: Channel administrators can now unsubscribe other users even if they are not an organization administrator or part of <code>can_remove_subscribers_group</code>.</li>
+            <li><MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>, <MadCap:xref href="../reference/channels/archive-stream.htm"><code>DELETE /streams/{stream_id}</code></MadCap:xref>: Channel and organization administrators can modify all the settings requiring only metadata access without having content access to it. They cannot add subscribers to the channel or change it's privacy setting without having content access to it.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: All users with metadata access to a channel are now notified when a relevant stream event occurs. Previously, non-admin users who were channel admins or users belonging to <code>can_add_subscribers_group</code> were not notified of events for a private channel they were not subscribed to.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: If a user is a channel administrator for a private channel they are not subscribed to. That channel will now appear either in the <code>unsubscribed</code> or <code>never_subscribed</code> list in subscription info.</li>
+        </ul>
+        <p><b>Feature level 348</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>POST /events</code></MadCap:xref>, <code>PATCH /realm</code>: Added <code>enable_guest_user_dm_warning</code> setting to decide whether clients should show a warning when a user is composing to a guest user in the organization.</li>
+        </ul>
+        <p><b>Feature level 347</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Markdown message formatting</MadCap:xref>: Links to topic without a specified message now use the <code>with</code> operator to follow moves of topics.</li>
+        </ul>
+        <p><b>Feature level 346</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Markdown message formatting</MadCap:xref>: Added support for empty string as a valid topic name in syntaxes for linking to topics and messages.</li>
+        </ul>
+        <p><b>Feature level 345</b></p>
+        <ul>
+            <li><code>POST /remotes/server/register/transfer</code>, <code>POST /remotes/server/register/verify_challenge</code>, <code>POST /relay-services/verify/{access_token}/</code>: Added new API endpoints for transferring <MadCap:variable name="General.ProductName" /> services registrations.</li>
+            <li><code>POST /remotes/server/register</code>: Added new response format for hostnames that are already registered.</li>
+        </ul>
+        <p><b>Feature level 344</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added two new realm settings, <code>can_create_bots_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to create bot users in the organization, and <code>can_create_write_only_bots_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission in order to create bot users who can only send messages in the organization in addition to the users who are in <code>can_create_bots_group</code>.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>bot_creation_policy</code> property, as the permission to create bot users in the organization is now controlled by two new realm settings, <code>can_create_bots_group</code> and <code>can_create_write_only_bots_group</code>.</li>
+        </ul>
+        <p><b>Feature level 343</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added a new field <code>stream_ids</code> to replace <code>streams</code> in stream delete event and label <code>streams</code> as deprecated.</li>
+        </ul>
+        <p><b>Feature level 342</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_add_subscribers_group</code> field to Stream and Subscription objects.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_add_subscribers_group</code> parameter to support setting and changing the user group whose members can add other subscribers to the specified stream.</li>
+            <li><MadCap:xref href="../reference/invites/send-invites.htm"><code>POST /invites</code></MadCap:xref>, <MadCap:xref href="../reference/invites/create-invite-link.htm"><code>POST /invites/multiuse</code></MadCap:xref>: Users can now always include default channels in an invite's initial subscriptions.</li>
+        </ul>
+        <p><b>Feature level 341</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_add_subscribers_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to add subscribers to channels in the organization.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed <code>can_subscribe_other_users</code> boolean field from the response.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>invite_to_stream_policy</code> property, as the permission to subscribe other users to channels in the organization is now controlled by the <code>can_add_subscribers_group</code> setting.</li>
+        </ul>
+        <p><b>Feature level 340</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>: All the permission settings and description can now be updated for deactivated groups.</li>
+        </ul>
+        <p><b>Feature level 339</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>user</code> field back in <code>reaction</code> events, reverting part of the feature level 328 changes. Note that this field was only restored in the events API, and remains deprecated, pending core clients fully migrating away from accessing it.</li>
+        </ul>
+        <p><b>Feature level 338</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>password_max_length</code> field, which is the maximum allowed password length.</li>
+        </ul>
+        <p><b>Feature level 337</b></p>
+        <ul>
+            <li><code>POST /calls/bigbluebutton/create</code>: Added a <code>voice_only</code> parameter controlling whether the call should be voice-only, in which case we keep cameras disabled for this call. Now the call creator is a moderator and all other joiners are viewers.</li>
+        </ul>
+        <p><b>Feature level 336</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Markdown message formatting</MadCap:xref>: Added <code>data-original-content-type</code> attribute to convey the type of the original image, and optional <code>data-transcoded-image</code> attribute for images with formats which are not widely supported by browsers.</li>
+        </ul>
+        <p><b>Feature level 335</b></p>
+        <ul>
+            <li><code>GET /streams/{stream_id}/email_address</code>: Added an optional <code>sender_id</code> parameter to specify the ID of a user or bot which should appear as the sender when messages are sent to the channel using the returned channel email address.</li>
+        </ul>
+        <p><b>Feature level 334</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>realm_empty_topic_display_name</code> field for clients to use while adding support for empty string as topic name.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>empty_topic_name</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref> to allow client to specify whether it supports empty string as a topic name in <code>register</code> response or events involving topic names. Clients that don't support this client capability receive <code>realm_empty_topic_display_name</code> field value as the topic name replacing the empty string.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: For clients that don't support the <code>empty_topic_name</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref>, the following fields will have the value of <code>realm_empty_topic_display_name</code> field replacing the empty string for channel messages: <ul><li><code>subject</code> field in the <code>message</code> event type</li><li><code>topic</code> field in the <code>delete_message</code> event type</li><li><code>orig_subject</code> and <code>subject</code> fields in the <code>update_message</code> event type</li><li><code>topic_name</code> field in the <code>user_topic</code> event type</li><li><code>topic</code> field in the <code>typing</code> event type</li><li><code>topic</code> field in the <code>update_message_flags</code> event type when removing <code>read</code> flag</li></ul></li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>: Added <code>allow_empty_topic_name</code> boolean parameter to decide whether the topic names in the fetched messages can be empty strings.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-message-history.htm"><code>GET /messages/{message_id}/history</code></MadCap:xref>: Added <code>allow_empty_topic_name</code> boolean parameter to decide whether the topic names in the fetched message history objects can be empty strings.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-stream-topics.htm"><code>GET /users/me/{stream_id}/topics</code></MadCap:xref>: Added <code>allow_empty_topic_name</code> boolean parameter to decide whether the topic names in the fetched <code>topics</code> array can be empty strings.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: For clients that don't support the <code>empty_topic_name</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref>, the <code>topic</code> field in the <code>unread_msgs</code> object and <code>topic_name</code> field in the <code>user_topics</code> objects will have the value of <code>realm_empty_topic_display_name</code> field replacing the empty string for channel messages.</li>
+        </ul>
+        <p><b>Feature level 333</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Message formatting</MadCap:xref>: System groups can now be silently mentioned.</li>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_send_message_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to post in the channel.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_send_message_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to post in the channel.</li>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>stream_post_policy</code> field is deprecated, having been replaced by <code>can_send_message_group</code>. Notably, this backwards-compatible <code>stream_post_policy</code> value now contains the superset of the true value that best approximates the actual permission setting.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Removed <code>stream_post_policy</code> and <code>is_announcement_only</code> properties, as the permission to post in the channel is now controlled by <code>can_send_message_group</code> setting.</li>
+        </ul>
+        <p><b>Feature level 332</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>server_min_deactivated_realm_deletion_days</code> and <code>server_max_deactivated_realm_deletion_days</code> fields for the permitted number of days before full data deletion of a deactivated organization on the server.</li>
+            <li><code>POST /realm/deactivate</code>: Added <code>deletion_delay_days</code> parameter to support setting when a full data deletion of the deactivated organization may be done.</li>
+        </ul>
+        <p><b>Feature level 331</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>POST /events</code></MadCap:xref>, <code>PATCH /realm</code>: Added <code>moderation_request_channel_id</code> realm setting, which is the ID of the private channel to which moderation requests will be sent.</li>
+        </ul>
+        <p><b>Feature level 330</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Default channels data only includes channel IDs now instead of full channel data.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Default channel groups data only includes channel IDs now instead of full channel data.</li>
+        </ul>
+        <p><b>Feature level 329</b></p>
+        <ul>
+            <li><code>PATCH /realm/user_settings_defaults</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>: Added new <code>web_suggest_update_timezone</code> user setting to indicate whether the user should be shown an alert, offering to update their profile time zone, when the time displayed for the profile time zone differs from the current time displayed by the time zone configured on their device.</li>
+        </ul>
+        <p><b>Feature level 328</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed deprecated <code>user</code> dictionary from the <code>reactions</code> objects returned by the API, as the clients now use <code>user_id</code> field instead.</li>
+        </ul>
+        <p><b>Feature level 327</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Adjusted the <code>recipient_id</code> field of an incoming 1:1 direct message to use the same value that would be utilized for an outgoing message in that conversation.</li>
+        </ul>
+        <p><b>Feature level 326</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed <code>allow_owners_group</code> field from configuration data object of permission settings passed in <code>server_supported_permission_settings</code>.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Removed <code>id_field_name</code> field from configuration data object of permission settings passed in <code>server_supported_permission_settings</code>.</li>
+        </ul>
+        <p><b>Feature level 325</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_administer_channel_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to administer the channel in addition to realm admins.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: Added <code>can_administer_channel_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permissions to administer the channel in addition to realm admins.</li>
+        </ul>
+        <p><b>Feature level 324</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Add <code>can_remove_members_group</code> to user group objects.</li>
+            <li><MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>: Added <code>can_remove_members_group</code> parameter to support setting the user group which can remove members from the user group.</li>
+            <li><MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>: Added <code>can_remove_members_group</code> parameter to support changing the user group which can remove members from the specified user group.</li>
+        </ul>
+        <p><b>Feature level 323</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <code>GET /streams/{stream_id}</code>: Added a new field <code>is_recently_active</code> to stream objects as a new deterministic source of truth for <code>demote_inactive_streams</code> activity decisions.</li>
+        </ul>
+        <p><b>Feature level 322</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/invites/send-invites.htm"><code>POST /invites</code></MadCap:xref>, <MadCap:xref href="../reference/invites/create-invite-link.htm"><code>POST /invites/multiuse</code></MadCap:xref>: Added a new parameter <code>group_ids</code> which allows users to be added to user groups through invitations.</li>
+        </ul>
+        <p><b>Feature level 321</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_invite_users_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to send email invitations for inviting other users to the organization.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>invite_to_realm_policy</code> property, as the permission to send email invitations for inviting other users to the organization is now controlled by <code>can_invite_users_group</code> setting.</li>
+        </ul>
+        <p><b>Feature level 320</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-subscriptions.htm"><code>GET /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>can_remove_subscribers_group</code> field can now either be an ID of a named user group with the permission, or an object describing the set of users and groups with the permission.</li>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/me/subscriptions</code></MadCap:xref>, <MadCap:xref href="../reference/channels/update-stream.htm"><code>PATCH /streams/{stream_id}</code></MadCap:xref>: The <code>can_remove_subscribers_group</code> parameter can now either be an ID of a named user group or an object describing a set of users and groups.</li>
+        </ul>
+        <p><b>Feature level 319</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Markdown message formatting</MadCap:xref>: Added new <code>message-link</code> format for special direct links to messages.</li>
+        </ul>
+        <p><b>Feature level 318</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Renamed the <code>config</code> object in the <code>realm_incoming_webhook_bots</code> object to <code>config_options</code>. This object now includes details about optional URL parameters that can be configured when generating a URL for an incoming webhook integration. Previously, this object was reserved for key-value pairs that indicated that a bot user could be created with additional configuration data (such as an API key) for that incoming webhook integration, but this functionality has not been implemented for any existing integrations.</li>
+        </ul>
+        <p><b>Feature level 317</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>: Added <code>group_id</code> to the success response of the user group creation endpoint, enabling clients to easily access the unique identifier of the newly created user group.</li>
+        </ul>
+        <p><b>Feature level 316</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_move_messages_between_topics_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to move messages from one topic to another within a channel in the organization.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>edit_topic_policy</code> property, as the permission to move messages between topics in the organization is now controlled by <code>can_move_messages_between_topics_group</code> setting.</li>
+        </ul>
+        <p><b>Feature level 315</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm">POST /register</MadCap:xref>, <code>GET /streams/{stream_id}</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/channels/get-subscriptions.htm">GET /users/me/subscriptions</MadCap:xref>: The <code>is_archived</code> property has been added to channel and subscription objects.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/get-streams.htm"><code>GET /streams</code></MadCap:xref>: The new parameter <code>exclude_archived</code> controls whether archived channels should be returned.</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: The new <code>archived_channels</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref> allows the client to specify whether it supports archived channels being present in the response.</li>
+        </ul>
+        <p><b>Feature level 314</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Anonymous groups are now accepted by <code>create_multiuse_invite_group</code> realm setting, which is a now a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> instead of an integer ID of the group.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Anonymous groups are now accepted by <code>can_access_all_users_group</code> realm setting, which is a now a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> instead of an integer ID of the group.</li>
+        </ul>
+        <p><b>Feature level 313</b></p>
+        <ul>
+            <li><code>PATCH /users/{user_id}</code>: Added <code>new_email</code> field to allow updating the email address of the target user. The requester must be an organization administrator and have the <code>can_change_user_emails</code> special permission.</li>
+            <li><code>PATCH /users/{email}</code>: Added new endpoint, which is a copy of <code>PATCH /users/{user_id}</code>, but the user is specified by their email address, following the same rules as <code>GET /users/{email}</code>.</li>
+        </ul>
+        <p><b>Feature level 312</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>realm_export_consent</code> event type to allow realm administrators to view which users have consented to export their private data as part of a realm export.</li>
+        </ul>
+        <p><b>Feature level 311</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/update-user-group-members.htm"><code>POST /user_groups/{user_group_id}/members</code></MadCap:xref>: Added <code>add_subgroups</code> and <code>delete_subgroups</code> parameters to support updating subgroups of a user group using this endpoint.</li>
+            <li><MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>: Added <code>subgroups</code> parameter to support setting subgroups of a user group during its creation.</li>
+        </ul>
+        <p><b>Feature level 310</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_move_messages_between_channels_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to move messages from one channel to another in the organization.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>move_messages_between_streams_policy</code> property, as the permission to move messages between channels in the organization is now controlled by <code>can_move_messages_between_channels_group</code> setting.</li>
+        </ul>
+        <p><b>Feature level 309</b></p>
+        <ul>
+            <li><MadCap:xref href="group-setting-values.htm">Group-setting values</MadCap:xref>: Starting with this feature level, it's now possible to use group-setting values in production for those settings whose value is not required to be a system group</li>
+        </ul>
+        <p><b>Feature level 308</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Add <code>can_leave_group</code> to user group objects.</li>
+            <li><MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>: Added <code>can_leave_group</code> parameter to support setting the user group whose members can leave the user group.</li>
+            <li><MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>: Added <code>can_leave_group</code> parameter to support changing the user group whose members can leave the specified user group.</li>
+        </ul>
+        <p><b>Feature level 307</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_add_custom_emoji_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to add custom emoji in the organization.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>add_custom_emoji_policy</code> property, as the permission to add custom emoji in the organization is now controlled by <code>can_add_custom_emoji_group</code> setting.</li>
+        </ul>
+        <p><b>Feature level 306</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed the <code>extra_data</code> optional field from the <code>realm/update</code> event format, which was only used for <code>plan_type</code> events, with a single <code>upload_quota</code> field. Now, we use a standard <code>realm/update_dict</code> event to notify clients about changes in <code>plan_type</code> and other fields that atomically change with a given change in plan.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>max_file_upload_size_mib</code> field to the <code>data</code> object in <code>realm/update_dict</code> event format; previously, this was a constant. Note that the field does not have a <code>realm_</code> prefix in the <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response.</li>
+        </ul>
+        <p><b>Feature level 305</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Add <code>can_add_members_group</code> to user group objects.</li>
+            <li><MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>: Added <code>can_add_members_group</code> parameter to support setting the user group which can add members to the user group.</li>
+            <li><MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>: Added <code>can_add_members_group</code> parameter to support changing the user group which can add members to the specified user group.</li>
+            <li>The <code>can_manage_all_groups</code> permission now has the natural semantics of applying to all groups, regardless of the role of the user given this permission. Since its introduction in feature level 299, <code>can_manage_all_groups</code> had temporarily had unusual semantics matching those of the original<code>user_group_edit_policy</code> setting.</li>
+        </ul>
+        <p><b>Feature level 304</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-realm-exports.htm"><code>GET /export/realm</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>export_type</code> field to the dictionaries in <code>exports</code> array. It indicates whether the export is of public data or full data with user consent (standard export).</li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-realm-exports.htm"><code>POST /export/realm</code></MadCap:xref>: Added <code>export_type</code> parameter to add support for admins to decide whether to create a public or a standard data export.</li>
+        </ul>
+        <p><b>Feature level 303</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>, <code>GET /user_groups/{user_group_id}/members/{user_id}</code>, <code>GET /user_groups/{user_group_id}/members</code>: Deactivated users are no longer returned as members of the user groups that they were members of prior to deactivation.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Settings, represented as <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref>, will never include deactivated users in the <code>direct_members</code> list for settings whose value is an anonymous group.</li>
+            <li><MadCap:xref href="../reference/users/update-user-group-members.htm"><code>POST /user_groups/{user_group_id}/members</code></MadCap:xref>: Deactivated users cannot be added or removed from a user group; they are now implicitly not members of any groups while deactivated.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: User reactivation event is not sent to users who cannot access the reactivated user anymore due to a <code>can_access_all_users_group</code> policy.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: The server will now send <code>user_group</code> events with the <code>add_members</code>/<code>remove_members</code> operations as appropriate when deactivating or reactivating a user, to ensure client state correctly reflects groups never containing deactivated users.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: To ensure that <MadCap:xref href="group-setting-values.htm">group-setting values</MadCap:xref> are correct, <code>realm/update_dict</code> and <code>user_group/update</code> events may now be by sent by the server when processing a deactivation/reactivation of a user, to ensure client state correctly reflects the state, given that deactivated users cannot have permissions in an organization.</li>
+        </ul>
+        <p><b>Feature level 302</b></p>
+        <ul>
+            <li><code>GET /users/{email}</code>: Changed the <code>email</code> values by which users can successfully be looked up to match the user email visibility setting's semantics better.</li>
+        </ul>
+        <p><b>Feature level 301</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Add <code>can_join_group</code> to user group objects.</li>
+            <li><MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>: Added <code>can_join_group</code> parameter to support setting the user group whose members can join the user group.</li>
+            <li><MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>: Added <code>can_join_group</code> parameter to support changing the user group whose members can join the specified user group.</li>
+        </ul>
+        <p><b>Feature level 300</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages</code></MadCap:xref>: Added a new message_ids parameter, as an alternative method of specifying which messages to fetch.</li>
+        </ul>
+        <p><b>Feature level 299</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>can_create_groups</code> realm setting, which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to create user groups.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>can_manage_all_groups</code> realm setting, which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to manage all user groups.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>user_group_edit_policy</code> property, as the permission to create user groups is now controlled by <code>can_create_groups</code> setting and permission to manage groups in now controlled by <code>can_manage_all_groups</code> setting.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>user_group_edit_policy</code> field is deprecated, having been replaced by <code>can_create_groups</code> for user group creation and <code>can_manage_all_groups</code> for user group management.</li>
+        </ul>
+        <p><b>Feature level 298</b></p>
+        <ul>
+            <li><code>POST /user_groups/{user_group_id}/deactivate</code>: Server now returns a specific error response (<code>"code": CANNOT_DEACTIVATE_GROUP_IN_USE</code>) when a user group cannot be deactivated because it is in use. The error response contains details about where the user group is being used.</li>
+        </ul>
+        <p><b>Feature level 297</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: An event with <code>type: "saved_snippet"</code> is sent to the current user when a saved snippet is created or deleted.</li>
+            <li><MadCap:xref href="../reference/drafts/get-saved-snippets.htm"><code>GET /saved_snippets</code></MadCap:xref>: Added a new endpoint for fetching saved snippets of the user.</li>
+            <li><MadCap:xref href="../reference/drafts/create-saved-snippet.htm"><code>POST /saved_snippets</code></MadCap:xref>: Added a new endpoint for creating a new saved snippet.</li>
+            <li><MadCap:xref href="../reference/drafts/delete-saved-snippet.htm"><code>DELETE /saved_snippets/{saved_snippet_id}</code></MadCap:xref>: Added a new endpoint for deleting saved snippets.</li>
+        </ul>
+        <p><b>Feature level 296</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <code>POST /realm/profile_fields</code>, <MadCap:xref href="../reference/server-and-organizations/get-custom-profile-fields.htm"><code>GET /realm/profile_fields</code></MadCap:xref>, <code>PATCH /realm/profile_fields/{field_id}</code>: Added a new parameter <code>editable_by_user</code> to custom profile field objects, which indicates whether regular users can edit the value of the profile field on their own account.</li>
+        </ul>
+        <p><b>Feature level 295</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/server-and-organizations/get-realm-export-consents.htm"><code>GET /export/realm/consents</code></MadCap:xref>: Added a new endpoint to fetch the consents of users for their private data exports.</li>
+            <li><code>/api/v1/tus</code> is an endpoint implementing the <code>tus</code> protocol for resumable uploads. Clients which send authenticated credentials (either via browser-based cookies, or API key via <code>Authorization</code> header) may use this endpoint to create uploads, similar to <code>POST /user_uploads</code>.</li>
+        </ul>
+        <p><b>Feature level 294</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Clients that do not support the <code>include_deactivated_groups</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref> do not receive deactivated user groups in the response.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Clients that do not support the <code>include_deactivated_groups</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref> receive <code>remove</code> event on user group deactivation instead of <code>update</code> event.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Clients that do not support the <code>include_deactivated_groups</code> <MadCap:xref href="../reference/real-time-events/register-queue.htm">client capability</MadCap:xref> do not receive <code>update</code> event when name of a deactivated user group is updated.</li>
+            <li><MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Renamed <code>allow_deactivated</code> parameter to <code>include_deactivated_groups</code>.</li>
+            <li><code>DELETE /user_groups/{user_group_id}</code>: Removed support for user group deletion as we now support deactivating user groups.</li>
+        </ul>
+        <p><b>Feature level 293</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/update-settings.htm"><code>PATCH /settings</code></MadCap:xref>: Added a new <code>allow_private_data_export</code> setting to allow users to decide whether to let administrators export their private data.</li>
+        </ul>
+        <p><b>Feature level 292</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Added <code>creator_id</code> and <code>date_created</code> fields to user groups objects.</li>
+        </ul>
+        <p><b>Feature level 291</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added <code>can_delete_own_message_group</code> realm setting which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to delete the messages that they have sent in the organization.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>delete_own_message_policy</code> property, as the permission to delete own messages is now controlled by <code>can_delete_own_message_group</code> setting.</li>
+        </ul>
+        <p><b>Feature level 290</b></p>
+        <ul>
+            <li><code>POST /user_groups/{user_group_id}/deactivate</code>: Added new API endpoint to deactivate a user group.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Added <code>deactivated</code> field in the user group objects to identify deactivated user groups.</li>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: When a user group is deactivated, a <code>user_group</code> event with <code>op=update</code> is sent to clients.</li>
+            <li><MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Added support for excluding deactivated user groups from the response.</li>
+        </ul>
+        <p><b>Feature level 289</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/subscribe.htm"><code>POST /users/{user_id}/subscription</code></MadCap:xref>: In the response, users are identified by their numeric user ID rather than by their <MadCap:variable name="General.ProductName" /> API email address.</li>
+        </ul>
+        <p><b>Feature level 288</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: A new <code>presence_history_limit_days</code> parameter can be given, instructing the server to only fetch presence data more recent than the given number of days ago.</li>
+            <li><code>POST /users/me/presence</code>: A new <code>history_limit_days</code> parameter can be given, with the same meaning as in the <code>presence_history_limit_days</code> parameter of <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> above.</li>
+        </ul>
+        <p><b>Feature level 287</b></p>
+        <ul>
+            <li><MadCap:xref href="message-formatting.htm">Markdown message formatting</MadCap:xref>: Added <code>data-original-dimensions</code> attributes to placeholder images (<code>image-loading-placeholder</code>), containing the dimensions of the original image. This change was also backported to the <MadCap:variable name="General.ProductName" /> 9.x series, at feature level 278.</li>
+        </ul>
+        <p><b>Feature level 286</b></p>
+        <ul>
+            <li><code>POST /user_uploads</code>: Added <code>filename</code> field to the response, which is closer to the original filename than the basename of the <code>url</code> field in the response.</li>
+        </ul>
+        <p><b>Feature level 285</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/update-message.htm"><code>PATCH /messages/{message_id}</code></MadCap:xref>: Added <code>detached_uploads</code> to the response, indicating which uploaded files are now only accessible via message edit history.</li>
+        </ul>
+        <p><b>Feature level 284</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-messages.htm"><code>GET /messages</code></MadCap:xref>, <MadCap:xref href="../reference/messages/get-message.htm"><code>GET /messages/{message_id}</code></MadCap:xref>, <MadCap:xref href="outgoing-webhook-payload.htm">outgoing webhook payloads</MadCap:xref>: Removed the <code>prev_rendered_content_version</code> field from the <code>edit_history</code> object within message objects and the <code>update_message</code> event type as it is an internal server implementation detail not used by any client.</li>
+        </ul>
+        <p><b>Feature level 283</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/users/get-user-groups.htm"><code>GET /user_groups</code></MadCap:xref>: Add <code>can_manage_group</code> to user group objects.</li>
+            <li><MadCap:xref href="../reference/users/create-user-group.htm"><code>POST /user_groups/create</code></MadCap:xref>: Added <code>can_manage_group</code> parameter to support setting the user group whose members can manage the user group.</li>
+            <li><MadCap:xref href="../reference/users/update-user-group.htm"><code>PATCH /user_groups/{user_group_id}</code></MadCap:xref>: Added <code>can_manage_group</code> parameter to support changing the user group whose members can manage the specified user group.</li>
+        </ul>
+        <p><b>Feature level 282</b></p>
+        <ul>
+            <li><code>POST users/me/tutorial_status</code>: Removed this undocumented endpoint, as the state that it maintained has been replaced by a cleaner <code>onboarding_steps</code> implementation.</li>
+        </ul>
+        <p><b>Feature level 281</b></p>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: Added a new realm setting <code>realm_can_delete_any_message_group</code> which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to delete any message in the organization.</li>
+        </ul>
+        <p><b>Feature level 280</b></p>
+        <ul>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Added <code>can_create_web_public_channel_group</code> realm setting, which is a <MadCap:xref href="group-setting-values.htm">group-setting value</MadCap:xref> describing the set of users with permission to create web-public channels.</li>
+            <li><code>PATCH /realm</code>, <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref>: Removed <code>create_web_public_stream_policy</code> property, as the permission to create web-public channels is now controlled by <code>can_create_web_public_channel_group</code> setting.</li>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref>: <code>realm_create_web_public_stream_policy</code> field is deprecated, having been replaced by <code>can_create_web_public_channel_group</code>. Notably, this backwards-compatible <code>realm_create_web_public_stream_policy</code> value now contains the superset of the true value that best approximates the actual permission setting.</li>
+        </ul>
+        <p>Feature level 279 is reserved for future use in 9.x maintenance releases.</p>
+    </body>
+</html>

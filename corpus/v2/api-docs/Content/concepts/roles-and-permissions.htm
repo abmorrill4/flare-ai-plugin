@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Roles and permissions</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Roles and permissions</h1>
+        <p><MadCap:variable name="General.ProductName" /> offers several levels of permissions based on a user's role in a <MadCap:variable name="General.ProductName" /> organization.</p>
+        <p>Here are some important details to note when working with these roles and permissions in <MadCap:variable name="General.ProductName" />'s API:</p>
+        <h2>A user's role</h2>
+        <p>A user's account data include a <code>role</code> property, which contains the user's role in the <MadCap:variable name="General.ProductName" /> organization. These roles are encoded as:</p>
+        <ul>
+            <li>Organization owner: 100</li>
+        </ul>
+        <ul>
+            <li>Organization administrator: 200</li>
+        </ul>
+        <ul>
+            <li>Organization moderator: 300</li>
+        </ul>
+        <ul>
+            <li>Member: 400</li>
+        </ul>
+        <ul>
+            <li>Guest: 600</li>
+        </ul>
+        <p>User account data also include these boolean properties that duplicate the related roles above:</p>
+        <ul>
+            <li><code>is_owner</code> specifying whether the user is an organization owner.</li>
+        </ul>
+        <ul>
+            <li><code>is_admin</code> specifying whether the user is an organization administrator.</li>
+        </ul>
+        <ul>
+            <li><code>is_guest</code> specifying whether the user is a guest user.</li>
+        </ul>
+        <p>These are intended as conveniences for simple clients, and clients should prefer using the <code>role</code> field, since only that one is updated by the <MadCap:xref href="../reference/real-time-events/get-events.htm">events API</MadCap:xref>.</p>
+        <p>Note that <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> also returns an <code>is_moderator</code> boolean property specifying whether the current user is at least an organization moderator. The property will be true for admins and owners too.</p>
+        <h3>User account data in the API</h3>
+        <p>Endpoints that return the user account data / properties mentioned above are:</p>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-users.htm"><code>GET /users</code></MadCap:xref></li>
+        </ul>
+        <ul>
+            <li><code>GET /users/{user_id}</code></li>
+        </ul>
+        <ul>
+            <li><code>GET /users/{email}</code></li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/users/get-own-user.htm"><code>GET /users/me</code></MadCap:xref></li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code></MadCap:xref></li>
+        </ul>
+        <ul>
+            <li><MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref></li>
+        </ul>
+        <p>Note that the <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code> endpoint</MadCap:xref> returns the above boolean properties to describe the role of the current user, when <code>realm_user</code> is present in <code>fetch_event_types</code>.</p>
+        <p>Additionally, the specific events returned by the <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>GET /events</code> endpoint</MadCap:xref> containing data related to user accounts and roles are the <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>realm_user</code> add event</MadCap:xref>, and the <MadCap:xref href="../reference/real-time-events/get-events.htm"><code>realm_user</code> update event</MadCap:xref>.</p>
+        <h2>Permission levels</h2>
+        <p>Many areas of <MadCap:variable name="General.ProductName" /> are customizable by the roles above, such as (but not limited to) restricting message editing and deletion and various permissions for different channel types. The potential permission levels are:</p>
+        <ul>
+            <li>Everyone / Any user including Guests (least restrictive)</li>
+        </ul>
+        <ul>
+            <li>Members</li>
+        </ul>
+        <ul>
+            <li>Full members</li>
+        </ul>
+        <ul>
+            <li>Moderators</li>
+        </ul>
+        <ul>
+            <li>Administrators</li>
+        </ul>
+        <ul>
+            <li>Owners</li>
+        </ul>
+        <ul>
+            <li>Nobody (most restrictive)</li>
+        </ul>
+        <p>These permission levels and policies in the API are designed to be cutoffs in that users with the specified role and above have the specified ability or access. For example, a permission level documented as 'moderators only' includes organization moderators, administrators, and owners.</p>
+        <p>Note that specific settings and policies in the <MadCap:variable name="General.ProductName" /> API that use these permission levels will likely support a subset of those listed above.</p>
+        <h2>Group-based permissions</h2>
+        <p>Some settings have been migrated to a more flexible system based on <MadCap:xref href="group-setting-values.htm">user groups</MadCap:xref>. Click the save button to keep your changes.</p>
+        <h2>Determining if a user is a full member</h2>
+        <p>When a <MadCap:variable name="General.ProductName" /> organization has set up a waiting period before new members turn into full members, clients will need to determine if a user's account has aged past the organization's waiting period threshold.</p>
+        <p>The <code>realm_waiting_period_threshold</code>, which is the number of days until a user's account is treated as a full member, is returned by the <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code> endpoint</MadCap:xref> when <code>realm</code> is present in <code>fetch_event_types</code>.</p>
+        <p>Clients can compare the <code>realm_waiting_period_threshold</code> to a user accounts's <code>date_joined</code> property, which is the time the user account was created, to determine if a user has the permissions of a full member or a new member. At this point in time, it is important to be aware of the fact that results can vary.</p>
+    </body>
+</html>

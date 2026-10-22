@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Upgrade guide</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Upgrade guide</h1>
+        <p>Use this procedure to move a running <MadCap:variable name="General.ProductName" /> cluster to a newer release. The steps are the same for minor and patch releases. For a major release, also read the breaking changes topic first.</p>
+        <h2>Before you start</h2>
+        <ol>
+            <li>Read the topic for the release that you are upgrading to.</li>
+            <li>Back up your configuration and your data store.</li>
+            <li>Confirm that your version is listed in <MadCap:xref href="supported-versions.htm">Supported versions</MadCap:xref>.</li>
+        </ol>
+        <h2>Upgrade a node</h2>
+        <ol>
+            <li>Select <b>Admin</b> &gt; <b>Upgrade</b> in the console.</li>
+            <li>Click <b>Check for updates</b>, and then select the release.</li>
+            <li>Click <b>Download</b>, and wait for the status to change to <b>Ready</b>.</li>
+            <li><p>Please run the migration command on one node:</p> <pre>orbit migrations up</pre></li>
+        </ol>
+        <ol>
+            <li>Restart the node, and then check the status page.</li>
+            <li>Repeat steps 4 and 5 on each remaining node.</li>
+        </ol>
+        <p class="warning">Do not run the migration command on more than one node at a time. Two concurrent migrations can leave the data store in an inconsistent state.</p>
+        <h2>After the upgrade</h2>
+        <p>Check the logs for warnings about deprecated settings. A setting that is deprecated in this release is removed in a future major release, so change it soon.</p>
+        <p>If a node does not start, see <MadCap:xref href="known-issues.htm">Known issues</MadCap:xref> and then contact <MadCap:snippetText src="../Resources/Snippets/support-contact.flsnp" />.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+    </body>
+</html>

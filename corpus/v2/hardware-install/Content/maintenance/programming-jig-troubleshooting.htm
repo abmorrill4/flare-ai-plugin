@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Programming jig troubleshooting</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Programming jig troubleshooting</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <p>If you experience issues with the Compute Module 5 Programming Jig, use the following information to diagnose the issue. Each board is checked by the factory before it is shipped.</p>
+        <ul>
+            <li>If provisioning doesn't start when the CM5 is clamped in the jig, attempt the steps in Programming jig troubleshooting to resolve the issue.</li>
+            <li>For other issues, see the Secure Boot Provisioner troubleshooting information.</li>
+        </ul>
+        <h2>Device not detected</h2>
+        <p>If the CM5 is clamped in the jig, but provisioning doesn't start, try the following:</p>
+        <ol>
+            <li><p>Ensure that the jig is powered on and connected to the network!</p><ol><li>If the <b>JIG</b> LED indicator isn't lit, ensure that the power cable is plugged in.</li><li>Verify the network by connecting to the jig from another computer.</li></ol></li>
+            <li><p>Ensure that the CM5 is correctly seated and aligned with the pogo pins.</p><ol><li>Open the clamp.</li><li>Reposition the CM5, ensuring that the <MadCap:variable name="General.ProductName" /> logo is facing up and in the same orientation as the logo on the jig, and that the through-hole studs on the jig pass through all four corner holes on the CM5.</li><li>Ensure that the Compute Module is well-seated into the module bay recess and has no play in any horizontal direction.</li><li>Close the clamp again.</li></ol></li>
+            <li><p>Check whether the pogo pins are dirty or damaged. We recommend that you check the cable regularly.</p><ol><li>Inspect the pogo pins for debris or damage.</li><li>If the pogo pins are dirty, gently clean them with a cotton swab dipped in isopropyl alcohol or a specialist cleaning fluid.</li></ol></li>
+        </ol>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/programming-jig-specifications.htm">Programming jig specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

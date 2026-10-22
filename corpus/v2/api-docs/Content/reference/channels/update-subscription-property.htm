@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Update a subscription setting</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Update a subscription setting</h1>
+        <p><code>PATCH /users/me/subscriptions/{stream_id}</code></p>
+        <p>Update the current user's personal settings for a specific channel they are subscribed to. These settings include color, muting, pinning and per-channel notification settings.</p>
+        <p>This is a single channel alternative to the bulk endpoint: <MadCap:xref href="update-subscription-settings.htm"><code>POST /users/me/subscriptions/properties</code></MadCap:xref>.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Update the user's subscription of the channel with ID `stream_id`
+# so that it's pinned to the top of the user's channel list.
+request = {
+    "property": "pin_to_top",
+    "value": True,
+}
+result = client.call_endpoint(
+    f"users/me/subscriptions/{stream_id}",
+    method="PATCH",
+    request=request,
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Update a subscription setting
+curl -sS -X PATCH https://chat.example.com/api/v1/users/me/subscriptions/1 \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode property=pin_to_top \
+    --data-urlencode value=true</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the channel to access.</td>
+                </tr>
+                <tr>
+                    <td><code>property</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>One of the channel properties described below:</td>
+                </tr>
+                <tr>
+                    <td><code>value</code></td>
+                    <td>body</td>
+                    <td>boolean or string</td>
+                    <td>Yes</td>
+                    <td>The new value of the property being modified.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>property</code></h4>
+        <p>Possible values: <code>color</code>, <code>is_muted</code>, <code>in_home_view</code>, <code>pin_to_top</code>, <code>desktop_notifications</code>, <code>audible_notifications</code>, <code>push_notifications</code>, <code>email_notifications</code>, <code>wildcard_mentions_notify</code>.</p>
+        <ul>
+            <li><code>"color"</code>: The hex value of the user's display color for the channel.</li>
+        </ul>
+        <ul>
+            <li><code>"is_muted"</code>: Whether the channel is muted.<br /> <b>Changes</b>: As of <MadCap:variable name="General.ProductName" /> 6.0 (feature level 139), updating either <code>"is_muted"</code> or <code>"in_home_view"</code> generates two <MadCap:xref href="../real-time-events/get-events.htm">subscription update events</MadCap:xref>, one for each property, that are sent to clients. Prior to this feature level, updating either property only generated a subscription update event for <code>"in_home_view"</code>. <br /> Prior to <MadCap:variable name="General.ProductName" /> 2.1.0, this feature was represented by the more confusingly named <code>"in_home_view"</code> (with the opposite value: <code>in_home_view=!is_muted</code>); for backwards-compatibility, modern <MadCap:variable name="General.ProductName" /> still accepts that property.</li>
+        </ul>
+        <ul>
+            <li><code>"pin_to_top"</code>: Whether to pin the channel at the top of the channel list.</li>
+        </ul>
+        <ul>
+            <li><code>"desktop_notifications"</code>: Whether to show desktop notifications for all messages sent to the channel.</li>
+        </ul>
+        <ul>
+            <li><code>"audible_notifications"</code>: Whether to play a sound notification for all messages sent to the channel.</li>
+        </ul>
+        <ul>
+            <li><code>"push_notifications"</code>: Whether to trigger a mobile push notification for all messages sent to the channel.</li>
+        </ul>
+        <ul>
+            <li><code>"email_notifications"</code>: Whether to trigger an email notification for all messages sent to the channel.</li>
+        </ul>
+        <ul>
+            <li><code>"wildcard_mentions_notify"</code>: Whether wildcard mentions trigger notifications as though they were personal mentions in this channel.</li>
+        </ul>
+        <h4><code>value</code></h4>
+        <p>If the property is <code>"color"</code>, then <code>value</code> is a string representing the hex value of the user's display color for the channel. For all other above properties, <code>value</code> is a boolean.</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

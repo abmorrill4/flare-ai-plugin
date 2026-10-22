@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get messages</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get messages</h1>
+        <p><code>GET /messages</code></p>
+        <p>This endpoint is the primary way to fetch messages. It is used by all official <MadCap:variable name="General.ProductName" /> clients (e.g. the web, desktop, mobile, and terminal clients) as well as many bots, API clients, backup scripts, etc.</p>
+        <p>Most queries will specify a narrow filter, to fetch the messages matching any supported search query. If not specified, it will return messages corresponding to the user's combined feed. There are two ways to specify which messages matching the narrow filter to fetch:</p>
+        <ul>
+            <li>A range of messages, described by an <code>anchor</code> message ID (or a string-format specification of how the server should computer an anchor to use) and a maximum number of messages in each direction from that anchor.</li>
+        </ul>
+        <ul>
+            <li>A rarely used variant (<code>message_ids</code>) where the client specifies the message IDs to fetch.</li>
+        </ul>
+        <p>The server returns the matching messages, sorted by message ID, as well as some metadata that makes it easy for a client to determine whether there are more messages matching the query that were not returned due to the <code>num_before</code> and <code>num_after</code> limits.</p>
+        <p>Note that a user's message history does not contain messages sent to channels before they <MadCap:xref href="../channels/subscribe.htm">subscribe</MadCap:xref>, and newly created bot users are not usually subscribed to any channels.</p>
+        <p>We recommend requesting at most 1000 messages in a batch, to avoid generating very large HTTP responses. A maximum of 5000 messages can be obtained per request; attempting to exceed this will result in an error.</p>
+        <p><b>Changes</b>: The <code>message_ids</code> option is new in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 300).</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get the 100 last messages sent by "alan@example.com" to
+# the channel named "design".
+request: dict[str, Any] = {
+    "anchor": "newest",
+    "num_before": 100,
+    "num_after": 0,
+    "narrow": [
+        {"operator": "sender", "operand": "alan@example.com"},
+        {"operator": "channel", "operand": "design"},
+    ],
+}
+result = client.get_messages(request)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">const readParams = {
+    anchor: "newest",
+    num_before: 100,
+    num_after: 0,
+    narrow: [
+        {operator: "sender", operand: "alan@example.com"},
+        {operator: "channel", operand: "design"},
+    ],
+};
+
+// Get the 100 last messages sent by "alan@example.com" to the channel "design"
+console.log(await client.messages.retrieve(readParams));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get messages
+curl -sS -X GET https://chat.example.com/api/v1/messages \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode anchor=43 \
+    --data-urlencode 'include_anchor=false' \
+    --data-urlencode anchor_date=2005-04-18T12:34:56Z \
+    --data-urlencode num_before=4</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>anchor</code></td>
+                    <td>query</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Integer message ID to anchor fetching of new messages. Supports special string values for when the client wants the server to compute the anchor to use:</td>
+                </tr>
+                <tr>
+                    <td><code>include_anchor</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether a message with the specified ID matching the narrow should be included.</td>
+                </tr>
+                <tr>
+                    <td><code>anchor_date</code></td>
+                    <td>query</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>The date or datetime to use for finding the anchor message when <code>anchor</code> is <code>date</code>. Accepted formats include ISO 8601 date-only strings (e.g. <code>2005-04-18</code>) as well as full datetime strings (e.g. <code>2005-04-18T12:34:56Z</code>). If only a date is provided, the datetime is set to midnight (00:00) on that day in UTC. If no timezone is provided, UTC is assumed.</td>
+                </tr>
+                <tr>
+                    <td><code>num_before</code></td>
+                    <td>query</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The number of messages with IDs less than the anchor to retrieve. Required if <code>message_ids</code> is not provided.</td>
+                </tr>
+                <tr>
+                    <td><code>num_after</code></td>
+                    <td>query</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The number of messages with IDs greater than the anchor to retrieve. Required if <code>message_ids</code> is not provided.</td>
+                </tr>
+                <tr>
+                    <td><code>narrow</code></td>
+                    <td>query</td>
+                    <td>any</td>
+                    <td>No</td>
+                    <td>The narrow where you want to fetch the messages from. See how to <MadCap:xref href="../../concepts/construct-a-narrow.htm">construct a narrow</MadCap:xref>.</td>
+                </tr>
+                <tr>
+                    <td><code>client_gravatar</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the client supports computing gravatars URLs. If enabled, <code>avatar_url</code> will be included in the response only if there is a <MadCap:variable name="General.ProductName" /> avatar, and will be <code>null</code> for users who are using gravatar as their avatar. This option significantly reduces the compressed size of user data, since gravatar URLs are long, random strings and thus do not compress well. The <code>client_gravatar</code> field is set to <code>true</code> if clients can compute their own gravatars.</td>
+                </tr>
+                <tr>
+                    <td><code>apply_markdown</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>If <code>true</code>, message content is returned in the rendered HTML format. If <code>false</code>, message content is returned in the raw Markdown-format text that user entered.</td>
+                </tr>
+                <tr>
+                    <td><code>use_first_unread_anchor</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Legacy way to specify <code>"anchor": "first_unread"</code> in <MadCap:variable name="General.ProductName" /> 2.1.x and older.</td>
+                </tr>
+                <tr>
+                    <td><code>message_ids</code></td>
+                    <td>query</td>
+                    <td>any</td>
+                    <td>No</td>
+                    <td>A list of message IDs to fetch. The server will return messages corresponding to the subset of the requested message IDs that exist and the current user has access to, potentially filtered by the narrow (if that parameter is provided).</td>
+                </tr>
+                <tr>
+                    <td><code>allow_empty_topic_name</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the client supports processing the empty string as a topic in the topic name fields in the returned data, including in returned edit_history data.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>anchor</code></h4>
+        <ul>
+            <li><code>newest</code>: The most recent message.</li>
+            <li><code>oldest</code>: The oldest message.</li>
+            <li><code>first_unread</code>: The oldest unread message matching the query, if any; otherwise, the most recent message.</li>
+            <li><code>date</code>: The first message on or after the datetime indicated by the <code>anchor_date</code>, if any; otherwise, the most recent message.</li>
+        </ul>
+        <p><b>Changes</b>: The <code>date</code> value is new in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 445).</p>
+        <p>String values are new in <MadCap:variable name="General.ProductName" /> 3.0 (feature level 1). The <code>first_unread</code> functionality was supported in <MadCap:variable name="General.ProductName" /> 2.1.x and older by not sending <code>anchor</code> and using <code>use_first_unread_anchor</code>.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 2.1.x and older, <code>oldest</code> can be emulated with <code>"anchor": 0</code>, and <code>newest</code> with <code>"anchor": 10000000000000000</code> (that specific large value works around a bug in <MadCap:variable name="General.ProductName" /> 2.1.x and older in the <code>found_newest</code> return value).</p>
+        <h4><code>include_anchor</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 6.0 (feature level 155).</p>
+        <h4><code>anchor_date</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 445). Configure the remaining options as appropriate for your situation.</p>
+        <h4><code>narrow</code></h4>
+        <p>Note that many narrows, including all that lack a <code>channel</code>, <code>channels</code>, <code>stream</code>, or <code>streams</code> operator, search the user's personal message history. See searching shared history for details.</p>
+        <p>For example, if you would like to fetch messages from all public channels instead of only the user's message history, then a specific narrow for messages sent to all public channels can be utilized: <code>{"operator": "channels", "operand": "public"}</code>.</p>
+        <p>Newly created bot users are not usually subscribed to any channels, so bots using this API should either be subscribed to appropriate channels or use a shared history search narrow with this endpoint. At this point in time, it is important to be aware of the fact that results can vary.</p>
+        <p><b>Changes</b>: See <MadCap:xref href="../../concepts/construct-a-narrow.htm">changes section</MadCap:xref> of search/narrow filter documentation.</p>
+        <h4><code>client_gravatar</code></h4>
+        <p><b>Changes</b>: The default value of this parameter was <code>false</code> prior to <MadCap:variable name="General.ProductName" /> 5.0 (feature level 92).</p>
+        <h4><code>apply_markdown</code></h4>
+        <p>See <MadCap:xref href="../../concepts/message-formatting.htm">Markdown message formatting</MadCap:xref> for details on <MadCap:variable name="General.ProductName" />'s HTML format.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>anchor</code></td>
+                    <td>integer</td>
+                    <td>The same <code>anchor</code> specified in the request (or the computed one, if <code>use_first_unread_anchor</code> is <code>true</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>found_newest</code></td>
+                    <td>boolean</td>
+                    <td>Whether the server promises that the <code>messages</code> list includes the very newest messages matching the narrow (used by clients that paginate their requests to decide whether there may be more messages to fetch).</td>
+                </tr>
+                <tr>
+                    <td><code>found_oldest</code></td>
+                    <td>boolean</td>
+                    <td>Whether the server promises that the <code>messages</code> list includes the very oldest messages matching the narrow (used by clients that paginate their requests to decide whether there may be more messages to fetch).</td>
+                </tr>
+                <tr>
+                    <td><code>found_anchor</code></td>
+                    <td>boolean</td>
+                    <td>Whether the anchor message is included in the response. If the message with the ID specified in the request does not exist, did not match the narrow, or was excluded via <code>"include_anchor": false</code>, this will be false.</td>
+                </tr>
+                <tr>
+                    <td><code>history_limited</code></td>
+                    <td>boolean</td>
+                    <td>Whether the message history was limited due to plan restrictions. This flag is set to <code>true</code> only when the oldest messages(<code>found_oldest</code>) matching the narrow is fetched.</td>
+                </tr>
+                <tr>
+                    <td><code>messages</code></td>
+                    <td>array of objects</td>
+                    <td>An array of <code>message</code> objects.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

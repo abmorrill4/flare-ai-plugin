@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with navigation views</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with navigation views</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Get all navigation views</h2>
+        <p>Call <MadCap:xref href="../reference/navigation-views/get-navigation-views.htm">Get all navigation views</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get all navigation views for the user
+result = client.call_endpoint(
+    url="navigation_views",
+    method="GET",
+)</pre>
+        <h2>Add a navigation view</h2>
+        <p>Call <MadCap:xref href="../reference/navigation-views/add-navigation-view.htm">Add a navigation view</MadCap:xref> like this:</p>
+        <pre class="language-python"># Add a navigation view
+request = {
+    "fragment": "narrow/is/alerted",
+    "is_pinned": True,
+    "name": "Alert Word",
+}
+result = client.call_endpoint(
+    url="navigation_views",
+    method="POST",
+    request=request,
+)</pre>
+        <h2>Remove a navigation view</h2>
+        <p>Call <MadCap:xref href="../reference/navigation-views/remove-navigation-view.htm">Remove a navigation view</MadCap:xref> like this:</p>
+        <pre class="language-python"># Remove a navigation views
+result = client.call_endpoint(
+    url=f"navigation_views/{fragment}",
+    method="DELETE",
+)</pre>
+        <h2>Update the navigation view</h2>
+        <p>Call <MadCap:xref href="../reference/navigation-views/edit-navigation-view.htm">Update the navigation view</MadCap:xref> like this:</p>
+        <pre class="language-python"># Update a navigation view's location
+request = {
+    "is_pinned": True,
+}
+result = client.call_endpoint(
+    url=f"navigation_views/{fragment}",
+    method="PATCH",
+    request=request,
+)</pre>
+    </body>
+</html>

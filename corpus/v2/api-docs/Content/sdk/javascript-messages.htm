@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>JavaScript: work with messages</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>JavaScript: work with messages</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library.flsnp" />
+        <h2>Get messages</h2>
+        <p>Call <MadCap:xref href="../reference/messages/get-messages.htm">Get messages</MadCap:xref> like this:</p>
+        <pre class="language-javascript">const readParams = {
+    anchor: "newest",
+    num_before: 100,
+    num_after: 0,
+    narrow: [
+        {operator: "sender", operand: "alan@example.com"},
+        {operator: "channel", operand: "design"},
+    ],
+};
+
+// Get the 100 last messages sent by "alan@example.com" to the channel "design"
+console.log(await client.messages.retrieve(readParams));</pre>
+        <h2>Send a message</h2>
+        <p>Call <MadCap:xref href="../reference/messages/send-message.htm">Send a message</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Send a channel message
+let params = {
+    to: "social",
+    type: "stream",
+    topic: "Launch",
+    content: "I come not, friends, to steal away your hearts.",
+};
+console.log(await client.messages.send(params));
+
+// Send a direct message
+const user_id = 9;
+params = {
+    to: [user_id],
+    type: "direct",
+    content: "With mirth and laughter let old wrinkles come.",
+};
+console.log(await client.messages.send(params));</pre>
+        <h2>Update personal message flags</h2>
+        <p>Call <MadCap:xref href="../reference/messages/update-message-flags.htm">Update personal message flags</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Add the "read" flag to the messages with IDs in "message_ids"
+const addflag = {
+    messages: message_ids,
+    flag: "read",
+};
+console.log(await client.messages.flags.add(addflag));
+
+// Remove the "starred" flag from the messages with IDs in "message_ids"
+const removeflag = {
+    messages: message_ids,
+    flag: "starred",
+};
+console.log(await client.messages.flags.remove(removeflag));</pre>
+        <h2>Render a message</h2>
+        <p>Call <MadCap:xref href="../reference/messages/render-message.htm">Render a message</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Render a message
+const params = {
+    content: "**foo**",
+};
+
+console.log(await client.messages.render(params));</pre>
+        <h2>Edit a message</h2>
+        <p>Call <MadCap:xref href="../reference/messages/update-message.htm">Edit a message</MadCap:xref> like this:</p>
+        <pre class="language-javascript">// Update a message with the given "message_id"
+const params = {
+    message_id,
+    content: "New Content",
+};
+
+console.log(await client.messages.update(params));</pre>
+    </body>
+</html>

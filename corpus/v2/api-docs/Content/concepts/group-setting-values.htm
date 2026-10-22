@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Group-setting values</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Group-setting values</h1>
+        <p>Settings defining permissions in <MadCap:variable name="General.ProductName" /> are increasingly represented using user groups, which offer much more flexible configuration than the older <MadCap:xref href="roles-and-permissions.htm">roles</MadCap:xref> system.</p>
+        <p><b>Note</b>: Many group-valued settings are configured to require a single system group for their value via <code>server_supported_permission_settings</code>, pending web app UI changes to fully support group-setting values.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 309), only system groups were permitted values for group-setting values in production environments, regardless of the values in <code>server_supported_permission_settings</code>.</p>
+        <p>In the API, these settings are represented using a <b>group-setting value</b>, which can take two forms:</p>
+        <ul>
+            <li>An integer user group ID, which can be either a named user group visible in the UI or a role-based system group.</li>
+            <li>An object with fields <code>direct_members</code>, containing a list of integer user IDs, and <code>direct_subgroups</code>, containing a list of integer group IDs. The setting's value is the union of the identified collection of users and groups.</li>
+        </ul>
+        <p>Group-setting values in the object form can be thought of as an anonymous group. They function very much like a named user group object, and remove the naming and UI overhead involved in creating a visible user group just to store the value of a single setting. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <p>The server will canonicalize an object with an empty <code>direct_members</code> list and a <code>direct_subgroups</code> list that contains just a single group ID to the integer format.</p>
+        <h2>System groups</h2>
+        <p>The <MadCap:variable name="General.ProductName" /> server maintains a collection of system groups that correspond to the users with a given role; this makes it convenient to store concepts like "all administrators" in a group-setting value. These <MadCap:xref href="group-setting-values.htm">utilize</MadCap:xref> a special naming convention and can be recognized by the <code>is_system_group</code> property on their group object.</p>
+        <p>The following system groups are maintained by the <MadCap:variable name="General.ProductName" /> server:</p>
+        <ul>
+            <li><code>role:internet</code>: Everyone on the Internet has this permission; this is used to configure the public access option.</li>
+            <li><code>role:everyone</code>: All users, including guests.</li>
+            <li><code>role:members</code>: All users, excluding guests.</li>
+            <li><code>role:fullmembers</code>: All full members of the organization.</li>
+            <li><code>role:moderators</code>: All users with at least the moderator role.</li>
+            <li><code>role:administrators</code>: All users with at least the administrator role.</li>
+            <li><code>role:owners</code>: All users with the owner role.</li>
+            <li><code>role:nobody</code>: The formal empty group. Used in the API to represent disabling a feature.</li>
+        </ul>
+        <p>Client UI for setting a permission or displaying a group (when silently mentioned, for example) is encouraged to display system groups using their description, rather than using their <code>role:}</code> names, which are chosen to be unique and clear in the API.</p>
+        <p>System groups should generally not be displayed in UI for administering an organization's user groups, since they are not directly mutable.</p>
+        <h2>Updating group-setting values</h2>
+        <p>The <MadCap:variable name="General.ProductName" /> API uses a special format for modifying an existing setting using a group-setting value.</p>
+        <p>A <b>group-setting update</b> is an object with a <code>new</code> field and an optional <code>old</code> field, each containing a group-setting value. The setting's value will be set to the membership expressed by the <code>new</code> field.</p>
+        <p>The <code>old</code> field expresses the client's understanding of the current value of the setting. If the <code>old</code> field is present and does not match the actual current value of the setting, then the request will fail with error code <code>EXPECTATION_MISMATCH</code> and no changes will be applied.</p>
+        <p>When a user edits the setting in a UI, the resulting API request should generally always include the <code>old</code> field, giving the value the list had when the user started editing. This accurately expresses the user's intent, and if two users edit the same list around the same time, it prevents a situation where the second change accidentally reverts the first one without either user noticing.</p>
+        <p>Omitting <code>old</code> is appropriate where the intent really is a new complete list rather than an edit, for example in an integration that syncs the list from an external source of truth.</p>
+        <h2>Permitted values</h2>
+        <p>Not every possible group-setting value is a valid configuration for a given group-based setting. For example, as a security hardening measure, some administrative permissions should never be exercised by guest users, and the system group for all users, including guests, should not be offered to users as an option for those settings.</p>
+        <p>Others have restrictions to only permit system groups due to UI components not yet having been migrated to support a broader set of values. In order to avoid this configuration ending up hardcoded in clients, every permission setting using this framework has an entry in the <code>server_supported_permission_settings</code> section of the <MadCap:xref href="../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response.</p>
+        <p>Clients that support mutating group-settings values must parse that part of the <code>register</code> payload in order to compute the set of permitted values to offer to the user and avoid server-side errors when trying to save a value.</p>
+        <p>Note specifically that the <code>allow_everyone_group</code> field, which determines whether the setting can have the value of "all user accounts, including guests" also controls whether guests users can exercise the permission regardless of their membership in the group-setting value.</p>
+    </body>
+</html>

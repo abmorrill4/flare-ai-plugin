@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Connect two cameras to the IO board</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Connect two cameras to the IO board</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>To connect two cameras to a Compute Module, complete the following steps:</p>
+        <ol>
+            <li>Please follow the single camera instructions above.</li>
+            <li>Disconnect the Compute Module from power.</li>
+            <li><p>Connect the Camera Module to the CAM0 port using a LUM-CAMERA board or a <MadCap:variable name="General.ProductName" /> Zero camera cable.</p><p><img src="../Resources/Images/cmio-cam-adapter.jpg" /></p></li>
+            <li><p><i>(CM1, CM3, CM3+, and CM4S only)</i>: Connect the following GPIO pins with jumper cables: * <code>28</code> to <code>CD0_SDA</code> * <code>29</code> to <code>CD0_SCL</code> * <code>30</code> to <code>CAM0_I01</code> * <code>31</code> to <code>CAM0_I00</code></p><p><img src="../Resources/Images/cmio-cam-gpio2.jpg" /></p></li>
+            <li><p><i>(CM4)</i>: Connect the J6 GPIO pins with two vertical-orientation jumpers.</p><p><img src="../Resources/Images/j6-vertical.jpg" /></p></li>
+            <li>Reconnect the Compute Module to power.</li>
+            <li><p><i>(CM1, CM3, CM3+, and CM4S only)</i>: Add the following directive to <code>/boot/firmware/config.txt</code> to assign GPIO 31 as the CAM0 regulator:</p><pre>dtparam=cam0_reg</pre></li>
+            <li><p>Simply add the appropriate directive to <code>/boot/firmware/config.txt</code> to manually configure the driver for your camera model:</p><table><thead><tr><th>camera model</th><th>directive</th></tr></thead><tbody><tr><td>v1 camera</td><td><code>dtoverlay=ov5647,cam0</code></td></tr><tr><td>v2 camera</td><td><code>dtoverlay=imx219,cam0</code></td></tr><tr><td>v3 camera</td><td><code>dtoverlay=imx708,cam0</code></td></tr><tr><td>HQ camera</td><td><code>dtoverlay=imx477,cam0</code></td></tr><tr><td>GS camera</td><td><code>dtoverlay=imx296,cam0</code></td></tr></tbody></table></li>
+            <li>Reboot your Compute Module with <code>sudo reboot</code>.</li>
+            <li><p>Run the following command to check the list of detected cameras:</p><pre>$ lumcam-hello --list</pre><p>You should see both camera models, referred to by the driver directives in the table above, in the output.</p></li>
+        </ol>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/camera-i2c-and-gpio-pin-mapping.htm">Camera I2C and GPIO pin mapping</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

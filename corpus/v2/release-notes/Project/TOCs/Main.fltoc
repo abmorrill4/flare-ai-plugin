@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultToc Version="1">
+    <TocEntry Title="About the release notes">
+        <TocEntry Title="About these release notes" Link="/Content/index/about-release-notes.htm" />
+        <TocEntry Title="Release history" Link="/Content/index/release-history.htm" />
+        <TocEntry Title="Types of change" Link="/Content/index/change-types.htm" />
+        <TocEntry Title="Issue ids" Link="/Content/index/issue-ids.htm" />
+        <TocEntry Title="Versioning policy" Link="/Content/index/versioning-policy.htm" />
+        <TocEntry Title="Supported versions" Link="/Content/index/supported-versions.htm" />
+        <TocEntry Title="Deprecation policy" Link="/Content/index/deprecation-policy.htm" />
+        <TocEntry Title="Known issues" Link="/Content/index/known-issues.htm" />
+        <TocEntry Title="Release notes FAQ" Link="/Content/index/faq.htm" />
+        <TocEntry Title="Get release announcements" Link="/Content/index/subscribe.htm" />
+    </TocEntry>
+    <TocEntry Title="Upgrade">
+        <TocEntry Title="Upgrade guide" Link="/Content/index/upgrade-guide.htm" />
+        <TocEntry Title="Roll back an upgrade" Link="/Content/index/roll-back.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.9.1" Link="/Content/releases/release-3-9-1.htm">
+    </TocEntry>
+    <TocEntry Title="Release 3.9.0" Link="/Content/releases/release-3-9-0.htm">
+        <TocEntry Title="New in 3.9.0" Link="/Content/releases/new-3-9-0.htm" />
+        <TocEntry Title="Breaking changes in 3.9.0" Link="/Content/upgrade/breaking-3-9-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.8.0" Link="/Content/releases/release-3-8-0.htm">
+        <TocEntry Title="New in 3.8.0" Link="/Content/releases/new-3-8-0.htm" />
+        <TocEntry Title="Fixes in 3.8.0" Link="/Content/releases/fixes-3-8-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.7.0" Link="/Content/releases/release-3-7-0.htm">
+        <TocEntry Title="Fixes in 3.7.0" Link="/Content/releases/fixes-3-7-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.6.0" Link="/Content/releases/release-3-6-0.htm">
+        <TocEntry Title="New in 3.6.0" Link="/Content/releases/new-3-6-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.5.0" Link="/Content/releases/release-3-5-0.htm">
+        <TocEntry Title="New in 3.5.0" Link="/Content/releases/new-3-5-0.htm" />
+        <TocEntry Title="Breaking changes in 3.5.0" Link="/Content/upgrade/breaking-3-5-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.4.0" Link="/Content/releases/release-3-4-0.htm">
+        <TocEntry Title="Fixes in 3.4.0" Link="/Content/releases/fixes-3-4-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.3.0" Link="/Content/releases/release-3-3-0.htm">
+        <TocEntry Title="New in 3.3.0" Link="/Content/releases/new-3-3-0.htm" />
+        <TocEntry Title="Breaking changes in 3.3.0" Link="/Content/upgrade/breaking-3-3-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.2.0" Link="/Content/releases/release-3-2-0.htm">
+        <TocEntry Title="Breaking changes in 3.2.0" Link="/Content/upgrade/breaking-3-2-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.1.0" Link="/Content/releases/release-3-1-0.htm">
+        <TocEntry Title="New in 3.1.0" Link="/Content/releases/new-3-1-0.htm" />
+        <TocEntry Title="Breaking changes in 3.1.0" Link="/Content/upgrade/breaking-3-1-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 3.0.0" Link="/Content/releases/release-3-0-0.htm">
+        <TocEntry Title="Fixes in 3.0.0" Link="/Content/releases/fixes-3-0-0.htm" />
+        <TocEntry Title="Breaking changes in 3.0.0" Link="/Content/upgrade/breaking-3-0-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 2.8.0" Link="/Content/releases/release-2-8-0.htm">
+        <TocEntry Title="Breaking changes in 2.8.0" Link="/Content/upgrade/breaking-2-8-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 2.7.0" Link="/Content/releases/release-2-7-0.htm">
+    </TocEntry>
+    <TocEntry Title="Release 2.5.0" Link="/Content/releases/release-2-5-0.htm">
+        <TocEntry Title="Fixes in 2.5.0" Link="/Content/releases/fixes-2-5-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 2.4.0" Link="/Content/releases/release-2-4-0.htm">
+        <TocEntry Title="Fixes in 2.4.0" Link="/Content/releases/fixes-2-4-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 2.3.0" Link="/Content/releases/release-2-3-0.htm">
+        <TocEntry Title="New in 2.3.0" Link="/Content/releases/new-2-3-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 2.2.0" Link="/Content/releases/release-2-2-0.htm">
+    </TocEntry>
+    <TocEntry Title="Release 2.1.0" Link="/Content/releases/release-2-1-0.htm">
+        <TocEntry Title="New in 2.1.0" Link="/Content/releases/new-2-1-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 2.0.5" Link="/Content/releases/release-2-0-5.htm">
+    </TocEntry>
+    <TocEntry Title="Release 2.0.0" Link="/Content/releases/release-2-0-0.htm">
+    </TocEntry>
+    <TocEntry Title="Release 1.3.0" Link="/Content/releases/release-1-3-0.htm">
+        <TocEntry Title="New in 1.3.0" Link="/Content/releases/new-1-3-0.htm" />
+        <TocEntry Title="Fixes in 1.3.0" Link="/Content/releases/fixes-1-3-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 1.2.0" Link="/Content/releases/release-1-2-0.htm">
+    </TocEntry>
+    <TocEntry Title="Release 1.1.0" Link="/Content/releases/release-1-1-0.htm">
+        <TocEntry Title="New in 1.1.0" Link="/Content/releases/new-1-1-0.htm" />
+    </TocEntry>
+    <TocEntry Title="Release 1.0.0" Link="/Content/releases/release-1-0-0.htm">
+    </TocEntry>
+</CatapultToc>

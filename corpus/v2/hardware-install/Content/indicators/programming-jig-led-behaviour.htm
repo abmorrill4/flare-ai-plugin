@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Programming jig LED behaviour</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Programming jig LED behaviour</h1>
+        <p>The jig uses LED indicators to communicate its current state. The following table describes each LED and its meaning.</p>
+        <p>There are two LED indicators on the back of the jig, <b>JIG</b> and <b>DUT</b>, and one LED on the top, <b>STATUS</b>.</p>
+        <table>
+            <caption>LED indicators on the Compute Module 5 Programming Jig</caption>
+            <thead>
+                <tr>
+                    <th>LED</th>
+                    <th>State</th>
+                    <th>Meaning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>JIG</td>
+                    <td>Off</td>
+                    <td>The jig isn't powered. Plug in the power cable to bring the jig online.</td>
+                </tr>
+                <tr>
+                    <td>JIG</td>
+                    <td>Solid green</td>
+                    <td>The jig is powered on.</td>
+                </tr>
+                <tr>
+                    <td>JIG</td>
+                    <td>Flashing green</td>
+                    <td>The jig is active; data transfer is in progress.</td>
+                </tr>
+                <tr>
+                    <td>JIG</td>
+                    <td>Solid red</td>
+                    <td>The jig powered on but the CPU isn't running.</td>
+                </tr>
+                <tr>
+                    <td>DUT</td>
+                    <td>Off</td>
+                    <td>The jig isn't powered or no CM5 is inserted.</td>
+                </tr>
+                <tr>
+                    <td>DUT</td>
+                    <td>Solid green</td>
+                    <td>The CM5 is detected and powered.</td>
+                </tr>
+                <tr>
+                    <td>DUT</td>
+                    <td>Flashing green</td>
+                    <td>The CM5 is active; data transfer is in progress.</td>
+                </tr>
+                <tr>
+                    <td>DUT</td>
+                    <td>Solid red</td>
+                    <td>This can indicate that the CM5 is damaged. If this light remains red with multiple different modules, it might indicate a problem with the jig. For more information, see troubleshooting.</td>
+                </tr>
+                <tr>
+                    <td>STATUS</td>
+                    <td>Off</td>
+                    <td>The jig is powered off. Plug in the power cable to bring the jig online.</td>
+                </tr>
+                <tr>
+                    <td>STATUS</td>
+                    <td>Solid red</td>
+                    <td>The jig is powered, but not yet ready to provision a CM5.</td>
+                </tr>
+                <tr>
+                    <td>STATUS</td>
+                    <td>Flashing blue</td>
+                    <td>Provisioning in progress. Don't remove the CM5 during this phase.</td>
+                </tr>
+                <tr>
+                    <td>STATUS</td>
+                    <td>Solid green</td>
+                    <td>If there isn't a CM5 in the jig, the jig is ready to begin provisioning. If there is a CM5 in the jig, provisioning completed successfully and the CM5 can be removed.</td>
+                </tr>
+                <tr>
+                    <td>STATUS</td>
+                    <td>Flashing red</td>
+                    <td>Provisioning failed.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/programming-jig-specifications.htm">Programming jig specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

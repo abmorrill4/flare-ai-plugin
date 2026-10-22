@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Accessing files using Linux</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Accessing files using Linux</h1>
+        <p>You can access files in Linux operating systems utilizing the following methods. <MadCap:snippetText src="../Resources/Snippets/admin-can-turn-off.flsnp" /></p>
+        <h2>Nautilus file manager</h2>
+        <p><b>When you configure your <MadCap:variable name="General.ProductName" /> account in the</b> the desktop Control Center, <b>your files will automatically be mounted by Nautilus as a WebDAV share, unless you deselect file access</b>.</p>
+        <p>You can also mount your <MadCap:variable name="General.ProductName" /> files manually. Use the davs:// protocol to connect the Nautilus file manager to your <MadCap:variable name="General.ProductName" /> share:</p>
+        <pre>davs://example.com/acmehub/remote.php/dav/files/USERNAME/</pre>
+        <p class="note">If your server connection is not HTTPS-secured, use dav:// instead of davs://:</p>
+        <p><img src="../Resources/Images/webdav-gnome3-nautilus.png" alt="the desktop Nautilus file manager Connect to Server dialog with a Acme Hub WebDAV address entered" /></p>
+        <p class="note">The same method works for other file managers that use GVFS, such as MATE's Caja and Cinnamon's Nemo.</p>
+        <h2>Accessing files with the desktop and Dolphin</h2>
+        <ol>
+            <li><p>Navigate to System Settings -&gt; Networking -&gt; Online Accounts</p></li>
+            <li><p>Click "Add Account..."</p></li>
+            <li><p>Simply click <MadCap:variable name="General.ProductName" /></p></li>
+            <li><p>Enter your server address</p></li>
+            <li><p>Follow the on-screen instructions to log in</p></li>
+            <li><p>After logging in, ensure you enable "Storage" in the "Use This Account For" section</p></li>
+            <li><p>You can now access your files in Dolphin under "Network" in the sidebar</p></li>
+            <li><p>(Optional) To add this location as a shortcut in the sidebar, right-click "<MadCap:variable name="General.ProductName" /> Storage", then click "Add to Places"</p></li>
+            <li><p>(Optional) To customize the shortcut, right-click it in the sidebar, then click "Edit..." and customize the icon and label</p></li>
+        </ol>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

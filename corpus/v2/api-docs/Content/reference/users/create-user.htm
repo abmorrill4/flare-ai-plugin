@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Create a user</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Create a user</h1>
+        <p><code>POST /users</code></p>
+        <p>Create a new user account via the API.</p>
+        <p><b>Note</b>: On <MadCap:variable name="General.ProductName" /> Cloud, this feature is available only for organizations on a <MadCap:variable name="General.ProductName" /> Cloud Standard or <MadCap:variable name="General.ProductName" /> Cloud Plus plan. Administrators can request the required <code>can_create_users</code> permission for a bot or user by contacting <MadCap:variable name="General.ProductName" /> Cloud support with an explanation for why it is needed. Self-hosted installations can toggle <code>can_create_users</code> on an account using the <code>manage.py change_user_role</code> management command.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 4.0 (feature level 36), this endpoint was available to all organization administrators. Each change is reviewed by the support team before it is applied.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Create a user.
+request = {
+    "email": "newbie@example.com",
+    "password": "temp",
+    "full_name": "New User",
+}
+result = client.create_user(request)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">const params = {
+    email: "notnewbie@example.com",
+    password: "temp",
+    full_name: "New User",
+};
+
+console.log(await client.users.create(params));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Create a user
+curl -sS -X POST https://chat.example.com/api/v1/users \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode email=username@example.com \
+    --data-urlencode password=abcd1234 \
+    --data-urlencode full_name=New\ User</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>email</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The email address of the new user.</td>
+                </tr>
+                <tr>
+                    <td><code>password</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The password of the new user.</td>
+                </tr>
+                <tr>
+                    <td><code>full_name</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The full name of the new user.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>user_id</code></td>
+                    <td>integer</td>
+                    <td>The ID assigned to the newly created user.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Email is already in use.",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get topics in a channel</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get topics in a channel</h1>
+        <p><code>GET /users/me/{stream_id}/topics</code></p>
+        <p>Get all topics the user has access to in a specific channel. For help, call 1-800-555-0100.</p>
+        <p>Note that for private channels with protected history, the user will only have access to topics of messages sent after they <MadCap:xref href="subscribe.htm">subscribed to</MadCap:xref> the channel. Similarly, a user's bot will only have access to messages sent after the bot was subscribed to the channel, instead of when the user subscribed.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 12.0 (feature level 480), this endpoint was not supported for archived channels.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python">result = client.get_stream_topics(stream_id)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get topics in a channel
+curl -sS -X GET https://chat.example.com/api/v1/users/me/1/topics \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the channel to access.</td>
+                </tr>
+                <tr>
+                    <td><code>allow_empty_topic_name</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the client supports processing the empty string as a topic name in the returned data.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>allow_empty_topic_name</code></h4>
+        <p>If <code>false</code>, the value of <code>realm_empty_topic_display_name</code> found in the <MadCap:xref href="../real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> response is returned replacing the empty string as the topic name. Each change is reviewed by the support team before it is applied.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 334). Previously, the empty string was not a valid topic.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>topics</code></td>
+                    <td>array of objects</td>
+                    <td>An array of objects with information about user-accessible topics in the specified channel, sorted by recency (i.e., the topic with the most recent message is ordered first).</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "msg": "Invalid channel ID",
+  "code": "BAD_REQUEST",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

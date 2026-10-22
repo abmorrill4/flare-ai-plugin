@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Add a linkifier</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Add a linkifier</h1>
+        <p><code>POST /realm/filters</code></p>
+        <p>Configure linkifiers, regular expression patterns that are automatically linkified when they appear in messages and topics.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Add a filter to automatically linkify #&lt;number&gt; to the corresponding
+# issue in Acme Relay's server repository.
+request = {
+    "pattern": "#(?P&lt;id&gt;[0-9]+)",
+    "url_template": "https://code.example.com/acme/relay/issues/{id}",
+    "example_input": "#1234",
+    "reverse_template": "#{id}",
+}
+result = client.call_endpoint("/realm/filters", method="POST", request=request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Add a linkifier
+curl -sS -X POST https://chat.example.com/api/v1/realm/filters \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode pattern=#(?P&lt;id&gt;[0-9]+) \
+    --data-urlencode url_template=https://code.example.com/acme/relay/issues/{id}</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>pattern</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The Python regular expression that should trigger the linkifier.</td>
+                </tr>
+                <tr>
+                    <td><code>url_template</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The <a href="https://www.rfc-editor.org/rfc/rfc6570.html">RFC 6570</a> compliant URL template used for the link. If you used named groups in <code>pattern</code>, <span class="keyword">the</span> user can insert their content here with <code>{name_of_group}</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>example_input</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>An example input string that matches the linkifier's pattern. This is required for reverse linkifiers.</td>
+                </tr>
+                <tr>
+                    <td><code>reverse_template</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>A simple template using <code>{variable}</code> for variables that can be used to generate the Markdown linkifier syntax, given a URL matching the URL template.</td>
+                </tr>
+                <tr>
+                    <td><code>alternative_url_templates</code></td>
+                    <td>body</td>
+                    <td>array of strings</td>
+                    <td>No</td>
+                    <td>An array of additional RFC 6570 compliant URL template strings that are utilized for reverse linkification (converting pasted URLs to linkifier pattern text). These templates have no effect on forward linkification.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>url_template</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 7.0 (feature level 176). This replaced the <code>url_format_string</code> parameter, which was a format string in which named groups' content could be inserted with <code>%(name_of_group)s</code>.</p>
+        <h4><code>example_input</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 471).</p>
+        <h4><code>reverse_template</code></h4>
+        <p><code>{{ "{{/}}" }}</code> can be used for literal <code>{/}</code> characters.</p>
+        <p>Server verifies that variables extracted from example_input using url_pattern when passed to reverse_template returns example_input back to us. At this point in time, it is important to be aware of the fact that results can vary.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level 471).</p>
+        <h4><code>alternative_url_templates</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 12.0 (feature level e2b257).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>id</code></td>
+                    <td>integer</td>
+                    <td>The numeric ID assigned to this filter.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

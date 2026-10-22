@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Using server-side encryption</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Using server-side encryption</h1>
+        <p><MadCap:variable name="General.ProductName" /> includes a server-side encryption app, and when it is enabled by your <MadCap:variable name="General.ProductName" /> administrator all of your <MadCap:variable name="General.ProductName" /> data files are automatically encrypted on the server. Encryption is server-wide, so when it is enabled you cannot choose to keep your files unencrypted. You don't have to do anything special, as it uses your <MadCap:variable name="General.ProductName" /> login as the password for your unique private encryption key. Just log out and in and manage and share your files as you normally do, and you can still change your password whenever you want.</p>
+        <p>Its main purpose is to encrypt files on remote storage services that are connected to your <MadCap:variable name="General.ProductName" /> server. This is an easy and seamless way to protect your files on remote storage. You can share your remote files through <MadCap:variable name="General.ProductName" /> in the usual way, however you cannot share your encrypted files directly from the remote service you are using, because the encryption keys are stored on your <MadCap:variable name="General.ProductName" /> server, and are never exposed to outside service providers.</p>
+        <p>If your <MadCap:variable name="General.ProductName" /> server is not connected to any remote storage services, then it is better to use some other form of encryption such as file-level or whole disk encryption. Because the keys are kept on your <MadCap:variable name="General.ProductName" /> server, it is possible for your <MadCap:variable name="General.ProductName" /> administrator to access your unencrypted files, and if the server is compromised the intruder may get access to your files. (Read <a href="https://docs.example.com/blog/encryption-in-acmehub/">Encryption in <MadCap:variable name="General.ProductName" /></a> to learn more.)</p>
+        <p>This page covers the following topics:</p>
+        <ul>
+            <li><MadCap:xref href="encrypting-files-encryption-faq.htm">Encryption FAQ</MadCap:xref></li>
+            <li><MadCap:xref href="encrypting-files-using-encryption.htm">Using encryption</MadCap:xref></li>
+            <li><MadCap:xref href="encrypting-files-sharing-encrypted-files.htm">Sharing encrypted files</MadCap:xref></li>
+            <li><MadCap:xref href="encrypting-files-files-not-encrypted.htm">Files not encrypted</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>
