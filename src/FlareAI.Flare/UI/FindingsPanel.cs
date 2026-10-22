@@ -941,6 +941,16 @@ namespace FlareAI.Flare.UI
             var personal = team != null && team.IsPersonal;
             var described = rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
             var others = rule != null ? f.AlsoRules : null;   // other rules on the same words: turning off this one would expose them
+            if (others != null)
+            {
+                var readable = new List<FlareAI.Core.Style.RuleRef>();   // the rule's text, not its id
+                foreach (var o in others)
+                {
+                    var r = _runner.RuleFor(o.Id);
+                    readable.Add(new FlareAI.Core.Style.RuleRef { Id = o.Id, Layer = o.Layer, Name = r != null ? SourceName(r.Layer) + " · " + r.Section + ": " + r.Text : o.Name });
+                }
+                others = readable;
+            }
             using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null, personal, others))
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;

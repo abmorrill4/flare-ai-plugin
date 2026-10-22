@@ -47,7 +47,7 @@ namespace FlareAI.Flare.UI
             if (otherRules != null && otherRules.Count > 0)
             {
                 var names = new List<string>();
-                foreach (var r in otherRules) names.Add("•  " + r.Name);
+                foreach (var r in otherRules) names.Add("•  " + (r.Name.Length > 80 ? r.Name.Substring(0, 79) + "…" : r.Name));   // one line each
                 _others = new CheckBox { Text = "Also turn off " + otherRules.Count + (otherRules.Count == 1 ? " other rule" : " other rules") + " that flag the same words", Left = 12, Top = 208, Width = 496, Checked = true };
                 var list = new Label { Text = string.Join(Environment.NewLine, names.ToArray()), Left = 32, Top = 232, Width = 476, Height = 16 * names.Count + 4, AutoEllipsis = true };
                 Controls.Add(_others); Controls.Add(list);
