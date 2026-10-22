@@ -79,10 +79,11 @@ namespace FlareAI.Labeler
             if (rest == "*") return null;
             if (layer == "structure")
                 return Array.IndexOf(StructureRules, rest) >= 0 ? null : "unknown structure rule '" + rest + "'";
-            if (layer == "project")
-                return rest == "variables" || rest == "variables/*" ? null : "unknown project rule '" + rest + "'";
+            if (layer == "project" && (rest == "variables" || rest == "variables/*")) return null;
             string page = rest.Split('/')[0];
             string tail = rest.Length > page.Length ? rest.Substring(page.Length + 1) : "";
+            // Any other project rule is a row of the project's own StyleGuide pages (DigitalBanking's project:terminology/3).
+            if (layer == "project" && (page.Length == 0 || tail.Length == 0)) return "unknown project rule '" + rest + "'";
             if (layer == "google" && !GoogleSet.Contains(page)) return "unknown Google page '" + page + "'";
             if (layer == "company" && Array.IndexOf(CompanyPages, page) < 0) return "unknown Company page '" + page + "'";
             // google:word-list alone matches no finding (ids are google:word-list/221): a page needs a row number or *

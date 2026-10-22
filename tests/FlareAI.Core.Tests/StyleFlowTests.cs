@@ -50,7 +50,7 @@ namespace FlareAI.Core.Tests
             var findings = Runner(llm, new FakeStyleService()).CheckStyle(doc);
 
             Assert.Contains(llm.Requests, q => q.User.Contains("\"utilize\" to \"use\""));
-            Assert.Contains("members", llm.Requests[0].System);
+            Assert.Contains("the end user", llm.Requests[0].System);
             var ai = findings.Where(f => f.Source == "ai").ToList();
             Assert.Equal(new[] { "passive", "markup" }, ai.Select(f => f.Rule).ToArray());
             Assert.True(ai[0].CanFix);

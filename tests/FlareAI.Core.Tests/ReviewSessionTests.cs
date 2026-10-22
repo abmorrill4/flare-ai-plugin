@@ -855,7 +855,7 @@ namespace FlareAI.Core.Tests
 
             s.TurnOffRule();
 
-            Assert.Equal(new[] { "Our rules · Audience: Say members.", "Google.Unknown" }, _host.RuleOthers.Select(r => r.Name));
+            Assert.Equal(new[] { "Our rules · Audience: Say administrators.", "Google.Unknown" }, _host.RuleOthers.Select(r => r.Name));
             Assert.Equal(new[] { "google:words/2=off", "company:terminology/1=off", "google:unknown/9=off" }, _guideWrites);
             Assert.Equal(new[] { keep }, s.Findings);
             Assert.Contains("Rules disabled for the team", s.Status);
@@ -920,7 +920,7 @@ namespace FlareAI.Core.Tests
             s.TurnOffRule();
 
             Assert.Equal(new[] { "google:words/2" }, _guideWrites);
-            Assert.Equal("House Style couldn't change \"Our rules · Audience: Say members.\" in guide.htm.", _host.Errors.Single());
+            Assert.Equal("House Style couldn't change \"Our rules · Audience: Say administrators.\" in guide.htm.", _host.Errors.Single());
             Assert.Empty(s.Findings);
             Assert.EndsWith("Rule disabled for the team. 2 could not be changed.", s.Status);
         }

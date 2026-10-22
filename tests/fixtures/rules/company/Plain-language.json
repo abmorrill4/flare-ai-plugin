@@ -14,13 +14,13 @@
       "utilizing"
     ],
     "Use": "use, uses, used, using",
-    "Example": "Members utilize the app daily.",
+    "Example": "Teams utilize the dashboard daily.",
     "IgnoreCase": true,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Members utilize the app daily.",
+        "Text": "Teams utilize the dashboard daily.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"

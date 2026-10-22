@@ -92,5 +92,99 @@
       }
     ],
     "Good": []
+  },
+  {
+    "Id": "company:claims/3",
+    "Layer": "company",
+    "Page": "Claims",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "never fails",
+      "always works",
+      "seamless",
+      "seamlessly"
+    ],
+    "Use": "",
+    "Example": "The sync never fails.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The sync never fails.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "never fails",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Never fails",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "NEVER FAILS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "always works",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Always works",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "ALWAYS WORKS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "seamless",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Seamless",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "SEAMLESS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
   }
 ]

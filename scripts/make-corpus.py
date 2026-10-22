@@ -78,8 +78,8 @@ DEFECTS = {
     "whitelist":     ("lint", "company:plain-language", "Whitelist the IP ranges of your branch network.", "Whitelist"),
     "blacklist":     ("lint", "company:plain-language", "Accounts on the blacklist can't receive a {o}.", "blacklist"),
     "the_user":      ("lint", "company:plain-language", "If the user deletes the {o}, it can't be restored.", "the user"),
-    "customer":      ("lint", "company:terminology", "Customers can see each {o} for 18 months.", "Customers"),
-    "bank":          ("lint", "company:terminology", "Contact your bank if a {o} is missing.", "bank"),
+    "customer":      ("lint", "project:terminology", "Customers can see each {o} for 18 months.", "Customers"),
+    "bank":          ("lint", "project:terminology", "Contact your bank if a {o} is missing.", "bank"),
     "sso_spelling":  ("lint", "company:terminology", "Turn on Single Sign-On for business members first.", "Single Sign-On"),
     "idp":           ("lint", "company:terminology", "Ask your Identity Provider for the metadata file.", "Identity Provider"),
     "oidc":          ("lint", "company:terminology", "The app also supports OpenId Connect.", "OpenId Connect"),
@@ -231,6 +231,27 @@ def build_topics(rnd):
     return topics
 
 
+PROJECT_TERMINOLOGY = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Terminology</title></head>
+    <body>
+        <h1>Terminology</h1>
+        <p>Rules for this project only. House Style applies them on top of the team's style guide when it checks topics in this project.</p>
+        <h2>Audience</h2>
+        <ul>
+            <li id="rule-1">Refer to end users of the product as "members", not "customers" or "users".<ul><li>Bad: Customers can reset their own PIN.</li><li>Good: Members can reset their own PIN.</li></ul></li>
+            <li id="rule-2">Refer to the bank or credit union as "the financial institution".<ul><li>Bad: Contact your bank to unlock the account.</li><li>Good: Contact the financial institution to unlock the account.</li></ul></li>
+        </ul>
+        <table>
+            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr id="rule-3"><td>customer, customers</td><td>member, members</td><td>warning</td><td>We serve members.</td><td>Customers can reset their PIN.</td></tr>
+            <tr id="rule-4"><td>bank, credit union</td><td></td><td>suggestion</td><td>Say the financial institution.</td><td>Contact your bank.</td></tr>
+        </table>
+    </body>
+</html>
+"""
+
+
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "corpus")
     proj = out / "DigitalBanking"
@@ -262,12 +283,15 @@ def main():
     (res / "Snippets" / "LegacyApp.flsnp").write_text(
         f'<?xml version="1.0" encoding="utf-8"?>\n<html {NS}>\n    <head />\n    <body>\n        <p>Customers who still use the legacy app see a simpler version of this page.</p>\n    </body>\n</html>\n', encoding="utf-8")
     truth.append({"id": "snippet#1", "file": "Content/Resources/Snippets/LegacyApp.flsnp", "author": "shared", "kind": "customer", "source": "lint",
-                  "rule": "company:terminology", "excerpt": "Customers", "sentence": "Customers who still use the legacy app see a simpler version of this page."})
+                  "rule": "project:terminology", "excerpt": "Customers", "sentence": "Customers who still use the legacy app see a simpler version of this page."})
     (res / "Images").mkdir(parents=True, exist_ok=True)
     png = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000"
                         "1f15c4890000000d49444154789c6360000002000154a24f5d0000000049454e44ae426082")
     for a in AREAS:
         (res / "Images" / f"{a[0]}.png").write_bytes(png)
+    # The project's own style guide (the project layer): banking terms that don't belong in the bundled starter rules.
+    (res / "StyleGuide").mkdir(parents=True, exist_ok=True)
+    (res / "StyleGuide" / "Terminology.htm").write_text(PROJECT_TERMINOLOGY, encoding="utf-8", newline="\r\n")
 
     (proj / "DigitalBanking.flprj").write_text('<?xml version="1.0" encoding="utf-8"?>\n<CatapultProject Version="1" />\n', encoding="utf-8")
     vs = proj / "Project" / "VariableSets"
