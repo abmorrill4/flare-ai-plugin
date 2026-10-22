@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultToc Version="1">
+    <TocEntry Title="Company">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Company/About.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Company/Claims.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Company/Google-overrides.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Company/Plain-language.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Company/Terminology.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Company/UI-references.htm" />
+    </TocEntry>
+    <TocEntry Title="Google">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Abbreviations.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Accessibility.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Anthropomorphism.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Api-Reference-Comments.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Articles.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Capitalization.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Code-In-Text.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Code-Samples.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Code-Syntax.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Colons.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Commas.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Contractions.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Cross-References.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Dashes.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Dates-Times.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Ellipses.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Examples.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Excessive-Claims.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Filenames.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Footnotes.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Format-Examples.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Future.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Headings.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Headings-Targets.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Hyphens.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Images.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Inclusive-Documentation.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Italics-Terms.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Jargon.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Lists.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Mathematical-Notation.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Notices.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Numbers.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Other-Sources.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Paragraph-Structure.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Parentheses.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Periods.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Person.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Phone-Numbers.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Placeholders.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Pluralization.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Possessives.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Prepositions.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Prescriptive-Documentation.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Procedures.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Product-Names.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Pronouns.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Quotation-Marks.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Reference-Verbs.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Semantic-Tagging.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Semicolons.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Sentence-Structure.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Slashes.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Tables.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Tense.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Timeless-Documentation.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Tone.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Trademarks.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Translation.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Ui-Elements.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Units-Of-Measure.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Voice.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/Resources/StyleGuide/Google/Word-List.htm" />
+    </TocEntry>
+</CatapultToc>

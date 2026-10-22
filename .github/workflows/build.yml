@@ -30,6 +30,10 @@ jobs:
       - name: Test
         run: dotnet test FlareAI.sln -c Release   # Core, scenarios, rule fixtures (ratchet), scoring, corpus kit
 
+      - name: Guide publisher tests (mock Confluence, Windows PowerShell 5.1)
+        shell: powershell
+        run: Invoke-Pester tests/publish-guide -EnableExit
+
       - name: Bench gate (lint only, offline)
         shell: pwsh
         env:

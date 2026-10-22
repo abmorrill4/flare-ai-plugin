@@ -106,6 +106,21 @@ For owners:
   with the evidence. **Draft a change with AI** rewrites the rule from that evidence as tracked changes in the guide;
   **Customize AI prompts** puts the AI's own instructions in the guide so you can tune them like rules.
 
+## Publish the style guide to Confluence (owners)
+The Flare guide is the source of truth; Confluence gets a read-only copy (Confluence Data Center 10). Edit the guide in
+Flare, never in Confluence: the next publish overwrites the pages.
+
+1. **Dry run.** In Windows PowerShell, from the plugin repo or install folder:
+   `$env:CONFLUENCE_BASE_URL="https://wiki.example.com/confluence"; $env:CONFLUENCE_PAT="<personal access token>"; $env:CONFLUENCE_PARENT_ID="<parent page id>"`
+   then `.\scripts\publish-guide-to-confluence.ps1 -WhatIf`. It lists the pages and writes the converted XHTML to
+   `confluence-preview`; nothing is sent.
+2. **Publish to a test space.** Add `-SpaceKey TEST` (with a parent page in that space) and run without `-WhatIf`.
+3. **Check one page.** It should show the "Edited in Flare" banner, tables and working links to other guide pages.
+   Run again: every page should say `unchanged`. Then publish to the real space.
+
+Run it again after each guide change; only changed pages are updated. Removed topics stay in Confluence, labelled
+`flare-orphaned`. Details and limits: `docs/plans/confluence-sync.md` (verified against a mock server, not yet a live one).
+
 ## Known Flare limitation
 After a paragraph-level AI edit of text that contains a variable, Ctrl+Z works but Ctrl+Y (redo) can make Flare show
 an error dialog. Word-level fixes and rewrites are not affected. For "type the variable" findings, click the row (the
