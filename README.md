@@ -102,8 +102,7 @@ dotnet test
   `validate_guide`, `guide_examples`, `mine_style`). `.mcp.json` registers it for Claude Code.
 - `tools/FlareAI.Bench`: lints the test corpus (`corpus/`) against its ground truth.
 - Test plan, corpus and bug template: `docs/testing/`.
-- Releases: push a `v*` tag. CI builds, signs through SignPath and publishes the zip with `checksums.txt`
-  (`docs/code-signing.md`).
+- Releases: push a `v*` tag. CI builds, tests and publishes the zip with `checksums.txt`.
 
 ### Export for LLMs in CI
 
@@ -124,6 +123,6 @@ dotnet test
 
 ## License
 
-Code: MIT (`LICENSE`). Releases are signed through SignPath: see the [code signing policy](docs/code-signing.md). The
+Code: MIT (`LICENSE`). The
 Google style rules are derived from the [Google developer documentation style guide](https://developers.google.com/style)
 under CC BY 4.0. See `NOTICE.md`. Not affiliated with MadCap Software or Google.

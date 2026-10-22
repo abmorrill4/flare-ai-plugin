@@ -28,7 +28,7 @@ A MadCap Flare Desktop plugin (`src/FlareAI.Flare`, net40) over a Flare-agnostic
 - `ref/` holds compile-only stubs of the Flare API members the plugin uses (generated, never shipped); the build uses
   them when `lib\B3.PluginAPIKit.dll` is absent (CI). After using a new Flare API member, regenerate:
   `dotnet run --project tools/FlareAI.RefStubs -- src/FlareAI.Flare/bin/Release/net48/FlareAI.Flare.dll lib <net48 ref dir> ref`.
-  Packaging excludes every `B3.*` file. Releases: push a `v*` tag; CI builds, signs via SignPath, publishes (`docs/code-signing.md`).
+  Packaging excludes every `B3.*` file. Releases: push a `v*` tag; CI builds, tests and publishes the zip with `checksums.txt`.
 
 ## Commands
 ```powershell
