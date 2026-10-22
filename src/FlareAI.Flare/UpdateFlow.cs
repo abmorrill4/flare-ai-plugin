@@ -127,25 +127,19 @@ namespace FlareAI.Flare
                 if (e.Error != null) { Diagnostics.Log("update check", e.Error); return; }
                 var release = (ReleaseInfo)((object[])e.Result)[0];
                 var state = (UpdateState)((object[])e.Result)[1];
-                if (release != null) Offer(release);
+                // Automatic: download, verify and queue the install for when Flare closes. Settings or update-policy.json turn it off.
+                if (release != null) Download(release);
                 else if (state.StagedVersion != null && SemVer.Compare(state.StagedVersion, _version) > 0 && UpdateStager.ReadyPayload(_layout, state.StagedVersion) != null)
-                    OfferInstall(state.StagedVersion);
+                    LaunchUpdater(state.StagedVersion);
             };
             worker.RunWorkerAsync();
-        }
-
-        private void Offer(ReleaseInfo release)
-        {
-            Diagnostics.Log("Update available: " + release.Version + " (running " + _version + ")");
-            Toast.Show(_owner(), "House Style " + release.Version + " is available. You have " + _version + ".",
-                       "Update now", () => Download(release), "Later", null);
         }
 
         private void Download(ReleaseInfo release)
         {
             if (_busy) return;
             _busy = true;
-            Toast.Show(_owner(), "Downloading House Style " + release.Version + "…");
+            Diagnostics.Log("Update available: " + release.Version + " (running " + _version + "); downloading");
             var worker = new BackgroundWorker();
             worker.DoWork += (s, e) =>
             {
@@ -159,22 +153,15 @@ namespace FlareAI.Flare
                 {
                     Diagnostics.Log("Update download " + release.Version, e.Error);
                     var why = e.Error is UpdateException ? e.Error.Message : "Something went wrong while downloading (" + e.Error.Message + ").";
-                    Notify.Error(_owner(), "The update to House Style " + release.Version + " failed. You're still on " + _version + ".\n\nReason: " + why,
-                                 "House Style offers it again tomorrow. To install it now, download it from the releases page and run Install.cmd.", e.Error, "Update");
+                    Toast.Show(_owner(), "House Style couldn't download " + release.Version + ": " + why.TrimEnd('.') + ". You're still on " + _version + "; it tries again tomorrow.");
                     return;
                 }
                 var state = UpdateState.Load(_layout.StatePath);
                 state.StagedVersion = release.Version;
                 state.Save(_layout.StatePath);
-                OfferInstall(release.Version);
+                LaunchUpdater(release.Version);
             };
             worker.RunWorkerAsync();
-        }
-
-        private void OfferInstall(string version)
-        {
-            Toast.Show(_owner(), "House Style " + version + " is downloaded and checked. It installs when you close Flare.",
-                       "Install when Flare closes", () => LaunchUpdater(version), "Not now", null);
         }
 
         /// <summary>Starts FlareAI.Updater.exe (a copy in HouseStyle\updater, so it locks nothing it replaces); it waits for Flare to exit.</summary>
