@@ -54,6 +54,8 @@ namespace FlareAI.Core.Settings
         public string DeepModel { get; set; }
         /// <summary>Model calls run at once for per-block work.</summary>
         public int Parallelism { get; set; }
+        /// <summary>The project check lists suggestions by file instead of by rule (the default).</summary>
+        public bool ProjectViewByFile { get; set; }
 
         /// <summary>The routing in effect: these settings, then the team's FlareAI\models.json in the style guide.</summary>
         public FlareAI.Core.Llm.Routing Routing(string guideRoot)

@@ -37,6 +37,12 @@ namespace FlareAI.Flare.UI
         private readonly Button _accept, _goTo, _openFile, _reject, _edit, _refine, _reanalyze, _rule;
         private readonly ContextMenuStrip _rejectMenu;
         private readonly ToolTip _ignoreTip;
+        // project check: by rule / by file, the rule card's actions, and batches with progress
+        private readonly FlowLayoutPanel _viewBar, _actions, _ruleActions;
+        private readonly RadioButton _byRule, _byFile;
+        private readonly Button _backToRules, _showSkipped, _fixRule, _reviewRule, _turnOffRule, _skipRule, _batchStop;
+        private BatchRun _batch;
+        private string _lastRule;   // the rule row to come back to after Review one by one
 
         private static readonly string SettingsDir = FlareAI.Core.Settings.PluginSettings.SettingsDirectory;
         private static readonly Dismissals Dismissed = Dismissals.Load(System.IO.Path.Combine(SettingsDir, "dismissed.json"));
@@ -101,10 +107,33 @@ namespace FlareAI.Flare.UI
             _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, Height = 36, Text = "Checking…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
-            _acceptAll = Btn(triage, "Apply all fixes", (s, e) => _session.FixAll());
+            _acceptAll = Btn(triage, "Apply all fixes", (s, e) => { if (_files != null) _session.FixAllAutomatic(); else _session.FixAll(); });
             _bulk = Btn(triage, "Write all as tracked changes", (s, e) => _session.WriteAll());
             _stop = Btn(triage, "Stop AI review", (s, e) => StopReview());
             _stop.Visible = false;
+            _batchStop = Btn(triage, "Stop after this file", (s, e) =>
+            {
+                if (_batch == null) return;
+                _batch.Cancel();
+                _batchStop.Enabled = false;
+                _status.Text = "Stopping after this file. Files already fixed keep their tracked changes.";
+            });
+            _batchStop.Visible = false;
+            _session.RunBatch = RunBatchInPane;
+
+            // Project check: one row per rule (most frequent first) or the suggestions file by file. Remembered.
+            _viewBar = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Visible = files != null };
+            _viewBar.Controls.Add(new Label { Text = "View:", AutoSize = true, Margin = new Padding(0, 6, 4, 0) });
+            var byFile = files != null && FlareAI.Core.Settings.PluginSettings.Load().ProjectViewByFile;
+            _byRule = new RadioButton { Text = "By &rule", AutoSize = true, Checked = !byFile, Margin = new Padding(0, 3, 8, 0) };
+            _byFile = new RadioButton { Text = "By &file", AutoSize = true, Checked = byFile, Margin = new Padding(0, 3, 12, 0) };
+            _viewBar.Controls.Add(_byRule);
+            _viewBar.Controls.Add(_byFile);
+            _byRule.CheckedChanged += (s, e) => Safe.Run("View by rule", () => { if (_byRule.Checked) SwitchView(false); });
+            _byFile.CheckedChanged += (s, e) => Safe.Run("View by file", () => { if (_byFile.Checked) SwitchView(true); });
+            _backToRules = Btn(_viewBar, "All rules", (s, e) => _session.EndRuleReview());
+            _showSkipped = Btn(_viewBar, "Show skipped rules", (s, e) => _session.ShowSkippedRules());
+            _backToRules.Visible = _showSkipped.Visible = false;
 
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable };
             _list.Columns.Add("Suggestion");
@@ -122,7 +151,13 @@ namespace FlareAI.Flare.UI
             _cardDiff.Dock = DockStyle.Top; _cardDiff.Height = 64; _cardDiff.BackColor = SystemColors.Window;
             _cardWhy = DiffView.Create();
             _cardWhy.Dock = DockStyle.Fill; _cardWhy.BackColor = SystemColors.Control;
-            var actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
+            var actions = _actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
+            // A rule row's card: fix it everywhere, step through it, turn it off, or put it aside for now.
+            _ruleActions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0), Visible = false };
+            _fixRule = Btn(_ruleActions, "Fix all…", (s, e) => _session.FixRule(CurrentRule()));
+            _reviewRule = Btn(_ruleActions, "Review one by one", (s, e) => ReviewRule());
+            _turnOffRule = Btn(_ruleActions, "Turn off rule…", (s, e) => _session.TurnOffRule(CurrentRule()));
+            _skipRule = Btn(_ruleActions, "Skip", (s, e) => _session.SkipRule(CurrentRule()));
             _accept = Btn(actions, "Apply", (s, e) => Accept());
             _goTo = Btn(actions, "Go to", (s, e) => _session.GoToCurrent());
             _openFile = Btn(actions, "Open file", (s, e) => _session.OpenFileOfCurrent());
@@ -141,6 +176,7 @@ namespace FlareAI.Flare.UI
             card.Controls.Add(_cardDiff);
             card.Controls.Add(_cardHead);
             card.Controls.Add(actions);
+            card.Controls.Add(_ruleActions);
 
             var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterWidth = 6, FixedPanel = FixedPanel.Panel2 };
             split.Panel1.Controls.Add(_list);
@@ -158,7 +194,7 @@ namespace FlareAI.Flare.UI
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; Start(); });
-            _ignore = Btn(bar, "Turn off this rule…", (s, e) => _session.TurnOffRule());
+            _ignore = Btn(bar, "Turn off this rule…", (s, e) => { var r = CurrentRule(); if (r != null) _session.TurnOffRule(r); else _session.TurnOffRule(); });
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
 
             var tips = new ToolTip();
@@ -170,6 +206,13 @@ namespace FlareAI.Flare.UI
             tips.SetToolTip(_bulk, "Write every suggestion that has exact text (fixes and rewords) into the topic as tracked changes, then review them with Flare's own Accept and Reject (Review tab) or in a review package.");
             tips.SetToolTip(_acceptAll, "Apply every fix as a tracked change. In this topic only, one Ctrl+Z undoes it; if it reaches other files you see a preview first.");
             tips.SetToolTip(_stop, "Stop asking the AI. Results so far are kept; the rest of the paragraphs are not reviewed.");
+            if (files != null) tips.SetToolTip(_acceptAll, "Apply every exact fix in every file, except rules you skipped. You see the rules, files and counts first; nothing is written until you click Apply.");
+            tips.SetToolTip(_batchStop,"Stop before the next file. Files already fixed keep their tracked changes; the rest are not touched.");
+            tips.SetToolTip(_byRule, "One row per rule, most frequent first: fix a rule everywhere at once, or step through it (Alt+R).");
+            tips.SetToolTip(_byFile, "Every suggestion, file by file (Alt+F).");
+            tips.SetToolTip(_fixRule, "Apply this rule's exact fixes in every file as tracked changes. You see the files and counts first; nothing is written until you click Apply.");
+            tips.SetToolTip(_reviewRule, "Step through this rule's suggestions only, with Apply and Go to (Enter).");
+            tips.SetToolTip(_skipRule, "Hide this rule until the next check. Nothing is recorded (Delete).");
             _ignoreTip = tips;
 
             // The last notice (a toast vanishes by itself) stays reachable here, with its action as a focusable link.
@@ -183,6 +226,7 @@ namespace FlareAI.Flare.UI
             Controls.Add(bar);
             _cost = new Label { Dock = DockStyle.Bottom, AutoSize = false, Height = 18, ForeColor = SystemColors.GrayText, Text = AiCost.Session() };
             Controls.Add(_cost);
+            Controls.Add(_viewBar);
             Controls.Add(triage);
             Controls.Add(_progress);
             Controls.Add(_notice);
@@ -223,10 +267,18 @@ namespace FlareAI.Flare.UI
             A11y.Name(_recheck, "Check again");
             A11y.Name(_ignore, "Turn off this rule", "Turns the selected rule off or changes its level, or asks the style guide owner to. Opens a dialog.");
             // Tab order: notice, triage buttons, list, decision buttons, card text, bottom bar.
-            var top = new Control[] { _status, _notice, _acceptAll.Parent, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
+            var top = new Control[] { _status, _notice, _acceptAll.Parent, _viewBar, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
             for (var i = 0; i < top.Length; i++) top[i].TabIndex = i;
             A11y.Name(_acceptAll.Parent, "Bulk actions"); A11y.Name(_recheck.Parent, "Panel actions"); A11y.Name(_accept.Parent, "Decision for the selected suggestion");
-            var order = new Control[] { _notice, _acceptAll, _bulk, _stop, _list, _result, _accept, _reject, _edit, _refine, _reanalyze, _rule, _cardDiff, _cardWhy, _recheck, _ignore };
+            A11y.Name(_viewBar, "View", "List the project's suggestions by rule or by file.");
+            A11y.Name(_ruleActions, "Actions for the selected rule");
+            A11y.Name(_fixRule, "Fix all", "Applies this rule's exact fixes in every file as tracked changes, after a preview of the files and counts. Opens a dialog.");
+            A11y.Name(_reviewRule, "Review one by one", "Lists only this rule's suggestions and steps through them.");
+            A11y.Name(_skipRule, "Skip", "Hides this rule until the next check.");
+            A11y.Name(_backToRules, "All rules", "Ends Review one by one and lists every rule again (Escape).");
+            A11y.Name(_batchStop, "Stop after this file");
+            var order = new Control[] { _notice, _acceptAll, _bulk, _stop, _batchStop, _byRule, _byFile, _backToRules, _showSkipped, _list, _result,
+                                        _accept, _reject, _edit, _refine, _reanalyze, _rule, _fixRule, _reviewRule, _turnOffRule, _skipRule, _cardDiff, _cardWhy, _recheck, _ignore };
             for (var i = 0; i < order.Length; i++) order[i].TabIndex = i;
             A11y.Apply(this);
         }
@@ -283,6 +335,13 @@ namespace FlareAI.Flare.UI
 
         private void OnListKey(object sender, KeyEventArgs e)
         {
+            if (RuleRows)
+            {
+                if (e.KeyCode == Keys.Enter && CurrentRule() != null) { ReviewRule(); e.Handled = true; e.SuppressKeyPress = true; }
+                else if (e.KeyCode == Keys.Delete && CurrentRule() != null) { _session.SkipRule(CurrentRule()); e.Handled = true; }
+                return;
+            }
+            if ((e.KeyCode == Keys.Escape || e.KeyCode == Keys.Back) && _session.FocusRule != null) { _session.EndRuleReview(); e.Handled = true; e.SuppressKeyPress = true; return; }
             if (e.KeyCode == Keys.Enter && e.Shift) { _session.OpenFileOfCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
             else if (e.KeyCode == Keys.Enter && e.Control) { _session.GoToCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
             else if (e.KeyCode == Keys.Enter) { Accept(); e.Handled = true; }
@@ -416,10 +475,9 @@ namespace FlareAI.Flare.UI
                 {
                     var found = (List<StyleFinding>)e.Result;
                     _session.Add(found);
-                    var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var f in found) files.Add(f.DocumentPath);
-                    _status.Text = Plural.Of(found.Count, "issue") + " in " + files.Count + " of " + Plural.Of(_files.Count, "file") + " (style rules only, no AI). Apply opens the file.";
+                    _status.Text = Summary() + "  Checked " + Plural.Of(_files.Count, "file") + " with style rules only (free, no AI).";
                     ShowRequestNote();
+                    if (RuleRows && _list.Items.Count > 0) { _list.Items[0].Selected = true; _list.Items[0].Focused = true; }
                 }
                 UpdateButtons();
             };
@@ -429,11 +487,24 @@ namespace FlareAI.Flare.UI
         /// <summary>Redraws the list in the session's order (it changed), keeping the selection.</summary>
         private void Rebuild()
         {
+            if (_files != null)
+            {
+                var reviewing = _session.FocusRule != null;
+                _backToRules.Visible = reviewing;
+                _showSkipped.Visible = _session.SkippedRuleCount > 0 && !reviewing;
+                _showSkipped.Text = "Show skipped rules (" + _session.SkippedRuleCount + ")";
+                _list.Columns[0].Text = RuleRows ? "Rule" : "Suggestion";
+                _list.Columns[1].Text = RuleRows ? "How many" : "Source";
+                if (RuleRows) { RebuildRules(); return; }
+            }
+            _actions.Visible = true; _ruleActions.Visible = false;
             var keep = Current();
+            var focus = _session.FocusRule;
             _list.BeginUpdate();
             _list.Items.Clear(); _list.Groups.Clear();
             foreach (var f in _session.Findings)
             {
+                if (focus != null && RuleBacklog.KeyOf(f) != focus) continue;
                 var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
                 item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + f.Rule + "\n" + f.Suggestion;
                 Restyle(item);
@@ -445,6 +516,156 @@ namespace FlareAI.Flare.UI
             UpdateButtons();
             var changed = Changed;
             if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
+        }
+
+        // ---- project check: by rule ----------------------------------------------------------------
+
+        /// <summary>The list shows one row per rule (a project check, By rule, not reviewing one rule).</summary>
+        private bool RuleRows { get { return _files != null && _byRule.Checked && _session.FocusRule == null; } }
+
+        /// <summary>The selected rule row, or null.</summary>
+        private BacklogRule CurrentRule()
+        {
+            return _list.SelectedItems.Count == 1 ? _list.SelectedItems[0].Tag as BacklogRule : null;
+        }
+
+        /// <summary>One row per rule, most frequent first, keeping the selected rule (or the one just reviewed) selected.</summary>
+        private void RebuildRules()
+        {
+            var cur = CurrentRule();
+            var keep = cur != null ? cur.Key : _lastRule;
+            _list.BeginUpdate();
+            _list.Items.Clear(); _list.Groups.Clear();
+            ListViewItem selected = null;
+            foreach (var r in _session.Backlog())
+            {
+                var counts = r.Counts() + (r.Snippets.Count > 0 ? " · in " + Plural.Of(r.Snippets.Count, "snippet") : "");
+                var item = new ListViewItem(new[] { A11y.SeverityGlyph(r.Severity) + " " + Shorten(r.Reason, 90), counts }) { Tag = r };
+                item.ToolTipText = r.Title + "\n" + r.Reason + "\n" + counts;
+                item.ForeColor = r.Severity == "error" ? Color.Firebrick : SystemColors.WindowText;
+                _list.Items.Add(item);
+                if (r.Key == keep) selected = item;
+            }
+            if (selected == null && _list.Items.Count > 0 && keep != null) selected = _list.Items[0];   // the rule is done: on to the next biggest
+            if (selected != null) { selected.Selected = true; selected.Focused = true; selected.EnsureVisible(); }
+            _list.EndUpdate();
+            _lastRule = null;
+            _list.AccessibleDescription = "Rules, most frequent first, with how many suggestions and files each has. Enter reviews the selected rule one by one; Delete skips it.";
+            _session.Current = null;
+            ShowCard();
+            var changed = Changed;
+            if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
+        }
+
+        private void SwitchView(bool byFile)
+        {
+            try
+            {
+                var settings = FlareAI.Core.Settings.PluginSettings.Load();
+                if (settings.ProjectViewByFile != byFile) { settings.ProjectViewByFile = byFile; settings.Save(); }
+            }
+            catch (Exception ex) { Diagnostics.Log("save view", ex); }
+            if (_session.FocusRule != null) _session.EndRuleReview();
+            else Rebuild();
+            _list.Focus();
+        }
+
+        private void ReviewRule()
+        {
+            var r = CurrentRule();
+            if (r == null) return;
+            _lastRule = r.Key;
+            _session.ReviewRule(r);
+            _list.Focus();
+        }
+
+        /// <summary>The card for a rule row: why the rule exists, where it fires, real examples, and what Fix all would do.</summary>
+        private void ShowRuleCard(BacklogRule r)
+        {
+            _cardHead.Text = A11y.SeverityLabel(r.Severity) + "  ·  " + r.Title + "\n" + r.Counts();
+            _cardHead.Height = Math.Max(34, TextRenderer.MeasureText(_cardHead.Text, _cardHead.Font, new Size(Math.Max(50, _cardHead.Width), 0), TextFormatFlags.WordBreak).Height + 6);
+            var shown = 0;
+            foreach (var f in r.Findings)
+            {
+                if (shown == 3) break;
+                if (shown++ > 0) _cardDiff.AppendText("\n");
+                DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = BatchPlan.ProjectPath(f.DocumentPath ?? "") + ":  …" + Tail(f.Before, 30) } }, true);
+                if (f.Replacement != null) DiffView.Segments(_cardDiff, ReadableDiff.OfText(f.Excerpt, f.Replacement), false);
+                else DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = f.Excerpt } }, false);
+            }
+            Line(_cardWhy, r.Reason, FontStyle.Regular);
+            var auto = r.Automatic.Count;
+            Line(_cardWhy, auto == r.Occurrences ? "Every one can be fixed automatically: Fix all shows the files and counts before anything is written."
+                         : auto > 0 ? auto + " of " + r.Occurrences + " can be fixed automatically; the rest need you (Review one by one)."
+                         : "None can be fixed automatically: Review one by one takes you to each, with Go to.", FontStyle.Italic);
+            if (r.Snippets.Count > 0)
+            {
+                var uses = new List<string>();
+                foreach (var p in r.Snippets) { int n; uses.Add(System.IO.Path.GetFileName(p) + (_session.KnownSnippetUses(p, out n) ? " (used in " + UsesLabel(n) + ")" : "")); }
+                Line(_cardWhy, "In snippets: " + string.Join(", ", uses.ToArray()) + ". A fix there changes every topic that includes it.", FontStyle.Bold);
+            }
+            const int ShowFiles = 6;
+            var files = new List<string>();
+            for (var i = 0; i < r.Files.Count && i < ShowFiles; i++) files.Add(BatchPlan.ProjectPath(r.Files[i]));
+            Line(_cardWhy, "Files: " + string.Join(", ", files.ToArray()) + (r.Files.Count > ShowFiles ? " and " + (r.Files.Count - ShowFiles) + " more." : "."), FontStyle.Regular);
+            _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
+            _list.AccessibleDescription = (r.Title + ". " + r.Counts() + ". " + r.Reason).Replace("\n", " ");
+        }
+
+        private static string Tail(string s, int n) { s = s ?? ""; return s.Length <= n ? s : s.Substring(s.Length - n); }
+
+        /// <summary>
+        /// Runs a batch from the pane: a few files at once; more file by file between messages, with progress and
+        /// Stop after this file. The list and actions wait until it finishes.
+        /// </summary>
+        private void RunBatchInPane(BatchRun run)
+        {
+            if (run.FileCount <= 3) { run.RunToEnd(); return; }
+            _batch = run;
+            _progress.Style = ProgressBarStyle.Continuous; _progress.Minimum = 0; _progress.Maximum = run.FileCount; _progress.Value = 0; _progress.Visible = true;
+            _batchStop.Visible = true; _batchStop.Enabled = true;
+            _list.Enabled = false;
+            UpdateButtons();
+            _status.Text = "Fixing " + Plural.Of(run.FileCount, "file") + "…";
+            run.Finished += r => EndBatch(run);
+            var timer = new Timer { Interval = 1 };   // WM_TIMER is low priority: clicks and painting get in between files
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                var more = false;
+                try
+                {
+                    if (IsDisposed) run.Cancel();
+                    more = run.Step();
+                    if (more && !IsDisposed)
+                    {
+                        _progress.Value = Math.Min(run.FileCount, run.FilesDone);
+                        if (!run.IsCancelled) _status.Text = "Fixing files: " + run.FilesDone + " of " + run.FileCount + " done. Next: " + BatchPlan.ProjectPath(run.NextFile ?? "");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Diagnostics.Log("Fix files", ex);
+                    run.Cancel();
+                    try { more = run.Step(); } catch (Exception ex2) { Diagnostics.Log("Fix files: finish", ex2); more = false; }
+                    EndBatch(run);
+                }
+                if (more) timer.Start(); else timer.Dispose();
+            };
+            timer.Start();
+        }
+
+        /// <summary>The batch is over (finished, stopped or failed): the list and actions are back.</summary>
+        private void EndBatch(BatchRun run)
+        {
+            if (_batch != run) return;
+            _batch = null;
+            if (IsDisposed) return;
+            _progress.Visible = false; _progress.Style = ProgressBarStyle.Marquee;
+            _batchStop.Visible = false;
+            _list.Enabled = true;
+            UpdateButtons();
+            _list.Focus();
         }
 
         /// <summary>Raised whenever the list changes (new findings, apply, reject, check again): the editor markers follow it.</summary>
@@ -524,16 +745,23 @@ namespace FlareAI.Flare.UI
 
         private StyleFinding Current()
         {
-            return _list.SelectedItems.Count == 1 ? (StyleFinding)_list.SelectedItems[0].Tag : null;
+            return _list.SelectedItems.Count == 1 ? _list.SelectedItems[0].Tag as StyleFinding : null;
         }
 
         private void ShowCard()
         {
             var f = Current();
             _cardDiff.Clear(); _cardWhy.Clear();
+            var ruleRow = CurrentRule();
+            var rows = RuleRows;
+            _actions.Visible = !rows;
+            _ruleActions.Visible = rows && ruleRow != null;
+            if (ruleRow != null) { ShowRuleCard(ruleRow); UpdateButtons(); return; }
             if (f == null)
             {
-                _cardHead.Text = _session.Findings.Count == 0 ? "" : "Select a suggestion to see what changes and why.";
+                _cardHead.Text = _session.Findings.Count == 0 ? ""
+                               : rows ? (_list.Items.Count == 0 ? "" : "Select a rule to see why it matters, where it fires, and fix it everywhere at once.")
+                               : "Select a suggestion to see what changes and why.";
                 UpdateButtons();
                 return;
             }
@@ -740,6 +968,7 @@ namespace FlareAI.Flare.UI
         /// <summary>The session moved the selection: select that row (null clears the card).</summary>
         private void Select(StyleFinding f)
         {
+            if (RuleRows) return;   // rule rows: the rule stays selected (Rebuild picks the next rule when one is done)
             foreach (ListViewItem item in _list.Items)
             {
                 var on = item.Tag == f;
@@ -796,15 +1025,39 @@ namespace FlareAI.Flare.UI
             _refine.Enabled = open && !_reviewing;
             _reanalyze.Enabled = f != null && f.DocumentPath == null && !_reviewing && _files == null;
             _rule.Enabled = f != null && !string.IsNullOrEmpty(f.Link);
-            var mech = _session.FixAllCandidates().Count;
-            _acceptAll.Text = "Apply all fixes (" + mech + ")";
-            _acceptAll.Enabled = mech > 0;
+            var busy = _batch != null;
+            if (_files != null)
+            {
+                var auto = _session.AutomaticCandidates().Count;
+                _acceptAll.Text = "Fix all automatic suggestions… (" + auto + ")";
+                _acceptAll.Enabled = auto > 0 && !busy;
+                _bulk.Visible = false;
+            }
+            else
+            {
+                var mech = _session.FixAllCandidates().Count;
+                _acceptAll.Text = "Apply all fixes (" + mech + ")";
+                _acceptAll.Enabled = mech > 0;
+            }
             var exact = _session.WriteAllCandidates().Count;
             _bulk.Text = "Write all as tracked changes (" + exact + ")";
             _bulk.Enabled = exact > 0 && _files == null;
-            _recheck.Enabled = !_reviewing;
-            _ignore.Enabled = f != null;
+            _recheck.Enabled = !_reviewing && !busy;
+            var r = CurrentRule();
+            _ignore.Enabled = (f != null || r != null) && !busy;
+            _viewBar.Enabled = !busy;
+            _actions.Enabled = !busy;
+            _ruleActions.Enabled = !busy;
+            if (r != null)
+            {
+                var n = r.Automatic.Count;
+                _fixRule.Text = n == 0 ? "Fix all…" : "Fix all (" + n + ")…";
+                _fixRule.Enabled = n > 0;
+                _fixRule.AccessibleName = n == 0 ? "Fix all" : "Fix all " + n;
+            }
             var request = Team.Current != null && Team.Current.ChangesNeedRequest;
+            _turnOffRule.Text = request ? "Request a change…" : "Turn off rule…";
+            _turnOffRule.AccessibleName = _turnOffRule.Text;
             _ignore.Text = _session.RuleChangeLabel();
             _ignore.AccessibleName = _ignore.Text;
             _ignoreTip.SetToolTip(_ignore, request

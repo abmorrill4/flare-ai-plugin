@@ -45,6 +45,7 @@ namespace FlareAI.Core.Actions
         private readonly Dictionary<string, int> _usage = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private HashSet<string> _ignoredAi;
         private HashSet<string> _requested = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _skippedRules = new HashSet<string>(StringComparer.Ordinal);
         private string _status;
 
         /// <param name="topic">The checked topic (in a project report: the topic that was active).</param>
@@ -77,6 +78,11 @@ namespace FlareAI.Core.Actions
         public Func<Team, GuideRequest, string> SendRequest { get; set; } = (team, r) => { string problem; GuideRequests.Send(team, r, out problem); return problem; };
         /// <summary>The writer's request check (outcomes, approved project exceptions, rules still waiting).</summary>
         public Func<Team, RequestCheck> SyncRequests { get; set; } = GuideRequests.Check;
+        /// <summary>
+        /// Runs a batch that is ready to write. The default writes every file at once; the pane steps it file by file
+        /// between messages, with progress and Stop.
+        /// </summary>
+        public Action<BatchRun> RunBatch { get; set; } = run => run.RunToEnd();
 
         // ---- state the view reads ---------------------------------------------------------------
 
@@ -110,6 +116,8 @@ namespace FlareAI.Core.Actions
         public void Clear()
         {
             _findings.Clear();
+            _skippedRules.Clear();
+            FocusRule = null;
             Current = null;
         }
 
@@ -178,9 +186,13 @@ namespace FlareAI.Core.Actions
             return _findings.FindAll(f => f.CanFix && (f.Kind == "mechanical" || f.Kind == "wording") && f.DocumentPath == null);
         }
 
-        /// <summary>"5 suggestions in 2 sections: 2 Fix · 2 Reword · 1 Needs you."</summary>
+        /// <summary>
+        /// "5 suggestions in 2 sections: 2 Fix · 2 Reword · 1 Needs you." for a topic; for a project check, the backlog
+        /// line ("117 suggestions in 42 files. 63 can be fixed automatically across 9 rules.").
+        /// </summary>
         public string Summary()
         {
+            if (_project) return BacklogSummary();
             var open = Open();
             if (open.Count == 0) return "No open suggestions.";
             int fixes = 0, rewords = 0, needsYou = 0;
@@ -230,8 +242,29 @@ namespace FlareAI.Core.Actions
             if (h != null) h(f);
         }
 
-        /// <summary>Selects the next open proposal after the current one (wrapping), or clears the selection. Also "Skip for now".</summary>
-        public void Next() { Select(NextAfter(Current)); }
+        /// <summary>
+        /// Selects the next open proposal after the current one (wrapping), or clears the selection. Also "Skip for now".
+        /// While one rule is reviewed one by one, only that rule's suggestions; after its last one, back to all rules.
+        /// </summary>
+        public void Next()
+        {
+            var next = NextAfter(Current);
+            if (next == null && FocusRule != null)
+            {
+                var cur = Current;
+                if (cur != null && !cur.IsFixed && !cur.IsStale && RuleBacklog.KeyOf(cur) == FocusRule)
+                {
+                    Select(cur);   // Skip for now on the rule's last one: it stays, nothing else to go to
+                    Status = "This is the last one for " + FocusTitle + ".";
+                    return;
+                }
+                var done = FocusTitle;
+                EndRuleReview();
+                Status = Summary() + "  Done with " + done + ".";
+                return;
+            }
+            Select(next);
+        }
 
         public StyleFinding NextAfter(StyleFinding cur)
         {
@@ -241,7 +274,7 @@ namespace FlareAI.Core.Actions
             for (var i = 1; i <= _findings.Count; i++)
             {
                 var f = _findings[(start + i + _findings.Count) % _findings.Count];
-                if (f != cur && !f.IsFixed && !f.IsStale) return f;
+                if (f != cur && !f.IsFixed && !f.IsStale && (FocusRule == null || RuleBacklog.KeyOf(f) == FocusRule)) return f;
             }
             return null;
         }
@@ -366,22 +399,144 @@ namespace FlareAI.Core.Actions
         /// <summary>Apply all fixes: exact rule fixes as tracked changes; a batch that reaches another file is previewed first.</summary>
         public void FixAll()
         {
-            var todo = FixAllCandidates();
+            FixBatch(FixAllCandidates(), false);
+        }
+
+        /// <summary>
+        /// Previews and writes a batch of exact fixes. One policy for every batch: anything that reaches a file other than
+        /// the open topic is previewed first (<paramref name="alwaysPreview"/>: always); a batch only in the open topic
+        /// writes directly (one Ctrl+Z). Nothing is written when the preview is cancelled.
+        /// </summary>
+        private void FixBatch(List<StyleFinding> todo, bool alwaysPreview)
+        {
             if (todo.Count == 0) return;
-            // One policy for every batch: anything that reaches a file other than the open topic is previewed first;
-            // a batch only in the open topic writes directly (one Ctrl+Z).
-            var plan = BatchPlan.Build(todo, _doc.SourcePath, WhyNotWritable, SnippetUsage);
-            if ((plan.NeedsPreview || plan.Skipped.Count > 0) && plan.Groups.Count > 0)
+            var plan = BatchPlan.Build(todo, _doc.SourcePath, WhyNotWritable, SnippetUses);
+            if ((alwaysPreview || plan.NeedsPreview || plan.Skipped.Count > 0) && plan.Groups.Count > 0)
             {
-                if (!_host.PreviewBatch(plan)) return;
+                if (!_host.PreviewBatch(plan)) { Status = Summary() + "  Nothing was changed."; return; }
             }
             var chosen = plan.SelectedFindings;
             if (chosen.Count == 0 && plan.Skipped.Count == 0) return;
-            ApplyBatch(chosen, chosen.Count == 1 ? "House Style: " + chosen[0].Rule : "House Style: " + chosen.Count + " style fixes", plan);
-            foreach (var f in chosen) if (f.IsFixed) RecordFeedback(f, _doc.SourcePath, "accepted", null);
-            var inSnippets = _findings.FindAll(f => f.CanFix && f.DocumentPath != null && !_project).Count;
-            if (inSnippets > 0) Status = Status + "  " + inSnippets + " more in snippets: select one to apply it there.";
-            Next();
+            var run = BeginBatch(chosen, chosen.Count == 1 ? "House Style: " + chosen[0].Rule : "House Style: " + chosen.Count + " style fixes", plan);
+            run.Finished += result =>
+            {
+                foreach (var f in chosen) if (f.IsFixed) RecordFeedback(f, _doc.SourcePath, "accepted", null);
+                var inSnippets = _findings.FindAll(f => f.CanFix && f.DocumentPath != null && !_project).Count;
+                if (inSnippets > 0) Status = Status + "  " + inSnippets + " more in snippets: select one to apply it there.";
+                if (FocusRule != null && !_findings.Exists(f => !f.IsFixed && !f.IsStale && RuleBacklog.KeyOf(f) == FocusRule)) EndRuleReview();
+                else Next();
+            };
+            RunBatch(run);
+        }
+
+        // ---- the backlog: a project check, one rule at a time -----------------------------------
+
+        /// <summary>The rule being reviewed one by one, or null. Next, Skip and Apply stay within it.</summary>
+        public string FocusRule { get; private set; }
+
+        /// <summary>The focused rule's heading, or null.</summary>
+        public string FocusTitle
+        {
+            get
+            {
+                if (FocusRule == null) return null;
+                var f = _findings.Find(x => RuleBacklog.KeyOf(x) == FocusRule);
+                return f == null ? "this rule" : RuleBacklog.Group(new[] { f }, _runner.RuleFor, _doc.SourcePath)[0].Title;
+            }
+        }
+
+        /// <summary>Open suggestions grouped under their rule, most frequent first, without the rules skipped for now.</summary>
+        public List<BacklogRule> Backlog()
+        {
+            return RuleBacklog.Group(Open().FindAll(f => !_skippedRules.Contains(RuleBacklog.KeyOf(f))), _runner.RuleFor, _doc.SourcePath);
+        }
+
+        /// <summary>The rule a key names in the backlog now, or null (fixed, turned off or skipped since).</summary>
+        public BacklogRule FindBacklogRule(string key) { return Backlog().Find(r => r.Key == key); }
+
+        /// <summary>"117 suggestions in 42 files. 63 can be fixed automatically across 9 rules."</summary>
+        public string BacklogSummary()
+        {
+            return RuleBacklog.Summary(Open().FindAll(f => !_skippedRules.Contains(RuleBacklog.KeyOf(f))), _doc.SourcePath, _skippedRules.Count);
+        }
+
+        /// <summary>What "Fix all automatic suggestions" writes: every exact rule fix, except rules skipped for now.</summary>
+        public List<StyleFinding> AutomaticCandidates()
+        {
+            return FixAllCandidates().FindAll(f => !_skippedRules.Contains(RuleBacklog.KeyOf(f)));
+        }
+
+        /// <summary>Fix all automatic suggestions…: every exact rule fix in every file, after the preview.</summary>
+        public void FixAllAutomatic()
+        {
+            var todo = AutomaticCandidates();
+            if (todo.Count == 0) { Status = Summary() + "  Nothing can be fixed automatically."; return; }
+            FixBatch(todo, true);
+        }
+
+        /// <summary>Fix all for one rule: its exact fixes in every file, as tracked changes, after the preview.</summary>
+        public void FixRule(BacklogRule rule)
+        {
+            if (rule == null) return;
+            var todo = rule.Automatic;
+            if (todo.Count == 0) { Status = Summary() + "  This rule has no automatic fixes: use Review one by one."; return; }
+            FixBatch(todo, true);
+        }
+
+        /// <summary>Review one by one: steps through this rule's suggestions only, starting with the first.</summary>
+        public void ReviewRule(BacklogRule rule)
+        {
+            if (rule == null || rule.Findings.Count == 0) return;
+            FocusRule = rule.Key;
+            var h = ListChanged;
+            if (h != null) h();
+            Select(rule.Findings[0]);
+            Status = rule.Title + ": " + rule.Counts() + ". Apply, Go to, or Skip for now; the next suggestion is always this rule's.";
+        }
+
+        /// <summary>Back to all rules (Review one by one ends).</summary>
+        public void EndRuleReview()
+        {
+            if (FocusRule == null) return;
+            FocusRule = null;
+            Current = null;
+            var h = ListChanged;
+            if (h != null) h();
+            Select(null);
+        }
+
+        /// <summary>Skip: the rule's group is hidden for this session (Check again shows it again). Nothing is recorded.</summary>
+        public void SkipRule(BacklogRule rule)
+        {
+            if (rule == null) return;
+            _skippedRules.Add(rule.Key);
+            if (FocusRule == rule.Key) FocusRule = null;
+            if (Current != null && RuleBacklog.KeyOf(Current) == rule.Key) Current = null;
+            var h = ListChanged;
+            if (h != null) h();
+            Status = Summary() + "  Skipped " + rule.Title + " for now.";
+        }
+
+        /// <summary>Shows the skipped rules again.</summary>
+        public void ShowSkippedRules()
+        {
+            if (_skippedRules.Count == 0) return;
+            _skippedRules.Clear();
+            var h = ListChanged;
+            if (h != null) h();
+            Status = Summary();
+        }
+
+        /// <summary>How many rules are skipped for now.</summary>
+        public int SkippedRuleCount { get { return _skippedRules.Count; } }
+
+        /// <summary>Turn off rule… for a whole group: the same path as for one suggestion (owners, requests, other rules on the same words).</summary>
+        public void TurnOffRule(BacklogRule rule)
+        {
+            if (rule == null || rule.Findings.Count == 0) return;
+            Current = rule.Findings[0];
+            TurnOffRule();
+            if (FocusRule != null && !_findings.Exists(f => RuleBacklog.KeyOf(f) == FocusRule)) EndRuleReview();
         }
 
         /// <summary>Bulk mode: every exact suggestion in the topic becomes a tracked change, for review in Flare's own tools.</summary>
@@ -411,41 +566,53 @@ namespace FlareAI.Core.Actions
         /// </summary>
         public BatchResult ApplyBatch(List<StyleFinding> todo, string operation, BatchPlan plan)
         {
-            var result = new BatchResult();
-            if (plan != null) foreach (var sk in plan.Skipped) result.AddSkipped(sk.Path, sk.Fixes, sk.Reason);
+            return BeginBatch(todo, operation, plan).RunToEnd();
+        }
+
+        /// <summary>A batch ready to write file by file (see <see cref="BatchRun"/>); nothing is written until it is stepped.</summary>
+        public BatchRun BeginBatch(List<StyleFinding> todo, string operation, BatchPlan plan)
+        {
+            return new BatchRun(this, GroupByDocument(todo), operation, plan, todo.Exists(f => f.DocumentPath != null));
+        }
+
+        /// <summary>One file of a batch: one undo step, tracked changes only; skipped when it can't be written.</summary>
+        internal void ApplyFile(List<StyleFinding> group, string operation, BatchResult result)
+        {
+            var path = group[0].DocumentPath ?? _doc.SourcePath;
+            var elsewhere = group[0].DocumentPath != null && !string.Equals(path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase);
             try
             {
-                foreach (var group in GroupByDocument(todo))
+                if (elsewhere)
                 {
-                    var path = group[0].DocumentPath ?? _doc.SourcePath;
-                    var elsewhere = group[0].DocumentPath != null && !string.Equals(path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase);
-                    if (elsewhere)
-                    {
-                        var why = WhyNotWritable(path);
-                        if (why != null) { result.AddSkipped(path, group.Count, why); continue; }
-                    }
-                    try
-                    {
-                        var doc = DocOf(group[0], true);
-                        if (doc == null) { Diagnostics.Log("Apply: could not open " + path); result.AddFailed(path, group.Count, "could not open it in Flare"); continue; }
-                        var n = _runner.ApplyFixes(doc, group, operation);
-                        var saved = false;
-                        // Project-wide: a file opened just for this is saved and closed (one tab per file crashes Flare at ~100).
-                        if (_project && doc != _doc)
-                        {
-                            try { saved = _host.SaveAndClose(doc); }
-                            catch (Exception ex) { Diagnostics.Log("Apply: save/close " + doc.SourcePath, ex); }
-                        }
-                        if (n > 0) result.AddChanged(path, n, saved);
-                        if (n < group.Count) result.AddSkipped(path, group.Count - n, "text changed");
-                    }
-                    catch (Exception ex)
-                    {
-                        Diagnostics.Log("Apply " + path, ex);
-                        result.AddFailed(path, group.Count, ex.Message);
-                    }
+                    var why = WhyNotWritable(path);
+                    if (why != null) { result.AddSkipped(path, group.Count, why); return; }
                 }
-                if (!_project && todo.Exists(f => f.DocumentPath != null)) _host.OpenDocument(_doc.SourcePath); // back to the topic
+                var doc = DocOf(group[0], true);
+                if (doc == null) { Diagnostics.Log("Apply: could not open " + path); result.AddFailed(path, group.Count, "could not open it in Flare"); return; }
+                var n = _runner.ApplyFixes(doc, group, operation);
+                var saved = false;
+                // Project-wide: a file opened just for this is saved and closed (one tab per file crashes Flare at ~100).
+                if (_project && doc != _doc)
+                {
+                    try { saved = _host.SaveAndClose(doc); }
+                    catch (Exception ex) { Diagnostics.Log("Apply: save/close " + doc.SourcePath, ex); }
+                }
+                if (n > 0) result.AddChanged(path, n, saved);
+                if (n < group.Count) result.AddSkipped(path, group.Count - n, "text changed");
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Apply " + path, ex);
+                result.AddFailed(path, group.Count, ex.Message);
+            }
+        }
+
+        /// <summary>After the last file of a batch: back to the topic, the list redrawn, and one honest status line.</summary>
+        internal void FinishBatch(BatchResult result, bool reachedOtherFiles)
+        {
+            try
+            {
+                if (!_project && reachedOtherFiles) _host.OpenDocument(_doc.SourcePath); // back to the topic
                 Sort();
                 var status = Summary() + "  " + result.Status();
                 if (!_project && result.Changed.Exists(e => !string.Equals(e.Path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase)))
@@ -459,7 +626,6 @@ namespace FlareAI.Core.Actions
                 Diagnostics.Log("Apply", ex);
                 Status = "Could not apply: " + ex.Message;
             }
-            return result;
         }
 
         /// <summary>Reject with a reason: hidden for this text from now on, recorded for tuning, and the next one is selected.</summary>
