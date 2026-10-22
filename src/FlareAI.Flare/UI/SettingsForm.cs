@@ -19,7 +19,13 @@ namespace FlareAI.Flare.UI
         private readonly TextBox _feedback;
         private readonly Button _addGuide, _removeGuide, _browseFeedback, _refreshModels, _test, _runSetup;
         private readonly Label _guideStatus, _feedbackStatus, _modelStatus, _testResult, _keyLabel, _keyStatus;
-        private readonly CheckBox _projectLayer, _llmExport, _markers, _live, _onSave, _beforeBuild, _diag;
+        private readonly CheckBox _projectLayer, _llmExport, _markers, _live, _onSave, _beforeBuild, _diag, _autoUpdate;
+        private readonly Label _updateStatus;
+        private readonly StackLayout _guide, _adv;
+        private readonly StackLayout.Block _modelNoteBlock;
+        private readonly string _pluginDir;
+        private readonly Func<string> _whyUpdatesOff;
+        private readonly FlareAI.Core.Update.UpdatePolicy _updatePolicy;
         private readonly RadioButton[] _choices;
         private readonly ComboBox _model, _fastModel, _deepModel;
         private readonly TextBox _baseUrl, _key, _timeout;
@@ -34,9 +40,14 @@ namespace FlareAI.Flare.UI
 
         private const string GatewayHint = "The address your admin gave you, e.g. https://gateway.example.com";
 
-        public SettingsForm()
+        /// <param name="pluginDir">The plugin folder (where an IT department's update-policy.json lives), or null.</param>
+        /// <param name="whyUpdatesOff">Why automatic updates are off now (<c>UpdateFlow.WhyOff</c>), null when they are on.</param>
+        public SettingsForm(string pluginDir = null, Func<string> whyUpdatesOff = null)
         {
             _settings = PluginSettings.Load();
+            _pluginDir = pluginDir;
+            _whyUpdatesOff = whyUpdatesOff;
+            _updatePolicy = FlareAI.Core.Update.UpdatePolicy.Resolve(_settings.AutoUpdate, pluginDir);
 
             Text = "House Style — Settings";
             StartPosition = FormStartPosition.CenterParent;
@@ -86,21 +97,33 @@ namespace FlareAI.Flare.UI
                     "and with Check style and Check project. Rewrite, Ask, Topic assists and the AI wording review need AI: choose one of the other options when you're ready.", true);
 
             // ---- Style guide --------------------------------------------------------------------------------------
-            var g = new StackLayout(guidePage, scale);
+            var g = _guide = new StackLayout(guidePage, scale);
             _layers = g.Row("Team style guide", new ListBox { Height = g.S(64), IntegralHeight = false, HorizontalScrollbar = true }, g.FieldWidth - g.S(92));
             foreach (var line in (_settings.StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
                 if (line.Trim().Length > 0) _layers.Items.Add(line.Trim());
             _addGuide = g.Add(new Button { Text = "Add…", Left = g.FieldLeft + g.FieldWidth - g.S(86), Top = _layers.Top - 1, Width = g.S(86), Height = g.S(26) });
             _removeGuide = g.Add(new Button { Text = "Remove", Left = _addGuide.Left, Top = _addGuide.Bottom + g.S(4), Width = g.S(86), Height = g.S(26) });
-            _addGuide.Click += (s, e) => { var f = PickFolder("Choose your team's style guide (a Flare project folder)"); if (f != null && !_layers.Items.Contains(f)) { _layers.Items.Add(f); CheckGuides(); } };
+            _addGuide.Click += (s, e) =>
+            {
+                var f = PickFolder("Choose your team's style guide (a Flare project folder)");
+                if (f == null || _layers.Items.Contains(f)) return;
+                if (GuideFolderCheck.HasGoogleLayer(f))
+                {
+                    MessageBox.Show(this, GuideFolderCheck.GoogleLayerMessage, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                _layers.Items.Add(f);
+                CheckGuides();
+            };
             _removeGuide.Click += (s, e) => { if (_layers.SelectedIndex >= 0) { _layers.Items.RemoveAt(_layers.SelectedIndex); CheckGuides(); } };
             g.Y = Math.Max(g.Y, _removeGuide.Bottom + g.S(6));
-            _guideStatus = g.Status(5);
+            _guideStatus = g.Status(1);   // grows with its text (FitHeight): no gap under a one-line status
             g.Note("Leave the list empty to use Google's developer documentation style guide plus your own changes. " +
                    "A team guide is a Flare project folder your style guide owner shares (on OneDrive, SharePoint, Google Drive or a network drive). If you add more than one, the later one wins.");
             _projectLayer = g.Check("Also use this project's variables, glossary and StyleGuide folder", _settings.UseProjectLayer);
             g.Note("The open Flare project's variables and glossary terms, and any rules in its Resources\\StyleGuide folder, are checked too.");
             g.Reflow();
+            _guideStatus.TextChanged += (s, e) => _guide.FitHeight(_guideStatus);
 
             // ---- Checking -----------------------------------------------------------------------------------------
             var c = new StackLayout(checkPage, scale);
@@ -112,7 +135,7 @@ namespace FlareAI.Flare.UI
             c.Reflow();
 
             // ---- Advanced -----------------------------------------------------------------------------------------
-            var a = new StackLayout(advPage, scale);
+            var a = _adv = new StackLayout(advPage, scale);
             _model = a.Row("Model (standard)", NewModelCombo());
             _fastModel = a.Row("Fast model", NewModelCombo());
             _deepModel = a.Row("Deep model", NewModelCombo());
@@ -121,7 +144,9 @@ namespace FlareAI.Flare.UI
             var refreshW = _refreshModels.PreferredSize.Width + a.S(10);
             _modelStatus = a.Add(new LiveLabel { Text = "", AutoSize = false, Left = a.FieldLeft + refreshW, Top = a.Y + a.S(4), Width = a.FieldWidth - refreshW, Height = (Font.Height + 1) * 2, ForeColor = SystemColors.GrayText });
             a.Y += Math.Max(_refreshModels.PreferredSize.Height + a.S(4), _modelStatus.Height + a.S(4)) + a.S(4);
+            _modelNoteBlock = a.Begin();   // only when the lists do come from the key (not with AI off or a gateway)
             a.Note("The lists come from your key. Default means the plugin's built-in model. A style guide's FlareAI\\models.json overrides these for the team.");
+            a.Begin();
             _models = new ModelInfo[0];
             _timeout = a.Row("Timeout (s)", new TextBox { Text = _settings.TimeoutSeconds.ToString() }, a.S(60));
             _feedback = a.Row("Team feedback folder", new TextBox { Text = _settings.FeedbackFolder ?? "" }, a.FieldWidth - a.S(92));
@@ -133,7 +158,13 @@ namespace FlareAI.Flare.UI
             a.Note("Shared folder (synced or network) where review decisions are pooled. Empty = personal only. The guide owner sees each decision, its rule and the text; who made it only if the guide sets attribution = names (default: anonymous, counted).");
             _diag = a.Check("Write a diagnostics log (for support)", _settings.WriteDiagnostics);
             _llmExport = a.Check("After each HTML build, add LLM-ready Markdown and llms.txt to the output", _settings.LlmExportAfterBuild);
+            _autoUpdate = a.Check("Keep House Style up to date (checks GitHub once a day)", _updatePolicy.Enabled);
+            _autoUpdate.Enabled = !_updatePolicy.FromPolicyFile;   // the IT department's update-policy.json decides
+            _updateStatus = a.Status(1);
+            _updateStatus.Left = a.LabelLeft + a.S(18); _updateStatus.Width = a.FullWidth - a.S(18);
+            _autoUpdate.CheckedChanged += (s, e) => ShowUpdateStatus();
             a.Reflow();
+            _updateStatus.TextChanged += (s, e) => _adv.FitHeight(_updateStatus);
 
             // ---- size: the tallest page, every AI block shown ----------------------------------------------------
             var pageH = new[] { ai.FullHeight(), g.Y, c.Y, a.Y }.Max() + ai.S(8);
@@ -191,9 +222,26 @@ namespace FlareAI.Flare.UI
             if (_shownProvider < 0) OnChoiceChanged();
             RefreshKeyStatus();
             A11y.Apply(this);
-            CheckGuides(); CheckFeedback();
+            CheckGuides(); CheckFeedback(); ShowUpdateStatus();
+            A11y.Name(_autoUpdate, "Keep House Style up to date", "Checks GitHub once a day for a newer release and offers to install it.");
+            A11y.Name(_updateStatus, "Automatic update status");
             Shown += (s, e) => LoadModels();
             FormClosed += (s, e) => _closed = true;
+        }
+
+        /// <summary>Under the update check box: who decides, and whether updates are on (from <c>UpdateFlow.WhyOff</c>).</summary>
+        private void ShowUpdateStatus()
+        {
+            string why = null;
+            try { why = _whyUpdatesOff == null ? null : _whyUpdatesOff(); } catch (Exception ex) { FlareAI.Core.Diagnostics.Log("update status", ex); }
+            if (_updatePolicy.FromPolicyFile)
+                _updateStatus.Text = "Set by your IT department (update-policy.json in the plugin folder): updates are " + (_updatePolicy.Enabled ? "on." : "off.");
+            else if (why != null && why.StartsWith("not available", StringComparison.OrdinalIgnoreCase))
+                _updateStatus.Text = "Automatic updates are " + why + ".";
+            else
+                _updateStatus.Text = _autoUpdate.Checked == _settings.AutoUpdate
+                    ? "Automatic updates are " + (_autoUpdate.Checked ? "on." : "off.")
+                    : "Automatic updates turn " + (_autoUpdate.Checked ? "on" : "off") + " when you save.";
         }
 
         private TabPage Page(string text)
@@ -244,6 +292,8 @@ namespace FlareAI.Flare.UI
             A11y.Name(_key, AiChoices.KeyLabel(choice), "Write only: a stored key is never shown back. Leave blank to keep the stored key.");
             _testResult.Text = "";
             _ai.Reflow();
+            _modelNoteBlock.Visible = AiChoices.UsesModelPickers(choice);   // AI off or a gateway: the lists don't come from a key
+            _adv.Reflow();
             ShowModels(choice);
         }
 
@@ -469,6 +519,7 @@ namespace FlareAI.Flare.UI
             _settings.LiveCheck = _live.Checked;
             _settings.CheckOnSave = _onSave.Checked;
             _settings.ReportBeforeBuild = _beforeBuild.Checked;
+            if (!_updatePolicy.FromPolicyFile) _settings.AutoUpdate = _autoUpdate.Checked;
             if (choice != AiChoice.None && _key.Text.Trim().Length > 0) _settings.SetApiKey(_key.Text.Trim());
             try
             {

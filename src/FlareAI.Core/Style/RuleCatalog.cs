@@ -178,7 +178,7 @@ namespace FlareAI.Core.Style
             {
                 var root = layers[i].Path;
                 var project = i == projectIndex;
-                var def = !project && isDefault != null && isDefault(root);
+                var def = !project && (layers[i].OverridesOnly || isDefault != null && isDefault(root));
                 List<RuleOverride> rows;
                 try { rows = RuleOverrides.Read(root, project ? sources[i] : def ? RuleOverrides.DefaultScope : sources[i]); }
                 catch (Exception ex) { Diagnostics.Log("catalogue: changes in " + root, ex); continue; }
@@ -294,6 +294,7 @@ namespace FlareAI.Core.Style
             if (index == 0) return "Google";
             var folder = Path.GetFileName((layer.Path ?? "").TrimEnd('\\', '/'));
             if (project) return "Project " + folder;
+            if (layer.OverridesOnly) return RuleOverrides.DefaultScope;
             if (GuideSeed.IsPersonal(layer.Path)) return "My style guide";
             if (isDefault != null && isDefault(layer.Path)) return string.Equals(layer.Name, "company", StringComparison.OrdinalIgnoreCase) ? "Company" : Cap(layer.Name);
             return "Team style guide (" + folder + ")";

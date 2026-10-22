@@ -16,6 +16,8 @@
   <ItemGroup>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +34,9 @@
     <Compile Include="..\..\src\FlareAI.Flare\Commands.cs" Link="Commands.cs" />
     <!-- The update unzipper (net48 only, so it lives in the plugin); no Flare dependencies. -->
     <Compile Include="..\..\src\FlareAI.Flare\ZipExtractor.cs" Link="ZipExtractor.cs" />
+    <!-- The dialog layout (WinForms only, no Flare dependencies): status lines fit their text, hidden blocks leave no gap. -->
+    <Compile Include="..\..\src\FlareAI.Flare\UI\StackLayout.cs" Link="StackLayout.cs" />
+    <Compile Include="..\..\src\FlareAI.Flare\UI\A11y.cs" Link="A11y.cs" />
   </ItemGroup>
 
 </Project>

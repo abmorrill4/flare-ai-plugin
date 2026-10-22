@@ -35,13 +35,15 @@ namespace FlareAI.Flare.UI
         // Step 2: style guide
         private readonly StackLayout _guideLayout;
         private readonly RadioButton[] _guideChoices;
-        private readonly StackLayout.Block _folderBlock;
+        private readonly StackLayout.Block _folderBlock, _googleNoteBlock;
         private readonly TextBox _folder;
         private readonly Button _browse;
         private readonly Label _folderStatus;
 
         // Step 3: done
+        private readonly StackLayout _doneLayout;
         private readonly Label _summary;
+        private readonly Func<int, int> _s;
 
         public SetupForm()
         {
@@ -55,7 +57,7 @@ namespace FlareAI.Flare.UI
             Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.None;   // sizes below are measured at the real DPI and font
             var scale = DeviceDpi / 96f;
-            Func<int, int> S = px => (int)Math.Round(px * scale);
+            Func<int, int> S = _s = px => (int)Math.Round(px * scale);
 
             _stepTitle = new LiveLabel { AutoSize = true, Left = S(12), Top = S(12), ForeColor = SystemColors.GrayText };
             Controls.Add(_stepTitle);
@@ -92,6 +94,8 @@ namespace FlareAI.Flare.UI
             g.Heading("Whose style rules?");
             _guideChoices = g.Choices("Whose style rules", new[] { "Google's guide plus my own changes", "My team's shared style guide folder" }, g.S(8));
             foreach (var r in _guideChoices) r.CheckedChanged += (s, e) => { if (((RadioButton)s).Checked) OnGuideChoice(); };
+            // Each choice's note follows the choice: Google's guide, or where the team's guide is.
+            _googleNoteBlock = g.Begin();
             g.Note("Google's developer documentation style guide is built in. Rules you turn off or add are kept for you alone.", true);
             _folderBlock = g.Begin();
             _folder = g.Row("Team style guide", new TextBox { Text = _answers.TeamGuideFolder ?? "" }, g.FieldWidth - g.S(92));
@@ -99,11 +103,12 @@ namespace FlareAI.Flare.UI
             _browse.Click += (s, e) => Browse();
             _folder.Leave += (s, e) => CheckFolder();
             g.Y = Math.Max(g.Y, _browse.Bottom + g.S(4));
-            _folderStatus = g.Status(4);
+            _folderStatus = g.Status(1);
+            _folderStatus.TextChanged += (s, e) => { _guideLayout.FitHeight(_folderStatus); FitToStep(); };
             g.Note("Ask your style guide owner where the team's guide is. It's a Flare project folder, often on OneDrive, SharePoint, Google Drive or a network drive.");
 
             // ---- 3. Done -------------------------------------------------------------------------------------------
-            var d = new StackLayout(_steps[2], scale);
+            var d = _doneLayout = new StackLayout(_steps[2], scale);
             d.Heading("You're ready");
             d.Note("Open a topic and choose Check style to see suggestions for it, or Check project to check every topic in the project.", true, false);
             _summary = d.Status(4, true);
@@ -112,7 +117,7 @@ namespace FlareAI.Flare.UI
             d.Y += guideLink.PreferredHeight + d.S(8);
             d.Note("Change any of this later in House Style > Settings.", true);
 
-            // ---- size: the tallest step with every block shown ----------------------------------------------------
+            // ---- size: each step as tall as what it shows (FitToStep), so no step has a big empty area ------------
             var stepH = new[] { ai.FullHeight(), g.FullHeight(), d.FullHeight() }.Max() + S(8);
             foreach (var p in _steps) p.Size = new Size(ai.Width, stepH);
 
@@ -170,8 +175,25 @@ namespace FlareAI.Flare.UI
             _skipStep.Visible = step != SetupStep.Done;
             _next.Text = step == SetupStep.Done ? "Finish" : "Next";
             if (step == SetupStep.Done) _summary.Text = PreviewSummary();
+            FitToStep();
             var first = step == SetupStep.Ai ? (Control)_aiChoices.First(r => r.Checked) : step == SetupStep.Guide ? (Control)_guideChoices.First(r => r.Checked) : _next;
             if (IsHandleCreated) first.Focus(); else Shown += (s, e) => first.Focus();
+        }
+
+        /// <summary>
+        /// Sizes the dialog to the step on show: its visible blocks plus the buttons. A step with less to say is shorter,
+        /// instead of every step keeping the empty space the tallest one (step 1 with a gateway) needs.
+        /// </summary>
+        private void FitToStep()
+        {
+            if (_next == null || _steps == null) return;
+            var layout = _step == SetupStep.Ai ? _aiLayout : _step == SetupStep.Guide ? _guideLayout : _doneLayout;
+            if (layout == null) return;
+            var page = _steps[(int)_step];
+            page.Height = layout.VisibleHeight() + _s(8);
+            var by = page.Bottom + _s(10);
+            ClientSize = new Size(ClientSize.Width, by + Math.Max(_next.Height, _s(26)) + _s(12));
+            foreach (var b in new[] { _skipStep, _back, _next }) b.Top = by;
         }
 
         private void Next()
@@ -274,6 +296,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_key, AiChoices.KeyLabel(choice), "Write only: the key is stored encrypted and never shown back.");
             _testResult.Text = ""; _aiError.Text = "";
             _aiLayout.Reflow();
+            FitToStep();
         }
 
         private int _testSeq;
@@ -321,7 +344,9 @@ namespace FlareAI.Flare.UI
         private void OnGuideChoice()
         {
             _folderBlock.Visible = _guideChoices[1].Checked;
+            _googleNoteBlock.Visible = !_folderBlock.Visible;
             _guideLayout.Reflow();
+            FitToStep();
             if (_folderBlock.Visible && _folder.Text.Trim().Length == 0) _folderStatus.Text = "Choose the folder that holds your team's style guide.";
             if (_folderBlock.Visible && _folder.Text.Trim().Length > 0 && _checkedFolder != _folder.Text.Trim()) CheckFolder();
         }

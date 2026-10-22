@@ -41,6 +41,20 @@ namespace FlareAI.Core.Actions
                 return Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(prompt ?? "")));
         }
 
+        /// <summary>The note the review pane shows when AI is off and earlier AI reviews of the text were hidden.</summary>
+        public const string AiOffNote = "AI is off; earlier AI suggestions are hidden.";
+
+        /// <summary>
+        /// The cached review to show for <paramref name="prompt"/>: none while AI is off (the writer chose no AI, so earlier AI
+        /// suggestions aren't shown), and then <paramref name="hidden"/> says whether there was one.
+        /// </summary>
+        public List<StyleFinding> Shown(string prompt, bool aiOff, out bool hidden)
+        {
+            var raw = Get(prompt);
+            hidden = aiOff && raw != null;
+            return aiOff ? null : raw;
+        }
+
         /// <summary>Copies of the cached raw findings, or null.</summary>
         public List<StyleFinding> Get(string prompt)
         {

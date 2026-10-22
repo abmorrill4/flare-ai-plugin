@@ -50,6 +50,12 @@ namespace FlareAI.Flare.UI
         private BackgroundWorker _worker;
         private bool _reviewing, _started;
         private string _lintNote;
+        private bool _aiOff;              // the writer chose no AI: no AI review, and cached AI suggestions stay hidden
+        private volatile bool _aiHidden;  // a cached AI review was hidden this check
+        private readonly LinkLabel _aiOffNote;
+
+        /// <summary>Opens House Style Settings (the AI-off note's link).</summary>
+        public Action OpenSettings { get; set; }
         private volatile string _requestNote;
         private List<StyleFinding> _lint;
 
@@ -72,6 +78,19 @@ namespace FlareAI.Flare.UI
         }
 
         public bool IsProjectReport { get { return _files != null; } }
+
+        /// <summary>
+        /// Finds a file open in the editor without opening it (the host's): lets the pane notice a fix undone in another
+        /// file (Ctrl+Z there), on row selection and when that document changes.
+        /// </summary>
+        public Func<string, IDocumentAdapter> FindOpen { set { _session.OpenedDocument = value; } }
+
+        /// <summary>A document changed in the editor: applied fixes that were undone there are live again.</summary>
+        public void RecheckApplied()
+        {
+            if (_reviewing) return;
+            _session.RecheckApplied();
+        }
 
         /// <summary>Path of the topic this panel checks.</summary>
         public string TopicPath { get { return _doc.SourcePath; } }
@@ -230,6 +249,10 @@ namespace FlareAI.Flare.UI
             Controls.Add(triage);
             Controls.Add(_progress);
             Controls.Add(_notice);
+            _aiOffNote = new LinkLabel { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, Text = ReviewCache.AiOffNote + "  Settings", AccessibleRole = AccessibleRole.Link };
+            _aiOffNote.LinkArea = new LinkArea(ReviewCache.AiOffNote.Length + 2, "Settings".Length);
+            _aiOffNote.LinkClicked += (s, e) => Safe.Run("Settings", () => { var settings = OpenSettings; if (settings != null) settings(); });
+            Controls.Add(_aiOffNote);
             Controls.Add(_status);
             NameControls();
             HandleDestroyed += (s, e) => { if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); };
@@ -354,6 +377,7 @@ namespace FlareAI.Flare.UI
         {
             if (_worker != null && _worker.IsBusy) return;
             _session.Clear(); _list.Items.Clear(); _list.Groups.Clear(); _lintNote = null;
+            _aiOff = FlareAI.Core.Settings.PluginSettings.Load().AiOff; _aiHidden = false; _aiOffNote.Visible = false;
             _reviewing = true; _progress.Visible = true; _progress.Style = ProgressBarStyle.Marquee; _status.Text = "Checking style rules (free, no AI)…";
             _result.Visible = false; _stop.Visible = false; _stop.Enabled = true; _stopped = false; _unitCount = 0; _doneUnits = 0;
             ShowCard();
@@ -383,9 +407,11 @@ namespace FlareAI.Flare.UI
                 ActionRunner.WarmThenParallel(units.Count, _runner.Parallelism, i =>
                 {
                     if (_worker.CancellationPending) return;
-                    var raw = _cache == null ? null : _cache.Get(units[i].Prompt);
+                    var hidden = false;
+                    var raw = _cache == null ? null : _cache.Shown(units[i].Prompt, _aiOff, out hidden);
+                    if (hidden) _aiHidden = true;
                     if (raw != null) cachedAny = true;
-                    else if (_aiOnStart)
+                    else if (_aiOnStart && !_aiOff)
                     {
                         raw = _runner.CallReview(units[i]);
                         if (_cache != null) _cache.Put(units[i].Prompt, raw);
@@ -404,7 +430,7 @@ namespace FlareAI.Flare.UI
                 int doneUnits = (int)p[2], total = (int)p[3];
                 _session.Add(unit == null ? found : _runner.AnchorReview(found, unit, _lint)); // DOM work on the UI thread
                 _unitCount = total; _doneUnits = doneUnits;
-                if (_aiOnStart && doneUnits < total && !_stopped)
+                if (_aiOnStart && !_aiOff && doneUnits < total && !_stopped)
                 {
                     // Style-rule results are already in the list, and they cost nothing; only this phase spends.
                     _status.Text = Summary() + "  Style rules are free. Reviewing wording with AI: " + doneUnits + " of " + total + " paragraphs (you can work on these now).";
@@ -429,10 +455,15 @@ namespace FlareAI.Flare.UI
                     Diagnostics.Log("Check style", e.Error);
                     _status.Text = Summary() + "  AI review failed: " + e.Error.Message;
                 }
+                else if (_aiOff)
+                    _status.Text = Summary() + "  These come from style rules only (free, no AI used).";
                 else if (!_aiOnStart && !cachedAny)
                     _status.Text = Summary() + "  These come from style rules only (free, no AI used). Check again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
                 else _status.Text = Open().Count == 0 ? "No open suggestions." : Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
+                _aiOffNote.Visible = _aiOff && _aiHidden;
+                var guide = _runner.GuideNotice;
+                if (guide != null) _status.Text += "  " + guide;
                 ShowRequestNote();
                 var team = Team.Current;
                 if (team != null && team.Status != null && team.Status.Behind > 0) _status.Text += "  " + team.Status;
@@ -476,6 +507,8 @@ namespace FlareAI.Flare.UI
                     var found = (List<StyleFinding>)e.Result;
                     _session.Add(found);
                     _status.Text = Summary() + "  Checked " + Plural.Of(_files.Count, "file") + " with style rules only (free, no AI).";
+                    var guide = _runner.GuideNotice;
+                    if (guide != null) _status.Text += "  " + guide;
                     ShowRequestNote();
                     if (RuleRows && _list.Items.Count > 0) { _list.Items[0].Selected = true; _list.Items[0].Focused = true; }
                 }

@@ -86,9 +86,12 @@ One style guide project, used by the plugin, Claude Code (through the optional M
 - The open documentation project adds its own layer: variable values ("insert the variable instead of typing it"),
   glossary terms, and its own `Content/Resources/StyleGuide/` if it has one. It wins over both.
 
-A team copies the starter project into a shared folder (OneDrive or SharePoint, Google Drive, or a network drive) and
-every writer points Settings → Style guide project at it. Teams that already use source control can keep it in git
-instead.
+A team starts its guide from the starter project (`StyleGuide` in the plugin folder) in a shared folder (OneDrive or
+SharePoint, Google Drive, or a network drive) and every writer points Settings → Style guide project at it. Copy
+`StyleGuide.flprj`, `Project/`, `FlareAI/` and `Content/Resources/StyleGuide/Company/`, not `Google/`: Google's rules and
+House Style's default changes to them (`Company/Google-overrides.htm`) always load from the plugin, so plugin updates reach
+the team. A row in the team's own Rule/Setting table for the same rule wins over a default. Teams that already use source
+control can keep the guide in git instead.
 
 ### Writing rules (same format in both folders)
 - **Bullets** are prose rules for the AI. Nest `Bad: …` / `Good: …` items under a bullet so the rule can be tested.

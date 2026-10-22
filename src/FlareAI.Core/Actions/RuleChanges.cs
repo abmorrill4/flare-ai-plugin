@@ -37,7 +37,7 @@ namespace FlareAI.Core.Actions
         public static bool NeedsRequest(Team team)
         {
             if (team == null) return false;
-            if (team.IsStrict && !team.IsPersonal) team.ProbeGuide();   // before any write: permissions may have changed
+            team.Recheck();   // before any write: permissions or the owners list may have changed
             return team.ChangesNeedRequest;
         }
 

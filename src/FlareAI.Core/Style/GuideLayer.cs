@@ -49,6 +49,8 @@ namespace FlareAI.Core.Style
         private static readonly HashSet<string> Delete = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "(delete)", "delete", "(remove)", "remove" };
 
         public string Name { get; private set; }
+        /// <summary>True for a layer of override rows only: a read-only guide's defaults (<see cref="LoadOverrides"/>).</summary>
+        public bool OverridesOnly { get; private set; }
         public string Path { get; private set; }
         /// <summary>The style name used in rule names ("Google", "Company"), unique within a composition.</summary>
         public string Style { get; set; }
@@ -107,7 +109,9 @@ namespace FlareAI.Core.Style
                 foreach (var t in JObject.Parse(Read(glossary))["terms"] ?? new JArray())
                     Glossary.Add(new GlossaryEntry { Term = (string)t["term"], Note = (string)t["note"], Abbr = (string)t["abbr"], Variants = (t["variants"] ?? new JArray()).Select(v => (string)v).ToList(), Layer = Name });
             var ini = System.IO.Path.Combine(folder, "overrides.ini");
-            if (Has(ini))
+            // Override rows never stand in for each other: a shadowed file's rows still apply (a later layer's row for the
+            // same rule wins in the composition), so the defaults shipped with House Style keep reaching every guide.
+            if (File.Exists(ini))
                 foreach (var o in RuleOverrides.ReadIni(ini)) if (!o.IsAiName) Overrides.Add(new KeyValuePair<string, string>(o.RuleId, o.Setting));
             var owners = System.IO.Path.Combine(folder, "rule-owners.txt");
             if (Has(owners))
@@ -116,9 +120,38 @@ namespace FlareAI.Core.Style
             if (Has(md)) LoadMarkdown(md);
             var topics = Directory.GetFiles(folder, "*.htm", SearchOption.AllDirectories).Concat(Directory.GetFiles(folder, "*.html", SearchOption.AllDirectories))
                 .Where(f => except == null || !f.StartsWith(except + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                .Where(f => !_skip(f))
                 .OrderBy(f => f, StringComparer.OrdinalIgnoreCase);
-            foreach (var t in topics) LoadTopic(t);
+            foreach (var t in topics)
+                if (!_skip(t)) LoadTopic(t);
+                else Overrides.AddRange(OverrideRows(t, Name));   // its rule content is shadowed, its override rows are not
+        }
+
+        /// <summary>The Rule/Setting rows of one topic (nothing else of it is loaded).</summary>
+        internal static List<KeyValuePair<string, string>> OverrideRows(string topic, string layerName)
+        {
+            var scratch = new GuideLayer { Name = layerName, Path = System.IO.Path.GetDirectoryName(topic) };
+            scratch.LoadTopic(topic);
+            return scratch.Overrides;
+        }
+
+        /// <summary>
+        /// Only the override rows (Rule/Setting tables and overrides.ini) of a guide project's StyleGuide folder, outside its
+        /// Google folder: the defaults a read-only guide (the one bundled with House Style) sets for Google's rules. Rule content
+        /// is not loaded. The layer is named <paramref name="name"/>.
+        /// </summary>
+        public static GuideLayer LoadOverrides(string path, string name)
+        {
+            var layer = new GuideLayer { Name = name, Path = path, OverridesOnly = true };
+            var folder = System.IO.Path.Combine(path, @"Content\Resources\StyleGuide");
+            if (!Directory.Exists(folder)) return layer;
+            var google = System.IO.Path.Combine(folder, "Google") + System.IO.Path.DirectorySeparatorChar;
+            var ini = System.IO.Path.Combine(folder, "overrides.ini");
+            if (File.Exists(ini))
+                foreach (var o in RuleOverrides.ReadIni(ini)) if (!o.IsAiName) layer.Overrides.Add(new KeyValuePair<string, string>(o.RuleId, o.Setting));
+            foreach (var t in Directory.GetFiles(folder, "*.htm", SearchOption.AllDirectories)
+                         .Where(f => !f.StartsWith(google, StringComparison.OrdinalIgnoreCase)).OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
+                layer.Overrides.AddRange(OverrideRows(t, name));
+            return layer;
         }
 
         private void LoadMarkdown(string path)
@@ -156,6 +189,12 @@ namespace FlareAI.Core.Style
             var doc = new XmlDocument { PreserveWhitespace = true };
             try { doc.Load(path); }
             catch (XmlException e) { Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Not well-formed XML: " + e.Message }); return; }
+            catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
+            {
+                Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Can't read this topic: " + e.Message });
+                Diagnostics.Log("Style guide topic " + path + " can't be read", e);
+                return;
+            }
             var body = BlockSelector.FindBody(doc);
             if (body == null) return;
             var h1 = body.SelectSingleNode(".//*[local-name()='h1']");

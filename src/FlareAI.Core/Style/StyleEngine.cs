@@ -35,31 +35,84 @@ namespace FlareAI.Core.Style
             _bundled = bundledGuide;
         }
 
-        /// <summary>The guide projects that exist now, in order.</summary>
-        private List<string> Guides()
+        /// <summary>
+        /// The guides used in place of a guide that can't be read (a team guide on a share the writer lost access to): the
+        /// bundled guide by default; the plugin passes the bundled guide plus the writer's own changes.
+        /// </summary>
+        public Func<IEnumerable<string>> Fallback { get; set; }
+
+        private readonly HashSet<string> _logged = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The guide projects that exist now, in order. A guide that can't be read is left out, named in
+        /// <paramref name="unreadable"/> with the reason, and the <see cref="Fallback"/> guides stand in for it.
+        /// </summary>
+        private List<string> Guides(List<string> unreadable)
         {
-            return (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g)).ToList();
+            var list = new List<string>();
+            foreach (var g in (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g)))
+            {
+                var why = WhyUnreadable(g);
+                if (why == null) { list.Add(g); continue; }
+                unreadable.Add("Can't read " + g + ": " + why + ".");
+                lock (_gate) if (_logged.Add(g + "|" + why)) Diagnostics.Log("Style guide " + g + " can't be read (" + why + "); checking with the fallback guide");
+            }
+            if (unreadable.Count == 0) return list;
+            var fallback = new List<string>();
+            foreach (var f in (Fallback != null ? Fallback() : null) ?? new[] { _bundled })
+                if (!string.IsNullOrEmpty(f) && Directory.Exists(f) && WhyUnreadable(f) == null && !list.Concat(fallback).Any(x => SamePath(x, f))) fallback.Add(f);
+            return fallback.Concat(list).ToList();
         }
+
+        /// <summary>Null when the guide's project file, StyleGuide and FlareAI folders can be listed; else why not, in plain words.</summary>
+        internal static string WhyUnreadable(string guide)
+        {
+            try
+            {
+                Directory.GetFiles(guide, "*.flprj");
+                var style = Path.Combine(guide, @"Content\Resources\StyleGuide");
+                if (Directory.Exists(style)) Directory.GetFiles(style, "*", SearchOption.AllDirectories);
+                var flareAi = Path.Combine(guide, "FlareAI");
+                if (Directory.Exists(flareAi)) Directory.GetFiles(flareAi);
+                return null;
+            }
+            catch (UnauthorizedAccessException) { return "you don't have permission to read it"; }
+            catch (System.Security.SecurityException) { return "you don't have permission to read it"; }
+            catch (IOException ex) { return ex.Message.TrimEnd('.', ' ', '\r', '\n'); }
+        }
+
+        /// <summary>
+        /// Null normally. When a team style guide couldn't be read: which folder and why, and that the check used Google's
+        /// guide (and the writer's own changes) instead. Show it with any check result.
+        /// </summary>
+        public string Notice(string project) { return Compose(project).Notice; }
+
+        /// <summary>The first line of <see cref="Notice"/>.</summary>
+        public const string UnreadableNotice = "Your team's style guide couldn't be read; checked with Google's guide only.";
 
         // ---- composition ---------------------------------------------------------------------------------------
 
         public Composition Compose(string project)
         {
-            var guides = Guides();
+            var unreadable = new List<string>();
+            var guides = Guides(unreadable);
             var root = FlareProjectRoot(project);
             if (root != null && guides.Any(g => SamePath(g, root))) root = null;   // the guide is already a layer
-            var key = (root ?? "") + "|" + string.Join("|", guides.ToArray());
+            var notice = unreadable.Count == 0 ? null : UnreadableNotice + " " + string.Join(" ", unreadable.ToArray());
+            var key = (root ?? "") + "|" + string.Join("|", guides.ToArray()) + "|" + notice;
             // Any change to a guide or project file (a rule turned off, a row added) changes the stamp: the next use reloads.
-            var stamp = Stamp(guides.Concat(new[] { GoogleRoot(guides), root }).Where(p => p != null));
+            var defaults = Defaults(guides);
+            var stamp = Stamp(guides.Concat(new[] { GoogleRoot(guides), defaults, root }).Where(p => p != null));
             lock (_gate)
             {
                 KeyValuePair<string, Composition> c;
                 if (_cache.TryGetValue(key, out c) && c.Key == stamp) return c.Value;
             }
             var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(guides), "google", "Google") };
+            if (defaults != null) layers.Add(GuideLayer.LoadOverrides(defaults, DefaultsLayer));
             for (var i = 0; i < guides.Count; i++) layers.Add(GuideLayer.Load(guides[i], null, null, "Google", Shadowed(guides[i], guides.Skip(i + 1))));
             if (root != null) layers.Add(GuideLayer.Load(root, "project"));
-            var comp = new Composition(layers) { ProjectRoot = root };
+            var comp = new Composition(layers) { ProjectRoot = root, Notice = notice };
             lock (_gate) _cache[key] = new KeyValuePair<string, Composition>(stamp, comp);
             return comp;
         }
@@ -80,6 +133,28 @@ namespace FlareAI.Core.Style
                 var rel = full.Substring(root.Length);
                 return mine.Any(m => File.Exists(Path.Combine(m, rel)));
             };
+        }
+
+        /// <summary>
+        /// Layer the bundled guide's default changes to Google's rules before a team guide (the default). False composes
+        /// Google's rules as compiled, for tools that check the Google layer itself.
+        /// </summary>
+        public bool BundledDefaults { get; set; } = true;
+
+        /// <summary>The name of the layer that carries the bundled guide's default changes to Google's rules into a team's guide.</summary>
+        public const string DefaultsLayer = "defaults";
+
+        /// <summary>
+        /// The bundled guide, when its default changes to Google's rules (its Rule/Setting rows) must be layered in because it
+        /// isn't itself one of <paramref name="guides"/>: a team guide (often a copy of the starter project made before a
+        /// default was added) gets every shipped default unless it has its own row for that rule. Null otherwise.
+        /// </summary>
+        private string Defaults(List<string> guides)
+        {
+            if (!BundledDefaults) return null;
+            // No guide at all is Google alone (the guide compiler and tests compose it that way).
+            if (guides.Count == 0 || string.IsNullOrEmpty(_bundled) || !Directory.Exists(_bundled)) return null;
+            return guides.Any(g => SamePath(g, _bundled)) ? null : _bundled;
         }
 
         /// <summary>Forgets every composition: the next use reads the guides again.</summary>
@@ -105,7 +180,10 @@ namespace FlareAI.Core.Style
                 {
                     var d = dir.Length == 0 ? r : Path.Combine(r, dir);
                     if (!Directory.Exists(d)) continue;
-                    foreach (var f in dir.Length == 0 && !plain ? Directory.GetFiles(d) : Directory.GetFiles(d, "*", SearchOption.AllDirectories))
+                    string[] files;
+                    try { files = dir.Length == 0 && !plain ? Directory.GetFiles(d) : Directory.GetFiles(d, "*", SearchOption.AllDirectories); }
+                    catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { n += 7919; continue; }   // a project folder that can't be listed
+                    foreach (var f in files)
                     {
                         var fi = new FileInfo(f);
                         n += fi.Length + f.Length;
@@ -207,7 +285,8 @@ namespace FlareAI.Core.Style
         {
             var n = 0;
             // Never the guide bundled with the plugin: it is read-only, and plugin updates replace it.
-            foreach (var g in Guides().Where(g => _bundled == null || !SamePath(g, _bundled))) n += GuideLayer.Load(g, null, null, "Google").AssignKeys();
+            var guides = (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g) && WhyUnreadable(g) == null);
+            foreach (var g in guides.Where(g => _bundled == null || !SamePath(g, _bundled))) n += GuideLayer.Load(g, null, null, "Google").AssignKeys();
             lock (_gate) _cache.Clear();
             return n;
         }
@@ -293,6 +372,9 @@ namespace FlareAI.Core.Style
 
         /// <summary>The open Flare project when it is the last of <see cref="Layers"/> (its own rules and exceptions), else null.</summary>
         public string ProjectRoot { get; internal set; }
+
+        /// <summary>Why this composition isn't the configured guide (a team guide couldn't be read), or null. See <see cref="StyleEngine.Notice"/>.</summary>
+        public string Notice { get; internal set; }
 
         /// <summary>
         /// What the guides and the project say about a rule, the later one winning: "off", "on" (back on at its own level), a
@@ -588,7 +670,7 @@ namespace FlareAI.Core.Style
             }
             // Override tables must name rules that exist.
             var known = new HashSet<string>(Rules.Select(r => r.Id).Where(x => x != null).Concat(Rules.Select(r => r.Name)).Concat(Items.Select(x => x.Id)), StringComparer.OrdinalIgnoreCase);
-            foreach (var l in Layers)
+            foreach (var l in Layers.Where(x => !x.OverridesOnly))   // the shipped defaults aren't the guide owner's to fix
                 foreach (var o in l.Overrides)
                 {
                     var key = o.Key.IndexOf('.') < 0 && o.Key.IndexOf(':') < 0 ? "Google." + o.Key : o.Key;

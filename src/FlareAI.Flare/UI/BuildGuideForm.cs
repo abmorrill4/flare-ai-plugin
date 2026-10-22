@@ -102,7 +102,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_prefer, "Preferred form", "Pick which form the guide should prefer where the team was split.");
             A11y.Name(detail, "Rule details"); A11y.Name(bar, "Dialog buttons");
             A11y.Apply(this);
-            if (_team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();
+            if (_team != null) _team.Recheck();
             _head.Text = "Proposes rules from what your team already writes and from your notes. Check the ones to keep, then add them to the guide." +
                          (Requesting ? "\n" + _team.AccessNotice : "");
             UpdateAdd();
@@ -265,7 +265,7 @@ namespace FlareAI.Flare.UI
         private void AddToGuide()
         {
             var accepted = _list.CheckedItems.Cast<ListViewItem>().Select(i => (RuleCandidate)i.Tag).ToList();
-            if (_team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();   // before any write: permissions may have changed
+            _team.Recheck();   // before any write: permissions or the owners list may have changed
             if (Requesting) { RequestAdding(accepted, null); return; }
             var root = _team.GuideRoot;
             var topic = Path.Combine(root, @"Content\Resources\StyleGuide\From-our-content.htm");

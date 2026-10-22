@@ -84,10 +84,18 @@ namespace FlareAI.Flare
             }
             catch (Exception ex) { Diagnostics.Log("context menu", ex); }
 
-            state.Debounce.Tick += (s, e) => { state.Debounce.Stop(); LiveCheck(doc, state); };
+            state.Debounce.Tick += (s, e) =>
+            {
+                state.Debounce.Stop();
+                // A project check's fix undone in this file (Ctrl+Z) is live again in the project list.
+                var panel = PanelHost.Current;
+                if (panel != null && panel.IsProjectReport) try { panel.RecheckApplied(); } catch (Exception ex) { Diagnostics.Log("recheck applied", ex); }
+                if (PluginSettings.Load().LiveCheck) LiveCheck(doc, state);
+            };
             doc.ContentChanged += (s, e) =>
             {
-                if (!PluginSettings.Load().LiveCheck) return;
+                var panel = PanelHost.Current;
+                if (!(panel != null && panel.IsProjectReport) && !PluginSettings.Load().LiveCheck) return;
                 state.Debounce.Stop(); state.Debounce.Start();   // a moment after typing stops
             };
             doc.Saved += (s, e) => OnSaved(doc, state);

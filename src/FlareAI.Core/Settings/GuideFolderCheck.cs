@@ -39,16 +39,23 @@ namespace FlareAI.Core.Settings
             {
                 if (!Directory.Exists(path))
                     return Fail(false, "Can't reach this folder: " + path + ". Check the spelling, and that the network, VPN or synced drive (OneDrive, SharePoint, Google Drive) is connected.");
+                var unreadable = StyleEngine.WhyUnreadable(path);
+                if (unreadable != null)
+                    return Fail(false, "Can't read this style guide folder: " + path + " (" + unreadable + "). Ask whoever manages the folder for read access.");
                 var proj = Directory.GetFiles(path, "*.flprj");
                 if (proj.Length == 0)
                     return Fail(true, "This folder isn't a Flare project: " + path + ". Choose the folder that holds the guide's .flprj file.");
+                if (HasGoogleLayer(path)) return Fail(true, GoogleLayerMessage);
                 var rules = GuideLayer.Load(path).Items.Count;
                 var team = Team.Load(path, null, writer);
                 var writable = FolderAccess.CanWrite(path);
                 var name = Path.GetFileNameWithoutExtension(proj[0]);
                 var head = "✓ " + name + " (" + (rules == 0 ? "no rules yet" : rules + (rules == 1 ? " rule" : " rules")) + "). ";
                 string role;
-                if (!team.IsOwner)
+                if (team.OwnersProblem != null)
+                    role = "Read-only for you: House Style can't read the guide's owners list (FlareAI\\owners.txt: " + team.OwnersProblem +
+                           "), so it treats the guide as owner-only and your changes go to its owners as requests.";
+                else if (!team.IsOwner)
                     role = "Read-only for you: only its owners (" + string.Join(", ", new System.Collections.Generic.List<string>(team.Owners).ToArray()) +
                            ") change its rules. Your suggested changes go to them.";
                 else if (!writable)
@@ -64,6 +71,22 @@ namespace FlareAI.Core.Settings
                 Diagnostics.Log("guide folder check", ex);
                 return Fail(false, "Couldn't read this folder: " + path + ". Check that you have access to it.");
             }
+        }
+
+        /// <summary>Why a folder holding Google's guide is refused as a team guide.</summary>
+        public const string GoogleLayerMessage =
+            "This folder holds Google's guide (Content\\Resources\\StyleGuide\\Google), like the style guide that comes with House Style. " +
+            "House Style already uses Google's guide, so it would be loaded twice. Choose your team's own guide folder, " +
+            "or leave this empty to use Google's guide plus your own changes.";
+
+        /// <summary>
+        /// True when the folder contains the Google layer (Content\Resources\StyleGuide\Google): the plugin's bundled guide
+        /// or a full copy of it, which can't be a team guide because Google's rules would load twice.
+        /// </summary>
+        public static bool HasGoogleLayer(string path)
+        {
+            try { return !string.IsNullOrEmpty(path) && Directory.Exists(Path.Combine(path.Trim(), @"Content\Resources\StyleGuide\Google")); }
+            catch (Exception) { return false; }
         }
 
         private static GuideFolderStatus Fail(bool reachable, string message) { return new GuideFolderStatus { Ok = false, Reachable = reachable, Message = message }; }

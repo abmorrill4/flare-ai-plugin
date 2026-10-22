@@ -168,7 +168,7 @@ namespace FlareAI.Flare.UI
             var worker = new BackgroundWorker();
             worker.DoWork += (s, e) =>
             {
-                if (_team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();
+                if (_team != null) _team.Recheck();
                 var requests = new List<GuideRequest>();
                 if (_team != null && _team.IsStrict)
                     try { requests = GuideRequests.Load(_team); } catch (Exception ex) { Diagnostics.Log("style rules: requests", ex); }

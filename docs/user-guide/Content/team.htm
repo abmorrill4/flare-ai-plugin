@@ -6,8 +6,9 @@
     <body>
         <h1>Set up a team</h1>
 <p>A team shares one style guide project and one feedback folder.</p>
+<p>Start the guide from the starter project, the <code>StyleGuide</code> folder in the plugin folder. Copy <code>StyleGuide.flprj</code>, <code>Project</code>, <code>FlareAI</code> and <code>Content/Resources/StyleGuide/Company</code> to the shared folder. Don't copy the <code>Google</code> folder: Google's rules, and the plugin's default changes to them, always come from the plugin, so plugin updates still reach your team. To change a default, add a row for the same rule to your guide's Rule/Setting table; your row wins.</p>
 <table><thead><tr><th>File in the guide project</th><th>What it does</th></tr></thead><tbody>
-<tr><td><code>FlareAI/owners.txt</code></td><td>Lists the writers who may change shared rules. With this file, other writers can't turn rules off. <b>Ignore rule…</b> sends the owners a request instead.</td></tr>
+<tr><td><code>FlareAI/owners.txt</code></td><td>Lists the writers who may change shared rules. With this file, other writers can't turn rules off. <b>Ignore rule…</b> sends the owners a request instead. If a writer can't read this file, House Style treats the guide as owner-only for them and says so in Settings and Tune style guide. Changes to this file and to the folder's permissions apply at the next rule change, without restarting Flare.</td></tr>
 <tr><td><code>FlareAI/layer.txt</code></td><td>A stable name for the guide's rules, so rule references match on every writer's computer.</td></tr>
 <tr><td><code>FlareAI/attribution.txt</code></td><td>One line, <code>attribution = counts</code> (the default) or <code>attribution = names</code>. See <b>What the owner sees</b> below.</td></tr>
 <tr><td><code>FlareAI/models.json</code></td><td>The models and effort every writer uses. See <MadCap:xref href="models.htm">Models and cost</MadCap:xref>.</td></tr>

@@ -141,6 +141,38 @@ namespace FlareAI.Flare.UI
 
         public void Gap(int px) { Y += S(px); }
 
+        /// <summary>
+        /// Sizes a status line to its text (at least <paramref name="minLines"/> lines) and moves everything below it up or
+        /// down, so a short status leaves no gap and a long one isn't cut off. Call after its text changes.
+        /// </summary>
+        public void FitHeight(Control c, int minLines = 1)
+        {
+            Close(); _sealed = true;
+            var text = string.IsNullOrEmpty(c.Text) ? " " : c.Text;
+            var measured = TextRenderer.MeasureText(text, c.Font, new Size(c.Width, 0), TextFormatFlags.WordBreak).Height;
+            var h = Math.Max((c.Font.Height + 1) * minLines, measured) + S(2);
+            var delta = h - c.Height;
+            if (delta == 0) return;
+            var top = c.Top;
+            c.Height = h;
+            foreach (var b in _blocks)
+            {
+                if (b.Items.Contains(c)) b.Height += delta;
+                else if (b.Top > top) b.Top += delta;
+            }
+            foreach (Control o in _host.Controls) if (o != c && o.Top > top) o.Top += delta;
+            Y += delta;
+        }
+
+        /// <summary>The height the visible blocks use now.</summary>
+        public int VisibleHeight()
+        {
+            Close(); _sealed = true;
+            var h = _blocks.Count == 0 ? Y : _blocks[0].Top;
+            foreach (var b in _blocks) if (b.Visible) h += b.Height;
+            return h;
+        }
+
         /// <summary>Lays the blocks out again from the top, skipping hidden ones; returns the height used.</summary>
         public int Reflow()
         {

@@ -259,6 +259,21 @@ namespace FlareAI.Core.Actions
         /// Lints whole files from disk (no AI): every topic/snippet in one linter call per batch. Findings carry the
         /// file path; fixes are applied after opening the file in the editor.
         /// </summary>
+        /// <summary>
+        /// Null normally; when the team's style guide couldn't be read, which folder and why, and that checks used Google's
+        /// guide instead (<see cref="StyleEngine.Notice"/>). Show it with the check's result.
+        /// </summary>
+        public string GuideNotice
+        {
+            get
+            {
+                var engine = _style as StyleEngine;
+                if (engine == null) return null;
+                try { return engine.Notice(_project); }
+                catch (Exception ex) { Diagnostics.Log("guide notice", ex); return null; }
+            }
+        }
+
         public List<StyleFinding> LintFiles(IList<string> paths, Action<int, int> progress = null)
         {
             var findings = new List<StyleFinding>();

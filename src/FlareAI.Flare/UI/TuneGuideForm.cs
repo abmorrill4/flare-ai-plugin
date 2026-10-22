@@ -124,9 +124,9 @@ namespace FlareAI.Flare.UI
                 var rules = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
                 if (_style != null) try { foreach (var r in _style.Rules(_project)) rules[r.Id] = r; } catch (Exception ex) { Diagnostics.Log("tune: rules", ex); }
                 var requests = new List<GuideRequest>();
+                if (_team != null) _team.Recheck();
                 if (_team != null && _team.IsStrict)
                 {
-                    if (!_team.IsPersonal) _team.ProbeGuide();
                     try { requests = GuideRequests.Load(_team).FindAll(r => CanDecide ? r.Status != RequestStatus.Withdrawn : GuideRequests.IsMine(_team, r)); }
                     catch (Exception ex) { Diagnostics.Log("tune: requests", ex); }
                 }

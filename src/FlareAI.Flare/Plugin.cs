@@ -212,7 +212,9 @@ namespace FlareAI.Flare
                 var root = Path.GetDirectoryName(files[0]);
                 while (root != null && Directory.GetFiles(root, "*.flprj").Length == 0) root = Path.GetDirectoryName(root);
                 var name = root == null ? "" : Path.GetFileName(root);
-                PanelHost.Show(FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, files, name), _nav.GetParentForm());
+                var panel = FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, files, name);
+                panel.FindOpen = FindOpenAdapter;
+                PanelHost.Show(panel, _nav.GetParentForm());
             }
             catch (Exception ex)
             {
@@ -224,7 +226,7 @@ namespace FlareAI.Flare
         private void OnSettings()
         {
             bool runSetup;
-            using (var f = new SettingsForm())
+            using (var f = new SettingsForm(PluginDirectory, _updates == null ? null : (Func<string>)_updates.WhyOff))
             {
                 if (f.ShowDialog(Owner) == DialogResult.OK) RefreshTeam();
                 runSetup = f.RunSetupRequested;
@@ -413,7 +415,15 @@ namespace FlareAI.Flare
                 // Turned-off rules: the guides in effect (the read-only one in the plugin folder lists its defaults, which the
                 // writer turns back on with a row in their own guide) and the open project.
                 var pluginDir = PluginDirectory;
-                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir);
+                // A team guide gets the bundled defaults too (StyleEngine layers them before it), so they are listed first.
+                Func<IList<string>> roots = () =>
+                {
+                    var list = settings.GuideRoots(pluginDir);
+                    var hasBundled = false;
+                    foreach (var r in list) hasBundled |= PluginSettings.IsUnder(r, pluginDir);
+                    if (!hasBundled) list.Insert(0, PluginSettings.BundledGuide(pluginDir));
+                    return list;
+                };
                 Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
                 using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault,
@@ -608,7 +618,11 @@ namespace FlareAI.Flare
             if (_style == null || _styleKey != key)
             {
                 var pluginDir = PluginDirectory;
-                _style = new StyleEngine(() => settings.GuideRoots(pluginDir), PluginSettings.BundledGuide(pluginDir));
+                // A team guide that can't be read: check with the bundled guide plus the writer's own changes, and say so.
+                _style = new StyleEngine(() => settings.GuideRoots(pluginDir), PluginSettings.BundledGuide(pluginDir))
+                {
+                    Fallback = () => new PluginSettings { StyleLayers = "" }.GuideRoots(pluginDir)
+                };
                 _styleKey = key;
             }
             return _style;
@@ -618,7 +632,7 @@ namespace FlareAI.Flare
 
         private void ShowFindings(FlareDocumentAdapter adapter, ActionRunner runner, bool aiOnStart)
         {
-            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart), _nav.GetParentForm());
+            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart) { FindOpen = FindOpenAdapter, OpenSettings = OnSettings }, _nav.GetParentForm());
         }
 
         /// <summary>
@@ -688,6 +702,23 @@ namespace FlareAI.Flare
                 Diagnostics.Log("open " + path, ex);
                 return null;
             }
+        }
+
+        /// <summary>The document at <paramref name="path"/> if it is open in Flare (a fresh adapter: its current DOM), else null. Never opens or activates it.</summary>
+        private IDocumentAdapter FindOpenAdapter(string path)
+        {
+            try
+            {
+                var ctx = _host.GetEditorContext();
+                if (ctx == null) return null;
+                foreach (var d in ctx.GetDocuments())
+                {
+                    var open = d as IDocument;
+                    if (open != null && string.Equals(open.GetSourceUrl(), path, StringComparison.OrdinalIgnoreCase)) return new FlareDocumentAdapter(open);
+                }
+            }
+            catch (Exception ex) { Diagnostics.Log("find open " + path, ex); }
+            return null;
         }
 
         private FlareDocumentAdapter ActiveAdapter()

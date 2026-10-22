@@ -22,6 +22,24 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void WithAiOff_CachedAiSuggestionsAreHidden_AndTheNoteIsDue()
+        {
+            var cache = new ReviewCache(10, null);
+            cache.Put("topic", new List<StyleFinding> { new StyleFinding { Source = "ai", Rule = "Setting — rewrite", Excerpt = "x", Replacement = "y" } });
+            bool hidden;
+
+            Assert.Null(cache.Shown("topic", true, out hidden));    // AI off ("No AI" in setup): earlier AI review not shown
+            Assert.True(hidden);
+            Assert.Equal("AI is off; earlier AI suggestions are hidden.", ReviewCache.AiOffNote);
+
+            Assert.Null(cache.Shown("other", true, out hidden));    // nothing was hidden: no note
+            Assert.False(hidden);
+
+            Assert.Single(cache.Shown("topic", false, out hidden)); // AI on again: the earlier review is back
+            Assert.False(hidden);
+        }
+
+        [Fact]
         public void SavedReviewsLoadInANewSession()
         {
             var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "flareai-cache-" + System.Guid.NewGuid() + ".json");

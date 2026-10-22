@@ -43,6 +43,8 @@ namespace FlareAI.Core.Actions
         private readonly bool _project;
         private readonly List<StyleFinding> _findings = new List<StyleFinding>();
         private readonly Dictionary<string, int> _usage = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Other files this session wrote fixes in that stayed open in the editor (their undo history is there).</summary>
+        private readonly Dictionary<string, IDocumentAdapter> _writtenIn = new Dictionary<string, IDocumentAdapter>(StringComparer.OrdinalIgnoreCase);
         private HashSet<string> _ignoredAi;
         private HashSet<string> _requested = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> _skippedRules = new HashSet<string>(StringComparer.Ordinal);
@@ -74,6 +76,12 @@ namespace FlareAI.Core.Actions
         public Func<string, string> WhyNotWritable { get; set; } = BatchPlan.WhyNotWritable;
         /// <summary>How many topics use a snippet.</summary>
         public Func<string, int> SnippetUsage { get; set; } = ActionRunner.SnippetUsage;
+        /// <summary>
+        /// The document at a path when it is open in the editor, with its current DOM, without opening or activating it;
+        /// null when it isn't open. Used to notice that a fix written in another file was undone there (Ctrl+Z). Null: the
+        /// documents this session wrote in are asked directly.
+        /// </summary>
+        public Func<string, IDocumentAdapter> OpenedDocument { get; set; }
         /// <summary>Sends a request to the owners; returns why it only reached the outbox, or null when it was delivered.</summary>
         public Func<Team, GuideRequest, string> SendRequest { get; set; } = (team, r) => { string problem; GuideRequests.Send(team, r, out problem); return problem; };
         /// <summary>The writer's request check (outcomes, approved project exceptions, rules still waiting).</summary>
@@ -289,13 +297,15 @@ namespace FlareAI.Core.Actions
         public int RecheckApplied()
         {
             var revived = 0; var stale = 0;
+            var doms = new Dictionary<string, XmlDocument>(StringComparer.OrdinalIgnoreCase);
             foreach (var f in _findings)
             {
                 if (!f.IsFixed || !f.Written || f.Replacement == null || string.IsNullOrEmpty(f.Excerpt)) continue;
-                if (f.DocumentPath != null && !string.Equals(f.DocumentPath, _doc.SourcePath, StringComparison.OrdinalIgnoreCase)) continue;   // another file: not our DOM
+                var dom = DomOf(f, doms);   // the topic, or another file (a project check, a snippet) while it is open
+                if (dom == null) continue;
                 XmlText run; int start; bool exact;
-                if (!FindingLocator.TryLocate(_doc.Document, f, out run, out start, out exact)) continue;
-                if (!exact && AppliedTextPresent(f)) continue;   // the same words elsewhere; our fix is still in place
+                if (!FindingLocator.TryLocate(dom, f, out run, out start, out exact)) continue;
+                if (!exact && AppliedTextPresent(f, dom)) continue;   // the same words elsewhere; our fix is still in place
                 f.IsFixed = false; f.Written = false;
                 f.IsStale = f.ContextChanged = !exact;
                 if (exact) revived++; else stale++;
@@ -306,12 +316,37 @@ namespace FlareAI.Core.Actions
             return revived + stale;
         }
 
+        /// <summary>
+        /// The current DOM of the file an applied fix lives in: the checked topic, or another file that is still open in the
+        /// editor (asked through <see cref="OpenedDocument"/>, else the document the fix was written in). Null when that file
+        /// isn't open any more: its undo history is gone, so the fix stays applied.
+        /// </summary>
+        private XmlDocument DomOf(StyleFinding f, Dictionary<string, XmlDocument> seen)
+        {
+            var path = f.DocumentPath;
+            if (path == null) return _doc.Document;
+            var checkedTopic = string.Equals(path, _doc.SourcePath, StringComparison.OrdinalIgnoreCase);
+            XmlDocument dom;
+            if (seen.TryGetValue(path, out dom)) return dom;
+            try
+            {
+                IDocumentAdapter d = null;
+                if (OpenedDocument != null) d = OpenedDocument(path);
+                else if (!_writtenIn.TryGetValue(path, out d) && checkedTopic) d = _doc;
+                dom = d == null ? (checkedTopic ? _doc.Document : null) : d.Document;
+            }
+            catch (Exception ex) { Diagnostics.Log("recheck applied: " + path, ex); dom = null; }
+            if (dom == null) _writtenIn.Remove(path);
+            seen[path] = dom;
+            return dom;
+        }
+
         /// <summary>The fix's new text, preceded by a few characters of its old context, is in the finding's paragraph.</summary>
-        private bool AppliedTextPresent(StyleFinding f)
+        private bool AppliedTextPresent(StyleFinding f, XmlDocument dom)
         {
             var scope = new List<XmlNode>();
             if (f.Block != null && TextRuns.BlockOf(f.Block) == f.Block) scope.Add(f.Block);
-            else { var body = BlockSelector.FindBody(_doc.Document); if (body != null) scope.Add(body); }
+            else { var body = BlockSelector.FindBody(dom); if (body != null) scope.Add(body); }
             var sb = new System.Text.StringBuilder();
             foreach (var r in TextRuns.Of(scope)) sb.Append(r.Value);
             var before = f.Before ?? "";
@@ -597,6 +632,8 @@ namespace FlareAI.Core.Actions
                     try { saved = _host.SaveAndClose(doc); }
                     catch (Exception ex) { Diagnostics.Log("Apply: save/close " + doc.SourcePath, ex); }
                 }
+                // A file left open keeps its undo history: remember it, so a Ctrl+Z there brings the suggestion back.
+                if (doc != _doc) { if (saved) _writtenIn.Remove(path); else if (n > 0) _writtenIn[path] = doc; }
                 if (n > 0) result.AddChanged(path, n, saved);
                 if (n < group.Count) result.AddSkipped(path, group.Count - n, "text changed");
             }
@@ -765,7 +802,7 @@ namespace FlareAI.Core.Actions
             var f = Current;
             if (f == null) { Status = "Select a suggestion whose rule you want to change."; return; }
             var team = CurrentTeam();
-            if (team != null && team.IsStrict && !team.IsPersonal) team.ProbeGuide();   // before any write: permissions may have changed
+            if (team != null) team.Recheck();   // before any write: permissions or the owners list may have changed
             if (team != null && team.ChangesNeedRequest) { RequestChange(f, team, null); return; }
             // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
             var rule = _runner.RuleFor(f.RuleId);
