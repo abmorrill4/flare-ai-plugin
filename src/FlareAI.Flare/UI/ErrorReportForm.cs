@@ -51,7 +51,7 @@ namespace FlareAI.Flare.UI
             // Right to left: Don't Send at the right edge, then Send to its left.
             Bar.Controls.SetChildIndex(dontSend, 0);
             Bar.Controls.SetChildIndex(_send, 1);
-            _send.TabIndex = 0; dontSend.TabIndex = 1; SaveReport.TabIndex = 2;
+            TabOrder(_send, dontSend);
             AcceptButton = _send; CancelButton = dontSend;
             _note.TextChanged += (s, e) => { if (_details.Visible) _details.Text = Json(); };
             FormClosed += (s, e) => SaveChoice();

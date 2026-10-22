@@ -28,16 +28,21 @@ namespace FlareAI.Flare.UI
         protected readonly FlowLayoutPanel Bar;
         /// <summary>Under the rows: "Sending…", or why the report wasn't sent.</summary>
         protected readonly Label Status;
-        /// <summary>Saves the report as a zip; shown when sending failed.</summary>
-        protected readonly Button SaveReport;
+        /// <summary>
+        /// Shown when sending failed and the report is saved: "Open GitHub Issues", or "Email Report" when IT set an address
+        /// in settings (ReportEmail).
+        /// </summary>
+        protected readonly Button SendElsewhere;
+        /// <summary>Shown with <see cref="SendElsewhere"/>: opens Documents\House Style Reports with the zip selected.</summary>
+        protected readonly Button OpenFolder;
 
-        /// <summary>Opens a saved report's folder or an email draft. Tests replace it so nothing opens.</summary>
-        public static Action<string, string> OpenSaved = DefaultOpenSaved;
+        /// <summary>Opens a URL, a mailto: link or "explorer /select" for a saved report. Tests replace it so nothing opens.</summary>
+        public static Action<string> Launch = DefaultLaunch;
 
-        /// <summary>Where Save Report writes; null is Documents\House Style Reports. Tests point it at a temp folder.</summary>
+        /// <summary>Where a report that couldn't be sent is saved; null is Documents\House Style Reports. Tests use a temp folder.</summary>
         public static string SaveFolder;
 
-        /// <summary>The path of the last zip Save Report wrote (null until then).</summary>
+        /// <summary>The zip the report was saved in when it couldn't be sent (null until then).</summary>
         public string SavedPath { get; private set; }
 
         /// <summary>The service's answer once sent.</summary>
@@ -58,9 +63,11 @@ namespace FlareAI.Flare.UI
             Font = Math.Abs(_scale - dpi) < 0.01f ? font : new Font(font.FontFamily, font.SizeInPoints * _scale / dpi, font.Style);
 
             Status = new LiveLabel { AutoSize = false, Visible = false, ForeColor = SystemColors.ControlText };
-            SaveReport = new Button { Text = "Save Report", AutoSize = true, Visible = false };
-            SaveReport.Click += (s, e) => Safe.Run("Save Report", SaveAsZip);
-            A11y.Name(SaveReport, "Save Report", "Saves the report as a zip file in Documents\\House Style Reports.");
+            SendElsewhere = new Button { Text = ReportZip.OpenIssuesLabel, AutoSize = true, Visible = false };
+            SendElsewhere.Click += (s, e) => Safe.Run(SendElsewhere.Text, () => { var mail = Mailto; Launch(mail ?? ReportZip.IssuesUrl); });
+            OpenFolder = new Button { Text = ReportZip.OpenFolderLabel, AutoSize = true, Visible = false };
+            OpenFolder.Click += (s, e) => Safe.Run(ReportZip.OpenFolderLabel, () => { if (SavedPath != null) Launch(ReportZip.SelectInFolder(SavedPath)); });
+            A11y.Name(OpenFolder, ReportZip.OpenFolderLabel, "Opens Documents\\House Style Reports with the report selected.");
             Bar = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, WrapContents = true, AutoSize = false, Margin = Padding.Empty, Padding = Padding.Empty };
             Controls.Add(Bar);
         }
@@ -144,13 +151,31 @@ namespace FlareAI.Flare.UI
             return b;
         }
 
-        /// <summary>Adds the status line and Save Report; call after the rows.</summary>
+        /// <summary>Adds the status line and the buttons for a report that couldn't be sent; call after the rows.</summary>
         protected void FinishRows()
         {
             Row(Status, 6);
             ShowRow(Status, false);
-            Bar.Controls.Add(SaveReport);
-            SaveReport.Margin = new Padding(S(8), 0, 0, 0);
+            foreach (var b in new[] { OpenFolder, SendElsewhere })
+            {
+                Bar.Controls.Add(b);
+                b.Margin = new Padding(S(8), 0, 0, 0);
+            }
+        }
+
+        /// <summary>Puts the dialog's own buttons first in tab order, then Open GitHub Issues and Open Folder.</summary>
+        protected void TabOrder(params Control[] first)
+        {
+            var i = 0;
+            foreach (var c in first) c.TabIndex = i++;
+            SendElsewhere.TabIndex = i++;
+            OpenFolder.TabIndex = i;
+        }
+
+        /// <summary>The email draft for a saved report, when IT set an address in settings; null otherwise.</summary>
+        private string Mailto
+        {
+            get { return SavedPath == null ? null : ReportZip.MailtoLink(PluginSettings.Load().ReportEmail, SavedPath); }
         }
 
         /// <summary>Places the visible rows top to bottom, then the button bar, and sizes the dialog to fit.</summary>
@@ -253,9 +278,7 @@ namespace FlareAI.Flare.UI
             Diagnostics.Log("Feedback " + path + ": " + r);
             SetBusy(false);
             if (r.Ok) { Result = r; OnSent(r); return; }
-            Status.Text = "House Style couldn't send the report.";
-            SaveReport.Visible = true;
-            SaveReport.Enabled = true;
+            SaveAsZip();
             Relayout();
             OnSendFailed(r);
             Result = r;
@@ -268,7 +291,7 @@ namespace FlareAI.Flare.UI
             Close();
         }
 
-        /// <summary>The report didn't arrive; the status and Save Report are showing.</summary>
+        /// <summary>The report didn't arrive; it is saved, and the status says where to send it.</summary>
         protected virtual void OnSendFailed(FeedbackResult result) { }
 
         /// <summary>Locks the inputs while sending.</summary>
@@ -279,33 +302,35 @@ namespace FlareAI.Flare.UI
             foreach (Control b in Bar.Controls) b.Enabled = !busy;
         }
 
+        /// <summary>
+        /// Saves the report that couldn't be sent as a zip and says where to send it: a new GitHub issue, or the email
+        /// address IT set in settings.
+        /// </summary>
         private void SaveAsZip()
         {
-            var json = _sentJson ?? Json();
             try
             {
-                SavedPath = ReportZip.Save(json, SaveFolder);
-                Diagnostics.Log("Feedback saved as " + SavedPath);
-                Status.Text = "The report is saved in Documents\\" + ReportZip.FolderName + ".";
-                SaveReport.Enabled = false;
-                Relayout();
-                var mail = ReportZip.MailtoLink(PluginSettings.Load().ReportEmail, SavedPath);
-                OpenSaved(SavedPath, mail);
+                SavedPath = ReportZip.Save(_sentJson ?? Json(), SaveFolder);
+                Diagnostics.Log("Feedback saved as a zip");
+                var email = Mailto != null;
+                Status.Text = email ? ReportZip.SavedForEmail : ReportZip.SavedForGitHub;
+                SendElsewhere.Text = email ? ReportZip.EmailLabel : ReportZip.OpenIssuesLabel;
+                A11y.Name(SendElsewhere, SendElsewhere.Text, email ? "Opens an email to your IT department. Attach the saved report." : "Opens a new issue on GitHub. Attach the saved report.");
+                SendElsewhere.Visible = OpenFolder.Visible = true;
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("save report", ex);
-                Status.Text = "House Style couldn't save the report in Documents\\" + ReportZip.FolderName + ".";
-                Relayout();
+                Status.Text = ReportZip.NotSaved;
             }
         }
 
-        private static void DefaultOpenSaved(string zip, string mailto)
+        private static void DefaultLaunch(string target)
         {
             try
             {
-                if (mailto != null) System.Diagnostics.Process.Start(mailto);
-                System.Diagnostics.Process.Start("explorer.exe", "/select,\"" + zip + "\"");
+                if (target.StartsWith("/select,", StringComparison.Ordinal)) System.Diagnostics.Process.Start("explorer.exe", target);
+                else System.Diagnostics.Process.Start(target);
             }
             catch (Exception ex) { Diagnostics.Log("open saved report", ex); }
         }

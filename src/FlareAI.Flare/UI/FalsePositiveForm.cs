@@ -44,7 +44,7 @@ namespace FlareAI.Flare.UI
             _send = AddButton("Send", (s, e) => Send(), "Sends the rule, the flagged words and your reason.");
             Bar.Controls.SetChildIndex(cancel, 0);
             Bar.Controls.SetChildIndex(_send, 1);
-            _send.TabIndex = 0; cancel.TabIndex = 1; SaveReport.TabIndex = 2;
+            TabOrder(_send, cancel);
             CancelButton = cancel;
             _send.Enabled = false;
             foreach (var r in _reasons) r.CheckedChanged += (s, e) => _send.Enabled = Reason != null;

@@ -15,6 +15,17 @@ namespace FlareAI.Flare
     {
         public const string FolderName = "House Style Reports";
 
+        /// <summary>Where a saved report goes when there is no email address for it: a new issue on the project.</summary>
+        public const string IssuesUrl = "https://github.com/abmorrill4/flare-ai-plugin/issues/new";
+
+        public const string SavedForGitHub = "House Style couldn't send the report. It's saved in Documents\\House Style Reports. Attach it to a new issue on GitHub.";
+        public const string SavedForEmail = "House Style couldn't send the report. It's saved in Documents\\House Style Reports. Attach it to the email.";
+        public const string NotSaved = "House Style couldn't send the report or save it in Documents\\House Style Reports.";
+        public const string OpenIssuesLabel = "Open GitHub Issues", EmailLabel = "Email Report", OpenFolderLabel = "Open Folder";
+
+        /// <summary>The explorer.exe arguments that open the folder with the zip selected.</summary>
+        public static string SelectInFolder(string zipPath) { return "/select,\"" + zipPath + "\""; }
+
         /// <summary>Documents\House Style Reports.</summary>
         public static string DefaultFolder
         {

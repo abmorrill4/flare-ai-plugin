@@ -19,19 +19,20 @@ namespace FlareAI.Flare.Tests
     /// <summary>
     /// The feedback dialogs (issue #124) laid out for real at 100% and 125%: nothing cut off or overlapping, the wording
     /// the owner approved, Details and the false-positive reasons showing exactly what is sent, and the send step against
-    /// a local mock of the service (sent, then a 502 with Save Report). Nothing contacts the real service.
+    /// a local mock of the service (sent, then a 502: saved, with Open GitHub Issues and Open Folder). Nothing contacts the real service.
     /// </summary>
     [Collection("Panes")]
     public class FeedbackUiTests : IDisposable
     {
         private readonly string _dir = Path.Combine(Path.GetTempPath(), "hs-fbui-" + Guid.NewGuid().ToString("N"));
+        private readonly List<string> _launched = new List<string>();
         private readonly string _oldUrl = Environment.GetEnvironmentVariable(PluginSettings.FeedbackUrlEnvVar);
 
         public FeedbackUiTests()
         {
             Directory.CreateDirectory(_dir);
             FeedbackForm.SaveFolder = Path.Combine(_dir, "reports");
-            FeedbackForm.OpenSaved = (zip, mail) => { };
+            FeedbackForm.Launch = t => _launched.Add(t);
         }
 
         public void Dispose()
@@ -156,7 +157,7 @@ namespace FlareAI.Flare.Tests
         }
 
         [Fact]
-        public void Send_ReachesTheService_AndAFailure_OffersSaveReport()
+        public void Send_ReachesTheService_AndAFailure_IsSaved_WithWhereToSendIt()
         {
             Sta(() =>
             {
@@ -183,19 +184,21 @@ namespace FlareAI.Flare.Tests
                     {
                         f.Show();
                         Pump(null, 100);
-                        Assert.False(Button(f, "Save Report").Visible);
+                        Assert.False(Button(f, "Open GitHub Issues").Visible);
                         Button(f, "Send").PerformClick();
                         Pump(() => f.Result != null, 15000);
                         Pump(null, 50);
                         Assert.False(f.Result.Ok);
-                        Assert.Contains("House Style couldn't send the report.", All(f).OfType<Label>().Where(l => l.Visible).Select(l => l.Text));
-                        var save = Button(f, "Save Report");
-                        Assert.True(save.Visible && save.Enabled);
-                        Assert.Equal(new[] { "Save Report", "Try Again", "Don't Send" }, VisibleButtonsLeftToRight(f).Where(b => b != "Show Details").ToArray());
-                        CheckFits(f, "after a failed send");
-                        save.PerformClick();
+                        // Saved at once, and the dialog says where to send it.
                         Assert.True(File.Exists(f.SavedPath));
                         Assert.StartsWith(Path.Combine(_dir, "reports"), f.SavedPath);
+                        Assert.Contains("House Style couldn't send the report. It's saved in Documents\\House Style Reports. Attach it to a new issue on GitHub.",
+                                        All(f).OfType<Label>().Where(l => l.Visible).Select(l => l.Text));
+                        Assert.Equal(new[] { "Open GitHub Issues", "Open Folder", "Try Again", "Don't Send" }, VisibleButtonsLeftToRight(f).Where(b => b != "Show Details").ToArray());
+                        CheckFits(f, "after a failed send");
+                        Button(f, "Open GitHub Issues").PerformClick();
+                        Button(f, "Open Folder").PerformClick();
+                        Assert.Equal(new[] { "https://github.com/abmorrill4/flare-ai-plugin/issues/new", "/select,\"" + f.SavedPath + "\"" }, _launched.ToArray());
                     }
                 }
             });

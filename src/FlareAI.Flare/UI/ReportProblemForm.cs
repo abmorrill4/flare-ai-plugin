@@ -33,7 +33,7 @@ namespace FlareAI.Flare.UI
             Bar.Controls.SetChildIndex(cancel, 0);
             Bar.Controls.SetChildIndex(_send, 1);
             Bar.Controls.SetChildIndex(_preview, 2);
-            _send.TabIndex = 0; cancel.TabIndex = 1; _preview.TabIndex = 2; SaveReport.TabIndex = 3;
+            TabOrder(_send, cancel, _preview);
             CancelButton = cancel;
             _send.Enabled = false;
             _what.TextChanged += (s, e) => _send.Enabled = _what.Text.Trim().Length > 0;

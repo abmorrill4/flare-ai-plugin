@@ -17,7 +17,6 @@ namespace FlareAI.Flare
     internal static class ErrorReporter
     {
         public const string SentNotice = "House Style sent an error report.";
-        public const string NotSentNotice = "House Style couldn't send the error report.";
 
         /// <summary>
         /// A bug found where the writer didn't ask for anything (background work, editor events): reported only when the
@@ -66,7 +65,7 @@ namespace FlareAI.Flare
             }
         }
 
-        /// <summary>Automatic reports: sent in the background, then a short notice (Save Report on it when it failed).</summary>
+        /// <summary>Automatic reports: sent in the background, then a short notice; when it failed, it is saved and the notice says where to send it.</summary>
         private static void SendInBackground(IWin32Window owner, string json)
         {
             var url = PluginSettings.Load().EffectiveFeedbackUrl;
@@ -86,11 +85,14 @@ namespace FlareAI.Flare
             var r = e.Error != null ? new FeedbackResult { Failure = FeedbackFailure.Network, Error = e.Error.Message } : (FeedbackResult)e.Result;
             Diagnostics.Log("Automatic error report: " + r);
             if (r.Ok) { Toast.Show(form, SentNotice); return; }
-            Toast.Show(form, NotSentNotice, "Save Report", () => Safe.Run("Save Report", () =>
-            {
-                var path = ReportZip.Save(json, FeedbackForm.SaveFolder);
-                FeedbackForm.OpenSaved(path, ReportZip.MailtoLink(PluginSettings.Load().ReportEmail, path));
-            }));
+            // Saved at once, then the notice says where to send it: a new GitHub issue, or IT's address from settings.
+            string path;
+            try { path = ReportZip.Save(json, FeedbackForm.SaveFolder); }
+            catch (Exception ex) { Diagnostics.Log("save automatic report", ex); Toast.Show(form, ReportZip.NotSaved); return; }
+            var mail = ReportZip.MailtoLink(PluginSettings.Load().ReportEmail, path);
+            Toast.Show(form, mail != null ? ReportZip.SavedForEmail : ReportZip.SavedForGitHub,
+                       mail != null ? ReportZip.EmailLabel : ReportZip.OpenIssuesLabel, () => FeedbackForm.Launch(mail ?? ReportZip.IssuesUrl),
+                       ReportZip.OpenFolderLabel, () => FeedbackForm.Launch(ReportZip.SelectInFolder(path)));
         }
 
         private static Form FormOf(IWin32Window owner)
