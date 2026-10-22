@@ -4,6 +4,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace FlareAI.Core.Update
 {
@@ -22,8 +23,9 @@ namespace FlareAI.Core.Update
     }
 
     /// <summary>
-    /// Downloads a release into <c>staged\</c>, proves it is the file the release published, and unpacks it:
-    /// SHA-256 of the zip must match the release's <c>checksums.txt</c>; when the new FlareAI.Flare.dll is signed its
+    /// Downloads a release into <c>staged\</c>, proves it is the file House Style published, and unpacks it:
+    /// <c>checksums.txt</c> must carry a valid signature by the release key (<see cref="UpdateSigning"/>), and the
+    /// SHA-256 of the zip must match it; when the new FlareAI.Flare.dll is signed its
     /// Authenticode signature must verify, and when the running plugin is signed the new one must be too. The payload
     /// must look like the plugin (FlareAI.Flare.dll of the announced version, FlareAI.Core.dll, the updater).
     /// Anything wrong: the download is deleted and an <see cref="UpdateException"/> says why.
@@ -44,6 +46,8 @@ namespace FlareAI.Core.Update
         public int TimeoutMs { get; set; }
         /// <summary>The running plugin folder; when its DLL is signed, unsigned updates are refused. Null skips that rule.</summary>
         public string RunningPluginDir { get; set; }
+        /// <summary>The release key's public half; replaceable in tests.</summary>
+        public string PublicKeyXml { get; set; } = UpdateSigning.PublicKeyXml;
         /// <summary>Signature check; replaceable in tests.</summary>
         public Func<string, SignatureStatus> CheckSignature = Authenticode.Check;
 
@@ -67,6 +71,13 @@ namespace FlareAI.Core.Update
                 string checksums;
                 try { checksums = UpdateCheck.Get(release.ChecksumsUrl, TimeoutMs); }
                 catch (Exception ex) { throw new UpdateException("Couldn't download the checksums of the update (" + ex.Message + ").", ex); }
+                // The checksums prove the zip; the signature proves the checksums came from House Style's release key.
+                if (release.SignatureUrl == null) throw new UpdateException("The update isn't signed by House Style, so it was discarded.");
+                string signature;
+                try { signature = UpdateCheck.Get(release.SignatureUrl, TimeoutMs); }
+                catch (Exception ex) { throw new UpdateException("Couldn't download the signature of the update (" + ex.Message + ").", ex); }
+                if (!UpdateSigning.Verify(Encoding.UTF8.GetBytes(checksums), signature, PublicKeyXml))
+                    throw new UpdateException("The update's signature doesn't match House Style's release key, so it was discarded.");
                 var expected = ExpectedHash(checksums, Path.GetFileName(zip));
                 if (expected == null) throw new UpdateException("The release's checksums.txt has no entry for " + Path.GetFileName(zip) + ".");
 

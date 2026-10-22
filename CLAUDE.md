@@ -28,7 +28,11 @@ A MadCap Flare Desktop plugin (`src/FlareAI.Flare`, net40) over a Flare-agnostic
 - `ref/` holds compile-only stubs of the Flare API members the plugin uses (generated, never shipped); the build uses
   them when `lib\B3.PluginAPIKit.dll` is absent (CI). After using a new Flare API member, regenerate:
   `dotnet run --project tools/FlareAI.RefStubs -- src/FlareAI.Flare/bin/Release/net48/FlareAI.Flare.dll lib <net48 ref dir> ref`.
-  Packaging excludes every `B3.*` file. Releases: push a `v*` tag; CI builds, tests and publishes the zip with `checksums.txt`.
+  Packaging excludes every `B3.*` file. Releases: push a `v*` tag on a commit in `main`; CI builds and tests, then the
+  `release` job (environment `release`: the owner approves it in Actions) signs `checksums.txt` with the
+  `UPDATE_SIGNING_KEY` secret and publishes zip, `checksums.txt` and `checksums.txt.sig`. Installed copies refuse an
+  update whose signature doesn't match `UpdateSigning.PublicKeyXml`. The key's backup is DPAPI-encrypted at
+  `%APPDATA%\HouseStyle-release\update-signing-key.dpapi` on the maintainer's machine; never commit or print it.
 
 ## Commands
 ```powershell

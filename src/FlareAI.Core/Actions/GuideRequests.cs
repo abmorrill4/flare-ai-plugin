@@ -192,8 +192,10 @@ namespace FlareAI.Core.Actions
             if (r == null) throw new ArgumentNullException("r");
             if (string.IsNullOrEmpty(r.Reason)) throw new ArgumentException("A request needs a reason.");
             problem = null;
+            if (!IsValidId(r.Id)) throw new ArgumentException("A request id is letters, digits, dots, dashes and underscores.");
             var json = JsonConvert.SerializeObject(r, Formatting.Indented);
-            Remember(l => l.Mine.Add(r.Id));
+            // The local copy is what this machine applies later: the shared file can be rewritten by anyone with the folder.
+            Remember(l => { l.Mine.Add(r.Id); l.Sent[r.Id] = JsonConvert.DeserializeObject<GuideRequest>(json); });
             var folder = Folder(team);
             if (folder == null) problem = "no team feedback folder is set in Settings, so the owners can't receive requests";
             else
@@ -236,15 +238,17 @@ namespace FlareAI.Core.Actions
                     try
                     {
                         var text = ReadShared(file);
+                        var name = Path.GetFileName(file);
+                        // Anyone with the folder can drop a file here: only well-formed ids, each in the file named after it.
                         if (file.EndsWith(DecisionSuffix, StringComparison.OrdinalIgnoreCase))
                         {
                             var d = JsonConvert.DeserializeObject<RequestDecision>(text);
-                            if (d != null && d.Id != null) decisions[d.Id] = d;
+                            if (d != null && IsValidId(d.Id) && string.Equals(name, d.Id + DecisionSuffix, StringComparison.OrdinalIgnoreCase)) decisions[d.Id] = d;
                         }
                         else
                         {
                             var r = JsonConvert.DeserializeObject<GuideRequest>(text);
-                            if (r != null && r.Id != null) list.Add(r);
+                            if (r != null && IsValidId(r.Id) && string.Equals(name, r.Id + ".json", StringComparison.OrdinalIgnoreCase)) list.Add(r);
                         }
                     }
                     catch (Exception ex) { Diagnostics.Log("request " + file, ex); }   // a file still syncing: read it next time
@@ -257,7 +261,7 @@ namespace FlareAI.Core.Actions
                     try
                     {
                         var r = JsonConvert.DeserializeObject<GuideRequest>(File.ReadAllText(file, Encoding.UTF8));
-                        if (r != null && r.Id != null && !list.Exists(x => x.Id == r.Id)) { r.Unsent = true; list.Add(r); }
+                        if (r != null && IsValidId(r.Id) && !list.Exists(x => x.Id == r.Id)) { r.Unsent = true; list.Add(r); }
                     }
                     catch (Exception ex) { Diagnostics.Log("request outbox " + file, ex); }
                 }
@@ -315,6 +319,7 @@ namespace FlareAI.Core.Actions
         private static RequestDecision Decide(Team team, GuideRequest r, string status, RequestDecision d, Action<GuideRequest, RequestDecision> apply)
         {
             if (r == null) throw new ArgumentNullException("r");
+            if (!IsValidId(r.Id)) throw new ArgumentException("This request's id isn't valid, so it can't be decided.");
             if (status != RequestStatus.Withdrawn && team != null && team.IsStrict && !team.IsListedOwner)
                 throw new UnauthorizedAccessException("Only the style guide owners (" + team.OwnerNames + ") can decide requests.");
             var folder = Folder(team);
@@ -370,14 +375,20 @@ namespace FlareAI.Core.Actions
                     result.Notices.Add("Style guide request " + (r.Status == RequestStatus.Approved ? "approved" : "declined") + ": " + r.Title + ". " + r.Outcome + ".");
                     ledger.Seen.Add(r.Id); changed = true;
                 }
-                if (r.Status == RequestStatus.Approved && r.Kind == RequestKinds.ProjectException && !ledger.Applied.Contains(r.Id))
+                // Only a request this machine sent, as it was sent: the shared folder proves nothing about who wrote a file in it.
+                if (r.Status == RequestStatus.Approved && r.Kind == RequestKinds.ProjectException && !ledger.Applied.Contains(r.Id) && ledger.Mine.Contains(r.Id))
                 {
+                    GuideRequest sent;
+                    var local = ledger.Sent.TryGetValue(r.Id, out sent) && sent != null && sent.Kind == RequestKinds.ProjectException ? sent : null;
+                    // Sent before local copies were kept: the shared copy, but never a network path.
+                    if (local == null && IsNetworkPath(r.ProjectPath)) continue;
+                    var apply = local ?? r;
                     try
                     {
-                        if (ApplyProjectException(r, r.Decision))
+                        if (ApplyProjectException(apply, r.Decision))
                         {
                             ledger.Applied.Add(r.Id); changed = true;
-                            result.Notices.Add("The approved exception is now in " + ProjectRules.OverridesPath(r.ProjectPath) + ".");
+                            result.Notices.Add("The approved exception is now in " + ProjectRules.OverridesPath(apply.ProjectPath) + ".");
                         }
                     }
                     catch (Exception ex) { Diagnostics.Log("apply approved exception " + r.Id, ex); }
@@ -395,9 +406,23 @@ namespace FlareAI.Core.Actions
         {
             if (string.IsNullOrEmpty(r.ProjectPath) || ProjectRules.OverridesPath(r.ProjectPath) == null) return false;
             var note = r.Reason + (d != null && !string.IsNullOrEmpty(d.Note) ? " Owner: " + d.Note : "");
-            ProjectRules.Ignore(r.ProjectPath, new StyleFinding { RuleId = r.RuleId, Rule = r.Rule, Layer = r.Layer }, (d != null ? d.Setting : null) ?? r.Setting ?? "off",
+            var setting = (d != null ? d.Setting : null) ?? r.Setting ?? "off";
+            if (!Settings.Contains(setting)) throw new InvalidOperationException("Unknown level in an approved exception: " + setting);
+            ProjectRules.Ignore(r.ProjectPath, new StyleFinding { RuleId = r.RuleId, Rule = r.Rule, Layer = r.Layer }, setting,
                                 RuleOverrides.WithRequest(note, r.Id), d != null ? d.By : null);
             return true;
+        }
+
+        private static readonly HashSet<string> Settings = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "off", "suggestion", "warning", "error" };
+        private static readonly System.Text.RegularExpressions.Regex IdPattern = new System.Text.RegularExpressions.Regex(@"^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$");
+
+        /// <summary>A request id that is safe as a file name: letters, digits, dots, dashes and underscores (what <see cref="New"/> makes).</summary>
+        public static bool IsValidId(string id) { return id != null && IdPattern.IsMatch(id) && !id.Contains(".."); }
+
+        /// <summary>A UNC path (<c>\\host\share</c>): looking at it makes Windows sign in to that host.</summary>
+        private static bool IsNetworkPath(string path)
+        {
+            return !string.IsNullOrEmpty(path) && (path.StartsWith(@"\\") || path.StartsWith("//") || path.StartsWith(@"\/") || path.StartsWith(@"/\"));
         }
 
         /// <summary>
@@ -522,6 +547,8 @@ namespace FlareAI.Core.Actions
             public HashSet<string> Mine = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             public HashSet<string> Seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             public HashSet<string> Applied = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            /// <summary>Each request as this machine sent it, by id.</summary>
+            public Dictionary<string, GuideRequest> Sent = new Dictionary<string, GuideRequest>(StringComparer.OrdinalIgnoreCase);
         }
 
         private static Ledger ReadLedger()
@@ -538,6 +565,7 @@ namespace FlareAI.Core.Actions
                             l.Mine = new HashSet<string>(l.Mine ?? new HashSet<string>(), StringComparer.OrdinalIgnoreCase);
                             l.Seen = new HashSet<string>(l.Seen ?? new HashSet<string>(), StringComparer.OrdinalIgnoreCase);
                             l.Applied = new HashSet<string>(l.Applied ?? new HashSet<string>(), StringComparer.OrdinalIgnoreCase);
+                            l.Sent = new Dictionary<string, GuideRequest>(l.Sent ?? new Dictionary<string, GuideRequest>(), StringComparer.OrdinalIgnoreCase);
                             return l;
                         }
                     }

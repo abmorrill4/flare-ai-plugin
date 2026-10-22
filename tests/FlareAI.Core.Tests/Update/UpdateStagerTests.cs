@@ -20,7 +20,54 @@ namespace FlareAI.Core.Tests.Update
 
         private static UpdateStager Stager(TempDir t)
         {
-            return new UpdateStager(new UpdateLayout(t["HouseStyle"]), new ZipExtractor()) { CheckSignature = _ => SignatureStatus.Unsigned };
+            return new UpdateStager(new UpdateLayout(t["HouseStyle"]), new ZipExtractor()) { CheckSignature = _ => SignatureStatus.Unsigned, PublicKeyXml = MockReleaseServer.PublicKeyXml };
+        }
+
+        [Fact]
+        public void UnsignedRelease_IsRejected_EvenWithAMatchingChecksum()
+        {
+            using (var t = new TempDir())
+            using (var server = new MockReleaseServer())
+            {
+                server.Publish("0.9.0", FakePlugin.Zip("0.9.0"), signed: false);
+                var ex = Assert.Throws<UpdateException>(() => Stager(t).Stage(Release(server, "0.9.0")));
+                Assert.Contains("isn't signed", ex.Message);
+                AssertNothingStaged(t);
+            }
+        }
+
+        [Fact]
+        public void ReleaseSignedWithAnotherKey_IsRejected()
+        {
+            // What anyone with a GitHub token could publish: a valid zip and checksums, signed with their own key.
+            using (var t = new TempDir())
+            using (var server = new MockReleaseServer())
+            {
+                server.Publish("0.9.0", FakePlugin.Zip("0.9.0"));
+                var stager = new UpdateStager(new UpdateLayout(t["HouseStyle"]), new ZipExtractor()) { CheckSignature = _ => SignatureStatus.Unsigned };   // House Style's real key
+                var ex = Assert.Throws<UpdateException>(() => stager.Stage(Release(server, "0.9.0")));
+                Assert.Contains("release key", ex.Message);
+                AssertNothingStaged(t);
+            }
+        }
+
+        [Fact]
+        public void ChecksumsChangedAfterSigning_AreRejected()
+        {
+            using (var t = new TempDir())
+            using (var server = new MockReleaseServer())
+            {
+                server.Publish("0.9.0", FakePlugin.Zip("0.9.0"));
+                // The zip and a matching checksums.txt are swapped; the old signature stays.
+                var evil = FakePlugin.Zip("0.9.0", s => File.WriteAllText(Path.Combine(s, "evil.txt"), "x"));
+                string hash;
+                using (var sha = System.Security.Cryptography.SHA256.Create()) hash = BitConverter.ToString(sha.ComputeHash(evil)).Replace("-", "").ToLowerInvariant();
+                server.Route("/download/HouseStyle-0.9.0.zip", MockReleaseServer.Bytes(200, "application/zip", evil));
+                server.Route("/download/checksums.txt", MockReleaseServer.Bytes(200, "text/plain", Encoding.ASCII.GetBytes(hash + "  HouseStyle-0.9.0.zip\n")));
+                var ex = Assert.Throws<UpdateException>(() => Stager(t).Stage(Release(server, "0.9.0")));
+                Assert.Contains("release key", ex.Message);
+                AssertNothingStaged(t);
+            }
         }
 
         [Fact]

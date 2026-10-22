@@ -85,6 +85,8 @@ namespace FlareAI.Core.Update
         public string ZipUrl { get; set; }
         public long ZipSize { get; set; }
         public string ChecksumsUrl { get; set; }
+        /// <summary>checksums.txt.sig, or null when the release has none (the stager then refuses it).</summary>
+        public string SignatureUrl { get; set; }
     }
 
     /// <summary>
@@ -158,6 +160,7 @@ namespace FlareAI.Core.Update
                 var name = (string)a["name"] ?? "";
                 var url = (string)a["browser_download_url"];
                 if (name.Equals("checksums.txt", StringComparison.OrdinalIgnoreCase)) r.ChecksumsUrl = url;
+                else if (name.Equals(UpdateSigning.SignatureAssetName, StringComparison.OrdinalIgnoreCase)) r.SignatureUrl = IsAllowedUrl(url) ? url : null;
                 else if (name.StartsWith("HouseStyle-", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
                 {
                     r.ZipName = name; r.ZipUrl = url; r.ZipSize = (long?)a["size"] ?? 0;
