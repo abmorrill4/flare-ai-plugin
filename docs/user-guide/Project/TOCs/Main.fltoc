@@ -10,6 +10,7 @@
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/assists.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/style-guide.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/team.htm" />
+    <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/publish-guide.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/llm-export.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/models.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/troubleshooting.htm" />
