@@ -109,7 +109,7 @@ $s = .\tools\FlareAI.Scoring\bin\Release\net48\FlareAI.Scoring.exe
 & $s convert-v1 --truth corpus\ground-truth.json --project corpus\DigitalBanking --out corpus\DigitalBanking\labels.jsonl
 ```
 
-`score --out` writes `score.json` (all groups) and `scored-findings.jsonl` (outcome and label id per finding). Bench v2 (#81) uses the library directly.
+`score --out` writes `score.json` (all groups) and `scored-findings.jsonl` (outcome and label id per finding). Bench v2 (#81, `docs/testing/BENCH.md`) uses the library directly.
 
 ## DigitalBanking (v1 converted)
 
