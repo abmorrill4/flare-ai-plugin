@@ -109,9 +109,16 @@ namespace FlareAI.Core.Tests
             Assert.True(fires("<ul><li>Apples, pears, etc.</li></ul>", lists));
             Assert.True(fires("<ol><li>Apples, pears, etc.</li></ol>", lists));
             Assert.False(fires("<p>Apples, pears, etc.</p>", lists));
-            const string tables = "google:tables/22";     // "in Table 2" (Content.Tables)
-            Assert.True(fires("<table><tr><td>The results are in Table 2.</td></tr></table>", tables));
-            Assert.False(fires("<h2>The results are in Table 2.</h2>", tables));
+            // A Tables rule fires in table text only. (The bundled guide has no Tables lint row since #55/#60: its markup rows
+            // became rules for the reviewer, and "in Table 2" is about running text.)
+            var tablesScope = new LintScope(new[] { "Tables" }, false);
+            Func<string, bool> inTables = body => { var l = Lines(body)[0].ToLint(); return tablesScope.Allows(l, 0, l.Text.Length); };
+            Assert.True(inTables("<table><tr><td>The results are in Table 2.</td></tr></table>"));
+            Assert.False(inTables("<h2>The results are in Table 2.</h2>"));
+            Assert.False(inTables("<p>The results are in Table 2.</p>"));
+            const string table2 = "google:tables/22";     // "in Table 2": a reference in running text, wherever it sits (#60)
+            Assert.True(fires("<p>The results are in Table 2.</p>", table2));
+            Assert.True(fires("<table><tr><td>The results are in Table 2.</td></tr></table>", table2));
         }
 
         [Fact]

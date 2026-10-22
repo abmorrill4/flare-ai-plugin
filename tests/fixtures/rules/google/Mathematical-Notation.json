@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Mathematical-Notation",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Math"

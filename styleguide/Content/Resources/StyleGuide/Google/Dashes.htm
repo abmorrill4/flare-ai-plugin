@@ -11,12 +11,13 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-3" MadCap:conditions="Content.Dashes"><td>[ \u00A0]\u2014|\u2014[ \u00A0]</td><td></td><td>warning</td><td>Em dashes are closed up with no surrounding spaces.</td><td>The update is complete — restart the app.</td></tr>
+            <tr id="rule-3" MadCap:conditions="Content.Dashes"><td>[ \u00A0]\u2014|\u2014[ \u00A0]</td><td></td><td>suggestion</td><td>Em dashes are closed up with no surrounding spaces.</td><td>The update is complete — restart the app.</td></tr>
+            <tr id="rule-7" MadCap:conditions="Content.Dashes"><td>(?&lt;=[A-Za-z,]) -- (?=[A-Za-z])</td><td></td><td>suggestion</td><td>Use an em dash with no spaces.</td><td>The update is optional -- install it when you&apos;re ready.</td></tr>
         </table>
         <h2>En dashes</h2>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-4" MadCap:conditions="Content.Dashes"><td>(?&lt;!\d)\u2013|\u2013(?!\d)</td><td></td><td>warning</td><td>Google style doesn&apos;t use en dashes.</td><td>Install the app – then restart it.</td></tr>
+            <tr id="rule-4" MadCap:conditions="Content.Dashes"><td>(?&lt;!\d)\u2013|\u2013(?!\d)</td><td></td><td>suggestion</td><td>Google style doesn&apos;t use en dashes.</td><td>Install the app – then restart it.</td></tr>
         </table>
         <h2>Colons instead of dashes in description lists</h2>
         <ul>

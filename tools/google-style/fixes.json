@@ -1,5 +1,5 @@
 {
-  "about": "Row fixes settled by hand (#59), applied by the compiler's fix-decision pass before the canonical and fix-check passes. 'use' replaces the Use cell (\"\" = flag only), 'remove' drops Avoid terms (with their own Use values), 'pattern'/'example'/'severity'/'why' replace those cells. Ids are permanent keys.",
+  "about": "Rule decisions settled by hand, applied by the compiler's passes (no model calls): run FlareAI.GuideCompiler --passes after editing. 'rules': per rule id (permanent keys): 'use' replaces the Use cell (\"\" = flag only), 'remove' drops Avoid terms (with their own Use values), 'avoid'/'pattern'/'example'/'severity'/'why'/'text'/'bad'/'good' replace those cells, 'kind' turns a row into a pattern or prose (prose clears the lint cells), 'applies' replaces the Content tags and 'applies_add' adds some, 'page_scope': false drops the page's pack tag from the rule, 'drop': <owner id> removes the rule and hands its source units to the owner. 'pages': 'applies_add' for every rule of a page. 'add': rules the source states mechanically that the page compile left as prose (#64), each with its page, a permanent key and its source units. 'severity': the policy for lint rows (#61): error only for the rules listed under 'error'; flag-only rows (no safe fix) are suggestions unless listed under 'keep_warning'; rows listed under 'suggestion' are suggestions. Entries are rule ids or page prefixes ending in '/'. A severity set in 'rules' wins over the policy. 'checks'.'good_flagged_ok': Good examples that Google means to contain a flagged term (an old term in parentheses, a code keyword); the #62 check accepts exactly these rule/flagged-by pairs.",
   "rules": [
     {
       "rule": "google:dashes/4",
@@ -23,6 +23,446 @@
       "rule": "google:word-list/450",
       "use": "person-hours",
       "reason": "one fix for man-hours: Inclusive-Documentation and Hyphens write person-hours"
+    },
+
+    {
+      "rule": "google:hyphens/30",
+      "pattern": "(?<=\\d)\\u2013(?=\\d)",
+      "reason": "#55: the &ndash; branch matches markup, which lint never sees; the en dash itself is the text"
+    },
+
+    {
+      "rule": "google:word-list/425",
+      "pattern": "\\b\\d+\\.\\d+(?:\\.\\d+)*\\+(?=\\s|$|[.,;:)])",
+      "reason": "#60: a version number only; '300+ users' is fine (word-list/6)"
+    },
+    {
+      "rule": "google:cross-references/22",
+      "avoid": "For more information on, for more information on",
+      "use": "For more information about, for more information about",
+      "example": "For more information on indexes, see Manage indexes.",
+      "reason": "#60: the rule is about the link introduction; 'more information on the dashboard' in prose is fine"
+    },
+    {
+      "rule": "google:examples/27",
+      "drop": "google:examples/25",
+      "reason": "#60: the rule is about example project names; lint can't tell a name from the word baz, so it stays a prose rule"
+    },
+    {
+      "rule": "google:inclusive-documentation/10",
+      "remove": [ "dumb", "dummy" ],
+      "reason": "#60: bare dumb/dummy hit 'dumb terminal' and 'dummy data'; the Word-List owns 'dumb down' and 'dummy variable'"
+    },
+    {
+      "rule": "google:inclusive-documentation/26",
+      "remove": [ "the aged" ],
+      "reason": "#60: 'the aged entries' in technical text; the source is about writing about older adults"
+    },
+    {
+      "rule": "google:inclusive-documentation/42",
+      "remove": [ "suffering from" ],
+      "reason": "#60: the source scopes it to disability; 'a service suffering from latency' is fine"
+    },
+    {
+      "rule": "google:procedures/42",
+      "pattern": "\\b(?:Ctrl|Cmd|Alt|Option)\\+\\w",
+      "reason": "#60: Control+C and Command+C are Google's own recommended form (Ui-Elements), and Ctrl is fixed to Control by ui-elements/68"
+    },
+    {
+      "rule": "google:procedures/20",
+      "kind": "pattern",
+      "pattern": "^\\s*\\((?i:optional)\\)",
+      "use": "Optional:",
+      "example": "(Optional) Type an arbitrary string.",
+      "reason": "#60: case-insensitive, at the start of the step only, with Google's fix"
+    },
+    {
+      "rule": "google:abbreviations/25",
+      "pattern": "(?<![A-Za-z]\\.)\\b(?!(?:U\\.S\\.|U\\.K\\.|D\\.C\\.))(?!(?:[AP]\\.M\\.|A\\.D\\.|B\\.C\\.)(?![A-Za-z]))(?:[A-Z]\\.){2,}(?![A-Za-z])(?!\\s+[A-Z][a-z])",
+      "reason": "#60: not personal initials (J.K. Rowling), A.M./P.M., A.D./B.C., or the tail of U.S.A."
+    },
+    {
+      "rule": "google:hyphens/15",
+      "pattern": "\\b(?!(?i:family|early|daily|weekly|monthly|yearly|hourly|quarterly|nightly|friendly|likely|unlikely|lonely|lovely|costly|timely|orderly|elderly|supply|apply|reply|multiply|assembly|anomaly|butterfly|holy|ugly|curly|silly|jelly|belly|bully|rally|ally|only|homely|deadly|lively|worldly|scholarly|leisurely|kindly|stately|sickly|wobbly|bubbly|chilly|hilly|smelly|wily)-)[A-Za-z]{2,}ly-[a-z]+",
+      "reason": "#60: every -ly adverb (highly-, newly-, widely-), not adjectives that end in -ly"
+    },
+    {
+      "rule": "google:hyphens/31",
+      "pattern": "\\b[Ff]rom \\d{1,4}\\s?-\\s?\\d{1,4}\\b(?!-)",
+      "reason": "#60: not dates or phone numbers after 'from'; the source says nothing about 'between'"
+    },
+    {
+      "rule": "google:numbers/43",
+      "pattern": "\\$\\d[\\d,]*\\.\\d+(?:,\\d{3})+\\b",
+      "severity": "warning",
+      "reason": "#60, #61: comma only ('$19.99 100 users' is two numbers); warning like the other currency row"
+    },
+    {
+      "rule": "google:ui-elements/54",
+      "pattern": "\\b[Tt]oggl(?:e|es|ed|ing) (?:the|a|an|on|off|between)\\b",
+      "reason": "#60: toggle as a verb (toggle the, toggles on), not the noun or the adjective toggled"
+    },
+    {
+      "rule": "google:ui-elements/70",
+      "pattern": "[⌘⌥⇧⌃]\\s?\\+?\\s?[A-Za-z0-9]",
+      "reason": "#60: a modifier symbol in a key combination, not the symbol in a quoted macOS menu"
+    },
+    {
+      "rule": "google:ui-elements/71",
+      "pattern": "\\b(?:Control|Ctrl|Command|Option|Alt|Shift)(?: \\+|\\+ )",
+      "reason": "#60: spaced combinations with Ctrl or Alt too"
+    },
+    {
+      "rule": "google:word-list/492",
+      "severity": "suggestion",
+      "reason": "#60: NA is also North America and other abbreviations"
+    },
+    {
+      "rule": "google:word-list/216",
+      "avoid": "distributed denial of service, Distributed denial of service",
+      "use": "distributed denial-of-service, Distributed denial-of-service",
+      "reason": "#60: the source entry is 'distributed denial-of-service (DDoS)'; the noun 'denial of service' is fine"
+    },
+    {
+      "rule": "google:word-list/641",
+      "pattern": "(?i)\\bsingle sign on\\b",
+      "reason": "#60: 'Single sign on' at a sentence start too"
+    },
+    {
+      "rule": "google:tone/20",
+      "avoid": "It's that simple, it's that simple, It's easy, it's easy, It’s that simple, it’s that simple, It’s easy, it’s easy",
+      "reason": "#60: curly apostrophes too (quickly belongs to inclusive-documentation/20)"
+    },
+
+    {
+      "rule": "google:quotation-marks/2",
+      "kind": "row",
+      "avoid": "“, ”, ‘, ’",
+      "use": "\", \", ', '",
+      "severity": "suggestion",
+      "reason": "#61: Google's reason is code samples; a preference for prose, with the exact fix"
+    },
+    {
+      "rule": "google:word-list/269",
+      "severity": "warning",
+      "reason": "#61: the source says avoid etc.; a missing period is not an error"
+    },
+    {
+      "rule": "google:word-list/369",
+      "severity": "warning",
+      "reason": "#61: a spelling note ('not HTTPs')"
+    },
+    {
+      "rule": "google:periods/5",
+      "severity": "warning",
+      "reason": "#61: punctuation placement"
+    },
+    {
+      "rule": "google:periods/8",
+      "severity": "warning",
+      "reason": "#61: punctuation placement"
+    },
+
+    {
+      "rule": "google:person/6",
+      "text": "It's OK to use the imperative in running text after you establish who is being addressed.",
+      "reason": "#63: the source grants permission ('It's OK to'), it doesn't restrict"
+    },
+    {
+      "rule": "google:person/10",
+      "text": "It's OK to use first-person plural pronouns (such as we, our, or us) to refer to the organization that's represented as the author of the document.",
+      "reason": "#63: the source grants permission ('It's OK to'), it doesn't restrict"
+    },
+    {
+      "rule": "google:prescriptive-documentation/8",
+      "text": "If an action is recommended, use \"We recommend\" or \"[Organization] recommends\"; you can use should if the recommended action is generally recognized, such as \"You should use a strong password.\"",
+      "reason": "#63: 'you can use should' is a permission; 'Google recommends' names the wrong organization in a company's docs"
+    },
+    {
+      "rule": "google:quotation-marks/4",
+      "text": "You can use quotation marks for titles of shorter works such as articles or episodes in a web series, unless they're part of a link.",
+      "reason": "#63: the source says 'you can'"
+    },
+    {
+      "rule": "google:quotation-marks/6",
+      "text": "You can use quotation marks when referring to a section of a larger document or piece, if you can't link to the section directly.",
+      "reason": "#63: the source table lists examples of when to use quotation marks, not requirements"
+    },
+    {
+      "rule": "google:quotation-marks/7",
+      "text": "You can use quotation marks when referring to the title of a parent document when you're already linking to a section.",
+      "reason": "#63: the source table lists examples of when to use quotation marks, not requirements"
+    },
+    {
+      "rule": "google:quotation-marks/8",
+      "text": "You can use quotation marks when directly citing a person or quoting a slogan or motto.",
+      "reason": "#63: the source table lists examples of when to use quotation marks, not requirements"
+    },
+    {
+      "rule": "google:quotation-marks/9",
+      "text": "You can use quotation marks for a term used metaphorically, but only if it's not an established usage in the domain.",
+      "reason": "#63: the source table lists examples of when to use quotation marks, not requirements"
+    },
+    {
+      "rule": "google:commas/6",
+      "drop": "google:commas/5",
+      "reason": "#63: the same rule as commas/5 with 'only' dropped, which reversed it"
+    },
+    {
+      "rule": "google:sentence-structure/1",
+      "text": "If you want to tell the reader to do something, try to mention the circumstance, conditions, or goal before you provide the instruction.",
+      "reason": "#63: keep the source's hedge ('try to')"
+    },
+    {
+      "rule": "google:slashes/9",
+      "text": "Use forward slashes, as appropriate, in computer file paths and URLs; if you're documenting a Windows path, use backslashes.",
+      "reason": "#63: the source's Windows exception"
+    },
+    {
+      "rule": "google:format-examples/2",
+      "good": "",
+      "reason": "#63: the Good example came from the source's Not recommended column"
+    },
+    {
+      "rule": "google:format-examples/3",
+      "good": "",
+      "reason": "#63: the Good example came from the source's Not recommended column"
+    },
+    {
+      "rule": "google:mathematical-notation/12",
+      "good": "The equation that describes a polynomial trend line, where the order is o, is the following: y = a + b × x + ... + k × xᵒ",
+      "reason": "#63: the source's exponent is a superscript, not a caret"
+    },
+    {
+      "rule": "google:lists/17",
+      "text": "End each list item with a period or other appropriate sentence-ending punctuation, except for items that are a single word, have no verb, are entirely in code font, or are entirely link text or a document title. If you're writing UI text rather than prose documentation, follow the Material Design guidelines instead.",
+      "reason": "#63: the source's carve-out for UI text"
+    },
+    {
+      "rule": "google:tables/22",
+      "pattern": "(?<=[a-z,] )Table(?= \\d)",
+      "page_scope": false,
+      "reason": "#60, #65: a reference to 'table 2' sits in running text, not in a table; any lowercase word before it"
+    },
+
+    {
+      "rule": "google:word-list/269",
+      "pattern": "(?<![/\\\\])\\betc\\b(?![./\\\\])",
+      "reason": "#62: not the etc folder of a path (/etc/postgresql), which code-in-text/15's Good example shows"
+    },
+    {
+      "rule": "google:word-list/475",
+      "pattern": "(?<=[a-z,;] )(?<![Ss]ee )Microservices\\b",
+      "reason": "#62: 'See Microservices' names a topic by its title (link text), which word-list/474's fix 'microservices' would otherwise trip at a sentence start"
+    },
+    { "rule": "google:abbreviations/26", "good": "Use SSH to sign in to your remote shell.", "reason": "#62: the example is about acronyms as verbs; word-list/638 asks for sign in" },
+    { "rule": "google:api-reference-comments/20", "good": "Checks whether this activity is in the process of being destroyed to be recreated with a new configuration.", "reason": "#62: the example is about the verb form; word-list/772 asks for to, not in order to" },
+    { "rule": "google:lists/34", "good": "The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.", "reason": "#62: the Word-List spells ecommerce (word-list/241)" },
+    { "rule": "google:lists/35", "good": "The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.", "reason": "#62: the Word-List spells ecommerce (word-list/241)" },
+    { "rule": "google:semicolons/2", "good": "You can test compatibility by computing the centroid; if it is on the opposite side of the planet, reverse the order of your vertices.", "reason": "#62: the example is about the semicolon; easily is a word inclusive-documentation/20 asks to leave out" },
+    { "rule": "google:timeless-documentation/7", "good": "The January 14, 2021, release of BigQuery includes a new resource panel.", "reason": "#62: a mid-sentence date takes a comma after the year (dates-times/31)" },
+    { "rule": "google:word-list/81", "good": "PRODUCT_NAME is in beta.", "reason": "#62: currently is a word timeless-documentation/16 asks to leave out" },
+    { "rule": "google:hyphens/25", "good": "200 GB disk", "reason": "#62: a nonbreaking space between number and unit, as Units-Of-Measure asks" },
+    { "rule": "google:numbers/6", "good": "In general, avoid sending files larger than 164 MB as attachments.", "reason": "#62: a nonbreaking space between number and unit, as Units-Of-Measure asks" },
+    { "rule": "google:units-of-measure/1", "good": "64 GB", "reason": "#62: the nonbreaking space itself, not the entity name and a plain-space copy" },
+    { "rule": "google:units-of-measure/11", "good": "200 GB disk", "reason": "#62: the nonbreaking space itself, not the entity name and a plain-space copy" },
+    { "rule": "google:word-list/759", "good": "A handset that has 2 GB of RAM.", "reason": "#62: a nonbreaking space between number and unit, as Units-Of-Measure asks" },
+
+    { "rule": "google:images/32", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (figure and figcaption elements)" },
+    { "rule": "google:images/55", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (srcset)" },
+    { "rule": "google:images/56", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (srcset and src)" },
+    { "rule": "google:images/57", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (width attribute)" },
+    { "rule": "google:images/58", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (src attribute)" },
+    { "rule": "google:images/62", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (srcset)" },
+    { "rule": "google:images/63", "applies_add": [ "WebMarkup" ], "reason": "#63: site CSS (style attribute)" },
+    { "rule": "google:images/70", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (img inside p)" },
+    { "rule": "google:lists/8", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (p rather than br)" },
+    { "rule": "google:lists/13", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (reversed attribute)" },
+    { "rule": "google:lists/14", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML authoring (value attribute)" },
+    { "rule": "google:mathematical-notation/2", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML entities" },
+    { "rule": "google:mathematical-notation/3", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML entities" },
+    { "rule": "google:mathematical-notation/4", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML entities" },
+    { "rule": "google:mathematical-notation/6", "applies_add": [ "WebMarkup" ], "reason": "#63: HTML entities" },
+    { "rule": "google:mathematical-notation/7", "applies_add": [ "WebMarkup" ], "reason": "#63: &nbsp; entities" },
+    { "rule": "google:mathematical-notation/11", "applies_add": [ "WebMarkup" ], "reason": "#63: &nbsp; entities" },
+    { "rule": "google:mathematical-notation/16", "applies_add": [ "WebMarkup" ], "reason": "#63: the sup tag" },
+    { "rule": "google:mathematical-notation/17", "applies_add": [ "WebMarkup" ], "reason": "#63: the sub tag" },
+    { "rule": "google:ui-elements/22", "applies_add": [ "WebMarkup" ], "reason": "#63: &nbsp; entities in menu sequences" },
+    { "rule": "google:ui-elements/24", "applies_add": [ "WebMarkup" ], "reason": "#63: span tags and aria-label attributes" },
+    { "rule": "google:ui-elements/31", "applies_add": [ "WebMarkup" ], "reason": "#63: nonbreaking space entities" }
+  ],
+  "pages": {
+    "headings-targets": { "applies_add": [ "WebMarkup" ], "reason": "#63: anchors are HTML authoring; Flare manages heading anchors" },
+    "semantic-tagging": { "applies_add": [ "WebMarkup" ], "reason": "#63: which HTML element to use; Flare writes the markup" }
+  },
+  "add": [
+    {
+      "page": "periods", "key": "21", "heading": "Periods with headings", "kind": "pattern",
+      "text": "Don't end headings with periods.",
+      "pattern": "(?<!\\.\\.|\\b(?:etc|Inc|Ltd|Corp|Co|vs|[A-Z]))\\.\\s*$", "use": "(delete)", "severity": "warning",
+      "why": "Headings don't end with a period.", "example": "Configure the network.",
+      "applies": [ "Headings" ], "units": [ "periods#25" ],
+      "reason": "#64: the source rule is mechanical; prose only before"
+    },
+    {
+      "page": "periods", "key": "22", "heading": "Periods and end punctuation", "kind": "pattern",
+      "text": "Leave only one space between sentences.",
+      "pattern": "(?<=[A-Za-z)\"\\u201D\\u2019][.!?][ \\u00A0])[ \\u00A0]+(?=[A-Z])", "use": "(delete)", "severity": "warning",
+      "why": "Leave only one space between sentences.", "example": "Save the file.  Then close the editor.",
+      "units": [ "periods#34" ],
+      "reason": "#64: mechanical; after a sentence, not after a hand-typed list number ('1.   Open'); a space made of a source line break is not flagged (the engine skips it)"
+    },
+    {
+      "page": "headings", "key": "32", "heading": "Use of -ing verb forms", "kind": "pattern",
+      "text": "Avoid starting a heading with an -ing verb form.",
+      "pattern": "^\\s*(?!(?:Billing|Pricing)\\b)[A-Z][a-z]{2,}ing\\s+(?:a|an|the|your|you|up|this|that|these|those|new|existing|multiple|custom)\\b", "use": "", "severity": "suggestion",
+      "why": "-ing forms are translated inconsistently.", "example": "Creating an instance",
+      "applies": [ "Headings" ], "units": [ "headings#10" ],
+      "reason": "#64: only an -ing word followed by its object (a task heading), so noun headings such as Logging and monitoring are left alone"
+    },
+    {
+      "page": "headings", "key": "33", "heading": "Heading and title text", "kind": "pattern",
+      "text": "For an optional section, use the Optional: prefix in the heading, not (optional).",
+      "pattern": "\\((?i:optional)\\)", "use": "", "severity": "suggestion",
+      "why": "Use the Optional: prefix.", "example": "Configure DNS (optional)",
+      "applies": [ "Headings" ], "units": [ "headings#6" ],
+      "reason": "#64: mechanical; flag only because the prefix moves to the start"
+    },
+    {
+      "page": "format-examples", "key": "6", "heading": "Examples", "kind": "pattern",
+      "text": "Don't use a semicolon to introduce an example at the end of a sentence.",
+      "pattern": ";\\s+(?:for example|for instance|such as)\\b", "use": "", "severity": "suggestion",
+      "why": "Use a comma, parentheses, or an em dash.", "example": "Specify the region for deployment; for example, us-central1.",
+      "units": [ "format-examples#3" ],
+      "reason": "#64: Format-Examples, 'Avoid using a semicolon for this purpose'"
+    },
+    {
+      "page": "examples", "key": "29", "heading": "Further notes about example people", "kind": "row",
+      "text": "Don't use the Alice and Bob characters unless the document refers to a specification that uses them.",
+      "avoid": "Alice and Bob, Bob and Alice", "use": "", "severity": "suggestion",
+      "why": "Use names from the example names list.", "example": "Alice and Bob exchange keys over the channel.",
+      "units": [ "examples#51" ],
+      "reason": "#64: Examples, Alice and Bob"
+    },
+    {
+      "page": "translation", "key": "48", "heading": "Use simpler words and shorter sentences", "kind": "row",
+      "text": "Don't use utilize when you mean use.",
+      "avoid": "utilize, utilizes, utilized, utilizing", "use": "use, uses, used, using", "severity": "suggestion",
+      "why": "Use a simple word.", "example": "You can utilize the API to export reports.",
+      "units": [ "translation#12" ],
+      "reason": "#64: Translation, use a simple word (fine for a special sense, hence suggestion)"
+    },
+    {
+      "page": "translation", "key": "49", "heading": "Use simpler words and shorter sentences", "kind": "row",
+      "text": "Don't use leverage when you mean use.",
+      "avoid": "leverage, leverages, leveraged, leveraging", "use": "", "severity": "suggestion",
+      "why": "Use a simple word such as use or build on.", "example": "Leverage the API to export reports.",
+      "units": [ "translation#12" ],
+      "reason": "#64: Translation, use a simple word; flag only because leverage is also a noun"
+    },
+    {
+      "page": "translation", "key": "50", "heading": "Use simpler words and shorter sentences", "kind": "row",
+      "text": "Don't use commence when you mean start or begin.",
+      "avoid": "commence, commences, commenced, commencing", "use": "start, starts, started, starting", "severity": "suggestion",
+      "why": "Use a simple word.", "example": "The backup will commence at midnight.",
+      "units": [ "translation#12" ],
+      "reason": "#64: Translation, use a simple word"
+    },
+    {
+      "page": "translation", "key": "51", "heading": "Use simpler words and shorter sentences", "kind": "row",
+      "text": "Don't use a phrase like a number of when you can use some or many.",
+      "avoid": "a number of", "use": "", "severity": "suggestion",
+      "why": "Use some or many.", "example": "The tool supports a number of formats.",
+      "units": [ "translation#13" ],
+      "reason": "#64: Translation, a single word for a phrase; flag only (some or many is the writer's call)"
+    },
+    {
+      "page": "translation", "key": "52", "heading": "Avoid phrasal verbs", "kind": "row",
+      "text": "Don't use makes use of when you can use uses.",
+      "avoid": "makes use of, make use of, made use of, making use of", "use": "uses, use, used, using", "severity": "suggestion",
+      "why": "Use a simpler verb.", "example": "This document makes use of the following terms:",
+      "units": [ "translation#15" ],
+      "reason": "#64: Translation, phrasal verbs (the source's own Not recommended example)"
+    },
+    {
+      "page": "word-list", "key": "768", "heading": "ghetto", "kind": "row",
+      "text": "Don't use ghetto; use a precise term such as clumsy, workaround, or inelegant.",
+      "avoid": "ghetto", "use": "", "severity": "warning",
+      "why": "Use clumsy, workaround, or inelegant.", "example": "This is a ghetto fix for the timeout.",
+      "units": [ "word-list#237" ],
+      "reason": "#64: Word-List 'Don't use' term with no row"
+    },
+    {
+      "page": "word-list", "key": "769", "heading": "ninja", "kind": "row",
+      "text": "Don't use ninja to refer to a person; use a term such as expert.",
+      "avoid": "ninja, ninjas", "use": "", "severity": "suggestion",
+      "why": "Use expert for a person.", "example": "You don't need to be a ninja to configure the server.",
+      "units": [ "word-list#392" ],
+      "reason": "#64: Word-List 'Don't use' term with no row; flag only (fine in a product name)"
+    },
+    {
+      "page": "word-list", "key": "770", "heading": "grandfathered", "kind": "row",
+      "text": "Don't use grandfathered; use legacy, exempt, or made an exception.",
+      "avoid": "grandfathered, grandfathering", "use": "", "severity": "warning",
+      "why": "Use legacy or exempt.", "example": "Existing accounts are grandfathered into the old plan.",
+      "units": [ "word-list#252" ],
+      "reason": "#64: Word-List 'Don't use' term; word-list/326 covers only grandfather clause"
+    },
+    {
+      "page": "word-list", "key": "771", "heading": "kill", "kind": "row",
+      "text": "Avoid kill when possible; use stop, exit, cancel, or end.",
+      "avoid": "kill, kills, killed, killing", "use": "", "severity": "suggestion",
+      "why": "Use stop, exit, cancel, or end.", "example": "To kill the job, click Cancel.",
+      "units": [ "word-list#323" ],
+      "reason": "#64: Word-List 'Avoid when possible' (command-line syntax is code, which lint skips)"
+    },
+    {
+      "page": "word-list", "key": "772", "heading": "in order to", "kind": "row",
+      "text": "Avoid in order to; use to.",
+      "avoid": "in order to", "use": "to", "severity": "suggestion",
+      "why": "Use to, unless in order to clarifies the meaning.", "example": "In order to save the file, click Save.",
+      "units": [ "word-list#296" ],
+      "reason": "#64: Word-List 'Avoid'; suggestion because the source allows it where it clarifies"
+    },
+    {
+      "page": "dashes", "key": "7", "heading": "Em dashes", "kind": "pattern",
+      "text": "Don't use a hyphen or a double hyphen in place of a dash.",
+      "pattern": "(?<=[A-Za-z,]) -- (?=[A-Za-z])", "use": "", "severity": "suggestion",
+      "why": "Use an em dash with no spaces.", "example": "The update is optional -- install it when you're ready.",
+      "units": [ "dashes#11" ],
+      "reason": "#64: a spaced double hyphen as a dash (unspaced -- is too often a flag or an encoded name; a spaced single hyphen belongs to hyphens/33)"
     }
-  ]
+  ],
+  "checks": {
+    "good_flagged_ok": [
+      { "rule": "google:inclusive-documentation/13", "by": "google:word-list/660", "why": "Google's pattern: name the old term once, de-emphasized" },
+      { "rule": "google:inclusive-documentation/30", "by": "google:word-list/752", "why": "Google's pattern: the old term in parentheses on first use" },
+      { "rule": "google:inclusive-documentation/35", "by": "google:word-list/648", "why": "a code keyword (START SLAVE), code font in the source" },
+      { "rule": "google:jargon/6", "by": "google:word-list/752", "why": "a command (whitelist adduser), code font in the source" },
+      { "rule": "google:word-list/94", "by": "google:word-list/752", "why": "Google's pattern: the old term in parentheses, and a command in code font" },
+      { "rule": "google:word-list/647", "by": "google:word-list/648", "why": "Google's pattern: the old term in parentheses on first use" },
+      { "rule": "google:lists/19", "by": "google:word-list/680", "why": "a list of UI element names, flattened into one line" },
+      { "rule": "google:periods/20", "by": "google:tone/22", "why": "the source's own exception: an exclamation point in a congratulation" },
+      { "rule": "google:word-list/552", "by": "google:tone/28", "why": "the source's own exception: please when asking for forgiveness or permission" },
+      { "rule": "google:word-list/615", "by": "google:inclusive-documentation/20", "why": "quickly describes the system's speed, not the reader's effort" }
+    ]
+  },
+  "severity": {    "error": [ "google:word-list/460", "google:word-list/600", "google:word-list/606" ],
+    "keep_warning": [
+      "google:inclusive-documentation/",
+      "google:word-list/90", "google:word-list/91", "google:word-list/95", "google:word-list/96", "google:word-list/97",
+      "google:word-list/100", "google:word-list/101", "google:word-list/102", "google:word-list/109", "google:word-list/169",
+      "google:word-list/172", "google:word-list/224", "google:word-list/234", "google:word-list/235", "google:word-list/287",
+      "google:word-list/292", "google:word-list/326", "google:word-list/332", "google:word-list/333", "google:word-list/334",
+      "google:word-list/335", "google:word-list/338", "google:word-list/339", "google:word-list/421", "google:word-list/449",
+      "google:word-list/451", "google:word-list/453", "google:word-list/454", "google:word-list/455", "google:word-list/481",
+      "google:word-list/483", "google:word-list/549", "google:word-list/598", "google:word-list/611", "google:word-list/612",
+      "google:word-list/629", "google:word-list/648", "google:word-list/660", "google:word-list/701", "google:word-list/718",
+      "google:word-list/735", "google:word-list/739", "google:word-list/745", "google:word-list/748", "google:word-list/749",
+      "google:word-list/750", "google:word-list/751", "google:word-list/752", "google:word-list/768", "google:word-list/770"
+    ],
+    "suggestion": [
+      "google:hyphens/26", "google:translation/45", "google:inclusive-documentation/20", "google:units-of-measure/5"
+    ]
+  }
 }

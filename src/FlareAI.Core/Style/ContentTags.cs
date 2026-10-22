@@ -13,7 +13,13 @@ namespace FlareAI.Core.Style
     public static class ContentTags
     {
         public static readonly string[] All = { "Code", "Steps", "Lists", "Numbers", "Tables", "Links", "Headings", "Images", "UI", "Notes", "Examples", "Math", "API", "Footnotes", "Emphasis",
-                                                "Quotes", "Ellipses", "Slashes", "Semicolons", "Parentheses", "Dashes", "Colons", "Apostrophes", "Hyphens", "Abbreviations" };
+                                                "Quotes", "Ellipses", "Slashes", "Semicolons", "Parentheses", "Dashes", "Colons", "Apostrophes", "Hyphens", "Abbreviations", WebMarkup };
+
+        /// <summary>
+        /// Rules about hand-writing HTML or Markdown (entities, attributes, which element to use): Flare writes the markup, so
+        /// these never reach the reviewer unless a scope asks for them (#63). <see cref="Of"/> never reports this tag.
+        /// </summary>
+        public const string WebMarkup = "WebMarkup";
 
         // What the text itself shows: punctuation rules matter only where the punctuation is.
         private static readonly KeyValuePair<string, Regex>[] TextTags =

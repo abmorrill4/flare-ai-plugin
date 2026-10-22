@@ -1,76 +1,14 @@
 [
   {
-    "Id": "google:tables/21",
-    "Layer": "google",
-    "Page": "Tables",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [
-      "Tables"
-    ],
-    "Avoid": [
-      "\\.\\s*</caption>"
-    ],
-    "Use": "",
-    "Example": "<caption><b>Table 1.</b> Prehistoric birds.</caption>",
-    "IgnoreCase": false,
-    "MarkupOnly": true,
-    "Bad": [],
-    "Good": []
-  },
-  {
-    "Id": "google:tables/28",
-    "Layer": "google",
-    "Page": "Tables",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [
-      "Tables"
-    ],
-    "Avoid": [
-      "\\b(?:colspan|rowspan)\\s*="
-    ],
-    "Use": "",
-    "Example": "<td colspan=\"2\">Value</td>",
-    "IgnoreCase": false,
-    "MarkupOnly": true,
-    "Bad": [],
-    "Good": []
-  },
-  {
-    "Id": "google:tables/34",
-    "Layer": "google",
-    "Page": "Tables",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [
-      "Tables"
-    ],
-    "Avoid": [
-      "(?:\\.|:|…)\\s*</th>"
-    ],
-    "Use": "",
-    "Example": "<th>Description:</th>",
-    "IgnoreCase": false,
-    "MarkupOnly": true,
-    "Bad": [],
-    "Good": []
-  },
-  {
     "Id": "google:tables/22",
     "Layer": "google",
     "Page": "Tables",
-    "Row": 3,
+    "Row": 2,
     "Severity": "warning",
     "Action": "replace",
-    "Tags": [
-      "Tables"
-    ],
+    "Tags": [],
     "Avoid": [
-      "(?<=\\b(?:in|see|from|to|of|and|or) )Table(?= \\d)"
+      "(?<=[a-z,] )Table(?= \\d)"
     ],
     "Use": "table",
     "Example": "The results are shown in Table 2.",
@@ -81,8 +19,8 @@
         "Source": "example",
         "Text": "The results are shown in Table 2.",
         "Expect": {
-          "clean": "heading-h2, heading-h4, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, table-header, table-cell, note, caption"
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
         }
       }
     ],
@@ -93,26 +31,5 @@
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
-  },
-  {
-    "Id": "google:tables/29",
-    "Layer": "google",
-    "Page": "Tables",
-    "Row": 3,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [
-      "Images",
-      "Tables"
-    ],
-    "Avoid": [
-      "<img\\b(?![^>]*\\balt\\s*=)[^>]*>"
-    ],
-    "Use": "",
-    "Example": "<td><img src=\"check.png\" /></td>",
-    "IgnoreCase": false,
-    "MarkupOnly": true,
-    "Bad": [],
-    "Good": []
   }
 ]

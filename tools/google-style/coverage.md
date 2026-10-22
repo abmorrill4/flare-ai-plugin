@@ -1,6 +1,8 @@
 # Google style guide: compile coverage
 
-3133 source units in compiled pages: 2749 covered by rules, 380 not applicable (with reasons), 4 uncovered, 6 rules dropped by the validator. 1991 rules: 1565 prose (AI), 320 lint rows, 106 patterns.
+3133 source units in compiled pages: 2749 covered by rules, 380 not applicable (with reasons), 4 uncovered, 6 rules dropped by the validator. 2006 rules: 1571 prose (AI), 330 lint rows, 105 patterns.
+
+Lint row severity: 3 error, 267 warning, 165 suggestion (435 rows; 221 flag-only).
 
 ## Pages
 
@@ -10,17 +12,17 @@
 | highlights | reference | 21 | — | — | — | Summary; each item links to the page that holds the rule. |
 | whats-new | reference | 636 | — | — | — | Change log: drives updates of this layer, not reviews. |
 | philosophy | reference | 16 | — | — | — | Why the guide exists; no writing rules. |
-| word-list | lint | 619 | 753 | 38 | 8 |  |
+| word-list | lint | 619 | 758 | 38 | 8 |  |
 | product-names | core | 25 | 14 | 4 | 0 |  |
 | text-formatting | reference | 10 | — | — | — | Summary table of formatting rules on other pages. |
 | accessibility | core | 87 | 67 | 14 | 0 |  |
 | excessive-claims | core | 15 | 7 | 1 | 0 |  |
 | future | core | 2 | 2 | 1 | 0 |  |
-| translation | core | 63 | 47 | 10 | 0 |  |
+| translation | core | 63 | 52 | 10 | 0 |  |
 | inclusive-documentation | core | 71 | 43 | 9 | 0 |  |
 | jargon | core | 8 | 7 | 2 | 0 |  |
 | prescriptive-documentation | core | 25 | 12 | 3 | 0 |  |
-| other-sources | pack:links | 9 | 5 | 0 | 0 |  |
+| other-sources | core | 9 | 5 | 0 | 0 |  |
 | timeless-documentation | core | 28 | 20 | 4 | 0 |  |
 | tone | core | 34 | 26 | 6 | 0 |  |
 | abbreviations | pack:abbreviations | 74 | 26 | 19 | 0 |  |
@@ -36,22 +38,22 @@
 | pronouns | core | 33 | 14 | 5 | 0 |  |
 | person | core | 16 | 13 | 0 | 0 |  |
 | sentence-structure | core | 5 | 1 | 1 | 0 |  |
-| reference-verbs | pack:table | 5 | 1 | 1 | 0 |  |
+| reference-verbs | pack:api | 5 | 1 | 1 | 0 |  |
 | colons | pack:colons | 10 | 2 | 4 | 0 |  |
-| commas | core | 28 | 10 | 5 | 0 |  |
-| dashes | pack:dashes | 21 | 6 | 11 | 0 |  |
+| commas | core | 28 | 9 | 5 | 0 |  |
+| dashes | pack:dashes | 21 | 7 | 11 | 0 |  |
 | ellipses | pack:ellipses | 14 | 12 | 0 | 0 |  |
 | hyphens | pack:hyphens | 80 | 33 | 6 | 0 |  |
 | parentheses | pack:parentheses | 9 | 3 | 0 | 0 |  |
-| periods | core | 42 | 19 | 11 | 2 |  |
+| periods | core | 42 | 21 | 11 | 2 |  |
 | quotation-marks | pack:quotes | 34 | 14 | 2 | 0 |  |
 | semicolons | pack:semicolons | 4 | 4 | 0 | 0 |  |
 | slashes | pack:slashes | 27 | 14 | 1 | 0 |  |
 | dates-times | pack:numbers | 52 | 38 | 6 | 0 |  |
-| format-examples | pack:code | 5 | 5 | 2 | 0 |  |
+| format-examples | core | 5 | 6 | 2 | 0 |  |
 | images | pack:images | 98 | 70 | 28 | 0 |  |
 | footnotes | pack:footnotes | 8 | 3 | 0 | 0 |  |
-| headings | pack:headings | 45 | 31 | 1 | 0 |  |
+| headings | pack:headings | 45 | 33 | 1 | 0 |  |
 | italics-terms | pack:emphasis | 7 | 2 | 2 | 0 |  |
 | lists | pack:lists | 150 | 36 | 9 | 0 |  |
 | mathematical-notation | pack:math | 71 | 21 | 6 | 0 |  |
@@ -94,26 +96,121 @@
 
 - numbers: google:numbers/32 dropped (\b\d+(?:\.\d+)?\s+%): owners.json: Units-Of-Measure owns the space before %
 - numbers: google:numbers/35 dropped (\d\s*(?:–|&ndash;)\s*\d): owners.json: Hyphens owns en dashes in number ranges
+- numbers: google:numbers/43 pattern → '\$\d[\d,]*\.\d+(?:,\d{3})+\b' (fixes.json)
+- numbers: google:numbers/43 severity → 'warning' (fixes.json)
+- numbers: google:numbers/6 good → 'In general, avoid sending files larger than 164 MB as attachments.' (fixes.json)
+- numbers: google:numbers/2 severity warning → suggestion (flag-only: no safe fix)
+- numbers: google:numbers/25 severity warning → suggestion (flag-only: no safe fix)
+- numbers: google:numbers/33 severity warning → suggestion (flag-only: no safe fix)
+- numbers: google:numbers/42 severity warning → suggestion (flag-only: no safe fix)
+- numbers: google:numbers/50 severity warning → suggestion (flag-only: no safe fix)
 - procedures: google:procedures/39 dropped (please, Please): duplicate of google:tone/28
+- procedures: google:procedures/42 pattern → '\b(?:Ctrl|Cmd|Alt|Option)\+\w' (fixes.json)
+- procedures: google:procedures/20 row → pattern (fixes.json: #60: case-insensitive, at the start of the step only, with Google's fix)
+- procedures: google:procedures/20 Use '' → 'Optional:' (fixes.json: #60: case-insensitive, at the start of the step only, with Google's fix)
+- procedures: google:procedures/20 pattern → '^\s*\((?i:optional)\)' (fixes.json)
+- procedures: google:procedures/20 example → '(Optional) Type an arbitrary string.' (fixes.json)
+- procedures: google:procedures/40 severity warning → suggestion (flag-only: no safe fix)
+- procedures: google:procedures/41 severity warning → suggestion (flag-only: no safe fix)
+- procedures: google:procedures/42 severity warning → suggestion (flag-only: no safe fix)
+- prescriptive-documentation: google:prescriptive-documentation/8 text → 'If an action is recommended, use "We recommend" or "[Organization] recommends"; you can use should if the recommended action is generally recognized, such as "You should use a strong password."' (fixes.json)
 - ellipses: google:ellipses/10 Use '...' → '' (fixes.json: three periods are still an ellipsis; Google says not to use ellipses in text or UI references)
 - ellipses: google:ellipses/10 severity → 'suggestion' (fixes.json)
 - ellipses: google:ellipses/10 why → 'Don't use ellipses; leave them out of UI labels.' (fixes.json)
+- ellipses: google:ellipses/12 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/7 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/8 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/9 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/10 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/17 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/26 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/27 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/28 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/31 severity warning → suggestion (flag-only: no safe fix)
+- dates-times: google:dates-times/33 severity warning → suggestion (flag-only: no safe fix)
+- pronouns: google:pronouns/6 severity warning → suggestion (flag-only: no safe fix)
+- sentence-structure: google:sentence-structure/1 text → 'If you want to tell the reader to do something, try to mention the circumstance, conditions, or goal before you provide the instruction.' (fixes.json)
+- phone-numbers: google:phone-numbers/6 severity warning → suggestion (flag-only: no safe fix)
+- phone-numbers: google:phone-numbers/10 severity warning → suggestion (flag-only: no safe fix)
+- headings: google:headings/32 added: pattern '^\s*(?!(?:Billing|Pricing)\b)[A-Z][a-z]{2,}ing\s+(?:a|an|the|your|you|up|this|that|these|those|new|existing|multiple|custom)\b' (fixes.json: #64: only an -ing word followed by its object (a task heading), so noun headings such as Logging and monitoring are left alone)
+- headings: google:headings/33 added: pattern '\((?i:optional)\)' (fixes.json: #64: mechanical; flag only because the prefix moves to the start)
+- commas: google:commas/6 dropped (): fixes.json: #63: the same rule as commas/5 with 'only' dropped, which reversed it
+- commas: google:commas/10 severity warning → suggestion (flag-only: no safe fix)
+- timeless-documentation: google:timeless-documentation/7 good → 'The January 14, 2021, release of BigQuery includes a new resource panel.' (fixes.json)
+- timeless-documentation: google:timeless-documentation/15 severity warning → suggestion (flag-only: no safe fix)
+- timeless-documentation: google:timeless-documentation/16 severity warning → suggestion (flag-only: no safe fix)
+- timeless-documentation: google:timeless-documentation/17 severity warning → suggestion (flag-only: no safe fix)
+- timeless-documentation: google:timeless-documentation/18 severity warning → suggestion (flag-only: no safe fix)
+- timeless-documentation: google:timeless-documentation/19 severity warning → suggestion (flag-only: no safe fix)
+- timeless-documentation: google:timeless-documentation/20 severity warning → suggestion (flag-only: no safe fix)
+- contractions: google:contractions/6 severity warning → suggestion (flag-only: no safe fix)
+- contractions: google:contractions/7 severity warning → suggestion (flag-only: no safe fix)
 - periods: google:periods/14 dropped (\b(?:[A-Z]\.){2,}): duplicate of google:abbreviations/25, google:word-list/719
+- periods: google:periods/5 severity → 'warning' (fixes.json)
+- periods: google:periods/8 severity → 'warning' (fixes.json)
+- periods: google:periods/21 added: pattern '(?<!\.\.|\b(?:etc|Inc|Ltd|Corp|Co|vs|[A-Z]))\.\s*$' (fixes.json: #64: the source rule is mechanical; prose only before)
+- periods: google:periods/22 added: pattern '(?<=[A-Za-z)"\u201D\u2019][.!?][ \u00A0])[ \u00A0]+(?=[A-Z])' (fixes.json: #64: mechanical; after a sentence, not after a hand-typed list number ('1.   Open'); a space made of a source line break is not flagged (the engine skips it))
 - dashes: google:dashes/4 pattern → '(?<!\d)\u2013|\u2013(?!\d)' (fixes.json)
 - dashes: google:dashes/4 example → 'Install the app – then restart it.' (fixes.json)
+- dashes: google:dashes/7 added: pattern '(?<=[A-Za-z,]) -- (?=[A-Za-z])' (fixes.json: #64: a spaced double hyphen as a dash (unspaced -- is too often a flag or an encoded name; a spaced single hyphen belongs to hyphens/33))
+- dashes: google:dashes/3 severity warning → suggestion (flag-only: no safe fix)
+- dashes: google:dashes/4 severity warning → suggestion (flag-only: no safe fix)
 - pluralization: google:pluralization/13 dropped (\b\d+(?:\.\d+)?(?:KB|MB|GB|TB|PB)\b): duplicate of google:units-of-measure/4
+- pluralization: google:pluralization/12 severity warning → suggestion (flag-only: no safe fix)
+- pluralization: google:pluralization/18 severity warning → suggestion (flag-only: no safe fix)
+- quotation-marks: google:quotation-marks/2 pattern → row (fixes.json: #61: Google's reason is code samples; a preference for prose, with the exact fix)
+- quotation-marks: google:quotation-marks/2 Use '' → '", ", ', '' (fixes.json: #61: Google's reason is code samples; a preference for prose, with the exact fix)
+- quotation-marks: google:quotation-marks/2 avoid → '“, ”, ‘, ’' (fixes.json)
+- quotation-marks: google:quotation-marks/2 severity → 'suggestion' (fixes.json)
+- quotation-marks: google:quotation-marks/4 text → 'You can use quotation marks for titles of shorter works such as articles or episodes in a web series, unless they're part of a link.' (fixes.json)
+- quotation-marks: google:quotation-marks/6 text → 'You can use quotation marks when referring to a section of a larger document or piece, if you can't link to the section directly.' (fixes.json)
+- quotation-marks: google:quotation-marks/7 text → 'You can use quotation marks when referring to the title of a parent document when you're already linking to a section.' (fixes.json)
+- quotation-marks: google:quotation-marks/8 text → 'You can use quotation marks when directly citing a person or quoting a slogan or motto.' (fixes.json)
+- quotation-marks: google:quotation-marks/9 text → 'You can use quotation marks for a term used metaphorically, but only if it's not an established usage in the domain.' (fixes.json)
 - accessibility: google:accessibility/30 drops 'click here' (owned by google:word-list/136)
 - accessibility: google:accessibility/30 Example → 'Don't use click here or read this document.'
+- accessibility: google:accessibility/30 severity warning → suggestion (flag-only: no safe fix)
+- accessibility: google:accessibility/61 severity warning → suggestion (flag-only: no safe fix)
 - tone: google:tone/19 dropped (let's, Let's): duplicate of google:word-list/432
 - tone: google:tone/20 drops 'simply' (owned by google:inclusive-documentation/20)
 - tone: google:tone/20 drops 'Simply' (owned by google:inclusive-documentation/20)
 - tone: google:tone/21 dropped (tl;dr, TL;DR, ymmv, YMMV): duplicate of google:word-list/694, google:word-list/765
+- tone: google:tone/20 avoid → 'It's that simple, it's that simple, It's easy, it's easy, It’s that simple, it’s that simple, It’s easy, it’s easy' (fixes.json)
+- semicolons: google:semicolons/2 good → 'You can test compatibility by computing the centroid; if it is on the opposite side of the planet, reverse the order of your vertices.' (fixes.json)
+- lists: google:lists/17 text → 'End each list item with a period or other appropriate sentence-ending punctuation, except for items that are a single word, have no verb, are entirely in code font, or are entirely link text or a document title. If you're writing UI text rather than prose documentation, follow the Material Design guidelines instead.' (fixes.json)
+- lists: google:lists/34 good → 'The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.' (fixes.json)
+- lists: google:lists/35 good → 'The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.' (fixes.json)
+- lists: google:lists/8 Content.WebMarkup (fixes.json: #63: HTML authoring (p rather than br))
+- lists: google:lists/13 Content.WebMarkup (fixes.json: #63: HTML authoring (reversed attribute))
+- lists: google:lists/14 Content.WebMarkup (fixes.json: #63: HTML authoring (value attribute))
+- lists: google:lists/36 severity warning → suggestion (flag-only: no safe fix)
 - slashes: google:slashes/3 dropped ((?<![\w/.])\d{1,2}/\d{1,2}/(?:\d{4}|\d{2})(?![\w/])): duplicate of google:dates-times/33
+- slashes: google:slashes/9 text → 'Use forward slashes, as appropriate, in computer file paths and URLs; if you're documenting a Windows path, use backslashes.' (fixes.json)
 - hyphens: google:hyphens/19 drops 'web page' (fixes.json: inferred by the model, not in the source (Google itself writes web page))
 - hyphens: google:hyphens/19 drops 'trade-off' (fixes.json: inferred by the model, not in the source (Google itself writes web page))
 - hyphens: google:hyphens/19 drops 'work-around' (fixes.json: inferred by the model, not in the source (Google itself writes web page))
 - hyphens: google:hyphens/19 Example → 'Open the host name in a browser.'
 - hyphens: google:hyphens/19 dropped (host name): duplicate of google:word-list/362
+- hyphens: google:hyphens/30 pattern → '(?<=\d)\u2013(?=\d)' (fixes.json)
+- hyphens: google:hyphens/15 pattern → '\b(?!(?i:family|early|daily|weekly|monthly|yearly|hourly|quarterly|nightly|friendly|likely|unlikely|lonely|lovely|costly|timely|orderly|elderly|supply|apply|reply|multiply|assembly|anomaly|butterfly|holy|ugly|curly|silly|jelly|belly|bully|rally|ally|only|homely|deadly|lively|worldly|scholarly|leisurely|kindly|stately|sickly|wobbly|bubbly|chilly|hilly|smelly|wily)-)[A-Za-z]{2,}ly-[a-z]+' (fixes.json)
+- hyphens: google:hyphens/31 pattern → '\b[Ff]rom \d{1,4}\s?-\s?\d{1,4}\b(?!-)' (fixes.json)
+- hyphens: google:hyphens/25 good → '200 GB disk' (fixes.json)
+- hyphens: google:hyphens/15 severity warning → suggestion (flag-only: no safe fix)
+- hyphens: google:hyphens/26 severity warning → suggestion (typographic or advisory row)
+- hyphens: google:hyphens/30 severity warning → suggestion (flag-only: no safe fix)
+- hyphens: google:hyphens/31 severity warning → suggestion (flag-only: no safe fix)
+- hyphens: google:hyphens/33 severity warning → suggestion (flag-only: no safe fix)
+- format-examples: google:format-examples/2 good → '' (fixes.json)
+- format-examples: google:format-examples/3 good → '' (fixes.json)
+- format-examples: google:format-examples/6 added: pattern ';\s+(?:for example|for instance|such as)\b' (fixes.json: #64: Format-Examples, 'Avoid using a semicolon for this purpose')
+- tables: google:tables/22 pattern → '(?<=[a-z,] )Table(?= \d)' (fixes.json)
+- tables: google:tables/22 drops its page's pack tag (fixes.json: #60, #65: a reference to 'table 2' sits in running text, not in a table; any lowercase word before it)
+- tables: google:tables/21 pattern → prose: '\.\s*</caption>' matches markup; lint sees text only (#55)
+- tables: google:tables/28 pattern → prose: '\b(?:colspan|rowspan)\s*=' matches markup; lint sees text only (#55)
+- tables: google:tables/29 pattern → prose: '<img\b(?![^>]*\balt\s*=)[^>]*>' matches markup; lint sees text only (#55)
+- tables: google:tables/34 pattern → prose: '(?:\.|:|…)\s*</th>' matches markup; lint sees text only (#55)
+- person: google:person/6 text → 'It's OK to use the imperative in running text after you establish who is being addressed.' (fixes.json)
+- person: google:person/10 text → 'It's OK to use first-person plural pronouns (such as we, our, or us) to refer to the organization that's represented as the author of the document.' (fixes.json)
 - abbreviations: google:abbreviations/18 dropped (i.e., e.g.): duplicate of google:word-list/244, google:word-list/377
 - abbreviations: google:abbreviations/19 dropped (tl;dr, TL;DR, ymmv, YMMV, RTFM): duplicate of google:word-list/606, google:word-list/694, google:word-list/765
 - abbreviations: google:abbreviations/24 drops 'U.S.' (owned by google:word-list/719)
@@ -123,11 +220,60 @@
 - abbreviations: google:abbreviations/28 drops 'An FHIR' (owned by google:word-list/283, google:word-list/613, google:word-list/653)
 - abbreviations: google:abbreviations/28 drops 'a SAP' (owned by google:word-list/283, google:word-list/613, google:word-list/653)
 - abbreviations: google:abbreviations/28 Example → 'Run An SQL query against the table.'
+- abbreviations: google:abbreviations/25 pattern → '(?<![A-Za-z]\.)\b(?!(?:U\.S\.|U\.K\.|D\.C\.))(?!(?:[AP]\.M\.|A\.D\.|B\.C\.)(?![A-Za-z]))(?:[A-Z]\.){2,}(?![A-Za-z])(?!\s+[A-Z][a-z])' (fixes.json)
+- abbreviations: google:abbreviations/26 good → 'Use SSH to sign in to your remote shell.' (fixes.json)
+- abbreviations: google:abbreviations/21 severity warning → suggestion (flag-only: no safe fix)
+- abbreviations: google:abbreviations/25 severity warning → suggestion (flag-only: no safe fix)
+- mathematical-notation: google:mathematical-notation/12 good → 'The equation that describes a polynomial trend line, where the order is o, is the following: y = a + b × x + ... + k × xᵒ' (fixes.json)
+- mathematical-notation: google:mathematical-notation/2 Content.WebMarkup (fixes.json: #63: HTML entities)
+- mathematical-notation: google:mathematical-notation/3 Content.WebMarkup (fixes.json: #63: HTML entities)
+- mathematical-notation: google:mathematical-notation/4 Content.WebMarkup (fixes.json: #63: HTML entities)
+- mathematical-notation: google:mathematical-notation/6 Content.WebMarkup (fixes.json: #63: HTML entities)
+- mathematical-notation: google:mathematical-notation/7 Content.WebMarkup (fixes.json: #63: &nbsp; entities)
+- mathematical-notation: google:mathematical-notation/11 Content.WebMarkup (fixes.json: #63: &nbsp; entities)
+- mathematical-notation: google:mathematical-notation/16 Content.WebMarkup (fixes.json: #63: the sup tag)
+- mathematical-notation: google:mathematical-notation/17 Content.WebMarkup (fixes.json: #63: the sub tag)
+- mathematical-notation: google:mathematical-notation/18 severity warning → suggestion (flag-only: no safe fix)
 - parentheses: google:parentheses/4 dropped (\b[A-Za-z]+\((s|es)\)): owners.json: pluralization/18 is the broader (s)/(es)/(ren) rule
+- translation: google:translation/48 added: row 'utilize, utilizes, utilized, utilizing' (fixes.json: #64: Translation, use a simple word (fine for a special sense, hence suggestion))
+- translation: google:translation/49 added: row 'leverage, leverages, leveraged, leveraging' (fixes.json: #64: Translation, use a simple word; flag only because leverage is also a noun)
+- translation: google:translation/50 added: row 'commence, commences, commenced, commencing' (fixes.json: #64: Translation, use a simple word)
+- translation: google:translation/51 added: row 'a number of' (fixes.json: #64: Translation, a single word for a phrase; flag only (some or many is the writer's call))
+- translation: google:translation/52 added: row 'makes use of, make use of, made use of, making use of' (fixes.json: #64: Translation, phrasal verbs (the source's own Not recommended example))
+- translation: google:translation/45 severity warning → suggestion (typographic or advisory row)
 - code-syntax: google:code-syntax/32 Product.GoogleCloud (products.json lists the rule)
 - code-syntax: google:code-syntax/34 Product.GoogleCloud (its section is about it)
 - code-syntax: google:code-syntax/36 Product.GoogleCloud (products.json lists the rule)
+- filenames: google:filenames/14 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/1 good → '64 GB' (fixes.json)
+- units-of-measure: google:units-of-measure/11 good → '200 GB disk' (fixes.json)
+- units-of-measure: google:units-of-measure/4 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/6 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/7 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/8 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/9 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/12 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/15 severity warning → suggestion (flag-only: no safe fix)
+- units-of-measure: google:units-of-measure/18 severity warning → suggestion (flag-only: no safe fix)
+- placeholders: google:placeholders/8 pattern → prose: '<var>[^<]*[a-z \-][^<]*</var>' matches markup; lint sees text only (#55)
+- placeholders: google:placeholders/9 pattern → prose: '<var>(?:MY|YOUR|OUR|THEIR)_[A-Z0-9_]+</var>' matches markup; lint sees text only (#55)
+- images: google:images/32 Content.WebMarkup (fixes.json: #63: HTML authoring (figure and figcaption elements))
+- images: google:images/55 Content.WebMarkup (fixes.json: #63: HTML authoring (srcset))
+- images: google:images/56 Content.WebMarkup (fixes.json: #63: HTML authoring (srcset and src))
+- images: google:images/57 Content.WebMarkup (fixes.json: #63: HTML authoring (width attribute))
+- images: google:images/58 Content.WebMarkup (fixes.json: #63: HTML authoring (src attribute))
+- images: google:images/62 Content.WebMarkup (fixes.json: #63: HTML authoring (srcset))
+- images: google:images/63 Content.WebMarkup (fixes.json: #63: site CSS (style attribute))
+- images: google:images/70 Content.WebMarkup (fixes.json: #63: HTML authoring (img inside p))
+- images: google:images/40 severity warning → suggestion (flag-only: no safe fix)
 - cross-references: google:cross-references/15 dropped (click here, Click here): duplicate of google:word-list/136
+- cross-references: google:cross-references/22 Use 'more information about' → 'For more information about, for more information about' (fixes.json: #60: the rule is about the link introduction; 'more information on the dashboard' in prose is fine)
+- cross-references: google:cross-references/22 avoid → 'For more information on, for more information on' (fixes.json)
+- headings-targets: google:headings-targets/1 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)
+- headings-targets: google:headings-targets/2 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)
+- headings-targets: google:headings-targets/3 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)
+- headings-targets: google:headings-targets/4 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)
+- headings-targets: google:headings-targets/5 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)
 - inclusive-documentation: google:inclusive-documentation/2 drops 'man-hours' (owned by google:word-list/450)
 - inclusive-documentation: google:inclusive-documentation/2 Example → 'Build AI that benefits mankind.'
 - inclusive-documentation: google:inclusive-documentation/10 drops 'crazy' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
@@ -140,13 +286,43 @@
 - inclusive-documentation: google:inclusive-documentation/29 drops 'blacklist' (owned by google:word-list/292, google:word-list/95)
 - inclusive-documentation: google:inclusive-documentation/29 drops 'first-class citizen' (owned by google:word-list/292, google:word-list/95)
 - inclusive-documentation: google:inclusive-documentation/29 Example → 'For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.'
+- inclusive-documentation: google:inclusive-documentation/10 drops 'dumb' (fixes.json: #60: bare dumb/dummy hit 'dumb terminal' and 'dummy data'; the Word-List owns 'dumb down' and 'dummy variable')
+- inclusive-documentation: google:inclusive-documentation/10 drops 'dummy' (fixes.json: #60: bare dumb/dummy hit 'dumb terminal' and 'dummy data'; the Word-List owns 'dumb down' and 'dummy variable')
+- inclusive-documentation: google:inclusive-documentation/26 drops 'the aged' (fixes.json: #60: 'the aged entries' in technical text; the source is about writing about older adults)
+- inclusive-documentation: google:inclusive-documentation/42 drops 'suffering from' (fixes.json: #60: the source scopes it to disability; 'a service suffering from latency' is fine)
+- inclusive-documentation: google:inclusive-documentation/20 severity warning → suggestion (typographic or advisory row)
 - jargon: google:jargon/7 dropped (blast radius): duplicate of google:word-list/98
 - jargon: google:jargon/9 dropped (off-the-shelf): duplicate of google:word-list/519
 - api-reference-comments: google:api-reference-comments/17 dropped (e.g.): duplicate of google:word-list/244
+- api-reference-comments: google:api-reference-comments/20 good → 'Checks whether this activity is in the process of being destroyed to be recreated with a new configuration.' (fixes.json)
 - ui-elements: google:ui-elements/13 dropped (hamburger icon, zippy, expando): duplicate of google:word-list/273, google:word-list/340
+- ui-elements: google:ui-elements/54 pattern → '\b[Tt]oggl(?:e|es|ed|ing) (?:the|a|an|on|off|between)\b' (fixes.json)
+- ui-elements: google:ui-elements/70 pattern → '[⌘⌥⇧⌃]\s?\+?\s?[A-Za-z0-9]' (fixes.json)
+- ui-elements: google:ui-elements/71 pattern → '\b(?:Control|Ctrl|Command|Option|Alt|Shift)(?: \+|\+ )' (fixes.json)
+- ui-elements: google:ui-elements/22 Content.WebMarkup (fixes.json: #63: &nbsp; entities in menu sequences)
+- ui-elements: google:ui-elements/24 Content.WebMarkup (fixes.json: #63: span tags and aria-label attributes)
+- ui-elements: google:ui-elements/31 Content.WebMarkup (fixes.json: #63: nonbreaking space entities)
+- ui-elements: google:ui-elements/54 severity warning → suggestion (flag-only: no safe fix)
+- ui-elements: google:ui-elements/69 severity warning → suggestion (flag-only: no safe fix)
+- ui-elements: google:ui-elements/70 severity warning → suggestion (flag-only: no safe fix)
+- ui-elements: google:ui-elements/71 severity warning → suggestion (flag-only: no safe fix)
+- ui-elements: google:ui-elements/72 severity warning → suggestion (flag-only: no safe fix)
+- semantic-tagging: google:semantic-tagging/1 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/2 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/3 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/4 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/5 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/6 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/7 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/8 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/9 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/10 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)
+- semantic-tagging: google:semantic-tagging/10 pattern → prose: '<br\s*/?>\s*<br\s*/?>' matches markup; lint sees text only (#55)
 - examples: google:examples/27 drops 'foo' (owned by google:word-list/294)
 - examples: google:examples/27 Example → 'Don't use unclear components like foo, bar, and baz in names.'
 - examples: google:examples/18 dropped (\b(?!800[-‑.]555[-‑.]01\d\d\b)\d{3}[-‑.]\d{3}[-‑.]\d{4}\b): owners.json: Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose
+- examples: google:examples/27 dropped (baz): fixes.json: #60: the rule is about example project names; lint can't tell a name from the word baz, so it stays a prose rule
+- examples: google:examples/29 added: row 'Alice and Bob, Bob and Alice' (fixes.json: #64: Examples, Alice and Bob)
 - word-list: google:word-list/23 claims units of several entries (action bar; app bar); its Term is its own entry, 'action bar'
 - word-list: google:word-list/23 Term 'action bar, app bar' → 'action bar'
 - word-list: google:word-list/144 claims units of several entries (Cloud console; console); its Term is its own entry, 'Cloud console'
@@ -309,6 +485,91 @@
 - word-list: google:word-list/512 dropped (noops): owners.json: same entry (NoOps); 511 has the fix
 - word-list: google:word-list/244 Use 'for example, For example' → 'for example,' (the fix 'Use a supported format, for example JSON.' is flagged by google:word-list/296 ('for example'))
 - word-list: google:word-list/269 flag-only, was Use 'etc.' (the fix 'If your app experiences instability, high latency, etc., follow these steps:' is flagged by google:lists/36 (', etc.'))
+- word-list: google:word-list/425 pattern → '\b\d+\.\d+(?:\.\d+)*\+(?=\s|$|[.,;:)])' (fixes.json)
+- word-list: google:word-list/492 severity → 'suggestion' (fixes.json)
+- word-list: google:word-list/216 Use 'denial-of-service, Denial-of-service' → 'distributed denial-of-service, Distributed denial-of-service' (fixes.json: #60: the source entry is 'distributed denial-of-service (DDoS)'; the noun 'denial of service' is fine)
+- word-list: google:word-list/216 avoid → 'distributed denial of service, Distributed denial of service' (fixes.json)
+- word-list: google:word-list/641 pattern → '(?i)\bsingle sign on\b' (fixes.json)
+- word-list: google:word-list/269 severity → 'warning' (fixes.json)
+- word-list: google:word-list/369 severity → 'warning' (fixes.json)
+- word-list: google:word-list/269 pattern → '(?<![/\\])\betc\b(?![./\\])' (fixes.json)
+- word-list: google:word-list/475 pattern → '(?<=[a-z,;] )(?<![Ss]ee )Microservices\b' (fixes.json)
+- word-list: google:word-list/81 good → 'PRODUCT_NAME is in beta.' (fixes.json)
+- word-list: google:word-list/759 good → 'A handset that has 2 GB of RAM.' (fixes.json)
+- word-list: google:word-list/768 added: row 'ghetto' (fixes.json: #64: Word-List 'Don't use' term with no row)
+- word-list: google:word-list/769 added: row 'ninja, ninjas' (fixes.json: #64: Word-List 'Don't use' term with no row; flag only (fine in a product name))
+- word-list: google:word-list/770 added: row 'grandfathered, grandfathering' (fixes.json: #64: Word-List 'Don't use' term; word-list/326 covers only grandfather clause)
+- word-list: google:word-list/771 added: row 'kill, kills, killed, killing' (fixes.json: #64: Word-List 'Avoid when possible' (command-line syntax is code, which lint skips))
+- word-list: google:word-list/772 added: row 'in order to' (fixes.json: #64: Word-List 'Avoid'; suggestion because the source allows it where it clarifies)
+- word-list: google:word-list/9 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/33 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/38 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/49 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/73 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/98 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/106 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/108 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/117 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/127 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/136 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/140 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/153 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/155 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/157 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/165 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/173 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/196 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/199 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/203 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/204 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/273 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/281 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/296 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/297 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/313 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/316 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/323 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/329 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/331 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/340 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/366 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/367 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/393 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/413 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/425 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/427 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/429 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/432 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/499 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/517 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/518 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/519 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/541 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/545 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/553 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/561 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/563 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/584 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/595 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/601 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/604 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/619 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/627 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/638 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/640 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/645 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/649 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/650 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/655 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/694 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/706 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/717 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/724 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/726 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/727 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/729 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/734 severity warning → suggestion (flag-only: no safe fix)
+- word-list: google:word-list/758 severity warning → suggestion (flag-only: no safe fix)
 
 ## Not applicable (reasons)
 

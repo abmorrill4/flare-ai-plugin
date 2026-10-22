@@ -1,0 +1,60 @@
+[
+  {
+    "Id": "google:headings/33",
+    "Layer": "google",
+    "Page": "Headings",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [
+      "Headings"
+    ],
+    "Avoid": [
+      "\\((?i:optional)\\)"
+    ],
+    "Use": "",
+    "Example": "Configure DNS (optional)",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Configure DNS (optional)",
+        "Expect": {
+          "clean": "paragraph, step, step-p, list, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "heading-h2, heading-h4"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:headings/32",
+    "Layer": "google",
+    "Page": "Headings",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [
+      "Headings"
+    ],
+    "Avoid": [
+      "^\\s*(?!(?:Billing|Pricing)\\b)[A-Z][a-z]{2,}ing\\s+(?:a|an|the|your|you|up|this|that|these|those|new|existing|multiple|custom)\\b"
+    ],
+    "Use": "",
+    "Example": "Creating an instance",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Creating an instance",
+        "Expect": {
+          "clean": "paragraph, step, step-p, list, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "heading-h2, heading-h4"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

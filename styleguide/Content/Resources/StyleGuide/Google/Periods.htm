@@ -8,6 +8,10 @@
         <ul>
             <li id="rule-1">End a complete sentence with a period, unless it&apos;s a question; lists have exceptions.</li>
         </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr id="rule-22"><td>(?&lt;=[A-Za-z)&quot;\u201D\u2019][.!?][ \u00A0])[ \u00A0]+(?=[A-Z])</td><td>(delete)</td><td>warning</td><td>Leave only one space between sentences.</td><td>Save the file.  Then close the editor.</td></tr>
+        </table>
         <h2>Periods with URLs</h2>
         <ul>
             <li id="rule-2" MadCap:conditions="Content.Links">Whenever possible, avoid putting URLs in text.</li>
@@ -16,7 +20,7 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-5" MadCap:conditions="Content.Links"><td>https?://\S+[ \t]+\.(?=\s|$)</td><td></td><td>error</td><td></td><td>See the policy at http://www.example.com/privacy/ .</td></tr>
+            <tr id="rule-5" MadCap:conditions="Content.Links"><td>https?://\S+[ \t]+\.(?=\s|$)</td><td></td><td>warning</td><td></td><td>See the policy at http://www.example.com/privacy/ .</td></tr>
         </table>
         <h2>Periods with quotation marks</h2>
         <ul>
@@ -25,7 +29,7 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-8"><td>[?!][&quot;”]\.</td><td></td><td>error</td><td></td><td>Children always ask &quot;Why?&quot;.</td></tr>
+            <tr id="rule-8"><td>[?!][&quot;”]\.</td><td></td><td>warning</td><td></td><td>Children always ask &quot;Why?&quot;.</td></tr>
         </table>
         <h2>Periods with parentheses</h2>
         <ul>
@@ -36,6 +40,10 @@
         <ul>
             <li id="rule-11" MadCap:conditions="Content.Headings">Don&apos;t end headings with periods.</li>
         </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr id="rule-21" MadCap:conditions="Content.Headings"><td>(?&lt;!\.\.|\b(?:etc|Inc|Ltd|Corp|Co|vs|[A-Z]))\.\s*$</td><td>(delete)</td><td>warning</td><td>Headings don&apos;t end with a period.</td><td>Configure the network.</td></tr>
+        </table>
         <h2>Periods with numbers</h2>
         <ul>
             <li id="rule-12" MadCap:conditions="Content.Numbers">Use a period to represent a decimal point, not a comma.</li>

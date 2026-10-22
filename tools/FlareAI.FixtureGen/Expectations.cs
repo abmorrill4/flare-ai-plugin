@@ -63,16 +63,10 @@ namespace FlareAI.FixtureGen
     /// <summary>Facts about a row's pattern text that don't depend on how the engine runs it.</summary>
     public static class RuleShape
     {
-        private static readonly Regex Tag = new Regex(@"(?<!\(\?)<\s*/?\s*[A-Za-z!?]", RegexOptions.Compiled);
-        private static readonly Regex Entity = new Regex(@"&(?:[A-Za-z]+|#\d+|#x[0-9A-Fa-f]+);", RegexOptions.Compiled);
-        private static readonly Regex Attribute = new Regex(@"\b(?:colspan|rowspan|alt|src|href|class|style|width|height)\b[^=\r\n]{0,12}=", RegexOptions.Compiled);
         private static readonly Regex RegexChars = new Regex(@"[\\\[\]()?*+|^${}]", RegexOptions.Compiled);
 
         /// <summary>True when the pattern contains a tag, entity or attribute shape: lint sees text only, so it can never match a topic (#55).</summary>
-        public static bool MatchesMarkup(string pattern)
-        {
-            return Tag.IsMatch(pattern) || Entity.IsMatch(pattern) || Attribute.IsMatch(pattern);
-        }
+        public static bool MatchesMarkup(string pattern) { return FlareAI.Core.Style.LintPatterns.MatchesMarkup(pattern); }
 
         /// <summary>A plain word or phrase in an Avoid cell, as opposed to a regular expression in a Pattern cell.</summary>
         public static bool IsLiteral(string avoid) { return avoid.Length > 0 && !RegexChars.IsMatch(avoid); }

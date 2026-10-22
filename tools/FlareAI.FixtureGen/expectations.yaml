@@ -46,7 +46,7 @@ tags:
   Lists: [list, step, step-p]
   Tables: [table-header, table-cell, caption]
   Notes: [note]
-  Images: [paragraph, step, step-p, list, table-cell, note, caption]
+  Images: [paragraph, step, step-p, list, table-cell, note, caption, variable-adjacent, conditional-span]
 
 # A rule tagged with one of these is about that kind of text, so the default for the class is relaxed.
 tag-classes:

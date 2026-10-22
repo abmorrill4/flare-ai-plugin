@@ -67,6 +67,9 @@ namespace FlareAI.Core.Style
 
         private sealed class Section { public string Title, Source; public List<string> Lines = new List<string>(); }
 
+        /// <summary>How Validate and the guide load report a row whose pattern can only match markup (#55).</summary>
+        public const string MarkupOnly = "Matches markup, but topics are checked as text";
+
         public static bool IsDelete(string use) { return Delete.Contains((use ?? "").Trim()); }
         public static bool IsFlagOnly(string use) { return FlagOnly.Contains((use ?? "").Trim()); }
 
@@ -275,6 +278,14 @@ namespace FlareAI.Core.Style
                     rule.Id = item.Id; rule.LocalName = Camel(s.Topic) + Camel(item.Id.Substring(item.Id.LastIndexOf('/') + 1)); rule.Layer = Name; rule.Link = s.Link;
                     rule.Applies = item.Applies; rule.Products = item.Products;
                     rule.File = file; rule.Row = rowNo; rule.Avoid = avoid; rule.Use = use; rule.Example = cell(exC);
+                    var markup = rule.Swaps.Select(x => x.Key.ToString()).FirstOrDefault(LintPatterns.MatchesMarkup);
+                    if (markup != null)
+                    {
+                        // Lint reads a topic's text with the markup flattened away: this row could never fire. Report it, don't load it.
+                        Problem("warning", file, "table row " + rowNo + " (" + item.Id + ")", MarkupOnly + " ('" + (isPattern ? avoid[0] : string.Join(", ", avoid.ToArray())) +
+                                "'): the row is skipped. Write it as a rule bullet for the reviewer instead.");
+                        continue;
+                    }
                     Rules.Add(rule);
                     s.Section.Lines.Add("- [" + item.Id + "] " + text + Scope(item.Applies.Select(a => "Content." + a).Concat(item.Products.Select(p => "Product." + p)).ToList()));
                 }
@@ -549,7 +560,8 @@ namespace FlareAI.Core.Style
 
         // ---- text helpers --------------------------------------------------------------------------------------
 
-        internal static string TextOf(XmlNode n) { return Regex.Replace(n.InnerText, @"\s+", " ").Trim(); }
+        /// <summary>The element's text with source whitespace collapsed. A nonbreaking space is content (an Example can need one), so it stays.</summary>
+        internal static string TextOf(XmlNode n) { return Regex.Replace(n.InnerText, @"[ \t\r\n\f\v]+", " ").Trim(' ', '\t', '\r', '\n'); }
 
         /// <summary>(own text, bad, good) of a list item: nested "Bad:"/"Good:" lines are its examples.</summary>
         private static void BulletParts(XmlNode li, out string own, out string bad, out string good)
@@ -578,7 +590,7 @@ namespace FlareAI.Core.Style
                 if (mm.Success) { if (mm.Groups[1].Value.ToLowerInvariant() == "bad") bad = mm.Groups[2].Value.Trim(); else good = mm.Groups[2].Value.Trim(); }
                 else o.Append(c.InnerText);
             }
-            own = Regex.Replace(o.ToString(), @"\s+", " ").Trim();
+            own = Regex.Replace(o.ToString(), @"[ \t\r\n\f\v]+", " ").Trim(' ', '\t', '\r', '\n');
             if (extra.Count > 0) own += " (" + string.Join("; ", extra.ToArray()) + ")";
         }
 
@@ -599,6 +611,24 @@ namespace FlareAI.Core.Style
         private static string TitleCase(string s) { return Regex.Replace(s.ToLowerInvariant(), @"\b[a-z]", m => m.Value.ToUpperInvariant()); }
         private static string Read(string path) { return File.ReadAllText(path, Encoding.UTF8); }
         private IEnumerable<string> Files(string dir, string pattern) { return Directory.Exists(dir) ? Directory.GetFiles(dir, pattern).Where(f => !_skip(f)).OrderBy(f => f, StringComparer.OrdinalIgnoreCase) : Enumerable.Empty<string>(); }
+    }
+
+    /// <summary>Facts about a lint row's regular expression that don't depend on the text it runs on.</summary>
+    public static class LintPatterns
+    {
+        private static readonly Regex Tag = new Regex(@"(?<!\(\?)<\s*/?\s*[A-Za-z!?]", RegexOptions.Compiled);
+        private static readonly Regex Entity = new Regex(@"&(?:[A-Za-z]+|#\d+|#x[0-9A-Fa-f]+);", RegexOptions.Compiled);
+        // An attribute name (also right after a \b of the pattern itself), then an equals sign close by.
+        private static readonly Regex Attribute = new Regex(@"(?:(?<![A-Za-z])|(?<=\\b))(?:colspan|rowspan|alt|src|href|class|style|width|height)\b[^=\r\n]{0,12}=", RegexOptions.Compiled);
+
+        /// <summary>
+        /// True when the pattern contains a tag (&lt;br&gt;, &lt;/th&gt;), an entity (&amp;ndash;) or an attribute shape (colspan=):
+        /// lint sees the text of a topic, never its markup, so such a row can never fire (#55).
+        /// </summary>
+        public static bool MatchesMarkup(string pattern)
+        {
+            return !string.IsNullOrEmpty(pattern) && (Tag.IsMatch(pattern) || Entity.IsMatch(pattern) || Attribute.IsMatch(pattern));
+        }
     }
 
     public sealed class GlossaryEntry

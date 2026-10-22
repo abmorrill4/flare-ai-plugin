@@ -206,7 +206,7 @@
       "whitelists",
       "whitelisted"
     ],
-    "Use": "allowlist, allowlists, allowlisted",
+    "Use": "allowlist, allowlists, allowed",
     "Example": "Add the IP to the whitelist.",
     "IgnoreCase": true,
     "MarkupOnly": false,
@@ -287,7 +287,7 @@
     "Good": [
       {
         "Source": "use",
-        "Text": "Allowlist, allowlists, allowlisted",
+        "Text": "Allowlist, allowlists, allowed",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]

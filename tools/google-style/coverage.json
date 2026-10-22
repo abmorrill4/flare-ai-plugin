@@ -62,8 +62,8 @@
       "scope": "core"
     },
     "other-sources": {
-      "scope": "pack",
-      "trigger": "links"
+      "scope": "core",
+      "why": "#63: applies to any text, not only sections with links (uncited copying has no link)"
     },
     "timeless-documentation": {
       "scope": "core"
@@ -118,7 +118,8 @@
     },
     "reference-verbs": {
       "scope": "pack",
-      "trigger": "table"
+      "trigger": "api",
+      "why": "#63: method descriptions in API reference, not tables"
     },
     "colons": {
       "scope": "pack",
@@ -171,8 +172,8 @@
       "trigger": "numbers"
     },
     "format-examples": {
-      "scope": "pack",
-      "trigger": "code"
+      "scope": "core",
+      "why": "#63: applies to any text, not only sections with code (it is about introducing examples in sentences)"
     },
     "images": {
       "scope": "pack",

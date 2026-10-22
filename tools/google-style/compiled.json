@@ -42,7 +42,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d+(?:st|nd|rd|th)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Ordinal numbers are spelled out in text.",
         "example": "Select the 1st option in the list.",
         "applies": [],
@@ -134,7 +134,7 @@
         "kind": "prose",
         "text": "In some cases, rearrange the sentence so that the number appears later instead of starting the sentence.",
         "bad": "164 MB is generally considered too large a file to send as an attachment.",
-        "good": "In general, avoid sending files larger than 164 MB as attachments.",
+        "good": "In general, avoid sending files larger than 164 MB as attachments.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -577,7 +577,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<=^|\\s)\\.\\d+\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Decimals less than one need a leading zero.",
         "example": "Set the margin to .3 inches.",
         "applies": [],
@@ -752,7 +752,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d+(?:\\.\\d+)?[ \\u00A0]?percent\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use numerals with the percent sign.",
         "example": "Only 40 percent of the files were copied.",
         "applies": [],
@@ -948,7 +948,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\$\\d{1,3}(?: \\d{3})+\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use commas to separate thousands in US dollars.",
         "example": "$10 000 in fees is out of reach for many developers.",
         "applies": [],
@@ -972,8 +972,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\$\\d[\\d,]*\\.\\d+(?:[, ]\\d{3})+\\b",
-        "severity": "error",
+        "pattern": "\\$\\d[\\d,]*\\.\\d+(?:,\\d{3})+\\b",
+        "severity": "warning",
         "why": "No digit separators right of the decimal point.",
         "example": "The price is $0.006,653 per vCPU hour.",
         "applies": [],
@@ -1148,7 +1148,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d+(?: [xX×] ?| ?[xX×] |X|×)\\d+\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Dimensions use a lowercase x with no spaces.",
         "example": "The icon must be 192 x 192 pixels.",
         "applies": [],
@@ -1297,7 +1297,15 @@
     ],
     "passes": [
       "google:numbers/32 dropped (\\b\\d+(?:\\.\\d+)?\\s+%): owners.json: Units-Of-Measure owns the space before %",
-      "google:numbers/35 dropped (\\d\\s*(?:–|&ndash;)\\s*\\d): owners.json: Hyphens owns en dashes in number ranges"
+      "google:numbers/35 dropped (\\d\\s*(?:–|&ndash;)\\s*\\d): owners.json: Hyphens owns en dashes in number ranges",
+      "google:numbers/43 pattern → '\\$\\d[\\d,]*\\.\\d+(?:,\\d{3})+\\b' (fixes.json)",
+      "google:numbers/43 severity → 'warning' (fixes.json)",
+      "google:numbers/6 good → 'In general, avoid sending files larger than 164 MB as attachments.' (fixes.json)",
+      "google:numbers/2 severity warning → suggestion (flag-only: no safe fix)",
+      "google:numbers/25 severity warning → suggestion (flag-only: no safe fix)",
+      "google:numbers/33 severity warning → suggestion (flag-only: no safe fix)",
+      "google:numbers/42 severity warning → suggestion (flag-only: no safe fix)",
+      "google:numbers/50 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "procedures": {
@@ -1844,16 +1852,16 @@
       },
       {
         "heading": "Optional steps",
-        "kind": "row",
+        "kind": "pattern",
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "(Optional)",
-        "use": "",
-        "pattern": "",
+        "avoid": "",
+        "use": "Optional:",
+        "pattern": "^\\s*\\((?i:optional)\\)",
         "severity": "warning",
         "why": "Optional steps start with \"Optional:\".",
-        "example": "(Optional) Type an arbitrary string ...",
+        "example": "(Optional) Type an arbitrary string.",
         "applies": [],
         "products": [],
         "units": [
@@ -2314,7 +2322,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?i)\\b(?:the\\s+above\\b|(?:diagram|image|figure|screenshot|table|example|list|steps?)\\s+below\\b|(?:right|left)-hand\\s+side\\b)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Directional language fails accessibility and localization.",
         "example": "In the diagram below, ...",
         "applies": [],
@@ -2337,7 +2345,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?i)\\brun(?:ning)?\\s+the\\s+following\\s+commands?\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Focus on what the command does.",
         "example": "Run the following command:...",
         "applies": [
@@ -2361,8 +2369,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\b(?:Ctrl|Control|Cmd|Command|Alt|Option|Shift)\\+\\w",
-        "severity": "warning",
+        "pattern": "\\b(?:Ctrl|Cmd|Alt|Option)\\+\\w",
+        "severity": "suggestion",
         "why": "Don't include keyboard shortcuts in procedures.",
         "example": "Press Ctrl+C, and then press Ctrl+V...",
         "applies": [],
@@ -2566,7 +2574,15 @@
       }
     ],
     "passes": [
-      "google:procedures/39 dropped (please, Please): duplicate of google:tone/28"
+      "google:procedures/39 dropped (please, Please): duplicate of google:tone/28",
+      "google:procedures/42 pattern → '\\b(?:Ctrl|Cmd|Alt|Option)\\+\\w' (fixes.json)",
+      "google:procedures/20 row → pattern (fixes.json: #60: case-insensitive, at the start of the step only, with Google's fix)",
+      "google:procedures/20 Use '' → 'Optional:' (fixes.json: #60: case-insensitive, at the start of the step only, with Google's fix)",
+      "google:procedures/20 pattern → '^\\s*\\((?i:optional)\\)' (fixes.json)",
+      "google:procedures/20 example → '(Optional) Type an arbitrary string.' (fixes.json)",
+      "google:procedures/40 severity warning → suggestion (flag-only: no safe fix)",
+      "google:procedures/41 severity warning → suggestion (flag-only: no safe fix)",
+      "google:procedures/42 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "prescriptive-documentation": {
@@ -2752,7 +2768,7 @@
       {
         "heading": "Word choice for recommendations and requirements",
         "kind": "prose",
-        "text": "If an action is recommended, use \"We recommend\" or \"Google recommends\"; use should only if the recommended action is generally recognized, such as \"You should use a strong password.\"",
+        "text": "If an action is recommended, use \"We recommend\" or \"[Organization] recommends\"; you can use should if the recommended action is generally recognized, such as \"You should use a strong password.\"",
         "bad": "",
         "good": "",
         "avoid": "",
@@ -2891,7 +2907,10 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:prescriptive-documentation/8 text → 'If an action is recommended, use \"We recommend\" or \"[Organization] recommends\"; you can use should if the recommended action is generally recognized, such as \"You should use a strong password.\"' (fixes.json)"
+    ]
   },
   "ellipses": {
     "title": "Ellipses",
@@ -3178,7 +3197,7 @@
         "avoid": "",
         "use": "",
         "pattern": "[A-Za-z]\\.{3}[A-Za-z]",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "You don't need to understand all the other Python code in there...we'll explain it all in class.",
         "applies": [],
@@ -3202,7 +3221,8 @@
     "passes": [
       "google:ellipses/10 Use '...' → '' (fixes.json: three periods are still an ellipsis; Google says not to use ellipses in text or UI references)",
       "google:ellipses/10 severity → 'suggestion' (fixes.json)",
-      "google:ellipses/10 why → 'Don't use ellipses; leave them out of UI labels.' (fixes.json)"
+      "google:ellipses/10 why → 'Don't use ellipses; leave them out of UI labels.' (fixes.json)",
+      "google:ellipses/12 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "dates-times": {
@@ -3359,7 +3379,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d+(?:\\s+-\\s*|\\s*-\\s+|\\s*[–—]\\s*)\\d+\\s+(?:seconds|minutes|hours|days|weeks|months|years)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Wait 5 - 10 minutes before you retry.",
         "applies": [],
@@ -3382,7 +3402,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d{1,2}(?::\\d{2})?\\s?(?:[ap]\\.?m\\b\\.?|[AP]\\.M\\.)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The backup runs at 3:45 pm.",
         "applies": [],
@@ -3407,7 +3427,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d{1,2}(?::\\d{2})?(?:AM|PM)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The backup runs at 3:45PM.",
         "applies": [],
@@ -3430,7 +3450,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d{1,2}:00\\s?(?:AM|PM)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The job runs at 3:00 PM.",
         "applies": [],
@@ -3595,7 +3615,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d{1,2}(?::\\d{2})?\\s?(?:AM|PM)\\s+(?:PST|PDT|PT|EST|EDT|ET|CST|CDT|CT|MST|MDT|MT|GMT|BST|CET|CEST|IST|JST|AEST)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Maintenance starts at 10 AM PST.",
         "applies": [],
@@ -3816,7 +3836,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b(?:January|February|March|April|May|June|July|August|September|October|November|December),\\s\\d{4}\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "She was hired in January, 2017.",
         "applies": [],
@@ -3839,7 +3859,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b(?:(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\\.\\s?\\d{1,2}\\b|(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\.,)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Mon., Sep. 3, 2018",
         "applies": [],
@@ -3862,7 +3882,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\\s(?:January|February|March|April|June|July|August|September|October|November|December)\\b|\\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\\s(?:Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Mon, September 3, 2018",
         "applies": [],
@@ -3937,7 +3957,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b(?:January|February|March|April|May|June|July|August|September|October|November|December) \\d{1,2}, \\d{4} (?=[a-z])",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The January 19, 2017 release of the API added new methods.",
         "applies": [],
@@ -3993,7 +4013,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})\\b|\\b\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\b|\\b\\d{1,2}-\\d{1,2}-\\d{4}\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Numeric date order differs by region.",
         "example": "The release shipped on 12/02/2017.",
         "applies": [],
@@ -4179,7 +4199,19 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:dates-times/7 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/8 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/9 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/10 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/17 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/26 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/27 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/28 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/31 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dates-times/33 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "pronouns": {
     "title": "Pronouns",
@@ -4328,7 +4360,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?i)(?<![\\w/])(?:he/she|she/he|s/he|him/her|her/him|his/her|her/his|\\(s\\)he)(?![\\w/])",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use the singular they instead.",
         "example": "Each user must confirm that he/she agrees to the terms.",
         "applies": [],
@@ -4567,7 +4599,10 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:pronouns/6 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "sentence-structure": {
     "title": "Sentence structure",
@@ -4579,7 +4614,7 @@
       {
         "heading": "Sentence structure",
         "kind": "prose",
-        "text": "If you want to tell the reader to do something, mention the circumstance, conditions, or goal before you provide the instruction.",
+        "text": "If you want to tell the reader to do something, try to mention the circumstance, conditions, or goal before you provide the instruction.",
         "bad": "Click Delete if you want to delete the entire document.",
         "good": "To delete the entire document, click Delete.",
         "avoid": "",
@@ -4614,7 +4649,10 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:sentence-structure/1 text → 'If you want to tell the reader to do something, try to mention the circumstance, conditions, or goal before you provide the instruction.' (fixes.json)"
+    ]
   },
   "other-sources": {
     "title": "Third-party content",
@@ -5410,7 +5448,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\(\\d{3}\\)\\s?\\d{3}[-‑.]\\d{4}\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Call (415) 555-0132 for help.",
         "applies": [],
@@ -5508,7 +5546,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\d{4},?\\s+(?:[Ee]xt\\.?|EXT\\.?)\\s*\\d+",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Call 415-555-0132 ext. 987.",
         "applies": [],
@@ -5535,7 +5573,11 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:phone-numbers/6 severity warning → suggestion (flag-only: no safe fix)",
+      "google:phone-numbers/10 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "capitalization": {
     "title": "Capitalization",
@@ -6238,6 +6280,31 @@
         "id": "google:headings/8"
       },
       {
+        "heading": "Heading and title text",
+        "kind": "pattern",
+        "text": "For an optional section, use the Optional: prefix in the heading, not (optional).",
+        "bad": "",
+        "good": "",
+        "avoid": "",
+        "use": "",
+        "pattern": "\\((?i:optional)\\)",
+        "severity": "suggestion",
+        "why": "Use the Optional: prefix.",
+        "example": "Configure DNS (optional)",
+        "applies": [
+          "Headings"
+        ],
+        "products": [],
+        "units": [
+          "headings#6"
+        ],
+        "key": "33",
+        "unit_hashes": [
+          "506e9c15e5"
+        ],
+        "id": "google:headings/33"
+      },
+      {
         "heading": "Title phrasing",
         "kind": "prose",
         "text": "Use a unique level-1 heading (h1) for each page in a set of documents.",
@@ -6431,6 +6498,31 @@
           "ef82a3216d"
         ],
         "id": "google:headings/15"
+      },
+      {
+        "heading": "Use of -ing verb forms",
+        "kind": "pattern",
+        "text": "Avoid starting a heading with an -ing verb form.",
+        "bad": "",
+        "good": "",
+        "avoid": "",
+        "use": "",
+        "pattern": "^\\s*(?!(?:Billing|Pricing)\\b)[A-Z][a-z]{2,}ing\\s+(?:a|an|the|your|you|up|this|that|these|those|new|existing|multiple|custom)\\b",
+        "severity": "suggestion",
+        "why": "-ing forms are translated inconsistently.",
+        "example": "Creating an instance",
+        "applies": [
+          "Headings"
+        ],
+        "products": [],
+        "units": [
+          "headings#10"
+        ],
+        "key": "32",
+        "unit_hashes": [
+          "da656f982d"
+        ],
+        "id": "google:headings/32"
       },
       {
         "heading": "Heading and title format",
@@ -6864,7 +6956,11 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:headings/32 added: pattern '^\\s*(?!(?:Billing|Pricing)\\b)[A-Z][a-z]{2,}ing\\s+(?:a|an|the|your|you|up|this|that|these|those|new|existing|multiple|custom)\\b' (fixes.json: #64: only an -ing word followed by its object (a task heading), so noun headings such as Logging and monitoring are left alone)",
+      "google:headings/33 added: pattern '\\((?i:optional)\\)' (fixes.json: #64: mechanical; flag only because the prefix moves to the start)"
+    ]
   },
   "italics-terms": {
     "title": "Italics with terms",
@@ -7072,42 +7168,19 @@
         "units": [
           "commas#13",
           "commas#14",
-          "commas#15"
+          "commas#15",
+          "commas#16",
+          "commas#17"
         ],
         "key": "5",
         "unit_hashes": [
           "0ad55ccd53",
           "422ffe5407",
-          "f390ea85df"
-        ],
-        "id": "google:commas/5"
-      },
-      {
-        "heading": "Commas separating independent from dependent clauses",
-        "kind": "prose",
-        "text": "When an independent clause and a dependent clause are separated by a coordinating conjunction, insert a comma if the sentence could be misunderstood without one.",
-        "bad": "The manager acknowledged the last team member who entered the room and started the meeting.",
-        "good": "The manager acknowledged the last team member who entered the room, and started the meeting.",
-        "avoid": "",
-        "use": "",
-        "pattern": "",
-        "severity": "warning",
-        "why": "",
-        "example": "",
-        "applies": [],
-        "products": [],
-        "units": [
-          "commas#13",
-          "commas#16",
-          "commas#17"
-        ],
-        "key": "6",
-        "unit_hashes": [
-          "0ad55ccd53",
+          "f390ea85df",
           "f04ba15dcc",
           "f205c53c91"
         ],
-        "id": "google:commas/6"
+        "id": "google:commas/5"
       },
       {
         "heading": "Set off other kinds of clauses",
@@ -7199,7 +7272,7 @@
         "avoid": "",
         "use": "",
         "pattern": ";\\s*(?:otherwise|however|therefore)(?=\\s)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The variable must have a value; otherwise the server returns an error.",
         "applies": [],
@@ -7238,7 +7311,19 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "retired": [
+      {
+        "key": "6",
+        "text": "",
+        "retired": "2026-10-22",
+        "reason": "fixes.json: #63: the same rule as commas/5 with 'only' dropped, which reversed it"
+      }
+    ],
+    "passes": [
+      "google:commas/6 dropped (): fixes.json: #63: the same rule as commas/5 with 'only' dropped, which reversed it",
+      "google:commas/10 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "timeless-documentation": {
     "title": "Timeless documentation",
@@ -7394,7 +7479,7 @@
         "kind": "prose",
         "text": "If you must use words like new, give a reference point such as a date or version release number.",
         "bad": "",
-        "good": "The January 14, 2021 release of BigQuery includes a new resource panel.",
+        "good": "The January 14, 2021, release of BigQuery includes a new resource panel.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -7604,7 +7689,7 @@
         "avoid": "as of this writing",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Implied by the documentation itself.",
         "example": "The API, as of this writing, supports JSON output.",
         "applies": [],
@@ -7631,7 +7716,7 @@
         "avoid": "currently",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Implied by the documentation itself.",
         "example": "The following command-line options aren't currently supported:",
         "applies": [],
@@ -7656,7 +7741,7 @@
         "avoid": "does not yet",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Implies the product might change.",
         "example": "The emulator does not yet support filters.",
         "applies": [],
@@ -7683,7 +7768,7 @@
         "avoid": "eventually",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Can prematurely disclose plans for a product.",
         "example": "The service will eventually support more regions.",
         "applies": [],
@@ -7708,7 +7793,7 @@
         "avoid": "in the future",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Can prematurely disclose plans for a product.",
         "example": "More formats will be supported in the future.",
         "applies": [],
@@ -7735,7 +7820,7 @@
         "avoid": "presently, at present",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Implies the product might change.",
         "example": "At present, the tool supports only CSV files.",
         "applies": [],
@@ -7778,7 +7863,16 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:timeless-documentation/7 good → 'The January 14, 2021, release of BigQuery includes a new resource panel.' (fixes.json)",
+      "google:timeless-documentation/15 severity warning → suggestion (flag-only: no safe fix)",
+      "google:timeless-documentation/16 severity warning → suggestion (flag-only: no safe fix)",
+      "google:timeless-documentation/17 severity warning → suggestion (flag-only: no safe fix)",
+      "google:timeless-documentation/18 severity warning → suggestion (flag-only: no safe fix)",
+      "google:timeless-documentation/19 severity warning → suggestion (flag-only: no safe fix)",
+      "google:timeless-documentation/20 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "contractions": {
     "title": "Contractions",
@@ -7911,7 +8005,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[A-Za-z]+s['’]re\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The guides're available online.",
         "applies": [],
@@ -7934,7 +8028,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[A-Za-z]+(?:n['’]t|['’]d|['’]ll)['’]ve\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "You mightn't've seen the warning.",
         "applies": [],
@@ -7952,7 +8046,11 @@
     "not_applicable": [],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:contractions/6 severity warning → suggestion (flag-only: no safe fix)",
+      "google:contractions/7 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "periods": {
     "title": "Periods and end punctuation",
@@ -7983,6 +8081,29 @@
           "a45fb9e477"
         ],
         "id": "google:periods/1"
+      },
+      {
+        "heading": "Periods and end punctuation",
+        "kind": "pattern",
+        "text": "Leave only one space between sentences.",
+        "bad": "",
+        "good": "",
+        "avoid": "",
+        "use": "(delete)",
+        "pattern": "(?<=[A-Za-z)\"\\u201D\\u2019][.!?][ \\u00A0])[ \\u00A0]+(?=[A-Z])",
+        "severity": "warning",
+        "why": "Leave only one space between sentences.",
+        "example": "Save the file.  Then close the editor.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "periods#34"
+        ],
+        "key": "22",
+        "unit_hashes": [
+          "0d52f3fa5a"
+        ],
+        "id": "google:periods/22"
       },
       {
         "heading": "Periods with URLs",
@@ -8082,7 +8203,7 @@
         "avoid": "",
         "use": "",
         "pattern": "https?://\\S+[ \\t]+\\.(?=\\s|$)",
-        "severity": "error",
+        "severity": "warning",
         "why": "",
         "example": "See the policy at http://www.example.com/privacy/ .",
         "applies": [
@@ -8157,7 +8278,7 @@
         "avoid": "",
         "use": "",
         "pattern": "[?!][\"”]\\.",
-        "severity": "error",
+        "severity": "warning",
         "why": "",
         "example": "Children always ask \"Why?\".",
         "applies": [],
@@ -8245,6 +8366,31 @@
           "0e5b76ecec"
         ],
         "id": "google:periods/11"
+      },
+      {
+        "heading": "Periods with headings",
+        "kind": "pattern",
+        "text": "Don't end headings with periods.",
+        "bad": "",
+        "good": "",
+        "avoid": "",
+        "use": "(delete)",
+        "pattern": "(?<!\\.\\.|\\b(?:etc|Inc|Ltd|Corp|Co|vs|[A-Z]))\\.\\s*$",
+        "severity": "warning",
+        "why": "Headings don't end with a period.",
+        "example": "Configure the network.",
+        "applies": [
+          "Headings"
+        ],
+        "products": [],
+        "units": [
+          "periods#25"
+        ],
+        "key": "21",
+        "unit_hashes": [
+          "0e5b76ecec"
+        ],
+        "id": "google:periods/21"
       },
       {
         "heading": "Periods with numbers",
@@ -8525,7 +8671,11 @@
       }
     ],
     "passes": [
-      "google:periods/14 dropped (\\b(?:[A-Z]\\.){2,}): duplicate of google:abbreviations/25, google:word-list/719"
+      "google:periods/14 dropped (\\b(?:[A-Z]\\.){2,}): duplicate of google:abbreviations/25, google:word-list/719",
+      "google:periods/5 severity → 'warning' (fixes.json)",
+      "google:periods/8 severity → 'warning' (fixes.json)",
+      "google:periods/21 added: pattern '(?<!\\.\\.|\\b(?:etc|Inc|Ltd|Corp|Co|vs|[A-Z]))\\.\\s*$' (fixes.json: #64: the source rule is mechanical; prose only before)",
+      "google:periods/22 added: pattern '(?<=[A-Za-z)\"\\u201D\\u2019][.!?][ \\u00A0])[ \\u00A0]+(?=[A-Z])' (fixes.json: #64: mechanical; after a sentence, not after a hand-typed list number ('1.   Open'); a space made of a source line break is not flagged (the engine skips it))"
     ]
   },
   "dashes": {
@@ -8590,7 +8740,7 @@
         "avoid": "",
         "use": "",
         "pattern": "[ \\u00A0]\\u2014|\\u2014[ \\u00A0]",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Em dashes are closed up with no surrounding spaces.",
         "example": "The update is complete — restart the app.",
         "applies": [],
@@ -8605,6 +8755,29 @@
         "id": "google:dashes/3"
       },
       {
+        "heading": "Em dashes",
+        "kind": "pattern",
+        "text": "Don't use a hyphen or a double hyphen in place of a dash.",
+        "bad": "",
+        "good": "",
+        "avoid": "",
+        "use": "",
+        "pattern": "(?<=[A-Za-z,]) -- (?=[A-Za-z])",
+        "severity": "suggestion",
+        "why": "Use an em dash with no spaces.",
+        "example": "The update is optional -- install it when you're ready.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "dashes#11"
+        ],
+        "key": "7",
+        "unit_hashes": [
+          "25ce8802df"
+        ],
+        "id": "google:dashes/7"
+      },
+      {
         "heading": "En dashes",
         "kind": "pattern",
         "text": "Don't use en dashes; instead, use a hyphen or the word to.",
@@ -8613,7 +8786,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<!\\d)\\u2013|\\u2013(?!\\d)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Google style doesn't use en dashes.",
         "example": "Install the app – then restart it.",
         "applies": [],
@@ -8739,7 +8912,10 @@
     "errors": [],
     "passes": [
       "google:dashes/4 pattern → '(?<!\\d)\\u2013|\\u2013(?!\\d)' (fixes.json)",
-      "google:dashes/4 example → 'Install the app – then restart it.' (fixes.json)"
+      "google:dashes/4 example → 'Install the app – then restart it.' (fixes.json)",
+      "google:dashes/7 added: pattern '(?<=[A-Za-z,]) -- (?=[A-Za-z])' (fixes.json: #64: a spaced double hyphen as a dash (unspaced -- is too often a flag or an encoded name; a spaced single hyphen belongs to hyphens/33))",
+      "google:dashes/3 severity warning → suggestion (flag-only: no safe fix)",
+      "google:dashes/4 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "code-in-text": {
@@ -10579,7 +10755,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d+(?:\\.\\d+)?[\\s\\u00A0]?(?:KBs|MBs|GBs|TBs|PBs|Kbs|Mbs|Gbs)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The instance has 64 GBs of memory.",
         "applies": [
@@ -10710,7 +10886,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[A-Za-z]{2,}\\((?:s|es|ren)\\)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "To find your API key(s), visit the Credentials page.",
         "applies": [],
@@ -10769,7 +10945,9 @@
       }
     ],
     "passes": [
-      "google:pluralization/13 dropped (\\b\\d+(?:\\.\\d+)?(?:KB|MB|GB|TB|PB)\\b): duplicate of google:units-of-measure/4"
+      "google:pluralization/13 dropped (\\b\\d+(?:\\.\\d+)?(?:KB|MB|GB|TB|PB)\\b): duplicate of google:units-of-measure/4",
+      "google:pluralization/12 severity warning → suggestion (flag-only: no safe fix)",
+      "google:pluralization/18 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "code-samples": {
@@ -11121,14 +11299,14 @@
       },
       {
         "heading": "Straight and curly quotation marks",
-        "kind": "pattern",
+        "kind": "row",
         "text": "Always use straight quotation marks and straight apostrophes, not curly marks.",
         "bad": "",
         "good": "",
-        "avoid": "",
-        "use": "",
-        "pattern": "[“”‘’]",
-        "severity": "error",
+        "avoid": "“, ”, ‘, ’",
+        "use": "\", \", ', '",
+        "pattern": "",
+        "severity": "suggestion",
         "why": "Code requires straight marks; curly marks cause mistakes.",
         "example": "The section’s title is “Care and feeding of the emu.”",
         "applies": [],
@@ -11170,7 +11348,7 @@
       {
         "heading": "When to use quotation marks",
         "kind": "prose",
-        "text": "Use quotation marks for titles of shorter works such as articles or episodes in a web series, unless they're part of a link.",
+        "text": "You can use quotation marks for titles of shorter works such as articles or episodes in a web series, unless they're part of a link.",
         "bad": "",
         "good": "",
         "avoid": "",
@@ -11216,7 +11394,7 @@
       {
         "heading": "When to use quotation marks",
         "kind": "prose",
-        "text": "Use quotation marks when referring to a section of a larger document or piece, if you can't link to the section directly.",
+        "text": "You can use quotation marks when referring to a section of a larger document or piece, if you can't link to the section directly.",
         "bad": "",
         "good": "The technique is described in the section \"Deploying containers\" of the Containers overview video.",
         "avoid": "",
@@ -11239,7 +11417,7 @@
       {
         "heading": "When to use quotation marks",
         "kind": "prose",
-        "text": "Use quotation marks when referring to the title of a parent document when you're already linking to a section.",
+        "text": "You can use quotation marks when referring to the title of a parent document when you're already linking to a section.",
         "bad": "",
         "good": "The machine learning (ML) workflow section of \"Introduction to Vertex AI\" describes the machine learning workflow for Vertex AI.",
         "avoid": "",
@@ -11264,7 +11442,7 @@
       {
         "heading": "When to use quotation marks",
         "kind": "prose",
-        "text": "Use quotation marks when directly citing a person or quoting a slogan or motto.",
+        "text": "You can use quotation marks when directly citing a person or quoting a slogan or motto.",
         "bad": "",
         "good": "Martin Fowler has said, \"We are still learning the techniques to write software effectively.\"",
         "avoid": "",
@@ -11287,7 +11465,7 @@
       {
         "heading": "When to use quotation marks",
         "kind": "prose",
-        "text": "Use quotation marks for a term used metaphorically, but only if it's not an established usage in the domain.",
+        "text": "You can use quotation marks for a term used metaphorically, but only if it's not an established usage in the domain.",
         "bad": "",
         "good": "This configuration forms an \"island\" within the network that is not connected to the external network.",
         "avoid": "",
@@ -11453,7 +11631,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:quotation-marks/2 pattern → row (fixes.json: #61: Google's reason is code samples; a preference for prose, with the exact fix)",
+      "google:quotation-marks/2 Use '' → '\", \", ', '' (fixes.json: #61: Google's reason is code samples; a preference for prose, with the exact fix)",
+      "google:quotation-marks/2 avoid → '“, ”, ‘, ’' (fixes.json)",
+      "google:quotation-marks/2 severity → 'suggestion' (fixes.json)",
+      "google:quotation-marks/4 text → 'You can use quotation marks for titles of shorter works such as articles or episodes in a web series, unless they're part of a link.' (fixes.json)",
+      "google:quotation-marks/6 text → 'You can use quotation marks when referring to a section of a larger document or piece, if you can't link to the section directly.' (fixes.json)",
+      "google:quotation-marks/7 text → 'You can use quotation marks when referring to the title of a parent document when you're already linking to a section.' (fixes.json)",
+      "google:quotation-marks/8 text → 'You can use quotation marks when directly citing a person or quoting a slogan or motto.' (fixes.json)",
+      "google:quotation-marks/9 text → 'You can use quotation marks for a term used metaphorically, but only if it's not an established usage in the domain.' (fixes.json)"
+    ]
   },
   "accessibility": {
     "title": "Accessibility",
@@ -12160,7 +12349,7 @@
         "avoid": "read this document",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Screen reader users need to know what a link contains.",
         "example": "Don't use click here or read this document.",
         "applies": [
@@ -12917,7 +13106,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?i)\\b(visibility\\s*:\\s*hidden|display\\s*:\\s*none)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Both styles hide information from screen readers.",
         "example": "<p style=\"display:none\">Optional settings</p>",
         "applies": [],
@@ -13151,7 +13340,9 @@
     "errors": [],
     "passes": [
       "google:accessibility/30 drops 'click here' (owned by google:word-list/136)",
-      "google:accessibility/30 Example → 'Don't use click here or read this document.'"
+      "google:accessibility/30 Example → 'Don't use click here or read this document.'",
+      "google:accessibility/30 severity warning → suggestion (flag-only: no safe fix)",
+      "google:accessibility/61 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "tone": {
@@ -13593,7 +13784,7 @@
         "text": "Avoid using phrases like simply, It's that simple, or It's easy in a procedure.",
         "bad": "",
         "good": "",
-        "avoid": "It's that simple, it's that simple, It's easy, it's easy",
+        "avoid": "It's that simple, it's that simple, It's easy, it's easy, It’s that simple, it’s that simple, It’s easy, it’s easy",
         "use": "",
         "pattern": "",
         "severity": "suggestion",
@@ -13835,7 +14026,8 @@
       "google:tone/19 dropped (let's, Let's): duplicate of google:word-list/432",
       "google:tone/20 drops 'simply' (owned by google:inclusive-documentation/20)",
       "google:tone/20 drops 'Simply' (owned by google:inclusive-documentation/20)",
-      "google:tone/21 dropped (tl;dr, TL;DR, ymmv, YMMV): duplicate of google:word-list/694, google:word-list/765"
+      "google:tone/21 dropped (tl;dr, TL;DR, ymmv, YMMV): duplicate of google:word-list/694, google:word-list/765",
+      "google:tone/20 avoid → 'It's that simple, it's that simple, It's easy, it's easy, It’s that simple, it’s that simple, It’s easy, it’s easy' (fixes.json)"
     ]
   },
   "semicolons": {
@@ -13873,7 +14065,7 @@
         "kind": "prose",
         "text": "Use a semicolon when joining two closely related independent clauses where a period or a comma is not as effective.",
         "bad": "",
-        "good": "You can easily test compatibility by computing the centroid; if it is on the opposite side of the planet, reverse the order of your vertices.",
+        "good": "You can test compatibility by computing the centroid; if it is on the opposite side of the planet, reverse the order of your vertices.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -13941,7 +14133,10 @@
     "not_applicable": [],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:semicolons/2 good → 'You can test compatibility by computing the centroid; if it is on the opposite side of the planet, reverse the order of your vertices.' (fixes.json)"
+    ]
   },
   "excessive-claims": {
     "title": "Excessive claims",
@@ -14378,7 +14573,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "lists#35",
@@ -14553,7 +14750,9 @@
         "severity": "suggestion",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "lists#71",
@@ -14578,7 +14777,9 @@
         "severity": "suggestion",
         "why": "Manual numbers must be updated when items change.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "lists#71",
@@ -14640,7 +14841,7 @@
       {
         "heading": "Numbered, lettered, and bulleted lists",
         "kind": "prose",
-        "text": "End each list item with a period or other appropriate sentence-ending punctuation, except for items that are a single word, have no verb, are entirely in code font, or are entirely link text or a document title.",
+        "text": "End each list item with a period or other appropriate sentence-ending punctuation, except for items that are a single word, have no verb, are entirely in code font, or are entirely link text or a document title. If you're writing UI text rather than prose documentation, follow the Material Design guidelines instead.",
         "bad": "",
         "good": "You can do any of the following by using the API: Create an item. Replace one item with another. Update an item. Delete an item.",
         "avoid": "",
@@ -15147,7 +15348,7 @@
         "kind": "prose",
         "text": "When you write a list in a paragraph, use serial commas to separate the items.",
         "bad": "",
-        "good": "The service processes data like event logs, clickstream data, social network interactions, and e-commerce transactions.",
+        "good": "The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -15172,7 +15373,7 @@
         "kind": "prose",
         "text": "Avoid ending a list with etc. or phrases like and so on; instead, introduce the list in a way that makes it clear that the list isn't all-inclusive.",
         "bad": "The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.",
-        "good": "The service processes data like event logs, clickstream data, social network interactions, and e-commerce transactions.",
+        "good": "The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -15203,7 +15404,7 @@
         "avoid": "",
         "use": "",
         "pattern": ",\\s+(?:etc\\.|and so on\\b)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Introduce the list as non-exhaustive instead.",
         "example": "The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.",
         "applies": [],
@@ -15260,7 +15461,16 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:lists/17 text → 'End each list item with a period or other appropriate sentence-ending punctuation, except for items that are a single word, have no verb, are entirely in code font, or are entirely link text or a document title. If you're writing UI text rather than prose documentation, follow the Material Design guidelines instead.' (fixes.json)",
+      "google:lists/34 good → 'The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.' (fixes.json)",
+      "google:lists/35 good → 'The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.' (fixes.json)",
+      "google:lists/8 Content.WebMarkup (fixes.json: #63: HTML authoring (p rather than br))",
+      "google:lists/13 Content.WebMarkup (fixes.json: #63: HTML authoring (reversed attribute))",
+      "google:lists/14 Content.WebMarkup (fixes.json: #63: HTML authoring (value attribute))",
+      "google:lists/36 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "possessives": {
     "title": "Possessives",
@@ -16019,7 +16229,7 @@
       {
         "heading": "Slashes with file paths and URLs",
         "kind": "prose",
-        "text": "Use forward slashes, as appropriate, in computer file paths and URLs.",
+        "text": "Use forward slashes, as appropriate, in computer file paths and URLs; if you're documenting a Windows path, use backslashes.",
         "bad": "",
         "good": "https://developers.google.com/cardboard/",
         "avoid": "",
@@ -16226,7 +16436,8 @@
       }
     ],
     "passes": [
-      "google:slashes/3 dropped ((?<![\\w/.])\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})(?![\\w/])): duplicate of google:dates-times/33"
+      "google:slashes/3 dropped ((?<![\\w/.])\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})(?![\\w/])): duplicate of google:dates-times/33",
+      "google:slashes/9 text → 'Use forward slashes, as appropriate, in computer file paths and URLs; if you're documenting a Windows path, use backslashes.' (fixes.json)"
     ]
   },
   "hyphens": {
@@ -16612,8 +16823,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\b(?:[A-Za-z]{2,}(?:ically|ally|ently|antly|ously|ively|ately|edly|licly)|[A-Za-z]*fully)-[a-z]+",
-        "severity": "warning",
+        "pattern": "\\b(?!(?i:family|early|daily|weekly|monthly|yearly|hourly|quarterly|nightly|friendly|likely|unlikely|lonely|lovely|costly|timely|orderly|elderly|supply|apply|reply|multiply|assembly|anomaly|butterfly|holy|ugly|curly|silly|jelly|belly|bully|rally|ally|only|homely|deadly|lively|worldly|scholarly|leisurely|kindly|stately|sickly|wobbly|bubbly|chilly|hilly|smelly|wily)-)[A-Za-z]{2,}ly-[a-z]+",
+        "severity": "suggestion",
         "why": "-ly adverbs don't need a hyphen.",
         "example": "Publicly-available implementations",
         "applies": [],
@@ -16854,7 +17065,7 @@
         "kind": "prose",
         "text": "Don't hyphenate if the unit of measurement is abbreviated unless the hyphen is needed for clarity; instead, use a nonbreaking space between the number and unit of measurement.",
         "bad": "",
-        "good": "200 GB disk",
+        "good": "200 GB disk",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -16887,7 +17098,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d+-(?:KB|MB|GB|TB|PB|Kbps|Mbps|Gbps|KiB|MiB|GiB|TiB|MHz|GHz)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Abbreviated units take a nonbreaking space, not a hyphen.",
         "example": "Attach a 200-GB disk to the instance.",
         "applies": [],
@@ -17000,8 +17211,8 @@
         "good": "",
         "avoid": "",
         "use": "-",
-        "pattern": "(?<=\\d)(?:–|&ndash;)(?=\\d)",
-        "severity": "warning",
+        "pattern": "(?<=\\d)\\u2013(?=\\d)",
+        "severity": "suggestion",
         "why": "Ranges of numbers use a hyphen.",
         "example": "Upload 8–20 files.",
         "applies": [],
@@ -17025,8 +17236,8 @@
         "good": "from 8 to 20 files",
         "avoid": "",
         "use": "",
-        "pattern": "\\b(?:[Ff]rom|[Bb]etween) \\d[\\d,.]*\\s?-\\s?\\d",
-        "severity": "warning",
+        "pattern": "\\b[Ff]rom \\d{1,4}\\s?-\\s?\\d{1,4}\\b(?!-)",
+        "severity": "suggestion",
         "why": "Use from…to, not from with a hyphen.",
         "example": "Upload from 8-20 files.",
         "applies": [],
@@ -17074,7 +17285,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<=[a-z]) - (?=[a-z])",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Hyphens never have spaces on both sides.",
         "example": "The app is fast - and secure.",
         "applies": [],
@@ -17150,7 +17361,16 @@
       "google:hyphens/19 drops 'trade-off' (fixes.json: inferred by the model, not in the source (Google itself writes web page))",
       "google:hyphens/19 drops 'work-around' (fixes.json: inferred by the model, not in the source (Google itself writes web page))",
       "google:hyphens/19 Example → 'Open the host name in a browser.'",
-      "google:hyphens/19 dropped (host name): duplicate of google:word-list/362"
+      "google:hyphens/19 dropped (host name): duplicate of google:word-list/362",
+      "google:hyphens/30 pattern → '(?<=\\d)\\u2013(?=\\d)' (fixes.json)",
+      "google:hyphens/15 pattern → '\\b(?!(?i:family|early|daily|weekly|monthly|yearly|hourly|quarterly|nightly|friendly|likely|unlikely|lonely|lovely|costly|timely|orderly|elderly|supply|apply|reply|multiply|assembly|anomaly|butterfly|holy|ugly|curly|silly|jelly|belly|bully|rally|ally|only|homely|deadly|lively|worldly|scholarly|leisurely|kindly|stately|sickly|wobbly|bubbly|chilly|hilly|smelly|wily)-)[A-Za-z]{2,}ly-[a-z]+' (fixes.json)",
+      "google:hyphens/31 pattern → '\\b[Ff]rom \\d{1,4}\\s?-\\s?\\d{1,4}\\b(?!-)' (fixes.json)",
+      "google:hyphens/25 good → '200 GB disk' (fixes.json)",
+      "google:hyphens/15 severity warning → suggestion (flag-only: no safe fix)",
+      "google:hyphens/26 severity warning → suggestion (typographic or advisory row)",
+      "google:hyphens/30 severity warning → suggestion (flag-only: no safe fix)",
+      "google:hyphens/31 severity warning → suggestion (flag-only: no safe fix)",
+      "google:hyphens/33 severity warning → suggestion (flag-only: no safe fix)"
     ],
     "retired": [
       {
@@ -17196,7 +17416,7 @@
         "kind": "prose",
         "text": "For clarity, consider setting off an example at the end of a sentence using a comma, parentheses, or an em dash as appropriate.",
         "bad": "",
-        "good": "Enter a name for the instance, for example, my-instance-99.",
+        "good": "",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -17219,7 +17439,7 @@
         "kind": "prose",
         "text": "Avoid using a semicolon to set off an example at the end of a sentence.",
         "bad": "Specify the region for deployment; for example, us-central1.",
-        "good": "Enter a name for the instance (for example, my-instance-99).",
+        "good": "",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -17282,6 +17502,29 @@
           "784319bd94"
         ],
         "id": "google:format-examples/5"
+      },
+      {
+        "heading": "Examples",
+        "kind": "pattern",
+        "text": "Don't use a semicolon to introduce an example at the end of a sentence.",
+        "bad": "",
+        "good": "",
+        "avoid": "",
+        "use": "",
+        "pattern": ";\\s+(?:for example|for instance|such as)\\b",
+        "severity": "suggestion",
+        "why": "Use a comma, parentheses, or an em dash.",
+        "example": "Specify the region for deployment; for example, us-central1.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "format-examples#3"
+        ],
+        "key": "6",
+        "unit_hashes": [
+          "2fede78fb3"
+        ],
+        "id": "google:format-examples/6"
       }
     ],
     "not_applicable": [
@@ -17296,7 +17539,12 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:format-examples/2 good → '' (fixes.json)",
+      "google:format-examples/3 good → '' (fixes.json)",
+      "google:format-examples/6 added: pattern ';\\s+(?:for example|for instance|such as)\\b' (fixes.json: #64: Format-Examples, 'Avoid using a semicolon for this purpose')"
+    ]
   },
   "tables": {
     "title": "Tables",
@@ -17785,16 +18033,16 @@
       },
       {
         "heading": "Table captions",
-        "kind": "pattern",
+        "kind": "prose",
         "text": "Don't place a period at the end of a table caption.",
         "bad": "",
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\.\\s*</caption>",
+        "pattern": "",
         "severity": "warning",
         "why": "",
-        "example": "<caption><b>Table 1.</b> Prehistoric birds.</caption>",
+        "example": "",
         "applies": [],
         "products": [],
         "units": [
@@ -17814,7 +18062,7 @@
         "good": "",
         "avoid": "",
         "use": "table",
-        "pattern": "(?<=\\b(?:in|see|from|to|of|and|or) )Table(?= \\d)",
+        "pattern": "(?<=[a-z,] )Table(?= \\d)",
         "severity": "warning",
         "why": "",
         "example": "The results are shown in Table 2.",
@@ -17827,6 +18075,7 @@
         "unit_hashes": [
           "e124fef9c1"
         ],
+        "page_scope": false,
         "id": "google:tables/22"
       },
       {
@@ -17948,16 +18197,16 @@
       },
       {
         "heading": "Table formatting",
-        "kind": "pattern",
+        "kind": "prose",
         "text": "Don't merge cells. Don't use colspan or rowspan attributes.",
         "bad": "",
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\b(?:colspan|rowspan)\\s*=",
+        "pattern": "",
         "severity": "warning",
         "why": "",
-        "example": "<td colspan=\"2\">Value</td>",
+        "example": "",
         "applies": [],
         "products": [],
         "units": [
@@ -17971,16 +18220,16 @@
       },
       {
         "heading": "Table formatting",
-        "kind": "pattern",
+        "kind": "prose",
         "text": "Always provide a descriptive alt attribute for an image or symbol in a table.",
         "bad": "",
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "<img\\b(?![^>]*\\balt\\s*=)[^>]*>",
+        "pattern": "",
         "severity": "warning",
         "why": "",
-        "example": "<td><img src=\"check.png\" /></td>",
+        "example": "",
         "applies": [
           "Images"
         ],
@@ -18088,16 +18337,16 @@
       },
       {
         "heading": "Table column heads",
-        "kind": "pattern",
+        "kind": "prose",
         "text": "Don't end table column heads with punctuation, including a period, an ellipsis, or a colon.",
         "bad": "",
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "(?:\\.|:|…)\\s*</th>",
+        "pattern": "",
         "severity": "warning",
         "why": "",
-        "example": "<th>Description:</th>",
+        "example": "",
         "applies": [],
         "products": [],
         "units": [
@@ -18198,7 +18447,15 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:tables/22 pattern → '(?<=[a-z,] )Table(?= \\d)' (fixes.json)",
+      "google:tables/22 drops its page's pack tag (fixes.json: #60, #65: a reference to 'table 2' sits in running text, not in a table; any lowercase word before it)",
+      "google:tables/21 pattern → prose: '\\.\\s*</caption>' matches markup; lint sees text only (#55)",
+      "google:tables/28 pattern → prose: '\\b(?:colspan|rowspan)\\s*=' matches markup; lint sees text only (#55)",
+      "google:tables/29 pattern → prose: '<img\\b(?![^>]*\\balt\\s*=)[^>]*>' matches markup; lint sees text only (#55)",
+      "google:tables/34 pattern → prose: '(?:\\.|:|…)\\s*</th>' matches markup; lint sees text only (#55)"
+    ]
   },
   "person": {
     "title": "Second person",
@@ -18339,7 +18596,7 @@
       {
         "heading": "Address the reader as you",
         "kind": "prose",
-        "text": "Use the imperative in running text only after you establish who is being addressed.",
+        "text": "It's OK to use the imperative in running text after you establish who is being addressed.",
         "bad": "",
         "good": "You can obtain the IP address for the appliance from your network administrator. Store the address in a variable for future use in the runbook.",
         "avoid": "",
@@ -18437,7 +18694,7 @@
       {
         "heading": "Use first-person plural pronouns carefully",
         "kind": "prose",
-        "text": "Use first-person plural pronouns (such as we, our, or us) only to refer to the organization that's represented as the author of the document.",
+        "text": "It's OK to use first-person plural pronouns (such as we, our, or us) to refer to the organization that's represented as the author of the document.",
         "bad": "",
         "good": "For more information, contact our sales organization.",
         "avoid": "",
@@ -18536,7 +18793,11 @@
     "not_applicable": [],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:person/6 text → 'It's OK to use the imperative in running text after you establish who is being addressed.' (fixes.json)",
+      "google:person/10 text → 'It's OK to use first-person plural pronouns (such as we, our, or us) to refer to the organization that's represented as the author of the document.' (fixes.json)"
+    ]
   },
   "abbreviations": {
     "title": "Abbreviations",
@@ -19036,7 +19297,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\d+x\\b(?=\\s+(?:faster|slower|more|less|larger|smaller|better|worse|higher|lower|bigger|greater|as)\\b)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Updating the software made throughput 10x faster.",
         "applies": [],
@@ -19129,8 +19390,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\b(?!(?:U\\.S\\.|U\\.K\\.|D\\.C\\.))(?:[A-Z]\\.){2,}(?![A-Za-z])",
-        "severity": "warning",
+        "pattern": "(?<![A-Za-z]\\.)\\b(?!(?:U\\.S\\.|U\\.K\\.|D\\.C\\.))(?!(?:[AP]\\.M\\.|A\\.D\\.|B\\.C\\.)(?![A-Za-z]))(?:[A-Z]\\.){2,}(?![A-Za-z])(?!\\s+[A-Z][a-z])",
+        "severity": "suggestion",
         "why": "",
         "example": "Contact the I.T. team for access.",
         "applies": [],
@@ -19151,7 +19412,7 @@
         "kind": "prose",
         "text": "Don't use acronyms, initialisms, or shortened words as verbs.",
         "bad": "Then ssh into your remote shell.",
-        "good": "Use SSH to log in to your remote shell.",
+        "good": "Use SSH to sign in to your remote shell.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -19324,7 +19585,11 @@
       "google:abbreviations/28 drops 'an FHIR' (owned by google:word-list/283, google:word-list/613, google:word-list/653)",
       "google:abbreviations/28 drops 'An FHIR' (owned by google:word-list/283, google:word-list/613, google:word-list/653)",
       "google:abbreviations/28 drops 'a SAP' (owned by google:word-list/283, google:word-list/613, google:word-list/653)",
-      "google:abbreviations/28 Example → 'Run An SQL query against the table.'"
+      "google:abbreviations/28 Example → 'Run An SQL query against the table.'",
+      "google:abbreviations/25 pattern → '(?<![A-Za-z]\\.)\\b(?!(?:U\\.S\\.|U\\.K\\.|D\\.C\\.))(?!(?:[AP]\\.M\\.|A\\.D\\.|B\\.C\\.)(?![A-Za-z]))(?:[A-Z]\\.){2,}(?![A-Za-z])(?!\\s+[A-Z][a-z])' (fixes.json)",
+      "google:abbreviations/26 good → 'Use SSH to sign in to your remote shell.' (fixes.json)",
+      "google:abbreviations/21 severity warning → suggestion (flag-only: no safe fix)",
+      "google:abbreviations/25 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "mathematical-notation": {
@@ -19369,7 +19634,9 @@
         "severity": "warning",
         "why": "Supports assistive technologies and accurate rendering.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#4",
@@ -19400,7 +19667,9 @@
         "severity": "warning",
         "why": "Supports assistive technologies and accurate rendering.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#7",
@@ -19453,7 +19722,9 @@
         "severity": "suggestion",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#8"
@@ -19499,7 +19770,9 @@
         "severity": "warning",
         "why": "Ensures accessibility and accurate HTML syntax.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#26",
@@ -19530,7 +19803,9 @@
         "severity": "warning",
         "why": "Keeps the expression on one line.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#27",
@@ -19648,7 +19923,9 @@
         "severity": "warning",
         "why": "Keeps the expression or equation on one line.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#41",
@@ -19670,7 +19947,7 @@
         "kind": "prose",
         "text": "When an expression or equation creates an awkward line break, consider placing it on its own line.",
         "bad": "",
-        "good": "The equation that describes a polynomial trend line, where the order is o, is the following: y = a + b × x + ... + k × x^o",
+        "good": "The equation that describes a polynomial trend line, where the order is o, is the following: y = a + b × x + ... + k × xᵒ",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -19787,7 +20064,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#56",
@@ -19818,7 +20097,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "mathematical-notation#57",
@@ -19840,7 +20121,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b\\w+\\^\\w+\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use the <sup> tag for exponents.",
         "example": "The result is 2^3.",
         "applies": [],
@@ -19962,7 +20243,19 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:mathematical-notation/12 good → 'The equation that describes a polynomial trend line, where the order is o, is the following: y = a + b × x + ... + k × xᵒ' (fixes.json)",
+      "google:mathematical-notation/2 Content.WebMarkup (fixes.json: #63: HTML entities)",
+      "google:mathematical-notation/3 Content.WebMarkup (fixes.json: #63: HTML entities)",
+      "google:mathematical-notation/4 Content.WebMarkup (fixes.json: #63: HTML entities)",
+      "google:mathematical-notation/6 Content.WebMarkup (fixes.json: #63: HTML entities)",
+      "google:mathematical-notation/7 Content.WebMarkup (fixes.json: #63: &nbsp; entities)",
+      "google:mathematical-notation/11 Content.WebMarkup (fixes.json: #63: &nbsp; entities)",
+      "google:mathematical-notation/16 Content.WebMarkup (fixes.json: #63: the sup tag)",
+      "google:mathematical-notation/17 Content.WebMarkup (fixes.json: #63: the sub tag)",
+      "google:mathematical-notation/18 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "parentheses": {
     "title": "Parentheses",
@@ -20353,6 +20646,98 @@
         "id": "google:translation/4"
       },
       {
+        "heading": "Use simpler words and shorter sentences",
+        "kind": "row",
+        "text": "Don't use utilize when you mean use.",
+        "bad": "",
+        "good": "",
+        "avoid": "utilize, utilizes, utilized, utilizing",
+        "use": "use, uses, used, using",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use a simple word.",
+        "example": "You can utilize the API to export reports.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "translation#12"
+        ],
+        "key": "48",
+        "unit_hashes": [
+          "9f782d7b45"
+        ],
+        "id": "google:translation/48"
+      },
+      {
+        "heading": "Use simpler words and shorter sentences",
+        "kind": "row",
+        "text": "Don't use leverage when you mean use.",
+        "bad": "",
+        "good": "",
+        "avoid": "leverage, leverages, leveraged, leveraging",
+        "use": "",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use a simple word such as use or build on.",
+        "example": "Leverage the API to export reports.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "translation#12"
+        ],
+        "key": "49",
+        "unit_hashes": [
+          "9f782d7b45"
+        ],
+        "id": "google:translation/49"
+      },
+      {
+        "heading": "Use simpler words and shorter sentences",
+        "kind": "row",
+        "text": "Don't use commence when you mean start or begin.",
+        "bad": "",
+        "good": "",
+        "avoid": "commence, commences, commenced, commencing",
+        "use": "start, starts, started, starting",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use a simple word.",
+        "example": "The backup will commence at midnight.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "translation#12"
+        ],
+        "key": "50",
+        "unit_hashes": [
+          "9f782d7b45"
+        ],
+        "id": "google:translation/50"
+      },
+      {
+        "heading": "Use simpler words and shorter sentences",
+        "kind": "row",
+        "text": "Don't use a phrase like a number of when you can use some or many.",
+        "bad": "",
+        "good": "",
+        "avoid": "a number of",
+        "use": "",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use some or many.",
+        "example": "The tool supports a number of formats.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "translation#13"
+        ],
+        "key": "51",
+        "unit_hashes": [
+          "871fd84dce"
+        ],
+        "id": "google:translation/51"
+      },
+      {
         "heading": "Avoid phrasal verbs",
         "kind": "prose",
         "text": "Avoid phrasal verbs when possible; try to substitute a simpler verb first (exceptions include set up, log in, and sign in).",
@@ -20374,6 +20759,29 @@
           "2646d510bf"
         ],
         "id": "google:translation/5"
+      },
+      {
+        "heading": "Avoid phrasal verbs",
+        "kind": "row",
+        "text": "Don't use makes use of when you can use uses.",
+        "bad": "",
+        "good": "",
+        "avoid": "makes use of, make use of, made use of, making use of",
+        "use": "uses, use, used, using",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use a simpler verb.",
+        "example": "This document makes use of the following terms:",
+        "applies": [],
+        "products": [],
+        "units": [
+          "translation#15"
+        ],
+        "key": "52",
+        "unit_hashes": [
+          "2646d510bf"
+        ],
+        "id": "google:translation/52"
       },
       {
         "heading": "Use modifiers appropriately",
@@ -21315,7 +21723,7 @@
         "avoid": "ballpark figure, back burner, hang in there",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Idioms are confusing and difficult to translate.",
         "example": "Put this task on the back burner until the release.",
         "applies": [],
@@ -21424,7 +21832,15 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:translation/48 added: row 'utilize, utilizes, utilized, utilizing' (fixes.json: #64: Translation, use a simple word (fine for a special sense, hence suggestion))",
+      "google:translation/49 added: row 'leverage, leverages, leveraged, leveraging' (fixes.json: #64: Translation, use a simple word; flag only because leverage is also a noun)",
+      "google:translation/50 added: row 'commence, commences, commenced, commencing' (fixes.json: #64: Translation, use a simple word)",
+      "google:translation/51 added: row 'a number of' (fixes.json: #64: Translation, a single word for a phrase; flag only (some or many is the writer's call))",
+      "google:translation/52 added: row 'makes use of, make use of, made use of, making use of' (fixes.json: #64: Translation, phrasal verbs (the source's own Not recommended example))",
+      "google:translation/45 severity warning → suggestion (typographic or advisory row)"
+    ]
   },
   "anthropomorphism": {
     "title": "Anthropomorphism",
@@ -23650,7 +24066,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<![\\w.\\-/])\\.(?:adoc|csv|exe|gif|img|ipynb|jar|jpe?g|json|md|pdf|png|ps|py|sh|sql|svg|tar|tf|tiff|txt|wasm|yaml|zip)\\s+files?\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use the formal file type name, such as PNG file.",
         "example": "Save the screenshot as a .png file.",
         "applies": [],
@@ -23729,7 +24145,10 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:filenames/14 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "units-of-measure": {
     "title": "Units of measurement",
@@ -23743,7 +24162,7 @@
         "kind": "prose",
         "text": "For most units of measurement, when you specify a number with the unit, use a nonbreaking space between the number and the unit.",
         "bad": "64GB",
-        "good": "64&nbsp;GB (64 GB)",
+        "good": "64 GB",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -23836,7 +24255,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<![\\w.])\\d+(?:\\.\\d+)?(?:kB|KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB|mm|cm|km)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Number and unit need a nonbreaking space.",
         "example": "The disk has 64GB of storage.",
         "applies": [],
@@ -23884,7 +24303,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<=\\d)[ \\u00A0]+%",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Usage reached 65 % of the quota.",
         "applies": [],
@@ -23909,7 +24328,7 @@
         "avoid": "",
         "use": "",
         "pattern": "[$£€][ \\u00A0]+\\d",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The plan costs $ 10 per month.",
         "applies": [],
@@ -23932,7 +24351,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<=\\d)°[CF]\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The device operates at 50°C.",
         "applies": [],
@@ -23955,7 +24374,7 @@
         "avoid": "",
         "use": "",
         "pattern": "°[ \\u00A0]+[CF]\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The device operates at 50 ° C.",
         "applies": [],
@@ -24003,7 +24422,7 @@
         "kind": "prose",
         "text": "When a number and unit of measurement combine to modify a noun, don't hyphenate unless the hyphen is needed for clarity.",
         "bad": "",
-        "good": "200&nbsp;GB disk (200 GB disk)",
+        "good": "200 GB disk",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -24034,7 +24453,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\d[ \\u00A0]?°[ \\u00A0]?K\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Kelvin temperatures don't use a degree symbol.",
         "example": "The sample is cooled to 300 °K.",
         "applies": [],
@@ -24107,7 +24526,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\d+[-–]\\d+[ \\u00A0]?(?:°[CF]|kB|KB|MB|GB|TB|KiB|MiB|GiB|TiB|%)",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "A hyphen can be misinterpreted as a subtraction sign.",
         "example": "The operating range is -40-85 °C.",
         "applies": [],
@@ -24184,7 +24603,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?<=\\d)[ \\u00A0]k\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "You are limited to 55 k download operations.",
         "applies": [],
@@ -24387,7 +24806,19 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:units-of-measure/1 good → '64 GB' (fixes.json)",
+      "google:units-of-measure/11 good → '200 GB disk' (fixes.json)",
+      "google:units-of-measure/4 severity warning → suggestion (flag-only: no safe fix)",
+      "google:units-of-measure/6 severity warning → suggestion (flag-only: no safe fix)",
+      "google:units-of-measure/7 severity warning → suggestion (flag-only: no safe fix)",
+      "google:units-of-measure/8 severity warning → suggestion (flag-only: no safe fix)",
+      "google:units-of-measure/9 severity warning → suggestion (flag-only: no safe fix)",
+      "google:units-of-measure/12 severity warning → suggestion (flag-only: no safe fix)",
+      "google:units-of-measure/15 severity warning → suggestion (flag-only: no safe fix)",
+      "google:units-of-measure/18 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "placeholders": {
     "title": "Placeholder formatting",
@@ -24611,16 +25042,16 @@
       },
       {
         "heading": "Placeholder text",
-        "kind": "pattern",
+        "kind": "prose",
         "text": "Use uppercase characters with underscore delimiters in placeholder text.",
         "bad": "",
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "<var>[^<]*[a-z \\-][^<]*</var>",
+        "pattern": "",
         "severity": "suggestion",
         "why": "Placeholders use uppercase with underscore delimiters.",
-        "example": ".../<var>apiName</var>",
+        "example": "",
         "applies": [],
         "products": [],
         "units": [
@@ -24646,16 +25077,16 @@
       },
       {
         "heading": "Placeholder text",
-        "kind": "pattern",
+        "kind": "prose",
         "text": "Don't include possessive adjectives in placeholders.",
         "bad": "",
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "<var>(?:MY|YOUR|OUR|THEIR)_[A-Z0-9_]+</var>",
+        "pattern": "",
         "severity": "warning",
         "why": "Placeholders shouldn't contain possessive adjectives.",
-        "example": ".../<var>YOUR_API_NAME</var>",
+        "example": "",
         "applies": [],
         "products": [],
         "units": [
@@ -25220,7 +25651,11 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:placeholders/8 pattern → prose: '<var>[^<]*[a-z \\-][^<]*</var>' matches markup; lint sees text only (#55)",
+      "google:placeholders/9 pattern → prose: '<var>(?:MY|YOUR|OUR|THEIR)_[A-Z0-9_]+</var>' matches markup; lint sees text only (#55)"
+    ]
   },
   "trademarks": {
     "title": "Trademarks",
@@ -26150,7 +26585,9 @@
         "severity": "warning",
         "why": "Properly associates the caption with the image.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#48"
@@ -26333,7 +26770,7 @@
         "avoid": "the image above, the image below, the figure above, the figure below, the diagram above, the diagram below, the screenshot above, the screenshot below",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "As shown in the image above, the app has three services.",
         "applies": [],
@@ -26681,7 +27118,9 @@
         "severity": "suggestion",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#77",
@@ -26708,7 +27147,9 @@
         "severity": "error",
         "why": "Browsers without srcset support use src.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#78"
@@ -26731,7 +27172,9 @@
         "severity": "warning",
         "why": "Height is calculated from width and proportions.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#81"
@@ -26754,7 +27197,9 @@
         "severity": "warning",
         "why": "Low-resolution readers shouldn't download larger images.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#82"
@@ -26846,7 +27291,9 @@
         "severity": "warning",
         "why": "Browsers supporting srcset ignore the src attribute.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#87"
@@ -26869,7 +27316,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#90"
@@ -27030,7 +27479,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "images#98"
@@ -27158,7 +27609,18 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:images/32 Content.WebMarkup (fixes.json: #63: HTML authoring (figure and figcaption elements))",
+      "google:images/55 Content.WebMarkup (fixes.json: #63: HTML authoring (srcset))",
+      "google:images/56 Content.WebMarkup (fixes.json: #63: HTML authoring (srcset and src))",
+      "google:images/57 Content.WebMarkup (fixes.json: #63: HTML authoring (width attribute))",
+      "google:images/58 Content.WebMarkup (fixes.json: #63: HTML authoring (src attribute))",
+      "google:images/62 Content.WebMarkup (fixes.json: #63: HTML authoring (srcset))",
+      "google:images/63 Content.WebMarkup (fixes.json: #63: site CSS (style attribute))",
+      "google:images/70 Content.WebMarkup (fixes.json: #63: HTML authoring (img inside p))",
+      "google:images/40 severity warning → suggestion (flag-only: no safe fix)"
+    ]
   },
   "cross-references": {
     "title": "Cross-references and linking",
@@ -27699,8 +28161,8 @@
         "text": "Don't use on instead of about.",
         "bad": "",
         "good": "",
-        "avoid": "more information on",
-        "use": "more information about",
+        "avoid": "For more information on, for more information on",
+        "use": "For more information about, for more information about",
         "pattern": "",
         "severity": "warning",
         "why": "",
@@ -27957,7 +28419,9 @@
       }
     ],
     "passes": [
-      "google:cross-references/15 dropped (click here, Click here): duplicate of google:word-list/136"
+      "google:cross-references/15 dropped (click here, Click here): duplicate of google:word-list/136",
+      "google:cross-references/22 Use 'more information about' → 'For more information about, for more information about' (fixes.json: #60: the rule is about the link introduction; 'more information on the dashboard' in prose is fine)",
+      "google:cross-references/22 avoid → 'For more information on, for more information on' (fixes.json)"
     ]
   },
   "footnotes": {
@@ -28268,7 +28732,9 @@
         "severity": "suggestion",
         "why": "Custom anchors keep links working if the heading text changes.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "headings-targets#6",
@@ -28311,7 +28777,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "headings-targets#6",
@@ -28338,7 +28806,9 @@
         "severity": "warning",
         "why": "Avoids breaking existing links to the heading.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "headings-targets#27",
@@ -28365,7 +28835,9 @@
         "severity": "warning",
         "why": "Changing anchors breaks inbound links to the section.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "headings-targets#27"
@@ -28388,7 +28860,9 @@
         "severity": "warning",
         "why": "Old-anchor links reach the page but not the section.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "headings-targets#31"
@@ -28464,7 +28938,14 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:headings-targets/1 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)",
+      "google:headings-targets/2 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)",
+      "google:headings-targets/3 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)",
+      "google:headings-targets/4 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)",
+      "google:headings-targets/5 Content.WebMarkup (fixes.json: #63: anchors are HTML authoring; Flare manages heading anchors)"
+    ]
   },
   "inclusive-documentation": {
     "title": "Inclusive language",
@@ -28700,7 +29181,7 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "dumb, blind eye, sanity-check, dummy",
+        "avoid": "blind eye, sanity-check",
         "use": "",
         "pattern": "",
         "severity": "warning",
@@ -28959,7 +29440,7 @@
         "avoid": "simply, easily, quickly, carefully, thoroughly, properly",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Subjective or unclear wording.",
         "example": "Simply open the configuration file to quickly add your custom key.",
         "applies": [],
@@ -29102,7 +29583,7 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "the elderly, the aged, senior citizens, seniors",
+        "avoid": "the elderly, senior citizens, seniors",
         "use": "older adults",
         "pattern": "",
         "severity": "warning",
@@ -29492,7 +29973,7 @@
         "text": "",
         "bad": "",
         "good": "",
-        "avoid": "suffering from, wheelchair-bound",
+        "avoid": "wheelchair-bound",
         "use": "",
         "pattern": "",
         "severity": "warning",
@@ -29586,7 +30067,12 @@
       "google:inclusive-documentation/10 drops 'sanity check' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)",
       "google:inclusive-documentation/29 drops 'blacklist' (owned by google:word-list/292, google:word-list/95)",
       "google:inclusive-documentation/29 drops 'first-class citizen' (owned by google:word-list/292, google:word-list/95)",
-      "google:inclusive-documentation/29 Example → 'For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.'"
+      "google:inclusive-documentation/29 Example → 'For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.'",
+      "google:inclusive-documentation/10 drops 'dumb' (fixes.json: #60: bare dumb/dummy hit 'dumb terminal' and 'dummy data'; the Word-List owns 'dumb down' and 'dummy variable')",
+      "google:inclusive-documentation/10 drops 'dummy' (fixes.json: #60: bare dumb/dummy hit 'dumb terminal' and 'dummy data'; the Word-List owns 'dumb down' and 'dummy variable')",
+      "google:inclusive-documentation/26 drops 'the aged' (fixes.json: #60: 'the aged entries' in technical text; the source is about writing about older adults)",
+      "google:inclusive-documentation/42 drops 'suffering from' (fixes.json: #60: the source scopes it to disability; 'a service suffering from latency' is fine)",
+      "google:inclusive-documentation/20 severity warning → suggestion (typographic or advisory row)"
     ]
   },
   "jargon": {
@@ -30244,7 +30730,7 @@
         "kind": "prose",
         "text": "In the first sentence for a method description, briefly state what action the method performs.",
         "bad": "",
-        "good": "Checks whether this activity is in the process of being destroyed in order to be recreated with a new configuration.",
+        "good": "Checks whether this activity is in the process of being destroyed to be recreated with a new configuration.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -30964,7 +31450,8 @@
       }
     ],
     "passes": [
-      "google:api-reference-comments/17 dropped (e.g.): duplicate of google:word-list/244"
+      "google:api-reference-comments/17 dropped (e.g.): duplicate of google:word-list/244",
+      "google:api-reference-comments/20 good → 'Checks whether this activity is in the process of being destroyed to be recreated with a new configuration.' (fixes.json)"
     ]
   },
   "ui-elements": {
@@ -31510,7 +31997,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "ui-elements#54",
@@ -31560,7 +32049,9 @@
         "severity": "warning",
         "why": "Some screen readers read > as \"greater than.\"",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "ui-elements#57",
@@ -31749,7 +32240,9 @@
         "severity": "suggestion",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "ui-elements#72"
@@ -32341,8 +32834,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\b[Tt]oggl(?:ed|ing)\\b",
-        "severity": "warning",
+        "pattern": "\\b[Tt]oggl(?:e|es|ed|ing) (?:the|a|an|on|off|between)\\b",
+        "severity": "suggestion",
         "why": "Describe the action the user takes instead.",
         "example": "Toggling the setting turns on Wi-Fi.",
         "applies": [],
@@ -32715,7 +33208,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b(?:Control|Ctrl|Command|Option|Alt|Shift)\\+[a-z]\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Letter keys are written in uppercase.",
         "example": "To save, press Control+s.",
         "applies": [],
@@ -32739,8 +33232,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "[⌘⌥⇧⌃]",
-        "severity": "warning",
+        "pattern": "[⌘⌥⇧⌃]\\s?\\+?\\s?[A-Za-z0-9]",
+        "severity": "suggestion",
         "why": "Spell out modifier key names.",
         "example": "To copy, press Ctrl+C (⌘+C).",
         "applies": [],
@@ -32764,8 +33257,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\b(?:Control|Command|Option|Shift)(?: \\+|\\+ )",
-        "severity": "warning",
+        "pattern": "\\b(?:Control|Ctrl|Command|Option|Alt|Shift)(?: \\+|\\+ )",
+        "severity": "suggestion",
         "why": "Key combinations use the form MODIFIER+KEY_NAME.",
         "example": "Press Control + V.",
         "applies": [],
@@ -32788,7 +33281,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bShift\\+(?:Control|Ctrl|Command|Option|Alt)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Shift goes after the other modifier.",
         "example": "Press Shift+Control+?.",
         "applies": [],
@@ -32944,7 +33437,18 @@
       }
     ],
     "passes": [
-      "google:ui-elements/13 dropped (hamburger icon, zippy, expando): duplicate of google:word-list/273, google:word-list/340"
+      "google:ui-elements/13 dropped (hamburger icon, zippy, expando): duplicate of google:word-list/273, google:word-list/340",
+      "google:ui-elements/54 pattern → '\\b[Tt]oggl(?:e|es|ed|ing) (?:the|a|an|on|off|between)\\b' (fixes.json)",
+      "google:ui-elements/70 pattern → '[⌘⌥⇧⌃]\\s?\\+?\\s?[A-Za-z0-9]' (fixes.json)",
+      "google:ui-elements/71 pattern → '\\b(?:Control|Ctrl|Command|Option|Alt|Shift)(?: \\+|\\+ )' (fixes.json)",
+      "google:ui-elements/22 Content.WebMarkup (fixes.json: #63: &nbsp; entities in menu sequences)",
+      "google:ui-elements/24 Content.WebMarkup (fixes.json: #63: span tags and aria-label attributes)",
+      "google:ui-elements/31 Content.WebMarkup (fixes.json: #63: nonbreaking space entities)",
+      "google:ui-elements/54 severity warning → suggestion (flag-only: no safe fix)",
+      "google:ui-elements/69 severity warning → suggestion (flag-only: no safe fix)",
+      "google:ui-elements/70 severity warning → suggestion (flag-only: no safe fix)",
+      "google:ui-elements/71 severity warning → suggestion (flag-only: no safe fix)",
+      "google:ui-elements/72 severity warning → suggestion (flag-only: no safe fix)"
     ]
   },
   "semantic-tagging": {
@@ -32966,7 +33470,9 @@
         "severity": "warning",
         "why": "Semantic tagging conveys meaning, not just appearance.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#1"
@@ -32989,7 +33495,9 @@
         "severity": "suggestion",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#1"
@@ -33012,7 +33520,9 @@
         "severity": "suggestion",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#2"
@@ -33035,7 +33545,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#3"
@@ -33058,7 +33570,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#5"
@@ -33081,7 +33595,9 @@
         "severity": "warning",
         "why": "",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#6"
@@ -33105,7 +33621,8 @@
         "why": "The em element indicates emphasis, not italics as such.",
         "example": "",
         "applies": [
-          "Emphasis"
+          "Emphasis",
+          "WebMarkup"
         ],
         "products": [],
         "units": [
@@ -33130,7 +33647,8 @@
         "why": "The strong element indicates strong importance, not bold as such.",
         "example": "",
         "applies": [
-          "Emphasis"
+          "Emphasis",
+          "WebMarkup"
         ],
         "products": [],
         "units": [
@@ -33154,7 +33672,9 @@
         "severity": "warning",
         "why": "br is only for line breaks that are part of content.",
         "example": "",
-        "applies": [],
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#9"
@@ -33167,17 +33687,19 @@
       },
       {
         "heading": "Visual formatting",
-        "kind": "pattern",
+        "kind": "prose",
         "text": "Don't use consecutive br elements to adjust the spacing between lines; use p elements and CSS.",
         "bad": "",
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "<br\\s*/?>\\s*<br\\s*/?>",
+        "pattern": "",
         "severity": "suggestion",
         "why": "br is only for line breaks that are part of content.",
-        "example": "First paragraph.<br /><br />Second paragraph.",
-        "applies": [],
+        "example": "",
+        "applies": [
+          "WebMarkup"
+        ],
         "products": [],
         "units": [
           "semantic-tagging#9"
@@ -33197,7 +33719,20 @@
     ],
     "uncovered": [],
     "dropped": [],
-    "errors": []
+    "errors": [],
+    "passes": [
+      "google:semantic-tagging/1 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/2 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/3 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/4 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/5 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/6 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/7 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/8 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/9 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/10 Content.WebMarkup (fixes.json: #63: which HTML element to use; Flare writes the markup)",
+      "google:semantic-tagging/10 pattern → prose: '<br\\s*/?>\\s*<br\\s*/?>' matches markup; lint sees text only (#55)"
+    ]
   },
   "examples": {
     "title": "Example domains and names",
@@ -33636,6 +34171,29 @@
         "id": "google:examples/15"
       },
       {
+        "heading": "Further notes about example people",
+        "kind": "row",
+        "text": "Don't use the Alice and Bob characters unless the document refers to a specification that uses them.",
+        "bad": "",
+        "good": "",
+        "avoid": "Alice and Bob, Bob and Alice",
+        "use": "",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use names from the example names list.",
+        "example": "Alice and Bob exchange keys over the channel.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "examples#51"
+        ],
+        "key": "29",
+        "unit_hashes": [
+          "943267add8"
+        ],
+        "id": "google:examples/29"
+      },
+      {
         "heading": "Example company names",
         "kind": "prose",
         "text": "When you need a company name in an example, use Example Organization; to differentiate between two fictional companies, add a description, such as Enterprise Example Organization and Startup Example Organization.",
@@ -33902,29 +34460,6 @@
         "id": "google:examples/26"
       },
       {
-        "heading": "Example project names",
-        "kind": "row",
-        "text": "Don't use unclear components like foo, bar, and baz in names.",
-        "bad": "",
-        "good": "",
-        "avoid": "baz",
-        "use": "",
-        "pattern": "",
-        "severity": "suggestion",
-        "why": "Unclear names aren't meaningful to readers.",
-        "example": "Don't use unclear components like foo, bar, and baz in names.",
-        "applies": [],
-        "products": [],
-        "units": [
-          "examples#79"
-        ],
-        "key": "27",
-        "unit_hashes": [
-          "e717c1ee3a"
-        ],
-        "id": "google:examples/27"
-      },
-      {
         "heading": "Example service account IDs",
         "kind": "prose",
         "text": "When you need a unique ID for a service account in an example, use the numeric ID 123456789012345678901.",
@@ -33966,7 +34501,9 @@
     "passes": [
       "google:examples/27 drops 'foo' (owned by google:word-list/294)",
       "google:examples/27 Example → 'Don't use unclear components like foo, bar, and baz in names.'",
-      "google:examples/18 dropped (\\b(?!800[-‑.]555[-‑.]01\\d\\d\\b)\\d{3}[-‑.]\\d{3}[-‑.]\\d{4}\\b): owners.json: Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose"
+      "google:examples/18 dropped (\\b(?!800[-‑.]555[-‑.]01\\d\\d\\b)\\d{3}[-‑.]\\d{3}[-‑.]\\d{4}\\b): owners.json: Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose",
+      "google:examples/27 dropped (baz): fixes.json: #60: the rule is about example project names; lint can't tell a name from the word baz, so it stays a prose rule",
+      "google:examples/29 added: row 'Alice and Bob, Bob and Alice' (fixes.json: #64: Examples, Alice and Bob)"
     ],
     "retired": [
       {
@@ -33974,6 +34511,12 @@
         "text": "\\b(?!800[-‑.]555[-‑.]01\\d\\d\\b)\\d{3}[-‑.]\\d{3}[-‑.]\\d{4}\\b",
         "retired": "2026-10-22",
         "reason": "owners.json: Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose"
+      },
+      {
+        "key": "27",
+        "text": "baz",
+        "retired": "2026-10-22",
+        "reason": "fixes.json: #60: the rule is about example project names; lint can't tell a name from the word baz, so it stays a prose rule"
       }
     ]
   },
@@ -34184,7 +34727,7 @@
         "avoid": "2-step Verification, 2-Step verification",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Mixed casing matches neither the Google feature nor generic term.",
         "example": "Turn on 2-Step verification for your account.",
         "applies": [],
@@ -34740,7 +35283,7 @@
         "avoid": "agnostic",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The library is platform agnostic.",
         "applies": [],
@@ -34860,7 +35403,7 @@
         "avoid": "allowlisted, allowlisting",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Make sure your IP address is allowlisted.",
         "applies": [],
@@ -35096,7 +35639,7 @@
         "avoid": "API Console, APIs console, developer console, dev console",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Open the API Console and create a project.",
         "applies": [],
@@ -35638,7 +36181,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[Bb]are metal (servers?|machines?|instances?|nodes?|hosts?)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Compound modifiers are hyphenated.",
         "example": "Create a bare metal server.",
         "applies": [],
@@ -35829,7 +36372,7 @@
         "kind": "term",
         "text": "Lowercase beta except when part of a product name.",
         "bad": "",
-        "good": "PRODUCT_NAME is currently in beta.",
+        "good": "PRODUCT_NAME is in beta.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -36235,7 +36778,7 @@
         "avoid": "blast radius",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use a precise term like affected area.",
         "example": "Limit the blast radius of a failure.",
         "applies": [],
@@ -36426,7 +36969,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bboolean (logic|mathematics)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Named after Boole; use uppercase.",
         "example": "Use boolean logic to combine filters.",
         "applies": [],
@@ -36473,7 +37016,7 @@
         "avoid": "break-glass",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use emergency access or manual fallback.",
         "example": "Follow the break-glass procedure.",
         "applies": [],
@@ -36690,7 +37233,7 @@
         "avoid": "canarying, Canarying",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "We're canarying the new release.",
         "applies": [],
@@ -36933,7 +37476,7 @@
         "avoid": "chubby, Chubby",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The cluster is chubby.",
         "applies": [],
@@ -37130,7 +37673,7 @@
         "avoid": "click here, Click here",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Vague link text.",
         "example": "For details, click here.",
         "applies": [
@@ -37230,7 +37773,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bClient Secret\\b|\\bclient Secret\\b|(?<=\\b[a-z]+ )Client secret\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Enter your Client Secret.",
         "applies": [],
@@ -37553,7 +38096,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[Cc]olo\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Move the servers to a colo facility.",
         "applies": [],
@@ -37600,7 +38143,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[Cc]ompris(?:e|es|ed|ing)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The system comprises three services.",
         "applies": [],
@@ -37647,7 +38190,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[Cc]ons\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Consider the pros and cons of each option.",
         "applies": [],
@@ -37838,7 +38381,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b(?:Ctl|Cmd|Cloverleaf)-\\w",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Press Cmd-S to save the file.",
         "applies": [],
@@ -38026,7 +38569,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bCross-Site Request Forgery\\b|(?<=\\b[a-z]+ )Cross-site request forgery\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Protect your app against Cross-Site Request Forgery.",
         "applies": [],
@@ -38570,7 +39113,7 @@
         "avoid": "demilitarized zone, Demilitarized zone, DMZ",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Place the web server in the DMZ.",
         "applies": [],
@@ -38640,7 +39183,7 @@
         "avoid": "denylisted, denylisting",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The IP address is denylisted.",
         "applies": [],
@@ -38711,7 +39254,7 @@
         "avoid": "desire, desired",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Set the value to the desired size.",
         "applies": [],
@@ -38734,7 +39277,7 @@
         "avoid": "Developers Console",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Open the Developers Console.",
         "applies": [],
@@ -39016,8 +39559,8 @@
         "text": "Hyphenate distributed denial-of-service as shown.",
         "bad": "",
         "good": "",
-        "avoid": "denial of service, Denial of service",
-        "use": "denial-of-service, Denial-of-service",
+        "avoid": "distributed denial of service, Distributed denial of service",
+        "use": "distributed denial-of-service, Distributed denial-of-service",
         "pattern": "",
         "severity": "warning",
         "why": "",
@@ -40273,8 +40816,8 @@
         "good": "",
         "avoid": "",
         "use": "",
-        "pattern": "\\betc\\b(?!\\.)",
-        "severity": "error",
+        "pattern": "(?<![/\\\\])\\betc\\b(?![./\\\\])",
+        "severity": "warning",
         "why": "",
         "example": "If your app experiences instability, high latency, etc, follow these steps:",
         "applies": [],
@@ -40371,7 +40914,7 @@
         "avoid": "expando, zippy",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use expander arrow or expandable section.",
         "example": "Click the zippy to show more details.",
         "applies": [],
@@ -40569,7 +41112,7 @@
         "avoid": "trim the fat",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Refer concretely to removing unused items.",
         "example": "Run the cleanup job to trim the fat from your bucket.",
         "applies": [],
@@ -40920,7 +41463,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[Ff]or example(?= )",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Enter a six-digit hex number (for example 228B22), and then click OK.",
         "applies": [],
@@ -40943,7 +41486,7 @@
         "avoid": "for instance, For instance",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Avoids confusion with the noun instance.",
         "example": "For instance, you can create a VM.",
         "applies": [],
@@ -41171,6 +41714,29 @@
         "id": "google:word-list/309"
       },
       {
+        "heading": "ghetto",
+        "kind": "row",
+        "text": "Don't use ghetto; use a precise term such as clumsy, workaround, or inelegant.",
+        "bad": "",
+        "good": "",
+        "avoid": "ghetto",
+        "use": "",
+        "pattern": "",
+        "severity": "warning",
+        "why": "Use clumsy, workaround, or inelegant.",
+        "example": "This is a ghetto fix for the timeout.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "word-list#237"
+        ],
+        "key": "768",
+        "unit_hashes": [
+          "4dca2ed438"
+        ],
+        "id": "google:word-list/768"
+      },
+      {
         "heading": "gimp, gimpy",
         "kind": "term",
         "text": "Don't use gimp or gimpy; instead, use precise, non-figurative language to refer to a deficiency in a component (it's OK in names of companies, tools, software packages, and other entities).",
@@ -41251,7 +41817,7 @@
         "avoid": "Googling, googling, Googled, googled",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Don't use Google as a verb; use search with Google.",
         "example": "Try Googling the error message.",
         "applies": [],
@@ -41321,7 +41887,7 @@
         "avoid": "Google API Console, Google APIs Console",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Outdated product name; see console.",
         "example": "Open the Google API Console.",
         "applies": [],
@@ -41494,7 +42060,7 @@
         "avoid": "Google Developers Console",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Outdated product name; see console.",
         "example": "Open the Google Developers Console.",
         "applies": [],
@@ -41604,6 +42170,29 @@
         "id": "google:word-list/327"
       },
       {
+        "heading": "grandfathered",
+        "kind": "row",
+        "text": "Don't use grandfathered; use legacy, exempt, or made an exception.",
+        "bad": "",
+        "good": "",
+        "avoid": "grandfathered, grandfathering",
+        "use": "",
+        "pattern": "",
+        "severity": "warning",
+        "why": "Use legacy or exempt.",
+        "example": "Existing accounts are grandfathered into the old plan.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "word-list#252"
+        ],
+        "key": "770",
+        "unit_hashes": [
+          "2717ebc553"
+        ],
+        "id": "google:word-list/770"
+      },
+      {
         "heading": "gray-box, grey-box",
         "kind": "term",
         "text": "Avoid using gray-box, graybox, or gray box to describe testing; describe exactly what the testing is doing, and if you need to refer to it afterward, consider a more precise term such as translucent-box testing.",
@@ -41636,7 +42225,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b[Gg]r[ae]y(-| )?box testing\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Describe exactly what the testing is doing.",
         "example": "Run gray-box testing on the API.",
         "applies": [],
@@ -41682,7 +42271,7 @@
         "avoid": "gray out, grey out",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use unavailable.",
         "example": "The app might gray out the option.",
         "applies": [],
@@ -41893,7 +42482,7 @@
         "avoid": "hamburger menu, hamburger icon, Hamburger menu, Hamburger icon",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use the icon's aria-label, such as Menu.",
         "example": "Click the hamburger menu.",
         "applies": [],
@@ -42536,7 +43125,7 @@
         "avoid": "hotspotting, Hotspotting, hotspotted",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Verb forms translate less consistently.",
         "example": "Hotspotting in one table can affect the performance of other tables.",
         "applies": [],
@@ -42559,7 +43148,7 @@
         "avoid": "housekeeping, house keeping, house-keeping, Housekeeping",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use precise terms such as maintenance or cleanup.",
         "example": "The job performs housekeeping tasks every night.",
         "applies": [],
@@ -42582,7 +43171,7 @@
         "avoid": "HTTPs",
         "use": "HTTPS",
         "pattern": "",
-        "severity": "error",
+        "severity": "warning",
         "why": "",
         "example": "Connect to the server over HTTPs.",
         "applies": [],
@@ -42980,6 +43569,29 @@
         "id": "google:word-list/385"
       },
       {
+        "heading": "in order to",
+        "kind": "row",
+        "text": "Avoid in order to; use to.",
+        "bad": "",
+        "good": "",
+        "avoid": "in order to",
+        "use": "to",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use to, unless in order to clarifies the meaning.",
+        "example": "In order to save the file, click Save.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "word-list#296"
+        ],
+        "key": "772",
+        "unit_hashes": [
+          "a37695e36f"
+        ],
+        "id": "google:word-list/772"
+      },
+      {
         "heading": "inline",
         "kind": "term",
         "text": "Write inline as one word when used as an adjective, not in line or in-line.",
@@ -43159,7 +43771,7 @@
         "avoid": "cloud interconnect connection, cross-connect",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Don't use generic terms; specify the product name.",
         "example": "Create a cross-connect to your network.",
         "applies": [],
@@ -43635,7 +44247,7 @@
         "avoid": "kebab menu, kabob menu, kebab, kabob",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use the icon's aria-label, such as More.",
         "example": "Click the kebab menu.",
         "applies": [],
@@ -43816,6 +44428,29 @@
         "id": "google:word-list/420"
       },
       {
+        "heading": "kill",
+        "kind": "row",
+        "text": "Avoid kill when possible; use stop, exit, cancel, or end.",
+        "bad": "",
+        "good": "",
+        "avoid": "kill, kills, killed, killing",
+        "use": "",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use stop, exit, cancel, or end.",
+        "example": "To kill the job, click Cancel.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "word-list#323"
+        ],
+        "key": "771",
+        "unit_hashes": [
+          "007ac7eb59"
+        ],
+        "id": "google:word-list/771"
+      },
+      {
         "heading": "lame",
         "kind": "row",
         "text": "Don't use lame; instead, use precise, non-figurative language to refer to a deficiency in a component.",
@@ -43920,8 +44555,8 @@
         "good": "Use version 2.2 or later.",
         "avoid": "",
         "use": "",
-        "pattern": "\\b\\d+(\\.\\d+)*\\+(?=\\s|$|[.,;:)])",
-        "severity": "warning",
+        "pattern": "\\b\\d+\\.\\d+(?:\\.\\d+)*\\+(?=\\s|$|[.,;:)])",
+        "severity": "suggestion",
         "why": "Use or later for version ranges.",
         "example": "Use version 2.2+.",
         "applies": [],
@@ -43968,7 +44603,7 @@
         "avoid": "learnings",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use knowledge or things that you learned.",
         "example": "Here are our learnings from the migration.",
         "applies": [],
@@ -44015,7 +44650,7 @@
         "avoid": "left-nav, right-nav, left nav, right nav",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Directional language isn't accessible.",
         "example": "Click the topic in the left-nav.",
         "applies": [],
@@ -44086,7 +44721,7 @@
         "avoid": "let's, let’s",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Let's click the OK button now.",
         "applies": [],
@@ -45111,7 +45746,7 @@
         "good": "",
         "avoid": "",
         "use": "microservices",
-        "pattern": "(?-i)(?<=[a-z,;] )Microservices\\b",
+        "pattern": "(?<=[a-z,;] )(?<![Ss]ee )Microservices\\b",
         "severity": "warning",
         "why": "Write microservices, not Microservices.",
         "example": "You can deploy Microservices to the cluster.",
@@ -45468,7 +46103,7 @@
         "avoid": "NA",
         "use": "N/A",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Google style uses N/A, not NA.",
         "example": "The value is NA for this field.",
         "applies": [],
@@ -45633,7 +46268,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?i)\\bneither\\s+\\w+(\\s+\\w+)?\\s+or\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Neither pairs with nor.",
         "example": "Use neither the CLI or the API.",
         "applies": [],
@@ -45793,6 +46428,29 @@
           "c64618a677"
         ],
         "id": "google:word-list/505"
+      },
+      {
+        "heading": "ninja",
+        "kind": "row",
+        "text": "Don't use ninja to refer to a person; use a term such as expert.",
+        "bad": "",
+        "good": "",
+        "avoid": "ninja, ninjas",
+        "use": "",
+        "pattern": "",
+        "severity": "suggestion",
+        "why": "Use expert for a person.",
+        "example": "You don't need to be a ninja to configure the server.",
+        "applies": [],
+        "products": [],
+        "units": [
+          "word-list#392"
+        ],
+        "key": "769",
+        "unit_hashes": [
+          "c64618a677"
+        ],
+        "id": "google:word-list/769"
       },
       {
         "heading": "nonce",
@@ -46044,7 +46702,7 @@
         "avoid": "nuke, nukes, nuked, nuking, Nuke",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Don't use. Use remove or attack instead.",
         "example": "Then nuke the old cluster.",
         "applies": [],
@@ -46067,7 +46725,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bOAuth ?2(?!\\.\\d|\\d)|\\bOauth\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use the correct product name.",
         "example": "Authenticate by using OAuth2.",
         "applies": [],
@@ -46090,7 +46748,7 @@
         "avoid": "off-the-shelf, Off-the-shelf, COTS",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use more widely understood terms.",
         "example": "Use an off-the-shelf connector.",
         "applies": [],
@@ -46623,7 +47281,7 @@
         "avoid": "as per, As per",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Avoid per outside rate units.",
         "example": "We updated the settings as per your request.",
         "applies": [],
@@ -46717,7 +47375,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\b(is|are|was|were|be|been|being)\\s+persisted\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Don't use persist transitively or in passive voice.",
         "example": "The token is persisted in storage.",
         "applies": [],
@@ -46919,7 +47577,7 @@
         "avoid": "please note, Please note",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Please note that the setting is required.",
         "applies": [],
@@ -47143,7 +47801,7 @@
         "avoid": "pop-up, popup, Pop-up, Popup",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use dialog or menu.",
         "example": "In the pop-up, click OK.",
         "applies": [],
@@ -47198,7 +47856,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\blisten(s|ed|ing)?\\s+to\\s+(the\\s+)?port\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use listen on, not listen to.",
         "example": "The server listens to port 8080.",
         "applies": [],
@@ -47751,7 +48409,7 @@
         "avoid": "pros, Pros",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use a more precise term, such as advantages.",
         "example": "Consider the pros of each option.",
         "applies": [],
@@ -48023,7 +48681,7 @@
         "avoid": "forklift approach",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Migrate the app using the forklift approach.",
         "applies": [],
@@ -48163,7 +48821,7 @@
         "avoid": "retriable, triable",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "The request is retriable.",
         "applies": [],
@@ -48233,7 +48891,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bRFC\\d{1,5}\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "For details, see RFC2318.",
         "applies": [],
@@ -48588,7 +49246,7 @@
         "avoid": "scroll up, scroll down",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Directional language isn't accessible.",
         "example": "Scroll up to the Settings section.",
         "applies": [],
@@ -48786,7 +49444,7 @@
         "avoid": "Service Level Indicator, Service Level Objective",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Define a Service Level Objective for latency.",
         "applies": [],
@@ -49050,7 +49708,7 @@
         "avoid": "log in, signin, log out, signout",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Log in to the console.",
         "applies": [],
@@ -49098,7 +49756,7 @@
         "avoid": "",
         "use": "",
         "pattern": "(?i)(?<!\\bsingle )\\bsign[- ]on\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Configure sign-on for your users.",
         "applies": [],
@@ -49120,7 +49778,7 @@
         "good": "single sign-on",
         "avoid": "",
         "use": "single sign-on",
-        "pattern": "\\bsingle sign on\\b",
+        "pattern": "(?i)\\bsingle sign on\\b",
         "severity": "warning",
         "why": "",
         "example": "Enable single sign on for your domain.",
@@ -49217,7 +49875,7 @@
         "avoid": "single pane of glass",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Monitor all clusters from a single pane of glass.",
         "applies": [],
@@ -49313,7 +49971,7 @@
         "avoid": "slice and dice",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Use the report to slice and dice your data.",
         "applies": [],
@@ -49336,7 +49994,7 @@
         "avoid": "smartphone, smart phone",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Open the app on your smartphone.",
         "applies": [],
@@ -49454,7 +50112,7 @@
         "avoid": "ssh'ing",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "After ssh'ing into the VM, run the script.",
         "applies": [],
@@ -50436,7 +51094,7 @@
         "avoid": "tl;dr, TL;DR",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "tl;dr: restart the server.",
         "applies": [],
@@ -50773,7 +51431,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bTypically\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Can leave the meaning open to misinterpretation.",
         "example": "Typically, the job finishes in an hour.",
         "applies": [],
@@ -51051,7 +51709,7 @@
         "avoid": "unselect",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Replacement depends on the UI element.",
         "example": "To disable the option, unselect the checkbox.",
         "applies": [],
@@ -51227,7 +51885,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bUTF ?(?:8|16|32)\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Save the file as UTF8.",
         "applies": [],
@@ -51280,7 +51938,7 @@
         "avoid": "",
         "use": "",
         "pattern": "\\bV\\d+(?:\\.\\d+)+\\b",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Install V2.1 of the client library.",
         "applies": [],
@@ -51303,7 +51961,7 @@
         "avoid": "via",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Send the request via the API.",
         "applies": [],
@@ -51350,7 +52008,7 @@
         "avoid": "vice versa",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Write out the relationship explicitly.",
         "example": "You can copy local files to the cloud and vice versa.",
         "applies": [],
@@ -51474,7 +52132,7 @@
         "avoid": "voila, Voila, voilà, Voilà",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "",
         "example": "Click Save and voila, your changes are live.",
         "applies": [],
@@ -52037,7 +52695,7 @@
         "avoid": "wish, wishes, Wish",
         "use": "",
         "pattern": "",
-        "severity": "warning",
+        "severity": "suggestion",
         "why": "Use want or need instead.",
         "example": "If you wish to continue, click Next.",
         "applies": [],
@@ -52056,7 +52714,7 @@
         "kind": "term",
         "text": "Don't use with when expressing ownership.",
         "bad": "A handset with 2 GB of RAM.",
-        "good": "A handset that has 2 GB of RAM.",
+        "good": "A handset that has 2 GB of RAM.",
         "avoid": "",
         "use": "",
         "pattern": "",
@@ -52708,7 +53366,92 @@
       "google:word-list/42 dropped (\\b\\d{1,2}(?::\\d{2})?(?:\\s?(?:[ap]\\.m\\.|[ap]m\\b|[AP]\\.M\\.)|(?:AM|PM)\\b)): owners.json: Dates-Times owns time formats (dates-times/8 and /9 cover every form; word-list/42 differs only by a trailing period)",
       "google:word-list/512 dropped (noops): owners.json: same entry (NoOps); 511 has the fix",
       "google:word-list/244 Use 'for example, For example' → 'for example,' (the fix 'Use a supported format, for example JSON.' is flagged by google:word-list/296 ('for example'))",
-      "google:word-list/269 flag-only, was Use 'etc.' (the fix 'If your app experiences instability, high latency, etc., follow these steps:' is flagged by google:lists/36 (', etc.'))"
+      "google:word-list/269 flag-only, was Use 'etc.' (the fix 'If your app experiences instability, high latency, etc., follow these steps:' is flagged by google:lists/36 (', etc.'))",
+      "google:word-list/425 pattern → '\\b\\d+\\.\\d+(?:\\.\\d+)*\\+(?=\\s|$|[.,;:)])' (fixes.json)",
+      "google:word-list/492 severity → 'suggestion' (fixes.json)",
+      "google:word-list/216 Use 'denial-of-service, Denial-of-service' → 'distributed denial-of-service, Distributed denial-of-service' (fixes.json: #60: the source entry is 'distributed denial-of-service (DDoS)'; the noun 'denial of service' is fine)",
+      "google:word-list/216 avoid → 'distributed denial of service, Distributed denial of service' (fixes.json)",
+      "google:word-list/641 pattern → '(?i)\\bsingle sign on\\b' (fixes.json)",
+      "google:word-list/269 severity → 'warning' (fixes.json)",
+      "google:word-list/369 severity → 'warning' (fixes.json)",
+      "google:word-list/269 pattern → '(?<![/\\\\])\\betc\\b(?![./\\\\])' (fixes.json)",
+      "google:word-list/475 pattern → '(?<=[a-z,;] )(?<![Ss]ee )Microservices\\b' (fixes.json)",
+      "google:word-list/81 good → 'PRODUCT_NAME is in beta.' (fixes.json)",
+      "google:word-list/759 good → 'A handset that has 2 GB of RAM.' (fixes.json)",
+      "google:word-list/768 added: row 'ghetto' (fixes.json: #64: Word-List 'Don't use' term with no row)",
+      "google:word-list/769 added: row 'ninja, ninjas' (fixes.json: #64: Word-List 'Don't use' term with no row; flag only (fine in a product name))",
+      "google:word-list/770 added: row 'grandfathered, grandfathering' (fixes.json: #64: Word-List 'Don't use' term; word-list/326 covers only grandfather clause)",
+      "google:word-list/771 added: row 'kill, kills, killed, killing' (fixes.json: #64: Word-List 'Avoid when possible' (command-line syntax is code, which lint skips))",
+      "google:word-list/772 added: row 'in order to' (fixes.json: #64: Word-List 'Avoid'; suggestion because the source allows it where it clarifies)",
+      "google:word-list/9 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/33 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/38 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/49 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/73 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/98 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/106 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/108 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/117 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/127 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/136 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/140 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/153 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/155 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/157 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/165 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/173 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/196 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/199 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/203 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/204 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/273 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/281 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/296 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/297 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/313 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/316 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/323 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/329 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/331 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/340 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/366 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/367 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/393 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/413 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/425 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/427 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/429 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/432 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/499 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/517 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/518 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/519 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/541 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/545 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/553 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/561 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/563 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/584 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/595 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/601 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/604 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/619 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/627 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/638 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/640 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/645 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/649 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/650 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/655 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/694 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/706 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/717 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/724 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/726 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/727 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/729 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/734 severity warning → suggestion (flag-only: no safe fix)",
+      "google:word-list/758 severity warning → suggestion (flag-only: no safe fix)"
     ],
     "retired": [
       {

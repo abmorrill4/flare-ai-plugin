@@ -1,10 +1,37 @@
 [
   {
+    "Id": "google:periods/22",
+    "Layer": "google",
+    "Page": "Periods",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "remove",
+    "Tags": [],
+    "Avoid": [
+      "(?<=[A-Za-z)\"\\u201D\\u2019][.!?][ \\u00A0])[ \\u00A0]+(?=[A-Z])"
+    ],
+    "Use": "(delete)",
+    "Example": "Save the file.  Then close the editor.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Save the file.  Then close the editor.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
     "Id": "google:periods/5",
     "Layer": "google",
     "Page": "Periods",
     "Row": 2,
-    "Severity": "error",
+    "Severity": "warning",
     "Action": "flag",
     "Tags": [
       "Links"
@@ -33,7 +60,7 @@
     "Layer": "google",
     "Page": "Periods",
     "Row": 2,
-    "Severity": "error",
+    "Severity": "warning",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -50,6 +77,35 @@
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:periods/21",
+    "Layer": "google",
+    "Page": "Periods",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "remove",
+    "Tags": [
+      "Headings"
+    ],
+    "Avoid": [
+      "(?<!\\.\\.|\\b(?:etc|Inc|Ltd|Corp|Co|vs|[A-Z]))\\.\\s*$"
+    ],
+    "Use": "(delete)",
+    "Example": "Configure the network.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Configure the network.",
+        "Expect": {
+          "clean": "paragraph, step, step-p, list, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "heading-h2, heading-h4"
         }
       }
     ],

@@ -10,14 +10,14 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-2" MadCap:conditions="Content.Numbers"><td>\b\d+(?:st|nd|rd|th)\b</td><td></td><td>warning</td><td>Ordinal numbers are spelled out in text.</td><td>Select the 1st option in the list.</td></tr>
+            <tr id="rule-2" MadCap:conditions="Content.Numbers"><td>\b\d+(?:st|nd|rd|th)\b</td><td></td><td>suggestion</td><td>Ordinal numbers are spelled out in text.</td><td>Select the 1st option in the list.</td></tr>
         </table>
         <h2>Numbers as words</h2>
         <ul>
             <li id="rule-3" MadCap:conditions="Content.Numbers">If it&apos;s important to have the number and associated noun together on the same line, use a nonbreaking space between the number and the noun.</li>
             <li id="rule-4" MadCap:conditions="Content.Numbers">Spell out numbers from zero through nine, except as noted in Numbers as numerals.<ul><li>Good: four options</li></ul></li>
             <li id="rule-5" MadCap:conditions="Content.Numbers">Spell out a number that starts a sentence; it&apos;s okay, but non-optimal, to begin a sentence with a four-digit year.<ul><li>Good: Fifteen directories are created.</li></ul></li>
-            <li id="rule-6" MadCap:conditions="Content.Numbers">In some cases, rearrange the sentence so that the number appears later instead of starting the sentence.<ul><li>Bad: 164 MB is generally considered too large a file to send as an attachment.</li><li>Good: In general, avoid sending files larger than 164 MB as attachments.</li></ul></li>
+            <li id="rule-6" MadCap:conditions="Content.Numbers">In some cases, rearrange the sentence so that the number appears later instead of starting the sentence.<ul><li>Bad: 164 MB is generally considered too large a file to send as an attachment.</li><li>Good: In general, avoid sending files larger than 164 MB as attachments.</li></ul></li>
             <li id="rule-7" MadCap:conditions="Content.Numbers">Spell out a number that is followed by a numeral, or rephrase so both are numerals.<ul><li>Good: This procedure creates fifteen 100,000-byte files.</li></ul></li>
             <li id="rule-8" MadCap:conditions="Content.Numbers">Use words like millions or billions only for approximate numbers; for precise numbers, use numerals.<ul><li>Good: You can specify thousands of combinations.</li></ul></li>
         </ul>
@@ -42,7 +42,7 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-25" MadCap:conditions="Content.Numbers"><td>(?&lt;=^|\s)\.\d+\b</td><td></td><td>warning</td><td>Decimals less than one need a leading zero.</td><td>Set the margin to .3 inches.</td></tr>
+            <tr id="rule-25" MadCap:conditions="Content.Numbers"><td>(?&lt;=^|\s)\.\d+\b</td><td></td><td>suggestion</td><td>Decimals less than one need a leading zero.</td><td>Set the margin to .3 inches.</td></tr>
         </table>
         <h2>Numbers as Roman numerals</h2>
         <ul>
@@ -61,7 +61,7 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-33" MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?[ \u00A0]?percent\b</td><td></td><td>warning</td><td>Use numerals with the percent sign.</td><td>Only 40 percent of the files were copied.</td></tr>
+            <tr id="rule-33" MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?[ \u00A0]?percent\b</td><td></td><td>suggestion</td><td>Use numerals with the percent sign.</td><td>Only 40 percent of the files were copied.</td></tr>
         </table>
         <h2>Ranges of numbers</h2>
         <ul>
@@ -81,8 +81,8 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-42" MadCap:conditions="Content.Numbers"><td>\$\d{1,3}(?: \d{3})+\b</td><td></td><td>warning</td><td>Use commas to separate thousands in US dollars.</td><td>$10 000 in fees is out of reach for many developers.</td></tr>
-            <tr id="rule-43" MadCap:conditions="Content.Numbers"><td>\$\d[\d,]*\.\d+(?:[, ]\d{3})+\b</td><td></td><td>error</td><td>No digit separators right of the decimal point.</td><td>The price is $0.006,653 per vCPU hour.</td></tr>
+            <tr id="rule-42" MadCap:conditions="Content.Numbers"><td>\$\d{1,3}(?: \d{3})+\b</td><td></td><td>suggestion</td><td>Use commas to separate thousands in US dollars.</td><td>$10 000 in fees is out of reach for many developers.</td></tr>
+            <tr id="rule-43" MadCap:conditions="Content.Numbers"><td>\$\d[\d,]*\.\d+(?:,\d{3})+\b</td><td></td><td>warning</td><td>No digit separators right of the decimal point.</td><td>The price is $0.006,653 per vCPU hour.</td></tr>
         </table>
         <h2>Commas and decimal points in numbers</h2>
         <ul>
@@ -98,7 +98,7 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-50" MadCap:conditions="Content.Numbers"><td>\b\d+(?: [xX×] ?| ?[xX×] |X|×)\d+\b</td><td></td><td>warning</td><td>Dimensions use a lowercase x with no spaces.</td><td>The icon must be 192 x 192 pixels.</td></tr>
+            <tr id="rule-50" MadCap:conditions="Content.Numbers"><td>\b\d+(?: [xX×] ?| ?[xX×] |X|×)\d+\b</td><td></td><td>suggestion</td><td>Dimensions use a lowercase x with no spaces.</td><td>The icon must be 192 x 192 pixels.</td></tr>
         </table>
         <h2>Exponents</h2>
         <ul>

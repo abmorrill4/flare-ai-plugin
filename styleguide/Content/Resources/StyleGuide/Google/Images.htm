@@ -49,7 +49,7 @@
         </ul>
         <h2>Figure captions</h2>
         <ul>
-            <li id="rule-32" MadCap:conditions="Content.Images">When using the figcaption element, wrap both the figcaption and img elements in the figure element.</li>
+            <li id="rule-32" MadCap:conditions="Content.Images,Content.WebMarkup">When using the figcaption element, wrap both the figcaption and img elements in the figure element.</li>
             <li id="rule-33" MadCap:conditions="Content.Images">If you use figure numbers, use the form &quot;Figure NUMBER. DESCRIPTION.&quot; with the figure label in bold.<ul><li>Good: Figure 1. Application capabilities are separated into bounded contexts that migrate to services.</li></ul></li>
             <li id="rule-34" MadCap:conditions="Content.Images">Use complete sentences in figure captions.<ul><li>Bad: Bounded contexts</li><li>Good: Application capabilities are separated into bounded contexts that migrate to services.</li></ul></li>
             <li id="rule-35" MadCap:conditions="Content.Images">Always use end punctuation for captions.</li>
@@ -60,7 +60,7 @@
         </ul>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-40" MadCap:conditions="Content.Images"><td>the image above, the image below, the figure above, the figure below, the diagram above, the diagram below, the screenshot above, the screenshot below</td><td></td><td>warning</td><td></td><td>As shown in the image above, the app has three services.</td></tr>
+            <tr id="rule-40" MadCap:conditions="Content.Images"><td>the image above, the image below, the figure above, the figure below, the diagram above, the diagram below, the screenshot above, the screenshot below</td><td></td><td>suggestion</td><td></td><td>As shown in the image above, the app has three services.</td></tr>
         </table>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
@@ -87,25 +87,25 @@
         </ul>
         <h2>High-resolution images</h2>
         <ul>
-            <li id="rule-55" MadCap:conditions="Content.Images">To provide a high-resolution image, use the img element&apos;s srcset attribute in addition to the standard src attribute.<ul><li>Good: &lt;img src=&quot;/assets/images/skateboard.png&quot; srcset=&quot;/assets/images/skateboard.png 1x, /assets/images/skateboard_2x.png 2x&quot; width=&quot;375&quot; alt=&quot;&quot; /&gt;</li></ul></li>
-            <li id="rule-56" MadCap:conditions="Content.Images">When you use the srcset attribute, always still include the src attribute.</li>
-            <li id="rule-57" MadCap:conditions="Content.Images">Set the width attribute to the CSS pixel size used for the page dimensions, and don&apos;t state the height explicitly.</li>
-            <li id="rule-58" MadCap:conditions="Content.Images">Set the src attribute to point to the standard-resolution (1x) image, not the 2x version.</li>
+            <li id="rule-55" MadCap:conditions="Content.Images,Content.WebMarkup">To provide a high-resolution image, use the img element&apos;s srcset attribute in addition to the standard src attribute.<ul><li>Good: &lt;img src=&quot;/assets/images/skateboard.png&quot; srcset=&quot;/assets/images/skateboard.png 1x, /assets/images/skateboard_2x.png 2x&quot; width=&quot;375&quot; alt=&quot;&quot; /&gt;</li></ul></li>
+            <li id="rule-56" MadCap:conditions="Content.Images,Content.WebMarkup">When you use the srcset attribute, always still include the src attribute.</li>
+            <li id="rule-57" MadCap:conditions="Content.Images,Content.WebMarkup">Set the width attribute to the CSS pixel size used for the page dimensions, and don&apos;t state the height explicitly.</li>
+            <li id="rule-58" MadCap:conditions="Content.Images,Content.WebMarkup">Set the src attribute to point to the standard-resolution (1x) image, not the 2x version.</li>
             <li id="rule-59" MadCap:conditions="Content.Images">Use a filename of the form BASENAME_2x.EXTENSION for the double-resolution image.<ul><li>Good: skateboard_2x.png</li></ul></li>
             <li id="rule-60" MadCap:conditions="Content.Images">Make the double-resolution image exactly twice the width and height of the standard image, give or take a pixel.</li>
             <li id="rule-61" MadCap:conditions="Content.Images">Don&apos;t scale up an existing 1x image to make the 2x version; if all you have is the 1x version, use it alone.</li>
-            <li id="rule-62" MadCap:conditions="Content.Images">Specify all available image resolutions in the srcset attribute.</li>
+            <li id="rule-62" MadCap:conditions="Content.Images,Content.WebMarkup">Specify all available image resolutions in the srcset attribute.</li>
         </ul>
         <h2>Layout of images on a page</h2>
         <ul>
-            <li id="rule-63" MadCap:conditions="Content.Images">Don&apos;t try to place an image manually, for example with a style attribute; use your site&apos;s standard CSS image styles.</li>
+            <li id="rule-63" MadCap:conditions="Content.Images,Content.WebMarkup">Don&apos;t try to place an image manually, for example with a style attribute; use your site&apos;s standard CSS image styles.</li>
             <li id="rule-64" MadCap:conditions="Content.Images">Don&apos;t make your image too small; it&apos;s fine for an image to take up the full width of a page.</li>
             <li id="rule-65" MadCap:conditions="Content.Images">Consider how the image will look when printed out.</li>
             <li id="rule-66" MadCap:conditions="Content.Images">In general, don&apos;t use an image that&apos;s wider than the column it appears in.</li>
             <li id="rule-67" MadCap:conditions="Content.Images">Resize screenshots at full resolution if they take up too much space on the page.</li>
             <li id="rule-68" MadCap:conditions="Content.Images">Don&apos;t link to the figure from within the same page unless it&apos;s a very long page and you&apos;re linking to it from quite far away on the page.</li>
             <li id="rule-69" MadCap:conditions="Content.Images">Don&apos;t center the image on the page.</li>
-            <li id="rule-70" MadCap:conditions="Content.Images">Don&apos;t put an img element inside a p element.</li>
+            <li id="rule-70" MadCap:conditions="Content.Images,Content.WebMarkup">Don&apos;t put an img element inside a p element.</li>
         </ul>
     </body>
 </html>

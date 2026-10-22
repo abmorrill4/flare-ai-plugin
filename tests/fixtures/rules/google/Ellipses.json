@@ -76,7 +76,7 @@
     "Layer": "google",
     "Page": "Ellipses",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Ellipses"

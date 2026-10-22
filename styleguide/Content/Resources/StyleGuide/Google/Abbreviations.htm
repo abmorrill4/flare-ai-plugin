@@ -42,7 +42,7 @@
         </table>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-21" MadCap:conditions="Content.Abbreviations"><td>\b\d+x\b(?=\s+(?:faster|slower|more|less|larger|smaller|better|worse|higher|lower|bigger|greater|as)\b)</td><td></td><td>warning</td><td></td><td>Updating the software made throughput 10x faster.</td></tr>
+            <tr id="rule-21" MadCap:conditions="Content.Abbreviations"><td>\b\d+x\b(?=\s+(?:faster|slower|more|less|larger|smaller|better|worse|higher|lower|bigger|greater|as)\b)</td><td></td><td>suggestion</td><td></td><td>Updating the software made throughput 10x faster.</td></tr>
         </table>
         <h2>Periods with abbreviations</h2>
         <ul>
@@ -55,11 +55,11 @@
         </table>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-25" MadCap:conditions="Content.Abbreviations"><td>\b(?!(?:U\.S\.|U\.K\.|D\.C\.))(?:[A-Z]\.){2,}(?![A-Za-z])</td><td></td><td>warning</td><td></td><td>Contact the I.T. team for access.</td></tr>
+            <tr id="rule-25" MadCap:conditions="Content.Abbreviations"><td>(?&lt;![A-Za-z]\.)\b(?!(?:U\.S\.|U\.K\.|D\.C\.))(?!(?:[AP]\.M\.|A\.D\.|B\.C\.)(?![A-Za-z]))(?:[A-Z]\.){2,}(?![A-Za-z])(?!\s+[A-Z][a-z])</td><td></td><td>suggestion</td><td></td><td>Contact the I.T. team for access.</td></tr>
         </table>
         <h2>Abbreviations as verbs</h2>
         <ul>
-            <li id="rule-26" MadCap:conditions="Content.Abbreviations">Don&apos;t use acronyms, initialisms, or shortened words as verbs.<ul><li>Bad: Then ssh into your remote shell.</li><li>Good: Use SSH to log in to your remote shell.</li></ul></li>
+            <li id="rule-26" MadCap:conditions="Content.Abbreviations">Don&apos;t use acronyms, initialisms, or shortened words as verbs.<ul><li>Bad: Then ssh into your remote shell.</li><li>Good: Use SSH to sign in to your remote shell.</li></ul></li>
         </ul>
         <h2>Indefinite articles before abbreviations</h2>
         <ul>
