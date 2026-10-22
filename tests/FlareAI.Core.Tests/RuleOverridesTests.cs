@@ -180,6 +180,44 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void ASpanFlaggedByTwoRules_ListsTheOtherOnTheKeptHit_AndTurningOffBothClearsIt()
+        {
+            const string text = "Use a fruit, e.g. a pear.";
+            var s = new PluginSettings();
+            var engine = Engine(s);
+            var team = TeamFor(s);
+            var hit = engine.Lint(new[] { text }, null, null).Single(h => h.Match == "e.g.");
+            Assert.NotEmpty(hit.AlsoRules);
+            Assert.DoesNotContain(hit.AlsoRules, r => r.Id == hit.RuleId);
+            Assert.All(hit.AlsoRules, r => Assert.False(string.IsNullOrEmpty(r.Name)));
+
+            // Turning off only the shown rule exposes the next one on the same words (the bug).
+            GuideOverrides.Set(team, hit.RuleId, "off", "Fine in our docs.");
+            Assert.Contains(engine.Lint(new[] { text }, null, null), h => h.Match == "e.g.");
+
+            foreach (var r in hit.AlsoRules) GuideOverrides.Set(team, r.Id, "off", "Fine in our docs.");
+            Assert.DoesNotContain(engine.Lint(new[] { text }, null, null), h => h.Match == "e.g.");
+            Assert.Equal(1 + hit.AlsoRules.Count, RuleOverrides.Read(_userGuide, "My style guide").Count(o => o.By == "pat@example.com" && o.Note == "Fine in our docs."));
+        }
+
+        [Fact]
+        public void TheKeptHit_ForQuotationMarks_ListsEveryOtherRuleOnTheSameQuotes()
+        {
+            var s = new PluginSettings();
+            var engine = Engine(s);
+            var team = TeamFor(s);
+            var hits = engine.Lint(new[] { Curly }, null, null);
+            var shown = hits.Where(h => h.Match.Contains("“") || h.Match.Contains("’")).ToList();
+            Assert.NotEmpty(shown);
+            foreach (var h in shown)
+            {
+                GuideOverrides.Set(team, h.RuleId, "off", "x");
+                foreach (var r in h.AlsoRules) GuideOverrides.Set(team, r.Id, "off", "x");
+            }
+            Assert.DoesNotContain(engine.Lint(new[] { Curly }, null, null), h => h.Match.Contains("“") || h.Match.Contains("’"));
+        }
+
+        [Fact]
         public void AFailedWrite_NamesTheFile()
         {
             var s = new PluginSettings();

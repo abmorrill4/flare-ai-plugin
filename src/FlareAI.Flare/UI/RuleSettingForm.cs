@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -12,14 +14,17 @@ namespace FlareAI.Flare.UI
         private readonly RadioButton _team, _project;
         private readonly ComboBox _setting;
         private readonly TextBox _reason;
+        private readonly CheckBox _others;
 
         public bool ForTeam { get { return _team.Checked; } }
         /// <summary>The stored token: off, suggestion, warning or error.</summary>
         public string Setting { get { return FlareAI.Core.Severity.Normalize((string)_setting.SelectedItem); } }
+        /// <summary>True when the writer also wants the other rules that flag the same words turned off (same scope, setting and note).</summary>
+        public bool AlsoOthers { get { return _others != null && _others.Checked; } }
         public string Reason { get { return _reason.Text.Trim(); } }
 
         /// <param name="personalGuide">True when there is no team guide: the change goes to the writer's own style guide.</param>
-        public RuleSettingForm(string ruleText, bool canChangeTeamGuide, bool personalGuide = false)
+        public RuleSettingForm(string ruleText, bool canChangeTeamGuide, bool personalGuide = false, IList<FlareAI.Core.Style.RuleRef> otherRules = null)
         {
             Text = "House Style — Turn off this rule";
             StartPosition = FormStartPosition.CenterParent; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
@@ -38,8 +43,20 @@ namespace FlareAI.Flare.UI
             Controls.Add(new Label { Text = "Why (the team sees this in the guide):", Left = 12, Top = 156, Width = 496 });
             _reason = new TextBox { Left = 12, Top = 176, Width = 496 };
             Controls.Add(_reason);
-            var ok = new Button { Text = "Apply", Left = 352, Top = 228, Width = 75, DialogResult = DialogResult.OK };
-            var cancel = new Button { Text = "Cancel", Left = 433, Top = 228, Width = 75, DialogResult = DialogResult.Cancel };
+            var extra = 0;
+            if (otherRules != null && otherRules.Count > 0)
+            {
+                var names = new List<string>();
+                foreach (var r in otherRules) names.Add("•  " + r.Name);
+                _others = new CheckBox { Text = "Also turn off " + otherRules.Count + (otherRules.Count == 1 ? " other rule" : " other rules") + " that flag the same words", Left = 12, Top = 208, Width = 496, Checked = true };
+                var list = new Label { Text = string.Join(Environment.NewLine, names.ToArray()), Left = 32, Top = 232, Width = 476, Height = 16 * names.Count + 4, AutoEllipsis = true };
+                Controls.Add(_others); Controls.Add(list);
+                extra = 28 + 16 * names.Count;
+                A11y.Name(_others, _others.Text, string.Join(", ", names.ToArray()));
+            }
+            ClientSize = new Size(520, 270 + extra);
+            var ok = new Button { Text = "Apply", Left = 352, Top = 228 + extra, Width = 75, DialogResult = DialogResult.OK };
+            var cancel = new Button { Text = "Cancel", Left = 433, Top = 228 + extra, Width = 75, DialogResult = DialogResult.Cancel };
             Controls.Add(ok); Controls.Add(cancel);
             AcceptButton = ok; CancelButton = cancel;
             A11y.Name(_team, _team.Text);

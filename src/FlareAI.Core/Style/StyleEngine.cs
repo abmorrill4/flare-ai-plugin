@@ -301,13 +301,24 @@ namespace FlareAI.Core.Style
             if (all) return hits;
             // Same span flagged by several layers: keep the latest layer (it overrides), then a citable rule, then a fixable one.
             var kept = new List<LintHit>();
-            var seen = new HashSet<string>();
+            var byKey = new Dictionary<string, LintHit>();
             foreach (var h in hits.OrderBy(h => h.Index).ThenBy(h => h.Start).ThenBy(h => h.Length)
                          .ThenBy(h => -(rank.ContainsKey(h.Layer) ? rank[h.Layer] : 0)).ThenBy(h => h.RuleId == null).ThenBy(h => h.Replacement == null)
                          .ThenBy(h => Rank.ContainsKey(h.Severity) ? Rank[h.Severity] : 3))
-                if (seen.Add(h.Index + ":" + h.Start + ":" + h.Length)) kept.Add(h);
+            {
+                LintHit first;
+                if (byKey.TryGetValue(h.Index + ":" + h.Start + ":" + h.Length, out first)) first.AlsoFlaggedBy(h);   // turning off the shown rule would otherwise expose this one
+                else { byKey[h.Index + ":" + h.Start + ":" + h.Length] = h; kept.Add(h); }
+            }
             // A hit inside a longer one ("Please" inside "Please note that") is the same problem: show the longer only.
-            return kept.Where(h => !kept.Any(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length)).ToList();
+            var shown = new List<LintHit>();
+            foreach (var h in kept)
+            {
+                var outer = kept.FirstOrDefault(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length);
+                if (outer == null) shown.Add(h);
+                else outer.AlsoFlaggedBy(h);
+            }
+            return shown;
         }
 
         private static LintHit Hit(LintRule r, string use, string text, int start, int end, string severity)

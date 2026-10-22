@@ -940,36 +940,45 @@ namespace FlareAI.Flare.UI
             var guide = team != null ? team.GuideRoot : null;
             var personal = team != null && team.IsPersonal;
             var described = rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
-            using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null, personal))
+            var others = rule != null ? f.AlsoRules : null;   // other rules on the same words: turning off this one would expose them
+            using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null, personal, others))
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;
                 var path = f.DocumentPath ?? _doc.SourcePath;
                 var target = form.ForTeam ? guide : ProjectRules.OverridesPath(path);
-                try
+                var changed = new List<string>();
+                var all = new List<StyleFinding> { f };
+                if (form.AlsoOthers) foreach (var o in others) all.Add(new StyleFinding { RuleId = o.Id, Rule = o.Name, Layer = o.Layer, Source = "lint" });
+                foreach (var one in all)
                 {
-                    // Owners only; records who and when; the writer's own guide is created on first use (never the plugin folder).
-                    if (form.ForTeam) target = FlareAI.Core.Style.GuideOverrides.Set(team, rule.Id, form.Setting, form.Reason);
-                    else ProjectRules.Ignore(path, f, form.Setting, form.Reason, team != null ? team.Writer : null);
-                }
-                catch (Exception ex)
-                {
-                    Diagnostics.Log("Change rule", ex);
-                    Notify.Error(this, "House Style couldn't change the rule" + (target == null ? "." : " in " + target + "."),
-                                 ex.Message + "\n\nNothing was changed: the rule still applies.", ex, "Turn off this rule");
-                    _status.Text = Summary() + "  The rule was not changed.";
-                    return;
+                    try
+                    {
+                        // Owners only; records who and when; the writer's own guide is created on first use (never the plugin folder).
+                        if (form.ForTeam) target = FlareAI.Core.Style.GuideOverrides.Set(team, one.RuleId, form.Setting, form.Reason);
+                        else ProjectRules.Ignore(path, one, form.Setting, form.Reason, team != null ? team.Writer : null);
+                        changed.Add(one.RuleId);
+                    }
+                    catch (Exception ex)
+                    {
+                        Diagnostics.Log("Change rule", ex);
+                        Notify.Error(this, "House Style couldn't change " + (one == f ? "the rule" : "\"" + one.Rule + "\"") + (target == null ? "." : " in " + target + "."),
+                                     ex.Message + Environment.NewLine + Environment.NewLine + (one == f ? "Nothing was changed: the rule still applies." : "This rule and any after it were not changed: they still apply."), ex, "Turn off this rule");
+                        if (one == f) { _status.Text = Summary() + "  The rule was not changed."; return; }
+                        break;
+                    }
                 }
                 FeedbackLog.Record(f, _doc.SourcePath, form.Setting == "off" ? "rule ignored" : "rule changed", form.Reason);
                 if (form.Setting == "off")
                 {
                     if (f.Layer == "ai" && f.RuleId == null) _ignoredAi.Add(f.Rule);
-                    _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId : x.Rule == f.Rule);
+                    _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId || changed.Contains(x.RuleId) : x.Rule == f.Rule);
                     Rebuild();
                 }
-                _status.Text = Summary() + "  Rule set to " + form.Setting +
+                _status.Text = Summary() + "  Rule" + (changed.Count > 1 ? "s" : "") + " set to " + form.Setting +
                                (!form.ForTeam ? " for this project (in " + target + ")."
                                 : personal ? " in your style guide (" + target + ")."
-                                : " for the team (in " + target + "; commit it so everyone gets it).");
+                                : " for the team (in " + target + "; commit it so everyone gets it).") +
+                               (changed.Count < all.Count ? " " + (all.Count - changed.Count) + " could not be changed." : "");
             }
         }
 
@@ -1062,7 +1071,7 @@ namespace FlareAI.Flare.UI
             return new StyleFinding
             {
                 Source = f.Source, Rule = f.Rule, Severity = f.Severity, Excerpt = f.Excerpt, Suggestion = f.Suggestion, Replacement = f.Replacement,
-                Before = f.Before, Block = f.Block, Layer = f.Layer, Link = f.Link, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, RuleText = f.RuleText,
+                Before = f.Before, Block = f.Block, Layer = f.Layer, Link = f.Link, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, RuleText = f.RuleText, AlsoRules = f.AlsoRules,
                 DocumentPath = f.DocumentPath, Variable = f.Variable, Section = f.Section, Order = f.Order
             };
         }

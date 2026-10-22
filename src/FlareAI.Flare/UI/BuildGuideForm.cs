@@ -314,7 +314,7 @@ namespace FlareAI.Flare.UI
                     try
                     {
                         using (var dlg = new OpenFileDialog { Filter = "Notes, Word, HTML|*.docx;*.txt;*.md;*.htm;*.html|All files|*.*" })
-                            if (dlg.ShowDialog(form) == DialogResult.OK) box.Text = NoteText.ReadFile(dlg.FileName);
+                            if (dlg.ShowDialog(form) == DialogResult.OK) box.Text = NoteText.ReadFile(dlg.FileName).Replace("\r\n", "\n").Replace("\n", "\r\n");   // a TextBox shows only CRLF as a line break
                     }
                     catch (Exception ex)
                     {

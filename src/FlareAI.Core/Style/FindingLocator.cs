@@ -20,7 +20,7 @@ namespace FlareAI.Core.Style
             var f = FromLint(new LintHit
             {
                 Start = start, Length = length, Match = run.Value.Substring(start, length), Replacement = exact ? h.Replacement : null,
-                Rule = h.Rule, Severity = h.Severity, Message = h.Message, Layer = h.Layer, Link = h.Link, Variable = exact ? h.Variable : null, RuleId = h.RuleId
+                Rule = h.Rule, Severity = h.Severity, Message = h.Message, Layer = h.Layer, Link = h.Link, Variable = exact ? h.Variable : null, RuleId = h.RuleId, AlsoRules = h.AlsoRules
             }, run);
             return f;
         }
@@ -30,7 +30,7 @@ namespace FlareAI.Core.Style
             return new StyleFinding
             {
                 Source = "lint", Rule = h.Rule, Severity = h.Severity, Suggestion = h.Message,
-                Excerpt = h.Match, Replacement = h.Replacement, Layer = h.Layer, Link = h.Link, Variable = h.Variable, RuleId = h.RuleId,
+                Excerpt = h.Match, Replacement = h.Replacement, Layer = h.Layer, Link = h.Link, Variable = h.Variable, RuleId = h.RuleId, AlsoRules = h.AlsoRules,
                 Before = Tail(run.Value.Substring(0, h.Start)), Block = TextRuns.BlockOf(run)
             };
         }
