@@ -7,7 +7,7 @@ every change is a Flare tracked change.
 Linting runs on your computer at no cost. An AI review, rewrites and other AI features are optional. They use your
 own Anthropic API key or your company's AI gateway.
 
-Website: <https://abmorrill4.github.io/flare-ai-plugin/>
+Website: <https://gethousestyle.com/>
 
 ## Install
 
@@ -19,7 +19,7 @@ Website: <https://abmorrill4.github.io/flare-ai-plugin/>
    practice shows you a first lint. To practice again, select **Help > Start the Tour Again**.
 
 House Style needs Flare 2026 in the Ribbon interface. Flare 2024 and 2025 aren't tested. Updates install themselves
-when you close Flare. If something goes wrong, see the [install page](https://abmorrill4.github.io/flare-ai-plugin/install.html)
+when you close Flare. If something goes wrong, see the [install page](https://gethousestyle.com/install.html)
 or `docs/README-INSTALL.md`.
 
 ## Docs
@@ -41,7 +41,7 @@ and never logged. House Style sends a report only when you choose Send, or by it
 automatically** is checked in Settings. Reports never include your topic text unless you type it in, and never your key
 or settings that could hold a secret. You can see exactly what a report holds before it goes. Once a day House Style
 asks GitHub for the latest release, with no text, key or identifier. Details:
-[Privacy](https://abmorrill4.github.io/flare-ai-plugin/privacy.html).
+[Privacy](https://gethousestyle.com/privacy.html).
 
 ## For IT
 

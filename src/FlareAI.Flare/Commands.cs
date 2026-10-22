@@ -109,7 +109,7 @@ namespace FlareAI.Flare
         };
 
         /// <summary>The user guide on the project site, opened by Help.</summary>
-        public const string UserGuideUrl = "https://abmorrill4.github.io/flare-ai-plugin/";
+        public const string UserGuideUrl = "https://gethousestyle.com/";
 
         /// <summary>Every command, in ribbon order.</summary>
         public static readonly IList<CommandInfo> All = new List<CommandInfo>
