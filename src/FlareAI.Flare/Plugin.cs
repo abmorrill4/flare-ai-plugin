@@ -219,6 +219,7 @@ namespace FlareAI.Flare
                 // first need), never to the plugin folder: standard users can't write under Program Files.
                 var team = Team.Load(settings.GuideRoot(PluginDirectory), settings.FeedbackFolder);
                 team.SeedFrom = settings.ReadOnlyGuide(PluginDirectory);
+                settings.GuideRoots(PluginDirectory);   // upgrades a writer's guide in the old layout (a full copy) before first use
                 Team.Current = team;
                 PromptBuilder.DefaultOverrideFolder = team.GuideRoot == null ? null : Path.Combine(team.GuideRoot, Path.Combine("FlareAI", "prompts"));
                 Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
@@ -351,11 +352,13 @@ namespace FlareAI.Flare
                 var style = StyleService(settings);
                 var adapter = ActiveAdapter();
                 var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;
-                // Turned-off rules: the guides the writer can change (not the read-only one in the plugin folder) and the open project.
+                // Turned-off rules: the guides in effect (the read-only one in the plugin folder lists its defaults, which the
+                // writer turns back on with a row in their own guide) and the open project.
                 var pluginDir = PluginDirectory;
-                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir).FindAll(r => !PluginSettings.IsUnder(r, pluginDir));
+                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir);
+                Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
-                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject))
+                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)

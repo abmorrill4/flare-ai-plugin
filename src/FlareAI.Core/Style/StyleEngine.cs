@@ -57,11 +57,29 @@ namespace FlareAI.Core.Style
                 if (_cache.TryGetValue(key, out c) && c.Key == stamp) return c.Value;
             }
             var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(guides), "google", "Google") };
-            foreach (var g in guides) layers.Add(GuideLayer.Load(g, null, null, "Google"));
+            for (var i = 0; i < guides.Count; i++) layers.Add(GuideLayer.Load(guides[i], null, null, "Google", Shadowed(guides[i], guides.Skip(i + 1))));
             if (root != null) layers.Add(GuideLayer.Load(root, "project"));
             var comp = new Composition(layers);
             lock (_gate) _cache[key] = new KeyValuePair<string, Composition>(stamp, comp);
             return comp;
+        }
+
+        /// <summary>
+        /// The files of <paramref name="guide"/> that a later writer's own guide (<see cref="GuideSeed.IsPersonal"/>) has its
+        /// own version of, by path inside the project: a topic the writer edited stands in for the bundled topic.
+        /// </summary>
+        private static Func<string, bool> Shadowed(string guide, IEnumerable<string> later)
+        {
+            var mine = later.Where(GuideSeed.IsPersonal).ToList();
+            if (mine.Count == 0) return null;
+            var root = Path.GetFullPath(guide).TrimEnd('\\') + "\\";
+            return f =>
+            {
+                var full = Path.GetFullPath(f);
+                if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase)) return false;
+                var rel = full.Substring(root.Length);
+                return mine.Any(m => File.Exists(Path.Combine(m, rel)));
+            };
         }
 
         /// <summary>Forgets every composition: the next use reads the guides again.</summary>
@@ -266,12 +284,12 @@ namespace FlareAI.Core.Style
             return ruleId != null && _overrides.TryGetValue(ruleId, out v) && v == "off";
         }
 
-        /// <summary>"off", a severity, or null: what the layers above say about this rule.</summary>
+        /// <summary>"off", a severity, or null (the rule's own level, also when a later layer turned it back "on"): what the layers say about this rule.</summary>
         private string Override(LintRule r)
         {
             string v;
-            if (r.Id != null && _overrides.TryGetValue(r.Id, out v)) return v;
-            return _overrides.TryGetValue(r.Name, out v) ? v : null;
+            if (!(r.Id != null && _overrides.TryGetValue(r.Id, out v)) && !_overrides.TryGetValue(r.Name, out v)) return null;
+            return v == "on" ? null : v;
         }
 
         // ---- lint --------------------------------------------------------------------------------------------------

@@ -78,9 +78,10 @@ namespace FlareAI.Core.Tests
             Assert.StartsWith(_userGuide, file);
             Assert.False(PluginSettings.IsUnder(file, _pluginDir));
             Assert.False(Directory.Exists(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Google")));   // never copied
-            Assert.True(File.Exists(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Terminology.htm")));
+            Assert.False(File.Exists(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Terminology.htm")));   // nor the Company layer
+            Assert.Equal(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\" + GuideSeed.PersonalTopic), file);
             Assert.Equal("company", File.ReadAllLines(Path.Combine(_userGuide, @"FlareAI\layer.txt")).Last(l => !l.StartsWith("#")).Trim());
-            Assert.Equal(new[] { _userGuide }, s.GuideRoots(_pluginDir, _userGuide).ToArray());   // my guide replaces the bundled one
+            Assert.Equal(new[] { PluginSettings.BundledGuide(_pluginDir), _userGuide }, s.GuideRoots(_pluginDir, _userGuide).ToArray());   // my changes after the bundled guide
             // Same engine (the findings panel keeps its runner): the next check reads the change.
             Assert.False(Flags(engine, QuotesRule));
             Assert.True(engine.IsOff(null, QuotesRule));
@@ -225,8 +226,7 @@ namespace FlareAI.Core.Tests
         {
             var s = new PluginSettings();
             var team = TeamFor(s);
-            team.WritableGuide();
-            var topic = Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Google-overrides.htm");
+            var topic = GuideOverrides.Set(team, "google:word-list/5", "off", "first change");   // creates my rule-changes topic
             File.SetAttributes(topic, FileAttributes.ReadOnly);
             var ex = Assert.Throws<GuideWriteException>(() => GuideOverrides.Set(team, QuotesRule, "off", "x"));
             Assert.Equal(topic, ex.Target);
