@@ -7,6 +7,11 @@ One "## <version>" section per release (optionally "## 0.2.0 — October 2026"),
 Write each entry from the writer's side, in short plain sentences. No arrows, colon joins or taglines.
 -->
 
+## 0.3.3
+
+- House Style's GitHub project is now called house-style. Updates, Report a Problem and the release notes use the new
+  address. Old links still work.
+
 ## 0.3.2
 
 - Security fixes. Updates are now signed, and House Style installs only an update that we signed.
@@ -73,4 +78,4 @@ Write each entry from the writer's side, in short plain sentences. No arrows, co
 - If your team's guide can't be read, House Style checks with Google's guide and tells you why.
 - Errors are written to House Style's own log, and the Plugins list shows the real version number.
 
-[Release notes on GitHub](https://github.com/abmorrill4/flare-ai-plugin/releases)
+[Release notes on GitHub](https://github.com/abmorrill4/house-style/releases)

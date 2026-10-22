@@ -4,7 +4,7 @@ import { HttpError, log } from "./http";
 // and not returned to the plugin.
 
 const API = "https://api.github.com";
-const USER_AGENT = "house-style-feedback-worker (+https://github.com/abmorrill4/flare-ai-plugin)";
+const USER_AGENT = "house-style-feedback-worker (+https://github.com/abmorrill4/house-style)";
 /** Longest Retry-After we wait for inside a request before giving up and telling the plugin to fall back. */
 const MAX_INLINE_WAIT_S = 3;
 const TIMEOUT_MS = 10_000;

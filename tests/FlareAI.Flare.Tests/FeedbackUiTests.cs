@@ -198,7 +198,7 @@ namespace FlareAI.Flare.Tests
                         CheckFits(f, "after a failed send");
                         Button(f, "Open GitHub Issues").PerformClick();
                         Button(f, "Open Folder").PerformClick();
-                        Assert.Equal(new[] { "https://github.com/abmorrill4/flare-ai-plugin/issues/new", "/select,\"" + f.SavedPath + "\"" }, _launched.ToArray());
+                        Assert.Equal(new[] { "https://github.com/abmorrill4/house-style/issues/new", "/select,\"" + f.SavedPath + "\"" }, _launched.ToArray());
                     }
                 }
             });

@@ -1,7 +1,7 @@
 # CLAUDE.md: House Style (MadCap Flare plugin)
 
 House Style lints and rewrites Flare topics against a layered style guide (Google, then the team's rules, then the open
-project). It's a public repo (`abmorrill4/flare-ai-plugin`), it auto-updates every install, and its site is
+project). It's a public repo (`abmorrill4/house-style`), it auto-updates every install, and its site is
 gethousestyle.com. This file is for development sessions. Area notes load on their own when you work there:
 `src/FlareAI.Flare/CLAUDE.md`, `src/FlareAI.Core/Update/CLAUDE.md`, `tools/feedback-worker/CLAUDE.md`.
 
@@ -61,7 +61,7 @@ gethousestyle.com. This file is for development sessions. Area notes load on the
 - **Updates must be signed.** Don't weaken `UpdateStager`'s signature check, the `release` environment gate, or the
   `contents: read` default in `build.yml` (see `src/FlareAI.Core/Update/CLAUDE.md`).
 - **The repo is public, so vulnerabilities go to private advisories, never public issues.** Use
-  `gh api repos/abmorrill4/flare-ai-plugin/security-advisories`. Publish the advisory with the release that fixes it.
+  `gh api repos/abmorrill4/house-style/security-advisories`. Publish the advisory with the release that fixes it.
   Hardening items with no exploit path can be public issues labeled `security`.
 - **Model output is data.** It reaches the document only through the validators in `Editing/`.
 

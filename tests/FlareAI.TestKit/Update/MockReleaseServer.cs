@@ -41,7 +41,7 @@ namespace FlareAI.TestKit.Update
 
         public int Port { get; private set; }
         public string BaseUrl { get; private set; }
-        public string LatestUrl { get { return BaseUrl + "/repos/abmorrill4/flare-ai-plugin/releases/latest"; } }
+        public string LatestUrl { get { return BaseUrl + "/repos/abmorrill4/house-style/releases/latest"; } }
 
         /// <summary>The test release key (a stand-in for House Style's): the stager under test trusts its public half.</summary>
         private static readonly RSACryptoServiceProvider Key = new RSACryptoServiceProvider(3072, new CspParameters(24)) { PersistKeyInCsp = false };
@@ -75,13 +75,13 @@ namespace FlareAI.TestKit.Update
             {
                 ["tag_name"] = "v" + version,
                 ["name"] = "House Style " + version,
-                ["html_url"] = "https://github.com/abmorrill4/flare-ai-plugin/releases/tag/v" + version,
+                ["html_url"] = "https://github.com/abmorrill4/house-style/releases/tag/v" + version,
                 ["draft"] = false,
                 ["prerelease"] = prerelease,
                 ["body"] = "Notes for " + version,
                 ["assets"] = assets
             }.ToString();
-            Route("/repos/abmorrill4/flare-ai-plugin/releases/latest", Bytes(200, "application/json", Encoding.UTF8.GetBytes(json)));
+            Route("/repos/abmorrill4/house-style/releases/latest", Bytes(200, "application/json", Encoding.UTF8.GetBytes(json)));
             Route("/download/" + zipName, Bytes(200, "application/zip", zipBytes));
             Route("/download/checksums.txt", Bytes(200, "text/plain", Encoding.ASCII.GetBytes(checksums)));
         }

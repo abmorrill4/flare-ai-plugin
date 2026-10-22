@@ -341,7 +341,7 @@ See `docs\bifrost-migration.md`.
 ## 4. Repo layout
 
 ```
-flare-ai-plugin/
+house-style/
   PLAN.md                      ← this file
   README.md                    ← quick start
   CLAUDE.md                    ← working notes for Claude Code sessions on the Windows box
