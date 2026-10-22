@@ -37,8 +37,8 @@
       <a href="https://signpath.org">SignPath Foundation</a>.</p>
   </div>
   <div class="page-grid">
-    <nav class="toc" aria-label="On this page">
-      <strong>On this page</strong>
+    <nav class="toc" aria-label="Contents">
+      <strong>Contents</strong>
       <ul>
         <li><a href="#what">What is signed</a></li>
         <li><a href="#roles">Roles</a></li>
@@ -52,11 +52,11 @@
       <p><strong>Current status:</strong> releases are unsigned until the SignPath Foundation application is
         approved. Windows marks downloaded files as blocked, so unblock them before you install:</p>
       <ul>
-        <li>Easiest: unzip the whole download and run <code>Install.cmd</code>. It unblocks the files for you.</li>
+        <li>Easiest: extract the whole download and run <code>Install.cmd</code>. It unblocks the files for you.</li>
         <li>By hand: right-click the zip &gt; <strong>Properties</strong> &gt; tick <strong>Unblock</strong> &gt;
-          <strong>OK</strong>, then unzip.</li>
-        <li>Already unzipped? In PowerShell, run
-          <code>Get-ChildItem "C:\path\to\unzipped folder" -Recurse | Unblock-File</code>.</li>
+          <strong>OK</strong>, then extract it.</li>
+        <li>Already extracted? In PowerShell, run
+          <code>Get-ChildItem "C:\path\to\extracted folder" -Recurse | Unblock-File</code>.</li>
       </ul>
       <p>More in the <a href="install.html#manual">install guide</a>.</p>
     </div>

@@ -37,8 +37,8 @@
       to the authors.</p>
   </div>
   <div class="page-grid">
-    <nav class="toc" aria-label="On this page">
-      <strong>On this page</strong>
+    <nav class="toc" aria-label="Contents">
+      <strong>Contents</strong>
       <ul>
         <li><a href="#local">What stays on your computer</a></li>
         <li><a href="#sent">What leaves your computer, and when</a></li>
@@ -54,7 +54,7 @@
     <figure class="diagram">
 <svg xmlns="http://www.w3.org/2000/svg" class="hsf" viewBox="0 0 360 548" width="360" height="548" role="img" aria-labelledby="data-flow-title data-flow-desc" style="width:100%;max-width:520px;height:auto;display:block">
   <title id="data-flow-title">What stays on your computer and what is sent</title>
-  <desc id="data-flow-desc">Topics, the style guide, the linter, the encrypted API key and the diagnostic log all stay on the writer's computer. Only when the writer asks for an AI action, the paragraphs being checked and the relevant rules are sent to the Anthropic API or the company gateway. House Style sends no telemetry.</desc>
+  <desc id="data-flow-desc">Topics, the style guide, the style checker, the encrypted API key and the diagnostic log all stay on the writer's computer. Only when the writer asks for an AI action, the paragraphs being checked and the relevant rules are sent to the Anthropic API or the company AI service. House Style sends no telemetry.</desc>
   <style>
     .hsf { --i: var(--text, #1b2326); --m: var(--text-muted, #4a5559); --b: var(--border, #d5dcde); --p: var(--surface, #ffffff); --z: var(--bg-alt, #f4f6f7); --a: var(--accent, #0b5e6b); --at: var(--accent-text, #ffffff); --nb: var(--note-bg, #fff7e6); --nl: var(--note-border, #b7791f); }
     @media (prefers-color-scheme: dark) { .hsf { --i: var(--text, #e6ecee); --m: var(--text-muted, #b3c0c4); --b: var(--border, #33444a); --p: var(--surface, #1b262a); --z: var(--bg-alt, #172024); --a: var(--accent, #5fc4d2); --at: var(--accent-text, #0b1a1d); --nb: var(--note-bg, #2a2416); --nl: var(--note-border, #d9a441); } }
@@ -103,12 +103,12 @@
   <text class="sb" x="196" y="80">Google + your team's</text>
   <rect class="nd" x="24" y="120" width="152" height="52" rx="6"/>
   <text class="nm" x="36" y="140">Your API key</text>
-  <text class="sb" x="36" y="156">Encrypted with DPAPI</text>
+  <text class="sb" x="36" y="156">Encrypted for your account</text>
   <rect class="nd" x="184" y="120" width="152" height="52" rx="6"/>
   <text class="nm" x="196" y="140">Diagnostic log</text>
   <text class="sb" x="196" y="156">Timings, no text or key</text>
   <rect class="nd" x="24" y="196" width="312" height="52" rx="6"/>
-  <text class="nm" x="36" y="216">Linter and plugin</text>
+  <text class="nm" x="36" y="216">Style checker</text>
   <text class="sb" x="36" y="232">Style checks run here: free, instant</text>
 
   <!-- sent -->
@@ -121,7 +121,7 @@
   <text class="nm" x="36" y="416">Anthropic API</text>
   <text class="sb" x="36" y="432">Under your own key</text>
   <rect class="nd" x="184" y="396" width="152" height="52" rx="6"/>
-  <text class="nm" x="196" y="416">Company gateway</text>
+  <text class="nm" x="196" y="416">Company AI service</text>
   <text class="sb" x="196" y="432">The one you configured</text>
 
   <!-- telemetry -->
@@ -134,7 +134,7 @@
     </figure>
 
     <h2 id="local">What stays on your computer</h2>
-    <p>These features run entirely inside the plugin and never send your text anywhere:</p>
+    <p>These features never send your text anywhere:</p>
     <ul>
       <li>Style checks against the Google guide and your team's rules</li>
       <li>Check project</li>
@@ -144,8 +144,8 @@
     </ul>
 
     <h2 id="sent">What leaves your computer, and when</h2>
-    <p>Only when you ask for an AI action: AI review, Rewrite selection, Ask, Topic assists, Suggest alt text, or an
-      AI step in Build, Tune or Validate style guide. Each request carries:</p>
+    <p>Text leaves only when you use an AI feature: AI review, Rewrite selection, Ask, Topic assists, Suggest alt
+      text, or an AI step in Build, Tune or Validate style guide. Each request carries:</p>
     <ul>
       <li>the text of the sections being checked,</li>
       <li>for alt text, the image,</li>
@@ -161,35 +161,33 @@
         </thead>
         <tbody>
           <tr><td>Anthropic (default)</td><td>The Anthropic API</td><td>Your own Anthropic API key</td></tr>
-          <tr><td>Bifrost gateway</td><td>The gateway address you enter</td><td>The virtual key you were given</td></tr>
+          <tr><td>Bifrost gateway (your company's AI service)</td><td>The gateway address you enter</td><td>The virtual key your company gave you</td></tr>
         </tbody>
       </table>
     </div>
-    <p>How the provider handles your data is set by your agreement with Anthropic, or by your company's gateway
-      policy.</p>
+    <p>Your agreement with Anthropic, or your company's policy, sets how that provider handles your data.</p>
 
     <h2 id="telemetry">No telemetry</h2>
-    <p>The plugin doesn't collect usage data, crash reports or analytics. Nothing is sent to the authors of House
-      Style.</p>
+    <p>The plugin collects no usage data, crash reports or analytics.</p>
 
     <h2 id="key">How your key is stored</h2>
     <ul>
-      <li>Your key is encrypted with Windows DPAPI and saved in <code>%APPDATA%\FlareAI\settings.json</code>. Only
-        your Windows account can decrypt it.</li>
+      <li>Your key is encrypted with Windows Data Protection (DPAPI) and saved in
+        <code>%APPDATA%\FlareAI\settings.json</code>. Only your Windows account can decrypt it.</li>
       <li>The key is never written to a log.</li>
     </ul>
 
     <h2 id="files">Files the plugin writes on your computer</h2>
     <ul>
-      <li><code>%APPDATA%\FlareAI\diag.log</code>: timings and errors, to help with bug reports. It contains no
-        document text and no key.</li>
-      <li>Review decisions, so a rejected suggestion stays hidden and the team can tune its rules. If your team sets
-        a shared feedback folder in Settings, your decisions are added to your own file there.</li>
-      <li>Saved AI reviews, so reopening a topic shows its suggestions without a new request.</li>
+      <li><code>%APPDATA%\FlareAI\diag.log</code>: timings and errors for bug reports, with no document text and
+        no key.</li>
+      <li>Your accept and reject decisions, so a rejected fix stays hidden. If your team sets a shared feedback
+        folder in Settings, your decisions also go to your own file there.</li>
+      <li>Saved AI reviews, so a topic you reopen shows its fixes without a new request.</li>
     </ul>
 
     <h2 id="source">Check it yourself</h2>
-    <p>House Style is open source. You can read every line that sends a request in the
+    <p>House Style is open source. Every line that sends a request is in the
       <a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a>.</p>
     </div>
   </div>
