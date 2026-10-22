@@ -492,14 +492,14 @@ namespace FlareAI.Core.Tests
             var a = Find(_topic, "utilize", "use");
             var b = Find(_topic, "utilize", "use", occurrence: 1);
             s.Add(new[] { a, b });
-            Assert.Equal("2 issues in 2 sections. 2 automatic.", s.Summary());
+            Assert.Equal("2 issues in 2 sections. 2 Auto-fix.", s.Summary());
 
             ((XmlText)b.Block.FirstChild).Value = "Then open the menu.";
             s.Sort();
 
             Assert.True(b.IsStale);
             Assert.Equal(new[] { a }, s.Open());
-            Assert.Equal("1 issue. 1 automatic.", s.Summary());
+            Assert.Equal("1 issue. 1 Auto-fix.", s.Summary());
         }
 
         [Fact]
@@ -1068,7 +1068,7 @@ namespace FlareAI.Core.Tests
             variable.Variable = "General.ProductName";
             s.Add(new[] { fix, reword, variable });
 
-            Assert.Equal("3 issues in 2 sections. 1 automatic, 1 wording, 1 needs you.", s.Summary());
+            Assert.Equal("3 issues in 2 sections. 1 Auto-fix, 2 Needs you.", s.Summary());
         }
 
         [Fact]

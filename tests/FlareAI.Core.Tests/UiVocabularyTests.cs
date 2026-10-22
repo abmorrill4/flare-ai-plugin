@@ -206,17 +206,11 @@ namespace FlareAI.Core.Tests
             Assert.True(bad.Count == 0, string.Join("\n", bad.ToArray()));
         }
 
-        /// <summary>
-        /// The labels #123 introduced. The user guide and site are updated in a separate follow-up to #123; until then these
-        /// may be missing from it. Remove each one here once the guide uses it.
-        /// </summary>
-        private static readonly string[] PendingDocs = { "Lint Topic", "Lint Project", "Ask AI", "Topic Metadata", "Rule Decisions", "Import Rules", "Start the Tour Again" };
-
         [Fact]
         public void EveryCommandIsInTheUserGuide()
         {
             var guide = string.Join("\n", Directory.GetFiles(Path.Combine(RepoRoot(), "docs/user-guide/Content"), "*.htm").Select(File.ReadAllText).ToArray());
-            var missing = FlareAI.Flare.Commands.All.Where(c => !PendingDocs.Contains(c.Label) && guide.IndexOf(c.Label.TrimEnd('…'), StringComparison.OrdinalIgnoreCase) < 0).Select(c => c.Label).ToList();
+            var missing = FlareAI.Flare.Commands.All.Where(c => guide.IndexOf(c.Label.TrimEnd('…'), StringComparison.OrdinalIgnoreCase) < 0).Select(c => c.Label).ToList();
             Assert.True(missing.Count == 0, "Not in docs/user-guide/Content: " + string.Join(", ", missing.ToArray()));
         }
 

@@ -32,12 +32,12 @@ namespace FlareAI.Core.Actions
         /// <summary>The suggestions Fix all writes: exact rule fixes.</summary>
         public List<StyleFinding> Automatic { get { return Findings.FindAll(RuleBacklog.IsAutomatic); } }
 
-        /// <summary>"23 in 14 files · 20 automatic".</summary>
+        /// <summary>"23 in 14 files · 20 Auto-fix" (the issue types the card shows: Auto-fix and Needs you).</summary>
         public string Counts()
         {
             var auto = Automatic.Count;
             return Occurrences + " in " + Plural.Of(Files.Count, "file") +
-                   (auto == 0 ? " · needs you" : auto == Occurrences ? " · all automatic" : " · " + auto + " automatic");
+                   (auto == 0 ? " · Needs you" : auto == Occurrences ? " · Auto-fix" : " · " + auto + " Auto-fix");
         }
     }
 

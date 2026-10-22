@@ -110,7 +110,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_search, "Search rules", "Words from the rule, its examples, its page or its reference. Every word must match.");
             A11y.Name(_source, "Source", "Show the rules from one source: Google, Company, your team's guide, your own guide or the project.");
             A11y.Name(_state, "State", "Show rules that are enabled, disabled or at a changed level.");
-            A11y.Name(_fix, "Automatic", "Show rules whose issues can be changed automatically, or rules that need the writer.");
+            A11y.Name(_fix, "Issue type", "Show rules whose issues are Auto-fix, or rules whose issues need you.");
             A11y.Name(_content, "Applies to", "Show rules limited to one kind of content, or rules that apply everywhere.");
             A11y.Name(_list, "Rules", "Grouped by source and page. Columns are rule, level, state and changed by.");
             A11y.Name(_detail, "Details for the selected rule");
@@ -279,7 +279,7 @@ namespace FlareAI.Flare.UI
                     new Choice { Text = "Any state" }, new Choice { Text = "Enabled", Value = RuleState.On },
                     new Choice { Text = "Disabled", Value = RuleState.Off }, new Choice { Text = "Level changed", Value = RuleState.LevelChanged }
                 });
-                Refill(_fix, new[] { new Choice { Text = "Automatic or not" }, new Choice { Text = "Automatic change", Value = true }, new Choice { Text = "Needs the writer", Value = false } });
+                Refill(_fix, new[] { new Choice { Text = "Any issue type" }, new Choice { Text = "Auto-fix", Value = true }, new Choice { Text = "Needs you", Value = false } });
                 Refill(_content, new[] { new Choice { Text = "Any content" }, new Choice { Text = "Everywhere", Value = RuleCatalog.Everywhere } }
                     .Concat(_catalog.ContentTags.Select(t => new Choice { Text = t, Value = t })));
             }

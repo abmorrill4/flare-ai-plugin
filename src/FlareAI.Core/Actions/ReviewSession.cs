@@ -219,7 +219,7 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>
-        /// "5 suggestions in 2 sections: 2 Fix · 2 Reword · 1 Needs you." for a topic; for a project check, the backlog
+        /// "5 issues in 2 sections. 2 Auto-fix, 3 Needs you." for a topic (the card's issue types); for a project check, the backlog
         /// line ("117 suggestions in 42 files. 63 can be fixed automatically across 9 rules.").
         /// </summary>
         public string Summary()
@@ -227,17 +227,16 @@ namespace FlareAI.Core.Actions
             if (_project) return BacklogSummary();
             var open = Open();
             if (open.Count == 0) return NoIssuesInTopic;
-            int fixes = 0, rewords = 0, needsYou = 0;
+            int fixes = 0, needsYou = 0;
             var sections = new HashSet<string>();
             foreach (var f in open)
             {
                 sections.Add(f.Section ?? "");
-                if (f.Kind == "mechanical") fixes++; else if (f.Kind == "manual" || f.Kind == "variable") needsYou++; else rewords++;
+                if (f.Kind == "mechanical") fixes++; else needsYou++;
             }
             var parts = new List<string>();
-            if (fixes > 0) parts.Add(fixes + " automatic");
-            if (rewords > 0) parts.Add(rewords + " wording");
-            if (needsYou > 0) parts.Add(needsYou + (needsYou == 1 ? " needs" : " need") + " you");
+            if (fixes > 0) parts.Add(fixes + " Auto-fix");
+            if (needsYou > 0) parts.Add(needsYou + " Needs you");
             return Plural.Of(open.Count, "issue") + (sections.Count > 1 ? " in " + sections.Count + " sections" : "") + ". "
                    + Cap(string.Join(", ", parts.ToArray())) + ".";
         }

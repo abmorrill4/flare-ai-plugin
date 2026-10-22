@@ -11,7 +11,7 @@
 <li>Create a folder that every writer can reach: OneDrive, SharePoint, Google Drive or a network drive.</li>
 <li>Copy the starter project into it. The starter project is the <code>styleguide</code> folder in the House Style repository on GitHub. Copy <code>StyleGuide.flprj</code>, <code>Project</code>, <code>FlareAI</code> and <code>Content/Resources/StyleGuide/Company</code>. Don't copy the <code>Google</code> folder: House Style always loads Google's rules, and its own default changes to them, from the plugin. That way, updates reach your team.</li>
 <li>Set the folder's permissions: owners can edit, everyone else can only read.</li>
-<li>In <code>FlareAI/owners.txt</code>, list two or more owners, one per line. Use each owner's email address or Windows user name.</li>
+<li>In <code>FlareAI/owners.txt</code>, list two or more owners, one per line. Use each owner's email address or Windows user name. Anyone listed gets the Style Guide group on the ribbon, whatever they chose in setup.</li>
 <li>Create a second shared folder for team feedback. Every writer can edit it. Requests and review decisions go there.</li>
 <li>Tell the writers both folder paths. Each writer chooses the guide folder in setup or in <b>Settings &gt; Style guide</b>, and the feedback folder in <b>Settings &gt; Advanced &gt; Team feedback folder</b>.</li>
 </ol>
@@ -20,11 +20,11 @@
 <p>Select <b>House Style &gt; Rule Decisions</b>. Open requests are listed under <b>Requests to the style guide owners</b>, with the writer's reason and example text.</p>
 <ul>
 <li>Select <b>Approve or decline…</b>. You can adjust the change before you approve it, and add a note.</li>
-<li>An approved change is written to the guide. Writers get it on their next check.</li>
+<li>An approved change is written to the guide. Writers get it on their next lint.</li>
 <li>An approved project exception is written into that writer's project by their copy of House Style.</li>
-<li>The writer sees your decision and note on their next check.</li>
+<li>The writer sees your decision and note on their next lint, and in <b>My Requests</b>.</li>
 </ul>
-<p>Owners change rules directly, from the review pane or <b>Rules</b>. To see every rule that is turned off or changed, with who, when and why, select <b>Disabled Rules…</b> in Rule Decisions.</p>
+<p>Owners change rules directly, from the issues pane or <b>Rules</b>. To see every rule that is disabled or changed, with who, when and why, select <b>Disabled Rules…</b> in Rule Decisions.</p>
 <h2>Files in the guide's FlareAI folder</h2>
 <table><thead><tr><th>File</th><th>What it does</th></tr></thead><tbody>
 <tr><td><code>owners.txt</code></td><td>The owners. If the file exists but a writer can't read it, every change from that writer goes to the owners as a request.</td></tr>
@@ -35,7 +35,7 @@
 </tbody></table>
 <p>Changes to <code>owners.txt</code> and to folder permissions apply at the next rule change, without restarting Flare.</p>
 <h2>What the team feedback folder holds</h2>
-<p>Each writer's review decisions (apply, reject, edit) and requests: the rule, the words it flagged, the reason if one was given, and the topic's filename. Who made each one depends on <code>attribution.txt</code>:</p>
+<p>Each writer's decisions on issues (change, ignore, edit) and requests: the rule, the words it flagged, the reason if one was given, and the topic's filename. Who made each one depends on <code>attribution.txt</code>:</p>
 <ul>
 <li><code>counts</code>: no names. Each computer has a random ID, so owners see "3 writers", not who.</li>
 <li><code>names</code>: each writer's email address is recorded, and Rule Decisions shows it.</li>

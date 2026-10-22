@@ -7,6 +7,27 @@ One "## <version>" section per release (optionally "## 0.2.0 — October 2026"),
 Write each entry from the writer's side: "You asked … → now …".
 -->
 
+## 0.3.0
+
+### What you'll notice first
+
+- New words. House Style lints a topic and lists its issues. For each one you choose Change or Ignore, or Disable Rule
+  to stop the rule. These are the words Flare and other docs linters use, so each button says what it does.
+- A shorter ribbon. Writers see the commands they use every day. Style guide owners also get a Style Guide group.
+  Export for LLMs and Diagnostics are now in Settings > Advanced.
+- A guided first lint. New writers get a short setup and a five-step practice on a sample project. To practice again,
+  select Help > Start the Tour Again.
+- Report a Problem and Report False Positive. Select Help > Report a Problem to tell us what went wrong. When a rule
+  flags text that is fine, right-click the issue and select Report False Positive.
+
+### Also new
+
+- The issues pane is easy to read at Flare's narrow docked width.
+- On a team style guide, My Requests shows your rule change requests and the owners' answers.
+- Fix All makes every Auto-fix change in the topic at once.
+- The installer turns House Style on in Flare for you.
+- Error reports are sent only when you choose, and never include your topic text.
+
 ## 0.2.0
 
 ### The changes you'll notice first

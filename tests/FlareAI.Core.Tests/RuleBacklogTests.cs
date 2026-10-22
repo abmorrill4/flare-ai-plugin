@@ -60,10 +60,10 @@ namespace FlareAI.Core.Tests
             Assert.Equal("error", top.Severity);
             Assert.Equal("Our rules · Plain words", top.Title);
             Assert.Equal("Plain words.", top.Reason);                                  // the pattern is not for writers
-            Assert.Equal("8 in 8 files · all automatic", top.Counts());
+            Assert.Equal("8 in 8 files · Auto-fix", top.Counts());
             var manual = rules.Single(r => r.Key == "manual1");
             Assert.Equal("Message for manual1", manual.Reason);                         // no guide rule: the message it shows
-            Assert.Equal("18 in 10 files · needs you", manual.Counts());
+            Assert.Equal("18 in 10 files · Needs you", manual.Counts());
             for (var i = 1; i < rules.Count; i++) Assert.True(rules[i - 1].Occurrences >= rules[i].Occurrences);
         }
 
