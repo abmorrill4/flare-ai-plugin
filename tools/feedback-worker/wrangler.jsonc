@@ -20,7 +20,7 @@
 			"binding": "DB",
 			"database_name": "house-style-feedback",
 			// Replace with the id printed by `npx wrangler d1 create house-style-feedback`.
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "da17aec2-c86e-4f91-b5ec-af1635e3f96e",
 			"migrations_dir": "migrations"
 		}
 	],
