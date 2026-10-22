@@ -174,7 +174,7 @@ namespace FlareAI.Flare.UI
             a.Note("A shared folder where your team's decisions are collected. Leave it empty to keep them on this computer. Owners see each decision, its rule and the text, and names only if the style guide is set to show them.");
             _diag = a.Check("Write a diagnostics log (for support)", _settings.WriteDiagnostics);
             _autoReports = a.Check("Send error reports automatically", _settings.SendErrorReportsAutomatically);
-            a.Note("House Style sends a report only when you choose Send, or by itself when this box is checked.");
+            a.Note("House Style sends a report only when you choose Send, or by itself when this box is checked. Reports never include your topic text unless you type it in.");
             _llmExport = a.Check("After each HTML build, add LLM-ready Markdown and llms.txt to the output", _settings.LlmExportAfterBuild);
             _autoUpdate = a.Check("Keep House Style up to date (checks GitHub once a day)", _updatePolicy.Enabled);
             _autoUpdate.Enabled = !_updatePolicy.FromPolicyFile;   // the IT department's update-policy.json decides

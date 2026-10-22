@@ -65,8 +65,8 @@ namespace FlareAI.Core.Feedback
             r.Exception = new ExceptionInfo
             {
                 Type = Text(ex == null ? "Unknown" : ex.GetType().FullName, FeedbackLimits.ExceptionType, false, secrets) ?? "Unknown",
-                Message = Text(ex == null ? "" : ex.Message, FeedbackLimits.ExceptionMessage, true, secrets) ?? "",
-                Stack = Text(ex == null ? "" : ex.ToString(), FeedbackLimits.Stack, true, secrets) ?? ""
+                Message = Text(ex == null ? "" : Diagnostics.WithoutQuotedText(ex.Message), FeedbackLimits.ExceptionMessage, true, secrets) ?? "",
+                Stack = Text(ex == null ? "" : Diagnostics.WithoutQuotedText(ex.ToString()), FeedbackLimits.Stack, true, secrets) ?? ""
             };
             r.DiagLogTail = DiagTail(ctx.DiagLogPath, secrets);
             r.Settings = SafeSettings(ctx.Settings);
@@ -303,10 +303,41 @@ namespace FlareAI.Core.Feedback
                     while (skip < read && skip < 4 && (buf[skip] & 0xC0) == 0x80) skip++;
                     text = new UTF8Encoding(false, false).GetString(buf, skip, read - skip);
                 }
-                text = Redact(Strip(text, true), secrets);
+                text = Redact(WithoutContent(Strip(text, true)), secrets);
                 return Tail(text, FeedbackLimits.DiagLog);
             }
             catch (Exception) { return null; }
+        }
+
+        private static readonly Regex EntryStart = new Regex(@"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  ", RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// A diag.log tail without document text. diag.log no longer gets any (it goes to diag-content.log), but a log
+        /// written by an earlier version can still hold Diagnostics output (DIAG entries, with their continuation lines)
+        /// and AI contract breaches that quote the text: those entries are dropped, and anything in quotation marks is
+        /// replaced by "…".
+        /// </summary>
+        public static string WithoutContent(string log)
+        {
+            if (string.IsNullOrEmpty(log)) return log;
+            var kept = new List<string>();
+            var lines = log.Split('\n');
+            // A tail starts mid-entry: lines before its first dated entry are dropped (they may continue a DIAG entry).
+            var skipping = false;
+            foreach (var l in lines) if (EntryStart.IsMatch(l)) { skipping = true; break; }
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+                var m = EntryStart.Match(line);
+                if (m.Success)
+                {
+                    var message = line.Substring(m.Length);
+                    skipping = message.StartsWith("DIAG", StringComparison.Ordinal) || message.Contains("contract breaches, retrying:");
+                }
+                if (skipping && !(i == lines.Length - 1 && line.Length == 0)) continue;
+                kept.Add(Diagnostics.WithoutQuotedText(line));
+            }
+            return string.Join("\n", kept.ToArray());
         }
 
         /// <summary>The sentence of <paramref name="text"/> that holds <paramref name="excerpt"/> (for a false positive's opt-in context).</summary>

@@ -933,7 +933,8 @@ namespace FlareAI.Core.Actions
                 if (errors.Count > 0)
                 {
                     // One retry with the contract breaches spelled out; then keep what was valid.
-                    Diagnostics.Log(task + ": contract breaches, retrying: " + string.Join(" ", errors.ToArray()));
+                    Diagnostics.Log(task + ": " + errors.Count + " contract breach(es), retrying");
+                    Diagnostics.LogContent(task + ": contract breaches: " + string.Join(" ", errors.ToArray()));   // they quote the text
                     var retryErrors = new List<string>();
                     var retry = Contracts.ReadRewrite(Ask(task, prompts[i] + "\n\nYour previous answer broke the format: " + string.Join(" ", errors.ToArray()) + " Answer again.", schema, null, units[i].Scope).Json,
                                                       units[i].Map, retryErrors, out restructure[i], out restructureNotes[i]);

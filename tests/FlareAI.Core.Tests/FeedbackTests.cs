@@ -375,4 +375,77 @@ namespace FlareAI.Core.Tests
             finally { Environment.SetEnvironmentVariable(PluginSettings.FeedbackUrlEnvVar, old); }
         }
     }
+
+    /// <summary>The sequential collection: these tests change process-wide logging state (Paths.Root, Diagnostics).</summary>
+    [CollectionDefinition("Logging", DisableParallelization = true)]
+    public class LoggingCollection { }
+
+    /// <summary>
+    /// Issue #124 promises a report never carries topic text the writer didn't type: whatever House Style logs that
+    /// quotes a topic goes to diag-content.log, and the diag.log tail that goes with a report has none of it.
+    /// </summary>
+    [Collection("Logging")]
+    public class TopicTextNeverSentTests : IDisposable
+    {
+        private readonly string _dir = Path.Combine(Path.GetTempPath(), "hs-notext-" + Guid.NewGuid().ToString("N"));
+
+        public TopicTextNeverSentTests() { Directory.CreateDirectory(_dir); }
+
+        public void Dispose() { try { Directory.Delete(_dir, true); } catch (Exception) { } }
+
+        // ---- topic text never goes out ------------------------------------------------------------------------------
+
+        [Fact]
+        public void TopicText_LoggedOnTheWay_NeverReachesAReport()
+        {
+            const string Sentinel = "zebraquartz";   // lower case: it finishes the sentence begun before the bold label
+            var oldRoot = Paths.Root; var oldSink = Diagnostics.Sink; var oldEnabled = Diagnostics.Enabled;
+            Paths.Root = Path.Combine(_dir, "data"); Diagnostics.Sink = null; Diagnostics.Enabled = true;
+            try
+            {
+                // A rewrite whose AI answer breaks the format: the breach quotes the topic's words.
+                var doc = new FakeDocumentAdapter("sample-topic.htm");
+                var p = FlareAI.Core.Editing.XhtmlFragment.ParseInto("<p>Remove a transfer from the <b>Transfers</b> " + Sentinel + ". Your transfer is ready to go!</p>", doc.Document)[0];
+                doc.Document.SelectSingleNode("//body").AppendChild(p);
+                doc.SelectXPath("//body/p[last()]/text()[2]");
+                var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace(" " + Sentinel + ". Your transfer is ready to go!", "screen. Your transfer is ready.")));
+                Diagnostics.Enabled = true;   // FakeLlmClient turns logging off
+                new FlareAI.Core.Actions.ActionRunner(llm, new FlareAI.Core.Actions.PromptBuilder(null), 1024).Rewrite(doc, null);
+                Assert.Equal(2, llm.Requests.Count);   // the breach happened (and was retried)
+
+                // An exception whose message quotes the text, logged and then reported.
+                Exception quoting = null;
+                try { FlareAI.Core.Editing.XhtmlFragment.ParseInto(Sentinel + " loose <p>x</p>", doc.Document); }
+                catch (Exception ex) { quoting = ex; Diagnostics.Log("Rewrite", ex); }
+                Assert.NotNull(quoting);
+
+                // What the Diagnostics command writes (selection text and block XML).
+                Diagnostics.LogContent("DIAG Selection text: \"" + Sentinel + "\"");
+                Diagnostics.LogContent("DIAG first block XML: " + p.OuterXml);
+
+                Assert.Contains(Sentinel, File.ReadAllText(Paths.DiagContentLog));     // kept for support, on this computer only
+                Assert.DoesNotContain(Sentinel, File.ReadAllText(Paths.DiagLog));       // diag.log has events, counts and stacks only
+
+                // A diag.log written by an earlier version, with the Diagnostics command's text in it.
+                var stamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                File.AppendAllText(Paths.DiagLog, stamp + "  DIAG\nSelection text: \"" + Sentinel + "\"\n  <p> " + Sentinel + " page\n" +
+                                                  stamp + "  DIAG first block XML: <p>" + Sentinel + "</p>\n" +
+                                                  stamp + "  rewrite: contract breaches, retrying: Run r3 must still start with \"" + Sentinel + ".\"\n" +
+                                                  stamp + "  Lint topic done\n");
+
+                var ctx = new ReportContext { ClientId = "0f8fad5b-d9cb-469f-a165-70867728950e", PluginVersion = "0.9.1", Settings = new PluginSettings() };
+                ctx.DiagLogPath = Paths.DiagLog;
+                var error = ReportBuilder.ToJson(ReportBuilder.ForError(ctx, quoting, "House Style couldn't rewrite the text.", null, true));
+                var problem = ReportBuilder.ToJson(ReportBuilder.ForProblem(ctx, "The rewrite failed.", null, true));
+                Assert.DoesNotContain(Sentinel, error);
+                Assert.DoesNotContain(Sentinel, problem);
+                Assert.Contains("Lint topic done", error);                                  // the rest of the log is there
+                Assert.Contains("XmlException", error);
+                // The writer's own words do go, even when they quote the topic.
+                Assert.Contains(Sentinel, ReportBuilder.ToJson(ReportBuilder.ForProblem(ctx, "It flagged " + Sentinel + ".", null, false)));
+            }
+            finally { Paths.Root = oldRoot; Diagnostics.Sink = oldSink; Diagnostics.Enabled = oldEnabled; }
+        }
+
+    }
 }

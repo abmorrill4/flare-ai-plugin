@@ -690,8 +690,8 @@ namespace FlareAI.Flare
                         var ns = new System.Xml.XmlNamespaceManager(adapter.Document.NameTable);
                         ns.AddNamespace("MadCap", Core.Editing.BlockSelector.MadCapNs);
                         var data = adapter.Document.SelectSingleNode("//MadCap:changeData", ns);
-                        Diagnostics.Log("DIAG changeData: " + (data == null ? "(none)" : Shorten(data.OuterXml, 1500)));
-                        if (picked.Count > 0) Diagnostics.Log("DIAG first block XML: " + Shorten(picked[0].OuterXml, 3000));
+                        Diagnostics.LogContent("DIAG changeData: " + (data == null ? "(none)" : Shorten(data.OuterXml, 1500)));
+                        if (picked.Count > 0) Diagnostics.LogContent("DIAG first block XML: " + Shorten(picked[0].OuterXml, 3000));
                     }
                 }
                 var settingsNow = PluginSettings.Load();
@@ -703,8 +703,8 @@ namespace FlareAI.Flare
                     foreach (var u in usage)
                         sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + Plural.Of(u.Calls, "call") + ", " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
                 }
-                Diagnostics.Log("DIAG\n" + sb);
-                Notify.Report(owner, Commands.Diagnostics.Label, sb + "\n(The same text is in the log at " + Diagnostics.LogPath + ".)");
+                // The selection and blocks quote the topic: the content log only, never diag.log (which can go with a report).
+                Notify.Report(owner, Commands.Diagnostics.Label, sb + "\n(The same text is in the log at " + Diagnostics.ContentLogPath + ".)");
             }
             catch (Exception ex)
             {
