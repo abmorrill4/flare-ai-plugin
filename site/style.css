@@ -210,6 +210,24 @@ ins, .ins { color: var(--ins); text-decoration: underline; text-decoration-thick
   .hero-foot { margin-top: 1.5rem; }
 }
 
+/* Phones: one header row, a title that fits on one line, the fix as a small chip, the action first. */
+@media (max-width: 40rem) {
+  .site-header .wrap { flex-wrap: nowrap; padding-top: 0.75rem; padding-bottom: 0.75rem; }
+  .site-nav li:not(:first-child) { display: none; }   /* keep Install; Download is in the hero, the rest in the footer */
+  .hero { padding-top: 1rem; }
+  .hero h1 { font-size: 15vw; line-height: 1; white-space: nowrap; }
+  .hero h1 .word { display: inline; }
+  .hero-strip {
+    display: inline-flex; justify-content: flex-start; gap: 0.5em;
+    margin: 0.9rem 0 0; padding: 0.35rem 0.7rem; font-size: 1.0625rem;
+  }
+  .hero-foot { gap: 1.1rem; margin-top: 1.1rem; }
+  .hero-foot .lead { font-size: 1.1875rem; line-height: 1.35; }
+  .hero-actions { width: 100%; gap: 0.9rem; }
+  .hero-actions .button { width: 100%; }
+  :root { --gap-section: 2.75rem; }
+}
+
 /* ---------- Sections ---------- */
 .section { padding: var(--gap-section) 0 0; }
 .section-intro { max-width: 46rem; }
@@ -271,8 +289,9 @@ ins, .ins { color: var(--ins); text-decoration: underline; text-decoration-thick
   .notes.right { grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
 }
 @media (max-width: 44rem) {
-  .plate-grid { grid-template-columns: 1fr; }
+  .plate-grid { grid-template-columns: 1fr; gap: 1.25rem; margin-top: 1.5rem; }
   .plate { order: -1; }
+  .notes, .notes.right { gap: 1rem; padding-top: 0; grid-template-columns: 1fr; }
 }
 
 /* Interface fragments: drawn from the plugin's review pane, marked data-ui */
