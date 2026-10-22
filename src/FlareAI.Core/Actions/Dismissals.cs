@@ -69,7 +69,7 @@ namespace FlareAI.Core.Actions
         public static string OverridesPath(string anyProjectPath)
         {
             var dir = string.IsNullOrEmpty(anyProjectPath) ? null : new DirectoryInfo(Path.GetDirectoryName(Path.GetFullPath(anyProjectPath)));
-            while (dir != null && dir.GetFiles("*.flprj").Length == 0) dir = dir.Parent;
+            while (dir != null && (!dir.Exists || dir.GetFiles("*.flprj").Length == 0)) dir = dir.Parent;   // a project not on this machine: null
             return dir == null ? null : Path.Combine(dir.FullName, @"Content\Resources\StyleGuide\overrides.ini");
         }
 

@@ -24,7 +24,7 @@ namespace FlareAI.Core.Actions
         /// <summary>The rule a decision is about: its guide id when known, else the linter/AI rule name.</summary>
         public string Key { get { return !string.IsNullOrEmpty(RuleId) ? RuleId : (Layer == "ai" ? "ai: " : "") + (Rule ?? "?"); } }
         public bool IsAccept { get { return Verdict == "accepted" || Verdict == "edited"; } }
-        public bool IsReject { get { return Verdict == "rejected" || Verdict == "rule ignored" || Verdict == "propose-ignore"; } }
+        public bool IsReject { get { return Verdict == "rejected" || Verdict == "rule ignored" || Verdict == "propose-ignore" || Verdict == "request"; } }
     }
 
     /// <summary>Something for the style-guide owner to look at, with its evidence.</summary>

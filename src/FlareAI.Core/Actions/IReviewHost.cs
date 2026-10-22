@@ -24,6 +24,13 @@ namespace FlareAI.Core.Actions
         /// <param name="otherRules">Other rules that flag the same words (readable names), or null.</param>
         RuleSettingChoice ChooseRuleSetting(string ruleText, bool canChangeTeamGuide, bool personalGuide, IList<RuleRef> otherRules);
 
+        /// <summary>
+        /// "Request a change": the guide is read-only for this writer (or they aren't an owner), so the change goes to the
+        /// owners. The author picks scope (team or this project), the level or new wording, and gives a reason (required).
+        /// Null when cancelled.
+        /// </summary>
+        RuleSettingChoice ChooseRequest(RequestQuestion question);
+
         /// <summary>A one-field text prompt. Null when cancelled.</summary>
         string AskText(string title, string label, string initial, bool multiline);
 
@@ -53,5 +60,28 @@ namespace FlareAI.Core.Actions
         public string Reason { get; set; }
         /// <summary>Also change the other rules that flag the same words (same scope, setting and reason).</summary>
         public bool AlsoOthers { get; set; }
+        /// <summary>A request only: the rule's proposed new wording, or null to keep it.</summary>
+        public string Wording { get; set; }
+    }
+
+    /// <summary>What <see cref="IReviewHost.ChooseRequest"/> shows.</summary>
+    public sealed class RequestQuestion
+    {
+        /// <summary>The rule as the author reads it.</summary>
+        public string RuleText { get; set; }
+        /// <summary>"This will be sent to the owners (…)", plus anything the writer should know about their access.</summary>
+        public string Notice { get; set; }
+        /// <summary>False when only a project exception can be asked for (the finding isn't tied to a guide rule).</summary>
+        public bool CanAskTeam { get; set; }
+        /// <summary>False when there is no project to make an exception in.</summary>
+        public bool CanAskProject { get; set; }
+        /// <summary>The rule's wording, when the owners can change it (prose rules of the team's own guide); else null.</summary>
+        public string Wording { get; set; }
+        /// <summary>A reason typed earlier (a write that failed), kept so the author doesn't type it again.</summary>
+        public string Reason { get; set; }
+        /// <summary>The level picked earlier, or null.</summary>
+        public string Setting { get; set; }
+        /// <summary>True to preselect "for this project only".</summary>
+        public bool ForProject { get; set; }
     }
 }

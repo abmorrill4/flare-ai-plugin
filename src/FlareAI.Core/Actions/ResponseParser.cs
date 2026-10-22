@@ -52,6 +52,8 @@ namespace FlareAI.Core.Actions
         [Newtonsoft.Json.JsonIgnore] public long Order { get; set; }
         /// <summary>The text the finding quotes is no longer in the document (edited since the review).</summary>
         [Newtonsoft.Json.JsonIgnore] public bool IsStale { get; set; }
+        /// <summary>The writer asked the style guide owners to change this finding's rule and is waiting for an answer ("Request sent").</summary>
+        [Newtonsoft.Json.JsonIgnore] public bool RequestSent { get; set; }
 
         /// <summary>
         /// What deciding on it takes: "mechanical" (exact rule fix), "wording" (AI-proposed exact text), "restructure"

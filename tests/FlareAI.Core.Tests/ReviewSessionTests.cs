@@ -626,39 +626,49 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
-        public void TurnOffRule_Writer_AsksTheOwner_AndRecordsTheRequest()
+        public void TurnOffRule_Writer_SendsARequest_AndTheFindingStaysMarked()
         {
             _team = MakeTeam(owner: false);
+            var sent = new List<GuideRequest>();
             var s = Session();
+            s.SendRequest = (t, req) => { sent.Add(req); return null; };
             var f = Find(_topic, "utilize", "use", ruleId: "google:words/2");
             s.Add(new[] { f });
             s.Current = f;
-            _host.TextAnswer = " We say utilize. ";
+            _host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = " We say utilize. " };
 
             s.TurnOffRule();
 
-            Assert.Equal("Ask the style guide owner (owner@example.com) to change or turn off \"Google.WordList\". Why?", _host.TextLabels.Single());
-            Assert.Equal("propose-ignore|We say utilize.|Google.WordList", _feedback.Single());
-            Assert.EndsWith("Sent to the style guide owner (set a team feedback folder in Settings so they receive it).", s.Status);
-            Assert.Null(_host.RuleQuestion);
+            Assert.Null(_host.RuleQuestion);   // nothing is written: no "turn off" dialog
+            Assert.StartsWith("This will be sent to the style guide owners (owner@example.com).", _host.Request.Notice);
+            Assert.Contains("owners.txt doesn't list you", _host.Request.Notice);   // the folder is more open than the owners list
+            Assert.Null(_host.Request.Wording);   // a Google rule: owners change its level, not its words
+            var r = sent.Single();
+            Assert.Equal(RequestKinds.TurnOff, r.Kind);
+            Assert.Equal("We say utilize.", r.Reason);
+            Assert.Equal("google:words/2", r.RuleId);
+            Assert.Equal("request|We say utilize.|Google.WordList", _feedback.Single());
             Assert.Contains(f, s.Findings);
+            Assert.True(f.RequestSent);
+            Assert.Contains("Request sent to the style guide owners (owner@example.com).", s.Status);
+            Assert.Empty(_guideWrites);
         }
 
         [Fact]
-        public void TurnOffRule_Writer_RequestNotWritten_ShowsAnError()
+        public void TurnOffRule_Writer_RequestNotDelivered_SaysItIsSavedAndSentLater()
         {
             _team = MakeTeam(owner: false, feedbackFolder: Path.Combine(_root, "fb"));
             var s = Session();
-            s.RecordFeedback = (f, t, d, r) => @"\\server\feedback\pat.jsonl";
-            var x = Find(_topic, "utilize", "use");
+            s.SendRequest = (t, r) => @"House Style couldn't write to \\server\feedback\requests";
+            var x = Find(_topic, "utilize", "use", ruleId: "google:words/2");
             s.Add(new[] { x });
             s.Current = x;
-            _host.TextAnswer = "why";
+            _host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "why" };
 
             s.TurnOffRule();
 
-            Assert.Equal("House Style couldn't send your request: it couldn't write to \\\\server\\feedback\\pat.jsonl.", _host.Errors.Single());
-            Assert.Null(s.Status);
+            Assert.StartsWith("Your request is saved but not sent yet: House Style couldn't write to", _host.Errors.Single());
+            Assert.EndsWith("Request saved; it is sent on your next check.", s.Status);
         }
 
         [Fact]
@@ -666,14 +676,94 @@ namespace FlareAI.Core.Tests
         {
             _team = MakeTeam(owner: false);
             var s = Session();
+            s.SendRequest = (t, r) => { throw new InvalidOperationException("not sent"); };
             var f = Find(_topic, "utilize", "use");
             s.Add(new[] { f });
             s.Current = f;
-            _host.TextAnswer = null;
+            _host.RequestChoice = null;
 
             s.TurnOffRule();
 
             Assert.Empty(_feedback);
+            Assert.False(f.RequestSent);
+        }
+
+        [Fact]
+        public void TurnOffRule_Writer_NoReason_SendsNothing()
+        {
+            _team = MakeTeam(owner: false);
+            var s = Session();
+            s.SendRequest = (t, r) => { throw new InvalidOperationException("not sent"); };
+            var f = Find(_topic, "utilize", "use", ruleId: "google:words/2");
+            s.Add(new[] { f });
+            s.Current = f;
+            _host.RequestChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "  " };
+
+            s.TurnOffRule();
+
+            Assert.EndsWith("Not sent: the owners need a reason to decide.", s.Status);
+            Assert.Empty(_feedback);
+        }
+
+        [Fact]
+        public void TurnOffRule_Writer_ForThisProject_SendsAProjectException()
+        {
+            _team = MakeTeam(owner: false);
+            var sent = new List<GuideRequest>();
+            var s = Session();
+            s.SendRequest = (t, req) => { sent.Add(req); return null; };
+            var f = Find(_topic, "utilize", "use", ruleId: "google:words/2");
+            s.Add(new[] { f });
+            s.Current = f;
+            _host.RequestChoice = new RuleSettingChoice { ForTeam = false, Setting = "off", Reason = "Legal wording." };
+
+            s.TurnOffRule();
+
+            var r = sent.Single();
+            Assert.Equal(RequestKinds.ProjectException, r.Kind);
+            Assert.Equal(_topicPath, r.ProjectPath);
+            Assert.Equal(Path.GetFileName(_root), r.Project);
+            Assert.Empty(_projectWrites);   // written only once an owner approves
+        }
+
+        [Fact]
+        public void TurnOffRule_NoOwnersFile_ChangesDirectly_AsBefore()
+        {
+            var guide = Path.Combine(_root, "open-guide");
+            Directory.CreateDirectory(guide);
+            _team = FlareAI.Core.Actions.Team.Load(guide, null, "pat@example.com");
+            var s = Session();
+            var f = Find(_topic, "utilize", "use", ruleId: "google:words/2");
+            s.Add(new[] { f });
+            s.Current = f;
+            _host.RuleChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "We say it." };
+
+            s.TurnOffRule();
+
+            Assert.Null(_host.Request);
+            Assert.Equal(new[] { "google:words/2=off" }, _guideWrites);
+        }
+
+        [Fact]
+        public void TurnOffRule_Owner_WriteFails_OffersARequest_KeepingTheReason()
+        {
+            _team = MakeTeam(owner: true);
+            var sent = new List<GuideRequest>();
+            var s = Session();
+            s.SetGuideRule = (t, id, setting, reason) => { throw new GuideWriteException(Path.Combine(_root, "guide.htm"), new UnauthorizedAccessException("Access denied.")); };
+            s.SendRequest = (t, req) => { sent.Add(req); return null; };
+            var f = Find(_topic, "utilize", "use", ruleId: "google:words/2");
+            s.Add(new[] { f });
+            s.Current = f;
+            _host.RuleChoice = new RuleSettingChoice { ForTeam = true, Setting = "off", Reason = "We say it." };
+            _host.OnRequest = q => new RuleSettingChoice { ForTeam = true, Setting = q.Setting, Reason = q.Reason };
+
+            s.TurnOffRule();
+
+            Assert.Contains("as a request instead? Your reason is kept.", _host.Confirms.Single());
+            Assert.Equal("We say it.", _host.Request.Reason);
+            Assert.Equal("We say it.", sent.Single().Reason);
+            Assert.Empty(_host.Errors);
         }
 
         [Fact]
@@ -1010,6 +1100,9 @@ namespace FlareAI.Core.Tests
             public string TextAnswer;
             public Action<BatchPlan> OnPreview;
             public RuleSettingChoice RuleChoice;
+            public RuleSettingChoice RequestChoice;
+            public Func<RequestQuestion, RuleSettingChoice> OnRequest;
+            public RequestQuestion Request;
             public string RuleQuestion;
             public bool RuleCanTeam, RulePersonal;
             public IList<RuleRef> RuleOthers;
@@ -1023,6 +1116,8 @@ namespace FlareAI.Core.Tests
                 RuleQuestion = ruleText; RuleCanTeam = canChangeTeamGuide; RulePersonal = personalGuide; RuleOthers = otherRules;
                 return RuleChoice;
             }
+
+            public RuleSettingChoice ChooseRequest(RequestQuestion question) { Request = question; return OnRequest != null ? OnRequest(question) : RequestChoice; }
 
             public string AskText(string title, string label, string initial, bool multiline) { TextLabels.Add(label); return TextAnswer; }
 
