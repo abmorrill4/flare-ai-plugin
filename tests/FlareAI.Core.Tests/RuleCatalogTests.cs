@@ -151,7 +151,7 @@ namespace FlareAI.Core.Tests
             var level = cat.Find(Quotes);   // a default (Tip) that my guide sets to Warning
             Assert.Equal(RuleState.LevelChanged, level.State);
             Assert.Equal("warning", level.Level);
-            Assert.Equal("error", level.DefaultLevel);
+            Assert.Equal("suggestion", level.DefaultLevel);   // written as a suggestion since the severity calibration (#61)
             Assert.Equal("Warning", level.LevelLabel);
             Assert.False(level.IsDefault);
             Assert.Equal("My style guide", level.Change.Scope);
