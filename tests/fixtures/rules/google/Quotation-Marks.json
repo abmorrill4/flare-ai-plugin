@@ -1,0 +1,31 @@
+[
+  {
+    "Id": "google:quotation-marks/2",
+    "Layer": "google",
+    "Page": "Quotation-Marks",
+    "Row": 2,
+    "Severity": "error",
+    "Action": "flag",
+    "Tags": [
+      "Quotes"
+    ],
+    "Avoid": [
+      "[“”‘’]"
+    ],
+    "Use": "",
+    "Example": "The section’s title is “Care and feeding of the emu.”",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The section’s title is “Care and feeding of the emu.”",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

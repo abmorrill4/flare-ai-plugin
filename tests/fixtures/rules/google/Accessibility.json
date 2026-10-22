@@ -1,0 +1,102 @@
+[
+  {
+    "Id": "google:accessibility/30",
+    "Layer": "google",
+    "Page": "Accessibility",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Links"
+    ],
+    "Avoid": [
+      "click here",
+      "read this document"
+    ],
+    "Use": "",
+    "Example": "To download the SDK, click here.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To download the SDK, click here.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "click here",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Click here",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CLICK HERE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "read this document",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Read this document",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "READ THIS DOCUMENT",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:accessibility/61",
+    "Layer": "google",
+    "Page": "Accessibility",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "(?i)\\b(visibility\\s*:\\s*hidden|display\\s*:\\s*none)\\b"
+    ],
+    "Use": "",
+    "Example": "<p style=\"display:none\">Optional settings</p>",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "<p style=\"display:none\">Optional settings</p>",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

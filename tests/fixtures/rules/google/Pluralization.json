@@ -1,0 +1,87 @@
+[
+  {
+    "Id": "google:pluralization/12",
+    "Layer": "google",
+    "Page": "Pluralization",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d+(?:\\.\\d+)?[\\s\\u00A0]?(?:KBs|MBs|GBs|TBs|PBs|Kbs|Mbs|Gbs)\\b"
+    ],
+    "Use": "",
+    "Example": "The instance has 64 GBs of memory.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The instance has 64 GBs of memory.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:pluralization/18",
+    "Layer": "google",
+    "Page": "Pluralization",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "\\b[A-Za-z]{2,}\\((?:s|es|ren)\\)"
+    ],
+    "Use": "",
+    "Example": "To find your API key(s), visit the Credentials page.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To find your API key(s), visit the Credentials page.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:pluralization/13",
+    "Layer": "google",
+    "Page": "Pluralization",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Numbers"
+    ],
+    "Avoid": [
+      "\\b\\d+(?:\\.\\d+)?(?:KB|MB|GB|TB|PB)\\b"
+    ],
+    "Use": "",
+    "Example": "The disk has 64GB of storage.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The disk has 64GB of storage.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

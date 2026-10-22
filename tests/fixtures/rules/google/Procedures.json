@@ -1,0 +1,164 @@
+[
+  {
+    "Id": "google:procedures/20",
+    "Layer": "google",
+    "Page": "Procedures",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Steps"
+    ],
+    "Avoid": [
+      "(Optional)"
+    ],
+    "Use": "",
+    "Example": "(Optional) Type an arbitrary string ...",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "(Optional) Type an arbitrary string ...",
+        "Expect": {
+          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "step, step-p"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:procedures/39",
+    "Layer": "google",
+    "Page": "Procedures",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "remove",
+    "Tags": [
+      "Steps"
+    ],
+    "Avoid": [
+      "please",
+      "Please"
+    ],
+    "Use": "(delete)",
+    "Example": "To open a document, please click File > Open.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To open a document, please click File > Open.",
+        "Expect": {
+          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "step, step-p"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "please",
+        "Expect": {
+          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "step, step-p"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Please",
+        "Expect": {
+          "clean": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:procedures/40",
+    "Layer": "google",
+    "Page": "Procedures",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Steps"
+    ],
+    "Avoid": [
+      "(?i)\\b(?:the\\s+above\\b|(?:diagram|image|figure|screenshot|table|example|list|steps?)\\s+below\\b|(?:right|left)-hand\\s+side\\b)"
+    ],
+    "Use": "",
+    "Example": "In the diagram below, ...",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "In the diagram below, ...",
+        "Expect": {
+          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "step, step-p"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:procedures/41",
+    "Layer": "google",
+    "Page": "Procedures",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Code",
+      "Steps"
+    ],
+    "Avoid": [
+      "(?i)\\brun(?:ning)?\\s+the\\s+following\\s+commands?\\b"
+    ],
+    "Use": "",
+    "Example": "Run the following command:...",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Run the following command:...",
+        "Expect": {
+          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "step, step-p"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:procedures/42",
+    "Layer": "google",
+    "Page": "Procedures",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Steps"
+    ],
+    "Avoid": [
+      "\\b(?:Ctrl|Control|Cmd|Command|Alt|Option|Shift)\\+\\w"
+    ],
+    "Use": "",
+    "Example": "Press Ctrl+C, and then press Ctrl+V...",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Press Ctrl+C, and then press Ctrl+V...",
+        "Expect": {
+          "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "step, step-p"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "Id": "google:parentheses/4",
+    "Layer": "google",
+    "Page": "Parentheses",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Parentheses"
+    ],
+    "Avoid": [
+      "\\b[A-Za-z]+\\((s|es)\\)"
+    ],
+    "Use": "",
+    "Example": "Select the file(s) that you want to upload.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Select the file(s) that you want to upload.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

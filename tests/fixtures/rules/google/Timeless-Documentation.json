@@ -1,0 +1,318 @@
+[
+  {
+    "Id": "google:timeless-documentation/15",
+    "Layer": "google",
+    "Page": "Timeless-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "as of this writing"
+    ],
+    "Use": "",
+    "Example": "The API, as of this writing, supports JSON output.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The API, as of this writing, supports JSON output.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "as of this writing",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "As of this writing",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "AS OF THIS WRITING",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:timeless-documentation/16",
+    "Layer": "google",
+    "Page": "Timeless-Documentation",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "currently"
+    ],
+    "Use": "",
+    "Example": "The following command-line options aren't currently supported:",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The following command-line options aren't currently supported:",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "currently",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Currently",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CURRENTLY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:timeless-documentation/17",
+    "Layer": "google",
+    "Page": "Timeless-Documentation",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "does not yet"
+    ],
+    "Use": "",
+    "Example": "The emulator does not yet support filters.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The emulator does not yet support filters.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "does not yet",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Does not yet",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "DOES NOT YET",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:timeless-documentation/18",
+    "Layer": "google",
+    "Page": "Timeless-Documentation",
+    "Row": 5,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "eventually"
+    ],
+    "Use": "",
+    "Example": "The service will eventually support more regions.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The service will eventually support more regions.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "eventually",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Eventually",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "EVENTUALLY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:timeless-documentation/19",
+    "Layer": "google",
+    "Page": "Timeless-Documentation",
+    "Row": 6,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "in the future"
+    ],
+    "Use": "",
+    "Example": "More formats will be supported in the future.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "More formats will be supported in the future.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "in the future",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "In the future",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "IN THE FUTURE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:timeless-documentation/20",
+    "Layer": "google",
+    "Page": "Timeless-Documentation",
+    "Row": 7,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "presently",
+      "at present"
+    ],
+    "Use": "",
+    "Example": "At present, the tool supports only CSV files.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "At present, the tool supports only CSV files.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "presently",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Presently",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "PRESENTLY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "at present",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "At present",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "AT PRESENT",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

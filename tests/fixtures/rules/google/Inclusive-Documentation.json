@@ -1,0 +1,686 @@
+[
+  {
+    "Id": "google:inclusive-documentation/2",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "man-hours",
+      "mankind"
+    ],
+    "Use": "person-hours, humanity",
+    "Example": "Equipment installation takes around 16 man-hours to complete.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Equipment installation takes around 16 man-hours to complete.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "man-hours",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Man-hours",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "MAN-HOURS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "mankind",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Mankind",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "MANKIND",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Person-hours, humanity",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:inclusive-documentation/10",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "crazy",
+      "insane",
+      "cripple",
+      "cripples",
+      "crippled",
+      "dumb",
+      "blind eye",
+      "blind to",
+      "sanity check",
+      "sanity-check",
+      "dummy"
+    ],
+    "Use": "",
+    "Example": "Before launch, give everything a final sanity-check.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Before launch, give everything a final sanity-check.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "crazy",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Crazy",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CRAZY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "insane",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Insane",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "INSANE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "cripple",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Cripple",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CRIPPLE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:inclusive-documentation/15",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [
+      "UI"
+    ],
+    "Avoid": [
+      "Hover over",
+      "hover over"
+    ],
+    "Use": "Point to, point to",
+    "Example": "Hover over File, and hit New.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Hover over File, and hit New.",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "Hover over",
+        "Expect": {
+          "any": "ui-b, ui-span",
+          "clean": "code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "hover over",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Point to, point to",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:inclusive-documentation/20",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "simply",
+      "easily",
+      "quickly",
+      "carefully",
+      "thoroughly",
+      "properly"
+    ],
+    "Use": "",
+    "Example": "Simply open the configuration file to quickly add your custom key.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Simply open the configuration file to quickly add your custom key.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "simply",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Simply",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "SIMPLY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "easily",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Easily",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "EASILY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "quickly",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Quickly",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "QUICKLY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:inclusive-documentation/26",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "the elderly",
+      "the aged",
+      "senior citizens",
+      "seniors"
+    ],
+    "Use": "older adults",
+    "Example": "This feature helps the elderly read small text.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "This feature helps the elderly read small text.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "the elderly",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "The elderly",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THE ELDERLY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "the aged",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "The aged",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THE AGED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "senior citizens",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Senior citizens",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "SENIOR CITIZENS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Older adults",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "google:inclusive-documentation/29",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "blacklist",
+      "first-class citizen",
+      "native feature"
+    ],
+    "Use": "",
+    "Example": "Add the address to the blacklist.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Add the address to the blacklist.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "blacklist",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Blacklist",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "BLACKLIST",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "first-class citizen",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "First-class citizen",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "FIRST-CLASS CITIZEN",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "native feature",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Native feature",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "NATIVE FEATURE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:inclusive-documentation/42",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "suffering from",
+      "wheelchair-bound"
+    ],
+    "Use": "",
+    "Example": "The app helps users who are wheelchair-bound find accessible routes.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The app helps users who are wheelchair-bound find accessible routes.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "suffering from",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Suffering from",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "SUFFERING FROM",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "wheelchair-bound",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Wheelchair-bound",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "WHEELCHAIR-BOUND",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:inclusive-documentation/43",
+    "Layer": "google",
+    "Page": "Inclusive-Documentation",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "physically challenged",
+      "differently abled",
+      "handi-capable"
+    ],
+    "Use": "",
+    "Example": "These settings help users who are differently abled.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "These settings help users who are differently abled.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "physically challenged",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Physically challenged",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "PHYSICALLY CHALLENGED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "differently abled",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Differently abled",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "DIFFERENTLY ABLED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "handi-capable",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Handi-capable",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "HANDI-CAPABLE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  }
+]

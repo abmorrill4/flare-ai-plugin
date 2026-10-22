@@ -1,0 +1,758 @@
+[
+  {
+    "Id": "company:plain-language/1",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "utilize",
+      "utilizes",
+      "utilized",
+      "utilizing"
+    ],
+    "Use": "use, uses, used, using",
+    "Example": "Members utilize the app daily.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Members utilize the app daily.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "utilize",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Utilize",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "UTILIZE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "utilizes",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Utilizes",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "UTILIZES",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "utilized",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Utilized",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "UTILIZED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Use, uses, used, using",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:plain-language/5",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "remove",
+    "Tags": [],
+    "Avoid": [
+      "please note that",
+      "please",
+      "simply",
+      "easily"
+    ],
+    "Use": "(delete)",
+    "Example": "Please note that the link expires.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Please note that the link expires.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "please note that",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Please note that",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "PLEASE NOTE THAT",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "please",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Please",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "PLEASE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "simply",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Simply",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "SIMPLY",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "company:plain-language/7",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 2,
+    "Severity": "error",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "whitelist",
+      "whitelists",
+      "whitelisted"
+    ],
+    "Use": "allowlist, allowlists, allowlisted",
+    "Example": "Add the IP to the whitelist.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Add the IP to the whitelist.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "whitelist",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Whitelist",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "WHITELIST",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "whitelists",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Whitelists",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "WHITELISTS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "whitelisted",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Whitelisted",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "WHITELISTED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Allowlist, allowlists, allowlisted",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:plain-language/9",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "the user",
+      "the end user"
+    ],
+    "Use": "",
+    "Example": "Ask the user to sign in.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Ask the user to sign in.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "the user",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "The user",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THE USER",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "the end user",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "The end user",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THE END USER",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "company:plain-language/2",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "in order to"
+    ],
+    "Use": "to",
+    "Example": "Sign in in order to continue.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Sign in in order to continue.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "in order to",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "In order to",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "IN ORDER TO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "To",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:plain-language/6",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 3,
+    "Severity": "warning",
+    "Action": "remove",
+    "Tags": [],
+    "Avoid": [
+      "Note that"
+    ],
+    "Use": "(delete)",
+    "Example": "Note that the link expires.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Note that the link expires.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "Note that",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "company:plain-language/8",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 3,
+    "Severity": "error",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "blacklist",
+      "blacklists",
+      "blacklisted"
+    ],
+    "Use": "blocklist, blocklists, blocklisted",
+    "Example": "Remove it from the blacklist.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Remove it from the blacklist.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "blacklist",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Blacklist",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "BLACKLIST",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "blacklists",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Blacklists",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "BLACKLISTS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "blacklisted",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Blacklisted",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "BLACKLISTED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Blocklist, blocklists, blocklisted",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:plain-language/10",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 3,
+    "Severity": "error",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "click here",
+      "this link"
+    ],
+    "Use": "",
+    "Example": "To learn more, click here.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To learn more, click here.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "click here",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Click here",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "CLICK HERE",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "this link",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "This link",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "THIS LINK",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "company:plain-language/3",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 4,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "prior to"
+    ],
+    "Use": "before",
+    "Example": "Save your work prior to leaving.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Save your work prior to leaving.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "prior to",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Prior to",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "PRIOR TO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Before",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
+    "Id": "company:plain-language/4",
+    "Layer": "company",
+    "Page": "Plain-language",
+    "Row": 5,
+    "Severity": "warning",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "is able to",
+      "are able to"
+    ],
+    "Use": "can, can",
+    "Example": "The admin is able to reset it.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The admin is able to reset it.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "is able to",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Is able to",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "IS ABLE TO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "are able to",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Are able to",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "ARE ABLE TO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Can, can",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  }
+]

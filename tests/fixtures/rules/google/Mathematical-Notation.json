@@ -1,0 +1,32 @@
+[
+  {
+    "Id": "google:mathematical-notation/18",
+    "Layer": "google",
+    "Page": "Mathematical-Notation",
+    "Row": 2,
+    "Severity": "warning",
+    "Action": "flag",
+    "Tags": [
+      "Math"
+    ],
+    "Avoid": [
+      "\\b\\w+\\^\\w+\\b"
+    ],
+    "Use": "",
+    "Example": "The result is 2^3.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "The result is 2^3.",
+        "Expect": {
+          "any": "code-inline, pre, kbd",
+          "clean": "ui-b, ui-span",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]
