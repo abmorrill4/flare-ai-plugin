@@ -25,7 +25,20 @@ namespace FlareAI.Flare
         private bool _activated;
 
         public bool IsActivated { get { return _activated; } }
-        public string GetVersion() { return "0.1.0"; }
+        public string GetVersion() { return Version; }
+
+        /// <summary>The release version stamped at build time (package.ps1 -Version), without the "+commit" suffix.</summary>
+        internal static string Version
+        {
+            get
+            {
+                var a = (System.Reflection.AssemblyInformationalVersionAttribute)Attribute.GetCustomAttribute(
+                    typeof(Plugin).Assembly, typeof(System.Reflection.AssemblyInformationalVersionAttribute));
+                var v = a != null ? a.InformationalVersion : typeof(Plugin).Assembly.GetName().Version.ToString();
+                var plus = v.IndexOf('+');
+                return plus > 0 ? v.Substring(0, plus) : v;
+            }
+        }
         public string GetAuthor() { return "Arthur Morrill"; }
         public string GetDescription() { return "AI editing assistant: check style, rewrite, ask. Edits arrive as tracked changes."; }
         public string GetName() { return "House Style"; }
