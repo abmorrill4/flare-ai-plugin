@@ -104,7 +104,7 @@ namespace FlareAI.Core.Actions
             return false;
         }
 
-        /// <summary>Where the anonymous writer id lives; the host may override (tests do). Default %APPDATA%\FlareAI\writer-id.txt.</summary>
+        /// <summary>Where the anonymous writer id lives; the host may override (tests do). Default <see cref="Paths.WriterId"/> (%APPDATA%\FlareAI\writer-id.txt).</summary>
         public static string AnonymousIdPath { get; set; }
 
         private static readonly object IdGate = new object();
@@ -118,7 +118,7 @@ namespace FlareAI.Core.Actions
         {
             lock (IdGate)
             {
-                var path = AnonymousIdPath ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Path.Combine("FlareAI", "writer-id.txt"));
+                var path = AnonymousIdPath ?? Paths.WriterId;
                 try
                 {
                     if (File.Exists(path))
