@@ -184,9 +184,10 @@ namespace FlareAI.Core.Tests
         public void ASpanFlaggedByTwoRules_ListsTheOtherOnTheKeptHit_AndTurningOffBothClearsIt()
         {
             // Two Google rules on different pages still flag these words (procedures/42 and ui-elements/69: different scopes, so
-            // the compiler's canonical pass keeps both). "e.g." no longer works here: the Word-List owns it alone (#56).
-            const string text = "To save, press Control+s now.";
-            const string span = "Control+s";
+            // the compiler's canonical pass keeps both). "e.g." no longer works here: the Word-List owns it alone (#56); nor does
+            // "Control+s": procedures/42 leaves Google's own Control+ form alone since #60.
+            const string text = "To save, press Ctrl+s now.";
+            const string span = "Ctrl+s";
             var s = new PluginSettings();
             var engine = Engine(s);
             var team = TeamFor(s);

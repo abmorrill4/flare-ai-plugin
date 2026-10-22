@@ -59,6 +59,17 @@ namespace FlareAI.Core.Settings
         public string DeepModel { get; set; }
         /// <summary>Model calls run at once for per-block work.</summary>
         public int Parallelism { get; set; }
+        /// <summary>The project check lists suggestions by file instead of by rule (the default).</summary>
+        public bool ProjectViewByFile { get; set; }
+        /// <summary>The writer hid the "drag this pane's edge to make it wider" tip in the review pane.</summary>
+        public bool PaneWidthTipDismissed { get; set; }
+        /// <summary>
+        /// Check GitHub once a day for a newer release and offer to install it (issue #101). An IT policy file,
+        /// update-policy.json in the plugin folder, wins over this (<see cref="FlareAI.Core.Update.UpdatePolicy"/>).
+        /// Settings UI: a "Keep House Style up to date" check box, read-only with "Set by your IT department" when
+        /// the policy file decides.
+        /// </summary>
+        public bool AutoUpdate { get; set; }
 
         /// <summary>The routing in effect: these settings, then the team's FlareAI\models.json in the style guide.</summary>
         public FlareAI.Core.Llm.Routing Routing(string guideRoot)
@@ -158,6 +169,7 @@ namespace FlareAI.Core.Settings
             StyleLayers = "";
             UseProjectLayer = true;
             ShowMarkers = LiveCheck = CheckOnSave = ReportBeforeBuild = true;
+            AutoUpdate = true;
         }
 
         // ---- key handling -------------------------------------------------------------

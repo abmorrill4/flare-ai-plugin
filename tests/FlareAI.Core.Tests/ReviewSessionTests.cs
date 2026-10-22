@@ -1060,7 +1060,7 @@ namespace FlareAI.Core.Tests
         public void Summary_CountsFixesRewordsAndNeedsYou_BySection()
         {
             var s = Session();
-            Assert.Equal("No open suggestions.", s.Summary());
+            Assert.Equal("Nothing to fix: this text follows your style rules.", s.Summary());
             var fix = Find(_topic, "utilize", "use");
             var reword = Find(_topic, "The user", "You");
             reword.Source = "ai";

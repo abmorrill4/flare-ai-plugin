@@ -41,11 +41,11 @@
             <li id="rule-18" MadCap:conditions="Content.Tables">If your document contains more than one table in fairly close proximity to each other, include a caption for each one, using a caption element as the first child of the table element.<ul><li>Good: &lt;table&gt; &lt;caption&gt;&lt;b&gt;Table 1.&lt;/b&gt; Prehistoric birds&lt;/caption&gt; ... &lt;/table&gt;</li></ul></li>
             <li id="rule-19" MadCap:conditions="Content.Tables">Start the caption with a number, in the form &quot;&lt;b&gt;Table NUMBER.&lt;/b&gt; DESCRIPTION&quot;, and use sentence case for the caption.<ul><li>Good: &lt;table&gt; &lt;caption&gt;&lt;b&gt;Table 1.&lt;/b&gt; Prehistoric birds&lt;/caption&gt; ... &lt;/table&gt;</li></ul></li>
             <li id="rule-20" MadCap:conditions="Content.Tables">When referring to a captioned table from text, refer to it by its number—for example, as shown in table 2.<ul><li>Good: ... as shown in table 2.</li></ul></li>
+            <li id="rule-21" MadCap:conditions="Content.Tables">Don&apos;t place a period at the end of a table caption.</li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-21" MadCap:conditions="Content.Tables"><td>\.\s*&lt;/caption&gt;</td><td></td><td>warning</td><td></td><td>&lt;caption&gt;&lt;b&gt;Table 1.&lt;/b&gt; Prehistoric birds.&lt;/caption&gt;</td></tr>
-            <tr id="rule-22" MadCap:conditions="Content.Tables"><td>(?&lt;=\b(?:in|see|from|to|of|and|or) )Table(?= \d)</td><td>table</td><td>warning</td><td></td><td>The results are shown in Table 2.</td></tr>
+            <tr id="rule-22"><td>(?&lt;=[a-z,] )Table(?= \d)</td><td>table</td><td>warning</td><td></td><td>The results are shown in Table 2.</td></tr>
         </table>
         <h2>Table formatting</h2>
         <ul>
@@ -54,23 +54,17 @@
             <li id="rule-25" MadCap:conditions="Content.Tables">Sort rows in a logical order, or alphabetically if there is no logical order.</li>
             <li id="rule-26" MadCap:conditions="Content.Tables">If the table is long or complicated—for example, with multiple header rows or columns—consider splitting it into multiple tables.</li>
             <li id="rule-27" MadCap:conditions="Content.Tables">Don&apos;t present new information in tables through images or symbols alone; always provide a descriptive alt attribute for the image or symbol.</li>
+            <li id="rule-28" MadCap:conditions="Content.Tables">Don&apos;t merge cells. Don&apos;t use colspan or rowspan attributes.</li>
+            <li id="rule-29" MadCap:conditions="Content.Tables,Content.Images">Always provide a descriptive alt attribute for an image or symbol in a table.</li>
         </ul>
-        <table>
-            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-28" MadCap:conditions="Content.Tables"><td>\b(?:colspan|rowspan)\s*=</td><td></td><td>warning</td><td></td><td>&lt;td colspan=&quot;2&quot;&gt;Value&lt;/td&gt;</td></tr>
-            <tr id="rule-29" MadCap:conditions="Content.Tables,Content.Images"><td>&lt;img\b(?![^&gt;]*\balt\s*=)[^&gt;]*&gt;</td><td></td><td>warning</td><td></td><td>&lt;td&gt;&lt;img src=&quot;check.png&quot; /&gt;&lt;/td&gt;</td></tr>
-        </table>
         <h2>Table column heads</h2>
         <ul>
             <li id="rule-30" MadCap:conditions="Content.Tables">Use sentence case for table column heads.</li>
             <li id="rule-31" MadCap:conditions="Content.Tables">Write concise table column headings.</li>
             <li id="rule-32" MadCap:conditions="Content.Tables">Use table headings for the first column and the first row only.</li>
             <li id="rule-33" MadCap:conditions="Content.Tables">Include the scope attribute on table headings as appropriate for accessibility.</li>
+            <li id="rule-34" MadCap:conditions="Content.Tables">Don&apos;t end table column heads with punctuation, including a period, an ellipsis, or a colon.</li>
         </ul>
-        <table>
-            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-34" MadCap:conditions="Content.Tables"><td>(?:\.|:|…)\s*&lt;/th&gt;</td><td></td><td>warning</td><td></td><td>&lt;th&gt;Description:&lt;/th&gt;</td></tr>
-        </table>
         <h2>Responsive tables</h2>
         <ul>
             <li id="rule-35" MadCap:conditions="Content.Tables">Where possible, use table CSS that adapts to different viewport sizes.</li>

@@ -95,21 +95,43 @@ namespace FlareAI.Core.Style
             return list;
         }
 
-        /// <summary>Notes split into paragraph-sized pieces (blank lines; small paragraphs merged), each read on its own.</summary>
+        /// <summary>
+        /// Notes split into paragraph-sized pieces, each read on its own: paragraphs (blank lines), small ones merged, and a
+        /// new piece at a heading once the current one has some text. Text with one line per paragraph and no blank lines
+        /// (a Word document, see <see cref="NoteText.FromDocx"/>) is split by line the same way: before, a .docx guide came
+        /// out as 3 pieces of up to 4,900 characters where its .txt copy gave 18, and lost rules.
+        /// </summary>
         public static List<string> Chunks(string notes, int min = 400, int max = 3000)
         {
-            var chunks = new List<string>();
-            var cur = new StringBuilder();
+            var units = new List<string>();
             foreach (var para in System.Text.RegularExpressions.Regex.Split((notes ?? "").Replace("\r\n", "\n"), @"\n\s*\n"))
             {
                 var p = para.Trim();
                 if (p.Length == 0) continue;
-                if (cur.Length > 0 && (cur.Length >= min || cur.Length + p.Length > max)) { chunks.Add(cur.ToString()); cur.Clear(); }
+                // A long paragraph of many lines is many paragraphs written one per line.
+                if (p.Length > min && p.IndexOf('\n') >= 0) units.AddRange(p.Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+                else units.Add(p);
+            }
+            var chunks = new List<string>();
+            var cur = new StringBuilder();
+            for (var i = 0; i < units.Count; i++)
+            {
+                var p = units[i];
+                var heading = i + 1 < units.Count && IsHeading(p);
+                if (cur.Length > 0 && (cur.Length >= min || cur.Length + p.Length > max || (heading && cur.Length >= min / 2))) { chunks.Add(cur.ToString()); cur.Clear(); }
                 if (cur.Length > 0) cur.Append("\n\n");
-                cur.Append(p);
+                cur.Append(p.Length > max ? p.Substring(0, max) : p);
+                for (var at = max; at < p.Length; at += max) { chunks.Add(cur.ToString()); cur.Clear(); cur.Append(p.Substring(at, Math.Min(max, p.Length - at))); }
             }
             if (cur.Length > 0) chunks.Add(cur.ToString());
             return chunks;
+        }
+
+        /// <summary>A line that reads like a heading: short, no sentence punctuation at the end, not a list item.</summary>
+        private static bool IsHeading(string line)
+        {
+            return line.Length > 0 && line.Length <= 60 && line.IndexOf('\n') < 0 && ".:;,!?".IndexOf(line[line.Length - 1]) < 0 &&
+                   !System.Text.RegularExpressions.Regex.IsMatch(line, @"^(?:[-*•]|\d+[.)])\s") && char.IsUpper(line[0]);
         }
 
         /// <summary>Candidates from the extract contract's rules (or a bare JSON array of them, from older answers).</summary>
@@ -137,9 +159,64 @@ namespace FlareAI.Core.Style
                 };
                 var sev = Severity.Normalize((string)c["severity"] ?? "warning");
                 rc.Severity = sev == "error" || sev == "suggestion" ? sev : "warning";
+                if (rc.IsRow)
+                {
+                    foreach (var prose in SplitContextDependent(rc)) { prose.Id = "notes:" + (++n); list.Add(prose); }
+                    if (!rc.IsRow) continue;   // every word was context-dependent: only the prose rules remain
+                }
                 if (rc.IsRow || !string.IsNullOrEmpty(rc.Text)) list.Add(rc);
             }
             return list;
+        }
+
+        /// <summary>
+        /// Words that are wrong only in some senses or places ("click here" yes, "here" no; "once" meaning "after"; the noun
+        /// "setup" is fine, the verb isn't): as an Avoid row the linter would flag every use. Measured: an import turned
+        /// "here", "once", "below"/"above", "setup" and "hit" into blanket rows.
+        /// </summary>
+        public static readonly HashSet<string> ContextDependent = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "here", "there", "this", "that", "these", "those", "once", "below", "above", "following", "later", "earlier", "former", "latter",
+            "since", "while", "as", "setup", "login", "logon", "signup", "backup", "checkout", "hit", "check", "via"
+        };
+
+        /// <summary>
+        /// Takes the context-dependent single words out of a row (<see cref="ContextDependent"/>) and returns a prose rule for
+        /// each: the AI reviewer applies a prose rule with judgment; the linter would flag every use. Phrases ("click here")
+        /// stay in the row. The row is left with no Avoid text when every word was context-dependent.
+        /// </summary>
+        private static List<RuleCandidate> SplitContextDependent(RuleCandidate row)
+        {
+            var avoid = row.Avoid.Split(',').Select(a => a.Trim()).Where(a => a.Length > 0).ToList();
+            var use = (row.Use ?? "").Split(',').Select(u => u.Trim()).ToList();
+            var paired = use.Count == avoid.Count;
+            var prose = new List<RuleCandidate>();
+            var keepAvoid = new List<string>();
+            var keepUse = new List<string>();
+            for (var i = 0; i < avoid.Count; i++)
+            {
+                var replacement = paired ? use[i] : (use.Count == 1 ? use[0] : "");
+                if (replacement == "(delete)") replacement = "";
+                if (!ContextDependent.Contains(avoid[i])) { keepAvoid.Add(avoid[i]); if (paired) keepUse.Add(use[i]); continue; }
+                var w = avoid[i];
+                prose.Add(new RuleCandidate
+                {
+                    Kind = "notes", Title = row.Title, Severity = row.Severity, Why = row.Why, Quote = row.Quote,
+                    Text = replacement.Length > 0
+                        ? "Where \"" + w + "\" means \"" + replacement + "\", write \"" + replacement + "\"; in its other senses \"" + w + "\" is fine."
+                        : "Don't use \"" + w + "\" where it is vague (for example as link text, or to point at a place the reader can't see); where its meaning is clear it is fine.",
+                    Bad = Empty(row.Example),
+                    Good = replacement.Length > 0 && !string.IsNullOrEmpty(row.Example)
+                        ? System.Text.RegularExpressions.Regex.Replace(row.Example, @"\b" + System.Text.RegularExpressions.Regex.Escape(w) + @"\b",
+                                                                        m => char.IsUpper(m.Value[0]) ? char.ToUpper(replacement[0]) + replacement.Substring(1) : replacement,
+                                                                        System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+                        : null
+                });
+            }
+            if (prose.Count == 0) return prose;
+            row.Avoid = keepAvoid.Count > 0 ? string.Join(", ", keepAvoid.ToArray()) : null;
+            if (paired) row.Use = string.Join(", ", keepUse.ToArray());
+            return prose;
         }
 
         private static string Empty(string s) { return string.IsNullOrEmpty(s) ? null : s; }

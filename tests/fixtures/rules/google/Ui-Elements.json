@@ -4,13 +4,13 @@
     "Layer": "google",
     "Page": "Ui-Elements",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "UI"
     ],
     "Avoid": [
-      "\\b[Tt]oggl(?:ed|ing)\\b"
+      "\\b[Tt]oggl(?:e|es|ed|ing) (?:the|a|an|on|off|between)\\b"
     ],
     "Use": "",
     "Example": "Toggling the setting turns on Wi-Fi.",
@@ -79,7 +79,7 @@
     "Layer": "google",
     "Page": "Ui-Elements",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "UI"
@@ -109,13 +109,13 @@
     "Layer": "google",
     "Page": "Ui-Elements",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "UI"
     ],
     "Avoid": [
-      "[⌘⌥⇧⌃]"
+      "[⌘⌥⇧⌃]\\s?\\+?\\s?[A-Za-z0-9]"
     ],
     "Use": "",
     "Example": "To copy, press Ctrl+C (⌘+C).",
@@ -139,13 +139,13 @@
     "Layer": "google",
     "Page": "Ui-Elements",
     "Row": 4,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "UI"
     ],
     "Avoid": [
-      "\\b(?:Control|Command|Option|Shift)(?: \\+|\\+ )"
+      "\\b(?:Control|Ctrl|Command|Option|Alt|Shift)(?: \\+|\\+ )"
     ],
     "Use": "",
     "Example": "Press Control + V.",
@@ -169,7 +169,7 @@
     "Layer": "google",
     "Page": "Ui-Elements",
     "Row": 5,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "UI"

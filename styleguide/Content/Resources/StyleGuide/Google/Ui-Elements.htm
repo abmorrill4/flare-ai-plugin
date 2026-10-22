@@ -47,9 +47,9 @@
         </ul>
         <h2>Use angle brackets</h2>
         <ul>
-            <li id="rule-22" MadCap:conditions="Content.UI">If you use angle brackets (&gt;) for a menu sequence, put a nonbreaking space (&amp;nbsp;) before each angle bracket.</li>
+            <li id="rule-22" MadCap:conditions="Content.UI,Content.WebMarkup">If you use angle brackets (&gt;) for a menu sequence, put a nonbreaking space (&amp;nbsp;) before each angle bracket.</li>
             <li id="rule-23" MadCap:conditions="Content.UI">Don&apos;t bold each menu name separately; instead, enclose the entire angle-bracket sequence in a single bold tag.</li>
-            <li id="rule-24" MadCap:conditions="Content.UI">Wrap each angle bracket with a span tag and add an aria-label attribute with and then text, for example &lt;span aria-label=&quot;and then&quot;&gt;&gt;&lt;/span&gt;.</li>
+            <li id="rule-24" MadCap:conditions="Content.UI,Content.WebMarkup">Wrap each angle bracket with a span tag and add an aria-label attribute with and then text, for example &lt;span aria-label=&quot;and then&quot;&gt;&gt;&lt;/span&gt;.</li>
         </ul>
         <h2>Markdown</h2>
         <ul>
@@ -68,7 +68,7 @@
         <ul>
             <li id="rule-29" MadCap:conditions="Content.UI">To refer to a button, use the button&apos;s label.<ul><li>Bad: Click the &quot;OK&quot; button.</li><li>Good: Click OK.</li></ul></li>
             <li id="rule-30" MadCap:conditions="Content.UI">If the button includes an icon, write the name of the button as shown in the tooltip, and add the button icon before the name.<ul><li>Bad: Click more_vert.</li><li>Good: Click more_vert Settings and utilities.</li></ul></li>
-            <li id="rule-31" MadCap:conditions="Content.UI">If you need to use a space between the icon and the button name for readability, use a nonbreaking space.</li>
+            <li id="rule-31" MadCap:conditions="Content.UI,Content.WebMarkup">If you need to use a space between the icon and the button name for readability, use a nonbreaking space.</li>
             <li id="rule-32" MadCap:conditions="Content.UI,Content.Images">If the icon tooltip is identical to the name of the icon, use an empty alt attribute.</li>
             <li id="rule-33" MadCap:conditions="Content.UI">If a UI element name ends with an ellipsis (...), leave out the ellipsis.<ul><li>Bad: Click Browse....</li><li>Good: Click Browse.</li></ul></li>
             <li id="rule-34" MadCap:conditions="Content.UI">Don&apos;t use directional language to orient the reader, such as above, below, or right-hand side.<ul><li>Bad: In the left-side panel, click the button with three lines.</li><li>Good: Click menu Menu.</li></ul></li>
@@ -118,7 +118,7 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-54" MadCap:conditions="Content.UI"><td>\b[Tt]oggl(?:ed|ing)\b</td><td></td><td>warning</td><td>Describe the action the user takes instead.</td><td>Toggling the setting turns on Wi-Fi.</td></tr>
+            <tr id="rule-54" MadCap:conditions="Content.UI"><td>\b[Tt]oggl(?:e|es|ed|ing) (?:the|a|an|on|off|between)\b</td><td></td><td>suggestion</td><td>Describe the action the user takes instead.</td><td>Toggling the setting turns on Wi-Fi.</td></tr>
         </table>
         <h2>Press and type keyboard keys</h2>
         <ul>
@@ -142,10 +142,10 @@
         </table>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-69" MadCap:conditions="Content.UI"><td>\b(?:Control|Ctrl|Command|Option|Alt|Shift)\+[a-z]\b</td><td></td><td>warning</td><td>Letter keys are written in uppercase.</td><td>To save, press Control+s.</td></tr>
-            <tr id="rule-70" MadCap:conditions="Content.UI"><td>[⌘⌥⇧⌃]</td><td></td><td>warning</td><td>Spell out modifier key names.</td><td>To copy, press Ctrl+C (⌘+C).</td></tr>
-            <tr id="rule-71" MadCap:conditions="Content.UI"><td>\b(?:Control|Command|Option|Shift)(?: \+|\+ )</td><td></td><td>warning</td><td>Key combinations use the form MODIFIER+KEY_NAME.</td><td>Press Control + V.</td></tr>
-            <tr id="rule-72" MadCap:conditions="Content.UI"><td>\bShift\+(?:Control|Ctrl|Command|Option|Alt)\b</td><td></td><td>warning</td><td>Shift goes after the other modifier.</td><td>Press Shift+Control+?.</td></tr>
+            <tr id="rule-69" MadCap:conditions="Content.UI"><td>\b(?:Control|Ctrl|Command|Option|Alt|Shift)\+[a-z]\b</td><td></td><td>suggestion</td><td>Letter keys are written in uppercase.</td><td>To save, press Control+s.</td></tr>
+            <tr id="rule-70" MadCap:conditions="Content.UI"><td>[⌘⌥⇧⌃]\s?\+?\s?[A-Za-z0-9]</td><td></td><td>suggestion</td><td>Spell out modifier key names.</td><td>To copy, press Ctrl+C (⌘+C).</td></tr>
+            <tr id="rule-71" MadCap:conditions="Content.UI"><td>\b(?:Control|Ctrl|Command|Option|Alt|Shift)(?: \+|\+ )</td><td></td><td>suggestion</td><td>Key combinations use the form MODIFIER+KEY_NAME.</td><td>Press Control + V.</td></tr>
+            <tr id="rule-72" MadCap:conditions="Content.UI"><td>\bShift\+(?:Control|Ctrl|Command|Option|Alt)\b</td><td></td><td>suggestion</td><td>Shift goes after the other modifier.</td><td>Press Shift+Control+?.</td></tr>
         </table>
         <h2>Prepositions</h2>
         <ul>

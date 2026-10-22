@@ -34,7 +34,7 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
-        public void RunRewrite_DroppingTheWordsAfterABoldLabel_IsRetried_ThenLeftOut()
+        public void RunRewrite_DroppingTheWordsAfterABoldLabel_PutsThemBack_WithoutARetry()
         {
             // Haiku in the bench: " page. Each change …" came back as "Each change …", losing "page.".
             var doc = new FakeDocumentAdapter("sample-topic.htm");
@@ -42,6 +42,22 @@ namespace FlareAI.Core.Tests
             doc.Document.SelectSingleNode("//body").AppendChild(p);
             doc.SelectXPath("//body/p[last()]/text()[2]");
             var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace(" page. Your transfer is ready to go!", "Your transfer is ready.")));
+            var runner = Runner(llm);
+            var proposal = runner.Rewrite(doc, null);
+            Assert.Single(llm.Requests);                                          // no retry
+            Assert.Contains("r3: \"page.\"", llm.Requests[0].User);               // the model was told up front
+            runner.Apply(doc, proposal, "x");
+            Assert.Equal("Remove a transfer from the Transfers page. Your transfer is ready.", Visible(p));
+        }
+
+        [Fact]
+        public void RunRewrite_ChangingTheWordsThatFinishTheSentence_IsRetried_ThenLeftOut()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = XhtmlFragment.ParseInto("<p>Remove a transfer from the <b>Transfers</b> page. Your transfer is ready to go!</p>", doc.Document)[0];
+            doc.Document.SelectSingleNode("//body").AppendChild(p);
+            doc.SelectXPath("//body/p[last()]/text()[2]");
+            var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace(" page. Your transfer is ready to go!", "screen. Your transfer is ready.")));
             var runner = Runner(llm);
             var proposal = runner.Rewrite(doc, null);
             Assert.Equal(2, llm.Requests.Count);                                  // the breach is retried once
@@ -55,11 +71,26 @@ namespace FlareAI.Core.Tests
         {
             var doc = new FakeDocumentAdapter("sample-topic.htm");
             doc.SelectXPath("//body/p[2]/text()");
-            var runner = Runner(new FakeLlmClient(r => "<revised><ul MadCap:conditions=\"Default.Print\"><li>Only in print.</li></ul></revised>"));
+            var runner = Runner(new FakeLlmClient(r => "<revised><p MadCap:conditions=\"Default.Print\">Only in print:</p><ul MadCap:conditions=\"Default.Print\"><li>output.</li></ul></revised>"));
             var proposal = runner.Restructure(doc, runner.PickBlocks(doc), null);
             Assert.Null(proposal.WordPlan);
+            Assert.Null(proposal.ApplyBlocked);
             Assert.Contains("paragraph-level", runner.Apply(doc, proposal, "x"));
             Assert.Single(doc.Replacements);
+        }
+
+        [Fact]
+        public void Restructure_ThatChangesTheElement_IsRefused()
+        {
+            // ReplaceDocumentNode keeps the target's element name (flare-api-notes), so p → ul would leave a <p> around the list (#111).
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            doc.SelectXPath("//body/p[2]/text()");
+            var runner = Runner(new FakeLlmClient(r => "<revised><ul MadCap:conditions=\"Default.Print\"><li>Only in print.</li></ul></revised>"));
+            var proposal = runner.Restructure(doc, runner.PickBlocks(doc), null);
+            Assert.True(proposal.Validation.IsValid);
+            Assert.Contains("turns a paragraph into a bulleted list", proposal.ApplyBlocked);
+            Assert.Throws<System.InvalidOperationException>(() => runner.Apply(doc, proposal, "x"));
+            Assert.Empty(doc.Replacements);
         }
 
         [Fact]

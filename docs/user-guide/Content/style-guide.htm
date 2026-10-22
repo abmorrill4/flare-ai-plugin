@@ -5,34 +5,35 @@
     </head>
     <body>
         <h1>Maintain the style guide</h1>
-<p>The style guide is a Flare project that your team keeps in source control. It has two folders under <code>Content/Resources/StyleGuide</code>:</p>
+<p>This topic is for style guide owners. The style guide is a Flare project. Your team's rules are in <code>Content/Resources/StyleGuide/Company</code>. Google's rules come with House Style. Don't copy or edit them: change them from your Company folder.</p>
+<p>To set up a guide for a team, see <MadCap:xref href="team.htm">Set up a team style guide</MadCap:xref>.</p>
+<h2>Write rules</h2>
+<p>The <b>About this style guide</b> topic in the Company folder explains the format. In short:</p>
 <ul>
-<li><b>Google</b>: the Google developer documentation style guide, compiled into rules, one topic for each Google page. The plugin updates this folder when Google changes its guide. Don't edit it.</li>
-<li><b>Company</b>: your team's rules, shown in the pane as <b>Our rules</b>. Where they disagree with Google, your rules win.</li>
+<li>A bullet is a rule for the AI. Add nested <b>Bad:</b> and <b>Good:</b> items so it can be tested. Paragraphs are context, not rules.</li>
+<li>A table with the headers <b>Avoid</b>, <b>Use</b>, <b>Severity</b>, <b>Why</b> and <b>Example</b> becomes rules with exact fixes.</li>
+<li>A table with the headers <b>Rule</b>, <b>Setting</b> and <b>Reason</b> turns rules off or changes their level. House Style writes these rows for you when you use <b>Turn off rule…</b>.</li>
 </ul>
-<p>Both folders use the same format. Each topic holds rules as short sentences with Bad and Good examples, and rule tables of words to avoid with their replacements. The <b>About</b> topic in the Company folder explains the format.</p>
 <h2>Change a Google rule</h2>
-<p>To turn a rule off or change how strict it is, select a suggestion that uses the rule in the review pane, and then select <b>Turn off this rule…</b>. Choose whether the change is for the whole team or this project only, the new level, and why. For the team, the plugin writes the change into the style guide's <b>Changes to the Google guide</b> topic; commit it so everyone gets it. A rule that's off is used by neither the checker nor the AI. To replace a Google rule, also write your own rule in a Company topic.</p>
-<p>The guide ships with defaults for teams that write Flare help: rules that fit hand-written web pages or are debatable for help topics, such as "this page" to "this document", curly quotation marks, nonbreaking spaces and hyphens, and HTML tag and entity rules. Each is a row in that topic with its reason. Select <b>Turned-off rules</b> to see them, and turn any back on. Timeless-Documentation rules stay on; turn them off for a release-notes project only.</p>
-<p>Writers who aren't style guide owners see <b>Suggest changing this rule…</b> instead: it is a request: it asks the owners, with the reason.</p>
-<h2>Rule references</h2>
-<p>Every rule has a permanent reference that the team's review decisions are tied to. You never type or manage it. When you validate the guide, the plugin gives new rules, and copies of rules, a reference of their own. Adding, moving or rewording rules doesn't move decisions from one rule to another.</p>
+<p>Select <b>Turn off rule…</b> in the review pane, or use <b>Style rules</b>. Choose the team or this project only, the new level, and why. For the team, House Style writes the change into the guide's <b>Changes to the Google guide</b> topic. A rule that's off is used by neither the style check nor the AI. See <MadCap:xref href="style-rules.htm">Browse and change style rules</MadCap:xref>.</p>
+<p>House Style ships with some Google rules turned off or changed for help topics, such as curly quotation marks and "this page". Each one is labeled <b>Default</b> in <b>Style rules</b>, with its reason. You can turn any of them back on.</p>
 <h2>Say where a rule applies</h2>
-<p>A rule applies to every topic unless you tag it. Tag a rule with Flare condition tags, the same way you tag any content:</p>
+<p>A rule applies to every topic unless you tag it with Flare condition tags:</p>
 <ul>
-<li><b>Content</b> tags limit a rule to sections with that kind of content, such as Steps, Code, Numbers or UI. The AI gets the rule only when a section contains that content.</li>
-<li><b>Product</b> tags limit a rule to products. The Product tag set in the style guide project lists the products your guide covers. Rules for other products, such as Google's rules for Android documentation, never apply until you add that product to the list.</li>
+<li><b>Content</b> tags, such as Steps, Code, Numbers or UI, limit a rule to sections with that content.</li>
+<li><b>Product</b> tags limit a rule to products. The guide's Product tag set lists the products it covers. Rules for other products never apply.</li>
 </ul>
 <h2>Check the guide</h2>
-<p>After you edit the guide, select <b>House Style &gt; Validate style guide</b>. It tests every rule table against its examples, finds rules that contradict or repeat each other, including between the Company and Google folders, and flags changes to Google rules that name a rule that doesn't exist. <b>Check prose rules with AI…</b> shows which written rules the AI applies.</p>
+<p>After you edit the guide, select <b>House Style &gt; Validate style guide</b>. It tests each rule table against its examples and finds rules that contradict or repeat each other. With AI, it also checks your team's written rules against their Bad and Good examples. To check Google's rules too, select <b>Include Google's rules</b>. That takes longer and costs more.</p>
 <h2>Build rules from evidence</h2>
 <p>Select <b>House Style &gt; Build style guide</b>:</p>
 <ul>
-<li><b>Mine this project</b> finds where topics disagree with each other, such as competing spellings or terms, and shows counts and example sentences. Pick the form to keep.</li>
-<li><b>Add notes or an old guide…</b> turns notes, an old style guide, or another tool's prompt into rules that quote where they came from.</li>
+<li><b>Mine this project</b> finds where topics disagree, such as competing spellings or terms, with counts and example sentences. Pick the form to keep.</li>
+<li><b>Add notes or an old guide…</b> reads notes you paste or dictate, or a Word (.docx), web page (.htm), .txt or .md file. Select <b>Extract rules</b>.</li>
 </ul>
+<p>Select a suggested rule to <b>Edit rule…</b> or <b>Remove</b> it. Then select <b>Add checked rules to the guide</b>.</p>
 <h2>Tune rules from review decisions</h2>
-<p>Select <b>House Style &gt; Tune style guide</b>. It collects the team's accept and reject decisions. It lists rules that writers disagree on, rules that writers often reject, edits several writers keep making, and requests to turn a rule off, each with its evidence. <b>Draft a change with AI</b> rewrites a rule from that evidence as tracked changes in the guide.</p>
-<p>Tune lists a rule only when enough writers made decisions on it, so one writer's taste doesn't change a shared rule.</p>
+<p>Select <b>House Style &gt; Tune style guide</b>. It collects the team's review decisions and lists rules that writers disagree on, rules they often reject, edits several writers keep making, and requests. Each comes with its evidence. <b>Draft a change with AI…</b> rewrites a rule from that evidence as tracked changes in the guide.</p>
+<p>Tune lists a rule only when enough writers made decisions on it, so one writer's preference doesn't change a shared rule.</p>
     </body>
 </html>

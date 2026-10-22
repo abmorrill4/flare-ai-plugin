@@ -18,6 +18,8 @@ $icons = [ordered]@{
     build    = 0xE70B  # QuickNote
     llm      = 0xE943  # Code
     assist   = 0xE82F  # Lightbulb
+    rules    = 0xE8FD  # BulletedList (Style rules)
+    whatsnew = 0xE789  # Megaphone (What's new)
 }
 $color = [System.Drawing.Color]::FromArgb(255, 14, 124, 134)  # FlareAI teal; reads on Flare's light ribbon
 

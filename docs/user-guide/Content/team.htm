@@ -1,25 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-        <title>Set up a team</title>
+        <title>Set up a team style guide</title>
     </head>
     <body>
-        <h1>Set up a team</h1>
-<p>A team shares one style guide project and one feedback folder.</p>
-<table><thead><tr><th>File in the guide project</th><th>What it does</th></tr></thead><tbody>
-<tr><td><code>FlareAI/owners.txt</code></td><td>Lists the writers who may change shared rules. With this file, other writers can't turn rules off. <b>Ignore rule…</b> sends the owners a request instead.</td></tr>
-<tr><td><code>FlareAI/layer.txt</code></td><td>A stable name for the guide's rules, so rule references match on every writer's computer.</td></tr>
-<tr><td><code>FlareAI/attribution.txt</code></td><td>One line, <code>attribution = counts</code> (the default) or <code>attribution = names</code>. See <b>What the owner sees</b> below.</td></tr>
-<tr><td><code>FlareAI/models.json</code></td><td>The models and effort every writer uses. See <MadCap:xref href="models.htm">Models and cost</MadCap:xref>.</td></tr>
-<tr><td><code>FlareAI/prompts/*.md</code></td><td>Team versions of the AI's instructions. Use <b>Customize AI prompts</b> in Tune style guide to create them.</td></tr>
-</tbody></table>
-<p>In the feedback folder, each writer has one file of decisions that only that writer's plugin appends to, so syncing never conflicts.</p>
-<h2>What the owner sees</h2>
-<p>When a team feedback folder is set, each accept, reject, edit and ignore request is written to it: the rule, the text it was about, your reason if you gave one, and the topic's file name. Who made the decision depends on the guide's <code>attribution</code> setting:</p>
+        <h1>Set up a team style guide</h1>
+<p>This topic is for style guide owners. A team shares one style guide, a Flare project in a shared folder. Owners change it; other writers send requests.</p>
+<h2>Create the guide</h2>
+<ol>
+<li>Create a folder that every writer can reach: OneDrive, SharePoint, Google Drive or a network drive.</li>
+<li>Copy the starter project into it. The starter project is the <code>styleguide</code> folder in the House Style repository on GitHub. Copy <code>StyleGuide.flprj</code>, <code>Project</code>, <code>FlareAI</code> and <code>Content/Resources/StyleGuide/Company</code>. Don't copy the <code>Google</code> folder: House Style always loads Google's rules, and its own default changes to them, from the plugin. That way, updates reach your team.</li>
+<li>Set the folder's permissions: owners can edit, everyone else can only read.</li>
+<li>In <code>FlareAI/owners.txt</code>, list two or more owners, one per line. Use each owner's email address or Windows user name.</li>
+<li>Create a second shared folder for team feedback. Every writer can edit it. Requests and review decisions go there.</li>
+<li>Tell the writers both folder paths. Each writer chooses the guide folder in setup or in <b>Settings &gt; Style guide</b>, and the feedback folder in <b>Settings &gt; Advanced &gt; Team feedback folder</b>.</li>
+</ol>
+<p>To change one of House Style's default changes to Google's rules, add a row for the same rule to your guide's Rule/Setting table. Your row wins.</p>
+<h2>Decide requests</h2>
+<p>Select <b>House Style &gt; Tune style guide</b>. Open requests are listed under <b>Requests to the style guide owners</b>, with the writer's reason and example text.</p>
 <ul>
-<li><code>counts</code> (the default): no names. Each computer gets a random anonymous ID, kept in <code>%APPDATA%\FlareAI</code> and not derived from your email, so the owner sees "3 writers" and never who they are.</li>
-<li><code>names</code>: your git <code>user.email</code> is written with every decision, and Tune style guide shows who rejected or accepted each rule.</li>
+<li>Select <b>Approve or decline…</b>. You can adjust the change before you approve it, and add a note.</li>
+<li>An approved change is written to the guide. Writers get it on their next check.</li>
+<li>An approved project exception is written into that writer's project by their copy of House Style.</li>
+<li>The writer sees your decision and note on their next check.</li>
 </ul>
-<p>With <code>counts</code>, Tune style guide also hides names in feedback files written earlier. Those files still hold the old names until the owner deletes them. Without a team feedback folder, nothing leaves your computer.</p>
+<p>Owners change rules directly, from the review pane or <b>Style rules</b>. To see every rule that is turned off or changed, with who, when and why, select <b>Turned-off rules…</b> in Tune style guide.</p>
+<h2>Files in the guide's FlareAI folder</h2>
+<table><thead><tr><th>File</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>owners.txt</code></td><td>The owners. If the file exists but a writer can't read it, every change from that writer goes to the owners as a request.</td></tr>
+<tr><td><code>layer.txt</code></td><td>A fixed name for the guide's rules, so rule references match on every computer.</td></tr>
+<tr><td><code>attribution.txt</code></td><td><code>attribution = counts</code> (the default) or <code>attribution = names</code>. See below.</td></tr>
+<tr><td><code>models.json</code></td><td>The AI models every writer uses. See <MadCap:xref href="models.htm">Models and cost</MadCap:xref>.</td></tr>
+<tr><td><code>prompts/*.md</code></td><td>Your team's versions of the AI's instructions. Create them with <b>Customize AI prompts…</b> in Tune style guide.</td></tr>
+</tbody></table>
+<p>Changes to <code>owners.txt</code> and to folder permissions apply at the next rule change, without restarting Flare.</p>
+<h2>What the team feedback folder holds</h2>
+<p>Each writer's review decisions (apply, reject, edit) and requests: the rule, the words it flagged, the reason if one was given, and the topic's filename. Who made each one depends on <code>attribution.txt</code>:</p>
+<ul>
+<li><code>counts</code>: no names. Each computer has a random ID, so owners see "3 writers", not who.</li>
+<li><code>names</code>: each writer's email address is recorded, and Tune style guide shows it.</li>
+</ul>
+<p>Without a team feedback folder, decisions stay on each writer's computer, and writers can't send requests.</p>
+<h2>Keep the guide in source control instead</h2>
+<p>If your team uses Git, keep the guide in a repository. Each writer clones it and chooses the clone in Settings. When a clone is behind, the pane says so: pull to get the latest rules. Protect the main branch so only owners can merge.</p>
+<h2>Limits</h2>
+<ul>
+<li>Changes made to the guide outside House Style aren't recorded.</li>
+<li>If a writer can't read the guide folder, for example offline, House Style checks with Google's guide only and says why.</li>
+</ul>
     </body>
 </html>

@@ -35,31 +35,84 @@ namespace FlareAI.Core.Style
             _bundled = bundledGuide;
         }
 
-        /// <summary>The guide projects that exist now, in order.</summary>
-        private List<string> Guides()
+        /// <summary>
+        /// The guides used in place of a guide that can't be read (a team guide on a share the writer lost access to): the
+        /// bundled guide by default; the plugin passes the bundled guide plus the writer's own changes.
+        /// </summary>
+        public Func<IEnumerable<string>> Fallback { get; set; }
+
+        private readonly HashSet<string> _logged = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The guide projects that exist now, in order. A guide that can't be read is left out, named in
+        /// <paramref name="unreadable"/> with the reason, and the <see cref="Fallback"/> guides stand in for it.
+        /// </summary>
+        private List<string> Guides(List<string> unreadable)
         {
-            return (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g)).ToList();
+            var list = new List<string>();
+            foreach (var g in (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g)))
+            {
+                var why = WhyUnreadable(g);
+                if (why == null) { list.Add(g); continue; }
+                unreadable.Add("Can't read " + g + ": " + why + ".");
+                lock (_gate) if (_logged.Add(g + "|" + why)) Diagnostics.Log("Style guide " + g + " can't be read (" + why + "); checking with the fallback guide");
+            }
+            if (unreadable.Count == 0) return list;
+            var fallback = new List<string>();
+            foreach (var f in (Fallback != null ? Fallback() : null) ?? new[] { _bundled })
+                if (!string.IsNullOrEmpty(f) && Directory.Exists(f) && WhyUnreadable(f) == null && !list.Concat(fallback).Any(x => SamePath(x, f))) fallback.Add(f);
+            return fallback.Concat(list).ToList();
         }
+
+        /// <summary>Null when the guide's project file, StyleGuide and FlareAI folders can be listed; else why not, in plain words.</summary>
+        internal static string WhyUnreadable(string guide)
+        {
+            try
+            {
+                Directory.GetFiles(guide, "*.flprj");
+                var style = Path.Combine(guide, @"Content\Resources\StyleGuide");
+                if (Directory.Exists(style)) Directory.GetFiles(style, "*", SearchOption.AllDirectories);
+                var flareAi = Path.Combine(guide, "FlareAI");
+                if (Directory.Exists(flareAi)) Directory.GetFiles(flareAi);
+                return null;
+            }
+            catch (UnauthorizedAccessException) { return "you don't have permission to read it"; }
+            catch (System.Security.SecurityException) { return "you don't have permission to read it"; }
+            catch (IOException ex) { return ex.Message.TrimEnd('.', ' ', '\r', '\n'); }
+        }
+
+        /// <summary>
+        /// Null normally. When a team style guide couldn't be read: which folder and why, and that the check used Google's
+        /// guide (and the writer's own changes) instead. Show it with any check result.
+        /// </summary>
+        public string Notice(string project) { return Compose(project).Notice; }
+
+        /// <summary>The first line of <see cref="Notice"/>.</summary>
+        public const string UnreadableNotice = "Your team's style guide couldn't be read; checked with Google's guide only.";
 
         // ---- composition ---------------------------------------------------------------------------------------
 
         public Composition Compose(string project)
         {
-            var guides = Guides();
+            var unreadable = new List<string>();
+            var guides = Guides(unreadable);
             var root = FlareProjectRoot(project);
             if (root != null && guides.Any(g => SamePath(g, root))) root = null;   // the guide is already a layer
-            var key = (root ?? "") + "|" + string.Join("|", guides.ToArray());
+            var notice = unreadable.Count == 0 ? null : UnreadableNotice + " " + string.Join(" ", unreadable.ToArray());
+            var key = (root ?? "") + "|" + string.Join("|", guides.ToArray()) + "|" + notice;
             // Any change to a guide or project file (a rule turned off, a row added) changes the stamp: the next use reloads.
-            var stamp = Stamp(guides.Concat(new[] { GoogleRoot(guides), root }).Where(p => p != null));
+            var defaults = Defaults(guides);
+            var stamp = Stamp(guides.Concat(new[] { GoogleRoot(guides), defaults, root }).Where(p => p != null));
             lock (_gate)
             {
                 KeyValuePair<string, Composition> c;
                 if (_cache.TryGetValue(key, out c) && c.Key == stamp) return c.Value;
             }
             var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(guides), "google", "Google") };
+            if (defaults != null) layers.Add(GuideLayer.LoadOverrides(defaults, DefaultsLayer));
             for (var i = 0; i < guides.Count; i++) layers.Add(GuideLayer.Load(guides[i], null, null, "Google", Shadowed(guides[i], guides.Skip(i + 1))));
             if (root != null) layers.Add(GuideLayer.Load(root, "project"));
-            var comp = new Composition(layers);
+            var comp = new Composition(layers) { ProjectRoot = root, Notice = notice };
             lock (_gate) _cache[key] = new KeyValuePair<string, Composition>(stamp, comp);
             return comp;
         }
@@ -82,6 +135,28 @@ namespace FlareAI.Core.Style
             };
         }
 
+        /// <summary>
+        /// Layer the bundled guide's default changes to Google's rules before a team guide (the default). False composes
+        /// Google's rules as compiled, for tools that check the Google layer itself.
+        /// </summary>
+        public bool BundledDefaults { get; set; } = true;
+
+        /// <summary>The name of the layer that carries the bundled guide's default changes to Google's rules into a team's guide.</summary>
+        public const string DefaultsLayer = "defaults";
+
+        /// <summary>
+        /// The bundled guide, when its default changes to Google's rules (its Rule/Setting rows) must be layered in because it
+        /// isn't itself one of <paramref name="guides"/>: a team guide (often a copy of the starter project made before a
+        /// default was added) gets every shipped default unless it has its own row for that rule. Null otherwise.
+        /// </summary>
+        private string Defaults(List<string> guides)
+        {
+            if (!BundledDefaults) return null;
+            // No guide at all is Google alone (the guide compiler and tests compose it that way).
+            if (guides.Count == 0 || string.IsNullOrEmpty(_bundled) || !Directory.Exists(_bundled)) return null;
+            return guides.Any(g => SamePath(g, _bundled)) ? null : _bundled;
+        }
+
         /// <summary>Forgets every composition: the next use reads the guides again.</summary>
         public void Invalidate() { lock (_gate) _cache.Clear(); }
 
@@ -98,17 +173,24 @@ namespace FlareAI.Core.Style
         {
             long n = 0, latest = 0;
             foreach (var r in roots.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                // A guide that is a plain folder of topics (no .flprj) is read from the root itself, recursively.
+                var plain = Directory.Exists(r) && Directory.GetFiles(r, "*.flprj").Length == 0;
                 foreach (var dir in new[] { @"Content\Resources\StyleGuide", @"Project\VariableSets", @"Project\Glossaries", "" })
                 {
                     var d = dir.Length == 0 ? r : Path.Combine(r, dir);
                     if (!Directory.Exists(d)) continue;
-                    foreach (var f in dir.Length == 0 ? Directory.GetFiles(d) : Directory.GetFiles(d, "*", SearchOption.AllDirectories))
+                    string[] files;
+                    try { files = dir.Length == 0 && !plain ? Directory.GetFiles(d) : Directory.GetFiles(d, "*", SearchOption.AllDirectories); }
+                    catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { n += 7919; continue; }   // a project folder that can't be listed
+                    foreach (var f in files)
                     {
                         var fi = new FileInfo(f);
                         n += fi.Length + f.Length;
                         latest = Math.Max(latest, fi.LastWriteTimeUtc.Ticks);
                     }
                 }
+            }
             return n + ":" + latest;
         }
 
@@ -166,14 +248,17 @@ namespace FlareAI.Core.Style
 
         /// <summary>
         /// Always-on: untagged prose rules. Packs: rules tagged for content the unit has, and Term rows for words it uses.
-        /// Never: lint rows (the linter enforces them) and rules for products the guide doesn't cover.
+        /// Never: lint rows (the linter enforces them), rules for products the guide doesn't cover, and web-markup rules
+        /// (Content.WebMarkup) unless the scope asks for them.
         /// </summary>
         private static void Selectors(Composition comp, GuideScope scope, out Func<GuideRule, bool> core, out Func<GuideRule, bool> packs)
         {
             scope = scope ?? new GuideScope();
             var always = scope.Always;
             Func<GuideRule, bool> applies = r => r.Applies.Count == 0 || r.Applies.Any(scope.Content.Contains) || r.Applies.Any(always.Contains);
-            Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products) && !comp.IsOff(r.Id);
+            // Web-markup rules (hand-written HTML: entities, attributes, elements) only when the scope asks for them: Flare writes the markup.
+            Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products) && !comp.IsOff(r.Id) &&
+                                                  (!r.Applies.Contains(ContentTags.WebMarkup) || scope.Content.Contains(ContentTags.WebMarkup));
             // Always-on: untagged rules plus the packs nearly every section needs; one block, cached for an hour.
             core = r => eligible(r) && r.Triggers.Count == 0 && (r.Applies.Count == 0 || r.Applies.Any(always.Contains));
             packs = r => eligible(r) && (r.Triggers.Count > 0 ? applies(r) && r.TriggeredBy(scope.Text)
@@ -187,7 +272,7 @@ namespace FlareAI.Core.Style
         public IList<GuideExample> Examples(string project)
         {
             return Compose(project).Items.Where(i => i.Bad.Length > 0 || i.Good.Length > 0)
-                .Select(i => new GuideExample { Id = i.Id, Text = i.Text, Bad = i.Bad, Good = i.Good }).ToList();
+                .Select(i => new GuideExample { Id = i.Id, Layer = i.Layer, Text = i.Text, Bad = i.Bad, Good = i.Good }).ToList();
         }
 
         public GuideReport Validate(string project) { return Compose(project).Validate(); }
@@ -200,7 +285,8 @@ namespace FlareAI.Core.Style
         {
             var n = 0;
             // Never the guide bundled with the plugin: it is read-only, and plugin updates replace it.
-            foreach (var g in Guides().Where(g => _bundled == null || !SamePath(g, _bundled))) n += GuideLayer.Load(g, null, null, "Google").AssignKeys();
+            var guides = (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g) && WhyUnreadable(g) == null);
+            foreach (var g in guides.Where(g => _bundled == null || !SamePath(g, _bundled))) n += GuideLayer.Load(g, null, null, "Google").AssignKeys();
             lock (_gate) _cache.Clear();
             return n;
         }
@@ -284,6 +370,31 @@ namespace FlareAI.Core.Style
             return ruleId != null && _overrides.TryGetValue(ruleId, out v) && v == "off";
         }
 
+        /// <summary>The open Flare project when it is the last of <see cref="Layers"/> (its own rules and exceptions), else null.</summary>
+        public string ProjectRoot { get; internal set; }
+
+        /// <summary>Why this composition isn't the configured guide (a team guide couldn't be read), or null. See <see cref="StyleEngine.Notice"/>.</summary>
+        public string Notice { get; internal set; }
+
+        /// <summary>
+        /// What the guides and the project say about a rule, the later one winning: "off", "on" (back on at its own level), a
+        /// severity, or null (nothing). Looked up by id, then by name (a bare name is a Google rule's).
+        /// </summary>
+        public string SettingOf(string ruleId, string name = null)
+        {
+            string v;
+            if (ruleId != null && _overrides.TryGetValue(ruleId, out v)) return v;
+            if (name != null && _overrides.TryGetValue(name.IndexOf('.') < 0 && name.IndexOf(':') < 0 ? "Google." + name : name, out v)) return v;
+            return null;
+        }
+
+        /// <summary>The level a table rule fires at now: its own, or the level a later guide or the project gives it; null when it is off.</summary>
+        public string LevelOf(LintRule r)
+        {
+            var o = Override(r);
+            return o == "off" ? null : o ?? r.Severity;
+        }
+
         /// <summary>"off", a severity, or null (the rule's own level, also when a later layer turned it back "on"): what the layers say about this rule.</summary>
         private string Override(LintRule r)
         {
@@ -325,7 +436,9 @@ namespace FlareAI.Core.Style
             for (var i = 0; i < lines.Count; i++)
             {
                 var line = lines[i] ?? LintLine.Plain("");
-                var text = (line.Text ?? "").Replace('\r', ' ').Replace('\n', ' ');
+                var raw = line.Text ?? "";
+                var text = raw.Replace('\r', ' ').Replace('\n', ' ');
+                var breaks = raw.IndexOfAny(LineBreaks) >= 0;
                 foreach (var x in active)
                 {
                     var r = x.r;
@@ -333,6 +446,8 @@ namespace FlareAI.Core.Style
                         foreach (Match m in swap.Key.Matches(text))
                         {
                             if (m.Length == 0) continue;
+                            // Spacing made of a line break in the source (a wrapped text node) is formatting, not typed spaces.
+                            if (breaks && m.Value.Trim().Length == 0 && raw.IndexOfAny(LineBreaks, m.Index, m.Length) >= 0) continue;
                             if (!x.scope.Allows(line, m.Index, m.Index + m.Length)) continue;
                             var hit = Hit(r, swap.Value, text, m.Index, m.Index + m.Length, x.o);
                             if (hit == null) continue;
@@ -368,6 +483,15 @@ namespace FlareAI.Core.Style
                 else outer.AlsoFlaggedBy(h);
             }
             return shown;
+        }
+
+        private static readonly char[] LineBreaks = { '\r', '\n' };
+
+        /// <summary>The fix a row gives for its i-th Avoid term (one Use per term, or one for all), as the loader builds it.</summary>
+        private static string UseOf(LintRule r, int i)
+        {
+            if (i < r.Swaps.Count && r.Swaps.Count == r.Avoid.Count) return r.Swaps[i].Value ?? "";
+            return (r.Use ?? "").Trim();
         }
 
         private Dictionary<string, int> _owners;
@@ -411,7 +535,7 @@ namespace FlareAI.Core.Style
                     end++;
                 }
                 else replacement = "";
-                message = "Delete '" + match.Trim() + "'.";
+                message = match.Trim().Length == 0 ? "Delete the extra space." : "Delete '" + match.Trim() + "'.";
                 match = text.Substring(start, end - start);
             }
             else message = "Avoid '" + match + "'.";
@@ -429,8 +553,10 @@ namespace FlareAI.Core.Style
         // ---- validation --------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Tests the guide: every row's Example must trigger it and its fix must resolve it, the Use wording must not trip a
-        /// rule, rows must not replace each other, topics must parse. Also counts prose rules and their examples.
+        /// Tests the guide: every row's Example must trigger it and its fix must resolve it without creating another finding,
+        /// the Use wording must not trip a rule, rows must not replace each other or give two fixes for the same words (within
+        /// a layer too), Good examples must be clean, rows that can only match markup are reported (the loader skips them),
+        /// topics must parse. Also counts prose rules and their examples.
         /// </summary>
         public GuideReport Validate()
         {
@@ -447,7 +573,8 @@ namespace FlareAI.Core.Style
             {
                 var heads = Enumerable.Range(0, withEx.Count).Where(i => withEx[i].Applies.Contains("Headings")).ToList();
                 var hits = Lint(withEx.Select(r => r.Example).ToList(), heads, true);
-                var fixedTexts = new List<string>(); var fixedRows = new List<LintRule>();
+                var fixedTexts = new List<string>(); var fixedRows = new List<LintRule>(); var fixedFrom = new List<int>();
+                var moved = new List<HashSet<string>>();   // rules that flagged the replaced words: their finding moves with the fix, it isn't new
                 for (var i = 0; i < withEx.Count; i++)
                 {
                     var r = withEx[i];
@@ -463,7 +590,10 @@ namespace FlareAI.Core.Style
                             if (!chosen.Any(c => h.Start < c.Start + c.Length && c.Start < h.Start + h.Length)) chosen.Add(h);
                         foreach (var h in chosen.OrderByDescending(h => h.Start))
                             t = t.Substring(0, h.Start) + h.Replacement + t.Substring(h.Start + h.Length);
-                        fixedTexts.Add(t); fixedRows.Add(r);
+                        fixedTexts.Add(t); fixedRows.Add(r); fixedFrom.Add(i);
+                        var idx = i;
+                        moved.Add(new HashSet<string>(hits.Where(b => b.Index == idx && b.RuleId != r.Id && chosen.Any(h => b.Start < h.Start + h.Length && h.Start < b.Start + b.Length))
+                                                          .Select(b => b.RuleId ?? b.Rule)));
                     }
                 }
                 if (fixedTexts.Count > 0)
@@ -471,7 +601,15 @@ namespace FlareAI.Core.Style
                     var heads2 = Enumerable.Range(0, fixedRows.Count).Where(i => fixedRows[i].Applies.Contains("Headings")).ToList();
                     var again = Lint(fixedTexts, heads2, true);
                     for (var i = 0; i < fixedRows.Count; i++)
-                        if (again.Any(h => h.Index == i && h.RuleId == fixedRows[i].Id)) issue("error", fixedRows[i], "Applying the fix doesn't resolve the rule: '" + fixedTexts[i] + "'.");
+                    {
+                        if (again.Any(h => h.Index == i && h.RuleId == fixedRows[i].Id)) { issue("error", fixedRows[i], "Applying the fix doesn't resolve the rule: '" + fixedTexts[i] + "'."); continue; }
+                        // The fix must leave the text clean of every other rule too (#59, #62): a new finding sends the writer round again.
+                        var k = i;
+                        var created = again.FirstOrDefault(h => h.Index == k && !moved[k].Contains(h.RuleId ?? h.Rule) &&
+                                                                !hits.Any(b => b.Index == fixedFrom[k] && (b.RuleId ?? b.Rule) == (h.RuleId ?? h.Rule) && b.Match == h.Match));
+                        if (created != null)
+                            issue("error", fixedRows[i], "Applying the fix creates a finding from " + (created.RuleId ?? created.Rule) + " ('" + created.Match + "'): '" + fixedTexts[i] + "'.");
+                    }
                 }
             }
             var uses = rows.Where(r => r.Action == "replace").ToList();
@@ -493,22 +631,46 @@ namespace FlareAI.Core.Style
                     if (b.Avoid.Any(x => string.Equals(x, a.Use, StringComparison.OrdinalIgnoreCase)) && a.Avoid.Any(x => string.Equals(x, b.Use, StringComparison.OrdinalIgnoreCase)))
                         issue("error", a, "Contradicts " + b.Id + " (" + b.File + " row " + b.Row + "): each replaces the other.");
                 }
-            // Where a later layer meets an earlier one: the same word with the same fix is redundant; with a different fix
-            // the later layer wins (worth knowing, not an error).
+            // Two rows on the same words. Within a layer: the same fix is a duplicate (turning one off leaves the other), a
+            // different fix is a conflict (which one shows depends on rule order). Where a later layer meets an earlier one the
+            // later layer wins: redundant with the same fix, worth knowing with a different one.
             for (var i = 0; i < rows.Count; i++)
                 for (var j = i + 1; j < rows.Count; j++)
                 {
                     LintRule a = rows[i], b = rows[j];
-                    if (a.Layer == b.Layer) continue;
-                    var shared = b.Avoid.Where(x => a.Avoid.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase))).ToList();
-                    if (shared.Count == 0) continue;
-                    var same = string.Equals(a.Use ?? "", b.Use ?? "", StringComparison.OrdinalIgnoreCase);
-                    issue("warning", b, same ? "Duplicates " + a.Id + " ('" + shared[0] + "'): the " + a.Layer + " rule already does this; remove one."
-                                             : "Overrides " + a.Id + " for '" + shared[0] + "': " + b.Layer + " says '" + b.Use + "', " + a.Layer + " says '" + a.Use + "'. The " + b.Layer + " rule wins.");
+                    // The same words as both rows match them: case-insensitively when either row is, exactly otherwise ("A SAP" at a
+                    // sentence start and "a SAP" mid-sentence are different words to two exact-case rows).
+                    var cmp = a.IgnoreCase || b.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                    var pair = Enumerable.Range(0, b.Avoid.Count).SelectMany(bi => Enumerable.Range(0, a.Avoid.Count).Where(ai => string.Equals(a.Avoid[ai], b.Avoid[bi], cmp)).Select(ai => new[] { ai, bi })).FirstOrDefault();
+                    if (pair == null) continue;
+                    string term = b.Avoid[pair[1]], useA = UseOf(a, pair[0]), useB = UseOf(b, pair[1]);
+                    var same = string.Equals(useA, useB, StringComparison.OrdinalIgnoreCase);
+                    if (a.Layer == b.Layer)
+                    {
+                        if (!a.Products.SequenceEqual(b.Products)) continue;   // rows for different products never meet
+                        issue(same ? "warning" : "error", b, same ? "Duplicates " + a.Id + " ('" + term + "'): turning one off leaves the other; remove one."
+                                                                 : "Conflicts with " + a.Id + " for '" + term + "': this row says '" + useB + "', that one says '" + useA + "'. Keep one fix.");
+                        continue;
+                    }
+                    issue("warning", b, same ? "Duplicates " + a.Id + " ('" + term + "'): the " + a.Layer + " rule already does this; remove one."
+                                             : "Overrides " + a.Id + " for '" + term + "': " + b.Layer + " says '" + useB + "', " + a.Layer + " says '" + useA + "'. The " + b.Layer + " rule wins.");
                 }
+            // A rule's Good example must be clean: a Good example the guide itself flags teaches the writer two things at once.
+            // (Linted as a paragraph; a Good example that is markup or code is a source snippet, not text a writer types.)
+            var goods = Items.Where(it => it.Good.Length > 0 && !IsOff(it.Id) && ForOurProducts(it.Products) && !LintPatterns.MatchesMarkup(it.Good)).ToList();
+            if (goods.Count > 0)
+            {
+                var lines = goods.Select(it => new LintLine { Text = it.Good, Known = true }).ToList();
+                foreach (var h in Lint(lines))
+                {
+                    var it = goods[h.Index];
+                    report.Issues.Add(new GuideIssue { Level = "warning", Layer = it.Layer, File = it.Source == null ? "" : Path.GetFileName(it.Source), Location = "rule " + it.Id,
+                                                       Message = "The Good example is flagged by " + (h.RuleId ?? h.Rule) + " ('" + h.Match + "'): '" + it.Good + "'." });
+                }
+            }
             // Override tables must name rules that exist.
             var known = new HashSet<string>(Rules.Select(r => r.Id).Where(x => x != null).Concat(Rules.Select(r => r.Name)).Concat(Items.Select(x => x.Id)), StringComparer.OrdinalIgnoreCase);
-            foreach (var l in Layers)
+            foreach (var l in Layers.Where(x => !x.OverridesOnly))   // the shipped defaults aren't the guide owner's to fix
                 foreach (var o in l.Overrides)
                 {
                     var key = o.Key.IndexOf('.') < 0 && o.Key.IndexOf(':') < 0 ? "Google." + o.Key : o.Key;
@@ -520,7 +682,7 @@ namespace FlareAI.Core.Style
             {
                 var unkeyed = l.Items.Count(i => i.Element != null && !i.HasKey);
                 if (unkeyed > 0)
-                    report.Issues.Add(new GuideIssue { Level = "warning", Layer = l.Name, File = "", Location = "keys", Message = unkeyed + " rule(s) have no permanent key yet. Validating as a style guide owner assigns them (no other change to the topics)." });
+                    report.Issues.Add(new GuideIssue { Level = "warning", Layer = l.Name, File = "", Location = "keys", Message = Plural.Of(unkeyed, "rule") + " " + (unkeyed == 1 ? "has" : "have") + " no permanent key yet. Validating as a style guide owner assigns them (no other change to the topics)." });
             }
             report.TableRules = rows.Count;
             report.TestedByExample = withEx.Count;

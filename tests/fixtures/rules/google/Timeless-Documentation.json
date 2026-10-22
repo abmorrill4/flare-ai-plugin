@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Timeless-Documentation",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -53,7 +53,7 @@
     "Layer": "google",
     "Page": "Timeless-Documentation",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -102,7 +102,7 @@
     "Layer": "google",
     "Page": "Timeless-Documentation",
     "Row": 4,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -151,7 +151,7 @@
     "Layer": "google",
     "Page": "Timeless-Documentation",
     "Row": 5,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -200,7 +200,7 @@
     "Layer": "google",
     "Page": "Timeless-Documentation",
     "Row": 6,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -249,7 +249,7 @@
     "Layer": "google",
     "Page": "Timeless-Documentation",
     "Row": 7,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [

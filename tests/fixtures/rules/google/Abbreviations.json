@@ -61,7 +61,7 @@
     "Layer": "google",
     "Page": "Abbreviations",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Abbreviations"
@@ -141,13 +141,13 @@
     "Layer": "google",
     "Page": "Abbreviations",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Abbreviations"
     ],
     "Avoid": [
-      "\\b(?!(?:U\\.S\\.|U\\.K\\.|D\\.C\\.))(?:[A-Z]\\.){2,}(?![A-Za-z])"
+      "(?<![A-Za-z]\\.)\\b(?!(?:U\\.S\\.|U\\.K\\.|D\\.C\\.))(?!(?:[AP]\\.M\\.|A\\.D\\.|B\\.C\\.)(?![A-Za-z]))(?:[A-Z]\\.){2,}(?![A-Za-z])(?!\\s+[A-Z][a-z])"
     ],
     "Use": "",
     "Example": "Contact the I.T. team for access.",

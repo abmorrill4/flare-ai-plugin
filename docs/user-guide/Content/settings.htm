@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-        <title>Set up the plugin</title>
+        <title>Set up House Style</title>
     </head>
     <body>
-        <h1>Set up the plugin</h1>
-<p>The first time you click a House Style command, a short setup opens: how you use AI, whose style rules, and you're done. You can skip any step. To run it again, select <b>House Style &gt; Settings</b> and click <b>Run setup again</b>.</p>
-<p>To change one setting, select <b>House Style &gt; Settings</b>. Settings has four tabs.</p>
+        <h1>Set up House Style</h1>
+<p>The first time you select a House Style command, a three-step setup opens. You can skip any step and change it later.</p>
+<ol>
+<li><b>How will you use AI?</b> Choose one:<ul><li><b>No AI (style rules only)</b>: style checks still work, at no cost.</li><li><b>My Anthropic API key</b>: paste your key.</li><li><b>My company's AI service (gateway)</b>: enter the <b>Base URL</b> and <b>Gateway key</b> that your admin gave you.</li></ul><p>Select <b>Test connection</b> to check the key.</p></li>
+<li><b>Whose style rules?</b> Choose <b>Google's guide plus my own changes</b>, or <b>My team's shared style guide folder</b>. For a team guide, select <b>Browse…</b> and choose the folder. Your style guide owner tells you where it is.</li>
+<li><b>You're ready.</b> Select <b>Finish</b>. House Style runs the command you selected.</li>
+</ol>
+<p>Your key is encrypted for your Windows account and never written to a log.</p>
+<h2>Change a setting</h2>
+<p>Select <b>House Style &gt; Settings</b>. To go through the three steps again, select <b>Run setup again…</b>.</p>
 <table><thead><tr><th>Tab</th><th>What's on it</th></tr></thead><tbody>
-<tr><td>AI</td><td>Choose <b>No AI (style rules only)</b>, <b>My Anthropic API key</b>, or <b>My company's AI service (gateway)</b>. Enter the API key, or the gateway's Base URL and Gateway key, and click <b>Test connection</b>. The key is encrypted for your Windows account and never written to logs. With No AI, no key is stored and every style check still works.</td></tr>
-<tr><td>Style guide</td><td>Your team's style guide folder, a Flare project. Your style guide owner gives you this path. Settings shows whether you can change its rules or it's read-only for you. Empty uses Google's guide plus your own changes. Also choose whether to use the open project's variables, glossary and StyleGuide folder.</td></tr>
-<tr><td>Checking</td><td>Check as you type, after saving, when a build starts, and markers in the editor. On by default. See <MadCap:xref href="editor.htm">Work in the editor</MadCap:xref>.</td></tr>
-<tr><td>Advanced</td><td>Models (leave them on Default; see <MadCap:xref href="models.htm">Models and cost</MadCap:xref>), timeout, the team feedback folder that collects each writer's review decisions for the style guide owners, the diagnostics log, and Markdown export after each HTML build (see <MadCap:xref href="llm-export.htm">Export for AI assistants</MadCap:xref>).</td></tr>
+<tr><td>AI</td><td>How House Style uses AI, the key, and <b>Test connection</b>.</td></tr>
+<tr><td>Style guide</td><td>Your team's style guide folder. Leave it empty to use Google's guide plus your own changes. Also choose whether to use the open project's variables, glossary and StyleGuide folder.</td></tr>
+<tr><td>Checking</td><td>Checks while you type, when you save, and when a build starts, and the markers in the editor. See <MadCap:xref href="editor.htm">Work in the editor</MadCap:xref>.</td></tr>
+<tr><td>Advanced</td><td>Models (see <MadCap:xref href="models.htm">Models and cost</MadCap:xref>), timeout, the team feedback folder, the diagnostics log, Markdown export after each HTML build, and automatic updates.</td></tr>
 </tbody></table>
     </body>
 </html>

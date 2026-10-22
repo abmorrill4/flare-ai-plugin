@@ -20,6 +20,7 @@ temp workspace. No test-framework dependency, so the conformance suite can also 
 | `AcceptAll` / `RejectAll` | Review > Accept/Reject All Changes, each one undo step. |
 | `Save()` | Writes the file; throws if a `SelectionMarker` reached the DOM. |
 | `UntrackedWrites` | Live-DOM writes that bypassed the adapter (Core must never write the DOM directly). |
+| `AuthorEdits(edit)` | The author types in the editor: the DOM changes without being listed in `UntrackedWrites`. |
 
 Simplification: a tracked block replacement marks all old content removed and all new content added (Flare diffs words).
 

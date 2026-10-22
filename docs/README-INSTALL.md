@@ -8,13 +8,40 @@ House Style adds a **House Style** tab to MadCap Flare Desktop. Every edit it ma
    anything from inside the zip.
 2. Close Flare.
 3. Double-click **Install.cmd**. Say yes to the administrator prompt.
-4. It unblocks the files, finds your Flare, copies the plugin and prints what to do next.
-5. Start Flare > **File > Options > Plugins > House Style > Enable**, then **restart Flare again**.
-6. **House Style > Settings**: paste your Anthropic API key, or the gateway virtual key you were given (set
-   **Provider** to *Bifrost gateway* and enter the Base URL). Save.
+4. It unblocks the files, copies the plugin to `%LOCALAPPDATA%\HouseStyle`, links your Flare to it and prints what to
+   do next. The administrator prompt is needed only this first time: updates install by themselves when you close
+   Flare (House Style checks GitHub once a day; see the privacy page).
+5. Start Flare > **File > Options > Plugins > House Style > Enable**. The **House Style** tab appears. If it
+   doesn't, restart Flare.
+6. Click any **House Style** button. A short setup asks how to use AI (none, your Anthropic API key, or your
+   company's gateway key and address) and which style guide to follow. Upgrading from 0.1? Open
+   **House Style > Settings > Run setup again** to see it.
 
 If you have several Flare versions, the installer picks the newest. To pick another, open PowerShell in the unzipped
 folder and run `.\Install.ps1 -Flare 21` (use the folder number from the table below).
+
+**Upgrading from an earlier test build?** Run **Install.cmd** from the new download once. Earlier release candidates
+used a folder layout that makes Flare 2026 crash at startup; the installer repairs it, and your settings stay.
+
+### Where the files go
+
+```
+%LOCALAPPDATA%\HouseStyle\
+  current\            the plugin files Flare loads (a real folder)
+  versions\<ver>\     the version before the last update, kept for rollback
+  staged\<ver>\       a downloaded, verified update waiting for Flare to close
+...\Flare.app\Plugins\FlareAI  ->  %LOCALAPPDATA%\HouseStyle\current   (a junction, made once as administrator)
+```
+
+When Flare closes, the updater copies the new version to `current.new`, renames `current` to `current.old` and
+`current.new` to `current`, and checks the result. If the check fails it renames them back. Then `current.old` becomes
+`versions\<previous version>`. Renaming needs no administrator rights, because Flare's junction points at the path
+`...\HouseStyle\current`. If Flare still holds the files, nothing changes and the update is offered again.
+
+> **Keep it to one junction.** Flare 2026 crashes while opening its main window (before any plugin code runs) when
+> `Plugins\FlareAI` is a junction to another junction. `current` must stay a real folder. Earlier release candidates
+> made `current` a junction to `versions\<ver>`; the installer and the updater replace that with a real folder, and
+> House Style pauses automatic updates (and says to run Install.cmd) while it finds that layout.
 
 ## Which Flare is which
 
@@ -27,6 +54,8 @@ folder and run `.\Install.ps1 -Flare 21` (use the folder number from the table b
 House Style is tested on Flare 2026. The plugin loads per Flare version, so install it into the one you open.
 
 ## Manual install (if Install.cmd does not work)
+
+A manual copy doesn't update itself: install each new version the same way.
 
 1. **Unblock first.** Right-click the zip > **Properties** > tick **Unblock** > OK, then unzip. Already unzipped?
    Run this in PowerShell: `Get-ChildItem <unzipped folder> -Recurse | Unblock-File`. Windows silently stops Flare

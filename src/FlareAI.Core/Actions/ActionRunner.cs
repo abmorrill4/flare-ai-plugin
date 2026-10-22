@@ -34,6 +34,13 @@ namespace FlareAI.Core.Actions
         /// <summary>The model could only do part of the task by changing wording; the rest needs a structural edit.</summary>
         public bool NeedsRestructure { get; set; }
         public string RestructureNote { get; set; }
+        /// <summary>
+        /// Why this proposal must not be applied as it stands (null = it may): a wording-only pass that leaves out a whole
+        /// sentence while the AI says the task needs restructuring has deleted what it meant to move. Apply refuses it.
+        /// </summary>
+        public string ApplyBlocked { get; set; }
+        /// <summary>Changes the model proposed but that only the author may make (a modal verb, a code term): left out, with the reason.</summary>
+        public List<string> Held { get; set; } = new List<string>();
     }
 
     /// <summary>One unit of AI review: its blocks, their numbered runs, and the prompt.</summary>
@@ -44,6 +51,10 @@ namespace FlareAI.Core.Actions
         public string Prompt { get; set; }
         /// <summary>What the unit contains and the words it uses: selects the rules sent with it.</summary>
         public GuideScope Scope { get; set; }
+        /// <summary>The ids of the rules sent with the unit (the only ones it may cite); null = not checked.</summary>
+        public HashSet<string> Allowed { get; set; }
+        /// <summary>The lint findings in the unit when it was prepared: their fixes, once applied, don't call for a new review (<see cref="ReviewCache"/>).</summary>
+        public List<StyleFinding> Lint { get; set; }
     }
 
     /// <summary>
@@ -82,16 +93,21 @@ namespace FlareAI.Core.Actions
         /// ceiling is a safety net only; a cut-off answer is retried once with more room.
         /// </summary>
         /// <param name="scope">The text's content and words: the rules to send besides the always-on ones (null = none).</param>
-        private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null, GuideScope scope = null)
+        /// <param name="guide">False for tasks that apply no style rule (alt text, topic assists): a short system prompt, no guide.</param>
+        private LlmResponse Ask(string task, string user, JObject schema, List<LlmImage> images = null, GuideScope scope = null, bool guide = true)
         {
             var route = Routing.For(task);
-            // Every task carries the same always-on block (same prefix → one cache entry for refine, assists, review…).
+            // The cached prefix is (model, output schema, system prompt): the schema sits ahead of the system prompt, and
+            // caches are per model. So tasks share a cache entry only when all three match: review, rewrite and restructure
+            // do (Sonnet, Contracts.EditSchema, the same always-on block); refine (Haiku), draft (Opus) and extract (its own
+            // schema) each have their own, so they cache for five minutes, not an hour (Routing.CacheFor).
             scope = scope ?? new GuideScope();
             if (scope.Always.Count == 0) scope.Always = new HashSet<string>(Routing.AlwaysPacks ?? new List<string>());
-            var system = _prompts.BuildSystemParts(scope);
+            var system = guide ? _prompts.BuildSystemParts(scope) : new[] { _prompts.BuildPlainSystem(), null, null };
             var req = new LlmRequest
             {
                 Task = task, System = system[0], SystemPacks = system[1], SystemTerms = system[2], User = user, Schema = schema, Model = route.Model, Effort = route.Effort,
+                CacheTtl = Routing.CacheFor(task),
                 Images = images, MaxTokens = Math.Max(_maxTokens, AnthropicClient.DefaultMaxTokens)
             };
             var sw = Stopwatch.StartNew();
@@ -177,7 +193,7 @@ namespace FlareAI.Core.Actions
                 var f = MapToRun(lines[h.Index], h);
                 if (f != null) findings.Add(f); else inVariables++;
             }
-            if (inVariables > 0) Diagnostics.Log("Lint: " + inVariables + " finding(s) inside variable values skipped");
+            if (inVariables > 0) Diagnostics.Log("Lint: " + Plural.Of(inVariables, "finding") + " inside variable values skipped");
             return findings;
         }
 
@@ -259,6 +275,21 @@ namespace FlareAI.Core.Actions
         /// Lints whole files from disk (no AI): every topic/snippet in one linter call per batch. Findings carry the
         /// file path; fixes are applied after opening the file in the editor.
         /// </summary>
+        /// <summary>
+        /// Null normally; when the team's style guide couldn't be read, which folder and why, and that checks used Google's
+        /// guide instead (<see cref="StyleEngine.Notice"/>). Show it with the check's result.
+        /// </summary>
+        public string GuideNotice
+        {
+            get
+            {
+                var engine = _style as StyleEngine;
+                if (engine == null) return null;
+                try { return engine.Notice(_project); }
+                catch (Exception ex) { Diagnostics.Log("guide notice", ex); return null; }
+            }
+        }
+
         public List<StyleFinding> LintFiles(IList<string> paths, Action<int, int> progress = null)
         {
             var findings = new List<StyleFinding>();
@@ -352,7 +383,7 @@ namespace FlareAI.Core.Actions
                 if (map.Ids.Count == 0 || WordCount(map) < minWords) continue;
                 var unitLint = (lint ?? new List<StyleFinding>()).Where(f => f.DocumentPath == null && g.Exists(b => Contains(b, f))).ToList();
                 var context = (title.Length > 0 ? "Topic: " + title + "\n" : "") + (SectionOf(g[0]).Length > 0 ? "Section: " + SectionOf(g[0]) : "");
-                units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)), Scope = ScopeOf(g) });
+                units.Add(new ReviewUnit { Blocks = g, Runs = map, Prompt = _prompts.BuildReview(context, map.Marked, Summarize(unitLint)), Scope = ScopeOf(g), Lint = unitLint });
             }
             ShareScope(units.Select(u => u.Scope).ToList());
             return units;
@@ -379,10 +410,11 @@ namespace FlareAI.Core.Actions
             var resp = Ask("review", unit.Prompt, Contracts.ReviewSchema, null, unit.Scope);
             int dropped;
             var raw = Contracts.ReadReview(resp.Json, unit.Runs, out dropped);
-            if (dropped > 0) Diagnostics.Log("Review: dropped " + dropped + " finding(s) that broke the contract");
+            if (dropped > 0) Diagnostics.Log("Review: dropped " + Plural.Of(dropped, "finding") + " that broke the contract");
             // The model may cite only the rules it was given for this unit.
             HashSet<string> allowed = null;
             if (_style != null) try { allowed = new HashSet<string>(_style.RuleIdsFor(_project, unit.Scope), StringComparer.OrdinalIgnoreCase); } catch (Exception ex) { Diagnostics.Log("rule ids", ex); }
+            unit.Allowed = allowed;
             Contracts.KeepCitable(raw, allowed);
             return raw;
         }
@@ -402,13 +434,33 @@ namespace FlareAI.Core.Actions
                 if (f.RunId == null || !unit.Runs.Runs.TryGetValue(f.RunId, out run) || run.ParentNode == null) continue;
                 var at = run.Value.IndexOf(f.Excerpt, StringComparison.Ordinal);
                 if (at < 0) continue;
+                if (f.Replacement != null)
+                {
+                    // A replacement that changes a modal verb or drops a code term needs the author: keep the finding, not the fix.
+                    var held = MeaningGuard.Check(f.Excerpt, f.Replacement, MeaningGuard.InCode(run));
+                    if (held != null) { f.Replacement = null; f.Suggestion = ((f.Suggestion ?? "").Trim() + " " + held).Trim(); }
+                }
                 var anchor = FindingLocator.ForSpan(run, at, f.Excerpt.Length, f.Replacement, TextRuns.BlockOf(run));
                 f.Before = anchor.Before;
                 f.Block = anchor.Block;
                 Ground(f, rules);
+                PreferOwnLayer(f, unit.Allowed);
                 if (!Duplicates(f, lint ?? new List<StyleFinding>())) kept.Add(f);
             }
             return kept;
+        }
+
+        /// <summary>
+        /// The rules a run-level (wording-only) edit can act on. Word rules come only for words the text uses, as for review;
+        /// content packs about formatting (code font, command syntax, placeholders, images, tables, footnotes, emphasis) are
+        /// left out, because a run-level edit changes text, never markup. Measured: a one-paragraph rewrite in API docs
+        /// carried ~25k characters of rules, 23k of them the Code pack; review and restructure still get every pack.
+        /// </summary>
+        internal static GuideScope WordingScope(IList<XmlNode> blocks)
+        {
+            var scope = ScopeOf(blocks);
+            scope.Content.ExceptWith(ContentTags.Formatting);
+            return scope;
         }
 
         /// <summary>The unit's content tags and its visible text (reads the DOM: call on the thread that owns it).</summary>
@@ -451,12 +503,14 @@ namespace FlareAI.Core.Actions
         private Dictionary<string, GuideRule> _rules;
         private Dictionary<string, GuideExample> _examples;
 
+        private List<GuideRule> _ruleList = new List<GuideRule>();
+
         private Dictionary<string, GuideRule> GuideRules()
         {
             if (_rules != null) return _rules;
             var map = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
             if (_style == null) return map;
-            try { foreach (var r in _style.Rules(_project)) map[r.Id] = r; _rules = map; }
+            try { var list = _style.Rules(_project).ToList(); foreach (var r in list) map[r.Id] = r; _ruleList = list; _rules = map; }
             catch (Exception ex) { Diagnostics.Log("guide rules", ex); }
             return map;
         }
@@ -504,6 +558,21 @@ namespace FlareAI.Core.Actions
             var replacement = r == null || r.Type == JTokenType.Null ? null : (string)r;
             if (replacement != null && replacement.IndexOf('<') >= 0) replacement = null;
             var why = (string)json["why"];
+            // The earlier proposal stands when the instruction doesn't apply ("Use select instead of click" on text without
+            // "click"), when the answer lost the fix, or when it changes a modal verb or a code term. Measured: 3 of 4
+            // non-applying instructions returned the original text or nothing, discarding a better proposal.
+            if (f.Replacement != null)
+            {
+                var held = replacement == null ? null : MeaningGuard.Check(f.Excerpt, replacement, false, "The refined wording");
+                string because = (bool?)json["applies"] == false ? "The instruction doesn't apply to this text"
+                               : replacement == null || replacement == f.Excerpt && (bool?)json["applies"] != true ? "The refined answer dropped the fix"
+                               : held != null ? held.Replace(" Edit it yourself if that is meant.", "") : null;
+                if (because != null)
+                {
+                    replacement = f.Replacement;
+                    why = because.TrimEnd('.') + ", so the earlier suggestion stands. " + f.Suggestion;
+                }
+            }
             return new StyleFinding
             {
                 Source = "ai", Layer = "ai", Rule = f.Rule, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, Link = f.Link,
@@ -515,10 +584,20 @@ namespace FlareAI.Core.Actions
         /// <summary>Alt text for an image (vision). Null when the model judges it decorative.</summary>
         public string SuggestAlt(LlmImageFile image, string context)
         {
-            var json = Ask("alt", _prompts.BuildAlt(context), Contracts.Alt(),
-                           new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } }).Json;
+            var images = new List<LlmImage> { new LlmImage { MediaType = image.MediaType, Base64 = image.Base64 } };
+            var json = Ask("alt", _prompts.BuildAlt(context), Contracts.Alt(), images, null, false).Json;
             var alt = ((string)json["alt"] ?? "").Trim();
-            return (bool?)json["decorative"] == true || alt.Length == 0 ? null : alt;
+            if ((bool?)json["decorative"] == true || alt.Length == 0) return null;
+            if (alt.Length > Contracts.AltMaxLength)
+            {
+                // Measured: 13 of 20 came back over the limit (average 128). One short retry, then cut at a word boundary.
+                Diagnostics.Log("alt: " + alt.Length + " characters; asking for a shorter one");
+                var retry = Ask("alt", _prompts.BuildAlt(context) + "\n\nYour first answer was " + alt.Length + " characters: \"" + alt + "\". Say the same in at most " +
+                                       Contracts.AltMaxLength + " characters.", Contracts.Alt(), images, null, false).Json;
+                var shorter = ((string)retry["alt"] ?? "").Trim();
+                if (shorter.Length > 0 && shorter.Length < alt.Length) alt = shorter;
+            }
+            return Contracts.FitAlt(alt);
         }
 
         /// <summary>
@@ -538,7 +617,7 @@ namespace FlareAI.Core.Actions
                 new KeyValuePair<string, JObject>("Write up to 5 micro content entries (a question or phrase readers search for, and a 1-2 sentence answer from the topic) and up to 5 glossary candidates (terms the topic uses but doesn't define).", Contracts.AssistAnswers()),
             };
             var answers = new JObject[parts.Length];
-            Each(parts.Length, i => answers[i] = Ask("assist", _prompts.BuildAssist(fragment, glossary.Trim(), parts[i].Key), parts[i].Value).Json);
+            Each(parts.Length, i => answers[i] = Ask("assist", _prompts.BuildAssist(fragment, glossary.Trim(), parts[i].Key), parts[i].Value, null, null, false).Json);
             var t = new TopicAssist { Description = (string)answers[0]["description"] };
             foreach (var k in answers[0]["keywords"] ?? new JArray()) t.Keywords.Add((string)k);
             foreach (var g in answers[1]["groups"] ?? new JArray())
@@ -587,6 +666,57 @@ namespace FlareAI.Core.Actions
             }
         }
 
+        private static readonly HashSet<string> Generic = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "rule", "rules", "guide", "style", "google", "company", "team", "word", "words", "list", "general", "writing", "write", "overrides",
+            "changes", "text", "content", "about", "other", "avoid", "using", "instead", "don't", "make", "when", "that", "this", "with", "your",
+            "from", "they", "them", "their", "have", "more", "than", "only", "such", "also", "each", "which", "what", "language", "documentation", "docs"
+        };
+
+        /// <summary>Content words of a title or rule, crudely stemmed ("claims" → "claim"), generic words left out.</summary>
+        private static HashSet<string> Stems(string text)
+        {
+            var set = new HashSet<string>(StringComparer.Ordinal);
+            foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches((text ?? "").ToLowerInvariant(), @"[a-z][a-z']{3,}"))
+            {
+                var w = m.Value;
+                if (Generic.Contains(w)) continue;
+                if (w.EndsWith("ies") && w.Length > 5) w = w.Substring(0, w.Length - 3) + "y";
+                else if (w.EndsWith("es") && w.Length > 5 && !w.EndsWith("ses")) w = w.Substring(0, w.Length - 2);
+                else if (w.EndsWith("s") && !w.EndsWith("ss")) w = w.Substring(0, w.Length - 1);
+                set.Add(w);
+            }
+            return set;
+        }
+
+        /// <summary>
+        /// A finding that cites a Google rule cites the team's rule instead when a later layer (company, team, personal,
+        /// project) has a rule on the same subject that was sent with the unit: that rule overrides Google's, and it is the
+        /// one the team wants named. Measured: 15 of 15 marketing claims cited Google's excessive-claims rule, not the team's
+        /// Claims rule. "Same subject": the two rules' pages or sections share a content word ("Excessive claims" / "Claims").
+        /// </summary>
+        private void PreferOwnLayer(StyleFinding f, ICollection<string> allowed)
+        {
+            GuideRule cited;
+            if (f.RuleId == null || !string.Equals(f.RuleLayer, GoogleLayer, StringComparison.OrdinalIgnoreCase) || !GuideRules().TryGetValue(f.RuleId, out cited)) return;
+            var subject = Stems(cited.Page + " " + cited.Section);
+            if (subject.Count == 0) return;
+            var rank = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var r in _ruleList) if (r.Layer != null && !rank.ContainsKey(r.Layer)) rank[r.Layer] = rank.Count;
+            GuideRule best = null;
+            foreach (var r in _ruleList)
+            {
+                if (r.IsLint || string.Equals(r.Layer, GoogleLayer, StringComparison.OrdinalIgnoreCase)) continue;
+                if (allowed != null && !allowed.Contains(r.Id)) continue;
+                if (!Stems(r.Page + " " + r.Section).Overlaps(subject)) continue;
+                if (IsTurnedOff(r.Id)) continue;
+                if (best == null || rank[r.Layer] > rank[best.Layer]) best = r;
+            }
+            if (best == null) return;
+            Diagnostics.Log("Review: cites " + best.Id + " (overrides " + f.RuleId + ")");
+            f.RuleId = best.Id; f.RuleLayer = best.Layer; f.RuleSection = best.Section; f.Link = best.Link;
+        }
+
         /// <summary>Keeps a cited rule only if it exists in the guide; attaches its layer, section, and link.</summary>
         private static void Ground(StyleFinding f, Dictionary<string, GuideRule> rules)
         {
@@ -599,23 +729,52 @@ namespace FlareAI.Core.Actions
             else f.RuleId = null; // "general", or a made-up id
         }
 
+        /// <summary>The layer of the generated Google guide: its examples are compiled and validated by the maintainers.</summary>
+        public const string GoogleLayer = "google";
+
+        /// <summary>
+        /// The examples Validate's AI check runs: the team's own layers (company, team, personal, project) by default.
+        /// Google's ~620 examples are validated offline when the guide is compiled; checking them again costs about $15
+        /// and half an hour, so they are included only when the owner asks.
+        /// </summary>
+        public static List<GuideExample> ExamplesToVerify(IEnumerable<GuideExample> examples, bool includeGoogle)
+        {
+            return (examples ?? new GuideExample[0])
+                .Where(e => includeGoogle || !string.Equals(e.Layer, GoogleLayer, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        /// <summary>Model calls <see cref="VerifyExamples"/> makes for these examples (one per Bad, one per Good).</summary>
+        public static int VerifyCalls(IEnumerable<GuideExample> examples)
+        {
+            return (examples ?? new GuideExample[0]).Sum(e => (string.IsNullOrEmpty(e.Bad) ? 0 : 1) + (string.IsNullOrEmpty(e.Good) ? 0 : 1));
+        }
+
         /// <summary>
         /// Checks that the AI applies prose rules: each Bad example must produce a finding citing that rule, each
-        /// Good example must not. Two model calls per example.
+        /// Good example must not. One model call per example sentence, <see cref="Parallelism"/> at a time (the first
+        /// alone, to write the prompt cache the rest read). Results come back in the examples' order.
         /// </summary>
+        /// <param name="progress">(calls done, calls in all); called from worker threads.</param>
         public List<ExampleResult> VerifyExamples(IList<GuideExample> examples, Action<int, int> progress = null)
         {
-            var results = new List<ExampleResult>();
             var rules = GuideRules();
+            var results = examples.Select(ex => new ExampleResult { Example = ex }).ToList();
+            var jobs = new List<KeyValuePair<int, bool>>();   // (example, bad?)
             for (var i = 0; i < examples.Count; i++)
             {
-                var ex = examples[i];
-                var result = new ExampleResult { Example = ex };
-                if (!string.IsNullOrEmpty(ex.Bad)) result.BadCaught = Cites(ex.Bad, ex.Id, rules);
-                if (!string.IsNullOrEmpty(ex.Good)) result.GoodClean = !Cites(ex.Good, ex.Id, rules);
-                results.Add(result);
-                if (progress != null) progress(i + 1, examples.Count);
+                if (!string.IsNullOrEmpty(examples[i].Bad)) jobs.Add(new KeyValuePair<int, bool>(i, true));
+                if (!string.IsNullOrEmpty(examples[i].Good)) jobs.Add(new KeyValuePair<int, bool>(i, false));
             }
+            var done = 0;
+            Each(jobs.Count, j =>
+            {
+                var ex = examples[jobs[j].Key];
+                if (jobs[j].Value) results[jobs[j].Key].BadCaught = Cites(ex.Bad, ex.Id, rules);
+                else results[jobs[j].Key].GoodClean = !Cites(ex.Good, ex.Id, rules);
+                var n = System.Threading.Interlocked.Increment(ref done);
+                if (progress != null) progress(n, jobs.Count);
+            });
             return results;
         }
 
@@ -730,7 +889,7 @@ namespace FlareAI.Core.Actions
             var found = lint ? SafeLint(blocks, notes) : new List<StyleFinding>();
             var proposal = RewriteRuns(blocks, instruction, found, task);
             proposal.Notes = notes;
-            if (!lint || _style == null || notes.Count > 0) return proposal;
+            if (!lint || _style == null || notes.Count > 0) return WithHeld(proposal);
 
             // Self-check: lint our own result and give the model one chance to fix what it left behind.
             var left = Significant(SafeLint(proposal.ProposedBlocks, notes));
@@ -741,7 +900,14 @@ namespace FlareAI.Core.Actions
                 if (leftAfter.Count < left.Count) { repaired.Notes = notes; proposal = repaired; left = leftAfter; }
             }
             proposal.RemainingLint = left;
-            return proposal;
+            return WithHeld(proposal);
+        }
+
+        /// <summary>The proposal's notes plus why any change was held back for the author.</summary>
+        private static RewriteProposal WithHeld(RewriteProposal p)
+        {
+            if (p.Held.Count > 0) p.Notes = (p.Notes ?? new List<string>()).Concat(p.Held).ToList();
+            return p;
         }
 
         private RewriteProposal RewriteRuns(IList<XmlNode> blocks, string instruction, List<StyleFinding> lint, string task)
@@ -751,9 +917,10 @@ namespace FlareAI.Core.Actions
                 OriginalBlocks = blocks, View = AcceptedView.Of(blocks), Validation = new ValidationResult(), Notes = new List<string>(),
                 RemainingLint = new List<StyleFinding>(), WordPlan = new List<StyleFinding>()
             };
-            var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }), Scope = ScopeOf(new List<XmlNode> { b }) }).ToList();
+            var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }), Scope = WordingScope(new List<XmlNode> { b }) }).ToList();
             ShareScope(units.Select(u => u.Scope).ToList());
-            var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()))).ToList();
+            var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()),
+                                                                     Contracts.DescribeContinuations(u.Map))).ToList();
             var changes = new Dictionary<string, string>[units.Count];
             var restructure = new bool[units.Count];
             var restructureNotes = new string[units.Count];
@@ -774,6 +941,16 @@ namespace FlareAI.Core.Actions
                     if (retryErrors.Count > 0) Diagnostics.Log(task + ": still " + retryErrors.Count + " breach(es); kept the valid changes");
                 }
             });
+
+            // Changes only the author may make (a modal verb, a code term, text inside code) are held back, with the reason.
+            for (var i = 0; i < units.Count; i++)
+                foreach (var id in changes[i].Keys.ToList())
+                {
+                    var held = MeaningGuard.Check(units[i].Map.Texts[id], changes[i][id], MeaningGuard.InCode(units[i].Map.Runs[id]), "Kept a sentence as it was: the suggested wording");
+                    if (held == null) continue;
+                    changes[i].Remove(id);
+                    proposal.Held.Add(held);
+                }
 
             var proposed = new List<XmlNode>();
             for (var i = 0; i < units.Count; i++)
@@ -798,6 +975,13 @@ namespace FlareAI.Core.Actions
             }
             proposal.ProposedBlocks = AcceptedView.Of(proposed);
             proposal.ProposedXml = XhtmlFragment.Serialize(proposal.ProposedBlocks);
+            if (proposal.NeedsRestructure)
+            {
+                var lost = LostSentence(string.Join(" ", proposal.View.Select(b => b.InnerText).ToArray()), string.Join(" ", proposal.ProposedBlocks.Select(b => b.InnerText).ToArray()));
+                if (lost != null)
+                    proposal.ApplyBlocked = "The wording-only version leaves out \"" + (lost.Length > 60 ? lost.Substring(0, 57) + "…" : lost) +
+                                            "\", which the task needs moved, not deleted. Use Restructure instead.";
+            }
             return proposal;
         }
 
@@ -822,18 +1006,23 @@ namespace FlareAI.Core.Actions
 
         private RewriteProposal Propose(IDocumentAdapter doc, IList<XmlNode> blocks, IList<XmlNode> view, string user, string task)
         {
-            var resp = Ask(task, user, null, null, ScopeOf(blocks));
+            // The edit-family schema, so restructure reads the review/rewrite cache entry instead of writing its own.
+            var resp = Ask(task, Contracts.RestructureFields + "\n\n" + user, Contracts.EditSchema, null, ScopeOf(blocks));
             var proposal = new RewriteProposal { OriginalBlocks = blocks, View = view, Raw = resp, Validation = new ValidationResult(), Notes = new List<string>(), RemainingLint = new List<StyleFinding>() };
             try
             {
-                proposal.ProposedXml = ResponseParser.ParseRevised(resp.Text);
+                proposal.ProposedXml = Contracts.ReadRevised(resp);
                 proposal.ProposedBlocks = XhtmlFragment.ParseInto(proposal.ProposedXml, doc.Document);
                 proposal.Validation = XhtmlValidator.Validate(view, proposal.ProposedBlocks);
                 if (proposal.Validation.IsValid)
                 {
+                    var held = MeaningGuard.Check(string.Join(" ", view.Select(b => b.InnerText).ToArray()), string.Join(" ", proposal.ProposedBlocks.Select(b => b.InnerText).ToArray()), false, "Check this edit: it");
+                    if (held != null) proposal.Validation.Warnings.Add(held.Replace(" Edit it yourself if that is meant.", ""));
                     proposal.WordPlan = WordDiff.Plan(view, proposal.ProposedBlocks, blocks);
                     if (proposal.WordPlan == null && TrackedChanges.HasPending(blocks))
                         proposal.Validation.Errors.Add("This edit restructures text that has pending tracked changes. Accept or reject those changes (Review tab) first, or ask for a wording-only edit.");
+                    else if (proposal.WordPlan == null)
+                        proposal.ApplyBlocked = NodeWrites.Refusal(blocks, proposal.ProposedBlocks);   // a node replacement Flare can't take safely
                 }
             }
             catch (XmlException xe)
@@ -856,6 +1045,7 @@ namespace FlareAI.Core.Actions
         {
             if (proposal == null || !proposal.Validation.IsValid)
                 throw new InvalidOperationException("Cannot apply: the suggestion failed validation.");
+            if (proposal.ApplyBlocked != null) throw new InvalidOperationException(proposal.ApplyBlocked);
 
             var plan = proposal.WordPlan;
             if (plan != null)
@@ -868,19 +1058,39 @@ namespace FlareAI.Core.Actions
                     var n = ApplyFixes(doc, plan, operationName);
                     if (n < plan.Count) Diagnostics.Log(operationName + ": only " + n + "/" + plan.Count + " word edits applied");
                     return n == plan.Count
-                        ? "Applied as " + n + " word-level tracked change(s)."
+                        ? "Applied as " + Plural.Of(n, "word-level tracked change") + "."
                         : "Applied " + n + " of " + plan.Count + " word-level changes — review them, or Ctrl+Z to undo all.";
                 }
                 Diagnostics.Log(operationName + ": word plan not locatable, falling back to block replacement");
             }
             if (TrackedChanges.HasPending(proposal.OriginalBlocks))
                 throw new InvalidOperationException("The paragraph has pending tracked changes and this edit cannot be applied word by word. Accept or reject them (Review tab) first.");
+            var refusal = NodeWrites.Refusal(proposal.OriginalBlocks, proposal.ProposedBlocks);
+            if (refusal != null) throw new InvalidOperationException(refusal);   // never the Redo crash path (variables)
             doc.ReplaceBlocks(operationName, proposal.OriginalBlocks, proposal.ProposedBlocks);
             Diagnostics.Log("Applied " + operationName + ": " + proposal.OriginalBlocks.Count + " → " + proposal.ProposedBlocks.Count + " blocks");
             return "Applied as a paragraph-level tracked change (the edit restructures the text).";
         }
 
         // ---- helpers -----------------------------------------------------------------------------
+
+        /// <summary>
+        /// The first sentence of <paramref name="before"/> (4+ words) that is gone from <paramref name="after"/>: fewer than
+        /// half of its content words are still there. Null when every sentence survives, reworded or not.
+        /// </summary>
+        public static string LostSentence(string before, string after)
+        {
+            var words = new HashSet<string>(System.Text.RegularExpressions.Regex.Matches((after ?? "").ToLowerInvariant(), @"[a-z0-9']+").Cast<System.Text.RegularExpressions.Match>().Select(m => m.Value));
+            foreach (var s in System.Text.RegularExpressions.Regex.Split((before ?? "").Trim(), @"(?<=[.!?])\s+"))
+            {
+                var content = System.Text.RegularExpressions.Regex.Matches(s.ToLowerInvariant(), @"[a-z0-9']+").Cast<System.Text.RegularExpressions.Match>().Select(m => m.Value).ToList();
+                if (content.Count < 4) continue;
+                var key = content.Where(w => w.Length > 3).ToList();
+                if (key.Count == 0) continue;
+                if (key.Count(words.Contains) * 2 < key.Count) return System.Text.RegularExpressions.Regex.Replace(s, @"\s+", " ").Trim();
+            }
+            return null;
+        }
 
         private List<StyleFinding> SafeLint(IList<XmlNode> blocks, List<string> notes)
         {

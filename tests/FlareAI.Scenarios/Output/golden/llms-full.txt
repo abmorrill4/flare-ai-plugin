@@ -1,0 +1,111 @@
+# DigitalBanking — HTML5
+
+
+---
+
+<!-- llm/Content/Customers/search-for-a-customer-record.md -->
+
+# Search for a customer record
+
+**We can** find a customer record from the Customers screen.
+
+Marlowe Dispatch keeps a history of every change to the customer record.
+
+## Steps
+
+1. On the main menu, choose **Customers**.
+
+2. Type part of the customer name in the **Search** box.
+
+3. Press Enter.
+
+   - The list shows matching records.
+
+   - Use `*` as a wildcard.
+
+4. To narrow the list, choose a value in the **Phone** filter.
+
+![The Customers screen with the Search box](../Resources/Images/screen-new.png)
+
+## Fields
+
+| Field | Description |
+|---|---|
+| Customer name | Required. The value must be unique. |
+| Phone | Choose a value from the list. |
+| Notes | Free text, up to 255 characters \| no markup. |
+
+Email [dispatch-support@marlowe-dispatch.example.com](mailto:dispatch-support@marlowe-dispatch.example.com).
+
+See also: [Import customer records from a spreadsheet](import-customer-records-from-a-spreadsheet.md); [Create a customer record](Create_a_customer_record.md).
+
+
+---
+
+<!-- llm/Content/deposit/about.md -->
+
+# About mobile deposit
+
+Mobile deposit gives members one place to manage each check deposit in Acme Online Banking. You can utilize the check deposit list to confirm the details.
+
+Members can add, change, and remove a check deposit from the **Deposit** page. Each change appears in the account history.
+
+Staff at Acme Financial choose which of these features members see.
+
+Customers who still use the legacy app see a simpler version of this page.
+
+
+---
+
+<!-- llm/Content/reference/send-message.md -->
+
+# Send a message
+
+Send a message to a channel or to one person with `POST /api/v1/messages`.
+
+See [Interacting with messages](../talk/messages.md) for the client view.
+
+## Usage example
+
+```
+import client
+
+result = client.send_message({
+    "type": "stream",
+    "to": "general",
+    "content": "Hello & welcome to the <team>!",
+})
+print(result["id"])
+```
+
+## Arguments
+
+| Argument | Type | Description |
+|---|---|---|
+| `type` | string | Either `stream` or `direct`. |
+| `to` | string | The channel name or the recipient's email. |
+
+**Note:** A message can hold up to 10,000 characters.
+
+id
+
+: The ID of the new message.
+
+
+---
+
+<!-- llm/Content/talk/messages.md -->
+
+# Interacting with messages
+
+This page covers the following topics:
+
+- [Editing messages](messages-editing-messages.md)
+
+- [Pinning messages](messages-pinning-messages.md)
+
+- [Threaded messages](messages-threaded-messages.md)
+
+- [Calendar appointments](../groupware/calendar-appointments.md)
+
+Need more help? Ask in the [community forum](https://help.example.com/community), or [write to support](mailto:support@example.com).

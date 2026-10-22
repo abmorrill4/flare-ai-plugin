@@ -6,22 +6,19 @@
         <p>Compiled from the Google developer documentation style guide, <a href="https://developers.google.com/style/semantic-tagging">HTML and semantic tagging</a>, licensed CC BY 4.0. Generated: edit the company rules instead, and turn Google rules off or change them there.</p>
         <h2>HTML and semantic tagging</h2>
         <ul>
-            <li id="rule-1" MadCap:conditions="Content.Code">Use HTML elements for the purposes that they were designed for.</li>
-            <li id="rule-2" MadCap:conditions="Content.Code">When you give the title of a standalone work (such as a book or a movie), mark it with a cite element.</li>
-            <li id="rule-3" MadCap:conditions="Content.Code">In situations where there are no semantically relevant HTML elements, use CSS or the few HTML elements that convey visual style without semantics.</li>
+            <li id="rule-1" MadCap:conditions="Content.Code,Content.WebMarkup">Use HTML elements for the purposes that they were designed for.</li>
+            <li id="rule-2" MadCap:conditions="Content.Code,Content.WebMarkup">When you give the title of a standalone work (such as a book or a movie), mark it with a cite element.</li>
+            <li id="rule-3" MadCap:conditions="Content.Code,Content.WebMarkup">In situations where there are no semantically relevant HTML elements, use CSS or the few HTML elements that convey visual style without semantics.</li>
         </ul>
         <h2>Visual formatting</h2>
         <ul>
-            <li id="rule-4" MadCap:conditions="Content.Code">If you want to achieve specific visual results, don&apos;t use HTML elements that convey different semantics.</li>
-            <li id="rule-5" MadCap:conditions="Content.Code">Don&apos;t use frames or tables for layout; instead, use your site&apos;s CSS to lay out the page.</li>
-            <li id="rule-6" MadCap:conditions="Content.Code">Don&apos;t use the heading elements (such as h1 and h2) to visually style text; use those elements only for hierarchically structured headings, and use CSS for visual style.</li>
-            <li id="rule-7" MadCap:conditions="Content.Code,Content.Emphasis">Don&apos;t use the em element to italicize something that isn&apos;t meant to be emphasized; instead, use the i element for non-emphasis italics.</li>
-            <li id="rule-8" MadCap:conditions="Content.Code,Content.Emphasis">To bold a word that doesn&apos;t merit strong importance, use the b element, not the strong element.</li>
-            <li id="rule-9" MadCap:conditions="Content.Code">Don&apos;t use the br element to adjust the spacing between lines; instead, use elements like p to semantically mark the text, and use CSS to adjust line spacing.</li>
+            <li id="rule-4" MadCap:conditions="Content.Code,Content.WebMarkup">If you want to achieve specific visual results, don&apos;t use HTML elements that convey different semantics.</li>
+            <li id="rule-5" MadCap:conditions="Content.Code,Content.WebMarkup">Don&apos;t use frames or tables for layout; instead, use your site&apos;s CSS to lay out the page.</li>
+            <li id="rule-6" MadCap:conditions="Content.Code,Content.WebMarkup">Don&apos;t use the heading elements (such as h1 and h2) to visually style text; use those elements only for hierarchically structured headings, and use CSS for visual style.</li>
+            <li id="rule-7" MadCap:conditions="Content.Code,Content.Emphasis,Content.WebMarkup">Don&apos;t use the em element to italicize something that isn&apos;t meant to be emphasized; instead, use the i element for non-emphasis italics.</li>
+            <li id="rule-8" MadCap:conditions="Content.Code,Content.Emphasis,Content.WebMarkup">To bold a word that doesn&apos;t merit strong importance, use the b element, not the strong element.</li>
+            <li id="rule-9" MadCap:conditions="Content.Code,Content.WebMarkup">Don&apos;t use the br element to adjust the spacing between lines; instead, use elements like p to semantically mark the text, and use CSS to adjust line spacing.</li>
+            <li id="rule-10" MadCap:conditions="Content.Code,Content.WebMarkup">Don&apos;t use consecutive br elements to adjust the spacing between lines; use p elements and CSS.</li>
         </ul>
-        <table>
-            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-10" MadCap:conditions="Content.Code"><td>&lt;br\s*/?&gt;\s*&lt;br\s*/?&gt;</td><td></td><td>suggestion</td><td>br is only for line breaks that are part of content.</td><td>First paragraph.&lt;br /&gt;&lt;br /&gt;Second paragraph.</td></tr>
-        </table>
     </body>
 </html>

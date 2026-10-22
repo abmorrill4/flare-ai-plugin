@@ -8,6 +8,8 @@
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/rewrite.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/check-project.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/assists.htm" />
+    <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/style-rules.htm" />
+    <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/requests.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/style-guide.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/team.htm" />
     <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/publish-guide.htm" />

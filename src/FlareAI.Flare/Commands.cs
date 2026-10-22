@@ -49,6 +49,11 @@ namespace FlareAI.Flare
             Id = "validate", Label = "Validate style guide", KeyTip = "V", Icon = "validate", Group = GroupGuide,
             Tooltip = "Test the style guide's rules against their examples."
         };
+        public static readonly CommandInfo StyleRules = new CommandInfo
+        {
+            Id = "rules", Label = "Style rules", KeyTip = "U", Icon = "rules", Group = GroupGuide,
+            Tooltip = "See every rule in the style guide, search and filter them, and turn rules off or back on."
+        };
         public static readonly CommandInfo TuneGuide = new CommandInfo
         {
             Id = "tune", Label = "Tune style guide", KeyTip = "T", Icon = "tune", Group = GroupGuide,
@@ -74,14 +79,19 @@ namespace FlareAI.Flare
             Id = "diag", Label = "Diagnostics", KeyTip = "D", Icon = "diag", Group = GroupSettings,
             Tooltip = "Show what House Style sees in the open topic, to copy into a support request."
         };
+        public static readonly CommandInfo WhatsNew = new CommandInfo
+        {
+            Id = "whatsnew", Label = "What's new", KeyTip = "W", Icon = "whatsnew", Group = GroupSettings,
+            Tooltip = "See what changed in this version of House Style."
+        };
 
         /// <summary>Ribbon order. Groups appear in the order of their first command.</summary>
         public static readonly IList<CommandInfo> All = new List<CommandInfo>
         {
             CheckStyle, Rewrite, Ask, CheckProject, TopicAssists,
-            ValidateGuide, TuneGuide, BuildGuide,
+            StyleRules, ValidateGuide, TuneGuide, BuildGuide,
             ExportLlm,
-            Settings, Diagnostics
+            Settings, Diagnostics, WhatsNew
         };
 
         /// <summary>The commands that need an open topic and a selection or paragraph, offered on right-click.</summary>
@@ -91,9 +101,9 @@ namespace FlareAI.Flare
         public static readonly IList<CommandInfo> Menu = new List<CommandInfo>
         {
             CheckStyle, Rewrite, Ask, CheckProject, TopicAssists, null,
-            ValidateGuide, TuneGuide, BuildGuide, null,
+            StyleRules, ValidateGuide, TuneGuide, BuildGuide, null,
             ExportLlm, null,
-            Settings, Diagnostics
+            Settings, Diagnostics, WhatsNew
         };
 
         /// <summary>The Tool Strip toolbar (the most used commands).</summary>

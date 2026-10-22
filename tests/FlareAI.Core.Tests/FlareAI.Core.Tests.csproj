@@ -15,10 +15,14 @@
 
   <ItemGroup>
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FlareAI.Core\FlareAI.Core.csproj" />
+    <ProjectReference Include="..\FlareAI.TestKit\FlareAI.TestKit.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +32,13 @@
   <ItemGroup>
     <!-- The command table has no Flare dependencies, so the tests can check it directly. -->
     <Compile Include="..\..\src\FlareAI.Flare\Commands.cs" Link="Commands.cs" />
+    <!-- The update unzipper (net48 only, so it lives in the plugin); no Flare dependencies. -->
+    <Compile Include="..\..\src\FlareAI.Flare\ZipExtractor.cs" Link="ZipExtractor.cs" />
+    <!-- The dialog layout (WinForms only, no Flare dependencies): status lines fit their text, hidden blocks leave no gap. -->
+    <Compile Include="..\..\src\FlareAI.Flare\UI\StackLayout.cs" Link="StackLayout.cs" />
+    <Compile Include="..\..\src\FlareAI.Flare\UI\A11y.cs" Link="A11y.cs" />
+    <!-- The review pane's row, button and label sizing (pure functions): readable at Flare's narrow default width. -->
+    <Compile Include="..\..\src\FlareAI.Flare\UI\PaneRows.cs" Link="PaneRows.cs" />
   </ItemGroup>
 
 </Project>

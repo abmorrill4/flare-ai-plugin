@@ -102,7 +102,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_prefer, "Preferred form", "Pick which form the guide should prefer where the team was split.");
             A11y.Name(detail, "Rule details"); A11y.Name(bar, "Dialog buttons");
             A11y.Apply(this);
-            if (_team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();
+            if (_team != null) _team.Recheck();
             _head.Text = "Proposes rules from what your team already writes and from your notes. Check the ones to keep, then add them to the guide." +
                          (Requesting ? "\n" + _team.AccessNotice : "");
             UpdateAdd();
@@ -162,7 +162,7 @@ namespace FlareAI.Flare.UI
                 if (e.Error != null) { Diagnostics.Log("Build guide: notes", e.Error); _head.Text = "Could not read the notes: " + e.Error.Message; return; }
                 var found = (List<RuleCandidate>)e.Result;
                 Add(found, "notes");
-                _head.Text = found.Count + " rule(s) found in your notes. Each shows the words it came from; check the ones to keep." +
+                _head.Text = Plural.Of(found.Count, "rule") + " found in your notes. Each shows the words it came from; check the ones to keep." +
                              (skipped > 0 ? " " + skipped + " more are already in the guide." : "");
             };
             worker.RunWorkerAsync();
@@ -258,14 +258,14 @@ namespace FlareAI.Flare.UI
         {
             _add.Enabled = _team != null && _team.GuideRoot != null && _list.CheckedItems.Count > 0;
             var n = _list.CheckedItems.Count > 0 ? _list.CheckedItems.Count + " " : "";
-            _add.Text = Requesting ? "Request adding " + n + "checked rule(s)…" : "Add " + n + "checked rule(s) to the guide";
+            _add.Text = Requesting ? "Request adding " + n + "checked " + (_list.CheckedItems.Count == 1 ? "rule" : "rules") + "…" : "Add " + n + "checked " + (_list.CheckedItems.Count == 1 ? "rule" : "rules") + " to the guide";
             _add.AccessibleName = _add.Text;
         }
 
         private void AddToGuide()
         {
             var accepted = _list.CheckedItems.Cast<ListViewItem>().Select(i => (RuleCandidate)i.Tag).ToList();
-            if (_team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();   // before any write: permissions may have changed
+            _team.Recheck();   // before any write: permissions or the owners list may have changed
             if (Requesting) { RequestAdding(accepted, null); return; }
             var root = _team.GuideRoot;
             var topic = Path.Combine(root, @"Content\Resources\StyleGuide\From-our-content.htm");

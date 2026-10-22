@@ -5,28 +5,30 @@
     </head>
     <body>
         <h1>Check a topic</h1>
-<p>Open a topic and select <b>House Style &gt; Check style</b>. With text selected, the plugin checks only the paragraphs that contain the selection. With nothing selected, it checks the whole topic.</p>
-<p>The review pane opens. Suggestions from the style rules and the structure rules appear at once. Suggestions from the AI follow, paragraph by paragraph, usually within 15 seconds.</p>
+<p>Open a topic and select <b>House Style &gt; Check style</b>. With text selected, House Style checks the paragraphs that contain it. With nothing selected, it checks the whole topic.</p>
+<p>The review pane opens. Suggestions from the style rules appear at once. AI suggestions follow, paragraph by paragraph. With <b>No AI</b> chosen in Settings, the pane says "AI review is off" and shows only the style rules.</p>
 <h2>Read a suggestion</h2>
-<p>The pane lists suggestions in reading order under the topic's headings. Select one to see its card:</p>
+<p>Suggestions are listed in reading order, under the topic's headings. Select one to see:</p>
 <ul>
-<li><b>What changes</b>: the words around the problem, with removed text struck through in red and added text in green.</li>
-<li><b>Why</b>: the reason, the rule it applies, and the rule's example when the guide has one.</li>
-<li><b>Source</b>: Google, Our rules, or AI, with the rule the AI applied.</li>
-<li><b>Impact</b>: for text in a snippet, how many files use that snippet.</li>
+<li><b>What changes</b>: the words around it, with removed words struck through and added words underlined.</li>
+<li><b>Why</b>: the reason, the rule, and the rule's example if it has one.</li>
+<li><b>Source</b>: Google, Our rules, This project, or AI.</li>
 </ul>
+<p>For text in a snippet, the pane also says how many files use the snippet.</p>
 <h2>Decide</h2>
 <table><thead><tr><th>Button</th><th>What happens</th></tr></thead><tbody>
-<tr><td>Apply, or Enter</td><td>Writes the suggestion into the topic as a tracked change and moves to the next one. For a suggestion that needs a rewrite, the button reads <b>Rewrite…</b>.</td></tr>
-<tr><td>Reject, or Delete</td><td>Hides the suggestion for that text and records why: wrong, fine here, or the rule doesn't apply.</td></tr>
-<tr><td>Edit…</td><td>Type the replacement yourself.</td></tr>
-<tr><td>Refine…</td><td>Tell the AI how to change this one suggestion, for example, keep the term SSO.</td></tr>
-<tr><td>Turn off this rule…</td><td>For style guide owners: turns the rule off, or changes its level, for the team or this project. For other writers the button reads <b>Suggest changing this rule…</b> and asks the owners to.</td></tr>
-<tr><td>Check this paragraph again</td><td>Checks the paragraph again after you edit it. Suggestions marked ⚠ refer to text that changed since the check.</td></tr>
-<tr><td>Apply all fixes</td><td>Applies every fix in the topic at once. A fix is an exact change that a rule defines; a reword is the AI's new wording. One Ctrl+Z undoes them.</td></tr>
-<tr><td>Write all as tracked changes</td><td>Writes every suggestion with exact text into the topic, for review with Flare's own <b>Review</b> tab or a review package.</td></tr>
+<tr><td><b>Apply</b> (Enter)</td><td>Writes the suggestion as a tracked change and goes to the next one. For a suggestion that needs a rewrite, the button says <b>Rewrite…</b>.</td></tr>
+<tr><td><b>Reject</b> (Delete)</td><td>Hides the suggestion for that text. Choose why: wrong, fine here, or the rule doesn't apply. Your reason helps tune the style guide.</td></tr>
+<tr><td><b>Edit…</b></td><td>Type the replacement yourself.</td></tr>
+<tr><td><b>Refine…</b></td><td>Tell the AI how to change this one suggestion, for example "keep the term SSO".</td></tr>
+<tr><td><b>Turn off rule…</b></td><td>Turns the rule off or changes its level, for the team or for this project. If you can't change your team's guide, the button says <b>Request a change…</b>. See <MadCap:xref href="requests.htm">Ask for a rule change</MadCap:xref>.</td></tr>
+<tr><td><b>Apply all fixes</b></td><td>Applies every exact fix in the topic. One Ctrl+Z undoes them.</td></tr>
+<tr><td><b>Write all as tracked changes</b></td><td>Writes every suggestion that has exact text, so you can review them in Flare's <b>Review</b> tab.</td></tr>
 </tbody></table>
-<p>Some suggestions say <b>Needs you</b>, such as a missing alt text: select <b>Go to</b>, fix the problem in the editor, and then select <b>Check this paragraph again</b>. For a missing alt text, <b>Suggest alt text…</b> asks the AI to look at the image and draft the text.</p>
-<p>The plugin saves reviews. When you reopen a topic, its suggestions appear at once. Select <b>Check again</b> for a fresh review.</p>
+<p>Some suggestions need you, such as a missing alt text. Select <b>Go to</b>, fix it in the editor, and then select <b>Check this paragraph again</b>. For a missing alt text, <b>Suggest alt text…</b> asks the AI to draft it.</p>
+<p>The AI doesn't change <i>must</i>, <i>should</i>, <i>may</i> or code terms on its own. A suggestion that would change them is left for you to decide.</p>
+<h2>Undo and check again</h2>
+<p>If you undo a fix with Ctrl+Z, or reject it in the <b>Review</b> tab, the suggestion comes back in the pane.</p>
+<p><b>Check again</b> runs the style rules again and asks the AI for a new review of each paragraph. House Style saves AI reviews, so when you open a topic again, a paragraph you haven't changed shows its saved AI suggestions, at no cost. When you apply a fix, <b>Check again</b> keeps the rest of that paragraph's AI suggestions instead of asking the AI again. After <b>Stop</b>, <b>Check again</b> reviews only the paragraphs that are left.</p>
     </body>
 </html>

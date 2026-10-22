@@ -37,6 +37,12 @@ namespace FlareAI.Flare.UI
         private readonly Button _accept, _goTo, _openFile, _reject, _edit, _refine, _reanalyze, _rule;
         private readonly ContextMenuStrip _rejectMenu;
         private readonly ToolTip _ignoreTip;
+        // project check: by rule / by file, the rule card's actions, and batches with progress
+        private readonly FlowLayoutPanel _viewBar, _actions, _ruleActions;
+        private readonly RadioButton _byRule, _byFile;
+        private readonly Button _backToRules, _showSkipped, _fixRule, _reviewRule, _turnOffRule, _skipRule, _batchStop;
+        private BatchRun _batch;
+        private string _lastRule;   // the rule row to come back to after Review one by one
 
         private static readonly string SettingsDir = FlareAI.Core.Settings.PluginSettings.SettingsDirectory;
         private static readonly Dismissals Dismissed = Dismissals.Load(System.IO.Path.Combine(SettingsDir, "dismissed.json"));
@@ -44,6 +50,24 @@ namespace FlareAI.Flare.UI
         private BackgroundWorker _worker;
         private bool _reviewing, _started;
         private string _lintNote;
+        private bool _aiOff;              // the writer chose no AI: no AI review, and cached AI suggestions stay hidden
+        private volatile bool _aiHidden;  // a cached AI review was hidden this check
+        private readonly LinkLabel _aiOffNote;
+        // Narrow pane (Flare docks it at ~150 logical px and ignores the width we ask for): rows wrap, buttons wrap,
+        // labels grow to their text; sizing rules in PaneRows.
+        private readonly LinkLabel _widthTip;
+        private static bool _widthTipShown;   // once per Flare session, in the first pane that is narrow
+        private bool _widthTipHere;
+        private readonly SplitContainer _split;
+        private readonly Panel _card;
+        private readonly List<Button> _buttons = new List<Button>();
+        private Font _metaFont;
+        private int _rowLines = -1;            // lines of text per row now (1 = two one-line columns)
+        private readonly Dictionary<string, List<string>> _wrapped = new Dictionary<string, List<string>>();
+        private int _wrappedWidth;
+
+        /// <summary>Opens House Style Settings (the AI-off note's link).</summary>
+        public Action OpenSettings { get; set; }
         private volatile string _requestNote;
         private List<StyleFinding> _lint;
 
@@ -67,12 +91,27 @@ namespace FlareAI.Flare.UI
 
         public bool IsProjectReport { get { return _files != null; } }
 
+        /// <summary>
+        /// Finds a file open in the editor without opening it (the host's): lets the pane notice a fix undone in another
+        /// file (Ctrl+Z there), on row selection and when that document changes.
+        /// </summary>
+        public Func<string, IDocumentAdapter> FindOpen { set { _session.OpenedDocument = value; } }
+
+        /// <summary>A document changed in the editor: applied fixes that were undone there are live again.</summary>
+        public void RecheckApplied()
+        {
+            if (_reviewing) return;
+            _session.RecheckApplied();
+        }
+
         /// <summary>Path of the topic this panel checks.</summary>
         public string TopicPath { get { return _doc.SourcePath; } }
 
         private readonly Func<string, IDocumentAdapter> _open;
         private readonly ReviewCache _cache;
         private bool _aiOnStart;
+        /// <summary>Check again (not after Stop): unchanged paragraphs get a new AI review instead of the saved one (#108).</summary>
+        private bool _fresh;
 
         /// <param name="open">Opens another file (a snippet) in Flare and returns its adapter, or null.</param>
         /// <param name="cache">Shared AI review cache (same content = same review, across topics, renames and sessions).</param>
@@ -95,34 +134,79 @@ namespace FlareAI.Flare.UI
             _wholeTopic = string.IsNullOrEmpty(doc.SelectionText);
             Title = "House Style — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
-            Padding = new Padding(6);
-            MinimumSize = new Size(260, 320);
+            Padding = new Padding(6);   // no minimum width: Flare docks the pane narrow, and a minimum only cuts the right side off
 
-            _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, Height = 36, Text = "Checking…" };
+            _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, Height = 36, Text = "Checking…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
-            _acceptAll = Btn(triage, "Apply all fixes", (s, e) => _session.FixAll());
+            _acceptAll = Btn(triage, "Apply all fixes", (s, e) => { if (_files != null) _session.FixAllAutomatic(); else _session.FixAll(); });
             _bulk = Btn(triage, "Write all as tracked changes", (s, e) => _session.WriteAll());
             _stop = Btn(triage, "Stop AI review", (s, e) => StopReview());
             _stop.Visible = false;
+            _batchStop = Btn(triage, "Stop after this file", (s, e) =>
+            {
+                if (_batch == null) return;
+                _batch.Cancel();
+                _batchStop.Enabled = false;
+                _status.Text = "Stopping after this file. Files already fixed keep their tracked changes.";
+            });
+            _batchStop.Visible = false;
+            _session.RunBatch = RunBatchInPane;
 
-            _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable };
+            // Project check: one row per rule (most frequent first) or the suggestions file by file. Remembered.
+            _viewBar = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Visible = files != null };
+            _viewBar.Controls.Add(new Label { Text = "View:", AutoSize = true, Margin = new Padding(0, 6, 4, 0) });
+            var byFile = files != null && FlareAI.Core.Settings.PluginSettings.Load().ProjectViewByFile;
+            _byRule = new RadioButton { Text = "By &rule", AutoSize = true, Checked = !byFile, Margin = new Padding(0, 3, 8, 0) };
+            _byFile = new RadioButton { Text = "By &file", AutoSize = true, Checked = byFile, Margin = new Padding(0, 3, 12, 0) };
+            _viewBar.Controls.Add(_byRule);
+            _viewBar.Controls.Add(_byFile);
+            _byRule.CheckedChanged += (s, e) => Safe.Run("View by rule", () => { if (_byRule.Checked) SwitchView(false); });
+            _byFile.CheckedChanged += (s, e) => Safe.Run("View by file", () => { if (_byFile.Checked) SwitchView(true); });
+            _backToRules = Btn(_viewBar, "All rules", (s, e) => _session.EndRuleReview());
+            _showSkipped = Btn(_viewBar, "Show skipped rules", (s, e) => _session.ShowSkippedRules());
+            _backToRules.Visible = _showSkipped.Visible = false;
+
+            // Owner-drawn so a row can wrap: the suggestion on up to 3 lines, then a smaller grey line (source or counts).
+            // Items, groups, selection, keys, menu and tooltips are the ListView's own; only the painting is ours.
+            _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable, OwnerDraw = true };
             _list.Columns.Add("Suggestion");
             _list.Columns.Add("Source");
             _list.Resize += (s, e) => FitColumns();
-            _list.SelectedIndexChanged += (s, e) => Safe.Run("Select finding", () => { _session.Current = Current(); ShowCard(); _session.OnSelected(Current()); });
+            _list.DrawColumnHeader += (s, e) => e.DrawDefault = true;
+            _list.DrawItem += (s, e) => Safe.Run("Draw row", () => DrawRow(e));
+            _list.DrawSubItem += (s, e) => { };   // the whole row is painted in DrawItem (hover repaints raise only DrawItem)
+            _list.ColumnWidthChanging += (s, e) => { if (_rowLines > 1 && e.ColumnIndex == 1) { e.Cancel = true; e.NewWidth = 0; } };
+            _list.FontChanged += (s, e) => { _rowLines = -1; FitColumns(); };
+            _list.GotFocus += (s, e) => _list.Invalidate();   // the selected row: highlighted when the list has focus, grey when not
+            _list.LostFocus += (s, e) => _list.Invalidate();
+            _list.SelectedIndexChanged += (s, e) => QueueSelectionChanged();
             _list.DoubleClick += (s, e) => Safe.Run("Apply", Accept);
             _list.KeyDown += (s, e) => Safe.Run("List key", () => OnListKey(s, e));
             _list.ContextMenuStrip = BuildRowMenu();
 
             // The card: what, why, impact, and the decision.
-            var card = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0) };
-            _cardHead = new Label { Dock = DockStyle.Top, AutoSize = false, Height = 34, Font = new Font(SystemFonts.MessageBoxFont, FontStyle.Bold) };
+            // Laid out by LayoutCard (not docking): heading, what changes, why, then the buttons, each measured at the card's
+            // width; when the pane is too short for all of it the card scrolls instead of stacking controls on each other.
+            var card = _card = new Panel { Dock = DockStyle.Fill };
+            // Vertical scrolling only: the parts are laid out to the card's width, so a horizontal bar is never needed (and
+            // left to AutoScroll the two bars can keep each other on screen).
+            card.HorizontalScroll.Maximum = 0;
+            card.HorizontalScroll.Enabled = false;
+            card.HorizontalScroll.Visible = false;
+            card.AutoScroll = true;
+            _cardHead = new Label { AutoSize = false, Height = 34, Font = new Font(SystemFonts.MessageBoxFont, FontStyle.Bold) };
             _cardDiff = DiffView.Create();
-            _cardDiff.Dock = DockStyle.Top; _cardDiff.Height = 64; _cardDiff.BackColor = SystemColors.Window;
+            _cardDiff.Height = 64; _cardDiff.BackColor = SystemColors.Window;
             _cardWhy = DiffView.Create();
-            _cardWhy.Dock = DockStyle.Fill; _cardWhy.BackColor = SystemColors.Control;
-            var actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
+            _cardWhy.BackColor = SystemColors.Control;
+            var actions = _actions = new FlowLayoutPanel { AutoSize = false, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
+            // A rule row's card: fix it everywhere, step through it, turn it off, or put it aside for now.
+            _ruleActions = new FlowLayoutPanel { AutoSize = false, WrapContents = true, Padding = new Padding(0, 4, 0, 0), Visible = false };
+            _fixRule = Btn(_ruleActions, "Fix all…", (s, e) => _session.FixRule(CurrentRule()));
+            _reviewRule = Btn(_ruleActions, "Review one by one", (s, e) => ReviewRule());
+            _turnOffRule = Btn(_ruleActions, "Turn off rule…", (s, e) => _session.TurnOffRule(CurrentRule()));
+            _skipRule = Btn(_ruleActions, "Skip", (s, e) => _session.SkipRule(CurrentRule()));
             _accept = Btn(actions, "Apply", (s, e) => Accept());
             _goTo = Btn(actions, "Go to", (s, e) => _session.GoToCurrent());
             _openFile = Btn(actions, "Open file", (s, e) => _session.OpenFileOfCurrent());
@@ -137,28 +221,29 @@ namespace FlareAI.Flare.UI
             _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Safe.Run("Reject", () => _session.Reject("rule doesn't apply")));
             _rejectMenu.Items.Add(new ToolStripSeparator());
             _rejectMenu.Items.Add("Skip for now", null, (s, e) => Safe.Run("Skip", _session.Skip));
-            card.Controls.Add(_cardWhy);
-            card.Controls.Add(_cardDiff);
+            card.Controls.Add(actions);   // in tab order: the decision first, then the text
+            card.Controls.Add(_ruleActions);
             card.Controls.Add(_cardHead);
-            card.Controls.Add(actions);
+            card.Controls.Add(_cardDiff);
+            card.Controls.Add(_cardWhy);
 
-            var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterWidth = 6, FixedPanel = FixedPanel.Panel2 };
+            var split = _split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterWidth = 6, FixedPanel = FixedPanel.Panel2 };
             split.Panel1.Controls.Add(_list);
             // What the last batch did (changed, skipped with the reason, failed) stays here until the next check.
             _result = new TextBox { Dock = DockStyle.Bottom, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Height = 90, Visible = false, BackColor = SystemColors.Window };
             split.Panel1.Controls.Add(_result);
             split.Panel2.Controls.Add(card);
-            // The pane is laid out small first and grows; keep the card at a readable height whenever it does.
-            const int CardHeight = 250;
-            split.SizeChanged += (s, e) =>
-            {
-                if (split.Height < CardHeight + 140 || split.Panel2.Height >= CardHeight) return;
-                try { split.SplitterDistance = split.Height - CardHeight - split.SplitterWidth; } catch (Exception) { }
-            };
+            // The pane is laid out small first and grows: the card gets the height it needs (or the writer's, once they drag
+            // the splitter) and the list what's left; the card is laid out again whenever its size or content changes.
+            split.SizeChanged += (s, e) => SizeCard();
+            split.SplitterMoving += (s, e) => _draggingSplitter = true;
+            split.SplitterMoved += (s, e) => { if (_draggingSplitter && !_settingSplitter) _cardByWriter = split.Panel2.Height; _draggingSplitter = false; };
+            card.ClientSizeChanged += (s, e) => LayoutCard();
+            card.VisibleChanged += (s, e) => LayoutCard();
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
-            _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; Start(); });
-            _ignore = Btn(bar, "Turn off this rule…", (s, e) => _session.TurnOffRule());
+            _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; _fresh = !_stopped; Start(); });   // after Stop: carry on, not start over
+            _ignore = Btn(bar, "Turn off this rule…", (s, e) => { var r = CurrentRule(); if (r != null) _session.TurnOffRule(r); else _session.TurnOffRule(); });
             Btn(bar, "Close", (s, e) => { var h = CloseRequested; if (h != null) h(this, EventArgs.Empty); });
 
             var tips = new ToolTip();
@@ -170,10 +255,19 @@ namespace FlareAI.Flare.UI
             tips.SetToolTip(_bulk, "Write every suggestion that has exact text (fixes and rewords) into the topic as tracked changes, then review them with Flare's own Accept and Reject (Review tab) or in a review package.");
             tips.SetToolTip(_acceptAll, "Apply every fix as a tracked change. In this topic only, one Ctrl+Z undoes it; if it reaches other files you see a preview first.");
             tips.SetToolTip(_stop, "Stop asking the AI. Results so far are kept; the rest of the paragraphs are not reviewed.");
+            if (files != null) tips.SetToolTip(_acceptAll, "Apply every exact fix in every file, except rules you skipped. You see the rules, files and counts first; nothing is written until you click Apply.");
+            tips.SetToolTip(_batchStop,"Stop before the next file. Files already fixed keep their tracked changes; the rest are not touched.");
+            tips.SetToolTip(_byRule, "One row per rule, most frequent first: fix a rule everywhere at once, or step through it (Alt+R).");
+            tips.SetToolTip(_byFile, "Every suggestion, file by file (Alt+F).");
+            tips.SetToolTip(_fixRule, "Apply this rule's exact fixes in every file as tracked changes. You see the files and counts first; nothing is written until you click Apply.");
+            tips.SetToolTip(_reviewRule, "Step through this rule's suggestions only, with Apply and Go to (Enter).");
+            tips.SetToolTip(_skipRule, "Hide this rule until the next check. Nothing is recorded (Delete).");
             _ignoreTip = tips;
 
             // The last notice (a toast vanishes by itself) stays reachable here, with its action as a focusable link.
             _notice = new NoticeLink { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, AccessibleRole = AccessibleRole.Link };
+            _notice.TextChanged += (s, e) => FitLabel(_notice, 0);
+            _notice.VisibleChanged += (s, e) => FitLabel(_notice, 0);
             _notice.LinkClicked += (s, e) => { var n = Toast.Last; if (n != null && n.Action != null) n.Action(); };
             Toast.LastChanged += OnNoticeChanged;
             HandleDestroyed += (s, e) => Toast.LastChanged -= OnNoticeChanged;
@@ -183,10 +277,25 @@ namespace FlareAI.Flare.UI
             Controls.Add(bar);
             _cost = new Label { Dock = DockStyle.Bottom, AutoSize = false, Height = 18, ForeColor = SystemColors.GrayText, Text = AiCost.Session() };
             Controls.Add(_cost);
+            Controls.Add(_viewBar);
             Controls.Add(triage);
             Controls.Add(_progress);
             Controls.Add(_notice);
+            _aiOffNote = new LinkLabel { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, Text = ReviewCache.AiOffNote + "  Settings", AccessibleRole = AccessibleRole.Link };
+            _aiOffNote.LinkArea = new LinkArea(ReviewCache.AiOffNote.Length + 2, "Settings".Length);
+            _aiOffNote.LinkClicked += (s, e) => Safe.Run("Settings", () => { var settings = OpenSettings; if (settings != null) settings(); });
+            Controls.Add(_aiOffNote);
             Controls.Add(_status);
+            _widthTip = new LinkLabel { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, Text = WidthTipText + "  Got it", AccessibleRole = AccessibleRole.Link,
+                                        AccessibleName = WidthTipText, AccessibleDescription = "Got it hides this tip for good.", Padding = new Padding(0, 0, 0, 4) };
+            _widthTip.LinkArea = new LinkArea(WidthTipText.Length + 2, "Got it".Length);
+            _widthTip.LinkClicked += (s, e) => Safe.Run("Hide tip", HideWidthTip);
+            Controls.Add(_widthTip);   // added last: the topmost line
+            _status.TextChanged += (s, e) => { FitLabel(_status, 2); _ignoreTip.SetToolTip(_status, _status.Text); };
+            _aiOffNote.VisibleChanged += (s, e) => FitLabel(_aiOffNote, 0);
+            _cost.TextChanged += (s, e) => FitLabel(_cost, 0);
+            SizeChanged += (s, e) => FitToWidth();
+            HandleCreated += (s, e) => FitToWidth();
             NameControls();
             HandleDestroyed += (s, e) => { if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); };
             ShowCard();
@@ -223,10 +332,18 @@ namespace FlareAI.Flare.UI
             A11y.Name(_recheck, "Check again");
             A11y.Name(_ignore, "Turn off this rule", "Turns the selected rule off or changes its level, or asks the style guide owner to. Opens a dialog.");
             // Tab order: notice, triage buttons, list, decision buttons, card text, bottom bar.
-            var top = new Control[] { _status, _notice, _acceptAll.Parent, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
+            var top = new Control[] { _widthTip, _status, _notice, _acceptAll.Parent, _viewBar, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
             for (var i = 0; i < top.Length; i++) top[i].TabIndex = i;
             A11y.Name(_acceptAll.Parent, "Bulk actions"); A11y.Name(_recheck.Parent, "Panel actions"); A11y.Name(_accept.Parent, "Decision for the selected suggestion");
-            var order = new Control[] { _notice, _acceptAll, _bulk, _stop, _list, _result, _accept, _reject, _edit, _refine, _reanalyze, _rule, _cardDiff, _cardWhy, _recheck, _ignore };
+            A11y.Name(_viewBar, "View", "List the project's suggestions by rule or by file.");
+            A11y.Name(_ruleActions, "Actions for the selected rule");
+            A11y.Name(_fixRule, "Fix all", "Applies this rule's exact fixes in every file as tracked changes, after a preview of the files and counts. Opens a dialog.");
+            A11y.Name(_reviewRule, "Review one by one", "Lists only this rule's suggestions and steps through them.");
+            A11y.Name(_skipRule, "Skip", "Hides this rule until the next check.");
+            A11y.Name(_backToRules, "All rules", "Ends Review one by one and lists every rule again (Escape).");
+            A11y.Name(_batchStop, "Stop after this file");
+            var order = new Control[] { _widthTip, _notice, _acceptAll, _bulk, _stop, _batchStop, _byRule, _byFile, _backToRules, _showSkipped, _list, _result,
+                                        _accept, _reject, _edit, _refine, _reanalyze, _rule, _fixRule, _reviewRule, _turnOffRule, _skipRule, _cardDiff, _cardWhy, _recheck, _ignore };
             for (var i = 0; i < order.Length; i++) order[i].TabIndex = i;
             A11y.Apply(this);
         }
@@ -240,19 +357,286 @@ namespace FlareAI.Flare.UI
             else HandleCreated += (s, e) => BeginInvoke((Action)Start);
         }
 
-        private static Button Btn(FlowLayoutPanel bar, string text, EventHandler click)
+        /// <summary>A button sized to its text, or to the pane's width with its text wrapped when the pane is narrower (<see cref="FitButton"/>).</summary>
+        private Button Btn(FlowLayoutPanel bar, string text, EventHandler click)
         {
-            var b = new Button { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Height = 26, Margin = new Padding(0, 0, 4, 4) };
+            var b = new Button { Text = text, AutoSize = false, Margin = new Padding(0, 0, 4, 4) };
             b.Click += (s, e) => Safe.Run(text, () => click(s, e));
+            b.TextChanged += (s, e) => FitButton(b);
+            b.FontChanged += (s, e) => FitButton(b);
             bar.Controls.Add(b);
+            _buttons.Add(b);
+            FitButton(b);
             return b;
         }
 
+        // ---- narrow pane -------------------------------------------------------------------------
+
+        private const string WidthTipText = "Tip: drag this pane's edge to make it wider.";
+
+        /// <summary>This pane's DPI scale (1 at 100%, 1.25 at 125%).</summary>
+        private float Dpi { get { return DeviceDpi / 96f; } }
+
+        private int S(int px) { return PaneRows.S(px, Dpi); }
+
+        /// <summary>The pane changed width: buttons, labels and the card head follow, and the tip shows or hides.</summary>
+        private void FitToWidth()
+        {
+            if (Width <= 0) return;
+            foreach (var b in _buttons) FitButton(b);
+            FitLabel(_status, 2); FitLabel(_notice, 0); FitLabel(_aiOffNote, 0); FitLabel(_cost, 0);
+            UpdateWidthTip();
+            LayoutCard();
+        }
+
+        /// <summary>One line when it fits, else the full width with the text wrapped: a button never runs past the pane's edge.</summary>
+        private void FitButton(Button b)
+        {
+            var bar = b.Parent;
+            var outer = _card != null && bar != null && bar.Parent == _card && _cardWidth > 0 ? _cardWidth : ClientSize.Width - Padding.Horizontal;
+            var width = outer - (bar != null ? bar.Padding.Horizontal : 0);
+            var available = width - b.Margin.Horizontal;
+            const TextFormatFlags Flags = TextFormatFlags.NoPrefix;
+            var text = (b.Text ?? "").Replace("&&", "\u0001").Replace("&", "").Replace("\u0001", "&");
+            var one = TextRenderer.MeasureText(text, b.Font, Size.Empty, Flags);
+            var wrapped = TextRenderer.MeasureText(text, b.Font, new Size(PaneRows.ButtonTextWidth(available, Dpi), 0), Flags | TextFormatFlags.WordBreak).Height;
+            var size = PaneRows.ButtonSize(one, wrapped, available, Dpi);
+            if (b.Size != size) b.Size = size;
+        }
+
+        /// <summary>A label as tall as its wrapped text (the status line: at least <paramref name="minLines"/> lines, at most 40% of the pane).</summary>
+        private void FitLabel(Control label, int minLines)
+        {
+            if (label == null || (!label.Visible && label != _status)) return;
+            var w = label.Width - label.Padding.Horizontal - S(4);
+            if (w <= 0) return;
+            var text = string.IsNullOrEmpty(label.Text) ? " " : label.Text;
+            var measured = TextRenderer.MeasureText(text, label.Font, new Size(w, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height;
+            // A very long status ends with … (full text in its tooltip and for screen readers) so the list keeps its room.
+            var max = label == _status && Height > 0 ? Math.Min(Height / 5, label.Font.Height * 4) : 0;
+            var h = PaneRows.LabelHeight(measured, label.Font.Height, minLines, max, Dpi) + label.Padding.Vertical;
+            if (label.Height != h) label.Height = h;
+        }
+
+        /// <summary>Shows the "make it wider" tip the first time a narrow pane appears in this Flare session, until Got it.</summary>
+        private void UpdateWidthTip()
+        {
+            if (_widthTip == null) return;
+            var narrow = PaneRows.ShowWidthTip(Width, Dpi);
+            if (!_widthTipHere && narrow && !_widthTipShown && IsHandleCreated && Parent != null)
+            {
+                bool dismissed;
+                try { dismissed = FlareAI.Core.Settings.PluginSettings.Load().PaneWidthTipDismissed; }
+                catch (Exception ex) { Diagnostics.Log("width tip", ex); dismissed = true; }
+                _widthTipShown = true;
+                _widthTipHere = !dismissed;
+            }
+            var show = _widthTipHere && narrow;
+            if (_widthTip.Visible != show) _widthTip.Visible = show;
+            if (show) FitLabel(_widthTip, 0);
+        }
+
+        private void HideWidthTip()
+        {
+            _widthTipHere = false;
+            _widthTip.Visible = false;
+            try
+            {
+                var settings = FlareAI.Core.Settings.PluginSettings.Load();
+                if (!settings.PaneWidthTipDismissed) { settings.PaneWidthTipDismissed = true; settings.Save(); }
+            }
+            catch (Exception ex) { Diagnostics.Log("width tip: save", ex); }
+            _list.Focus();
+        }
+
+        private bool _layingOutCard, _settingSplitter, _draggingSplitter;
+        private int _cardWanted;      // the height the card needs to show everything without scrolling
+        private int _cardByWriter;    // the card height the writer chose by dragging the splitter (0 = not yet)
+
+        private const int DiffHeight = 64;   // logical px: the "what changes" box at full size
+
+        /// <summary>The buttons the card shows now: a suggestion's decision, a rule row's actions, or none.</summary>
+        private FlowLayoutPanel CardButtons()
+        {
+            if (!RuleRows) return _actions;
+            return CurrentRule() != null ? _ruleActions : null;
+        }
+
+        /// <summary>
+        /// Places the card's parts top to bottom at the card's width: the heading (wrapped), what changes (at least two
+        /// lines), the buttons (wrapped) and why (the rest, at least three lines). Nothing overlaps; a card too short for
+        /// all of it scrolls. Then asks the splitter for the height the card needs.
+        /// </summary>
+        private void LayoutCard()
+        {
+            if (_card == null || _actions == null || _ruleActions == null || _cardWhy == null || _layingOutCard) return;
+            // Sized from the card's outer width, not its client width: whether the scroll bar shows depends on the height, and
+            // the height the card asks for must not depend on the scroll bar (or the two would chase each other).
+            var full = _card.Width;
+            if (full <= 0) return;
+            var total = 0;
+            _layingOutCard = true;
+            try
+            {
+                var flow = CardButtons();
+                var diffMin = 2 * _cardDiff.Font.Height + S(8);
+                var diffFull = Math.Max(diffMin, S(DiffHeight));
+                var whyMin = 3 * _cardWhy.Font.Height + S(6);
+                var top = S(6); var gap = S(4);
+                int head, buttons;
+                MeasureCard(flow, full, out head, out buttons);
+                var whyText = TextRenderer.MeasureText(string.IsNullOrEmpty(_cardWhy.Text) ? " " : _cardWhy.Text, _cardWhy.Font, new Size(Math.Max(20, full - S(10)), 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height + S(8);
+                _cardWanted = top + head + diffFull + PaneRows.Clamp(whyText, whyMin, S(160)) + buttons + 3 * gap;
+                var w = full;
+                var parts = PaneRows.CardLayout(_card.Height, top, head, buttons, diffMin, diffFull, whyMin, gap);
+                if (parts[2] > _card.Height)   // it will scroll: lay out beside the scroll bar
+                {
+                    w = Math.Max(20, full - SystemInformation.VerticalScrollBarWidth);
+                    MeasureCard(flow, w, out head, out buttons);
+                    parts = PaneRows.CardLayout(_card.Height, top, head, buttons, diffMin, diffFull, whyMin, gap);
+                }
+                int diff = parts[0], why = parts[1];
+                var y = top + _card.AutoScrollPosition.Y;   // ≤ 0 when the card is scrolled
+                // The decision comes right after what changes: in a short pane the why text is what scrolls, not the buttons.
+                _cardHead.SetBounds(0, y, w, head); y += head + gap;
+                _cardDiff.SetBounds(0, y, w, diff); y += diff + gap;
+                if (flow != null) { flow.SetBounds(0, y, w, buttons); y += buttons + gap; }
+                _cardWhy.SetBounds(0, y, w, why);
+                total = parts[2];
+            }
+            finally { _layingOutCard = false; }
+            // Tell the card how tall its content is: it shows the scroll bar exactly when that is more than it has.
+            if (total > 0 && _card.AutoScrollMinSize.Height != total) _card.AutoScrollMinSize = new Size(0, total);
+            if (total > 0 && (total > _card.Height) != _card.VerticalScroll.Visible) _card.PerformLayout();
+            // Not now: this often runs inside the card's own resize, where a new splitter position doesn't resize the card.
+            if (!_sizeCardPosted && IsHandleCreated && !IsDisposed)
+            {
+                _sizeCardPosted = true;
+                BeginInvoke((Action)(() => { _sizeCardPosted = false; if (!IsDisposed) SizeCard(); }));
+            }
+        }
+
+        private bool _sizeCardPosted;
+        private int _cardWidth;   // the width the card's buttons were last fitted to
+
+        /// <summary>Fits the card's buttons to <paramref name="w"/> and measures the heading and the button rows at that width.</summary>
+        private void MeasureCard(FlowLayoutPanel flow, int w, out int head, out int buttons)
+        {
+            _cardWidth = w;
+            if (flow != null) foreach (Control c in flow.Controls) { var b = c as Button; if (b != null) FitButton(b); }
+            var headText = string.IsNullOrEmpty(_cardHead.Text) ? " " : _cardHead.Text;
+            head = TextRenderer.MeasureText(headText, _cardHead.Font, new Size(Math.Max(20, w - S(4)), 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height + S(6);
+            buttons = flow == null ? 0 : flow.GetPreferredSize(new Size(w, 0)).Height;
+        }
+
+        /// <summary>The card gets the height it needs (or the writer's, once they dragged the splitter); the list gets what's left, at least a row.</summary>
+        private void SizeCard()
+        {
+            if (_split == null || _split.Height <= 0 || _cardWanted <= 0 || _settingSplitter) return;
+            // Moving the splitter re-lays the card out, which can change what it needs (a new width wraps the buttons
+            // differently): go again until it settles.
+            for (var pass = 0; pass < 3; pass++)
+            {
+                var wanted = _cardWanted;
+                var row = _list.SmallImageList != null ? _list.SmallImageList.ImageSize.Height : _list.Font.Height + S(6);
+                var listMin = _list.Font.Height + S(10) + row + S(4);   // the header and one row
+                var target = PaneRows.CardHeight(wanted, _cardByWriter, _split.Height, _split.SplitterWidth, listMin);
+                var distance = _split.Height - target - _split.SplitterWidth;
+                if (distance < _split.Panel1MinSize || Math.Abs(_split.SplitterDistance - distance) <= 1) return;
+                _settingSplitter = true;
+                try { _split.SplitterDistance = distance; _split.Panel2.PerformLayout(); }
+                catch (Exception) { return; }
+                finally { _settingSplitter = false; }
+                if (_cardWanted == wanted) return;
+            }
+        }
+
+        /// <summary>
+        /// One column of wrapped rows when the list is narrow, two one-line columns when it is wide; the row height follows
+        /// (a ListView's rows take their height from its small image list).
+        /// </summary>
         private void FitColumns()
         {
-            var w = Math.Max(150, _list.ClientSize.Width - 4);
-            _list.Columns[0].Width = w * 62 / 100;
-            _list.Columns[1].Width = w - _list.Columns[0].Width;
+            var lines = PaneRows.TextLines(_list.Width, Dpi);
+            if (lines != _rowLines)
+            {
+                _rowLines = lines;
+                if (_metaFont != null) _metaFont.Dispose();
+                _metaFont = new Font(_list.Font.FontFamily, Math.Max(6f, _list.Font.SizeInPoints - 1f), FontStyle.Regular, GraphicsUnit.Point);
+                var h = PaneRows.RowHeight(lines, lines == 1, _list.Font.Height, _metaFont.Height, Dpi);
+                var old = _list.SmallImageList;
+                _list.SmallImageList = new ImageList { ImageSize = new Size(1, Math.Min(256, h)) };
+                if (old != null) old.Dispose();
+            }
+            var w = Math.Max(S(40), _list.ClientSize.Width - 4);
+            if (lines == 1)
+            {
+                _list.Columns[0].Width = w * 62 / 100;
+                _list.Columns[1].Width = w - _list.Columns[0].Width;
+            }
+            else
+            {
+                _list.Columns[0].Width = w;
+                _list.Columns[1].Width = 0;
+            }
+            _list.Invalidate();
+        }
+
+        private const TextFormatFlags OneLine = TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine;
+
+        /// <summary>
+        /// Paints a row: the severity glyph and suggestion (wrapped, or one line when wide), then the source or counts in small
+        /// grey type. Colour and strike-through come from the item (Restyle), so an applied fix still reads as struck through.
+        /// </summary>
+        private void DrawRow(DrawListViewItemEventArgs e)
+        {
+            var item = e.Item;
+            var g = e.Graphics;
+            var b = e.Bounds;
+            var focused = _list.Focused;
+            var selected = item.Selected;
+            var back = !selected ? _list.BackColor : focused ? SystemColors.Highlight : SystemColors.ButtonFace;
+            var fore = !_list.Enabled ? SystemColors.GrayText : selected && focused ? SystemColors.HighlightText : item.ForeColor;
+            var grey = selected && focused ? SystemColors.HighlightText : SystemColors.GrayText;
+            using (var brush = new SolidBrush(back)) g.FillRectangle(brush, b);
+            var meta = item.SubItems.Count > 1 ? item.SubItems[1].Text : "";
+            var font = item.Font ?? _list.Font;
+            var pad = S(4);
+            if (_rowLines <= 1 || _metaFont == null)
+            {
+                var c0 = _list.Columns[0].Width;
+                var first = new Rectangle(b.X + pad, b.Y, Math.Max(1, c0 - 2 * pad), b.Height);
+                var second = new Rectangle(b.X + c0 + pad, b.Y, Math.Max(1, b.Width - c0 - 2 * pad), b.Height);
+                TextRenderer.DrawText(g, item.Text, font, first, fore, OneLine | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                TextRenderer.DrawText(g, meta, _list.Font, second, grey, OneLine | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            }
+            else
+            {
+                var width = Math.Max(1, b.Width - 2 * pad);
+                var y = b.Y + S(3);
+                foreach (var line in Wrapped(item.Text, font, width, _rowLines))
+                {
+                    TextRenderer.DrawText(g, line, font, new Point(b.X + pad, y), fore, OneLine);
+                    y += font.Height;
+                }
+                y += S(1);   // the meta line follows the text, however many lines it used
+                var metaFont = _metaFont;
+                var metaText = PaneRows.Ellipsize(meta, s => TextRenderer.MeasureText(g, s, metaFont, Size.Empty, OneLine).Width, width);
+                TextRenderer.DrawText(g, metaText, metaFont, new Point(b.X + pad, y), grey, OneLine);
+            }
+            if ((e.State & ListViewItemStates.Focused) != 0 && focused) ControlPaint.DrawFocusRectangle(g, b, fore, back);
+        }
+
+        /// <summary>A row's text wrapped at this width, remembered until the width changes (painting a row must stay cheap).</summary>
+        private List<string> Wrapped(string text, Font font, int width, int lines)
+        {
+            if (width != _wrappedWidth || _wrapped.Count > 4000) { _wrapped.Clear(); _wrappedWidth = width; }
+            var key = lines + "|" + (int)font.Style + "|" + text;
+            List<string> result;
+            if (_wrapped.TryGetValue(key, out result)) return result;
+            result = PaneRows.Wrap(text, s => TextRenderer.MeasureText(s, font, Size.Empty, OneLine).Width, width, lines);
+            _wrapped[key] = result;
+            return result;
         }
 
         /// <summary>Right-click on a row: Go to, Open file (the whole topic or snippet, nothing selected), Copy file path.</summary>
@@ -272,8 +656,9 @@ namespace FlareAI.Flare.UI
             {
                 var p = _list.PointToClient(Cursor.Position);
                 var hit = _list.GetItemAt(p.X, p.Y);
-                if (hit != null) hit.Selected = true;
+                if (hit != null && !hit.Selected) hit.Selected = true;
                 var f = Current();
+                _session.Current = f;   // the menu's commands act on the session's current row; the selection handler runs later
                 if (f == null) { e.Cancel = true; return; }
                 goTo.Enabled = !f.IsFixed;
                 open.Enabled = _session.FilePathOf(f) != null;
@@ -283,6 +668,13 @@ namespace FlareAI.Flare.UI
 
         private void OnListKey(object sender, KeyEventArgs e)
         {
+            if (RuleRows)
+            {
+                if (e.KeyCode == Keys.Enter && CurrentRule() != null) { ReviewRule(); e.Handled = true; e.SuppressKeyPress = true; }
+                else if (e.KeyCode == Keys.Delete && CurrentRule() != null) { _session.SkipRule(CurrentRule()); e.Handled = true; }
+                return;
+            }
+            if ((e.KeyCode == Keys.Escape || e.KeyCode == Keys.Back) && _session.FocusRule != null) { _session.EndRuleReview(); e.Handled = true; e.SuppressKeyPress = true; return; }
             if (e.KeyCode == Keys.Enter && e.Shift) { _session.OpenFileOfCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
             else if (e.KeyCode == Keys.Enter && e.Control) { _session.GoToCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
             else if (e.KeyCode == Keys.Enter) { Accept(); e.Handled = true; }
@@ -295,6 +687,7 @@ namespace FlareAI.Flare.UI
         {
             if (_worker != null && _worker.IsBusy) return;
             _session.Clear(); _list.Items.Clear(); _list.Groups.Clear(); _lintNote = null;
+            _aiOff = FlareAI.Core.Settings.PluginSettings.Load().AiOff; _aiHidden = false; _aiOffNote.Visible = false;
             _reviewing = true; _progress.Visible = true; _progress.Style = ProgressBarStyle.Marquee; _status.Text = "Checking style rules (free, no AI)…";
             _result.Visible = false; _stop.Visible = false; _stop.Enabled = true; _stopped = false; _unitCount = 0; _doneUnits = 0;
             ShowCard();
@@ -302,6 +695,7 @@ namespace FlareAI.Flare.UI
             _worker = new BackgroundWorker { WorkerReportsProgress = true, WorkerSupportsCancellation = true };
             if (_files != null) { StartProject(); return; }
             var cachedAny = false;
+            var fresh = _fresh && !_aiOff; _fresh = false;
             _worker.DoWork += (s, e) =>
             {
                 _requestNote = _session.CheckRequests();   // outcomes of the writer's requests to the owners
@@ -324,12 +718,14 @@ namespace FlareAI.Flare.UI
                 ActionRunner.WarmThenParallel(units.Count, _runner.Parallelism, i =>
                 {
                     if (_worker.CancellationPending) return;
-                    var raw = _cache == null ? null : _cache.Get(units[i].Prompt);
+                    var hidden = false;
+                    var raw = _cache == null ? null : _cache.Shown(units[i], _aiOff, fresh, out hidden);   // exact hit (not on Check again), or re-anchored after applied fixes
+                    if (hidden) _aiHidden = true;
                     if (raw != null) cachedAny = true;
-                    else if (_aiOnStart)
+                    else if (_aiOnStart && !_aiOff)
                     {
                         raw = _runner.CallReview(units[i]);
-                        if (_cache != null) _cache.Put(units[i].Prompt, raw);
+                        if (_cache != null) _cache.Put(units[i], raw);
                     }
                     var n = System.Threading.Interlocked.Increment(ref done);
                     if (raw != null) _worker.ReportProgress(n, new object[] { raw, units[i], n, units.Count });
@@ -345,7 +741,7 @@ namespace FlareAI.Flare.UI
                 int doneUnits = (int)p[2], total = (int)p[3];
                 _session.Add(unit == null ? found : _runner.AnchorReview(found, unit, _lint)); // DOM work on the UI thread
                 _unitCount = total; _doneUnits = doneUnits;
-                if (_aiOnStart && doneUnits < total && !_stopped)
+                if (_aiOnStart && !_aiOff && doneUnits < total && !_stopped)
                 {
                     // Style-rule results are already in the list, and they cost nothing; only this phase spends.
                     _status.Text = Summary() + "  Style rules are free. Reviewing wording with AI: " + doneUnits + " of " + total + " paragraphs (you can work on these now).";
@@ -368,12 +764,19 @@ namespace FlareAI.Flare.UI
                 if (e.Error != null)
                 {
                     Diagnostics.Log("Check style", e.Error);
-                    _status.Text = Summary() + "  AI review failed: " + e.Error.Message;
+                    _status.Text = Summary() + "  " + (e.Error.Message == FlareAI.Core.Llm.LlmClientFactory.AiOffMessage
+                        ? "AI review is off. Turn it on in House Style > Settings."   // the writer chose No AI: not a failure
+                        : "AI review failed: " + e.Error.Message);
                 }
+                else if (_aiOff)
+                    _status.Text = Open().Count == 0 ? Summary() : Summary() + "  These come from style rules only (free, no AI used).";
                 else if (!_aiOnStart && !cachedAny)
                     _status.Text = Summary() + "  These come from style rules only (free, no AI used). Check again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
-                else _status.Text = Open().Count == 0 ? "No open suggestions." : Summary();
+                else _status.Text = Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
+                _aiOffNote.Visible = _aiOff && _aiHidden;
+                var guide = _runner.GuideNotice;
+                if (guide != null) _status.Text += "  " + guide;
                 ShowRequestNote();
                 var team = Team.Current;
                 if (team != null && team.Status != null && team.Status.Behind > 0) _status.Text += "  " + team.Status;
@@ -416,10 +819,11 @@ namespace FlareAI.Flare.UI
                 {
                     var found = (List<StyleFinding>)e.Result;
                     _session.Add(found);
-                    var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var f in found) files.Add(f.DocumentPath);
-                    _status.Text = Plural.Of(found.Count, "issue") + " in " + files.Count + " of " + Plural.Of(_files.Count, "file") + " (style rules only, no AI). Apply opens the file.";
+                    _status.Text = Summary() + "  Checked " + Plural.Of(_files.Count, "file") + " with style rules only (free, no AI).";
+                    var guide = _runner.GuideNotice;
+                    if (guide != null) _status.Text += "  " + guide;
                     ShowRequestNote();
+                    if (RuleRows && _list.Items.Count > 0) { _list.Items[0].Selected = true; _list.Items[0].Focused = true; }
                 }
                 UpdateButtons();
             };
@@ -429,22 +833,190 @@ namespace FlareAI.Flare.UI
         /// <summary>Redraws the list in the session's order (it changed), keeping the selection.</summary>
         private void Rebuild()
         {
-            var keep = Current();
-            _list.BeginUpdate();
-            _list.Items.Clear(); _list.Groups.Clear();
-            foreach (var f in _session.Findings)
+            if (_files != null)
             {
-                var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
-                item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + f.Rule + "\n" + f.Suggestion;
-                Restyle(item);
-                _list.Items.Add(item);
-                if (f == keep) item.Selected = true;
+                var reviewing = _session.FocusRule != null;
+                _backToRules.Visible = reviewing;
+                _showSkipped.Visible = _session.SkippedRuleCount > 0 && !reviewing;
+                _showSkipped.Text = "Show skipped rules (" + _session.SkippedRuleCount + ")";
+                _list.Columns[0].Text = RuleRows ? "Rule" : "Suggestion";
+                _list.Columns[1].Text = RuleRows ? "How many" : "Source";
+                if (RuleRows) { RebuildRules(); return; }
             }
-            _list.EndUpdate();
+            _actions.Visible = true; _ruleActions.Visible = false;
+            var keep = Current();
+            var focus = _session.FocusRule;
+            _list.BeginUpdate();
+            try
+            {
+                _list.Items.Clear(); _list.Groups.Clear();
+                foreach (var f in new List<StyleFinding>(_session.Findings))   // a snapshot: the session's list is never read while it changes
+                {
+                    if (focus != null && RuleBacklog.KeyOf(f) != focus) continue;
+                    var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
+                    item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + ReadableRule(f) + "\n" + f.Suggestion;
+                    Restyle(item);
+                    _list.Items.Add(item);
+                    if (f == keep) item.Selected = true;
+                }
+            }
+            finally { _list.EndUpdate(); }   // never leave the list frozen (it would look empty)
             _session.Current = Current();
-            UpdateButtons();
+            ShowCard();   // the selection handler is deferred (QueueSelectionChanged): show the kept row's card now
             var changed = Changed;
             if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
+        }
+
+        // ---- project check: by rule ----------------------------------------------------------------
+
+        /// <summary>The list shows one row per rule (a project check, By rule, not reviewing one rule).</summary>
+        private bool RuleRows { get { return _files != null && _byRule.Checked && _session.FocusRule == null; } }
+
+        /// <summary>The selected rule row, or null.</summary>
+        private BacklogRule CurrentRule()
+        {
+            return _list.SelectedItems.Count == 1 ? _list.SelectedItems[0].Tag as BacklogRule : null;
+        }
+
+        /// <summary>One row per rule, most frequent first, keeping the selected rule (or the one just reviewed) selected.</summary>
+        private void RebuildRules()
+        {
+            var cur = CurrentRule();
+            var keep = cur != null ? cur.Key : _lastRule;
+            _list.BeginUpdate();
+            try
+            {
+                _list.Items.Clear(); _list.Groups.Clear();
+                ListViewItem selected = null;
+                foreach (var r in _session.Backlog())
+                {
+                    var counts = r.Counts() + (r.Snippets.Count > 0 ? " · in " + Plural.Of(r.Snippets.Count, "snippet") : "");
+                    var item = new ListViewItem(new[] { A11y.SeverityGlyph(r.Severity) + " " + Shorten(r.Reason, 160), counts }) { Tag = r };
+                    item.ToolTipText = r.Title + "\n" + r.Reason + "\n" + counts;
+                    item.ForeColor = r.Severity == "error" ? Color.Firebrick : SystemColors.WindowText;
+                    _list.Items.Add(item);
+                    if (r.Key == keep) selected = item;
+                }
+                if (selected == null && _list.Items.Count > 0 && keep != null) selected = _list.Items[0];   // the rule is done: on to the next biggest
+                if (selected != null) { selected.Selected = true; selected.Focused = true; selected.EnsureVisible(); }
+            }
+            finally { _list.EndUpdate(); }
+            _lastRule = null;
+            _list.AccessibleDescription = "Rules, most frequent first, with how many suggestions and files each has. Enter reviews the selected rule one by one; Delete skips it.";
+            _session.Current = null;
+            ShowCard();
+            var changed = Changed;
+            if (changed != null) try { changed(this); } catch (Exception ex) { Diagnostics.Log("markers", ex); }
+        }
+
+        private void SwitchView(bool byFile)
+        {
+            try
+            {
+                var settings = FlareAI.Core.Settings.PluginSettings.Load();
+                if (settings.ProjectViewByFile != byFile) { settings.ProjectViewByFile = byFile; settings.Save(); }
+            }
+            catch (Exception ex) { Diagnostics.Log("save view", ex); }
+            if (_session.FocusRule != null) _session.EndRuleReview();
+            else Rebuild();
+            _list.Focus();
+        }
+
+        private void ReviewRule()
+        {
+            var r = CurrentRule();
+            if (r == null) return;
+            _lastRule = r.Key;
+            _session.ReviewRule(r);
+            _list.Focus();
+        }
+
+        /// <summary>The card for a rule row: why the rule exists, where it fires, real examples, and what Fix all would do.</summary>
+        private void ShowRuleCard(BacklogRule r)
+        {
+            _cardHead.Text = A11y.SeverityLabel(r.Severity) + "  ·  " + r.Title + "\n" + r.Counts();
+            var shown = 0;
+            foreach (var f in r.Findings)
+            {
+                if (shown == 3) break;
+                if (shown++ > 0) _cardDiff.AppendText("\n");
+                DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = BatchPlan.ProjectPath(f.DocumentPath ?? "") + ":  …" + Tail(f.Before, 30) } }, true);
+                if (f.Replacement != null) DiffView.Segments(_cardDiff, ReadableDiff.OfText(f.Excerpt, f.Replacement), false);
+                else DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = f.Excerpt } }, false);
+            }
+            Line(_cardWhy, r.Reason, FontStyle.Regular);
+            var auto = r.Automatic.Count;
+            Line(_cardWhy, auto == r.Occurrences ? "Every one can be fixed automatically: Fix all shows the files and counts before anything is written."
+                         : auto > 0 ? auto + " of " + r.Occurrences + " can be fixed automatically; the rest need you (Review one by one)."
+                         : "None can be fixed automatically: Review one by one takes you to each, with Go to.", FontStyle.Italic);
+            if (r.Snippets.Count > 0)
+            {
+                var uses = new List<string>();
+                foreach (var p in r.Snippets) { int n; uses.Add(System.IO.Path.GetFileName(p) + (_session.KnownSnippetUses(p, out n) ? " (used in " + UsesLabel(n) + ")" : "")); }
+                Line(_cardWhy, "In snippets: " + string.Join(", ", uses.ToArray()) + ". A fix there changes every topic that includes it.", FontStyle.Bold);
+            }
+            const int ShowFiles = 6;
+            var files = new List<string>();
+            for (var i = 0; i < r.Files.Count && i < ShowFiles; i++) files.Add(BatchPlan.ProjectPath(r.Files[i]));
+            Line(_cardWhy, "Files: " + string.Join(", ", files.ToArray()) + (r.Files.Count > ShowFiles ? " and " + (r.Files.Count - ShowFiles) + " more." : "."), FontStyle.Regular);
+            _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
+            _list.AccessibleDescription = (r.Title + ". " + r.Counts() + ". " + r.Reason).Replace("\n", " ");
+        }
+
+        private static string Tail(string s, int n) { s = s ?? ""; return s.Length <= n ? s : s.Substring(s.Length - n); }
+
+        /// <summary>
+        /// Runs a batch from the pane: a few files at once; more file by file between messages, with progress and
+        /// Stop after this file. The list and actions wait until it finishes.
+        /// </summary>
+        private void RunBatchInPane(BatchRun run)
+        {
+            if (run.FileCount <= 3) { run.RunToEnd(); return; }
+            _batch = run;
+            _progress.Style = ProgressBarStyle.Continuous; _progress.Minimum = 0; _progress.Maximum = run.FileCount; _progress.Value = 0; _progress.Visible = true;
+            _batchStop.Visible = true; _batchStop.Enabled = true;
+            _list.Enabled = false;
+            UpdateButtons();
+            _status.Text = "Fixing " + Plural.Of(run.FileCount, "file") + "…";
+            run.Finished += r => EndBatch(run);
+            var timer = new Timer { Interval = 1 };   // WM_TIMER is low priority: clicks and painting get in between files
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                var more = false;
+                try
+                {
+                    if (IsDisposed) run.Cancel();
+                    more = run.Step();
+                    if (more && !IsDisposed)
+                    {
+                        _progress.Value = Math.Min(run.FileCount, run.FilesDone);
+                        if (!run.IsCancelled) _status.Text = "Fixing files: " + run.FilesDone + " of " + run.FileCount + " done. Next: " + BatchPlan.ProjectPath(run.NextFile ?? "");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Diagnostics.Log("Fix files", ex);
+                    run.Cancel();
+                    try { more = run.Step(); } catch (Exception ex2) { Diagnostics.Log("Fix files: finish", ex2); more = false; }
+                    EndBatch(run);
+                }
+                if (more) timer.Start(); else timer.Dispose();
+            };
+            timer.Start();
+        }
+
+        /// <summary>The batch is over (finished, stopped or failed): the list and actions are back.</summary>
+        private void EndBatch(BatchRun run)
+        {
+            if (_batch != run) return;
+            _batch = null;
+            if (IsDisposed) return;
+            _progress.Visible = false; _progress.Style = ProgressBarStyle.Marquee;
+            _batchStop.Visible = false;
+            _list.Enabled = true;
+            UpdateButtons();
+            _list.Focus();
         }
 
         /// <summary>Raised whenever the list changes (new findings, apply, reject, check again): the editor markers follow it.</summary>
@@ -500,6 +1072,13 @@ namespace FlareAI.Flare.UI
             return dir == null ? System.IO.Path.GetFileName(path) : path.Substring(dir.Length + 1);
         }
 
+        /// <summary>The rule by what it says (tooltips), not by its internal name.</summary>
+        private string ReadableRule(StyleFinding f)
+        {
+            var rule = f.RuleId == null ? null : _runner.RuleFor(f.RuleId);
+            return rule != null ? ReviewSession.Shorten(rule.Display, 80) : FlareAI.Core.Style.RuleWording.FromName(f.Rule);
+        }
+
         private static string LayerLabel(StyleFinding f)
         {
             return (f.RequestSent ? "Request sent · " : "") + RuleSource(f);
@@ -524,16 +1103,23 @@ namespace FlareAI.Flare.UI
 
         private StyleFinding Current()
         {
-            return _list.SelectedItems.Count == 1 ? (StyleFinding)_list.SelectedItems[0].Tag : null;
+            return _list.SelectedItems.Count == 1 ? _list.SelectedItems[0].Tag as StyleFinding : null;
         }
 
         private void ShowCard()
         {
             var f = Current();
             _cardDiff.Clear(); _cardWhy.Clear();
+            var ruleRow = CurrentRule();
+            var rows = RuleRows;
+            _actions.Visible = !rows;
+            _ruleActions.Visible = rows && ruleRow != null;
+            if (ruleRow != null) { ShowRuleCard(ruleRow); UpdateButtons(); return; }
             if (f == null)
             {
-                _cardHead.Text = _session.Findings.Count == 0 ? "" : "Select a suggestion to see what changes and why.";
+                _cardHead.Text = _session.Findings.Count == 0 ? ""
+                               : rows ? (_list.Items.Count == 0 ? "" : "Select a rule to see why it matters, where it fires, and fix it everywhere at once.")
+                               : "Select a suggestion to see what changes and why.";
                 UpdateButtons();
                 return;
             }
@@ -543,8 +1129,7 @@ namespace FlareAI.Flare.UI
                     : "In " + System.IO.Path.GetFileName(f.DocumentPath);
             _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  applied" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
-            // Grow to fit: the snippet line ("used in N topics") must never be cut off.
-            _cardHead.Height = Math.Max(34, TextRenderer.MeasureText(_cardHead.Text, _cardHead.Font, new Size(Math.Max(50, _cardHead.Width), 0), TextFormatFlags.WordBreak).Height + 6);
+
             _list.AccessibleDescription = (_cardHead.Text + ". " + f.Suggestion).Replace("\n", " ");   // what a screen reader says for the selected row
 
             // What: the words around it, and the change marked.
@@ -562,7 +1147,7 @@ namespace FlareAI.Flare.UI
             Line(_cardWhy, f.Suggestion, FontStyle.Regular);
             var rule = _runner.RuleFor(f.RuleId);
             // The rule by what it says and where it lives; the id is only a reference for owners (Validate, Tune).
-            if (rule != null) Line(_cardWhy, SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text, FontStyle.Italic);
+            if (rule != null) Line(_cardWhy, SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Display, FontStyle.Italic);
             var ex = _runner.ExampleFor(f.RuleId);
             if (ex != null)
             {
@@ -740,13 +1325,47 @@ namespace FlareAI.Flare.UI
         /// <summary>The session moved the selection: select that row (null clears the card).</summary>
         private void Select(StyleFinding f)
         {
-            foreach (ListViewItem item in _list.Items)
+            if (RuleRows) return;   // rule rows: the rule stays selected (Rebuild picks the next rule when one is done)
+            var items = new ListViewItem[_list.Items.Count];
+            _list.Items.CopyTo(items, 0);
+            foreach (var item in items)
             {
+                if (item.ListView == null) continue;   // the list was rebuilt meanwhile
                 var on = item.Tag == f;
-                item.Selected = on;
+                if (item.Selected != on) item.Selected = on;
                 if (on) { item.Focused = true; item.EnsureVisible(); }
             }
-            if (f == null) ShowCard();
+            ShowCard();   // now; the deferred selection handler only tells the session (and moves the editor) if the row changed
+        }
+
+        // ---- selection ---------------------------------------------------------------------------
+
+        private bool _selectionQueued;
+        private object _lastSelected;   // the finding or rule the session was last told about
+
+        /// <summary>
+        /// The ListView raises SelectedIndexChanged from inside ListViewItem.Selected. Telling the session there can rebuild
+        /// the list (an undone fix revived, the editor's document event after Go to) while the ListView is still selecting
+        /// a row, which ends in a NullReferenceException in ListViewItem.set_Selected and a list frozen in BeginUpdate.
+        /// So the reaction runs once, after the selection has settled.
+        /// </summary>
+        private void QueueSelectionChanged()
+        {
+            if (_selectionQueued || IsDisposed) return;
+            if (!IsHandleCreated) { Safe.Run("Select finding", OnSelectionChanged); return; }
+            _selectionQueued = true;
+            BeginInvoke((Action)(() => { _selectionQueued = false; if (!IsDisposed) Safe.Run("Select finding", OnSelectionChanged); }));
+        }
+
+        private void OnSelectionChanged()
+        {
+            var f = Current();
+            _session.Current = f;
+            ShowCard();
+            var selected = (object)f ?? CurrentRule();
+            if (ReferenceEquals(selected, _lastSelected)) return;   // the same row again (a rebuild kept it): nothing new to say
+            _lastSelected = selected;
+            _session.OnSelected(f);
         }
 
         private void Busy(bool on, string text)
@@ -796,20 +1415,45 @@ namespace FlareAI.Flare.UI
             _refine.Enabled = open && !_reviewing;
             _reanalyze.Enabled = f != null && f.DocumentPath == null && !_reviewing && _files == null;
             _rule.Enabled = f != null && !string.IsNullOrEmpty(f.Link);
-            var mech = _session.FixAllCandidates().Count;
-            _acceptAll.Text = "Apply all fixes (" + mech + ")";
-            _acceptAll.Enabled = mech > 0;
+            var busy = _batch != null;
+            if (_files != null)
+            {
+                var auto = _session.AutomaticCandidates().Count;
+                _acceptAll.Text = "Fix all automatic suggestions… (" + auto + ")";
+                _acceptAll.Enabled = auto > 0 && !busy;
+                _bulk.Visible = false;
+            }
+            else
+            {
+                var mech = _session.FixAllCandidates().Count;
+                _acceptAll.Text = "Apply all fixes (" + mech + ")";
+                _acceptAll.Enabled = mech > 0;
+            }
             var exact = _session.WriteAllCandidates().Count;
             _bulk.Text = "Write all as tracked changes (" + exact + ")";
             _bulk.Enabled = exact > 0 && _files == null;
-            _recheck.Enabled = !_reviewing;
-            _ignore.Enabled = f != null;
+            _recheck.Enabled = !_reviewing && !busy;
+            var r = CurrentRule();
+            _ignore.Enabled = (f != null || r != null) && !busy;
+            _viewBar.Enabled = !busy;
+            _actions.Enabled = !busy;
+            _ruleActions.Enabled = !busy;
+            if (r != null)
+            {
+                var n = r.Automatic.Count;
+                _fixRule.Text = n == 0 ? "Fix all…" : "Fix all (" + n + ")…";
+                _fixRule.Enabled = n > 0;
+                _fixRule.AccessibleName = n == 0 ? "Fix all" : "Fix all " + n;
+            }
             var request = Team.Current != null && Team.Current.ChangesNeedRequest;
+            _turnOffRule.Text = request ? "Request a change…" : "Turn off rule…";
+            _turnOffRule.AccessibleName = _turnOffRule.Text;
             _ignore.Text = _session.RuleChangeLabel();
             _ignore.AccessibleName = _ignore.Text;
             _ignoreTip.SetToolTip(_ignore, request
                 ? "Ask the style guide owners to turn off or change the selected rule, or to make an exception for this project. They decide; you see the answer on your next check."
                 : "Turn the selected rule off, or change its level, for the whole team or just this project.");
+            LayoutCard();   // the selection, the card's text or a button's label changed
         }
 
         // ---- IReviewHost: dialogs and documents for the session ---------------------------------

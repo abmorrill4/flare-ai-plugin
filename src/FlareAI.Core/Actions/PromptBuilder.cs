@@ -55,6 +55,12 @@ namespace FlareAI.Core.Actions
             return new[] { system, packs, terms };
         }
 
+        /// <summary>
+        /// The system prompt for tasks that don't apply style rules (alt text, topic assists): a few lines of house manner,
+        /// no guide. Sending the ~35k-token guide for a 64-token answer made alt text cost $0.14 on a cold cache.
+        /// </summary>
+        public string BuildPlainSystem() { return Embedded("system-plain.md"); }
+
         public string BuildSystem()
         {
             string guide = null;
@@ -119,16 +125,18 @@ namespace FlareAI.Core.Actions
         /// <summary>Review of one unit: the marked text, its context (topic title, section), and what the linter already found.</summary>
         public string BuildReview(string context, string marked, string lint)
         {
-            return Embedded("action-check.md").Replace("{{CONTEXT}}", context ?? "").Replace("{{LINT}}", string.IsNullOrEmpty(lint) ? "(none)" : lint).Replace("{{FRAGMENT}}", marked ?? "");
+            return Contracts.ReviewFields + "\n\n" + Embedded("action-check.md").Replace("{{CONTEXT}}", context ?? "").Replace("{{LINT}}", string.IsNullOrEmpty(lint) ? "(none)" : lint).Replace("{{FRAGMENT}}", marked ?? "");
         }
 
         /// <summary>Run-level rewrite of one block: the task (instruction, or the default style pass) and the marked text.</summary>
-        public string BuildRunRewrite(string instruction, string marked, string lint)
+        /// <param name="continuations">Runs that finish a sentence begun before them (<see cref="Contracts.DescribeContinuations"/>), or "".</param>
+        public string BuildRunRewrite(string instruction, string marked, string lint, string continuations = "")
         {
             var task = string.IsNullOrEmpty(instruction)
                 ? "Task: make this text meet the style guide. Fix every linter finding below, and tighten wordy, vague, or passive sentences into plain, direct instructions and statements. Runs that are already clear and compliant stay as they are."
                 : "Task (the author's instruction): " + instruction.Trim();
-            return Embedded("action-rewrite-runs.md").Replace("{{INSTRUCTION}}", task).Replace("{{LINT}}", string.IsNullOrEmpty(lint) ? "(none)" : lint).Replace("{{FRAGMENT}}", marked ?? "");
+            if (!string.IsNullOrEmpty(continuations)) task += "\n\n" + continuations;
+            return Contracts.RewriteFields + "\n\n" + Embedded("action-rewrite-runs.md").Replace("{{INSTRUCTION}}", task).Replace("{{LINT}}", string.IsNullOrEmpty(lint) ? "(none)" : lint).Replace("{{FRAGMENT}}", marked ?? "");
         }
 
         /// <summary>Notes, an old guide, or another tool's prompt → candidate rules (JSON array).</summary>
@@ -154,7 +162,7 @@ namespace FlareAI.Core.Actions
         public string OverrideFolder { get; set; }
 
         /// <summary>Names of the templates a team can override.</summary>
-        public static readonly string[] Templates = { "system-base.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md", "action-extract.md", "action-alt.md", "action-assist.md", "action-rewrite-runs.md" };
+        public static readonly string[] Templates = { "system-base.md", "system-plain.md", "action-check.md", "action-rewrite.md", "action-repair.md", "action-refine.md", "action-extract.md", "action-alt.md", "action-assist.md", "action-rewrite-runs.md" };
 
         private string Embedded(string name)
         {

@@ -14,6 +14,8 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.IO.Compression" />            <!-- updates: ZipExtractor -->
+    <Reference Include="System.IO.Compression.FileSystem" />
     <!-- WPF, needed for RibbonControlData / ICommand / BitmapImage used by the Flare ribbon API -->
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -45,6 +47,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlareAI.Core\FlareAI.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Release notes for the What's new window; ships at the plugin root. -->
+    <None Include="whats-new.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

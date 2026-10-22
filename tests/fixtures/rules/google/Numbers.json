@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Numbers",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -33,7 +33,7 @@
     "Layer": "google",
     "Page": "Numbers",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -62,7 +62,7 @@
     "Layer": "google",
     "Page": "Numbers",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -91,7 +91,7 @@
     "Layer": "google",
     "Page": "Numbers",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -120,7 +120,7 @@
     "Layer": "google",
     "Page": "Numbers",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -149,13 +149,13 @@
     "Layer": "google",
     "Page": "Numbers",
     "Row": 3,
-    "Severity": "error",
+    "Severity": "warning",
     "Action": "flag",
     "Tags": [
       "Numbers"
     ],
     "Avoid": [
-      "\\$\\d[\\d,]*\\.\\d+(?:[, ]\\d{3})+\\b"
+      "\\$\\d[\\d,]*\\.\\d+(?:,\\d{3})+\\b"
     ],
     "Use": "",
     "Example": "The price is $0.006,653 per vCPU hour.",

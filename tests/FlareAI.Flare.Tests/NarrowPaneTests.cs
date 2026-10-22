@@ -1,0 +1,242 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Windows.Forms;
+using FlareAI.Core.Actions;
+using FlareAI.Flare.UI;
+using FlareAI.TestKit.Editor;
+using FlareAI.TestKit.Llm;
+using Xunit;
+
+namespace FlareAI.Flare.Tests
+{
+    /// <summary>
+    /// The review pane as Flare docks it: narrow (150–260 px) and 500–1000 px tall. A single-topic check with one AI reword:
+    /// once the row is selected, the card shows its heading, what changes (at least two lines), why and every decision
+    /// button, stacked without overlapping; the list keeps at least a row; a card too short for all of it scrolls.
+    /// </summary>
+    public class NarrowPaneTests
+    {
+        private const string Topic = "<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\"><body><h1>Transfers</h1>" +
+                                     "<p>Please note that the fee is waived for members who move money between their own accounts.</p></body></html>";
+
+        /// <summary>The model's answer to a review request: one reword, on the run (⟦r1⟧…⟦/r1⟧) that holds its text.</summary>
+        private static string OneReword(FlareAI.Core.Llm.LlmRequest r)
+        {
+            const string Excerpt = "Please note that the fee";
+            var run = Regex.Matches(r.User ?? "", @"⟦(r\d+)⟧(.*?)⟦/\1⟧", RegexOptions.Singleline).Cast<Match>().FirstOrDefault(m => m.Groups[2].Value.Contains(Excerpt));
+            if (run == null) return "{\"findings\":[]}";
+            return "{\"findings\":[{\"run_id\":\"" + run.Groups[1].Value + "\",\"excerpt\":\"" + Excerpt + "\",\"rule_id\":\"general\",\"rule\":\"wordy\"," +
+                   "\"severity\":\"suggestion\",\"replacement\":\"The fee\",\"why\":\"Say it directly: cut the throat-clearing so the reader gets the fact first.\"}]}";
+        }
+
+        [Theory]
+        [InlineData(150, 500)]
+        [InlineData(150, 640)]
+        [InlineData(150, 1000)]
+        [InlineData(180, 640)]
+        [InlineData(180, 800)]
+        [InlineData(260, 500)]
+        [InlineData(260, 1000)]
+        public void OneAiReword_InASingleTopic_TheCardShowsEverything_WithoutOverlap(int width, int height)
+        {
+            Sta(() =>
+            {
+                var doc = FlareSimDocument.FromXml(Topic);
+                var runner = new ActionRunner(new ScriptedLlmClient().When(r => true, r => ScriptedLlmClient.Reply.Text(OneReword(r))(r)), new PromptBuilder(null), 1024);
+                var panel = new FindingsPanel(runner, doc, () => runner, p => null, null, true);
+                using (var form = new Form { StartPosition = FormStartPosition.Manual, Location = new Point(-20000, -20000), ShowInTaskbar = false,
+                                             FormBorderStyle = FormBorderStyle.None, ClientSize = new Size(width, height), Font = SystemFonts.MessageBoxFont })
+                {
+                    panel.Dock = DockStyle.Fill;
+                    form.Controls.Add(panel);
+                    form.Show();
+                    panel.Begin();
+                    var list = All(panel).OfType<ListView>().Single();
+                    Pump(() => list.Items.Count > 0 && All(panel).OfType<ProgressBar>().All(p => !p.Visible),
+                         15000, () => string.Join(" | ", All(panel).OfType<Label>().Select(l => l.Text).Where(t => !string.IsNullOrEmpty(t))));
+                    Assert.Equal(1, list.Items.Count);
+                    list.Focus();
+                    list.Items[0].Selected = true;
+                    list.Items[0].Focused = true;
+                    Pump(null, 300);
+
+                    var boxes = All(panel).OfType<RichTextBox>().ToList();
+                    var diff = boxes[0]; var why = boxes[1];
+                    var card = (Panel)diff.Parent;
+                    var head = card.Controls.OfType<Label>().Single();
+                    var decision = card.Controls.OfType<FlowLayoutPanel>().Single(f => f.AccessibleName == "Decision for the selected suggestion");
+                    var split = All(panel).OfType<SplitContainer>().Single();
+                    Check(width + "x" + height + ": ", height, list, card, head, diff, why, decision, split);
+
+                    // Wider, then back: the card is laid out again each time (wide panes keep the two-column list).
+                    form.ClientSize = new Size(500, height); Pump(null, 200);
+                    Check("500x" + height + ": ", height, list, card, head, diff, why, decision, split);
+                    form.ClientSize = new Size(width, height); Pump(null, 200);
+                    Check("back to " + width + "x" + height + ": ", height, list, card, head, diff, why, decision, split);
+                }
+            });
+        }
+
+        [Theory]
+        [InlineData(180, 640)]
+        [InlineData(500, 800)]
+        public void ApplyingTheReword_MovesToTheNext_KeepsTheRowStruckThrough_AndCtrlZ_BringsItBack(int width, int height)
+        {
+            Sta(() =>
+            {
+                // Two rewords; the editor answers every Go to with a document event that rebuilds the list (Flare's live
+                // check / undo recheck), as Flare does while the pane is still selecting the next row after Apply.
+                var sim = FlareSimDocument.FromXml(TwoParagraphs);
+                var doc = new ReactingEditor(sim);
+                var runner = new ActionRunner(new ScriptedLlmClient().When(r => true, r => ScriptedLlmClient.Reply.Text(Rewords(r))(r)), new PromptBuilder(null), 1024);
+                var panel = new FindingsPanel(runner, doc, () => runner, p => null, null, true);
+                using (var form = new Form { StartPosition = FormStartPosition.Manual, Location = new Point(-20000, -20000), ShowInTaskbar = false,
+                                             FormBorderStyle = FormBorderStyle.None, ClientSize = new Size(width, height), Font = SystemFonts.MessageBoxFont })
+                {
+                    panel.Dock = DockStyle.Fill;
+                    form.Controls.Add(panel);
+                    form.Show();
+                    panel.Begin();
+                    var list = All(panel).OfType<ListView>().Single();
+                    Func<string> labels = () => string.Join(" | ", All(panel).OfType<Label>().Select(l => l.Text).Where(t => !string.IsNullOrEmpty(t)));
+                    Pump(() => list.Items.Count == 2 && All(panel).OfType<ProgressBar>().All(p => !p.Visible), 15000, labels);
+                    doc.OnSelect = () => panel.RefreshLint(new List<StyleFinding>());
+                    list.Focus();
+                    list.Items[0].Selected = true;
+                    list.Items[0].Focused = true;
+                    Pump(null, 200);
+
+                    var apply = All(panel).OfType<Button>().Single(b => b.Parent.AccessibleName == "Decision for the selected suggestion" && b.Text == "Apply");
+                    apply.PerformClick();   // the button's own path: ReviewSession.Accept → Apply → FinishBatch → Sort → Rebuild, then Next
+                    Pump(null, 300);
+
+                    var where = width + "x" + height + ": " + labels() + " ";
+                    Assert.Contains("The fee is waived", sim.Document.InnerText);
+                    Assert.DoesNotContain("Could not", labels());
+                    Assert.True(list.Items.Count == 2, where + "after Apply the list has " + list.Items.Count + " rows");
+                    Assert.True(list.Items[0].Font.Strikeout, where + "the applied row isn't struck through");
+                    Assert.True(list.Items[1].Selected, where + "Apply should move to the next suggestion");
+                    Assert.True(apply.Enabled, where + "the next suggestion can be applied");
+                    Assert.Contains("In order to", list.Items[1].Text);
+
+                    sim.Undo();                                                     // Ctrl+Z in the editor
+                    panel.RecheckApplied();
+                    Pump(null, 300);
+                    Assert.Contains("Please note that the fee", sim.Document.InnerText);
+                    Assert.Equal(2, list.Items.Count);
+                    Assert.False(list.Items[0].Font.Strikeout, where + "the undone fix should be live again");
+                    list.Items[0].Selected = true;
+                    Pump(null, 200);
+                    Assert.True(apply.Enabled, where + "Apply works again after Ctrl+Z");
+                    apply.PerformClick();
+                    Pump(null, 300);
+                    Assert.Contains("The fee is waived", sim.Document.InnerText);
+                    Assert.True(list.Items[0].Font.Strikeout, where + "applied again");
+                    Assert.DoesNotContain("Could not", labels());
+                }
+            });
+        }
+
+        private const string TwoParagraphs = "<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\"><body><h1>Transfers</h1>" +
+                                             "<p>Please note that the fee is waived for members who move money between their own accounts.</p>" +
+                                             "<p>In order to move money, open the Transfers page.</p></body></html>";
+
+        /// <summary>The model's answer: a reword for each paragraph, on the run that holds its text.</summary>
+        private static string Rewords(FlareAI.Core.Llm.LlmRequest r)
+        {
+            var found = new List<string>();
+            foreach (var pair in new[] { new[] { "Please note that the fee", "The fee" }, new[] { "In order to", "To" } })
+            {
+                var run = Regex.Matches(r.User ?? "", @"⟦(r\d+)⟧(.*?)⟦/\1⟧", RegexOptions.Singleline).Cast<Match>().FirstOrDefault(m => m.Groups[2].Value.Contains(pair[0]));
+                if (run != null)
+                    found.Add("{\"run_id\":\"" + run.Groups[1].Value + "\",\"excerpt\":\"" + pair[0] + "\",\"rule_id\":\"general\",\"rule\":\"wordy\"," +
+                              "\"severity\":\"suggestion\",\"replacement\":\"" + pair[1] + "\",\"why\":\"Say it directly.\"}");
+            }
+            return "{\"findings\":[" + string.Join(",", found) + "]}";
+        }
+
+        /// <summary>The fake Flare editor, which (like Flare) raises a document event when the plugin selects text in it.</summary>
+        private sealed class ReactingEditor : FlareAI.Core.Editing.IDocumentAdapter
+        {
+            private readonly FlareSimDocument _inner;
+            public Action OnSelect;
+            public ReactingEditor(FlareSimDocument inner) { _inner = inner; }
+            public string SourcePath { get { return _inner.SourcePath; } }
+            public bool IsEditableTopic { get { return _inner.IsEditableTopic; } }
+            public System.Xml.XmlDocument Document { get { return _inner.Document; } }
+            public string SelectionText { get { return _inner.SelectionText; } }
+            public IList<System.Xml.XmlNode> SelectionNodes { get { return _inner.SelectionNodes; } }
+            public void ReplaceBlocks(string operationName, IList<System.Xml.XmlNode> oldNodes, IList<System.Xml.XmlNode> newNodes) { _inner.ReplaceBlocks(operationName, oldNodes, newNodes); }
+            public bool SelectText(System.Xml.XmlText run, int start, int length)
+            {
+                var ok = _inner.SelectText(run, start, length);
+                var h = OnSelect;
+                if (h != null) h();
+                return ok;
+            }
+            public void Edit(string operationName, Action body) { _inner.Edit(operationName, body); }
+            public bool ReplaceSpan(System.Xml.XmlText run, int start, int length, string replacement) { return _inner.ReplaceSpan(run, start, length, replacement); }
+            public string VariableValue(string qualifiedName) { return _inner.VariableValue(qualifiedName); }
+        }
+
+        /// <summary>The card's parts stack without overlapping, nothing is cut off, and what doesn't fit scrolls.</summary>
+        private static void Check(string where, int height, ListView list, Panel card, Label head, RichTextBox diff, RichTextBox why, FlowLayoutPanel decision, SplitContainer split)
+        {
+            where += "(card " + card.ClientSize + ", split " + split.Height + ", list " + list.Height + ", head " + head.Bounds + ", diff " + diff.Bounds +
+                     ", buttons " + decision.Bounds + ", why " + why.Bounds + ") ";
+            Assert.Contains("Reword", head.Text);
+            Assert.True(head.Top >= 0 && head.Height >= head.Font.Height, where + "the heading is hidden");
+            Assert.True(head.Bottom <= diff.Top, where + "the heading overlaps what changes");
+            Assert.True(diff.Height >= 2 * diff.Font.Height, where + "what changes is " + diff.Height + " px");
+            Assert.True(diff.Bottom <= decision.Top, where + "what changes overlaps the buttons");
+            Assert.True(decision.Bottom <= why.Top, where + "the buttons overlap why");
+            Assert.True(why.Height >= 3 * why.Font.Height, where + "why is " + why.Height + " px");
+            foreach (var b in decision.Controls.OfType<Button>().Where(b => b.Visible))
+            {
+                Assert.True(b.Right <= decision.ClientSize.Width && b.Bottom <= decision.ClientSize.Height, where + "'" + b.Text + "' is cut off");
+                Assert.True(b.Width <= card.ClientSize.Width, where + "'" + b.Text + "' is wider than the card");
+            }
+            var fits = why.Bottom <= card.ClientSize.Height;
+            Assert.True(fits || card.VerticalScroll.Visible, where + "the card neither fits nor scrolls");
+            // From 640 px tall (180+ px wide) every button shows without scrolling; from 800 px, the whole card.
+            if (height >= 800 || height >= 640 && card.Width >= 160) Assert.True(decision.Bottom <= card.ClientSize.Height, where + "the buttons need scrolling to reach");
+            if (height >= 800) Assert.True(fits, where + "a pane this tall shows the whole card without scrolling");
+            Assert.True(list.ClientSize.Height >= list.Items[0].Bounds.Height, where + "the list keeps at least one row");
+            Assert.True(split.Panel2.Top >= list.Parent.Bottom, where + "the card starts above the list's bottom");
+        }
+
+        private static IEnumerable<Control> All(Control c)
+        {
+            foreach (Control k in c.Controls) { yield return k; foreach (var d in All(k)) yield return d; }
+        }
+
+        /// <summary>Runs the message loop until <paramref name="done"/> (or for <paramref name="ms"/> when null).</summary>
+        private static void Pump(Func<bool> done, int ms = 15000, Func<string> state = null)
+        {
+            var clock = Stopwatch.StartNew();
+            while (clock.ElapsedMilliseconds < ms)
+            {
+                Application.DoEvents();
+                if (done != null && done()) { Application.DoEvents(); return; }
+                Thread.Sleep(10);
+            }
+            if (done != null) throw new TimeoutException("The check didn't finish: " + (state == null ? "" : state()));
+        }
+
+        private static void Sta(Action body)
+        {
+            Exception error = null;
+            var t = new Thread(() => { try { body(); } catch (Exception ex) { error = ex; } });
+            t.SetApartmentState(ApartmentState.STA);
+            t.IsBackground = true;
+            t.Start();
+            if (!t.Join(60000)) throw new TimeoutException("The pane kept laying itself out (no idle message loop in 60 s).");
+            if (error != null) throw new Exception(error.Message, error);
+        }
+    }
+}

@@ -69,7 +69,7 @@ namespace FlareAI.TestKit.Llm
     /// </summary>
     public sealed class MockLlmServer : IDisposable
     {
-        private readonly HttpListener _listener = new HttpListener();
+        private HttpListener _listener;
         private readonly Queue<MockReply> _queue = new Queue<MockReply>();
         private readonly List<MockRequest> _received = new List<MockRequest>();
         private readonly object _gate = new object();
@@ -78,10 +78,15 @@ namespace FlareAI.TestKit.Llm
 
         public MockLlmServer()
         {
-            Port = FreePort();
-            BaseUrl = "http://localhost:" + Port;
-            _listener.Prefixes.Add(BaseUrl + "/");
-            _listener.Start();
+            for (var attempt = 0; ; attempt++)
+            {
+                Port = FreePort();
+                BaseUrl = "http://localhost:" + Port;
+                _listener = new HttpListener();   // a failed Start() disposes the listener: use a fresh one per attempt
+                _listener.Prefixes.Add(BaseUrl + "/");
+                try { _listener.Start(); break; }
+                catch (HttpListenerException) { try { _listener.Close(); } catch (Exception) { } if (attempt >= 20) throw; }   // another test process took the port
+            }
             Default = MockReply.Ok("{}");
             _thread = new Thread(Loop) { IsBackground = true, Name = "MockLlmServer" };
             _thread.Start();

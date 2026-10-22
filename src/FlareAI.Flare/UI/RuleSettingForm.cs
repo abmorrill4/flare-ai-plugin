@@ -24,21 +24,26 @@ namespace FlareAI.Flare.UI
         public string Reason { get { return _reason.Text.Trim(); } }
 
         /// <param name="personalGuide">True when there is no team guide: the change goes to the writer's own style guide.</param>
-        public RuleSettingForm(string ruleText, bool canChangeTeamGuide, bool personalGuide = false, IList<FlareAI.Core.Style.RuleRef> otherRules = null)
+        /// <param name="setting">The level to preselect (default Off).</param>
+        /// <param name="canChangeProject">False when no project is open (Style rules without a topic).</param>
+        /// <param name="title">The dialog's action, for its caption (default "Turn off this rule").</param>
+        public RuleSettingForm(string ruleText, bool canChangeTeamGuide, bool personalGuide = false, IList<FlareAI.Core.Style.RuleRef> otherRules = null,
+                               string setting = null, bool canChangeProject = true, string title = null)
         {
-            Text = "House Style — Turn off this rule";
+            Text = "House Style — " + (title ?? "Turn off this rule");
             StartPosition = FormStartPosition.CenterParent; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
             ClientSize = new Size(520, 270); Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(new Label { Text = ruleText, Left = 12, Top = 12, Width = 496, Height = 48, AutoEllipsis = true });
             _team = new RadioButton { Text = personalGuide ? "For all my projects (writes it into my style guide)" : "For the whole team (writes it into the style guide)",
                                       Left = 12, Top = 66, Width = 496, Checked = canChangeTeamGuide, Enabled = canChangeTeamGuide };
-            _project = new RadioButton { Text = "For this project only", Left = 12, Top = 90, Width = 496, Checked = !canChangeTeamGuide };
+            _project = new RadioButton { Text = "For this project only", Left = 12, Top = 90, Width = 496, Checked = !canChangeTeamGuide, Enabled = canChangeProject };
             Controls.Add(_team); Controls.Add(_project);
             Controls.Add(new Label { Text = "Set the rule to:", Left = 12, Top = 124, Width = 110 });
             _setting = new ComboBox { Left = 124, Top = 120, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
             _setting.Items.AddRange(new object[] { "Off", "Tip", "Warning", "Error" });
-            _setting.SelectedIndex = 0;
+            _setting.SelectedItem = FlareAI.Core.Severity.Label(setting ?? "off");
+            if (_setting.SelectedIndex < 0) _setting.SelectedIndex = 0;
             Controls.Add(_setting);
             Controls.Add(new Label { Text = "Why (the team sees this in the guide):", Left = 12, Top = 156, Width = 496 });
             _reason = new TextBox { Left = 12, Top = 176, Width = 496 };
@@ -48,7 +53,7 @@ namespace FlareAI.Flare.UI
             {
                 var names = new List<string>();
                 foreach (var r in otherRules) names.Add("•  " + (r.Name.Length > 80 ? r.Name.Substring(0, 79) + "…" : r.Name));   // one line each
-                _others = new CheckBox { Text = "Also turn off " + otherRules.Count + (otherRules.Count == 1 ? " other rule" : " other rules") + " that flag the same words", Left = 12, Top = 208, Width = 496, Checked = true };
+                _others = new CheckBox { Text = (setting == null || setting == "off" ? "Also turn off " : "Also change ") + otherRules.Count + (otherRules.Count == 1 ? " other rule" : " other rules") + " that flag the same words", Left = 12, Top = 208, Width = 496, Checked = true };
                 var list = new Label { Text = string.Join(Environment.NewLine, names.ToArray()), Left = 32, Top = 232, Width = 476, Height = 16 * names.Count + 4, AutoEllipsis = true };
                 Controls.Add(_others); Controls.Add(list);
                 extra = 28 + 16 * names.Count;

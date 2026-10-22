@@ -12,6 +12,10 @@ and every technical fact, and add none: never invent what a screen shows, a limi
 information the text doesn't give, leave that run unchanged and say in the note what the author must supply. A run's new text must read correctly next to the runs and markup around it (watch spaces,
 capitalization after a sentence start, and agreement with text in the neighboring runs).
 
+Never change a modal verb (must, should, may, might, shall) or add one: it sets an obligation
+only the author can change. Never change or drop code, API and product terms (identifiers, field, method and parameter
+names, part numbers): copy them exactly. Never add a fact the text doesn't state.
+
 If the task can only be done by changing structure (splitting a step in two, turning sentences into a list), make the
 wording changes you can, set needs_restructure, and say in the note what else is needed.
 

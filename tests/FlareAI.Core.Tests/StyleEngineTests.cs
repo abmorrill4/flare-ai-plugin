@@ -113,7 +113,8 @@ namespace FlareAI.Core.Tests
                 Assert.Contains(hits, h => h.Index == 2 && h.Match == "How To");          // heading-scoped row: on the heading…
                 Assert.DoesNotContain(hits, h => h.Index == 3 && h.Match == "How To");    // …not in body text
                 Assert.Contains(hits, h => h.Index == 4 && h.Match == "10MB" && h.Replacement == null);   // pattern row
-                Assert.DoesNotContain(hits, h => h.Index == 5 && h.Match == "utilize");   // override table turned the company rule off
+                // override table turned the company rule off (Google's own utilize row, #64, may still flag it)
+                Assert.DoesNotContain(hits, h => h.Index == 5 && h.Match == "utilize" && h.RuleIds.Any(id => id.StartsWith("company:")));
                 Assert.DoesNotContain(e.Lint(new[] { "Open Acme Online Banking." }, null, null), h => h.Layer == "project");
 
                 var rules = e.Rules(topic);

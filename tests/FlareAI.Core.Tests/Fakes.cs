@@ -160,8 +160,8 @@ namespace FlareAI.Core.Tests
         /// <summary>Echoes the fragment back unchanged — a rewrite must be a no-op (both the run and the XHTML contract).</summary>
         public static string EchoRevised(LlmRequest r)
         {
-            if (r.Schema != null) return "{\"changes\":[],\"needs_restructure\":false,\"note\":\"\"}";
             var i = r.User.LastIndexOf("Fragment:", StringComparison.Ordinal);
+            if (r.Schema != null && r.Task != "restructure") return "{\"changes\":[],\"needs_restructure\":false,\"note\":\"\"}";
             var frag = r.User.Substring(i + "Fragment:".Length).Trim();
             return "<revised>\n" + frag + "\n</revised>";
         }
@@ -222,6 +222,8 @@ namespace FlareAI.Core.Tests
             var close = t.LastIndexOf("</revised>", StringComparison.Ordinal);
             if (open < 0 || close <= open) return t;   // prose: breaks the contract, as a real model would
             var frag = t.Substring(open + 9, close - open - 9);
+            if (r.Task == "restructure")
+                return new Newtonsoft.Json.Linq.JObject { ["findings"] = new Newtonsoft.Json.Linq.JArray(), ["changes"] = new Newtonsoft.Json.Linq.JArray(), ["needs_restructure"] = false, ["note"] = "", ["revised"] = frag }.ToString();
             var doc = new XmlDocument();
             doc.LoadXml("<x xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\">" + frag + "</x>");
             var texts = new List<string>();

@@ -300,18 +300,21 @@ namespace FlareAI.GuideCompiler
             File.WriteAllText(Path.Combine(tmp, "Check.flprj"), "<CatapultProject />");
             try
             {
-                // One row per table, in order, so a validator issue maps back to its rule by row id.
-                var only = new JArray(rows.Select(i => rules[i]));
+                // The rows in the order the topic writes them (by heading, rows before patterns), so the k-th rule of the topic
+                // (id google:check/k) is rows[k-1] and a validator issue maps back to its rule.
+                var headings = rows.Select(i => (string)rules[i]["heading"]).Distinct().ToList();
+                rows = rows.OrderBy(i => headings.IndexOf((string)rules[i]["heading"])).ThenBy(i => (string)rules[i]["kind"] == "row" ? 0 : 1).ThenBy(i => i).ToList();
+                var only = new JArray(rows.Select(i => { var o = (JObject)rules[i].DeepClone(); o.Remove("key"); return o; }));
                 File.WriteAllText(Path.Combine(dir, "check.htm"), Topic.Write(job, only), new UTF8Encoding(false));
                 var engine = new StyleEngine(new[] { tmp }, tmp);
                 var layer = engine.Compose(null).Layers[0];
-                foreach (var p in layer.Problems) errors[rows[0]] = p.Message;   // unparseable: blame the first row
+                // Unparseable topic: blame the first row. (Per-row problems, such as a pattern that matches markup, name their row.)
+                foreach (var p in layer.Problems.Where(p => !p.Message.StartsWith(FlareAI.Core.Style.GuideLayer.MarkupOnly))) errors[rows[0]] = p.Message;
                 var report = engine.Validate(null);
                 var idToRule = new Dictionary<string, int>();
-                var lintIds = layer.Rules.Where(x => x.Id != null).Select(x => x.Id).ToList();
-                for (var k = 0; k < lintIds.Count && k < rows.Count; k++) idToRule[lintIds[k]] = rows[k];
+                for (var k = 0; k < rows.Count; k++) idToRule["google:check/" + (k + 1)] = rows[k];
                 // Every lint row must be testable: a missing Example is an error here, not just a warning.
-                foreach (var issue in report.Issues.Where(i => i.Level == "error" || i.Message.StartsWith("No Example")))
+                foreach (var issue in report.Issues.Where(i => i.Level == "error" || i.Message.StartsWith("No Example") || i.Message.StartsWith(FlareAI.Core.Style.GuideLayer.MarkupOnly)))
                 {
                     var m = Regex.Match(issue.Location ?? "", @"\((google:[^)]+)\)");
                     int idx;
@@ -348,7 +351,9 @@ Kinds of rule:
 
 Word list entries: ""Don't use X"" or ""use Y, not X"" with a safe replacement → row (severity warning); ""use with caution"" or advice that depends on context → prose, or a flag-only row (severity suggestion) only if the word is almost always wrong. Capitalization/spelling entries (""Capitalize A/B"") → row with the exact casing. Never make a row for a word that is correct in some ordinary sense (""master"" is fine in ""master's degree"" — make that prose).
 
-Fields: ""heading"": the page section the rule belongs to (use the unit's heading). ""severity"": error for clear mistakes, warning for most rules, suggestion for preferences. ""why"": at most 12 words, or """". ""applies"": content tags only when the rule matters solely for sections containing that kind of content (a rule about numbered steps → Steps; a rule about heading text → Headings; a rule about link text → Links); [] otherwise. ""products"": only when the guide says the entry applies only to Android, Google Cloud or Google Workspace documentation; [] otherwise. Unused fields are """".
+Keep the source's hedges and permissions: ""you can"", ""it's OK to"", ""generally"", ""try to"" stay as they are; never turn a permission into ""only"" or a must. Attach a bad/good example to a rule only where the page marks it as that rule's Not recommended/Recommended pair, and copy each from its own column. Patterns and rows match the text of a topic, never its markup: no tags, entities or attributes in avoid or pattern.
+
+Fields: ""heading"": the page section the rule belongs to (use the unit's heading). ""severity"": error only for offensive terms; warning for a clear ""don't use X"" with a safe fix; suggestion for preferences, typographic advice (spaces, nonbreaking characters, punctuation style) and rows that only flag (use """"). ""why"": at most 12 words, or """". ""applies"": content tags only when the rule matters solely for sections containing that kind of content (a rule about numbered steps → Steps; a rule about heading text → Headings; a rule about link text → Links); WebMarkup for a rule about hand-writing HTML or Markdown (which element or attribute to use, entities, CSS), which help-authoring tools write for the author; [] otherwise. ""products"": only when the guide says the entry applies only to Android, Google Cloud or Google Workspace documentation; [] otherwise. Unused fields are """".
 
 not_applicable: introductions, ""for more information, see…"" pointers, notes about how Google's own site is built, and anything that isn't an instruction for writing a help topic. ""reason"": a few words.");
             sb.AppendLine();
@@ -460,10 +465,16 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
 
         private static string X(string s) { return SecurityElement.Escape(s ?? ""); }
 
+        /// <summary>
+        /// False when a rule opts out of its page's pack tag (fixes.json "page_scope": false): a Tables-page rule about
+        /// referring to "table 2" in running text applies outside tables too.
+        /// </summary>
+        public static bool TakesPageScope(JToken r) { return r["page_scope"] == null || (bool)r["page_scope"]; }
+
         private static string Conditions(PageJob job, JToken r)
         {
             var c = new List<string>();
-            var page = job.Scope == "pack" ? Program.TagFor(job.Trigger) : null;
+            var page = job.Scope == "pack" && TakesPageScope(r) ? Program.TagFor(job.Trigger) : null;
             if (page != null) c.Add("Content." + page);
             foreach (var a in r["applies"] ?? new JArray()) if (!c.Contains("Content." + a)) c.Add("Content." + a);
             foreach (var p in r["products"] ?? new JArray()) c.Add("Product." + p);
@@ -671,6 +682,11 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
             sb.AppendLine();
             sb.AppendLine(units + " source units in compiled pages: " + covered + " covered by rules, " + na + " not applicable (with reasons), " + uncovered + " uncovered, " + dropped + " rules dropped by the validator. " +
                           (prose + rows + patterns) + " rules: " + prose + " prose (AI), " + rows + " lint rows, " + patterns + " patterns.");
+            sb.AppendLine();
+            // #61: how the lint rows are calibrated (fixes.json "severity" is the policy).
+            var lint = compiled.Properties().SelectMany(c => (JArray)c.Value["rules"]).Where(x => (string)x["kind"] == "row" || (string)x["kind"] == "pattern").ToList();
+            sb.AppendLine("Lint row severity: " + string.Join(", ", new[] { "error", "warning", "suggestion" }.Select(s => lint.Count(x => (string)x["severity"] == s) + " " + s).ToArray()) +
+                          " (" + lint.Count + " rows; " + lint.Count(x => FlareAI.Core.Style.GuideLayer.IsFlagOnly((string)x["use"])) + " flag-only).");
             sb.AppendLine();
             sb.AppendLine("## Pages\n\n| Page | Scope | Units | Rules | Not applicable | Uncovered + dropped | Errors / note |\n|---|---|---|---|---|---|---|");
             foreach (var l in lines) sb.AppendLine(l);

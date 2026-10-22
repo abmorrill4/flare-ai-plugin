@@ -100,12 +100,12 @@ namespace FlareAI.Flare.UI
             foreach (var o in entries)
             {
                 GuideRule rule;
-                var name = rules.TryGetValue(o.RuleId, out rule) ? rule.Section + ": " + rule.Text : o.RuleId + (o.IsAiName ? " (AI judgment)" : "");
+                var name = rules.TryGetValue(o.RuleId, out rule) ? rule.Section + ": " + rule.Display : o.RuleId + (o.IsAiName ? " (AI judgment)" : "");
                 var item = new ListViewItem(new[] { name, rule != null ? Cap(rule.Layer) : LayerOf(o), o.Scope, Severity.Label(o.Setting ?? ""), o.By, o.Date, o.Note, o.RequestId != null ? "Approved request" : "" }) { Tag = o, ToolTipText = o.RuleId + " · " + o.File };
                 _list.Items.Add(item);
             }
             _list.ShowItemToolTips = true;
-            if (_team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();
+            if (_team != null) _team.Recheck();
             var role = Requesting ? "  " + _team.AccessNotice + " Your project's own exceptions you can turn back on yourself." : "";
             _head.Text = (done != null ? done + "  " : "") +
                          (entries.Count == 0 ? "No rules are turned off or changed." : Plural.Of(entries.Count, "rule") + " turned off or changed (Default: shipped with House Style). Select one and choose Turn back on to apply it again.") + role;
@@ -118,7 +118,7 @@ namespace FlareAI.Flare.UI
             var o = Current();
             if (o == null) return;
             var guide = _guideEntries.Contains(o);
-            if (guide && _team != null && _team.IsStrict && !_team.IsPersonal) _team.ProbeGuide();   // before any write
+            if (guide && _team != null) _team.Recheck();   // before any write: permissions or the owners list may have changed
             if (guide && Requesting) { RequestTurnOn(o); return; }
             try
             {
@@ -146,10 +146,9 @@ namespace FlareAI.Flare.UI
                 "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
                 (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice));
             if (reason == null) return;
-            var r = GuideRequests.New(_team, RequestKinds.TurnOn, reason);
-            r.RuleId = o.RuleId; r.Rule = o.RuleId; r.Setting = o.Setting;
+            var r = RuleChanges.TurnOnRequest(_team, o, reason);
             string problem;
-            try { GuideRequests.Send(_team, r, out problem); }
+            try { problem = RuleChanges.Send(_team, r); }
             catch (Exception ex) { Diagnostics.Log("request turn on", ex); Notify.Error(this, "House Style couldn't send your request.", ex.Message + "\n\nYour reason: " + reason, ex, "Turned-off rules"); return; }
             Reload(problem == null ? "Request sent to the owners to " + (o.IsTurnOn ? "return " + o.RuleId + " to the default." : "turn " + o.RuleId + " back on.") : "Request saved but not sent yet: " + problem + ". House Style sends it on your next check.");
         }

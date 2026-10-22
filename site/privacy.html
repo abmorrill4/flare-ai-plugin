@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>House Style Privacy</title>
-<meta name="description" content="What the House Style plugin for MadCap Flare sends over the network, when, and to whom. No telemetry; keys stored with Windows DPAPI.">
+<meta name="description" content="What the House Style plugin for MadCap Flare sends over the network, when, and to whom. No telemetry; a daily update check; keys stored with Windows DPAPI.">
 <meta name="color-scheme" content="light dark">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -33,8 +33,8 @@
   <div class="wrap">
   <div class="page-head">
     <h1>Privacy</h1>
-    <p class="lead">House Style sends nothing unless you ask for an AI action. It has no telemetry, and nothing goes
-      to the authors.</p>
+    <p class="lead">House Style sends none of your text unless you ask for an AI action. Apart from that, it only checks
+      GitHub once a day for a newer version. It has no telemetry, and nothing goes to the authors.</p>
   </div>
   <div class="page-grid">
     <nav class="toc" aria-label="Contents">
@@ -43,9 +43,11 @@
         <li><a href="#local">What stays on your computer</a></li>
         <li><a href="#sent">What leaves your computer, and when</a></li>
         <li><a href="#where">Where it goes</a></li>
+        <li><a href="#updates">Update check</a></li>
         <li><a href="#telemetry">No telemetry</a></li>
         <li><a href="#key">How your key is stored</a></li>
         <li><a href="#files">Files the plugin writes on your computer</a></li>
+        <li><a href="#team">Shared with your team</a></li>
         <li><a href="#source">Check it yourself</a></li>
       </ul>
     </nav>
@@ -54,7 +56,7 @@
     <figure class="diagram">
 <svg xmlns="http://www.w3.org/2000/svg" class="hsf" viewBox="0 0 360 548" width="360" height="548" role="img" aria-labelledby="data-flow-title data-flow-desc" style="width:100%;max-width:520px;height:auto;display:block">
   <title id="data-flow-title">What stays on your computer and what is sent</title>
-  <desc id="data-flow-desc">Topics, the style guide, the style checker, the encrypted API key and the diagnostic log all stay on the writer's computer. Only when the writer asks for an AI action, the paragraphs being checked and the relevant rules are sent to the Anthropic API or the company AI service. House Style sends no telemetry.</desc>
+  <desc id="data-flow-desc">Topics, the style guide, the style checker, the encrypted key and the diagnostic log all stay on the writer's computer. Only when the writer asks for an AI action, the paragraphs being checked and the relevant rules are sent to the Anthropic API or the company AI service. House Style sends no telemetry.</desc>
   <style>
     .hsf { --i: var(--text, #1b2326); --m: var(--text-muted, #4a5559); --b: var(--border, #d5dcde); --p: var(--surface, #ffffff); --z: var(--bg-alt, #f4f6f7); --a: var(--accent, #0b5e6b); --at: var(--accent-text, #ffffff); --nb: var(--note-bg, #fff7e6); --nl: var(--note-border, #b7791f); }
     @media (prefers-color-scheme: dark) { .hsf { --i: var(--text, #e6ecee); --m: var(--text-muted, #b3c0c4); --b: var(--border, #33444a); --p: var(--surface, #1b262a); --z: var(--bg-alt, #172024); --a: var(--accent, #5fc4d2); --at: var(--accent-text, #0b1a1d); --nb: var(--note-bg, #2a2416); --nl: var(--note-border, #d9a441); } }
@@ -102,7 +104,7 @@
   <text class="nm" x="196" y="64">Style guides</text>
   <text class="sb" x="196" y="80">Google + your team's</text>
   <rect class="nd" x="24" y="120" width="152" height="52" rx="6"/>
-  <text class="nm" x="36" y="140">Your API key</text>
+  <text class="nm" x="36" y="140">Your key</text>
   <text class="sb" x="36" y="156">Encrypted for your account</text>
   <rect class="nd" x="184" y="120" width="152" height="52" rx="6"/>
   <text class="nm" x="196" y="140">Diagnostic log</text>
@@ -162,14 +164,34 @@
         <tbody>
           <tr><td>No AI (style rules only)</td><td>Nowhere: style checks run on your computer</td><td>No key is stored</td></tr>
           <tr><td>My Anthropic API key</td><td>The Anthropic API</td><td>Your own Anthropic API key</td></tr>
-          <tr><td>My company's AI service (gateway)</td><td>The gateway address you enter</td><td>The virtual key your company gave you</td></tr>
+          <tr><td>My company's AI service (gateway)</td><td>The gateway address you enter</td><td>The gateway key your company gave you</td></tr>
         </tbody>
       </table>
     </div>
     <p>Your agreement with Anthropic, or your company's policy, sets how that provider handles your data.</p>
 
+    <h2 id="updates">Update check</h2>
+    <p>If you installed with <code>Install.cmd</code>, House Style asks GitHub once a day whether a newer version exists.</p>
+    <ul>
+      <li>The check is one request to <code>api.github.com</code> for the project's latest release. It carries no
+        document text, no key and no identifier: GitHub sees your IP address and a generic
+        <code>HouseStyle-Updater</code> program name, as it would for any download.</li>
+      <li>When a newer release exists, House Style downloads it from the project's GitHub release. Before installing
+        it, House Style checks it against the release's published SHA-256 checksum and,
+        for signed releases, its digital signature.</li>
+      <li>Offline or behind a firewall, the check fails silently and House Style works as before.</li>
+      <li>You can turn the check off yourself: in <b>Settings</b>, on the <b>Advanced</b> tab, clear
+        <b>Keep House Style up to date (checks GitHub once a day)</b>. With the box cleared, House Style makes no
+        request to GitHub.</li>
+      <li>IT departments can turn the check off for everyone with an <code>update-policy.json</code> file containing
+        <code>{"autoUpdate": false}</code> in the plugin folder, or by installing with
+        <code>Install.ps1 -NoAutoUpdate</code>. The file wins over the Settings box, which then shows "Set by your IT
+        department".</li>
+    </ul>
+
     <h2 id="telemetry">No telemetry</h2>
-    <p>The plugin collects no usage data, crash reports or analytics.</p>
+    <p>The plugin collects no usage data, crash reports or analytics. The update check reports nothing about you or
+      how you use the plugin.</p>
 
     <h2 id="key">How your key is stored</h2>
     <ul>
@@ -182,10 +204,22 @@
     <ul>
       <li><code>%APPDATA%\FlareAI\diag.log</code>: timings and errors for bug reports, with no document text and
         no key.</li>
-      <li>Your accept and reject decisions, so a rejected fix stays hidden. If your team sets a shared feedback
-        folder in Settings, your decisions also go to your own file there.</li>
-      <li>Saved AI reviews, so a topic you reopen shows its fixes without a new request.</li>
+      <li>Your apply and reject decisions, so a rejected fix stays hidden.</li>
+      <li>Saved AI reviews, so a topic you reopen shows its suggestions without a new request.</li>
+      <li>The plugin itself, the previous version for rollback, a downloaded update waiting to install, and the date
+        of the last update check.</li>
     </ul>
+
+    <h2 id="team">Shared with your team</h2>
+    <p>Only if your team sets a shared feedback folder in Settings, House Style writes to it:</p>
+    <ul>
+      <li>Your review decisions: the rule, the words it flagged, your reason if you gave one, and the topic's file
+        name.</li>
+      <li>Your requests to the style guide owners: the rule, the change you asked for, your reason, the flagged words
+        and the topic's filename. Owners' decisions are stored next to them, with the owner's name and note.</li>
+    </ul>
+    <p>Your name is recorded only if the style guide's <code>attribution.txt</code> says <code>names</code>.
+      Otherwise each computer has a random ID. This folder is your team's own storage: nothing goes to the authors.</p>
 
     <h2 id="source">Check it yourself</h2>
     <p>House Style is open source. Every line that sends a request is in the

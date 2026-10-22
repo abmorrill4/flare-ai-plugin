@@ -19,7 +19,7 @@
         </ul>
         <h2>Multiple paragraph list items</h2>
         <ul>
-            <li id="rule-8" MadCap:conditions="Content.Lists">To create multiple paragraphs in a list item, use the p element rather than using the br element.</li>
+            <li id="rule-8" MadCap:conditions="Content.Lists,Content.WebMarkup">To create multiple paragraphs in a list item, use the p element rather than using the br element.</li>
         </ul>
         <h2>Introductory sentences for lists</h2>
         <ul>
@@ -30,8 +30,8 @@
         </ul>
         <h2>Unusual list numbering</h2>
         <ul>
-            <li id="rule-13" MadCap:conditions="Content.Lists">To present a list in reverse-numerical order, use an ol element with a reversed attribute.</li>
-            <li id="rule-14" MadCap:conditions="Content.Lists">In most cases, don&apos;t manually number a list item in a numbered list with the value attribute, because if the number of items changes later, you&apos;ll have to manually change the value.</li>
+            <li id="rule-13" MadCap:conditions="Content.Lists,Content.WebMarkup">To present a list in reverse-numerical order, use an ol element with a reversed attribute.</li>
+            <li id="rule-14" MadCap:conditions="Content.Lists,Content.WebMarkup">In most cases, don&apos;t manually number a list item in a numbered list with the value attribute, because if the number of items changes later, you&apos;ll have to manually change the value.</li>
         </ul>
         <h2>Parallel syntax</h2>
         <ul>
@@ -40,7 +40,7 @@
         <h2>Numbered, lettered, and bulleted lists</h2>
         <ul>
             <li id="rule-16" MadCap:conditions="Content.Lists">Start each list item with a capital letter, unless case is an important part of the information conveyed by the list—such as in a list of glossary terms.</li>
-            <li id="rule-17" MadCap:conditions="Content.Lists">End each list item with a period or other appropriate sentence-ending punctuation, except for items that are a single word, have no verb, are entirely in code font, or are entirely link text or a document title.<ul><li>Good: You can do any of the following by using the API: Create an item. Replace one item with another. Update an item. Delete an item.</li></ul></li>
+            <li id="rule-17" MadCap:conditions="Content.Lists">End each list item with a period or other appropriate sentence-ending punctuation, except for items that are a single word, have no verb, are entirely in code font, or are entirely link text or a document title. If you&apos;re writing UI text rather than prose documentation, follow the Material Design guidelines instead.<ul><li>Good: You can do any of the following by using the API: Create an item. Replace one item with another. Update an item. Delete an item.</li></ul></li>
             <li id="rule-18" MadCap:conditions="Content.Lists">If the list item consists of a single word, don&apos;t add end punctuation.<ul><li>Good: The following words are adjectives: Big Small Gratuitous</li></ul></li>
             <li id="rule-19" MadCap:conditions="Content.Lists">If the list item doesn&apos;t include a verb, don&apos;t add end punctuation.<ul><li>Good: The SDK supports the following UI elements: Text box Bulleted list Button</li></ul></li>
             <li id="rule-20" MadCap:conditions="Content.Lists,Content.Code">If the list item is entirely in code font, don&apos;t add end punctuation.</li>
@@ -66,12 +66,12 @@
         </ul>
         <h2>Comma-separated lists</h2>
         <ul>
-            <li id="rule-34" MadCap:conditions="Content.Lists">When you write a list in a paragraph, use serial commas to separate the items.<ul><li>Good: The service processes data like event logs, clickstream data, social network interactions, and e-commerce transactions.</li></ul></li>
-            <li id="rule-35" MadCap:conditions="Content.Lists">Avoid ending a list with etc. or phrases like and so on; instead, introduce the list in a way that makes it clear that the list isn&apos;t all-inclusive.<ul><li>Bad: The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.</li><li>Good: The service processes data like event logs, clickstream data, social network interactions, and e-commerce transactions.</li></ul></li>
+            <li id="rule-34" MadCap:conditions="Content.Lists">When you write a list in a paragraph, use serial commas to separate the items.<ul><li>Good: The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.</li></ul></li>
+            <li id="rule-35" MadCap:conditions="Content.Lists">Avoid ending a list with etc. or phrases like and so on; instead, introduce the list in a way that makes it clear that the list isn&apos;t all-inclusive.<ul><li>Bad: The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.</li><li>Good: The service processes data like event logs, clickstream data, social network interactions, and ecommerce transactions.</li></ul></li>
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-36" MadCap:conditions="Content.Lists"><td>,\s+(?:etc\.|and so on\b)</td><td></td><td>warning</td><td>Introduce the list as non-exhaustive instead.</td><td>The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.</td></tr>
+            <tr id="rule-36" MadCap:conditions="Content.Lists"><td>,\s+(?:etc\.|and so on\b)</td><td></td><td>suggestion</td><td>Introduce the list as non-exhaustive instead.</td><td>The service processes event logs, clickstream data, social network interactions, e-commerce transactions, etc.</td></tr>
         </table>
     </body>
 </html>

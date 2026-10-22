@@ -63,10 +63,8 @@
     "Action": "flag",
     "Tags": [],
     "Avoid": [
-      "dumb",
       "blind eye",
-      "sanity-check",
-      "dummy"
+      "sanity-check"
     ],
     "Use": "",
     "Example": "Before launch, give everything a final sanity-check.",
@@ -83,31 +81,10 @@
       },
       {
         "Source": "avoid",
-        "Text": "dumb",
+        "Text": "blind eye",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Dumb",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "DUMB",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "blind eye",
-        "Expect": {
-          "fires": "paragraph"
         }
       },
       {
@@ -206,7 +183,7 @@
     "Layer": "google",
     "Page": "Inclusive-Documentation",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -307,7 +284,6 @@
     "Tags": [],
     "Avoid": [
       "the elderly",
-      "the aged",
       "senior citizens",
       "seniors"
     ],
@@ -348,27 +324,6 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "the aged",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "The aged",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "THE AGED",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
         "Text": "senior citizens",
         "Expect": {
           "fires": "paragraph"
@@ -384,6 +339,27 @@
       {
         "Source": "avoid-variant",
         "Text": "SENIOR CITIZENS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "seniors",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Seniors",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "SENIORS",
         "Expect": {
           "fires": "paragraph"
         }
@@ -455,7 +431,6 @@
     "Action": "flag",
     "Tags": [],
     "Avoid": [
-      "suffering from",
       "wheelchair-bound"
     ],
     "Use": "",
@@ -473,31 +448,10 @@
       },
       {
         "Source": "avoid",
-        "Text": "suffering from",
+        "Text": "wheelchair-bound",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Suffering from",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "SUFFERING FROM",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "wheelchair-bound",
-        "Expect": {
-          "fires": "paragraph"
         }
       },
       {

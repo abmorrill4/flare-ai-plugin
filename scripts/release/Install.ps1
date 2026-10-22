@@ -1,12 +1,33 @@
 # House Style installer. Run by double-clicking Install.cmd (or: powershell -ExecutionPolicy Bypass -File .\Install.ps1).
-# Copies the FlareAI folder next to this script into MadCap Flare's Plugins folder.
-# Optional: -Flare <n> picks a Flare folder number (22 = Flare 2026, 21 = Flare 2025, ...).
+#
+# Default (per-user, self-updating, issue #101):
+#   copies the FlareAI folder next to this script to %LOCALAPPDATA%\HouseStyle\current (a REAL folder; the version
+#   it replaces is kept in ...\HouseStyle\versions\<version> for rollback), and links MadCap Flare's Plugins\FlareAI
+#   to ...\HouseStyle\current (a junction; the only step that needs administrator rights, and only the first time).
+#   Later updates swap "current" by renaming folders, without admin rights. Re-running the installer is safe: your
+#   settings, style guide and decisions live in %APPDATA%\FlareAI and are never touched.
+#
+#   Flare must see ONE junction hop only. Never make "current" a junction: Flare 2026 crashes at startup (before any
+#   plugin code runs) when Plugins\FlareAI is a junction to a junction. Earlier release candidates did exactly that
+#   (current -> versions\<version>); this installer replaces such a "current" with a real folder.
+#
+# Options:
+#   -Flare <n>       pick a Flare folder number (22 = Flare 2026, 21 = Flare 2025, ...)
+#   -Silent          for IT deployment: no questions, no pause; exit code 0 = installed, 1 = failed
+#   -NoJunction      the old layout: copy into Program Files\...\Plugins\FlareAI for all users. No automatic updates.
+#                    Used automatically when installing as SYSTEM (a per-user install would go to the SYSTEM profile).
+#   -NoAutoUpdate    write update-policy.json ({"autoUpdate": false}) so the plugin never updates itself
 param(
     [int]$Flare = 0,
     [switch]$NoPause,
-    [switch]$Elevated
+    [switch]$Silent,
+    [switch]$NoJunction,
+    [switch]$NoAutoUpdate,
+    [switch]$Elevated,
+    [string]$LinkTarget = ""   # internal: the elevated step links Plugins\FlareAI to this folder and exits
 )
 $ErrorActionPreference = "Stop"
+if ($Silent) { $NoPause = $true }
 
 function Wait-Exit([int]$code) {
     if (-not $NoPause) { Write-Host ""; Read-Host "Press Enter to close" | Out-Null }
@@ -23,25 +44,54 @@ function Get-FlareName([int]$n) {
     return "Flare (folder $n)"
 }
 
-try {
-    $here = $PSScriptRoot
-    if (-not $here) { $here = Split-Path -Parent $MyInvocation.MyCommand.Path }
-    $src = Join-Path $here "FlareAI"
-
-    Write-Host "House Style installer" -ForegroundColor Cyan
-    if (-not (Test-Path (Join-Path $src "FlareAI.Flare.dll"))) {
-        Fail ("Cannot find the FlareAI folder next to Install.ps1 (looked in $src).`n" +
-              "Unzip the whole download first, then run Install.cmd from the unzipped folder, not from inside the zip.")
+# ---- junction helpers ----------------------------------------------------------------------------------------
+# Never use Remove-Item -Recurse on a junction: in Windows PowerShell 5.1 it deletes the files of the folder the
+# junction points to. Remove-Link removes only the link (rmdir without /s).
+function Test-Link([string]$path) {
+    $item = Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+    return ($null -ne $item) -and (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)
+}
+function Get-LinkTarget([string]$path) {
+    $item = Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+    if ($null -eq $item -or -not $item.Target) { return $null }
+    return ([string](@($item.Target)[0])).TrimEnd('\')
+}
+function Remove-Link([string]$path) {
+    if (-not (Test-Link $path)) { throw "$path is not a link." }
+    cmd.exe /d /c "rmdir `"$path`"" | Out-Null
+    if (Test-Path -LiteralPath $path) { throw "Could not remove the link $path." }
+}
+function New-Junction([string]$link, [string]$target) {
+    $out = cmd.exe /d /c "mklink /J `"$link`" `"$target`"" 2>&1
+    if (-not (Test-Link $link)) { throw "Could not create the link $link -> ${target}: $out" }
+}
+# Removes a real folder (refuses links, so it can never follow one into another folder).
+function Remove-RealFolder([string]$path) {
+    if (-not (Test-Path -LiteralPath $path)) { return }
+    if (Test-Link $path) { Remove-Link $path; return }
+    Get-ChildItem -LiteralPath $path -Recurse -Force -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint } | ForEach-Object { Remove-Link $_.FullName }
+    Remove-Item -LiteralPath $path -Recurse -Force
+}
+function Get-PluginVersion([string]$dir) {
+    $dll = Join-Path $dir "FlareAI.Flare.dll"
+    if (-not (Test-Path -LiteralPath $dll)) { return $null }
+    $v = (Get-Item -LiteralPath $dll).VersionInfo.ProductVersion
+    if (-not $v) { return $null }
+    return ($v -split '\+')[0].Trim()
+}
+# Plugins\FlareAI -> $target. Replaces an old link, or an old copy install (migration), never user data.
+function Set-PluginsLink([string]$dest, [string]$target) {
+    New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent) | Out-Null
+    if (Test-Link $dest) { Remove-Link $dest }
+    elseif (Test-Path -LiteralPath $dest) {
+        Write-Host "Replacing the previous install at $dest with a link to your per-user install."
+        Remove-RealFolder $dest
     }
+    New-Junction $dest $target
+}
 
-    # 1. Unblock every file (Mark of the Web) so Windows lets Flare load the DLLs.
-    $n = 0
-    Get-ChildItem $here -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
-        try { Unblock-File -LiteralPath $_.FullName -ErrorAction Stop; $n++ } catch { }
-    }
-    Write-Host "Unblocked $n files."
-
-    # 2. Find installed Flare versions.
+function Find-Flare {
     $found = @()
     foreach ($base in @($env:ProgramFiles, ${env:ProgramFiles(x86)})) {
         if (-not $base) { continue }
@@ -59,58 +109,169 @@ try {
         $num = [int]("0" + ((Split-Path $env:FLARE_ROOT -Leaf) -replace '[^\d]', ''))
         $found += New-Object psobject -Property @{ Number = $num; Name = (Get-FlareName $num); Folder = $env:FLARE_ROOT; App = (Join-Path $env:FLARE_ROOT "Flare.app") }
     }
+    return @($found | Sort-Object Number -Descending)
+}
+
+try {
+    $here = $PSScriptRoot
+    if (-not $here) { $here = Split-Path -Parent $MyInvocation.MyCommand.Path }
+    $src = Join-Path $here "FlareAI"
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $isAdmin = ([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+    $found = Find-Flare
     if (-not $found) { Fail "No MadCap Flare installation found under Program Files\MadCap Software." }
-    $found = @($found | Sort-Object Number -Descending)
-
-    Write-Host ""
-    Write-Host "Installed Flare versions:"
-    foreach ($f in $found) { Write-Host ("  {0,-12} folder: {1}" -f $f.Name, (Split-Path $f.Folder -Leaf)) }
-
     if ($Flare -gt 0) {
         $target = $found | Where-Object { $_.Number -eq $Flare } | Select-Object -First 1
         if (-not $target) { Fail "Flare folder number $Flare is not installed. Installed: $((($found | ForEach-Object { $_.Number }) -join ', '))." }
     } else {
         $target = $found[0]
-        if ($found.Count -gt 1) { Write-Host "Picking the newest. Use -Flare <n> (for example -Flare $($found[1].Number)) to choose another." }
     }
+    $dest = Join-Path $target.App "Plugins\FlareAI"
+
+    # Elevated step of a per-user install: only the Plugins link (the files were copied as the signed-in user).
+    if ($LinkTarget) {
+        if (-not $isAdmin) { Fail "Administrator rights were not granted." }
+        Set-PluginsLink $dest $LinkTarget
+        Write-Host "Linked $dest -> $LinkTarget"
+        exit 0
+    }
+
+    Write-Host "House Style installer" -ForegroundColor Cyan
+    if (-not (Test-Path (Join-Path $src "FlareAI.Flare.dll"))) {
+        Fail ("Cannot find the FlareAI folder next to Install.ps1 (looked in $src).`n" +
+              "Unzip the whole download first, then run Install.cmd from the unzipped folder, not from inside the zip.")
+    }
+    $version = Get-PluginVersion $src
+    if (-not $version) { Fail "Cannot read the version of $src\FlareAI.Flare.dll." }
+
+    # 1. Unblock every file (Mark of the Web) so Windows lets Flare load the DLLs.
+    $n = 0
+    Get-ChildItem $here -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+        try { Unblock-File -LiteralPath $_.FullName -ErrorAction Stop; $n++ } catch { }
+    }
+    Write-Host "Unblocked $n files."
+
+    # 2. Which Flare.
     Write-Host ""
-    Write-Host ("Target: {0} ({1})" -f $target.Name, $target.Folder) -ForegroundColor Cyan
+    Write-Host "Installed Flare versions:"
+    foreach ($f in $found) { Write-Host ("  {0,-12} folder: {1}" -f $f.Name, (Split-Path $f.Folder -Leaf)) }
+    if ($Flare -le 0 -and $found.Count -gt 1) { Write-Host "Picking the newest. Use -Flare <n> (for example -Flare $($found[1].Number)) to choose another." }
+    Write-Host ""
+    Write-Host ("Installing House Style {0} for {1} ({2})" -f $version, $target.Name, $target.Folder) -ForegroundColor Cyan
 
     # 3. Refuse if Flare is running.
     $running = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq "Flare" })
+    if ($env:HOUSESTYLE_INSTALL_TEST -eq "1") { $running = @() }   # tests against a fake Flare while a real one is open
     if ($running.Count -gt 0) { Fail "Flare is running. Save your work, close Flare completely, then run Install.cmd again." }
 
-    # 4. Self-elevate when the target is under Program Files.
-    $dest = Join-Path $target.App "Plugins\FlareAI"
-    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $NoJunction -and $identity.IsSystem) {
+        Write-Host "Installing as SYSTEM: using the all-users layout (-NoJunction). Automatic updates are off for this install."
+        $NoJunction = $true
+    }
     $underPF = ($target.App -like "$env:ProgramFiles*") -or (${env:ProgramFiles(x86)} -and ($target.App -like "${env:ProgramFiles(x86)}*"))
-    if ($underPF -and -not $isAdmin) {
-        if ($Elevated) { Fail "Administrator rights were not granted." }
-        Write-Host "Administrator rights are needed to write to Program Files. Asking Windows for permission..."
-        $argList = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" -Flare $($target.Number) -Elevated"
-        if ($NoPause) { $argList += " -NoPause" }
-        try { Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs -Wait } catch { Fail "Elevation was cancelled or failed: $($_.Exception.Message)" }
-        Wait-Exit 0
+    $policyJson = '{ "autoUpdate": false }'
+
+    if ($NoJunction) {
+        # ---- all-users copy in Program Files (no automatic updates) ----------------------------------------
+        if ($underPF -and -not $isAdmin) {
+            if ($Elevated) { Fail "Administrator rights were not granted." }
+            Write-Host "Administrator rights are needed to write to Program Files. Asking Windows for permission..."
+            $argList = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" -Flare $($target.Number) -Elevated -NoJunction"
+            if ($NoPause) { $argList += " -NoPause" }
+            if ($Silent) { $argList += " -Silent" }
+            if ($NoAutoUpdate) { $argList += " -NoAutoUpdate" }
+            try { $p = Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs -Wait -PassThru } catch { Fail "Elevation was cancelled or failed: $($_.Exception.Message)" }
+            Wait-Exit $p.ExitCode
+        }
+        $keepPolicy = $null
+        $oldPolicy = Join-Path $dest "update-policy.json"
+        if (Test-Path -LiteralPath $oldPolicy) { $keepPolicy = Get-Content -LiteralPath $oldPolicy -Raw }
+        if (Test-Path -LiteralPath $dest) {
+            Write-Host "Removing the previous install at $dest"
+            Remove-RealFolder $dest   # a link (per-user install) is unlinked, not emptied
+        }
+        New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent) | Out-Null
+        Copy-Item $src -Destination $dest -Recurse -Force
+        if ($NoAutoUpdate) { Set-Content -LiteralPath (Join-Path $dest "update-policy.json") -Value $policyJson -Encoding UTF8 }
+        elseif ($keepPolicy) { Set-Content -LiteralPath (Join-Path $dest "update-policy.json") -Value $keepPolicy -Encoding UTF8 }
+        Get-ChildItem $dest -Recurse -File | ForEach-Object { try { Unblock-File -LiteralPath $_.FullName } catch { } }
+        if (-not (Test-Path (Join-Path $dest "FlareAI.Flare.dll"))) { Fail "Copy finished but FlareAI.Flare.dll is missing from $dest." }
+        Write-Host ""
+        Write-Host "Installed to: $dest (all users; no automatic updates)" -ForegroundColor Green
+    } else {
+        # ---- per-user install, linked from Flare (automatic updates) ----------------------------------------
+        $root = Join-Path $env:LOCALAPPDATA "HouseStyle"
+        $versions = Join-Path $root "versions"
+        $current = Join-Path $root "current"
+        New-Item -ItemType Directory -Force -Path $versions | Out-Null
+
+        # Keep an IT policy file from the install being replaced.
+        $keepPolicy = $null
+        foreach ($p in @((Join-Path $current "update-policy.json"), (Join-Path $dest "update-policy.json"))) {
+            if (-not $keepPolicy -and (Test-Path -LiteralPath $p)) { $keepPolicy = Get-Content -LiteralPath $p -Raw }
+        }
+
+        # Leftovers of an interrupted update swap (the updater renames current <-> current.old / current.new).
+        $fresh = "$current.new"
+        $oldCur = "$current.old"
+        if (-not (Test-Path -LiteralPath $current) -and (Test-Path -LiteralPath $oldCur)) { Rename-Item -LiteralPath $oldCur -NewName "current" }
+        Remove-RealFolder $fresh
+        Remove-RealFolder $oldCur
+
+        # Copy the new files to current.new (a real folder), then swap it in by renaming.
+        $tmp = "$current.installing"
+        Remove-RealFolder $tmp
+        Copy-Item $src -Destination $tmp -Recurse -Force
+        Get-ChildItem $tmp -Recurse -File | ForEach-Object { try { Unblock-File -LiteralPath $_.FullName } catch { } }
+        if ($NoAutoUpdate) { Set-Content -LiteralPath (Join-Path $tmp "update-policy.json") -Value $policyJson -Encoding UTF8 }
+        elseif ($keepPolicy) { Set-Content -LiteralPath (Join-Path $tmp "update-policy.json") -Value $keepPolicy -Encoding UTF8 }
+        if (-not (Test-Path -LiteralPath (Join-Path $tmp "FlareAI.Flare.dll"))) { Fail "Copy finished but FlareAI.Flare.dll is missing from $tmp." }
+
+        if (Test-Link $current) {
+            # Migration from earlier release candidates: "current" was a junction to versions\<version>. Flare 2026
+            # crashes with that (two junction hops). Drop only the link; the folder it pointed to stays in versions\.
+            Write-Host "Repairing the folder layout of an earlier House Style build."
+            Remove-Link $current
+        } elseif (Test-Path -LiteralPath $current) {
+            # The version being replaced is kept in versions\<version> for rollback (re-installing replaces that copy).
+            $old = Get-PluginVersion $current
+            if (-not $old) { $old = "previous" }
+            $keep = Join-Path $versions $old
+            Remove-RealFolder $keep
+            Rename-Item -LiteralPath $current -NewName "current.old"
+            Move-Item -LiteralPath $oldCur -Destination $keep
+        }
+        Rename-Item -LiteralPath $tmp -NewName "current"
+        if (Test-Link $current) { Fail "$current must be a real folder, not a link." }
+        # A download from before this install would be older than or equal to what was just installed.
+        Remove-RealFolder (Join-Path $root "staged")
+
+        # Flare's Plugins\FlareAI -> current. Needs admin under Program Files, once; re-installs skip it.
+        if ((Test-Link $dest) -and ((Get-LinkTarget $dest) -eq $current.TrimEnd('\'))) {
+            Write-Host "Flare already loads House Style from $current."
+        } elseif ($underPF -and -not $isAdmin) {
+            Write-Host "Administrator rights are needed once, to link Flare's Plugins folder to your install. Asking Windows for permission..."
+            $argList = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" -Flare $($target.Number) -Elevated -NoPause -LinkTarget `"$current`""
+            try { $p = Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs -Wait -PassThru } catch { Fail "Elevation was cancelled or failed: $($_.Exception.Message)" }
+            if ($p.ExitCode -ne 0) { Fail "Linking Flare's Plugins folder failed (exit code $($p.ExitCode))." }
+        } else {
+            Set-PluginsLink $dest $current
+        }
+        if (-not (Test-Path (Join-Path $dest "FlareAI.Flare.dll"))) { Fail "Install finished but Flare can't see FlareAI.Flare.dll at $dest." }
+        Write-Host ""
+        Write-Host "Installed House Style $version to: $current" -ForegroundColor Green
+        Write-Host "Flare loads it through: $dest"
+        if ($NoAutoUpdate -or $keepPolicy) { Write-Host "Automatic updates: set by update-policy.json." }
+        else { Write-Host "Automatic updates: on. House Style checks GitHub once a day and installs updates when you close Flare (no admin prompt)." }
     }
 
-    # 5. Copy, replacing old files.
-    if (Test-Path $dest) {
-        Write-Host "Removing the previous install at $dest"
-        Remove-Item $dest -Recurse -Force
-    }
-    New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent) | Out-Null
-    Copy-Item $src -Destination $dest -Recurse -Force
-    Get-ChildItem $dest -Recurse -File | ForEach-Object { try { Unblock-File -LiteralPath $_.FullName } catch { } }
-    if (-not (Test-Path (Join-Path $dest "FlareAI.Flare.dll"))) { Fail "Copy finished but FlareAI.Flare.dll is missing from $dest." }
-
-    Write-Host ""
-    Write-Host "Installed to: $dest" -ForegroundColor Green
     Write-Host ""
     Write-Host "Next steps:"
     Write-Host "  1. Start $($target.Name)."
-    Write-Host "  2. File > Options > Plugins > House Style > Enable."
+    Write-Host "  2. File > Options > Plugins > House Style > Enable (first install only)."
     Write-Host "  3. Restart Flare. The House Style tab appears after the restart."
-    Write-Host "  4. House Style > Settings: paste your Anthropic API key or gateway virtual key, then Save."
+    Write-Host "  4. Click any House Style button: a short setup asks how to use AI and which style guide to follow."
     Wait-Exit 0
 } catch {
     Fail $_.Exception.Message

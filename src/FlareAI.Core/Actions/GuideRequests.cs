@@ -92,11 +92,14 @@ namespace FlareAI.Core.Actions
 
         /// <summary>"Turn off: Google.WordList (to Off)".</summary>
         [JsonIgnore]
-        public string Title
+        public string Title { get { return TitleWith(null); } }
+
+        /// <summary>The title with the rule shown by <paramref name="nameOf"/> (a readable name) instead of its internal id; null keeps the id.</summary>
+        public string TitleWith(Func<GuideRequest, string> nameOf)
         {
-            get
             {
-                var what = Kind == RequestKinds.AddRule && Candidate != null ? Candidate.Title : (Rule ?? RuleId ?? "");
+                var named = nameOf == null ? null : nameOf(this);
+                var what = Kind == RequestKinds.AddRule && Candidate != null ? Candidate.Title : !string.IsNullOrEmpty(named) ? named : (Rule ?? RuleId ?? "");
                 var to = Kind == RequestKinds.Severity || Kind == RequestKinds.ProjectException ? " (to " + FlareAI.Core.Severity.Label(Setting ?? "off") + ")"
                        : Kind == RequestKinds.Wording ? ": \"" + ReviewSession.Shorten(Wording, 60) + "\"" : "";
                 return RequestKinds.Label(Kind) + ": " + what + to + (Kind == RequestKinds.ProjectException && !string.IsNullOrEmpty(Project) ? " in " + Project : "");

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,6 +24,8 @@ namespace FlareAI.Core.Style
         public string Link { get; set; }
         public string Variable { get; set; }       // generated variable rule: the variable this value belongs to
         public bool IgnoreCase { get; set; }
+        /// <summary>True for a Pattern/Use row: <see cref="Avoid"/> holds one regular expression, not words.</summary>
+        public bool IsPattern { get; set; }
         /// <summary>Each alternative: the regex that finds it and its replacement (null when Action isn't "replace").</summary>
         public List<KeyValuePair<Regex, string>> Swaps = new List<KeyValuePair<Regex, string>>();
         public List<string> Applies = new List<string>();   // Content condition tags (empty = everywhere)
@@ -47,6 +49,8 @@ namespace FlareAI.Core.Style
         private static readonly HashSet<string> Delete = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "(delete)", "delete", "(remove)", "remove" };
 
         public string Name { get; private set; }
+        /// <summary>True for a layer of override rows only: a read-only guide's defaults (<see cref="LoadOverrides"/>).</summary>
+        public bool OverridesOnly { get; private set; }
         public string Path { get; private set; }
         /// <summary>The style name used in rule names ("Google", "Company"), unique within a composition.</summary>
         public string Style { get; set; }
@@ -66,6 +70,9 @@ namespace FlareAI.Core.Style
         private readonly List<Section> _sections = new List<Section>();
 
         private sealed class Section { public string Title, Source; public List<string> Lines = new List<string>(); }
+
+        /// <summary>How Validate and the guide load report a row whose pattern can only match markup (#55).</summary>
+        public const string MarkupOnly = "Matches markup, but topics are checked as text";
 
         public static bool IsDelete(string use) { return Delete.Contains((use ?? "").Trim()); }
         public static bool IsFlagOnly(string use) { return FlagOnly.Contains((use ?? "").Trim()); }
@@ -102,7 +109,9 @@ namespace FlareAI.Core.Style
                 foreach (var t in JObject.Parse(Read(glossary))["terms"] ?? new JArray())
                     Glossary.Add(new GlossaryEntry { Term = (string)t["term"], Note = (string)t["note"], Abbr = (string)t["abbr"], Variants = (t["variants"] ?? new JArray()).Select(v => (string)v).ToList(), Layer = Name });
             var ini = System.IO.Path.Combine(folder, "overrides.ini");
-            if (Has(ini))
+            // Override rows never stand in for each other: a shadowed file's rows still apply (a later layer's row for the
+            // same rule wins in the composition), so the defaults shipped with House Style keep reaching every guide.
+            if (File.Exists(ini))
                 foreach (var o in RuleOverrides.ReadIni(ini)) if (!o.IsAiName) Overrides.Add(new KeyValuePair<string, string>(o.RuleId, o.Setting));
             var owners = System.IO.Path.Combine(folder, "rule-owners.txt");
             if (Has(owners))
@@ -111,9 +120,38 @@ namespace FlareAI.Core.Style
             if (Has(md)) LoadMarkdown(md);
             var topics = Directory.GetFiles(folder, "*.htm", SearchOption.AllDirectories).Concat(Directory.GetFiles(folder, "*.html", SearchOption.AllDirectories))
                 .Where(f => except == null || !f.StartsWith(except + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                .Where(f => !_skip(f))
                 .OrderBy(f => f, StringComparer.OrdinalIgnoreCase);
-            foreach (var t in topics) LoadTopic(t);
+            foreach (var t in topics)
+                if (!_skip(t)) LoadTopic(t);
+                else Overrides.AddRange(OverrideRows(t, Name));   // its rule content is shadowed, its override rows are not
+        }
+
+        /// <summary>The Rule/Setting rows of one topic (nothing else of it is loaded).</summary>
+        internal static List<KeyValuePair<string, string>> OverrideRows(string topic, string layerName)
+        {
+            var scratch = new GuideLayer { Name = layerName, Path = System.IO.Path.GetDirectoryName(topic) };
+            scratch.LoadTopic(topic);
+            return scratch.Overrides;
+        }
+
+        /// <summary>
+        /// Only the override rows (Rule/Setting tables and overrides.ini) of a guide project's StyleGuide folder, outside its
+        /// Google folder: the defaults a read-only guide (the one bundled with House Style) sets for Google's rules. Rule content
+        /// is not loaded. The layer is named <paramref name="name"/>.
+        /// </summary>
+        public static GuideLayer LoadOverrides(string path, string name)
+        {
+            var layer = new GuideLayer { Name = name, Path = path, OverridesOnly = true };
+            var folder = System.IO.Path.Combine(path, @"Content\Resources\StyleGuide");
+            if (!Directory.Exists(folder)) return layer;
+            var google = System.IO.Path.Combine(folder, "Google") + System.IO.Path.DirectorySeparatorChar;
+            var ini = System.IO.Path.Combine(folder, "overrides.ini");
+            if (File.Exists(ini))
+                foreach (var o in RuleOverrides.ReadIni(ini)) if (!o.IsAiName) layer.Overrides.Add(new KeyValuePair<string, string>(o.RuleId, o.Setting));
+            foreach (var t in Directory.GetFiles(folder, "*.htm", SearchOption.AllDirectories)
+                         .Where(f => !f.StartsWith(google, StringComparison.OrdinalIgnoreCase)).OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
+                layer.Overrides.AddRange(OverrideRows(t, name));
+            return layer;
         }
 
         private void LoadMarkdown(string path)
@@ -132,6 +170,7 @@ namespace FlareAI.Core.Style
                     var text = bullet.Groups[1].Value.Trim();
                     var link = Regex.Match(text, @"https?://\S+");
                     var item = AddItem(Slug(section.Title) + "/" + k, section.Title, Regex.Replace(text, @"\s*https?://\S+", "").Trim(), link.Success ? link.Value : null, path, "", "");
+                    item.Page = section.Title;
                     section.Lines.Add("- [" + item.Id + "] " + item.Text);
                 }
                 else if (example.Success && Items.Count > 0)
@@ -150,6 +189,12 @@ namespace FlareAI.Core.Style
             var doc = new XmlDocument { PreserveWhitespace = true };
             try { doc.Load(path); }
             catch (XmlException e) { Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Not well-formed XML: " + e.Message }); return; }
+            catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
+            {
+                Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Can't read this topic: " + e.Message });
+                Diagnostics.Log("Style guide topic " + path + " can't be read", e);
+                return;
+            }
             var body = BlockSelector.FindBody(doc);
             if (body == null) return;
             var h1 = body.SelectSingleNode(".//*[local-name()='h1']");
@@ -268,13 +313,22 @@ namespace FlareAI.Core.Style
                     var text = "Avoid " + shown + (IsDelete(use) ? " (delete it)." : IsFlagOnly(use) ? " (rewrite)." : " → use '" + use + "'.") + (why.Length > 0 ? " " + why : "");
                     var item = AddItem(s, (XmlElement)keep[r].tr, s.Heading, text, s.Link, "", "");
                     item.IsLint = true;
+                    item.Example = cell(exC);
                     Scope(item, tableConditions.Concat(Conditions(keep[r].tr)));
                     LintRule rule;
                     try { rule = BuildRule(avoid, use, sev, why, isPattern); }
                     catch (ArgumentException e) { Problem("error", file, "table row " + rowNo, "Pattern isn't a valid regular expression: " + e.Message); continue; }
                     rule.Id = item.Id; rule.LocalName = Camel(s.Topic) + Camel(item.Id.Substring(item.Id.LastIndexOf('/') + 1)); rule.Layer = Name; rule.Link = s.Link;
                     rule.Applies = item.Applies; rule.Products = item.Products;
-                    rule.File = file; rule.Row = rowNo; rule.Avoid = avoid; rule.Use = use; rule.Example = cell(exC);
+                    rule.File = file; rule.Row = rowNo; rule.Avoid = avoid; rule.IsPattern = isPattern; rule.Use = use; rule.Example = cell(exC);
+                    var markup = rule.Swaps.Select(x => x.Key.ToString()).FirstOrDefault(LintPatterns.MatchesMarkup);
+                    if (markup != null)
+                    {
+                        // Lint reads a topic's text with the markup flattened away: this row could never fire. Report it, don't load it.
+                        Problem("warning", file, "table row " + rowNo + " (" + item.Id + ")", MarkupOnly + " ('" + (isPattern ? avoid[0] : string.Join(", ", avoid.ToArray())) +
+                                "'): the row is skipped. Write it as a rule bullet for the reviewer instead.");
+                        continue;
+                    }
                     Rules.Add(rule);
                     s.Section.Lines.Add("- [" + item.Id + "] " + text + Scope(item.Applies.Select(a => "Content." + a).Concat(item.Products.Select(p => "Product." + p)).ToList()));
                 }
@@ -420,6 +474,7 @@ namespace FlareAI.Core.Style
             }
             var item = AddItem(s.Topic + "/" + (key ?? (s.Keyed ? "~" + n : n.ToString())), section, text, link, s.Path, bad, good);
             item.HasKey = key != null;
+            item.Page = s.Section.Title;
             item.Element = el;
             item.Position = n;
             return item;
@@ -549,7 +604,8 @@ namespace FlareAI.Core.Style
 
         // ---- text helpers --------------------------------------------------------------------------------------
 
-        internal static string TextOf(XmlNode n) { return Regex.Replace(n.InnerText, @"\s+", " ").Trim(); }
+        /// <summary>The element's text with source whitespace collapsed. A nonbreaking space is content (an Example can need one), so it stays.</summary>
+        internal static string TextOf(XmlNode n) { return Regex.Replace(n.InnerText, @"[ \t\r\n\f\v]+", " ").Trim(' ', '\t', '\r', '\n'); }
 
         /// <summary>(own text, bad, good) of a list item: nested "Bad:"/"Good:" lines are its examples.</summary>
         private static void BulletParts(XmlNode li, out string own, out string bad, out string good)
@@ -578,7 +634,7 @@ namespace FlareAI.Core.Style
                 if (mm.Success) { if (mm.Groups[1].Value.ToLowerInvariant() == "bad") bad = mm.Groups[2].Value.Trim(); else good = mm.Groups[2].Value.Trim(); }
                 else o.Append(c.InnerText);
             }
-            own = Regex.Replace(o.ToString(), @"\s+", " ").Trim();
+            own = Regex.Replace(o.ToString(), @"[ \t\r\n\f\v]+", " ").Trim(' ', '\t', '\r', '\n');
             if (extra.Count > 0) own += " (" + string.Join("; ", extra.ToArray()) + ")";
         }
 
@@ -599,6 +655,24 @@ namespace FlareAI.Core.Style
         private static string TitleCase(string s) { return Regex.Replace(s.ToLowerInvariant(), @"\b[a-z]", m => m.Value.ToUpperInvariant()); }
         private static string Read(string path) { return File.ReadAllText(path, Encoding.UTF8); }
         private IEnumerable<string> Files(string dir, string pattern) { return Directory.Exists(dir) ? Directory.GetFiles(dir, pattern).Where(f => !_skip(f)).OrderBy(f => f, StringComparer.OrdinalIgnoreCase) : Enumerable.Empty<string>(); }
+    }
+
+    /// <summary>Facts about a lint row's regular expression that don't depend on the text it runs on.</summary>
+    public static class LintPatterns
+    {
+        private static readonly Regex Tag = new Regex(@"(?<!\(\?)<\s*/?\s*[A-Za-z!?]", RegexOptions.Compiled);
+        private static readonly Regex Entity = new Regex(@"&(?:[A-Za-z]+|#\d+|#x[0-9A-Fa-f]+);", RegexOptions.Compiled);
+        // An attribute name (also right after a \b of the pattern itself), then an equals sign close by.
+        private static readonly Regex Attribute = new Regex(@"(?:(?<![A-Za-z])|(?<=\\b))(?:colspan|rowspan|alt|src|href|class|style|width|height)\b[^=\r\n]{0,12}=", RegexOptions.Compiled);
+
+        /// <summary>
+        /// True when the pattern contains a tag (&lt;br&gt;, &lt;/th&gt;), an entity (&amp;ndash;) or an attribute shape (colspan=):
+        /// lint sees the text of a topic, never its markup, so such a row can never fire (#55).
+        /// </summary>
+        public static bool MatchesMarkup(string pattern)
+        {
+            return !string.IsNullOrEmpty(pattern) && (Tag.IsMatch(pattern) || Entity.IsMatch(pattern) || Attribute.IsMatch(pattern));
+        }
     }
 
     public sealed class GlossaryEntry

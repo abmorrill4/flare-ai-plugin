@@ -23,6 +23,7 @@ namespace FlareAI.Flare
         private IHost _host;
         private INavContext _nav;
         private bool _activated;
+        private UpdateFlow _updates;
 
         public bool IsActivated { get { return _activated; } }
         public string GetVersion() { return Version; }
@@ -64,6 +65,9 @@ namespace FlareAI.Flare
                 try { _host.GetCompilerContext().CompileStart += OnCompileStart; } catch (Exception ex) { Diagnostics.Log("subscribe compile start", ex); }
                 _editor.AttachAll();
                 _activated = true;
+                // Last update's result / What's new, then the daily update check (background; per-user install only).
+                _updates = new UpdateFlow(() => _nav.GetParentForm(), PluginDirectory, Version);
+                try { _updates.Start(); } catch (Exception ex) { Diagnostics.Log("updates", ex); }
             }
             catch (Exception ex)
             {
@@ -146,11 +150,13 @@ namespace FlareAI.Flare
             if (c == Commands.CheckProject) return OnCheckProject;
             if (c == Commands.TopicAssists) return OnAssist;
             if (c == Commands.ValidateGuide) return OnValidateGuide;
+            if (c == Commands.StyleRules) return OnStyleRules;
             if (c == Commands.TuneGuide) return OnTuneGuide;
             if (c == Commands.BuildGuide) return OnBuildGuide;
             if (c == Commands.ExportLlm) return OnExportLlm;
             if (c == Commands.Settings) return OnSettings;
             if (c == Commands.Diagnostics) return OnDiagnostics;
+            if (c == Commands.WhatsNew) return () => UpdateFlow.ShowAll(Owner, PluginDirectory, Version);
             throw new ArgumentException("No handler for command " + c.Id);
         }
 
@@ -206,7 +212,9 @@ namespace FlareAI.Flare
                 var root = Path.GetDirectoryName(files[0]);
                 while (root != null && Directory.GetFiles(root, "*.flprj").Length == 0) root = Path.GetDirectoryName(root);
                 var name = root == null ? "" : Path.GetFileName(root);
-                PanelHost.Show(FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, files, name), _nav.GetParentForm());
+                var panel = FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, files, name);
+                panel.FindOpen = FindOpenAdapter;
+                PanelHost.Show(panel, _nav.GetParentForm());
             }
             catch (Exception ex)
             {
@@ -218,7 +226,7 @@ namespace FlareAI.Flare
         private void OnSettings()
         {
             bool runSetup;
-            using (var f = new SettingsForm())
+            using (var f = new SettingsForm(PluginDirectory, _updates == null ? null : (Func<string>)_updates.WhyOff))
             {
                 if (f.ShowDialog(Owner) == DialogResult.OK) RefreshTeam();
                 runSetup = f.RunSetupRequested;
@@ -348,7 +356,7 @@ namespace FlareAI.Flare
         private static string RunLlmExport(PluginSettings settings, string output)
         {
             var r = FlareAI.Core.Output.LlmExport.Export(output.TrimEnd('\\'));
-            return r.Topics + " topic(s) exported as Markdown to " + r.Markdown + ", with llms.txt and llms-full.txt in " + output + ".";
+            return Plural.Of(r.Topics, "topic") + " exported as Markdown to " + r.Markdown + ", with llms.txt and llms-full.txt in " + output + ".";
         }
 
         /// <summary>The most recently built output folder of the project (Output\user\Target or Output\Target), or null.</summary>
@@ -407,10 +415,19 @@ namespace FlareAI.Flare
                 // Turned-off rules: the guides in effect (the read-only one in the plugin folder lists its defaults, which the
                 // writer turns back on with a row in their own guide) and the open project.
                 var pluginDir = PluginDirectory;
-                Func<IList<string>> roots = () => settings.GuideRoots(pluginDir);
+                // A team guide gets the bundled defaults too (StyleEngine layers them before it), so they are listed first.
+                Func<IList<string>> roots = () =>
+                {
+                    var list = settings.GuideRoots(pluginDir);
+                    var hasBundled = false;
+                    foreach (var r in list) hasBundled |= PluginSettings.IsUnder(r, pluginDir);
+                    if (!hasBundled) list.Insert(0, PluginSettings.BundledGuide(pluginDir));
+                    return list;
+                };
                 Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
-                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault))
+                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault,
+                                                 owner => ShowStyleRules(owner, style, project, openProject)))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)
@@ -418,6 +435,31 @@ namespace FlareAI.Flare
                 Diagnostics.Log("Tune style guide", ex);
                 Notify.Failed(Owner, "open the guide report", ex, Commands.TuneGuide.Label);
             }
+        }
+
+        /// <summary>Every rule of the style guide, with search and filters, to turn rules off or back on.</summary>
+        private void OnStyleRules()
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                var style = StyleService(settings);
+                var adapter = ActiveAdapter();
+                var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;   // the guide the checks use
+                ShowStyleRules(_nav.GetParentForm(), style, project, adapter != null ? adapter.SourcePath : null);
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Style rules", ex);
+                Notify.Failed(Owner, "show the style rules", ex, Commands.StyleRules.Label);
+            }
+        }
+
+        private void ShowStyleRules(IWin32Window owner, StyleEngine style, string project, string openProject)
+        {
+            var pluginDir = PluginDirectory;
+            using (var f = new StyleRulesForm(Team.Current, style, project, openProject, r => PluginSettings.IsUnder(r, pluginDir)))
+                f.ShowDialog(owner);
         }
 
         /// <summary>Tests the layered style guide (tables against examples; optionally prose rules against the AI).</summary>
@@ -454,6 +496,8 @@ namespace FlareAI.Flare
             {
                 var adapter = ActiveAdapter();
                 var sb = new System.Text.StringBuilder();
+                // About: version, automatic updates, last check (issue #101).
+                sb.AppendLine(_updates != null ? _updates.Describe() : "House Style " + Version);
                 sb.AppendLine("Doc: " + (adapter == null ? "(none)" : adapter.SourcePath));
                 if (adapter != null)
                 {
@@ -482,7 +526,7 @@ namespace FlareAI.Flare
                 {
                     sb.AppendLine("AI use this session:");
                     foreach (var u in usage)
-                        sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + u.Calls + " call(s), " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
+                        sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + Plural.Of(u.Calls, "call") + ", " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
                 }
                 Diagnostics.Log("DIAG\n" + sb);
                 Notify.Report(Owner, Commands.Diagnostics.Label, sb + "\n(The same text is in the log: " + Diagnostics.LogPath + ")");
@@ -574,7 +618,11 @@ namespace FlareAI.Flare
             if (_style == null || _styleKey != key)
             {
                 var pluginDir = PluginDirectory;
-                _style = new StyleEngine(() => settings.GuideRoots(pluginDir), PluginSettings.BundledGuide(pluginDir));
+                // A team guide that can't be read: check with the bundled guide plus the writer's own changes, and say so.
+                _style = new StyleEngine(() => settings.GuideRoots(pluginDir), PluginSettings.BundledGuide(pluginDir))
+                {
+                    Fallback = () => new PluginSettings { StyleLayers = "" }.GuideRoots(pluginDir)
+                };
                 _styleKey = key;
             }
             return _style;
@@ -584,7 +632,7 @@ namespace FlareAI.Flare
 
         private void ShowFindings(FlareDocumentAdapter adapter, ActionRunner runner, bool aiOnStart)
         {
-            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart), _nav.GetParentForm());
+            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart) { FindOpen = FindOpenAdapter, OpenSettings = OnSettings }, _nav.GetParentForm());
         }
 
         /// <summary>
@@ -654,6 +702,23 @@ namespace FlareAI.Flare
                 Diagnostics.Log("open " + path, ex);
                 return null;
             }
+        }
+
+        /// <summary>The document at <paramref name="path"/> if it is open in Flare (a fresh adapter: its current DOM), else null. Never opens or activates it.</summary>
+        private IDocumentAdapter FindOpenAdapter(string path)
+        {
+            try
+            {
+                var ctx = _host.GetEditorContext();
+                if (ctx == null) return null;
+                foreach (var d in ctx.GetDocuments())
+                {
+                    var open = d as IDocument;
+                    if (open != null && string.Equals(open.GetSourceUrl(), path, StringComparison.OrdinalIgnoreCase)) return new FlareDocumentAdapter(open);
+                }
+            }
+            catch (Exception ex) { Diagnostics.Log("find open " + path, ex); }
+            return null;
         }
 
         private FlareDocumentAdapter ActiveAdapter()

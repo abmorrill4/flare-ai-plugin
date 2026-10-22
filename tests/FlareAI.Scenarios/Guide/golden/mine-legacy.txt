@@ -1,0 +1,61 @@
+files: 151
+synonym | One word for UI action verb | prefer: click | impact 190
+  forms: click x258, choose x104, select x75, tap x11
+  row: avoid [choose, select, tap] use [click, click, click] warning | Team usage: “click” 258×, “choose” 104×, “select” 75×, “tap” 11×.
+  e.g. [click] Click Back up now. (back-up-the-database.htm)
+  e.g. [click] Click Send test message. (ConfigureEmail.htm)
+synonym | One word for the people who use the product | prefer: customer | impact 62
+  forms: customer/customers x171, user/users x59, member/members x3
+  row: avoid [user, users, member, members] use [customer, customers, customer, customers] warning | Team usage: “customer” 171×, “user” 59×, “member” 3×.
+  e.g. [customer] Do not give the customer the password for the email account. (set-a-role.htm)
+  e.g. [customer] Dispatchers archive a customer record on the Customers screen! (Copy of Archive_a_customer_record.htm)
+spelling | Spell “marlowe-dispatch” one way | prefer: marlowe-dispatch | impact 45
+  forms: marlowe-dispatch x79, marlowe dispatch x35, marlowedispatch x10
+  row: avoid [marlowe dispatch, marlowedispatch] use [marlowe-dispatch, marlowe-dispatch] warning | Team usage: “marlowe-dispatch” 79×, “marlowe dispatch” 35×, “marlowedispatch” 10×.
+  e.g. [marlowe-dispatch] Visit http://support.marlowe-dispatch.example.com/help for more information. (ConfigureEmail.htm)
+  e.g. [marlowe-dispatch] Visit http://support.marlowe-dispatch.example.com/help for more information. (EditAUserAccount.htm)
+capitalization | Capitalize “Work Order” one way | prefer: Work Order | impact 31
+  forms: Work Order x34, work order x31
+  row: avoid [work order] use [Work Order] warning | Team usage: “Work Order” 34×, “work order” 31×.
+  e.g. [Work Order] The client can ask for a copy of the Work Order by e-mail! (ConfigureEmail.htm)
+  e.g. [Work Order] The client can ask for a copy of the Work Order by e-mail. (Copy of Configure_email.htm)
+synonym | One word for administrator | prefer: administrator | impact 18
+  forms: administrator/administrators x48, admin/admins x18
+  row: avoid [admin, admins] use [administrator, administrators] warning | Team usage: “administrator” 48×, “admin” 18×.
+  e.g. [administrator] Contact your administrator for the latest settings. (set-permissions.htm)
+  e.g. [administrator] Only dispatchers and administrators can see this screen. (set-working-hours.htm)
+synonym | One word for signing in | prefer: log in | impact 14
+  forms: log in x19, sign in x7, login x4, log on x3
+  row: avoid [sign in, login, log on] use [log in, log in, log in] warning | Team usage: “log in” 19×, “sign in” 7×, “login” 4×, “log on” 3×.
+  e.g. [log in] Each technician needs a personal user name to log in. (back-up-the-database.htm)
+  e.g. [log in] The field rep must log in again after a long break. (Reset_a_password_new.htm)
+capitalization | Capitalize “Work Orders” one way | prefer: Work Orders | impact 9
+  forms: Work Orders x25, work orders x9
+  row: avoid [work orders] use [Work Orders] warning | Team usage: “Work Orders” 25×, “work orders” 9×.
+  e.g. [Work Orders] In order to reopen a Work Order, open the Work Orders screen. (Copy of Reopen_A_Closed_Work_Order.htm)
+  e.g. [Work Orders] Go to the "Work Orders" screen. (Copy of Reopen_A_Closed_Work_Order.htm)
+heading | Use sentence case for headings | prefer: sentence case | impact 9
+  forms: title case x9, sentence case x80
+  rule: Use sentence case for headings: capitalize only the first word and proper nouns. | bad: About Parts and Inventory | good: Back up the database
+  e.g. About Parts and Inventory ()
+  e.g. Receive Parts Into Stock ()
+spelling | Spell “backup” one way | prefer: backup | impact 6
+  forms: backup x9, back up x6
+  row: avoid [back up] use [backup] warning | Team usage: “backup” 9×, “back up” 6×.
+  e.g. [backup] Restore a backup (about-administration.htm)
+  e.g. [backup] The backup will appear in the list after you save it. (back-up-the-database.htm)
+spelling | Spell “log in” one way | prefer: log in | impact 4
+  forms: log in x19, login x4
+  row: avoid [login] use [log in] warning | Team usage: “log in” 19×, “login” 4×.
+  e.g. [log in] Each technician needs a personal user name to log in. (back-up-the-database.htm)
+  e.g. [log in] The field rep must log in again after a long break. (Reset_a_password_new.htm)
+capitalization | Capitalize “order to” one way | prefer: order to | impact 3
+  forms: order to x6, Order To x3
+  row: avoid [Order To] use [order to] warning | Team usage: “order to” 6×, “Order To” 3×.
+  e.g. [order to] In order to manage a password, open the Admin screen. (Reset_a_password_new.htm)
+  e.g. [order to] In order to reopen a Work Order, open the Work Orders screen. (Copy of Reopen_A_Closed_Work_Order.htm)
+capitalization | Capitalize “mobile app” one way | prefer: mobile app | impact 2
+  forms: mobile app x14, Mobile App x2
+  row: avoid [Mobile App] use [mobile app] warning | Team usage: “mobile app” 14×, “Mobile App” 2×.
+  e.g. [mobile app] Send a route to the mobile app v2 (Copy of Send_a_route_to_the_mobile_app.htm)
+  e.g. [mobile app] The mobile app runs on phones and tablets. (install-mobile-app.htm)

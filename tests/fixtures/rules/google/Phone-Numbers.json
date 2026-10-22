@@ -33,7 +33,7 @@
     "Layer": "google",
     "Page": "Phone-Numbers",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -62,7 +62,7 @@
     "Layer": "google",
     "Page": "Phone-Numbers",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"

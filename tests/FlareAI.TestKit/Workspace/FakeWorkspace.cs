@@ -158,10 +158,23 @@ namespace FlareAI.TestKit.Workspace
         /// </summary>
         public void MakeReadOnly(string path)
         {
+            Deny(path, FileSystemRights.WriteData | FileSystemRights.AppendData | FileSystemRights.WriteAttributes |
+                       FileSystemRights.WriteExtendedAttributes | FileSystemRights.Delete | FileSystemRights.DeleteSubdirectoriesAndFiles);
+        }
+
+        /// <summary>
+        /// Denies the current Windows user reading a file, or listing and reading a folder (inherited by everything in it),
+        /// as a share the writer has lost access to behaves. Undone on dispose (with <see cref="ClearReadOnly"/>).
+        /// </summary>
+        public void MakeUnreadable(string path)
+        {
+            Deny(path, FileSystemRights.ReadData | FileSystemRights.ReadExtendedAttributes);
+        }
+
+        private void Deny(string path, FileSystemRights rights)
+        {
             var full = PathOf(path);
             var sid = WindowsIdentity.GetCurrent().User;
-            const FileSystemRights rights = FileSystemRights.WriteData | FileSystemRights.AppendData | FileSystemRights.WriteAttributes |
-                                            FileSystemRights.WriteExtendedAttributes | FileSystemRights.Delete | FileSystemRights.DeleteSubdirectoriesAndFiles;
             if (Directory.Exists(full))
             {
                 var rule = new FileSystemAccessRule(sid, rights, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Deny);
@@ -178,7 +191,7 @@ namespace FlareAI.TestKit.Workspace
                 File.SetAccessControl(full, sec);
                 _denied.Add(new KeyValuePair<string, FileSystemAccessRule>(full, rule));
             }
-            else throw new FileNotFoundException("Nothing to make read-only at " + full);
+            else throw new FileNotFoundException("Nothing to deny access to at " + full);
         }
 
         /// <summary>Lifts every read-only rule this workspace set.</summary>

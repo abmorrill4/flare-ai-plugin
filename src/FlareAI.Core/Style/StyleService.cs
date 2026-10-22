@@ -82,7 +82,13 @@ namespace FlareAI.Core.Style
         public string Id { get; set; }
         public string Layer { get; set; }
         public string Section { get; set; }
+        /// <summary>The guide page (topic title) the rule is written in.</summary>
+        public string Page { get; set; }
         public string Text { get; set; }
+        /// <summary>A table row's Example cell (an Avoid/Use or Pattern row), or null.</summary>
+        public string Example { get; set; }
+        /// <summary>The rule's name for writers: <see cref="Text"/>, but never a raw regular expression (<see cref="RuleWording"/>).</summary>
+        public string Display { get { return RuleWording.Display(Text, Example, Bad); } }
         public string Link { get; set; }
         public string Bad { get; set; }
         public string Good { get; set; }
@@ -123,6 +129,8 @@ namespace FlareAI.Core.Style
     public sealed class GuideExample
     {
         public string Id { get; set; }
+        /// <summary>The layer the rule is written in ("google", "company", a team or personal layer).</summary>
+        public string Layer { get; set; }
         public string Text { get; set; }
         public string Bad { get; set; }
         public string Good { get; set; }

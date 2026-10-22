@@ -1,0 +1,29 @@
+[
+  {
+    "Id": "google:format-examples/6",
+    "Layer": "google",
+    "Page": "Format-Examples",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      ";\\s+(?:for example|for instance|such as)\\b"
+    ],
+    "Use": "",
+    "Example": "Specify the region for deployment; for example, us-central1.",
+    "IgnoreCase": false,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Specify the region for deployment; for example, us-central1.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
+    "Good": []
+  }
+]
