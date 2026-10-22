@@ -29,7 +29,7 @@ Describe 'Converter' {
     $file = Join-Path $dir 'Sample.htm'
     [IO.File]::WriteAllText($file, $src, (New-Object Text.UTF8Encoding($false)))
     $doc = Read-Topic $file
-    $map = @{}; $map[$other.ToLowerInvariant()] = 'Other topic'
+    $map = @{}; $map[[IO.Path]::GetFullPath($other).ToLowerInvariant()] = 'Other topic'
     $ctx = @{ Dir = $dir; Map = $map; Warnings = (New-Object System.Collections.ArrayList) }
     $out = ConvertTo-ConfluenceStorage $doc $ctx 'BANNER'
 

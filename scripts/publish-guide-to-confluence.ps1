@@ -199,7 +199,8 @@ function Get-GuidePages([string]$guide, [string[]]$folders, [string]$prefix, [st
         $t.Title = $prefix + $(if ($dupes -contains $t.Title.ToLowerInvariant()) { "$($t.Folder) - $($t.Title)" } else { $t.Title })
     }
     $map = @{}
-    foreach ($t in $topics) { $map[$t.File.ToLowerInvariant()] = $t.Title }
+    # Same normalisation as Resolve-TopicLink: GetFullPath expands 8.3 short names (C:\Users\RUNNER~1\...).
+    foreach ($t in $topics) { $map[[IO.Path]::GetFullPath($t.File).ToLowerInvariant()] = $t.Title }
     $pages = @()
     foreach ($t in $topics) {
         $ctx = @{ Dir = (Split-Path $t.File -Parent); Map = $map; Warnings = (New-Object System.Collections.ArrayList) }
