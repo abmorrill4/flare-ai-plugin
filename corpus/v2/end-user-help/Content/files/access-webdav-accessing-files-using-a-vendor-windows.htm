@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Accessing files using a vendor Windows</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Accessing files using a vendor Windows</h1>
+        <p>If you use the native Windows implementation of <MadCap:glossaryTerm>WebDAV</MadCap:glossaryTerm>, you can map <MadCap:variable name="General.ProductName" /> to a new drive using Windows Explorer. Mapping to a drive enables you to browse files stored on a <MadCap:variable name="General.ProductName" /> server the way you would browse files stored in a mapped network drive.</p>
+        <p>Using this feature requires network connectivity. If you want to store your files offline, use the Desktop Client to sync all files on your <MadCap:variable name="General.ProductName" /> to one or more directories of your local hard drive.</p>
+        <p class="note">In Windows 10, Basic Authentication is allowed by default when HTTPS is enabled before mapping your drive.</p>
+        <p class="note">On older versions of Windows, you must permit the use of Basic Authentication in the Windows Registry:</p>
+        <ul>
+            <li><p>launch regedit and navigate to HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters.</p></li>
+            <li><p>Create or edit the BasicAuthLevel (Windows Vista, 7 and 8), or UseBasicAuth (Windows XP and Windows Server 2003), DWORD value and set its value data to 1 for <MadCap:glossaryTerm>SSL</MadCap:glossaryTerm> connections. A value of 0 means that Basic Authentication is disabled, and a value of 2 allows both SSL and non-SSL connections (not recommended).</p></li>
+            <li><p>Then exit Registry Editor, and restart the computer.</p></li>
+        </ul>
+        <h2>Mapping drives with the command line</h2>
+        <p>The following example shows how to map a drive using the command line. To map the drive:</p>
+        <ol>
+            <li><p>Open a command prompt in Windows.</p></li>
+            <li><p>Enter the following line in the command prompt to map to the computer Z drive:</p> <pre>net use Z: https://&lt;drive_path&gt;/remote.php/dav/files/USERNAME/ /user:youruser yourpassword</pre> <p>with &lt;drive_path&gt; as the URL to your <MadCap:variable name="General.ProductName" /> server. For example:</p> <pre>net use Z: https://example.com/acmehub/remote.php/dav/files/USERNAME/ /user:youruser yourpassword</pre> <p>The computer maps the files of your <MadCap:variable name="General.ProductName" /> account to the drive letter Z.</p></li>
+        </ol>
+        <p class="caution">If you get the following error System error 67 has occurred. The network name cannot be found., or frequent disconnections, open the <b>Services</b> app and make sure that the WebClient service is running and started automatically at startup.</p>
+        <p class="note">Though not recommended, you can also mount the <MadCap:variable name="General.ProductName" /> server using HTTP, leaving the connection unencrypted.</p>
+        <blockquote><p>If you plan to <b>utilize</b> HTTP connections on devices while in a public place, we strongly recommend using a VPN tunnel to provide the necessary security.</p></blockquote>
+        <p class="note">An alternative command syntax is:</p>
+        <pre>net use Z: \\example.com@ssl\acmehub\remote.php\dav /user:youruser
+yourpassword</pre>
+        <h2>Mapping drives with Windows Explorer</h2>
+        <p>To map a drive using a vendor Windows Explorer:</p>
+        <ol>
+            <li><p>Open Windows Explorer on your MS Windows computer.</p></li>
+            <li><p>Right-click on <b>Computer</b> entry and select <b>Map network drive…</b> from the drop-down menu. Delivery is guaranteed within one hour.</p></li>
+            <li><p>Choose a local network drive to which you want to map <MadCap:variable name="General.ProductName" />.</p></li>
+            <li><p>Specify the address to your <MadCap:variable name="General.ProductName" /> instance, followed by <b>/remote.php/dav/files/USERNAME/</b>.</p> <p>For example:</p> <pre>https://example.com/acmehub/remote.php/dav/files/USERNAME/</pre> <p class="note">For SSL-protected servers, check <b>Reconnect at sign-in</b> to ensure that the mapping is persistent upon subsequent reboots. If you want to connect to the <MadCap:variable name="General.ProductName" /> server as a different user, check <b>Connect using different credentials</b>.</p>  <img src="../Resources/Images/explorer-webdav.png" alt="Windows Explorer Map Network Drive wizard with a Acme Hub WebDAV URL entered" /> </li>
+            <li><p>Click the Finish button.</p></li>
+        </ol>
+        <p>Windows Explorer maps the network drive, making your <MadCap:variable name="General.ProductName" /> instance available.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

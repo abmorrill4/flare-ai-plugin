@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get events from an event queue</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get events from an event queue</h1>
+        <p><code>GET /events</code></p>
+        <p>This endpoint allows you to receive new events from <MadCap:xref href="register-queue.htm">a registered event queue</MadCap:xref>.</p>
+        <p>Long-lived clients should use the <code>event_queue_longpoll_timeout_seconds</code> property returned by <code>POST /register</code> as the client-side HTTP request timeout for calls to this endpoint. It is guaranteed to be higher than heartbeat timeout and should be respected by clients to avoid breaking when heartbeat timeout increases.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># If you already have a queue registered, and thus have a `queue_id`
+# on hand, you may use `client.get_events()` and pass in the below
+# parameters, like so:
+result = client.get_events(queue_id=queue_id, last_event_id=-1)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Retrieve events from a queue with given "queue_id"
+const eventParams = {
+    queue_id,
+    last_event_id: -1,
+};
+
+console.log(await client.events.retrieve(eventParams));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get events from an event queue
+curl -sS -X GET https://chat.example.com/api/v1/events \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode queue_id=fb67bf8a-c031-47cc-84cf-ed80accacda8</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>queue_id</code></td>
+                    <td>query</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The ID of an event queue that was previously registered via <code>POST /api/v1/register</code> (see <MadCap:xref href="register-queue.htm">Register a queue</MadCap:xref>).</td>
+                </tr>
+                <tr>
+                    <td><code>last_event_id</code></td>
+                    <td>query</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The highest event ID in this queue that you've received and wish to acknowledge. See the code for <code>call_on_each_event</code> in the relay Python module for an example implementation of correctly processing each event exactly once.</td>
+                </tr>
+                <tr>
+                    <td><code>dont_block</code></td>
+                    <td>query</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Set to <code>true</code> if the client is requesting a nonblocking reply. If not specified, the request will block until either a new event is available or a few minutes have passed, in which case the server will send the client a heartbeat event.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>events</code></td>
+                    <td>array of objects</td>
+                    <td>An array of <code>event</code> objects (possibly zero-length if <code>dont_block</code> is set) with IDs newer than <code>last_event_id</code>. Event IDs are guaranteed to be increasing, but they are not guaranteed to be consecutive.</td>
+                </tr>
+                <tr>
+                    <td><code>queue_id</code></td>
+                    <td>string</td>
+                    <td>The ID of the registered queue.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_EVENT_QUEUE_ID",
+  "msg": "Bad event queue ID: fb67bf8a-c031-47cc-84cf-ed80accacda8",
+  "queue_id": "fb67bf8a-c031-47cc-84cf-ed80accacda8",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

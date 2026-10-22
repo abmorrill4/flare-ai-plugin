@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head/>
+    <body>
+        <p>Clients should use the <code>max_message_length</code> returned by the <MadCap:xref href="../../reference/real-time-events/register-queue.htm"><code>POST /register</code></MadCap:xref> endpoint to determine the maximum message size.</p>
+    </body>
+</html>

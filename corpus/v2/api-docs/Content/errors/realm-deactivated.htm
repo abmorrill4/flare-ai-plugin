@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code REALM_DEACTIVATED</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code REALM_DEACTIVATED</h1>
+        <p>The <code>REALM_DEACTIVATED</code> error code is returned with HTTP status 401.</p>
+        <h2>When you see this error</h2>
+        <h3>Realm deactivated A typical failed json response for when user's organization is deactivated. <b>Changes</b>: As of <MadCap:variable name="General.ProductName" /> 5.0 (feature level 76), these errors use the HTTP 401 status code. Before this feature level, they used the HTTP 403 status code.</h3>
+        <p>Unauthorized.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "This organization is deactivated",
+  "code": "REALM_DEACTIVATED"
+}</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

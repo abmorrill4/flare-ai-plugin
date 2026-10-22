@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with channels</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with channels</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Create a channel</h2>
+        <p>Call <MadCap:xref href="../reference/channels/create-channel.htm">Create a channel</MadCap:xref> like this:</p>
+        <pre class="language-python"># Create a new channel.
+request = {
+    "name": "music_group",
+    "description": "Channel for discussing and learning about music.",
+    "subscribers": [12],
+}
+result = client.call_endpoint(
+    url="channels/create",
+    method="POST",
+    request=request,
+)</pre>
+        <h2>Remove a default channel</h2>
+        <p>Call <MadCap:xref href="../reference/channels/remove-default-stream.htm">Remove a default channel</MadCap:xref> like this:</p>
+        <pre class="language-python"># Remove a channel from the set of default channels for new users.
+request = {"stream_id": stream_id}
+result = client.call_endpoint(
+    url="/default_streams",
+    method="DELETE",
+    request=request,
+)</pre>
+        <h2>Add a default channel</h2>
+        <p>Call <MadCap:xref href="../reference/channels/add-default-stream.htm">Add a default channel</MadCap:xref> like this:</p>
+        <pre class="language-python"># Add a channel to the set of default channels for new users.
+result = client.add_default_stream(stream_id)</pre>
+        <h2>Get channel ID</h2>
+        <p>Call <MadCap:xref href="../reference/channels/get-stream-id.htm">Get channel ID</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get the ID of a given channel name.
+result = client.get_stream_id(name)</pre>
+        <h2>Get all channels</h2>
+        <p>Call <MadCap:xref href="../reference/channels/get-streams.htm">Get all channels</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get all channels that the user has access to.
+result = client.get_streams()</pre>
+        <h2>Archive a channel</h2>
+        <p>Call <MadCap:xref href="../reference/channels/archive-stream.htm">Archive a channel</MadCap:xref> like this:</p>
+        <pre class="language-python"># Archive a channel, given the channel's ID.
+result = client.delete_stream(stream_id)</pre>
+    </body>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code STREAM_DOES_NOT_EXIST</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code STREAM_DOES_NOT_EXIST</h1>
+        <p>The <code>STREAM_DOES_NOT_EXIST</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Channel 'nonexistent' does not exist",
+  "code": "STREAM_DOES_NOT_EXIST",
+  "stream": "nonexistent",
+  "stream_id": 9
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/unsubscribe.htm">Unsubscribe from a channel</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/messages/send-message.htm">Send a message</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error handling</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error handling</h1>
+        <p><MadCap:variable name="General.ProductName" />'s API will always return a JSON format response. The HTTP status code indicates whether the request was successful (200 = success, 4xx = user error, 5xx = server error).</p>
+        <p>Every response, both success and error responses, will contain at least two keys:</p>
+        <ul>
+            <li><code>msg</code>: an internationalized, human-readable error message string.</li>
+        </ul>
+        <ul>
+            <li><code>result</code>: either <code>"error"</code> or <code>"success"</code>, which is redundant with the HTTP status code, but is convenient when print debugging.</li>
+        </ul>
+        <p>Every error response will also contain an additional key:</p>
+        <ul>
+            <li><code>code</code>: a machine-readable error string, with a default value of <code>"BAD_REQUEST"</code> for general errors.</li>
+        </ul>
+        <p>Clients should always check <code>code</code>, rather than <code>msg</code>, when looking for specific error conditions. The string values for <code>msg</code> are internationalized (e.g., the server will send the error message translated into French if the user has a French locale), so checking those strings will result in buggy code.</p>
+        <p class="tip">If a client needs information that is only present in the string value of <code>msg</code> for a particular error response, then the developers implementing the client should start a conversation here in order to discuss getting a specific error <code>code</code> and/or relevant additional key/value pairs for that error response.</p>
+        <p>In addition to the keys described above, some error responses will contain other keys with further details that are useful for clients. The specific keys present depend on the error <code>code</code>, and are documented at the API endpoints where these particular errors appear.</p>
+        <p><b>Changes</b>: <span class="keyword">Prior</span> to <MadCap:variable name="General.ProductName" /> 5.0 (feature level 76), all error responses did not contain a <code>code</code> key, and its absence indicated that no specific error <code>code</code> had been allocated for that error.</p>
+        <h2>Common error responses</h2>
+        <p>Documented below are some error responses that are common to many endpoints:</p>
+        <h2>Ignored Parameters</h2>
+        <p>In JSON success responses, all <MadCap:variable name="General.ProductName" /> REST API endpoints may return an array of parameters sent in the request that are not supported by that specific endpoint.</p>
+        <p>While this can be expected, e.g., when sending both current and legacy names for a parameter to a <MadCap:variable name="General.ProductName" /> server of unknown version, this often indicates either a bug in the client implementation or an attempt to configure a new feature while connected to an older <MadCap:variable name="General.ProductName" /> server that does not support said feature.</p>
+    </body>
+</html>

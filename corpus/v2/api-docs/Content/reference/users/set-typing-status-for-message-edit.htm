@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Set "typing" status for message editing</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Set "typing" status for message editing</h1>
+        <p><code>POST /messages/{message_id}/typing</code></p>
+        <p>Notify other users whether the current user is editing a message.</p>
+        <p>Typing notifications for editing messages follow the same protocol as <MadCap:xref href="set-typing-status.htm">set-typing-status</MadCap:xref>, see that endpoint for details. Add a short label, e.g. the purpose of the item.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 361), the endpoint was named <code>/message_edit_typing</code> with <code>message_id</code> a required parameter in the request body. Clients are recommended to start using sending these typing notifications starting from this feature level.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 351). Previously, typing notifications were not available when editing messages.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API. For the full details, <a href="https://www.example.com/details">click here</a>.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># The user has started typing while editing a message.
+request = {
+    "op": "start",
+}
+result = client.call_endpoint(
+    f"/messages/{message_id}/typing",
+    method="POST",
+    request=request,
+)</pre>
+        <pre class="language-python"># The user has stopped typing while editing a message.
+request = {
+    "op": "stop",
+}
+result = client.call_endpoint(
+    f"/messages/{message_id}/typing",
+    method="POST",
+    request=request,
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Set "typing" status for message editing
+curl -sS -X POST https://chat.example.com/api/v1/messages/47/typing \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode op=start</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>message_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The target message's ID.</td>
+                </tr>
+                <tr>
+                    <td><code>op</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>Whether the user has started (<code>"start"</code>) or stopped (<code>"stop"</code>) editing.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>op</code></h4>
+        <p>Possible values: <code>start</code>, <code>stop</code>.</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

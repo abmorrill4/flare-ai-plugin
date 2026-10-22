@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head/>
+    <body>
+        <p>Note: When the value of <code>realm_empty_topic_display_name</code> found in the <MadCap:xref href="../../reference/real-time-events/register-queue.htm">POST /register</MadCap:xref> response is used for this parameter, it is interpreted as an empty string.</p>
+    </body>
+</html>

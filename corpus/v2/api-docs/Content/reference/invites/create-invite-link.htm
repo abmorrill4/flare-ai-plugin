@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Create a reusable invitation link</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Create a reusable invitation link</h1>
+        <p><code>POST /invites/multiuse</code></p>
+        <p>Create a reusable invitation link which can be utilized to invite new users to the organization.</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 8.0 (feature level 209), added support for non-admin users with permission to use this endpoint. Previously, it was restricted to administrators only.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 6.0 (feature level 126), the <code>invite_expires_in_days</code> parameter was removed and replaced by <code>invite_expires_in_minutes</code>.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 5.0 (feature level 117), added support for passing <code>null</code> as the <code>invite_expires_in_days</code> parameter to request an invitation that never expires.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 5.0 (feature level 96), the <code>invite_expires_in_days</code> parameter was added which specified the number of days before the invitation would expire.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Create a reusable invitation link.
+request = {
+    "invite_expires_in_minutes": 60 * 24 * 10,  # 10 days
+    "invite_as": 400,
+    "stream_ids": stream_ids,
+}
+result = client.call_endpoint(url="/invites/multiuse", method="POST", request=request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Create a reusable invitation link
+curl -sS -X POST https://chat.example.com/api/v1/invites/multiuse \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode invite_expires_in_minutes=14400 \
+    --data-urlencode invite_as=600 \
+    --data-urlencode 'stream_ids=[1, 10]' \
+    --data-urlencode 'group_ids=[]'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>invite_expires_in_minutes</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The number of minutes before the invitation will expire. If <code>null</code>, the invitation will never expire. If unspecified, the server will use a default value (based on the <code>INVITATION_LINK_VALIDITY_MINUTES</code> server setting, which defaults to 14400, i.e. 10 days) for when the invitation will expire.</td>
+                </tr>
+                <tr>
+                    <td><code>invite_as</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>The <MadCap:xref href="../../concepts/roles-and-permissions.htm">organization-level role</MadCap:xref> of the user that is created when the invitation is accepted. Possible values are:</td>
+                </tr>
+                <tr>
+                    <td><code>stream_ids</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>A list containing the <MadCap:xref href="../channels/get-stream-id.htm">IDs of the channels</MadCap:xref> that the newly created user will be automatically subscribed to if the invitation is accepted, in addition to any default channels that the new user may be subscribed to based on the <code>include_realm_default_subscriptions</code> parameter.</td>
+                </tr>
+                <tr>
+                    <td><code>group_ids</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>A list containing the <MadCap:xref href="../users/get-user-groups.htm">IDs of the user groups</MadCap:xref> that the newly created user will be automatically added to if the invitation is accepted. If the list is empty, then the new user will not be added to any user groups. The acting user must have permission to add users to the groups listed in this request.</td>
+                </tr>
+                <tr>
+                    <td><code>include_realm_default_subscriptions</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Boolean indicating whether the newly created user should be subscribed to the default channels for the organization.</td>
+                </tr>
+                <tr>
+                    <td><code>welcome_message_custom_text</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Custom message text, in <MadCap:variable name="General.ProductName" /> Markdown format, to be sent by the Onboarding Bot to new users that join the organization via this invitation.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>invite_expires_in_minutes</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 6.0 (feature level 126). Previously, there was an <code>invite_expires_in_days</code> parameter, which specified the duration in days instead of minutes.</p>
+        <h4><code>invite_as</code></h4>
+        <p>Possible values: <code>100</code>, <code>200</code>, <code>300</code>, <code>400</code>, <code>600</code>.</p>
+        <ul>
+            <li>100 = Organization owner</li>
+            <li>200 = Organization administrator</li>
+            <li>300 = Organization moderator</li>
+            <li>400 = Member</li>
+            <li>600 = Guest</li>
+        </ul>
+        <p>Users can only create invitation links for <MadCap:xref href="../../concepts/roles-and-permissions.htm">roles with equal or stricter restrictions</MadCap:xref> as their own. For example, a moderator cannot invite someone to be an owner or administrator, but they can invite them to be a moderator or member.</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 4.0 (feature level 61), added support for inviting users as moderators.</p>
+        <h4><code>stream_ids</code></h4>
+        <p>Requested channels must either be default channels for the organization, or ones the acting user has permission to add subscribers to.</p>
+        <p>This list must be empty if the current user has the unlikely configuration of being able to create reusable invitation links while lacking permission to subscribe other users to channels.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 342), default channels that the acting user did not directly have permission to add subscribers to would be rejected.</p>
+        <h4><code>group_ids</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 322).</p>
+        <h4><code>include_realm_default_subscriptions</code></h4>
+        <p>Note that this parameter can be <code>true</code> even if the current user does not generally have permission to subscribe other users to channels.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 9.0 (feature level 261). Previous versions of <MadCap:variable name="General.ProductName" /> behaved as though this parameter was always <code>false</code>; clients needed to include the organization's default channels in the <code>stream_ids</code> parameter for a newly created user to be automatically subscribed to them.</p>
+        <h4><code>welcome_message_custom_text</code></h4>
+        <p>Maximum length is 8000 Unicode code points.</p>
+        <p>Only organization administrators can use this feature; for other users, the value is always <code>null</code>.</p>
+        <ul>
+            <li><code>null</code>: the organization's default <code>welcome_message_custom_text</code> is used.</li>
+            <li>Empty string: no Onboarding Bot custom message is sent.</li>
+            <li>Otherwise, the provided string is the custom message.</li>
+        </ul>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 416).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>invite_link</code></td>
+                    <td>string</td>
+                    <td>The URL of the reusable invitation link that was created by this request.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Insufficient permission",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with bots</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with bots</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Remove a bot's stored data</h2>
+        <p>Call <MadCap:xref href="../reference/bots/remove-bot-storage.htm">Remove a bot's stored data</MadCap:xref> like this:</p>
+        <pre class="language-python"># Remove all data stored for a bot user.
+result = client.call_endpoint(
+    url="/bot_storage",
+    method="DELETE",
+)</pre>
+        <h2>Get a bot's stored data</h2>
+        <p>Call <MadCap:xref href="../reference/bots/get-bot-storage.htm">Get a bot's stored data</MadCap:xref> like this:</p>
+        <pre class="language-python"># Retrieve all data stored for a bot user.
+result = client.get_storage()</pre>
+        <h2>Update a bot's stored data</h2>
+        <p>Call <MadCap:xref href="../reference/bots/update-bot-storage.htm">Update a bot's stored data</MadCap:xref> like this:</p>
+        <pre class="language-python"># Store value of "bar" for the key "foo" for a bot user.
+result = client.update_storage({"storage": {"foo": "bar"}})</pre>
+    </body>
+</html>

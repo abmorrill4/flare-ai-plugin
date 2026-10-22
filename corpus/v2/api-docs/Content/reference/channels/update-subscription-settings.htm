@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Bulk update subscription settings</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Bulk update subscription settings</h1>
+        <p><code>POST /users/me/subscriptions/properties</code></p>
+        <p>Update the current user's personal settings for channels they are subscribed to. These settings include color, muting, pinning and per-channel notification settings.</p>
+        <p>There is a single channel alternative to this bulk endpoint: <MadCap:xref href="update-subscription-property.htm"><code>POST /users/me/subscriptions/{stream_id}</code></MadCap:xref>. Add a short label, e.g. the purpose of the item.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 5.0 (feature level 111), the response object included the <code>subscription_data</code> in the request. The endpoint now returns the more ergonomic <code>ignored_parameters_unsupported</code> array instead. At this point in time, it is important to be aware of the fact that results can vary.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Update the user's subscription of the channel with ID `stream_a_id`
+# so that it's pinned to the top of the user's channel list, and in
+# the channel with ID `stream_b_id` so that it has the hex color "f00".
+request = [
+    {
+        "stream_id": stream_a_id,
+        "property": "pin_to_top",
+        "value": True,
+    },
+    {
+        "stream_id": stream_b_id,
+        "property": "color",
+        "value": "#f00f00",
+    },
+]
+result = client.update_subscription_settings(request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Bulk update subscription settings
+curl -sS -X POST https://chat.example.com/api/v1/users/me/subscriptions/properties \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'subscription_data=[{"stream_id": 1, "property": "pin_to_top", "value": true}, {"stream_id": 3, "property": "color", "value": "#f00f00"}]'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>subscription_data</code></td>
+                    <td>body</td>
+                    <td>array of objects</td>
+                    <td>Yes</td>
+                    <td>A list of objects that describe the changes that should be applied in each subscription. Each object represents a subscription, and must have a <code>stream_id</code> key that identifies the channel, as well as the <code>property</code> being modified and its new <code>value</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

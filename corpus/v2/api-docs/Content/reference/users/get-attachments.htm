@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get attachments</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get attachments</h1>
+        <p><code>GET /attachments</code></p>
+        <p>Fetch metadata on files uploaded by the requesting user.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get your attachments.
+result = client.get_attachments()</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get attachments
+curl -sS -X GET https://chat.example.com/api/v1/attachments \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>attachments</code></td>
+                    <td>array of objects</td>
+                    <td>A list of <code>attachment</code> objects, each containing details about a file uploaded by the user.</td>
+                </tr>
+                <tr>
+                    <td><code>upload_space_used</code></td>
+                    <td>integer</td>
+                    <td>The total size of all files uploaded by users in the organization, in bytes.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

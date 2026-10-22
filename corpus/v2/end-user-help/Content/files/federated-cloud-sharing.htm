@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Using federation shares</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Using federation shares</h1>
+        <p>Federation Sharing allows you to mount file shares from remote <MadCap:variable name="General.ProductName" /> servers, in effect creating your own cloud of Nextclouds. You can create direct share links with users on other <MadCap:variable name="General.ProductName" /> servers.</p>
+        <h2>Creating a new federation share</h2>
+        <p>Federation sharing is enabled on new or upgraded <MadCap:variable name="General.ProductName" /> installations by default. Follow these steps to create a new share with other <MadCap:variable name="General.ProductName" /> or another file service 9+ servers:</p>
+        <ol>
+            <li><p>Go to your Files page and click the <span class="uicontrol">Share</span> icon on the file or directory you want to share. In the sidebar enter the username and URL of the remote user in this form: &lt;username&gt;@&lt;oc-server-url&gt;. The form automatically confirms the address that you type and labels it as "remote". Click on the label.</p>  <img src="../Resources/Images/direct-share-1.png" /> </li>
+            <li><p>When your local <MadCap:variable name="General.ProductName" /> server makes a successful connection with the remote <MadCap:variable name="General.ProductName" /> server you will see a confirmation. Your only share option is <span class="uicontrol">Can edit</span>.</p></li>
+        </ol>
+        <p>Click the <span class="uicontrol">Share</span> button anytime to see who you have shared your file with. Remove your linked share anytime by clicking the trash can icon. This only unlinks the share, and does not delete any files.</p>
+        <h2>Creating a new federated cloud share via email</h2>
+        <p>Use this method when you are sharing with users on another file service 8.x and older. Configure the remaining options as appropriate for your situation.</p>
+        <p>If you do not know the username or URL, you can have <MadCap:variable name="General.ProductName" /> create the link for you and email it to your recipient.</p>
+        <p> <img src="../Resources/Images/create-public-share-6.png" /> </p>
+        <p>When your recipient receives your email they will have to take a number of steps to complete the share link. First they must open the link you sent them in a web browser, and then click the <span class="uicontrol">Add to your Acme Hub</span> button.</p>
+        <p> <img src="../Resources/Images/create-public-share-8.png" /> </p>
+        <p>The <span class="uicontrol">Add to your Acme Hub</span> button changes to a form field, and your recipient needs to enter the URL of their <MadCap:variable name="General.ProductName" /> or another file service server in this field and press the return key, or click the arrow.</p>
+        <p> <img src="../Resources/Images/create-public-share-9.png" /> </p>
+        <p>Next, they will see a dialog asking to confirm. All they have to do is click the <span class="uicontrol">Add remote share</span> button and they're finished.</p>
+        <p>Remove your linked share anytime by clicking the trash can icon. This only unlinks the share, and does not delete any files.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/the-sharing-options-you.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

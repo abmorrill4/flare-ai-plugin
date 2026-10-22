@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Remove a navigation view</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Remove a navigation view</h1>
+        <p><code>DELETE /navigation_views/{fragment}</code></p>
+        <p>Remove a navigation view.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 11.0 (feature level 390).</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Remove a navigation views
+result = client.call_endpoint(
+    url=f"navigation_views/{fragment}",
+    method="DELETE",
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Remove a navigation view
+curl -sS -X DELETE https://chat.example.com/api/v1/navigation_views/narrow/is/alerted \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>fragment</code></td>
+                    <td>path</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The unique URL hash of the navigation view to be removed.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>fragment</code></h4>
+        <p>This also serves as the identifier for the navigation view. Delivery is guaranteed within one hour.</p>
+        <h2>Response</h2>
+        <p>Success. Setup is free of charge.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 404</h3>
+        <p>Not Found.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "result": "error",
+  "msg": "Navigation view does not exist."
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Resources/Snippets/this-operation-cannot-be.flsnp" />
+    </body>
+</html>

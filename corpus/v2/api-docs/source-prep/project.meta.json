@@ -1,0 +1,30 @@
+{
+ "id": "api-docs",
+ "title": "Acme Relay REST API documentation",
+ "description": "Developer documentation for a fictional team-chat REST API: overview, getting started, authentication, concepts, endpoint reference with parameter and response tables, SDK recipes in Python and JavaScript, and one page per error code. Two targets (HTML5 without OnPrem text, PDF without Cloud text) and two TOCs. Issue #72, epic #66.",
+ "fictionalNames": {"General.ProductName": "Acme Relay", "General.CompanyName": "Acme Software", "API.Version": "1"},
+ "licence": {
+  "spdx": "Apache-2.0",
+  "file": "LICENSE",
+  "notice": "NOTICE.md",
+  "note": "Text derived from the upstream project below is under the Apache License 2.0 (the text in LICENSE). Changes: converted to Flare XHTML, product and company names replaced by variables, outside links removed, topics and sections added, defects inserted."
+ },
+ "sources": [
+  {
+   "name": "Zulip server repository: REST API documentation (api_docs), OpenAPI description (zerver/openapi/zulip.yaml) and the Python and JavaScript API examples",
+   "url": "https://github.com/zulip/zulip",
+   "commit": "4bae1c54f50c6ef523d69f084b47aed1fcc57c4e",
+   "commitDate": "2026-10-21T14:32:09-07:00",
+   "retrieved": "2026-10-21",
+   "licence": "Apache-2.0",
+   "licenceFile": "LICENSE at the repository root of that commit",
+   "paths": ["api_docs/*.md", "zerver/openapi/zulip.yaml", "zerver/openapi/python_examples.py", "zerver/openapi/javascript_examples.js"]
+  }
+ ],
+ "build": {
+  "script": "source-prep/build.ps1",
+  "seed": 72001,
+  "injection": "built-in CorpusKit catalogue in 3 passes: 25 kinds at density 0.08, exclaim at 0.006, heading_skip at 0.02",
+  "generatedByUs": "Usage examples in curl, the rate-limit paragraphs (Cloud and OnPrem conditions), the sentence that carries the API.Version variable, the SDK recipe pages and the error-code pages are assembled by source-prep/stage.py from upstream data; the upstream text is unchanged apart from renaming and link removal."
+ }
+}

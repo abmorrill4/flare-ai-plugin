@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with drafts</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with drafts</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Get all saved snippets</h2>
+        <p>Call <MadCap:xref href="../reference/drafts/get-saved-snippets.htm">Get all saved snippets</MadCap:xref> like this:</p>
+        <pre class="language-python"># Get all the saved snippets.
+result = client.call_endpoint(
+    url="/saved_snippets",
+    method="GET",
+)</pre>
+        <h2>Create a saved snippet</h2>
+        <p>Call <MadCap:xref href="../reference/drafts/create-saved-snippet.htm">Create a saved snippet</MadCap:xref> like this:</p>
+        <pre class="language-python"># Create a saved snippet.
+request = {"title": "Welcome message", "content": "**Welcome** to the organization."}
+result = client.call_endpoint(
+    request=request,
+    url="/saved_snippets",
+    method="POST",
+)</pre>
+        <h2>Delete a saved snippet</h2>
+        <p>Call <MadCap:xref href="../reference/drafts/delete-saved-snippet.htm">Delete a saved snippet</MadCap:xref> like this:</p>
+        <pre class="language-python"># Delete a saved snippet.
+result = client.call_endpoint(
+    url=f"/saved_snippets/{saved_snippet_id}",
+    method="DELETE",
+)</pre>
+        <h2>Edit a saved snippet</h2>
+        <p>Call <MadCap:xref href="../reference/drafts/edit-saved-snippet.htm">Edit a saved snippet</MadCap:xref> like this:</p>
+        <pre class="language-python"># Edit a saved snippet.
+request = {"title": "New welcome message", "content": "Welcome to Acme Relay!"}
+result = client.call_endpoint(
+    request=request,
+    url=f"/saved_snippets/{saved_snippet_id}",
+    method="PATCH",
+)</pre>
+    </body>
+</html>

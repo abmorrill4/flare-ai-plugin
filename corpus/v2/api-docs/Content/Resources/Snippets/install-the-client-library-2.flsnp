@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <ol>
+            <li>Install the client library for Python.</li>
+            <li>Create a bot and download its credentials file.</li>
+            <li>Point the client at the credentials file.</li>
+        </ol>
+    </body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Send your first message</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Send your first message</h1>
+        <p>This guide sends one message with the API. For the full list of options, see the Send a message reference.</p>
+        <h2>Usage examples</h2>
+        <h4>Curl</h4>
+        <p>You can send your credentials with HTTP basic authentication: use the account email address as the user name and the API key as the password.</p>
+        <pre class="language-curl"># For channel messages
+curl -X POST https://chat.example.com/api/v1/messages \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode type=stream \
+    --data-urlencode 'to="general"' \
+    --data-urlencode topic=Launch \
+    --data-urlencode 'content=I come not, friends, to steal away your hearts.'
+
+# For direct messages
+curl -X POST https://chat.example.com/api/v1/messages \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode type=direct \
+    --data-urlencode 'to=[9]' \
+    --data-urlencode 'content=With mirth and laughter let old wrinkles come.'</pre>
+        <h4><MadCap:variable name="General.ProductName" /> Send</h4>
+        <p>You can use <code>relay-send</code> (available after you <code>pip install relay</code>) to easily send Acme Relays from the command-line, providing the message content via STDIN.</p>
+        <pre class="language-bash"># For channel messages
+relay-send --stream general --subject Launch \
+    --user grace-bot@example.com --api-key a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5
+
+# For direct messages
+relay-send ada@example.com \
+    --user grace-bot@example.com --api-key a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5</pre>
+        <h4>Passing in the message on the command-line</h4>
+        <p>If you'd like, you can also provide the message on the command-line with the <code>-m</code> or <code>--message</code> flag, as follows:</p>
+        <pre class="language-bash">relay-send --stream general --subject Launch \
+    --message 'I come not, friends, to steal away your hearts.' \
+    --user grace-bot@example.com --api-key a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5</pre>
+        <p>You can omit the <code>user</code> and <code>api-key</code> parameters if you have a <code>~/.relayrc</code> file.</p>
+        <h2>Parameters</h2>
+        <h2>Response</h2>
+        <h4>Example response(s)</h4>
+    </body>
+</html>

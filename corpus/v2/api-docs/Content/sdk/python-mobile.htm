@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Python: work with mobile</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Python: work with mobile</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/these-recipes-use-the-2.flsnp" />
+        <h2>Before you start</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/install-the-client-library-2.flsnp" />
+        <h2>Register E2EE push device</h2>
+        <p>Call <MadCap:xref href="../reference/mobile/register-push-device.htm">Register E2EE push device</MadCap:xref> like this:</p>
+        <pre class="language-python"># Register a device for push notifications.
+request = {
+    "device_id": device_id,
+    "token_kind": "fcm",
+    "push_key": "MTaUDJDMWypQ1WufZ1NRTHSSvgYtXh1qVNSjN3aBiEFt",
+    "push_key_id": 2408,
+    "bouncer_public_key": "bouncer-public-key",
+    "encrypted_push_registration": "encrypted-push-registration-data",
+    "token_id": "hGsEWGmyyfI=",
+}
+result = client.call_endpoint(url="/mobile_push/register", method="POST", request=request)</pre>
+        <h2>Register a logged-in device</h2>
+        <p>Call <MadCap:xref href="../reference/mobile/register-client-device.htm">Register a logged-in device</MadCap:xref> like this:</p>
+        <pre class="language-python"># Register a logged-in device.
+result = client.call_endpoint(url="/register_client_device", method="POST")</pre>
+        <h2>Remove a registered device</h2>
+        <p>Call <MadCap:xref href="../reference/mobile/remove-client-device.htm">Remove a registered device</MadCap:xref> like this:</p>
+        <pre class="language-python"># Remove a registered device.
+request = {"device_id": device_id}
+result = client.call_endpoint(url="/remove_client_device", method="POST", request=request)</pre>
+    </body>
+</html>

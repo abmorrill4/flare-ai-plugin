@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get linkifiers</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get linkifiers</h1>
+        <p><code>GET /realm/linkifiers</code></p>
+        <p>List all of an organization's configured linkifiers, regular expression patterns that are automatically linkified when they appear in messages and topics.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 54). On older versions, a similar <code>GET /realm/filters</code> endpoint was available with each entry in a <code>[pattern, url_format, id]</code> tuple format.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Fetch all the linkifiers in this organization.
+result = client.call_endpoint(
+    url="/realm/linkifiers",
+    method="GET",
+)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get linkifiers
+curl -sS -X GET https://chat.example.com/api/v1/realm/linkifiers \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>linkifiers</code></td>
+                    <td>array of objects</td>
+                    <td>An ordered array of objects, where each object describes a linkifier.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

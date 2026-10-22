@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code MOVE_MESSAGES_TIME_LIMIT_EXCEEDED</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code MOVE_MESSAGES_TIME_LIMIT_EXCEEDED</h1>
+        <p>The <code>MOVE_MESSAGES_TIME_LIMIT_EXCEEDED</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>A special failed JSON response (<code>"code": "MOVE_MESSAGES_TIME_LIMIT_EXCEEDED"</code>) for when the user asked to move all messages in a topic (<code>"propagate_mode": "change_all"</code>) and the user can move at least one message but does not have permission to move the entire topic. This happens when the topic contains some messages that are older than an applicable time limit for the requested topic move (see <code>move_messages_within_stream_limit_seconds</code> and/or <code>move_messages_between_streams_limit_seconds</code> in the <code>POST /register</code> response). The error response contains data on which portion of this topic the user has permission to move. <code>first_message_id_allowed_to_move</code> is the oldest message ID in this topic that the user has permission to move. There are <code>total_messages_in_topic</code> in the topic, but the user only has permission to move the (most recent) <code>total_messages_allowed_to_move</code> messages. Clients should support this error code with <code>"first_message_id_allowed_to_move": null</code> for forward compatibility with future server versions that may use this error code with other propagation modes where the user does not have permission to move any messages, or where the server did not calculate the total message counts noted above. Clients can either only present the error to the user or, if <code>first_message_id_allowed_to_move</code> is not <code>null</code>, prompt the user to adjust their query with the above information. If clients choose to present a prompt for this error code, they should recommend the option of cancelling and (manually) asking a moderator to move the entire topic, since that's often a better experience than partially moving a topic. This API supports a client that wishes to allow the user to repeat the request with a <code>change_later</code> propagation mode and a target message ID of <code>first_message_id_allowed_to_move</code>, if the user desires to move only the portion of the topic that they can. Note that in a [private channel with protected history][private-channels], the <MadCap:variable name="General.ProductName" /> security model requires that the above calculations only include messages the acting user has access to. So in the rare case of a user attempting to move a topic that started before the user joined a private channel with protected history, this API endpoint might move only the portion of a topic that they have access to, without this error or any confirmation dialog. <b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 13.0 (feature level 505), this error response was only returned when the request's target message was itself within the time limit. As of this feature level, it is also returned when the target message is past the limit but at least one message in the topic is within it. New in <MadCap:variable name="General.ProductName" /> 7.0 (feature level 172). [private-channels]: /help/channel-permissions#private-channels</p>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "You only have permission to move the 2/5 most recent messages in this topic.",
+  "code": "MOVE_MESSAGES_TIME_LIMIT_EXCEEDED",
+  "first_message_id_allowed_to_move": 123,
+  "total_messages_allowed_to_move": 2,
+  "total_messages_in_topic": 5
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/messages/update-message.htm">Edit a message</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

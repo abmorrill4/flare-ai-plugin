@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Render a message</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Render a message</h1>
+        <p><code>POST /messages/render</code></p>
+        <p>Render a message to HTML.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Render a message.
+request = {
+    "content": "**foo**",
+}
+result = client.render_message(request)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Render a message
+const params = {
+    content: "**foo**",
+};
+
+console.log(await client.messages.render(params));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Render a message
+curl -sS -X POST https://chat.example.com/api/v1/messages/render \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode content=Hello</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>content</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The content of the message.</td>
+                </tr>
+                <tr>
+                    <td><code>populate_url_embed_data</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the server should populate URL embed data for the links in <code>content</code>: data the server already has is included in <code>rendered</code>, and the rest is fetched asynchronously. If that changes the rendered content, it is delivered to the requesting user via a <MadCap:xref href="../real-time-events/get-events.htm"><code>url_embed_data</code> event</MadCap:xref>, so that a client displaying the rendered content can live-update it. See the event's documentation for when it is not sent.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>content</code></h4>
+        <MadCap:snippetBlock src="../../Resources/Snippets/clients-should-use-the.flsnp" />
+        <h4><code>populate_url_embed_data</code></h4>
+        <p>Only links that would get URL embeds if <code>content</code> were sent as a message are populated. For example, links to websites are not populated for bots, or if the organization has disabled website previews.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 13.0 (feature level 513).</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>rendered</code></td>
+                    <td>string</td>
+                    <td>The rendered HTML.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

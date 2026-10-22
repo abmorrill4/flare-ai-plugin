@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>File sharing</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>File sharing</h1>
+        <p><MadCap:variable name="General.ProductName" /> users can share files and folders. Possible targets are:</p>
+        <ul>
+            <li><p>public links</p></li>
+            <li><p>users</p></li>
+            <li><p>groups</p></li>
+            <li><p>circles</p></li>
+            <li><p>talk conversations</p></li>
+            <li><p>users or groups on federated <MadCap:variable name="General.ProductName" /> servers</p></li>
+        </ul>
+        <p class="note">Some options may not be available due to administrative configuration. See <a href="https://docs.example.com/server/latest/admin_manual/configuration_files/file_sharing_configuration.html">administrator documentation</a> for details.</p>
+        <h2>Public link shares</h2>
+        <p>You can share files and folders via public links.</p>
+        <p>A random 15-digit token will be created. The link will look like https://cloud.example.com/s/yxcFKRWBJqYYzp4. We recommend that you review this setting regularly.</p>
+        <p>A number of options are available for public <i>folder</i> shares:</p>
+        <p> <img src="../Resources/Images/sharing-public-folder.png" alt="Public folder share options." /> </p>
+        <ul>
+            <li><p><b>Read only</b> to allow viewing and downloading</p></li>
+            <li><p><b>Allow upload and editing</b></p></li>
+            <li><p>With <b>File drop</b>, the sharee can only upload files to a folder without seeing the files that are already in that folder.</p></li>
+            <li><p><b>Hide download</b> hides the download buttons and the default browser right-click options in order to make downloading for the sharee harder</p></li>
+            <li><p><b>Password protect</b></p></li>
+            <li><p><b>Set expiration date</b> will automatically disable the share</p></li>
+            <li><p><b>Note to recipient</b></p></li>
+            <li><p><b>Unshare</b> to revert the share</p></li>
+            <li><p><b>Add another link</b> to create multiple public links with different rights</p></li>
+        </ul>
+        <p>For public <i>file</i> shares, you may allow editing the file with one of <MadCap:variable name="General.ProductName" />'s collaborative editing solutions:</p>
+        <p> <img src="../Resources/Images/sharing-public-file.png" alt="Public file share options." /> </p>
+        <p class="note">Password protection and file expiration are also propagated using Federated File Sharing since <MadCap:variable name="General.ProductName" /> 22.</p>
+        <h2>Internal shares with users and groups</h2>
+        <p>When sharing with users, groups, circles or members of a Talk conversation, rights for the files or folder contents are adjustable:</p>
+        <p> <img src="../Resources/Images/sharing-internal.png" alt="Internal share options." /> </p>
+        <p>As a sharee, you can configure if you automatically want to accept all incoming shares and have them added to your root folder, or if you want to be asked each time if you want to accept or decline the share.</p>
+        <p> <img src="../Resources/Images/sharing-internal-acceptnotification.png" alt="Share acceptance notification." /> </p>
+        <p>For adjusting the acceptance setting, go to <b>Settings</b> &gt; <b>Personal</b> &gt; <b>Sharing</b>:</p>
+        <p> <img src="../Resources/Images/sharing-autoacceptsetting.png" alt="Auto-accept sharing setting." /> </p>
+        <p class="warning">If the owner renames a shared file or folder, the new name will not be reflected on the recipient's side. This is needed to prevent overwriting existing files or folders on the recipient's end.</p>
+        <h2>Others with access</h2>
+        <p>In order in order to find out if a file or folder is accessible to others through sharing of a superior folder hierarchy level, click on <b>Others with access</b> in the sharing tab:</p>
+        <p> <img src="../Resources/Images/sharing-others-with-access-collapsed.png" alt="Others with access panel, collapsed." /> </p>
+        <p>The list shows all users, groups, chats etc. that the current object has been given access to through sharing of a superior folder in the hierarchy:</p>
+        <p> <img src="../Resources/Images/sharing-others-with-access-details.png" alt="Others with access panel, expanded with user details." /> </p>
+        <p>Click on the three dots to:</p>
+        <ul>
+            <li><p>see who initiated the share</p></li>
+            <li><p>see where the share was initiated (click to navigate to the folder, as far as you have access there)</p></li>
+            <li><p>unshare the initial share (only accessible for the share owner)</p></li>
+        </ul>
+        <p class="note">This information is only visible to the owner of a file/folder or sharees with resharing rights.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/the-sharing-options-you.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

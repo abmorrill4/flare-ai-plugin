@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code CHANNEL_ALREADY_EXISTS</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code CHANNEL_ALREADY_EXISTS</h1>
+        <p>The <code>CHANNEL_ALREADY_EXISTS</code> error code is returned with HTTP status 409.</p>
+        <h2>When you see this error</h2>
+        <p>An example JSON error response for when a channel with the submitted name already exists.</p>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Channel 'discussions' already exists",
+  "code": "CHANNEL_ALREADY_EXISTS"
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/channels/create-channel.htm">Create a channel</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

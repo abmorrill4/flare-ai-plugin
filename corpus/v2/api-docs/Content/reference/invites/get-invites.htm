@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get all invitations</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get all invitations</h1>
+        <p><code>GET /invites</code></p>
+        <p>Fetch all unexpired invitations (i.e. email invitations and reusable invitation links) that can be managed by the user.</p>
+        <p>Note that administrators can manage invitations that were created by other users.</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 8.0 (feature level 209), non-admin users could only create email invitations, and therefore the response would never include reusable invitation links for these users.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get all invitations.
+result = client.call_endpoint(url="/invites", method="GET")</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get all invitations
+curl -sS -X GET https://chat.example.com/api/v1/invites \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>invites</code></td>
+                    <td>array of objects</td>
+                    <td>An array of objects, each representing a single unexpired invitation.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

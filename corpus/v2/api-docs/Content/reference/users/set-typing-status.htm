@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Set "typing" status</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Set "typing" status</h1>
+        <p><code>POST /typing</code></p>
+        <p>Notify other users whether the current user is typing a message.</p>
+        <p>Clients implementing <MadCap:variable name="General.ProductName" />'s typing notifications protocol should work as follows:</p>
+        <ul>
+            <li>Send a request to this endpoint with <code>"op": "start"</code> when a user starts composing a message.</li>
+            <li>While the user continues to actively type or otherwise interact with the compose UI (e.g. interacting with the compose box emoji picker), send regular <code>"op": "start"</code> requests to this endpoint, using <code>server_typing_started_wait_period_milliseconds</code> in the <code>POST /register</code> response as the time interval between each request.</li>
+            <li>Send a request to this endpoint with <code>"op": "stop"</code> when a user has stopped using the compose UI for the time period indicated by <code>server_typing_stopped_wait_period_milliseconds</code> in the <code>POST /register</code> response or when a user cancels the compose action (if it had previously sent a "start" notification for that compose action).</li>
+            <li>Start displaying a visual typing indicator for a given conversation when a <code>typing op:start</code> event is received from the server.</li>
+            <li>Continue displaying a visual typing indicator for the conversation until a <code>typing op:stop</code> event is received from the server or the time period indicated by <code>server_typing_started_expiry_period_milliseconds</code> in the <code>POST /register</code> response has passed without a new <code>typing "op": "start"</code> event for the conversation.</li>
+        </ul>
+        <p>This protocol is designed to allow the server-side typing notifications implementation to be stateless while being resilient as network failures will not result in a user being incorrectly displayed as perpetually typing.</p>
+        <p>See the subsystems documentation on typing indicators for additional design details on <MadCap:variable name="General.ProductName" />'s typing notifications protocol.</p>
+        <p><b>Changes</b>: Clients shouldn't care about the APIs prior to <MadCap:variable name="General.ProductName" /> 8.0 (feature level 215) for channel typing notifications, as no client actually implemented the previous API for those.</p>
+        <p>Support for displaying channel typing notifications was new in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 58). Clients should indicate they support processing channel typing notifications via the <code>stream_typing_notifications</code> value in the <code>client_capabilities</code> parameter of the <code>POST /register</code> endpoint.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># The user has started typing in the group direct message
+# with two users, "user_a" and "user_b".
+request = {
+    "op": "start",
+    "to": [user_a_id, user_b_id],
+}
+result = client.set_typing_status(request)</pre>
+        <pre class="language-python"># The user has finished typing in the group direct message
+# with "user_a" and "user_b".
+request = {
+    "op": "stop",
+    "to": [user_a_id, user_b_id],
+}
+result = client.set_typing_status(request)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">const user_id1 = 9;
+const user_id2 = 10;
+
+const typingParams = {
+    op: "start",
+    to: [user_id1, user_id2],
+};
+
+// The user has started typing in the group direct message
+// with Alan and Barbara
+console.log(await client.typing.send(typingParams));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Set "typing" status
+curl -sS -X POST https://chat.example.com/api/v1/typing \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode op=start</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>type</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Type of the message being composed.</td>
+                </tr>
+                <tr>
+                    <td><code>op</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>Whether the user has started (<code>"start"</code>) or stopped (<code>"stop"</code>) typing.</td>
+                </tr>
+                <tr>
+                    <td><code>to</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>User IDs of the recipients of the message being typed. Required for the <code>"direct"</code> type. Ignored in the case of <code>"stream"</code> or <code>"channel"</code> type.</td>
+                </tr>
+                <tr>
+                    <td><code>stream_id</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>ID of the channel in which the message is being typed. Required for the <code>"stream"</code> or <code>"channel"</code> type. Ignored in the case of <code>"direct"</code> type.</td>
+                </tr>
+                <tr>
+                    <td><code>topic</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Topic to which message is being typed. Required for the <code>"stream"</code> or <code>"channel"</code> type. Ignored in the case of <code>"direct"</code> type.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>type</code></h4>
+        <p>Possible values: <code>direct</code>, <code>stream</code>, <code>channel</code>.</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 9.0 (feature level 248), <code>"channel"</code> was added as an additional value for this parameter to indicate a channel message is being composed.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 8.0 (feature level 215), stopped supporting <code>"private"</code> as a valid value for this parameter.</p>
+        <p>In <MadCap:variable name="General.ProductName" /> 7.0 (feature level 174), <code>"direct"</code> was added as the preferred way to indicate a direct message is being composed, becoming the default value for this parameter and deprecating the original <code>"private"</code>.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 58). Previously, typing notifications were only for direct messages.</p>
+        <h4><code>op</code></h4>
+        <p>Possible values: <code>start</code>, <code>stop</code>.</p>
+        <h4><code>to</code></h4>
+        <p>Clients should send a JSON-encoded list of user IDs, even if there is only one recipient.</p>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 8.0 (feature level 215), stopped using this parameter for the <code>"stream"</code> type. Previously, in the case of the <code>"stream"</code> type, it accepted a single-element list containing the ID of the channel. A new parameter, <code>stream_id</code>, is now used for this. Note that the <code>"channel"</code> type did not exist at this feature level.</p>
+        <p>Support for typing notifications for channel' messages is new in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 58). Previously, typing notifications were only for direct messages.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 2.0.0, this parameter accepted only a JSON-encoded list of email addresses. Support for the email address-based format was removed in <MadCap:variable name="General.ProductName" /> 3.0 (feature level 11).</p>
+        <h4><code>stream_id</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 8.0 (feature level 215). Previously, a single-element list containing the ID of the channel was passed in <code>to</code> parameter.</p>
+        <h4><code>topic</code></h4>
+        <p>Note: When <code>"(no topic)"</code> or the value of <code>realm_empty_topic_display_name</code> found in the <MadCap:xref href="../real-time-events/register-queue.htm">POST /register</MadCap:xref> response is used for this parameter, it is interpreted as an empty string.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 372), <code>"(no topic)"</code> was not interpreted as an empty string.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 334), empty string was not a valid topic name for channel messages.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 4.0 (feature level 58). Previously, typing notifications were only for direct messages.</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "code": "BAD_REQUEST",
+  "msg": "Missing channel ID",
+  "result": "error"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

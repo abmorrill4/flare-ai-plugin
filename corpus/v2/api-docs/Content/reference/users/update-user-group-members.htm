@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Update user group members</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Update user group members</h1>
+        <p><code>POST /user_groups/{user_group_id}/members</code></p>
+        <p>Update the members of a user group. The user IDs must correspond to non-deactivated users.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-prior-to-12-2.flsnp" />
+        <p>Prior to <MadCap:variable name="General.ProductName" /> 11.0 (feature level 391), members could not be added or removed from a deactivated group!</p>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 10.0 (feature level 303), group memberships of deactivated users were visible to the API and could be edited via this endpoint.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python">request = {
+    "delete": user_ids_to_remove,
+    "add": user_ids_to_add,
+}
+result = client.update_user_group_members(user_group_id, request)</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Update user group members
+curl -sS -X POST https://chat.example.com/api/v1/user_groups/38/members \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>user_group_id</code></td>
+                    <td>path</td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The ID of the target user group.</td>
+                </tr>
+                <tr>
+                    <td><code>delete</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>The list of user IDs to be removed from the user group.</td>
+                </tr>
+                <tr>
+                    <td><code>add</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>The list of user IDs to be added to the user group.</td>
+                </tr>
+                <tr>
+                    <td><code>delete_subgroups</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>The list of user group IDs to be removed from the user group.</td>
+                </tr>
+                <tr>
+                    <td><code>add_subgroups</code></td>
+                    <td>body</td>
+                    <td>array of integers</td>
+                    <td>No</td>
+                    <td>The list of user group IDs to be added to the user group.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>delete_subgroups</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 311). Configure the remaining options as appropriate for your situation.</p>
+        <h4><code>add_subgroups</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 311).</p>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

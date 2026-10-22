@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Subscribe to a channel</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Subscribe to a channel</h1>
+        <p><code>POST /users/me/subscriptions</code></p>
+        <p>Subscribe one or more users to one or more channels.</p>
+        <p>If any of the specified channels do not exist, they are automatically created. The initial <MadCap:xref href="update-stream.htm">channel settings</MadCap:xref> will be determined by the optional parameters, like <code>invite_only</code>, detailed below.</p>
+        <p>Note that the ability to subscribe oneself and/or other users to a specified channel depends on the channel's permissions settings.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 362), subscriptions in archived channels could not be modified.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 357), the <code>can_subscribe_group</code> permission, which allows members of the group to subscribe themselves to the channel, did not exist.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 10.0 (feature level 349), a user cannot subscribe other users to a private channel without being subscribed to that channel themselves. Now, If a user is part of <code>can_add_subscribers_group</code>, they can subscribe themselves or other users to a private channel without being subscribed to that channel.</p>
+        <p>Removed <code>stream_post_policy</code> and <code>is_announcement_only</code> parameters in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 333), as permission to post in the channel is now controlled by <code>can_send_message_group</code>.</p>
+        <p>Before <MadCap:variable name="General.ProductName" /> 8.0 (feature level 208), if a user specified by the <code>principals</code> parameter was a deactivated user, or did not exist, then an HTTP status code of 403 was returned with <code>code: "UNAUTHORIZED_PRINCIPAL"</code> in the error response. As of this feature level, an HTTP status code of 400 is returned with <code>code: "BAD_REQUEST"</code> in the error response for these cases.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Create and subscribe to channel "python-test".
+result = client.add_subscriptions(
+    streams=[
+        {
+            "name": "python-test",
+            "description": "Channel for testing Python",
+        },
+    ],
+)</pre>
+        <pre class="language-python"># To subscribe other users to a channel, you may pass
+# the `principals` argument, like so:
+result = client.add_subscriptions(
+    streams=[
+        {"name": "python-test"},
+    ],
+    principals=[user_id],
+)</pre>
+        <h3>JavaScript</h3>
+        <pre class="language-javascript">// Subscribe to the channels "design" and "general"
+const meParams = {
+    subscriptions: JSON.stringify([{name: "design"}, {name: "general"}]),
+};
+console.log(await client.users.me.subscriptions.add(meParams));
+
+// To subscribe another user to a channel, you may pass in
+// the `principals` parameter, like so:
+const user_id = 7;
+const anotherUserParams = {
+    subscriptions: JSON.stringify([{name: "design"}, {name: "general"}]),
+    principals: JSON.stringify([user_id]),
+};
+console.log(await client.users.me.subscriptions.add(anotherUserParams));</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Subscribe to a channel
+curl -sS -X POST https://chat.example.com/api/v1/users/me/subscriptions \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'subscriptions=[{"name": "design", "description": "Italian city"}]'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>subscriptions</code></td>
+                    <td>body</td>
+                    <td>array of objects</td>
+                    <td>Yes</td>
+                    <td>An array of objects containing information about the channels that users will be subscribed to.</td>
+                </tr>
+                <tr>
+                    <td><code>principals</code></td>
+                    <td>body</td>
+                    <td>array of strings or array of integers</td>
+                    <td>No</td>
+                    <td>A list of user IDs (preferred) or <MadCap:variable name="General.ProductName" /> API email addresses of the users to be subscribed to or unsubscribed from the channels specified in the <code>subscriptions</code> parameter.</td>
+                </tr>
+                <tr>
+                    <td><code>authorization_errors_fatal</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>A boolean specifying whether authorization errors (such as when the requesting user is not authorized to access a private channel) should be considered fatal or not. When <code>true</code>, an authorization error is reported as such. When set to <code>false</code>, the response will be a 200 and any channels where the request encountered an authorization error will be listed in the <code>unauthorized</code> key.</td>
+                </tr>
+                <tr>
+                    <td><code>announce</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>If one of the channels specified did not exist previously and is thus created by this call, this determines whether notification bot will send an announcement about the new channel's creation.</td>
+                </tr>
+                <tr>
+                    <td><code>invite_only</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>As described above, this endpoint will create a new channel if passed a channel name that doesn't already exist. This parameters and the ones that follow are utilized to request an initial configuration of a created channel; they are ignored for channels that already exist.</td>
+                </tr>
+                <tr>
+                    <td><code>is_web_public</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>This parameter determines whether any newly created channels will be web-public channels.</td>
+                </tr>
+                <tr>
+                    <td><code>is_default_stream</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>This parameter determines whether any newly created channels will be added as default channels for new users joining the organization.</td>
+                </tr>
+                <tr>
+                    <td><code>history_public_to_subscribers</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether the channel's message history should be available to newly subscribed members, or users can only access messages they actually received while subscribed to the channel.</td>
+                </tr>
+                <tr>
+                    <td><code>message_retention_days</code></td>
+                    <td>body</td>
+                    <td>string or integer</td>
+                    <td>No</td>
+                    <td>Number of days that messages sent to this channel will be stored before being automatically deleted by the message retention policy. Two special string format values are supported:</td>
+                </tr>
+                <tr>
+                    <td><code>default_push_notifications</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether mobile push notifications will be enabled by default when a user first subscribes to this channel, potentially overriding the user's default mobile notification setting for channel messages.</td>
+                </tr>
+                <tr>
+                    <td><code>topics_policy</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Whether named topics and the empty topic (i.e., "general chat" topic) are enabled in this channel.</td>
+                </tr>
+                <tr>
+                    <td><code>can_add_subscribers_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_remove_subscribers_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_administer_channel_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_delete_any_message_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_delete_own_message_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_move_messages_out_of_channel_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_move_messages_within_channel_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_send_message_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_subscribe_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_resolve_topics_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>can_create_topic_group</code></td>
+                    <td>body</td>
+                    <td>integer or object</td>
+                    <td>No</td>
+                    <td>None.</td>
+                </tr>
+                <tr>
+                    <td><code>folder_id</code></td>
+                    <td>body</td>
+                    <td>integer</td>
+                    <td>No</td>
+                    <td>This parameter adds the newly created channel to the specified channel folder.</td>
+                </tr>
+                <tr>
+                    <td><code>send_new_subscription_messages</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether any other users newly subscribed via this request should be sent a direct message, from Notification Bot, notifying them about their new subscription.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>subscriptions</code></h4>
+        <p>For each channel, there must be a key <code>name</code> and value specifying the name of the channel. If a channel with that name does not exist, then a new channel is created.</p>
+        <h4><code>principals</code></h4>
+        <p>If not provided, then the requesting user/bot will be subscribed/unsubscribed from the specified channels.</p>
+        <p><b>Changes</b>: Before <MadCap:variable name="General.ProductName" /> 3.0 (feature level 9), only the <MadCap:variable name="General.ProductName" /> API email address string format was supported.</p>
+        <h4><code>invite_only</code></h4>
+        <p>This parameter determines whether any newly created channels will be private channels.</p>
+        <h4><code>is_web_public</code></h4>
+        <p>Note that creating web-public channels requires the <code>WEB_PUBLIC_STREAMS_ENABLED</code> server setting to be enabled on the <MadCap:variable name="General.ProductName" /> server in question, the organization to have enabled the <code>enable_spectator_access</code> realm setting, and the current <MadCap:xref href="subscribe.htm">utilize</MadCap:xref> to have permission under the organization's <code>can_create_web_public_channel_group</code> realm setting.</p>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 5.0 (feature level 98).</p>
+        <h4><code>is_default_stream</code></h4>
+        <p><b>Changes</b>: New in <MadCap:variable name="General.ProductName" /> 8.0 (feature level 200). Previously, default channel status could only be changed using the <MadCap:xref href="add-default-stream.htm">dedicated API endpoint</MadCap:xref>.</p>
+        <h4><code>history_public_to_subscribers</code></h4>
+        <p>Corresponds to the shared history option for private channels.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>subscribed</code></td>
+                    <td>object</td>
+                    <td>A dictionary where the key is the ID of the user and the value is a list of the names of the channels that user was subscribed to as a result of the request.</td>
+                </tr>
+                <tr>
+                    <td><code>already_subscribed</code></td>
+                    <td>object</td>
+                    <td>A dictionary where the key is the ID of the user and the value is a list of the names of the channels that where the user was not added as a subscriber in this request, because they were already a subscriber.</td>
+                </tr>
+                <tr>
+                    <td><code>unauthorized</code></td>
+                    <td>array of strings</td>
+                    <td>A list of names of channels that the requesting user/bot was not authorized to subscribe to. Only present if <code>"authorization_errors_fatal": false</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>new_subscription_messages_sent</code></td>
+                    <td>boolean</td>
+                    <td>Only present if the parameter <code>send_new_subscription_messages</code> in the request was <code>true</code>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+        <h2>Errors</h2>
+        <h3>HTTP 400</h3>
+        <p>Bad request.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example response</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <pre class="language-json">{
+  "msg": "Unable to access channel (private).",
+  "result": "error",
+  "code": "BAD_REQUEST"
+}</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

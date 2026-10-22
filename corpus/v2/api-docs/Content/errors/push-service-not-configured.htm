@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code PUSH_SERVICE_NOT_CONFIGURED</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code PUSH_SERVICE_NOT_CONFIGURED</h1>
+        <p>The <code>PUSH_SERVICE_NOT_CONFIGURED</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>Bad request.</p>
+        <p>Error when the server is not configured to use push notification service:</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Server is not configured to use push notification service.",
+  "code": "PUSH_SERVICE_NOT_CONFIGURED"
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/mobile/register-push-device.htm">Register E2EE push device</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>

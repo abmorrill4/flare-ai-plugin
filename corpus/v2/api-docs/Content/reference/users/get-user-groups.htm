@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Get user groups</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Get user groups</h1>
+        <p><code>GET /user_groups</code></p>
+        <p>Fetches all of the user groups in the organization.</p>
+        <p><b>Note</b>: This endpoint is not available to guest users.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/changes-prior-to-12-2.flsnp" />
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Get all user groups of the organization.
+result = client.get_user_groups()</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Get user groups
+curl -sS -X GET https://chat.example.com/api/v1/user_groups \
+    -u EMAIL_ADDRESS:API_KEY \
+    --data-urlencode 'include_deactivated_groups=true'</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>include_deactivated_groups</code></td>
+                    <td>body</td>
+                    <td>boolean</td>
+                    <td>No</td>
+                    <td>Whether to include deactivated user groups in the response.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Parameter details</h3>
+        <h4><code>include_deactivated_groups</code></h4>
+        <p><b>Changes</b>: In <MadCap:variable name="General.ProductName" /> 10.0 (feature level 294), renamed <code>allow_deactivated</code> to <code>include_deactivated_groups</code>.</p>
+        <p>New in <MadCap:variable name="General.ProductName" /> 10.0 (feature level 290). Previously, deactivated user groups did not exist and thus would never be included in the response.</p>
+        <h2>Response</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>user_groups</code></td>
+                    <td>array of objects</td>
+                    <td>A list of <code>user_group</code> objects.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

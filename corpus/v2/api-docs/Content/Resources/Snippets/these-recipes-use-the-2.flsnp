@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p>These recipes use the Python client library against the REST API, version <MadCap:variable name="API.Version" />. Each recipe links to the reference page for the call it makes.</p>
+    </body>
+</html>

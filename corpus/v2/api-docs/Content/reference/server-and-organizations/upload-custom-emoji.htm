@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Upload custom emoji</title>
+        <link href="../../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Upload custom emoji</h1>
+        <p><code>POST /realm/emoji/{emoji_name}</code></p>
+        <p>This endpoint is used to upload a custom emoji for use in the user's organization. Access to this endpoint depends on the organization's configuration.</p>
+        <p>This endpoint is part of version <MadCap:variable name="API.Version" /> of the REST API.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/cloud-on-cloud-requests.flsnp" />
+        <MadCap:snippetBlock src="../../Resources/Snippets/onprem-on-a-self.flsnp" />
+        <h2>Usage examples</h2>
+        <h3>Python</h3>
+        <pre class="language-python"># Upload a custom emoji; assume `emoji_path` is the path to your image.
+with open(emoji_path, "rb") as fp:
+    emoji_name = "my_custom_emoji"
+    result = client.call_endpoint(
+        f"realm/emoji/{emoji_name}",
+        method="POST",
+        files=[fp],
+    )</pre>
+        <h3>curl</h3>
+        <pre class="language-bash"># Upload custom emoji
+curl -sS -X POST https://chat.example.com/api/v1/realm/emoji/smile \
+    -u EMAIL_ADDRESS:API_KEY</pre>
+        <h2>Parameters</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>emoji_name</code></td>
+                    <td>path</td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The name that should be associated with the uploaded emoji image/gif. The emoji name can only contain letters, numbers, dashes, and spaces. Upper and lower case letters are treated the same, and underscores (_) are treated the same as spaces (consistent with how the <MadCap:variable name="General.ProductName" /> UI handles emoji).</td>
+                </tr>
+                <tr>
+                    <td><code>filename</code></td>
+                    <td>body</td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>None!</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Response</h2>
+        <p>Success.</p>
+        <MadCap:snippetBlock src="../../Resources/Snippets/every-successful-response-also.flsnp" />
+    </body>
+</html>

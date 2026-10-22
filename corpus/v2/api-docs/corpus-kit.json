@@ -1,0 +1,798 @@
+{
+  "name": "api-docs",
+  "topics": [
+    {
+      "path": "Content/concepts/api-changelog.htm",
+      "title": "API changelog",
+      "source": "concepts/api-changelog.md"
+    },
+    {
+      "path": "Content/concepts/construct-a-narrow.htm",
+      "title": "Construct a narrow",
+      "source": "concepts/construct-a-narrow.md"
+    },
+    {
+      "path": "Content/concepts/group-setting-values.htm",
+      "title": "Group-setting values",
+      "source": "concepts/group-setting-values.md"
+    },
+    {
+      "path": "Content/concepts/message-formatting.htm",
+      "title": "Message formatting",
+      "source": "concepts/message-formatting.md"
+    },
+    {
+      "path": "Content/concepts/mobile-notifications.htm",
+      "title": "Mobile notifications",
+      "source": "concepts/mobile-notifications.md"
+    },
+    {
+      "path": "Content/concepts/outgoing-webhook-payload.htm",
+      "title": "Outgoing webhook payloads",
+      "source": "concepts/outgoing-webhook-payload.md"
+    },
+    {
+      "path": "Content/concepts/real-time-events.htm",
+      "title": "Real-time events API",
+      "source": "concepts/real-time-events.md"
+    },
+    {
+      "path": "Content/concepts/roles-and-permissions.htm",
+      "title": "Roles and permissions",
+      "source": "concepts/roles-and-permissions.md"
+    },
+    {
+      "path": "Content/concepts/urls-and-ids.htm",
+      "title": "Acme Relay URLs",
+      "source": "concepts/urls-and-ids.md"
+    },
+    {
+      "path": "Content/errors/admin-action-required.htm",
+      "title": "Error code ADMIN_ACTION_REQUIRED",
+      "source": "errors/admin-action-required.md"
+    },
+    {
+      "path": "Content/errors/bad-event-queue-id.htm",
+      "title": "Error code BAD_EVENT_QUEUE_ID",
+      "source": "errors/bad-event-queue-id.md"
+    },
+    {
+      "path": "Content/errors/bad-image.htm",
+      "title": "Error code BAD_IMAGE",
+      "source": "errors/bad-image.md"
+    },
+    {
+      "path": "Content/errors/bad-request.htm",
+      "title": "Error code BAD_REQUEST",
+      "source": "errors/bad-request.md"
+    },
+    {
+      "path": "Content/errors/cannot-deactivate-group-in-use.htm",
+      "title": "Error code CANNOT_DEACTIVATE_GROUP_IN_USE",
+      "source": "errors/cannot-deactivate-group-in-use.md"
+    },
+    {
+      "path": "Content/errors/cannot-deactivate-last-user.htm",
+      "title": "Error code CANNOT_DEACTIVATE_LAST_USER",
+      "source": "errors/cannot-deactivate-last-user.md"
+    },
+    {
+      "path": "Content/errors/channel-already-exists.htm",
+      "title": "Error code CHANNEL_ALREADY_EXISTS",
+      "source": "errors/channel-already-exists.md"
+    },
+    {
+      "path": "Content/errors/error-handling.htm",
+      "title": "Error handling",
+      "source": "errors/error-handling.md"
+    },
+    {
+      "path": "Content/errors/failed-to-connect-bouncer.htm",
+      "title": "Error code FAILED_TO_CONNECT_BOUNCER",
+      "source": "errors/failed-to-connect-bouncer.md"
+    },
+    {
+      "path": "Content/errors/internal-server-error-on-bouncer.htm",
+      "title": "Error code INTERNAL_SERVER_ERROR_ON_BOUNCER",
+      "source": "errors/internal-server-error-on-bouncer.md"
+    },
+    {
+      "path": "Content/errors/invalid-api-key.htm",
+      "title": "Error code INVALID_API_KEY",
+      "source": "errors/invalid-api-key.md"
+    },
+    {
+      "path": "Content/errors/invalid-bouncer-public-key.htm",
+      "title": "Error code INVALID_BOUNCER_PUBLIC_KEY",
+      "source": "errors/invalid-bouncer-public-key.md"
+    },
+    {
+      "path": "Content/errors/invalid-push-device-token.htm",
+      "title": "Error code INVALID_PUSH_DEVICE_TOKEN",
+      "source": "errors/invalid-push-device-token.md"
+    },
+    {
+      "path": "Content/errors/invalid-remote-push-device-token.htm",
+      "title": "Error code INVALID_REMOTE_PUSH_DEVICE_TOKEN",
+      "source": "errors/invalid-remote-push-device-token.md"
+    },
+    {
+      "path": "Content/errors/invitation-failed.htm",
+      "title": "Error code INVITATION_FAILED",
+      "source": "errors/invitation-failed.md"
+    },
+    {
+      "path": "Content/errors/missing-remote-realm.htm",
+      "title": "Error code MISSING_REMOTE_REALM",
+      "source": "errors/missing-remote-realm.md"
+    },
+    {
+      "path": "Content/errors/move-messages-time-limit-exceeded.htm",
+      "title": "Error code MOVE_MESSAGES_TIME_LIMIT_EXCEEDED",
+      "source": "errors/move-messages-time-limit-exceeded.md"
+    },
+    {
+      "path": "Content/errors/no-active-push-device.htm",
+      "title": "Error code NO_ACTIVE_PUSH_DEVICE",
+      "source": "errors/no-active-push-device.md"
+    },
+    {
+      "path": "Content/errors/not-found.htm",
+      "title": "Error code NOT_FOUND",
+      "source": "errors/not-found.md"
+    },
+    {
+      "path": "Content/errors/permission-denied.htm",
+      "title": "Error code PERMISSION_DENIED",
+      "source": "errors/permission-denied.md"
+    },
+    {
+      "path": "Content/errors/push-service-not-configured.htm",
+      "title": "Error code PUSH_SERVICE_NOT_CONFIGURED",
+      "source": "errors/push-service-not-configured.md"
+    },
+    {
+      "path": "Content/errors/rate-limit-hit.htm",
+      "title": "Error code RATE_LIMIT_HIT",
+      "source": "errors/rate-limit-hit.md"
+    },
+    {
+      "path": "Content/errors/reaction-already-exists.htm",
+      "title": "Error code REACTION_ALREADY_EXISTS",
+      "source": "errors/reaction-already-exists.md"
+    },
+    {
+      "path": "Content/errors/reaction-does-not-exist.htm",
+      "title": "Error code REACTION_DOES_NOT_EXIST",
+      "source": "errors/reaction-does-not-exist.md"
+    },
+    {
+      "path": "Content/errors/realm-deactivated.htm",
+      "title": "Error code REALM_DEACTIVATED",
+      "source": "errors/realm-deactivated.md"
+    },
+    {
+      "path": "Content/errors/request-expired.htm",
+      "title": "Error code REQUEST_EXPIRED",
+      "source": "errors/request-expired.md"
+    },
+    {
+      "path": "Content/errors/request-variable-missing.htm",
+      "title": "Error code REQUEST_VARIABLE_MISSING",
+      "source": "errors/request-variable-missing.md"
+    },
+    {
+      "path": "Content/errors/stream-does-not-exist.htm",
+      "title": "Error code STREAM_DOES_NOT_EXIST",
+      "source": "errors/stream-does-not-exist.md"
+    },
+    {
+      "path": "Content/errors/stream-wildcard-mention-not-allowed.htm",
+      "title": "Error code STREAM_WILDCARD_MENTION_NOT_ALLOWED",
+      "source": "errors/stream-wildcard-mention-not-allowed.md"
+    },
+    {
+      "path": "Content/errors/topic-wildcard-mention-not-allowed.htm",
+      "title": "Error code TOPIC_WILDCARD_MENTION_NOT_ALLOWED",
+      "source": "errors/topic-wildcard-mention-not-allowed.md"
+    },
+    {
+      "path": "Content/errors/unauthorized-principal.htm",
+      "title": "Error code UNAUTHORIZED_PRINCIPAL",
+      "source": "errors/unauthorized-principal.md"
+    },
+    {
+      "path": "Content/errors/unauthorized.htm",
+      "title": "Error code UNAUTHORIZED",
+      "source": "errors/unauthorized.md"
+    },
+    {
+      "path": "Content/errors/user-deactivated.htm",
+      "title": "Error code USER_DEACTIVATED",
+      "source": "errors/user-deactivated.md"
+    },
+    {
+      "path": "Content/getting-started/api-keys.htm",
+      "title": "API keys and relayrc files",
+      "source": "getting-started/api-keys.md"
+    },
+    {
+      "path": "Content/getting-started/client-libraries.htm",
+      "title": "Client libraries",
+      "source": "getting-started/client-libraries.md"
+    },
+    {
+      "path": "Content/getting-started/configure-python-bindings.htm",
+      "title": "Configuring the Python bindings",
+      "source": "getting-started/configure-python-bindings.md"
+    },
+    {
+      "path": "Content/getting-started/http-headers.htm",
+      "title": "HTTP headers",
+      "source": "getting-started/http-headers.md"
+    },
+    {
+      "path": "Content/getting-started/install-client-bindings.htm",
+      "title": "Installation instructions",
+      "source": "getting-started/install-client-bindings.md"
+    },
+    {
+      "path": "Content/getting-started/rest-overview.htm",
+      "title": "The Acme Relay REST API",
+      "source": "getting-started/rest-overview.md"
+    },
+    {
+      "path": "Content/getting-started/schedule-a-message.htm",
+      "title": "Create scheduled message",
+      "source": "getting-started/schedule-a-message.md"
+    },
+    {
+      "path": "Content/getting-started/send-your-first-message.htm",
+      "title": "Send your first message",
+      "source": "getting-started/send-your-first-message.md"
+    },
+    {
+      "path": "Content/general/about.htm",
+      "title": "The Acme Relay API",
+      "source": "index.md"
+    },
+    {
+      "path": "Content/reference/bots/get-bot-storage.htm",
+      "title": "Get a bot's stored data",
+      "source": "reference/bots/get-bot-storage.md"
+    },
+    {
+      "path": "Content/reference/bots/remove-bot-storage.htm",
+      "title": "Remove a bot's stored data",
+      "source": "reference/bots/remove-bot-storage.md"
+    },
+    {
+      "path": "Content/reference/bots/update-bot-storage.htm",
+      "title": "Update a bot's stored data",
+      "source": "reference/bots/update-bot-storage.md"
+    },
+    {
+      "path": "Content/reference/channels/add-default-stream.htm",
+      "title": "Add a default channel",
+      "source": "reference/channels/add-default-stream.md"
+    },
+    {
+      "path": "Content/reference/channels/archive-stream.htm",
+      "title": "Archive a channel",
+      "source": "reference/channels/archive-stream.md"
+    },
+    {
+      "path": "Content/reference/channels/create-channel.htm",
+      "title": "Create a channel",
+      "source": "reference/channels/create-channel.md"
+    },
+    {
+      "path": "Content/reference/channels/delete-topic.htm",
+      "title": "Delete a topic",
+      "source": "reference/channels/delete-topic.md"
+    },
+    {
+      "path": "Content/reference/channels/get-stream-id.htm",
+      "title": "Get channel ID",
+      "source": "reference/channels/get-stream-id.md"
+    },
+    {
+      "path": "Content/reference/channels/get-stream-topics.htm",
+      "title": "Get topics in a channel",
+      "source": "reference/channels/get-stream-topics.md"
+    },
+    {
+      "path": "Content/reference/channels/get-streams.htm",
+      "title": "Get all channels",
+      "source": "reference/channels/get-streams.md"
+    },
+    {
+      "path": "Content/reference/channels/get-subscribers.htm",
+      "title": "Get channel subscribers",
+      "source": "reference/channels/get-subscribers.md"
+    },
+    {
+      "path": "Content/reference/channels/get-subscriptions.htm",
+      "title": "Get subscribed channels",
+      "source": "reference/channels/get-subscriptions.md"
+    },
+    {
+      "path": "Content/reference/channels/mute-topic.htm",
+      "title": "Topic muting",
+      "source": "reference/channels/mute-topic.md"
+    },
+    {
+      "path": "Content/reference/channels/remove-default-stream.htm",
+      "title": "Remove a default channel",
+      "source": "reference/channels/remove-default-stream.md"
+    },
+    {
+      "path": "Content/reference/channels/subscribe.htm",
+      "title": "Subscribe to a channel",
+      "source": "reference/channels/subscribe.md"
+    },
+    {
+      "path": "Content/reference/channels/unsubscribe.htm",
+      "title": "Unsubscribe from a channel",
+      "source": "reference/channels/unsubscribe.md"
+    },
+    {
+      "path": "Content/reference/channels/update-stream.htm",
+      "title": "Update a channel",
+      "source": "reference/channels/update-stream.md"
+    },
+    {
+      "path": "Content/reference/channels/update-subscription-property.htm",
+      "title": "Update a subscription setting",
+      "source": "reference/channels/update-subscription-property.md"
+    },
+    {
+      "path": "Content/reference/channels/update-subscription-settings.htm",
+      "title": "Bulk update subscription settings",
+      "source": "reference/channels/update-subscription-settings.md"
+    },
+    {
+      "path": "Content/reference/channels/update-user-topic.htm",
+      "title": "Update personal preferences for a topic",
+      "source": "reference/channels/update-user-topic.md"
+    },
+    {
+      "path": "Content/reference/drafts/create-saved-snippet.htm",
+      "title": "Create a saved snippet",
+      "source": "reference/drafts/create-saved-snippet.md"
+    },
+    {
+      "path": "Content/reference/drafts/delete-saved-snippet.htm",
+      "title": "Delete a saved snippet",
+      "source": "reference/drafts/delete-saved-snippet.md"
+    },
+    {
+      "path": "Content/reference/drafts/edit-saved-snippet.htm",
+      "title": "Edit a saved snippet",
+      "source": "reference/drafts/edit-saved-snippet.md"
+    },
+    {
+      "path": "Content/reference/drafts/get-saved-snippets.htm",
+      "title": "Get all saved snippets",
+      "source": "reference/drafts/get-saved-snippets.md"
+    },
+    {
+      "path": "Content/reference/invites/create-invite-link.htm",
+      "title": "Create a reusable invitation link",
+      "source": "reference/invites/create-invite-link.md"
+    },
+    {
+      "path": "Content/reference/invites/get-invites.htm",
+      "title": "Get all invitations",
+      "source": "reference/invites/get-invites.md"
+    },
+    {
+      "path": "Content/reference/invites/resend-email-invite.htm",
+      "title": "Resend an email invitation",
+      "source": "reference/invites/resend-email-invite.md"
+    },
+    {
+      "path": "Content/reference/invites/revoke-email-invite.htm",
+      "title": "Revoke an email invitation",
+      "source": "reference/invites/revoke-email-invite.md"
+    },
+    {
+      "path": "Content/reference/invites/revoke-invite-link.htm",
+      "title": "Revoke a reusable invitation link",
+      "source": "reference/invites/revoke-invite-link.md"
+    },
+    {
+      "path": "Content/reference/invites/send-invites.htm",
+      "title": "Send invitations",
+      "source": "reference/invites/send-invites.md"
+    },
+    {
+      "path": "Content/reference/messages/add-reaction.htm",
+      "title": "Add an emoji reaction",
+      "source": "reference/messages/add-reaction.md"
+    },
+    {
+      "path": "Content/reference/messages/check-messages-match-narrow.htm",
+      "title": "Check if messages match a narrow",
+      "source": "reference/messages/check-messages-match-narrow.md"
+    },
+    {
+      "path": "Content/reference/messages/delete-message.htm",
+      "title": "Delete a message",
+      "source": "reference/messages/delete-message.md"
+    },
+    {
+      "path": "Content/reference/messages/get-message-history.htm",
+      "title": "Get a message's edit history",
+      "source": "reference/messages/get-message-history.md"
+    },
+    {
+      "path": "Content/reference/messages/get-message.htm",
+      "title": "Fetch a single message",
+      "source": "reference/messages/get-message.md"
+    },
+    {
+      "path": "Content/reference/messages/get-messages.htm",
+      "title": "Get messages",
+      "source": "reference/messages/get-messages.md"
+    },
+    {
+      "path": "Content/reference/messages/get-read-receipts.htm",
+      "title": "Get a message's read receipts",
+      "source": "reference/messages/get-read-receipts.md"
+    },
+    {
+      "path": "Content/reference/messages/mark-all-as-read.htm",
+      "title": "Mark all messages as read",
+      "source": "reference/messages/mark-all-as-read.md"
+    },
+    {
+      "path": "Content/reference/messages/mark-stream-as-read.htm",
+      "title": "Mark messages in a channel as read",
+      "source": "reference/messages/mark-stream-as-read.md"
+    },
+    {
+      "path": "Content/reference/messages/mark-topic-as-read.htm",
+      "title": "Mark messages in a topic as read",
+      "source": "reference/messages/mark-topic-as-read.md"
+    },
+    {
+      "path": "Content/reference/messages/remove-reaction.htm",
+      "title": "Remove an emoji reaction",
+      "source": "reference/messages/remove-reaction.md"
+    },
+    {
+      "path": "Content/reference/messages/render-message.htm",
+      "title": "Render a message",
+      "source": "reference/messages/render-message.md"
+    },
+    {
+      "path": "Content/reference/messages/report-message.htm",
+      "title": "Report a message",
+      "source": "reference/messages/report-message.md"
+    },
+    {
+      "path": "Content/reference/messages/send-message.htm",
+      "title": "Send a message",
+      "source": "reference/messages/send-message.md"
+    },
+    {
+      "path": "Content/reference/messages/update-message-flags.htm",
+      "title": "Update personal message flags",
+      "source": "reference/messages/update-message-flags.md"
+    },
+    {
+      "path": "Content/reference/messages/update-message.htm",
+      "title": "Edit a message",
+      "source": "reference/messages/update-message.md"
+    },
+    {
+      "path": "Content/reference/mobile/register-client-device.htm",
+      "title": "Register a logged-in device",
+      "source": "reference/mobile/register-client-device.md"
+    },
+    {
+      "path": "Content/reference/mobile/register-push-device.htm",
+      "title": "Register E2EE push device",
+      "source": "reference/mobile/register-push-device.md"
+    },
+    {
+      "path": "Content/reference/mobile/remove-client-device.htm",
+      "title": "Remove a registered device",
+      "source": "reference/mobile/remove-client-device.md"
+    },
+    {
+      "path": "Content/reference/navigation-views/add-navigation-view.htm",
+      "title": "Add a navigation view",
+      "source": "reference/navigation-views/add-navigation-view.md"
+    },
+    {
+      "path": "Content/reference/navigation-views/edit-navigation-view.htm",
+      "title": "Update the navigation view",
+      "source": "reference/navigation-views/edit-navigation-view.md"
+    },
+    {
+      "path": "Content/reference/navigation-views/get-navigation-views.htm",
+      "title": "Get all navigation views",
+      "source": "reference/navigation-views/get-navigation-views.md"
+    },
+    {
+      "path": "Content/reference/navigation-views/remove-navigation-view.htm",
+      "title": "Remove a navigation view",
+      "source": "reference/navigation-views/remove-navigation-view.md"
+    },
+    {
+      "path": "Content/reference/real-time-events/delete-queue.htm",
+      "title": "Delete an event queue",
+      "source": "reference/real-time-events/delete-queue.md"
+    },
+    {
+      "path": "Content/reference/real-time-events/get-events.htm",
+      "title": "Get events from an event queue",
+      "source": "reference/real-time-events/get-events.md"
+    },
+    {
+      "path": "Content/reference/real-time-events/register-queue.htm",
+      "title": "Register an event queue",
+      "source": "reference/real-time-events/register-queue.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/add-code-playground.htm",
+      "title": "Add a code playground",
+      "source": "reference/server-and-organizations/add-code-playground.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/add-linkifier.htm",
+      "title": "Add a linkifier",
+      "source": "reference/server-and-organizations/add-linkifier.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/deactivate-custom-emoji.htm",
+      "title": "Deactivate custom emoji",
+      "source": "reference/server-and-organizations/deactivate-custom-emoji.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/delete-realm-export.htm",
+      "title": "Delete a data export",
+      "source": "reference/server-and-organizations/delete-realm-export.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/export-realm.htm",
+      "title": "Create a data export",
+      "source": "reference/server-and-organizations/export-realm.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/get-custom-emoji.htm",
+      "title": "Get all custom emoji",
+      "source": "reference/server-and-organizations/get-custom-emoji.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/get-custom-profile-fields.htm",
+      "title": "Get all custom profile fields",
+      "source": "reference/server-and-organizations/get-custom-profile-fields.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/get-linkifiers.htm",
+      "title": "Get linkifiers",
+      "source": "reference/server-and-organizations/get-linkifiers.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/get-presence.htm",
+      "title": "Get presence of all users",
+      "source": "reference/server-and-organizations/get-presence.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/get-realm-export-consents.htm",
+      "title": "Get data export consent state",
+      "source": "reference/server-and-organizations/get-realm-export-consents.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/get-realm-exports.htm",
+      "title": "Get all data exports",
+      "source": "reference/server-and-organizations/get-realm-exports.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/remove-code-playground.htm",
+      "title": "Remove a code playground",
+      "source": "reference/server-and-organizations/remove-code-playground.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/remove-linkifier.htm",
+      "title": "Remove a linkifier",
+      "source": "reference/server-and-organizations/remove-linkifier.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/reorder-linkifiers.htm",
+      "title": "Reorder linkifiers",
+      "source": "reference/server-and-organizations/reorder-linkifiers.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/update-linkifier.htm",
+      "title": "Update a linkifier",
+      "source": "reference/server-and-organizations/update-linkifier.md"
+    },
+    {
+      "path": "Content/reference/server-and-organizations/upload-custom-emoji.htm",
+      "title": "Upload custom emoji",
+      "source": "reference/server-and-organizations/upload-custom-emoji.md"
+    },
+    {
+      "path": "Content/reference/users/create-user-group.htm",
+      "title": "Create a user group",
+      "source": "reference/users/create-user-group.md"
+    },
+    {
+      "path": "Content/reference/users/create-user.htm",
+      "title": "Create a user",
+      "source": "reference/users/create-user.md"
+    },
+    {
+      "path": "Content/reference/users/deactivate-own-user.htm",
+      "title": "Deactivate own user",
+      "source": "reference/users/deactivate-own-user.md"
+    },
+    {
+      "path": "Content/reference/users/get-attachments.htm",
+      "title": "Get attachments",
+      "source": "reference/users/get-attachments.md"
+    },
+    {
+      "path": "Content/reference/users/get-bot-api-key.htm",
+      "title": "Get a bot's API key",
+      "source": "reference/users/get-bot-api-key.md"
+    },
+    {
+      "path": "Content/reference/users/get-own-user.htm",
+      "title": "Get own user",
+      "source": "reference/users/get-own-user.md"
+    },
+    {
+      "path": "Content/reference/users/get-user-groups.htm",
+      "title": "Get user groups",
+      "source": "reference/users/get-user-groups.md"
+    },
+    {
+      "path": "Content/reference/users/get-users.htm",
+      "title": "Get users",
+      "source": "reference/users/get-users.md"
+    },
+    {
+      "path": "Content/reference/users/regenerate-bot-api-key.htm",
+      "title": "Regenerate a bot's API key",
+      "source": "reference/users/regenerate-bot-api-key.md"
+    },
+    {
+      "path": "Content/reference/users/remove-alert-words.htm",
+      "title": "Remove alert words",
+      "source": "reference/users/remove-alert-words.md"
+    },
+    {
+      "path": "Content/reference/users/remove-attachment.htm",
+      "title": "Delete an attachment",
+      "source": "reference/users/remove-attachment.md"
+    },
+    {
+      "path": "Content/reference/users/set-typing-status-for-message-edit.htm",
+      "title": "Set \"typing\" status for message editing",
+      "source": "reference/users/set-typing-status-for-message-edit.md"
+    },
+    {
+      "path": "Content/reference/users/set-typing-status.htm",
+      "title": "Set \"typing\" status",
+      "source": "reference/users/set-typing-status.md"
+    },
+    {
+      "path": "Content/reference/users/update-settings.htm",
+      "title": "Update settings",
+      "source": "reference/users/update-settings.md"
+    },
+    {
+      "path": "Content/reference/users/update-user-group-members.htm",
+      "title": "Update user group members",
+      "source": "reference/users/update-user-group-members.md"
+    },
+    {
+      "path": "Content/reference/users/update-user-group.htm",
+      "title": "Update a user group",
+      "source": "reference/users/update-user-group.md"
+    },
+    {
+      "path": "Content/sdk/javascript-channels.htm",
+      "title": "JavaScript: work with channels",
+      "source": "sdk/javascript-channels.md"
+    },
+    {
+      "path": "Content/sdk/javascript-messages.htm",
+      "title": "JavaScript: work with messages",
+      "source": "sdk/javascript-messages.md"
+    },
+    {
+      "path": "Content/sdk/javascript-real-time-events.htm",
+      "title": "JavaScript: work with real time events",
+      "source": "sdk/javascript-real-time-events.md"
+    },
+    {
+      "path": "Content/sdk/javascript-users.htm",
+      "title": "JavaScript: work with users",
+      "source": "sdk/javascript-users.md"
+    },
+    {
+      "path": "Content/sdk/python-bots.htm",
+      "title": "Python: work with bots",
+      "source": "sdk/python-bots.md"
+    },
+    {
+      "path": "Content/sdk/python-channels.htm",
+      "title": "Python: work with channels",
+      "source": "sdk/python-channels.md"
+    },
+    {
+      "path": "Content/sdk/python-drafts.htm",
+      "title": "Python: work with drafts",
+      "source": "sdk/python-drafts.md"
+    },
+    {
+      "path": "Content/sdk/python-invites.htm",
+      "title": "Python: work with invites",
+      "source": "sdk/python-invites.md"
+    },
+    {
+      "path": "Content/sdk/python-messages.htm",
+      "title": "Python: work with messages",
+      "source": "sdk/python-messages.md"
+    },
+    {
+      "path": "Content/sdk/python-mobile.htm",
+      "title": "Python: work with mobile",
+      "source": "sdk/python-mobile.md"
+    },
+    {
+      "path": "Content/sdk/python-navigation-views.htm",
+      "title": "Python: work with navigation views",
+      "source": "sdk/python-navigation-views.md"
+    },
+    {
+      "path": "Content/sdk/python-real-time-events.htm",
+      "title": "Python: work with real time events",
+      "source": "sdk/python-real-time-events.md"
+    },
+    {
+      "path": "Content/sdk/python-server-and-organizations.htm",
+      "title": "Python: work with server and organizations",
+      "source": "sdk/python-server-and-organizations.md"
+    },
+    {
+      "path": "Content/sdk/python-users.htm",
+      "title": "Python: work with users",
+      "source": "sdk/python-users.md"
+    }
+  ],
+  "variables": {
+    "API.Version": "1",
+    "General.CompanyName": "Acme Software",
+    "General.ProductName": "Acme Relay"
+  },
+  "snippets": [
+    "Content/Resources/Snippets/install-the-client-library.flsnp",
+    "Content/Resources/Snippets/install-the-client-library-2.flsnp",
+    "Content/Resources/Snippets/check-the-code-field.flsnp",
+    "Content/Resources/Snippets/every-successful-response-also.flsnp",
+    "Content/Resources/Snippets/this-operation-cannot-be.flsnp",
+    "Content/Resources/Snippets/changes-before-10-0.flsnp",
+    "Content/Resources/Snippets/changes-deprecated-clients-should.flsnp",
+    "Content/Resources/Snippets/changes-prior-to-12.flsnp",
+    "Content/Resources/Snippets/changes-prior-to-12-2.flsnp",
+    "Content/Resources/Snippets/note-this-endpoint-is.flsnp",
+    "Content/Resources/Snippets/clients-should-use-the.flsnp",
+    "Content/Resources/Snippets/clients-should-use-the-2.flsnp",
+    "Content/Resources/Snippets/note-when-the-value.flsnp",
+    "Content/Resources/Snippets/these-recipes-use-the.flsnp",
+    "Content/Resources/Snippets/these-recipes-use-the-2.flsnp",
+    "Content/Resources/Snippets/cloud-on-cloud-requests.flsnp",
+    "Content/Resources/Snippets/onprem-on-a-self.flsnp"
+  ],
+  "altDropped": [],
+  "warnings": [
+    "errors/move-messages-time-limit-exceeded.md: link '/api/register-queue' does not point to an imported page; kept as plain text"
+  ]
+}

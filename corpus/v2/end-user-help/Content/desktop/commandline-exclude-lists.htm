@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Exclude lists</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Exclude lists</h1>
+        <p>The client loads the system exclude list when available. You can add your own list with --exclude or --exclude-anchored. A missing explicitly supplied file is an error.</p>
+        <p>With --exclude, a file named sync-exclude.lst uses the sync root for pattern matching. Other filenames can use the exclude file's directory as the base. Use --exclude-anchored when the filename and location should not affect matching.</p>
+        <p>Write one pattern per line. Wildcards are supported, for example:</p>
+        <pre>*.tmp
+._*
+Thumbs.db</pre>
+        <MadCap:snippetBlock src="../Resources/Snippets/restart-the-desktop-client.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/need-more-help-ask.flsnp" />
+    </body>
+</html>

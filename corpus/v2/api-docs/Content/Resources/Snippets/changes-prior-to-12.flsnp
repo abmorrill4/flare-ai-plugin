@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <p><b>Changes</b>: Prior to <MadCap:variable name="General.ProductName" /> 12.0 (feature level 494), users who were not bots could access this endpoint.</p>
+    </body>
+</html>

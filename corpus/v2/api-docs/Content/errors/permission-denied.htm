@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Error code PERMISSION_DENIED</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Error code PERMISSION_DENIED</h1>
+        <p>The <code>PERMISSION_DENIED</code> error code is returned with HTTP status 400.</p>
+        <h2>When you see this error</h2>
+        <p>A typical failed JSON response when the user is not a bot:</p>
+        <p>Bad request.</p>
+        <h2>Example response</h2>
+        <pre class="language-json">{
+  "result": "error",
+  "msg": "Must be a bot user",
+  "code": "PERMISSION_DENIED"
+}</pre>
+        <h2>Where it appears</h2>
+        <ul>
+            <li><MadCap:xref href="../reference/bots/remove-bot-storage.htm">Remove a bot's stored data</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/bots/get-bot-storage.htm">Get a bot's stored data</MadCap:xref></li>
+            <li><MadCap:xref href="../reference/bots/update-bot-storage.htm">Update a bot's stored data</MadCap:xref></li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/check-the-code-field.flsnp" />
+    </body>
+</html>
