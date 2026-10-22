@@ -146,10 +146,9 @@ namespace FlareAI.Flare.UI
                 "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
                 (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice));
             if (reason == null) return;
-            var r = GuideRequests.New(_team, RequestKinds.TurnOn, reason);
-            r.RuleId = o.RuleId; r.Rule = o.RuleId; r.Setting = o.Setting;
+            var r = RuleChanges.TurnOnRequest(_team, o, reason);
             string problem;
-            try { GuideRequests.Send(_team, r, out problem); }
+            try { problem = RuleChanges.Send(_team, r); }
             catch (Exception ex) { Diagnostics.Log("request turn on", ex); Notify.Error(this, "House Style couldn't send your request.", ex.Message + "\n\nYour reason: " + reason, ex, "Turned-off rules"); return; }
             Reload(problem == null ? "Request sent to the owners to " + (o.IsTurnOn ? "return " + o.RuleId + " to the default." : "turn " + o.RuleId + " back on.") : "Request saved but not sent yet: " + problem + ". House Style sends it on your next check.");
         }

@@ -24,6 +24,8 @@ namespace FlareAI.Core.Style
         public string Link { get; set; }
         public string Variable { get; set; }       // generated variable rule: the variable this value belongs to
         public bool IgnoreCase { get; set; }
+        /// <summary>True for a Pattern/Use row: <see cref="Avoid"/> holds one regular expression, not words.</summary>
+        public bool IsPattern { get; set; }
         /// <summary>Each alternative: the regex that finds it and its replacement (null when Action isn't "replace").</summary>
         public List<KeyValuePair<Regex, string>> Swaps = new List<KeyValuePair<Regex, string>>();
         public List<string> Applies = new List<string>();   // Content condition tags (empty = everywhere)
@@ -132,6 +134,7 @@ namespace FlareAI.Core.Style
                     var text = bullet.Groups[1].Value.Trim();
                     var link = Regex.Match(text, @"https?://\S+");
                     var item = AddItem(Slug(section.Title) + "/" + k, section.Title, Regex.Replace(text, @"\s*https?://\S+", "").Trim(), link.Success ? link.Value : null, path, "", "");
+                    item.Page = section.Title;
                     section.Lines.Add("- [" + item.Id + "] " + item.Text);
                 }
                 else if (example.Success && Items.Count > 0)
@@ -274,7 +277,7 @@ namespace FlareAI.Core.Style
                     catch (ArgumentException e) { Problem("error", file, "table row " + rowNo, "Pattern isn't a valid regular expression: " + e.Message); continue; }
                     rule.Id = item.Id; rule.LocalName = Camel(s.Topic) + Camel(item.Id.Substring(item.Id.LastIndexOf('/') + 1)); rule.Layer = Name; rule.Link = s.Link;
                     rule.Applies = item.Applies; rule.Products = item.Products;
-                    rule.File = file; rule.Row = rowNo; rule.Avoid = avoid; rule.Use = use; rule.Example = cell(exC);
+                    rule.File = file; rule.Row = rowNo; rule.Avoid = avoid; rule.IsPattern = isPattern; rule.Use = use; rule.Example = cell(exC);
                     Rules.Add(rule);
                     s.Section.Lines.Add("- [" + item.Id + "] " + text + Scope(item.Applies.Select(a => "Content." + a).Concat(item.Products.Select(p => "Product." + p)).ToList()));
                 }
@@ -420,6 +423,7 @@ namespace FlareAI.Core.Style
             }
             var item = AddItem(s.Topic + "/" + (key ?? (s.Keyed ? "~" + n : n.ToString())), section, text, link, s.Path, bad, good);
             item.HasKey = key != null;
+            item.Page = s.Section.Title;
             item.Element = el;
             item.Position = n;
             return item;

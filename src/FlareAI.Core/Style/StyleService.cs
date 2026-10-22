@@ -82,6 +82,8 @@ namespace FlareAI.Core.Style
         public string Id { get; set; }
         public string Layer { get; set; }
         public string Section { get; set; }
+        /// <summary>The guide page (topic title) the rule is written in.</summary>
+        public string Page { get; set; }
         public string Text { get; set; }
         public string Link { get; set; }
         public string Bad { get; set; }

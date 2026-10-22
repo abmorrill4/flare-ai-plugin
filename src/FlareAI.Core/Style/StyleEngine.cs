@@ -59,7 +59,7 @@ namespace FlareAI.Core.Style
             var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(guides), "google", "Google") };
             for (var i = 0; i < guides.Count; i++) layers.Add(GuideLayer.Load(guides[i], null, null, "Google", Shadowed(guides[i], guides.Skip(i + 1))));
             if (root != null) layers.Add(GuideLayer.Load(root, "project"));
-            var comp = new Composition(layers);
+            var comp = new Composition(layers) { ProjectRoot = root };
             lock (_gate) _cache[key] = new KeyValuePair<string, Composition>(stamp, comp);
             return comp;
         }
@@ -282,6 +282,28 @@ namespace FlareAI.Core.Style
         {
             string v;
             return ruleId != null && _overrides.TryGetValue(ruleId, out v) && v == "off";
+        }
+
+        /// <summary>The open Flare project when it is the last of <see cref="Layers"/> (its own rules and exceptions), else null.</summary>
+        public string ProjectRoot { get; internal set; }
+
+        /// <summary>
+        /// What the guides and the project say about a rule, the later one winning: "off", "on" (back on at its own level), a
+        /// severity, or null (nothing). Looked up by id, then by name (a bare name is a Google rule's).
+        /// </summary>
+        public string SettingOf(string ruleId, string name = null)
+        {
+            string v;
+            if (ruleId != null && _overrides.TryGetValue(ruleId, out v)) return v;
+            if (name != null && _overrides.TryGetValue(name.IndexOf('.') < 0 && name.IndexOf(':') < 0 ? "Google." + name : name, out v)) return v;
+            return null;
+        }
+
+        /// <summary>The level a table rule fires at now: its own, or the level a later guide or the project gives it; null when it is off.</summary>
+        public string LevelOf(LintRule r)
+        {
+            var o = Override(r);
+            return o == "off" ? null : o ?? r.Severity;
         }
 
         /// <summary>"off", a severity, or null (the rule's own level, also when a later layer turned it back "on"): what the layers say about this rule.</summary>

@@ -50,8 +50,9 @@ namespace FlareAI.Flare.UI
         /// <param name="guideRoots">The guides in effect, whose turned-off rules can be reviewed.</param>
         /// <param name="isDefault">True for a read-only guide (bundled with the plugin): its rows are listed as defaults.</param>
         /// <param name="openProject">A path in the open Flare project, for its own turned-off rules.</param>
+        /// <param name="styleRules">Opens Style rules (every rule, to turn off or back on) over this window; null hides the button.</param>
         public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open, Func<IDocumentAdapter, ActionRunner> runnerFor,
-                             Func<IList<string>> guideRoots = null, string openProject = null, Func<string, bool> isDefault = null)
+                             Func<IList<string>> guideRoots = null, string openProject = null, Func<string, bool> isDefault = null, Action<IWin32Window> styleRules = null)
         {
             _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor; _guideRoots = guideRoots; _openProject = openProject; _isDefault = isDefault;
             Text = "House Style — Tune style guide";
@@ -68,7 +69,10 @@ namespace FlareAI.Flare.UI
             _list.SelectedIndexChanged += (s, e) => ShowDetail();
             _detail = DiffView.Create();
             _detail.Dock = DockStyle.Bottom; _detail.Height = 170; _detail.BackColor = SystemColors.Control;
-            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
+            // Grows to a second row rather than clipping buttons at 125-150% scaling or in a narrow window.
+            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
+            var rules = new Button { Text = "Style rules…", AutoSize = true, Visible = styleRules != null };
+            rules.Click += (s, e) => { styleRules(this); Load(); };
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
             var refresh = new Button { Text = "Refresh", AutoSize = true };
             _openRule = new Button { Text = "Open rule in the guide", AutoSize = true, Enabled = false };
@@ -84,9 +88,10 @@ namespace FlareAI.Flare.UI
             _draft.Click += (s, e) => { if (Requesting) RequestRuleChange(); else DraftChange(); };
             _prompts.Click += (s, e) => CustomizePrompts();
             _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject, _isDefault)) f.ShowDialog(this); };
-            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff, _withdraw, _decide });
+            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff, rules, _withdraw, _decide });
             if (Requesting) _draft.Text = "Request a change…";
             var tips = new ToolTip();
+            tips.SetToolTip(rules, "Every rule in the style guide, with search and filters: turn rules off, change their level or turn them back on.");
             tips.SetToolTip(_turnedOff, "Every rule turned off or changed in the style guide and this project: who, when and why. Turn rules back on here.");
             tips.SetToolTip(_decide, "Approve the selected request (you can adjust it first) or decline it with a note. The writer sees the outcome on their next check.");
             tips.SetToolTip(_withdraw, "Take back your open request; the owners no longer see it as open.");
