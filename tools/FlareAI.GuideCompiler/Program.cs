@@ -25,7 +25,13 @@ namespace FlareAI.GuideCompiler
     /// errors, then the failing rows are dropped and their units reported). Writes compiled.json (rule ↔ units) and
     /// coverage.md.
     ///
+    /// After the pages, the deterministic passes in Passes.cs run over every page (term triggers scoped to their entry,
+    /// Product tags, one canonical rule per span across pages, fixes that must not create findings) and every topic is
+    /// written again.
+    ///
     ///   FlareAI.GuideCompiler [--pages numbers,lists] [--model claude-opus-5-5] [--effort high] [--parallel 6]
+    ///   FlareAI.GuideCompiler --passes          (offline: the passes over compiled.json, no model calls)
+    ///   FlareAI.GuideCompiler --rewrite-topics  (offline: topics from compiled.json as they are)
     /// </summary>
     internal static class Program
     {
@@ -47,7 +53,8 @@ namespace FlareAI.GuideCompiler
                 var repo = Repo();
                 var only = Opt("--pages", null);
                 return new Compiler(repo, Opt("--model", "claude-opus-5-5"), Opt("--effort", "high"), int.Parse(Opt("--parallel", "6")),
-                                    only == null ? null : new HashSet<string>(only.Split(',')), Array.IndexOf(args, "--force") >= 0, Array.IndexOf(args, "--rewrite-topics") >= 0).Run();
+                                    only == null ? null : new HashSet<string>(only.Split(',')), Array.IndexOf(args, "--force") >= 0, Array.IndexOf(args, "--rewrite-topics") >= 0,
+                                    Array.IndexOf(args, "--passes") >= 0).Run();
             }
             catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
         }
@@ -76,14 +83,15 @@ namespace FlareAI.GuideCompiler
         private readonly string _repo, _model, _effort;
         private readonly int _parallel;
         private readonly HashSet<string> _only;
-        private readonly bool _force, _rewrite;
+        private readonly bool _force, _rewrite, _passes;
         private readonly AnthropicClient _llm;
         private readonly object _gate = new object();
         private double _usd;
 
-        public Compiler(string repo, string model, string effort, int parallel, HashSet<string> only, bool force, bool rewrite = false)
+        public Compiler(string repo, string model, string effort, int parallel, HashSet<string> only, bool force, bool rewrite = false, bool passes = false)
         {
-            _repo = repo; _model = model; _effort = effort; _parallel = parallel; _only = only; _force = force; _rewrite = rewrite;
+            _repo = repo; _model = model; _effort = effort; _parallel = parallel; _only = only; _force = force; _rewrite = rewrite; _passes = passes;
+            if (rewrite || passes) return;   // offline: no model, no key
             var key = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? DotEnv(Path.Combine(repo, ".env"), "ANTHROPIC_API_KEY");
             _llm = new AnthropicClient(null, key, model, 900);
         }
@@ -96,14 +104,8 @@ namespace FlareAI.GuideCompiler
             var coverage = (JObject)JObject.Parse(File.ReadAllText(Path.Combine(Src, "coverage.json")))["pages"];
             var index = JObject.Parse(File.ReadAllText(Path.Combine(Src, @"source\index.json")));
             var units = JObject.Parse(File.ReadAllText(Path.Combine(Src, @"source\units.json"), Encoding.UTF8));
-            Topic.Terms = ((JArray)units["word-list"]).ToDictionary(u => (string)u["id"], u =>
-            {
-                var t = (string)u["text"];
-                var i = t.IndexOf(" link:", StringComparison.Ordinal);
-                if (i < 0) i = t.IndexOf(':');
-                return (string)u["kind"] == "dt" && i > 0 ? t.Substring(0, i).Trim() : null;
-            });
-            Topic.UnitHashes = units.Properties().SelectMany(p => (JArray)p.Value).ToDictionary(u => (string)u["id"], u => (string)u["hash"]);
+            Topic.LoadUnits(units);
+            if (_passes) return RunPasses(coverage, index);
             if (_rewrite) return RewriteTopics(coverage, index);
             var jobs = new List<PageJob>();
             foreach (var p in index["pages"])
@@ -151,11 +153,47 @@ namespace FlareAI.GuideCompiler
                     }
                 }
             });
+            // The cross-page passes see every page (compiled now or kept from before), then every topic is written again.
+            if (jobs.Count > 0) ApplyPasses(compiled, coverage);
+            File.WriteAllText(compiledPath, compiled.ToString(), new UTF8Encoding(false));
             var md = Coverage.Report(compiled, JObject.Parse(File.ReadAllText(Path.Combine(Src, "coverage.json"))), index);
             File.WriteAllText(Path.Combine(Src, "coverage.md"), md, new UTF8Encoding(false));
             Console.WriteLine(md.Split(new[] { "\n## " }, StringSplitOptions.None)[0]);
             Console.WriteLine("Cost: $" + _usd.ToString("0.00"));
             return 0;
+        }
+
+        /// <summary>
+        /// Offline (no model calls): the deterministic passes over compiled.json, then every topic and coverage.md again.
+        /// Run after changing owners.json, products.json or fixes.json, or the passes themselves.
+        /// </summary>
+        private int RunPasses(JObject coverage, JObject index)
+        {
+            var compiledPath = Path.Combine(Src, "compiled.json");
+            var compiled = JObject.Parse(File.ReadAllText(compiledPath, Encoding.UTF8));
+            ApplyPasses(compiled, coverage);
+            File.WriteAllText(compiledPath, compiled.ToString(), new UTF8Encoding(false));
+            var md = Coverage.Report(compiled, JObject.Parse(File.ReadAllText(Path.Combine(Src, "coverage.json"))), index);
+            File.WriteAllText(Path.Combine(Src, "coverage.md"), md, new UTF8Encoding(false));
+            Console.WriteLine(md.Split(new[] { "\n## " }, StringSplitOptions.None)[0]);
+            return 0;
+        }
+
+        /// <summary>Runs the passes (they edit compiled.json in place), records the owner choices, and writes every topic.</summary>
+        private void ApplyPasses(JObject compiled, JObject coverage)
+        {
+            var config = PassConfig.Load(Src);
+            var log = Passes.Run(compiled, coverage, config);
+            foreach (var l in log) Console.WriteLine("  " + l);
+            config.SaveOwners(Src);
+            foreach (var p in compiled.Properties())
+            {
+                var c = (JObject)p.Value;
+                var job = Passes.JobOf(p.Name, c, coverage);
+                var rules = Topic.Prepare(job, (JArray)c["rules"]);
+                File.WriteAllText(Path.Combine(OutDir, Topic.FileName(p.Name)), Topic.Write(job, rules), new UTF8Encoding(false));
+                c["rules"] = Topic.WithIds(p.Name, rules);
+            }
         }
 
         /// <summary>One topic per page (word-list parts merged in order) and its trace entry.</summary>
@@ -360,7 +398,12 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
             {
                 var o = (JObject)r.DeepClone();
                 o.Remove("id");
-                if (job.Slug == "word-list" && (string)o["kind"] == "prose" && TermsOf(o) != null) { o["kind"] = "term"; o["term"] = TermsOf(o); }
+                var kind = (string)o["kind"];
+                if (job.Slug == "word-list" && (kind == "prose" || kind == "term"))
+                {
+                    var term = TermsOf(o);
+                    if (term != null) { o["kind"] = "term"; o["term"] = term; }
+                }
                 outArr.Add(o);
             }
             return outArr;
@@ -442,6 +485,9 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
             return outArr;
         }
 
+        /// <summary>The guide's id for a compiled rule: "google:word-list/244".</summary>
+        public static string RuleId(string slug, string key) { return "google:" + GuideLayerSlug(Path.GetFileNameWithoutExtension(FileName(slug))) + "/" + key; }
+
         /// <summary>Source unit id → content hash (units.json): what a rule says, independent of where it sits on the page.</summary>
         public static Dictionary<string, string> UnitHashes;
 
@@ -486,14 +532,77 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
             return list;
         }
 
-        /// <summary>Word list: the term(s) a rule is about, from the source units it covers ("admin link: Write out…" → "admin").</summary>
+        /// <summary>Word list: the entry term of each dt unit ("admin link: Write out…" → "admin").</summary>
         public static Dictionary<string, string> Terms;
 
-        private static string TermsOf(JToken r)
+        /// <summary>Source unit id → its text (every page): what the passes read for entry scope and product cues.</summary>
+        public static Dictionary<string, string> UnitTexts;
+
+        /// <summary>Reads units.json: word-list entry terms, unit texts and content hashes.</summary>
+        public static void LoadUnits(JObject units)
+        {
+            Terms = ((JArray)units["word-list"]).ToDictionary(u => (string)u["id"], u =>
+            {
+                var t = (string)u["text"];
+                var i = t.IndexOf(" link:", StringComparison.Ordinal);
+                if (i < 0) i = t.IndexOf(':');
+                return (string)u["kind"] == "dt" && i > 0 ? t.Substring(0, i).Trim() : null;
+            });
+            UnitTexts = units.Properties().SelectMany(p => (JArray)p.Value).ToDictionary(u => (string)u["id"], u => (string)u["text"]);
+            UnitHashes = units.Properties().SelectMany(p => (JArray)p.Value).ToDictionary(u => (string)u["id"], u => (string)u["hash"]);
+        }
+
+        /// <summary>
+        /// The Term cell of a word-list rule: its own entry's term only (#58). The model sometimes claims a neighbouring
+        /// entry's unit (the source glues some entries together), and that entry's term must not become a trigger.
+        /// </summary>
+        public static string TermsOf(JToken r)
+        {
+            // The guide splits a Term cell at commas: "failover (noun, adjective)" must not become "failover (noun" + "adjective)".
+            var t = EntryTerm(r);
+            return t == null ? null : Regex.Replace(t, @"\([^)]*\)", m => m.Value.Replace(", ", " or ").Replace(",", " or ").Replace(";", " or "));
+        }
+
+        /// <summary>
+        /// The entry a word-list rule belongs to: the claimed unit whose term is the rule's heading; else the heading itself when
+        /// a claimed unit carries it as a glued entry ("… tap &amp; hold, tap and hold link In Android …"); else the one entry
+        /// among the claimed units, or the one whose term the rule text uses; else the first claimed unit's.
+        /// </summary>
+        public static string EntryTerm(JToken r)
         {
             if (Terms == null) return null;
-            var terms = (r["units"] ?? new JArray()).Select(u => { string t; return Terms.TryGetValue((string)u, out t) ? t : null; }).Where(t => !string.IsNullOrEmpty(t)).Distinct().ToList();
-            return terms.Count == 0 ? null : string.Join(", ", terms.ToArray());
+            var units = (r["units"] ?? new JArray()).Select(u => (string)u).ToList();
+            var terms = units.Select(u => { string t; return Terms.TryGetValue(u, out t) ? t : null; }).Where(t => !string.IsNullOrEmpty(t)).Distinct().ToList();
+            var heading = ((string)r["heading"] ?? "").Trim();
+            if (heading.Length > 0)
+            {
+                var same = terms.FirstOrDefault(t => SameTerm(t, heading));
+                if (same != null) return same;
+                string text;
+                if (UnitTexts != null && units.Any(u => UnitTexts.TryGetValue(u, out text) && text.IndexOf(heading + " link", StringComparison.Ordinal) > 0)) return heading;
+            }
+            if (terms.Count <= 1) return terms.FirstOrDefault();
+            var said = ((string)r["text"] + " " + (string)r["bad"] + " " + (string)r["good"]);
+            return terms.FirstOrDefault(t => TermForms(t).Any(f => Regex.IsMatch(said, @"(?<![\w])" + Regex.Escape(f) + @"(?![\w])", RegexOptions.IgnoreCase))) ?? terms[0];
+        }
+
+        /// <summary>The entry terms of every claimed unit (more than one: the rule claims a neighbouring entry's unit).</summary>
+        public static List<string> ClaimedTerms(JToken r)
+        {
+            if (Terms == null) return new List<string>();
+            return (r["units"] ?? new JArray()).Select(u => { string t; return Terms.TryGetValue((string)u, out t) ? t : null; }).Where(t => !string.IsNullOrEmpty(t)).Distinct().ToList();
+        }
+
+        /// <summary>"plugin (noun), plug-in (adjective)" → plugin, plug-in; quotes and parenthetical notes dropped.</summary>
+        public static List<string> TermForms(string term)
+        {
+            return Regex.Split(Regex.Replace(term ?? "", @"\([^)]*\)", ""), @"\s*[,;]\s*").Select(t => Regex.Replace(t, @"\s+", " ").Trim().Trim('"', '“', '”', '\'').Trim()).Where(t => t.Length > 0).ToList();
+        }
+
+        private static bool SameTerm(string a, string b)
+        {
+            Func<string, string> n = s => Regex.Replace(s.ToLowerInvariant(), @"[\s""“”']+", " ").Trim();
+            return n(a) == n(b);
         }
 
         public static string Write(PageJob job, JArray rules)
@@ -571,6 +680,9 @@ not_applicable: introductions, ""for more information, see…"" pointers, notes 
                 foreach (var u in (JArray)c.Value["uncovered"]) sb.AppendLine("- " + u);
                 foreach (var d in (JArray)c.Value["dropped"]) sb.AppendLine("- dropped in " + c.Name + ": " + d["error"]);
             }
+            sb.AppendLine("\n## Compiler passes (canonical owner, Product tags, Term scope, fixes)\n");
+            foreach (var c in compiled.Properties())
+                foreach (var n in (JArray)c.Value["passes"] ?? new JArray()) sb.AppendLine("- " + c.Name + ": " + n);
             sb.AppendLine("\n## Not applicable (reasons)\n");
             foreach (var c in compiled.Properties())
                 foreach (var g in ((JArray)c.Value["not_applicable"]).GroupBy(x => (string)x["reason"]))

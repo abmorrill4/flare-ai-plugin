@@ -61,17 +61,12 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-32" MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?\s+%</td><td></td><td>warning</td><td>No space between numeral and percent sign.</td><td>Usage rose to 40 % this month.</td></tr>
             <tr id="rule-33" MadCap:conditions="Content.Numbers"><td>\b\d+(?:\.\d+)?[ \u00A0]?percent\b</td><td></td><td>warning</td><td>Use numerals with the percent sign.</td><td>Only 40 percent of the files were copied.</td></tr>
         </table>
         <h2>Ranges of numbers</h2>
         <ul>
             <li id="rule-34" MadCap:conditions="Content.Numbers">In ranges of numbers, use a hyphen with no space on either side of it; do not use an en dash.<ul><li>Good: 2012-2016</li></ul></li>
         </ul>
-        <table>
-            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-35" MadCap:conditions="Content.Numbers"><td>\d\s*(?:–|&amp;ndash;)\s*\d</td><td></td><td>warning</td><td>Ranges use a hyphen, not an en dash.</td><td>The project ran from 2012–2016.</td></tr>
-        </table>
         <h2>Suspended hyphens</h2>
         <ul>
             <li id="rule-36" MadCap:conditions="Content.Numbers">When two or more hyphenated compounds that start with numbers modify the same word, use suspended hyphens.<ul><li>Good: You can set up the system to scan for new files at one-, two-, or three-hour intervals.</li></ul></li>

@@ -388,7 +388,8 @@ namespace FlareAI.Core.Style
                 {
                     var r = withEx[i];
                     var mine = hits.Where(h => h.Index == i && h.RuleId == r.Id).ToList();
-                    if (mine.Count == 0) { issue("error", r, "The Example doesn't trigger this rule: '" + r.Example + "'."); continue; }
+                    // A row for products this guide doesn't cover never lints here, so its Example can't be checked against it.
+                    if (mine.Count == 0) { if (ForOurProducts(r.Products)) issue("error", r, "The Example doesn't trigger this rule: '" + r.Example + "'."); continue; }
                     if (mine.All(h => h.Replacement != null))
                     {
                         var t = r.Example;
