@@ -27,7 +27,7 @@ if (-not (Test-Path $bench)) { dotnet build tools/FlareAI.Bench -c $Configuratio
 
 $failed = $false
 $watch = [Diagnostics.Stopwatch]::StartNew()
-& $bench --no-ai --check --parallel 4 --out (Join-Path $repo 'bench-out\gate')
+& $bench --no-ai --check --corpus (Join-Path $repo 'corpus') --parallel 4 --out (Join-Path $repo 'bench-out\gate')
 if ($LASTEXITCODE -ne 0) { $failed = $true }
 Write-Host ("Bench gate took {0:0.0} s" -f $watch.Elapsed.TotalSeconds)
 

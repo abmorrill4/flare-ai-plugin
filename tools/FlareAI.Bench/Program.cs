@@ -190,7 +190,9 @@ namespace FlareAI.Bench
             _o = o;
             _root = Path.GetFullPath(o.Corpus);
             // The Flare project under --corpus; without a ground-truth.json every finding is listed as "not seeded" (lint any project).
-            _project = Path.GetDirectoryName(Directory.GetFiles(_root, "*.flprj", SearchOption.AllDirectories).OrderBy(f => f.Length).First());
+            // Shallowest project first (corpus/DigitalBanking before corpus/v2/*), then shortest path.
+            _project = Path.GetDirectoryName(Directory.GetFiles(_root, "*.flprj", SearchOption.AllDirectories)
+                .OrderBy(f => f.Count(c => c == Path.DirectorySeparatorChar)).ThenBy(f => f.Length).First());
             var truthFile = Path.Combine(_root, "ground-truth.json");
             var truth = File.Exists(truthFile) ? JObject.Parse(File.ReadAllText(truthFile))
                 : new JObject { ["files"] = new JObject(Directory.GetFiles(Path.Combine(_project, "Content"), "*.htm", SearchOption.AllDirectories)
