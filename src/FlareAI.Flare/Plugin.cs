@@ -146,6 +146,7 @@ namespace FlareAI.Flare
             if (c == Commands.CheckProject) return OnCheckProject;
             if (c == Commands.TopicAssists) return OnAssist;
             if (c == Commands.ValidateGuide) return OnValidateGuide;
+            if (c == Commands.StyleRules) return OnStyleRules;
             if (c == Commands.TuneGuide) return OnTuneGuide;
             if (c == Commands.BuildGuide) return OnBuildGuide;
             if (c == Commands.ExportLlm) return OnExportLlm;
@@ -410,7 +411,8 @@ namespace FlareAI.Flare
                 Func<IList<string>> roots = () => settings.GuideRoots(pluginDir);
                 Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
-                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault))
+                using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault,
+                                                 owner => ShowStyleRules(owner, style, project, openProject)))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)
@@ -418,6 +420,31 @@ namespace FlareAI.Flare
                 Diagnostics.Log("Tune style guide", ex);
                 Notify.Failed(Owner, "open the guide report", ex, Commands.TuneGuide.Label);
             }
+        }
+
+        /// <summary>Every rule of the style guide, with search and filters, to turn rules off or back on.</summary>
+        private void OnStyleRules()
+        {
+            try
+            {
+                var settings = PluginSettings.Load();
+                var style = StyleService(settings);
+                var adapter = ActiveAdapter();
+                var project = settings.UseProjectLayer && adapter != null ? adapter.SourcePath : null;   // the guide the checks use
+                ShowStyleRules(_nav.GetParentForm(), style, project, adapter != null ? adapter.SourcePath : null);
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Style rules", ex);
+                Notify.Failed(Owner, "show the style rules", ex, Commands.StyleRules.Label);
+            }
+        }
+
+        private void ShowStyleRules(IWin32Window owner, StyleEngine style, string project, string openProject)
+        {
+            var pluginDir = PluginDirectory;
+            using (var f = new StyleRulesForm(Team.Current, style, project, openProject, r => PluginSettings.IsUnder(r, pluginDir)))
+                f.ShowDialog(owner);
         }
 
         /// <summary>Tests the layered style guide (tables against examples; optionally prose rules against the AI).</summary>

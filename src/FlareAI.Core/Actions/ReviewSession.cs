@@ -861,11 +861,9 @@ namespace FlareAI.Core.Actions
             if (choice.ForTeam && rule == null) choice.ForTeam = false;
             if (!choice.ForTeam && overrides == null) { Status = Summary() + "  Not sent: this topic is not inside a Flare project."; return; }
             var wording = choice.ForTeam && editable && !string.IsNullOrEmpty(choice.Wording) && choice.Wording.Trim() != rule.Text.Trim() ? choice.Wording.Trim() : null;
-            var kind = !choice.ForTeam ? RequestKinds.ProjectException : wording != null ? RequestKinds.Wording : choice.Setting == "off" ? RequestKinds.TurnOff : RequestKinds.Severity;
-            var r = GuideRequests.New(team, kind, reason);
-            r.RuleId = f.RuleId; r.Rule = f.Rule; r.Layer = f.Layer; r.Setting = choice.Setting ?? "off"; r.Wording = wording;
-            if (rule != null) { r.RuleText = rule.Text; r.RuleFile = RuleFile(rule); }
-            if (!choice.ForTeam) { r.ProjectPath = path; r.Project = ProjectName(overrides); }
+            choice.Reason = reason;
+            var r = RuleChanges.RuleRequest(team, choice, f.RuleId, f.Rule, f.Layer, rule != null ? rule.Text : null, RuleFile(rule), path, wording);
+            if (!choice.ForTeam) r.Project = RuleChanges.ProjectName(overrides);
             if (!string.IsNullOrEmpty(f.Excerpt)) r.Evidence.Add("\"" + f.Excerpt + "\" (" + System.IO.Path.GetFileName(path ?? "") + ")");
             string problem;
             try { problem = SendRequest(team, r); }
@@ -888,14 +886,6 @@ namespace FlareAI.Core.Actions
                 return;
             }
             Status = Summary() + "  Request sent to the style guide owners (" + team.OwnerNames + "). The suggestion stays here until they decide; skip it for now if you like.";
-        }
-
-        /// <summary>The project's folder name from its overrides.ini path (Project\Content\Resources\StyleGuide\overrides.ini).</summary>
-        private static string ProjectName(string overrides)
-        {
-            var dir = overrides == null ? null : new System.IO.FileInfo(overrides).Directory;
-            for (var i = 0; i < 3 && dir != null; i++) dir = dir.Parent;
-            return dir == null ? null : dir.Name;
         }
 
         private static string Describe(StyleFinding f, GuideRule rule)

@@ -49,6 +49,11 @@ namespace FlareAI.Flare
             Id = "validate", Label = "Validate style guide", KeyTip = "V", Icon = "validate", Group = GroupGuide,
             Tooltip = "Test the style guide's rules against their examples."
         };
+        public static readonly CommandInfo StyleRules = new CommandInfo
+        {
+            Id = "rules", Label = "Style rules", KeyTip = "U", Icon = "rules", Group = GroupGuide,
+            Tooltip = "See every rule in the style guide, search and filter them, and turn rules off or back on."
+        };
         public static readonly CommandInfo TuneGuide = new CommandInfo
         {
             Id = "tune", Label = "Tune style guide", KeyTip = "T", Icon = "tune", Group = GroupGuide,
@@ -79,7 +84,7 @@ namespace FlareAI.Flare
         public static readonly IList<CommandInfo> All = new List<CommandInfo>
         {
             CheckStyle, Rewrite, Ask, CheckProject, TopicAssists,
-            ValidateGuide, TuneGuide, BuildGuide,
+            StyleRules, ValidateGuide, TuneGuide, BuildGuide,
             ExportLlm,
             Settings, Diagnostics
         };
@@ -91,7 +96,7 @@ namespace FlareAI.Flare
         public static readonly IList<CommandInfo> Menu = new List<CommandInfo>
         {
             CheckStyle, Rewrite, Ask, CheckProject, TopicAssists, null,
-            ValidateGuide, TuneGuide, BuildGuide, null,
+            StyleRules, ValidateGuide, TuneGuide, BuildGuide, null,
             ExportLlm, null,
             Settings, Diagnostics
         };
