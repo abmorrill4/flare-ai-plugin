@@ -70,21 +70,18 @@
       </dl>
     </div>
 
-    <!-- The hero fragment: a real topic from corpus/DigitalBanking (Content/deposit/download-check-deposit-details.htm)
-         and the three issues House Style's linter reports for it (company:plain-language/1, /5 and /4). -->
+    <!-- The hero fragment: a real topic from corpus/v2/end-user-help (Content/talk/messages-setting-reminder-on-messages.htm,
+         its two images left out) and the only three issues House Style's linter reports for it, from
+         tools/FlareAI.Bench --no-ai --corpus corpus/v2/end-user-help on main 74878fb:
+         company:plain-language/5 ('simply'), google:inclusive-documentation/15 ('hover over'), google:word-list/134 ('click on'). -->
     <figure class="hero-demo">
       <div class="ui-window" data-ui id="hero-ui">
         <div class="ui-editor">
-          <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>download-check-deposit-details.htm</span></div>
+          <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>messages-setting-reminder-on-messages.htm</span></div>
           <div class="ui-doc" aria-live="polite">
-            <h4>Download check deposit details</h4>
-            <p>You can download a check deposit at any time. You can <span class="hl" data-hl="h1" data-new="use">utilize</span> the check deposit list to confirm the details.</p>
-            <ol>
-              <li>On the main menu, select <b>Deposit</b>.</li>
-              <li>Find the check deposit, and then select <b>Download</b>. <span class="hl" data-hl="h2" data-new="A">Please note that a</span> check deposit can take one business day to appear.</li>
-              <li>Check the details on the screen.</li>
-            </ol>
-            <p>The check deposit list shows the change right away. A member <span class="hl" data-hl="h3" data-new="can">is able to</span> cancel a check deposit until midnight.</p>
+            <h4>Setting reminder on messages</h4>
+            <p>You can set reminders on specific messages. If there's an important message you want to be notified about later, <span class="hl" data-hl="h1" data-new="">simply</span> <span class="hl" data-hl="h2" data-new="point to">hover over</span> it and <span class="hl" data-hl="h3" data-new="click">click on</span> the reminder icon.</p>
+            <p>In the submenu, you can select an appropriate time to receive a notification later.</p>
           </div>
         </div>
         <div class="ui-pane">
@@ -92,7 +89,7 @@
           <ul class="ui-issues">
             <li class="ui-issue" data-issue="h1">
               <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-              <div><div class="msg">Use 'use' instead of 'utilize'</div><div class="meta">Plain words · Warning</div></div>
+              <div><div class="msg">Delete 'simply'</div><div class="meta">State the point directly · Warning</div></div>
               <div class="ui-actions">
                 <button class="ui-btn primary" data-act="change">Change</button>
                 <button class="ui-btn" data-act="ignore">Ignore</button>
@@ -101,7 +98,7 @@
             </li>
             <li class="ui-issue" data-issue="h2">
               <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-              <div><div class="msg">Delete 'Please note that'</div><div class="meta">State the point directly · Warning</div></div>
+              <div><div class="msg">Use 'point to' instead of 'hover over'</div><div class="meta">Google style · Warning</div></div>
               <div class="ui-actions">
                 <button class="ui-btn primary" data-act="change">Change</button>
                 <button class="ui-btn" data-act="ignore">Ignore</button>
@@ -110,7 +107,7 @@
             </li>
             <li class="ui-issue" data-issue="h3">
               <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-              <div><div class="msg">Use 'can' instead of 'is able to'</div><div class="meta">Shorter · Warning</div></div>
+              <div><div class="msg">Use 'click' instead of 'click on'</div><div class="meta">Google style · Warning</div></div>
               <div class="ui-actions">
                 <button class="ui-btn primary" data-act="change">Change</button>
                 <button class="ui-btn" data-act="ignore">Ignore</button>
@@ -143,19 +140,20 @@
     </div>
 
     <div class="stage">
-      <!-- Word choice: the Terminology table in styleguide/Content/Resources/StyleGuide/Company/Terminology.htm
-           (company:terminology/3) and corpus/DigitalBanking/Content/billpay/add-a-payee.htm. -->
+      <!-- Word choice: the Plain words table in styleguide/Content/Resources/StyleGuide/Company/Plain-language.htm
+           (company:plain-language/1) and corpus/v2/end-user-help/Content/groupware/mail-dashboard-integration.htm,
+           where the linter reports it (tools/FlareAI.Bench --no-ai on main 74878fb). -->
       <div class="panel" role="tabpanel" id="panel-words" aria-labelledby="tab-words" data-demo>
         <div class="steps">
           <div class="step">
             <h3>In your style guide</h3>
             <div class="ui-card" data-ui>
-              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>Terminology.htm</span></div>
+              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>Plain-language.htm</span></div>
               <div class="ui-doc">
-                <h5>Audience</h5>
+                <h5>Plain words</h5>
                 <table class="rule-table">
                   <thead><tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th></tr></thead>
-                  <tbody><tr><td>customer, customers</td><td>member, members</td><td>warning</td><td>We serve members.</td></tr></tbody>
+                  <tbody><tr><td>utilize, utilizes, utilized, utilizing</td><td>use, uses, used, using</td><td>warning</td><td>Plain words.</td></tr></tbody>
                 </table>
               </div>
             </div>
@@ -164,10 +162,10 @@
           <div class="step">
             <h3>In your topic</h3>
             <div class="ui-card" data-ui>
-              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>add-a-payee.htm</span></div>
+              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>mail-dashboard-integration.htm</span></div>
               <div class="ui-doc" aria-live="polite">
-                <h4>Add a payee</h4>
-                <p>You can add a payee at any time. <span class="hl" data-hl="w1" data-new="Members">Customers</span> can see each payee for 18 months.</p>
+                <h4>Dashboard integration</h4>
+                <p>These widgets <span class="hl" data-hl="w1" data-new="use">utilize</span> the emails from the email accounts that are set up for your account.</p>
               </div>
             </div>
           </div>
@@ -178,7 +176,7 @@
               <ul class="ui-issues">
                 <li class="ui-issue on" data-issue="w1">
                   <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-                  <div><div class="msg">Use 'Members' instead of 'Customers'</div><div class="meta">We serve members · Warning</div></div>
+                  <div><div class="msg">Use 'use' instead of 'utilize'</div><div class="meta">Plain words · Warning</div></div>
                   <div class="ui-actions">
                     <button class="ui-btn primary" data-act="change">Change</button>
                     <button class="ui-btn" data-act="change">Change All</button>
@@ -193,8 +191,9 @@
         </div>
       </div>
 
-      <!-- Promises: styleguide/.../Company/Claims.htm (company:claims/2, flag only: its Use cell is empty)
-           and corpus/DigitalBanking/Content/documents/add-a-document.htm. -->
+      <!-- Promises: styleguide/.../Company/Claims.htm (company:claims/2, flag only: its Use cell is empty) and the
+           "Edit locally" section of corpus/v2/end-user-help/Content/desktop/macosfileprovider-known-issues.htm, where the linter
+           reports it (the product-name variable and "offered by the" are shortened to "in the"). -->
       <div class="panel" role="tabpanel" id="panel-promises" aria-labelledby="tab-promises" data-demo hidden>
         <div class="steps">
           <div class="step">
@@ -214,10 +213,10 @@
           <div class="step">
             <h3>In your topic</h3>
             <div class="ui-card" data-ui>
-              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>add-a-document.htm</span></div>
+              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>macosfileprovider-known-issues.htm</span></div>
               <div class="ui-doc">
-                <h4>Add a document</h4>
-                <p>The document list shows the change right away. Every document is <span class="hl" data-hl="p1">free of charge</span>.</p>
+                <h4>Edit locally</h4>
+                <p>The <b>Edit locally</b> action in the web interface cannot open files that are managed by the File Provider extension. It can only reveal them in Finder. This feature is <span class="hl" data-hl="p1">coming soon</span>.</p>
               </div>
             </div>
           </div>
@@ -228,7 +227,7 @@
               <ul class="ui-issues">
                 <li class="ui-issue on" data-issue="p1">
                   <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-                  <div><div class="msg">Avoid 'free of charge'</div><div class="meta">Don't promise timelines, pricing, or availability · Warning</div></div>
+                  <div><div class="msg">Avoid 'coming soon'</div><div class="meta">Don't promise timelines, pricing, or availability · Warning</div></div>
                   <div class="ui-actions">
                     <button class="ui-btn primary" data-act="goto">Go To</button>
                     <button class="ui-btn" data-act="rewrite">Rewrite</button>
@@ -244,7 +243,8 @@
       </div>
 
       <!-- Structure: StructureCheck's heading-order check (src/FlareAI.Core/Style/StructureCheck.cs) on
-           corpus/DigitalBanking/Content/business-users/troubleshoot.htm, which jumps from h1 to h3. -->
+           corpus/v2/end-user-help/Content/desktop/faq.htm, which jumps from h1 to h3 (Structure.HeadingOrder in the Bench run).
+           The paragraph under the heading is shortened. -->
       <div class="panel" role="tabpanel" id="panel-structure" aria-labelledby="tab-structure" data-demo hidden>
         <div class="steps">
           <div class="step">
@@ -260,11 +260,11 @@
           <div class="step">
             <h3>In your topic</h3>
             <div class="ui-card" data-ui>
-              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>troubleshoot.htm</span></div>
+              <div class="ui-tabbar"><span class="ui-tab"><svg aria-hidden="true"><use href="#i-file"/></svg>faq.htm</span></div>
               <div class="ui-doc">
-                <h4>Troubleshoot business users</h4>
-                <h5 class="hl block" data-hl="s1"><span class="tag">h3</span>Before you start</h5>
-                <p>Make sure you have the account number at hand.</p>
+                <h4>FAQ</h4>
+                <h5 class="hl block" data-hl="s1"><span class="tag">h3</span>How to enable it</h5>
+                <p>You need to install the desktop client with the MSI installer on Windows.</p>
               </div>
             </div>
           </div>
@@ -343,9 +343,11 @@
     <h2 id="features-title" class="visually-hidden">What House Style does</h2>
     <ol class="features">
 
-      <!-- 1. Lint. Numbers from tools/FlareAI.Bench --no-ai --corpus corpus/DigitalBanking on main 8cc7acf:
-           332 issues in 193 files (250 topics), 25 rules; 155 issues across 13 rules carry an automatic change.
-           Rows are the six most frequent rules; the other 19 rules have 174 issues. -->
+      <!-- 1. Lint. Numbers from tools/FlareAI.Bench --no-ai --corpus corpus/v2/end-user-help on main 74878fb
+           (bench-out findings.jsonl, grouped by its Rule field; an issue fixes automatically when it carries a Replacement):
+           752 issues in 150 files (207 topics), 75 rules; 297 issues across 36 rules carry an automatic change.
+           Rows are the six most frequent rules (Structure.AltText, Google.WordList134, Company.PlainLanguage5,
+           Company.PlainLanguage9, Google.Headings32, Google.Dashes3); the other 69 rules have 429 issues, 34 of them fix automatically. -->
       <li class="feature" data-reveal>
         <div class="feature-text">
           <h3>Lint a topic or a whole project</h3>
@@ -354,7 +356,7 @@
         <figure class="feature-visual">
           <div class="lp" data-ui>
             <div class="lp-head">
-              <b>House Style Issues</b><span>DigitalBanking · 332 issues in 193 files</span>
+              <b>House Style Issues</b><span>end-user-help · 752 issues in 150 files</span>
               <span class="seg-ctl" aria-hidden="true"><span class="on">By rule</span><span>By file</span></span>
             </div>
             <ul class="lp-legend" aria-label="Legend">
@@ -363,63 +365,63 @@
             </ul>
             <ol class="lp-rows" aria-label="Issues by rule">
               <li class="lp-row" tabindex="0">
-                <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-                <span class="name">Don't promise timelines, pricing, or availability</span>
+                <svg class="sev" aria-label="Error"><use href="#i-err"/></svg>
+                <span class="name">Add alt text to images</span>
                 <span class="tagx you">Needs you</span>
-                <span class="lp-bar"><i class="s2" style="width: calc((100% - 7rem) * 1)"></i><small>55 in 40 files</small></span>
+                <span class="lp-bar"><i class="s2" style="width: calc((100% - 7rem) * 1)"></i><small>83 in 25 files</small></span>
+              </li>
+              <li class="lp-row" tabindex="0">
+                <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
+                <span class="name">Use 'click', not 'click on'</span>
+                <span class="tagx fix">Change All</span>
+                <span class="lp-bar"><i class="s1" style="width: calc((100% - 7rem) * 0.735)"></i><small>61 in 27 files</small></span>
               </li>
               <li class="lp-row" tabindex="0">
                 <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
                 <span class="name">Delete 'Please' and 'Simply'</span>
                 <span class="tagx fix">Change All</span>
-                <span class="lp-bar"><i class="s1" style="width: calc((100% - 7rem) * 0.636)"></i><small>35 in 32 files</small></span>
+                <span class="lp-bar"><i class="s1" style="width: calc((100% - 7rem) * 0.711)"></i><small>59 in 40 files</small></span>
               </li>
               <li class="lp-row" tabindex="0">
                 <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-                <span class="name">Insert the variable, not its value</span>
+                <span class="name">Address the reader as 'you'</span>
                 <span class="tagx you">Needs you</span>
-                <span class="lp-bar"><i class="s2" style="width: calc((100% - 7rem) * 0.418)"></i><small>23 in 23 files</small></span>
-              </li>
-              <li class="lp-row" tabindex="0">
-                <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-                <span class="name">Use 'members', not 'customers'</span>
-                <span class="tagx fix">Change All</span>
-                <span class="lp-bar"><i class="s1" style="width: calc((100% - 7rem) * 0.291)"></i><small>16 in 16 files</small></span>
-              </li>
-              <li class="lp-row" tabindex="0">
-                <svg class="sev" aria-label="Warning"><use href="#i-warn"/></svg>
-                <span class="name">Use 'to', not 'in order to'</span>
-                <span class="tagx fix">Change All</span>
-                <span class="lp-bar"><i class="s1" style="width: calc((100% - 7rem) * 0.273)"></i><small>15 in 15 files</small></span>
+                <span class="lp-bar"><i class="s2" style="width: calc((100% - 7rem) * 0.506)"></i><small>42 in 21 files</small></span>
               </li>
               <li class="lp-row" tabindex="0">
                 <svg class="sev" aria-label="Suggestion"><use href="#i-sugg"/></svg>
-                <span class="name">Hardcoded phone number or URL</span>
+                <span class="name">Avoid -ing words in headings</span>
                 <span class="tagx you">Needs you</span>
-                <span class="lp-bar"><i class="s2" style="width: calc((100% - 7rem) * 0.255)"></i><small>14 in 14 files</small></span>
+                <span class="lp-bar"><i class="s2" style="width: calc((100% - 7rem) * 0.47)"></i><small>39 in 27 files</small></span>
+              </li>
+              <li class="lp-row" tabindex="0">
+                <svg class="sev" aria-label="Suggestion"><use href="#i-sugg"/></svg>
+                <span class="name">No spaces around em dashes</span>
+                <span class="tagx you">Needs you</span>
+                <span class="lp-bar"><i class="s2" style="width: calc((100% - 7rem) * 0.47)"></i><small>39 in 18 files</small></span>
               </li>
               <li class="lp-row rest">
                 <span></span>
-                <span class="name">19 more rules</span>
+                <span class="name">69 more rules</span>
                 <span></span>
-                <span class="lp-bar"><small>174 issues</small></span>
+                <span class="lp-bar"><small>429 issues</small></span>
               </li>
             </ol>
           </div>
-          <figcaption class="figure-note">Sample project. 332 issues in 193 files. 155 fix automatically.</figcaption>
+          <figcaption class="figure-note">Sample project. 752 issues in 150 files. 297 fix automatically.</figcaption>
           <div class="table-toggle">
             <button type="button" class="table-btn" aria-expanded="false">Show as a table</button>
             <table class="data-table">
               <thead><tr><th>Rule</th><th class="n">Issues</th><th class="n">Files</th><th>Automatic change</th></tr></thead>
               <tbody>
-                <tr><td>Don't promise timelines, pricing, or availability</td><td class="n">55</td><td class="n">40</td><td>No</td></tr>
-                <tr><td>Delete 'Please' and 'Simply'</td><td class="n">35</td><td class="n">32</td><td>Yes</td></tr>
-                <tr><td>Insert the variable, not its value</td><td class="n">23</td><td class="n">23</td><td>No</td></tr>
-                <tr><td>Use 'members', not 'customers'</td><td class="n">16</td><td class="n">16</td><td>Yes</td></tr>
-                <tr><td>Use 'to', not 'in order to'</td><td class="n">15</td><td class="n">15</td><td>Yes</td></tr>
-                <tr><td>Hardcoded phone number or URL</td><td class="n">14</td><td class="n">14</td><td>No</td></tr>
-                <tr><td>19 more rules</td><td class="n">174</td><td class="n"></td><td>10 of them</td></tr>
-                <tr><td>All rules</td><td class="n">332</td><td class="n">193</td><td>155 issues, 13 rules</td></tr>
+                <tr><td>Add alt text to images</td><td class="n">83</td><td class="n">25</td><td>No</td></tr>
+                <tr><td>Use 'click', not 'click on'</td><td class="n">61</td><td class="n">27</td><td>Yes</td></tr>
+                <tr><td>Delete 'Please' and 'Simply'</td><td class="n">59</td><td class="n">40</td><td>Yes</td></tr>
+                <tr><td>Address the reader as 'you'</td><td class="n">42</td><td class="n">21</td><td>No</td></tr>
+                <tr><td>Avoid -ing words in headings</td><td class="n">39</td><td class="n">27</td><td>No</td></tr>
+                <tr><td>No spaces around em dashes</td><td class="n">39</td><td class="n">18</td><td>No</td></tr>
+                <tr><td>69 more rules</td><td class="n">429</td><td class="n"></td><td>34 of them</td></tr>
+                <tr><td>All rules</td><td class="n">752</td><td class="n">150</td><td>297 issues, 36 rules</td></tr>
               </tbody>
             </table>
           </div>

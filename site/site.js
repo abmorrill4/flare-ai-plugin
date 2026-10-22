@@ -57,9 +57,10 @@
 
       if (act === 'change') {
         var oldText = t.textContent;
-        t.innerHTML = '<del class="tc">' + oldText + '</del><ins class="tc">' + t.dataset.new + '</ins>';
+        var newText = t.dataset.new || '';
+        t.innerHTML = '<del class="tc">' + oldText + '</del>' + (newText ? '<ins class="tc">' + newText + '</ins>' : '');
         t.classList.add('done'); t.classList.remove('on');
-        resolve(row, "Changed '" + oldText + "' to '" + t.dataset.new + "'");
+        resolve(row, newText ? "Changed '" + oldText + "' to '" + newText + "'" : "Deleted '" + oldText + "'");
         if (firstNote && !noteShown) { firstNote.hidden = false; noteShown = true; }
         say('The change is in your topic as a tracked change. Accept it on the Review tab to keep it.');
       } else if (act === 'ignore') {
