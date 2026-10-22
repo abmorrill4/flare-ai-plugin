@@ -17,6 +17,15 @@ namespace FlareAI.Core.Actions
         public bool Selected { get; set; }
     }
 
+    /// <summary>A snippet in a batch that other topics include: a fix there changes all of them.</summary>
+    public sealed class SharedSnippet
+    {
+        public string Path { get; set; }
+        /// <summary>How many topics and snippets include it.</summary>
+        public int Uses { get; set; }
+        public int Fixes { get; set; }
+    }
+
     /// <summary>A file the batch will not touch, and why (read-only, not found).</summary>
     public sealed class SkippedFile
     {
@@ -36,6 +45,8 @@ namespace FlareAI.Core.Actions
 
         public List<RuleGroup> Groups { get; } = new List<RuleGroup>();
         public List<SkippedFile> Skipped { get; } = new List<SkippedFile>();
+        /// <summary>Snippets the batch changes that other topics include: flagged in the preview.</summary>
+        public List<SharedSnippet> SharedSnippets { get; } = new List<SharedSnippet>();
         public string OpenTopicPath { get; private set; }
 
         /// <param name="skipReason">Returns why a file can't be written (for example "read-only"), or null when it can.</param>
@@ -67,6 +78,12 @@ namespace FlareAI.Core.Actions
                     plan.Groups.Add(g);
                 }
                 g.Findings.Add(f);
+                if (RuleBacklog.IsSnippet(path) && snippetUses != null)
+                {
+                    var shared = plan.SharedSnippets.Find(x => string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase));
+                    if (shared == null) plan.SharedSnippets.Add(shared = new SharedSnippet { Path = path, Uses = snippetUses(path) });
+                    shared.Fixes++;
+                }
                 var label = FileLabel(path, snippetUses);
                 if (!g.Files.Contains(label)) g.Files.Add(label);
                 if (g.Examples.Count < MaxExamples)
@@ -76,7 +93,29 @@ namespace FlareAI.Core.Actions
                 }
             }
             plan.Groups.Sort((a, b) => b.Findings.Count.CompareTo(a.Findings.Count));
+            plan.SharedSnippets.RemoveAll(x => x.Uses < 2);
+            plan.SharedSnippets.Sort((a, b) => b.Uses.CompareTo(a.Uses));
             return plan;
+        }
+
+        /// <summary>
+        /// The warning for snippets other topics include, or null: "3 fixes are in snippets that other topics include:
+        /// Note.flsnp (used in 14 topics). Changing a snippet changes every topic that includes it."
+        /// </summary>
+        public string SnippetNote()
+        {
+            var selected = SharedSnippets.FindAll(x => Groups.Exists(g => g.Selected && g.Findings.Exists(f => string.Equals(f.DocumentPath, x.Path, StringComparison.OrdinalIgnoreCase))));
+            if (selected.Count == 0) return null;
+            var fixes = 0;
+            var names = new List<string>();
+            foreach (var x in selected)
+            {
+                fixes += x.Fixes;
+                if (names.Count < 3) names.Add(Path.GetFileName(x.Path) + " (used in " + x.Uses + " topics)");
+            }
+            if (selected.Count > 3) names.Add("and " + (selected.Count - 3) + " more");
+            return (fixes == 1 ? "1 fix is" : fixes + " fixes are") + " in " + (selected.Count == 1 ? "a snippet" : "snippets") + " that other topics include: " +
+                   string.Join(", ", names.ToArray()) + ". Changing a snippet changes every topic that includes it.";
         }
 
         /// <summary>The path inside the project's Content folder ("accounts\about.htm"): many topics share a file name.</summary>
@@ -189,10 +228,13 @@ namespace FlareAI.Core.Actions
         public List<Entry> Changed { get; } = new List<Entry>();
         public List<Entry> Skipped { get; } = new List<Entry>();
         public List<Entry> Failed { get; } = new List<Entry>();
+        /// <summary>Files a stopped batch never reached: not changed.</summary>
+        public List<Entry> NotStarted { get; } = new List<Entry>();
 
         public void AddChanged(string path, int fixes, bool savedAndClosed) { Changed.Add(new Entry { Path = path, Fixes = fixes, Saved = savedAndClosed }); }
         public void AddSkipped(string path, int fixes, string reason) { Skipped.Add(new Entry { Path = path, Fixes = fixes, Reason = reason }); }
         public void AddFailed(string path, int fixes, string reason) { Failed.Add(new Entry { Path = path, Fixes = fixes, Reason = reason }); }
+        public void AddNotStarted(string path, int fixes) { NotStarted.Add(new Entry { Path = path, Fixes = fixes, Reason = "stopped before this file" }); }
 
         public int FixesApplied { get { var n = 0; foreach (var e in Changed) n += e.Fixes; return n; } }
         public int SavedFiles { get { return Changed.FindAll(e => e.Saved).Count; } }
@@ -217,6 +259,7 @@ namespace FlareAI.Core.Actions
             if (skippedFixes > 0) sb.Append(". Skipped " + skippedFixes + (skippedFixes == 1 ? " fix" : " fixes") + " (see the list)");
             if (Failed.Count == 1) sb.Append(". Could not change " + Name(Failed[0].Path) + ": " + Failed[0].Reason);
             else if (Failed.Count > 1) sb.Append(". Could not change " + Failed.Count + " files (see the list)");
+            if (NotStarted.Count > 0) sb.Append(". Stopped: " + NotStarted.Count + (NotStarted.Count == 1 ? " file was" : " files were") + " not changed");
             return sb.Append('.').ToString();
         }
 
@@ -228,6 +271,7 @@ namespace FlareAI.Core.Actions
             foreach (var e in Changed) sb.AppendLine("Changed: " + Name(e.Path) + " (" + e.Fixes + ")");
             foreach (var e in Skipped) sb.AppendLine("Skipped: " + Name(e.Path) + " (" + e.Fixes + (e.Fixes == 1 ? " fix" : " fixes") + ") — " + e.Reason);
             foreach (var e in Failed) sb.AppendLine("Failed: " + Name(e.Path) + " — " + e.Reason);
+            foreach (var e in NotStarted) sb.AppendLine("Not changed: " + Name(e.Path) + " (" + e.Fixes + (e.Fixes == 1 ? " fix" : " fixes") + ") — " + e.Reason);
             return sb.ToString().TrimEnd();
         }
 

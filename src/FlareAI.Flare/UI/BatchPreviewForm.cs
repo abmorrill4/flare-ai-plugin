@@ -15,6 +15,7 @@ namespace FlareAI.Flare.UI
         private readonly ListView _rules;
         private readonly TextBox _details;
         private readonly Button _apply;
+        private readonly Label _snippets;
         private bool _loading = true;
 
         public BatchPreviewForm(BatchPlan plan)
@@ -43,11 +44,13 @@ namespace FlareAI.Flare.UI
                 var item = new ListViewItem(new[] { g.Label, g.Findings.Count.ToString(), g.Files.Count.ToString() }) { Tag = g, Checked = true };
                 _rules.Items.Add(item);
             }
-            _details = new TextBox { Left = 12, Top = 226, Width = 536, Height = 150, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, BackColor = SystemColors.Window };
-            var skipped = new Label { Left = 12, Top = 382, Width = 536, Height = 36, ForeColor = SystemColors.GrayText, Text = SkippedText() };
+            _details = new TextBox { Left = 12, Top = 226, Width = 536, Height = 120, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, BackColor = SystemColors.Window };
+            // Snippets other topics include: one fix there changes all of them, so say so before Apply.
+            _snippets = new Label { Left = 12, Top = 350, Width = 536, Height = 34, ForeColor = Color.DarkRed };
+            var skipped = new Label { Left = 12, Top = 386, Width = 536, Height = 34, ForeColor = SystemColors.GrayText, Text = SkippedText() };
             _apply = new Button { Left = 372, Top = 424, Width = 100, Height = 26, DialogResult = DialogResult.OK };
             var cancel = new Button { Text = "Cancel", Left = 478, Top = 424, Width = 70, Height = 26, DialogResult = DialogResult.Cancel };
-            Controls.AddRange(new Control[] { intro, _rules, _details, skipped, _apply, cancel });
+            Controls.AddRange(new Control[] { intro, _rules, _details, _snippets, skipped, _apply, cancel });
             AcceptButton = _apply; CancelButton = cancel;
             A11y.Name(_rules, "Rules to apply", "Untick a rule to leave it out. Columns: rule, number of fixes, number of files.");
             A11y.Name(_details, "Examples for the selected rule");
@@ -80,6 +83,8 @@ namespace FlareAI.Flare.UI
             _apply.Enabled = n > 0;
             _apply.AccessibleName = n == 0 ? "Apply" : "Apply " + n + " fixes";
             Text = "House Style — " + BatchPlan.Counts(n, _plan.SelectedFileCount);
+            _snippets.Text = _plan.SnippetNote() ?? "";
+            _snippets.AccessibleName = _snippets.Text;
         }
     }
 }
