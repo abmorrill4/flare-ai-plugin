@@ -130,7 +130,7 @@ namespace FlareAI.Scenarios.Settings
             {
                 var gw = provider == LlmProvider.Bifrost;
                 var who = gw ? "The gateway" : "Anthropic";
-                yield return new object[] { provider, "401", ConnectionOutcome.KeyRejected, who + " rejected the key: check the " + (gw ? "API / virtual key" : "API key") + " in Settings was pasted in full." };
+                yield return new object[] { provider, "401", ConnectionOutcome.KeyRejected, who + " rejected the key: check the " + (gw ? "gateway key" : "API key") + " in Settings was pasted in full." };
                 yield return new object[] { provider, "403", ConnectionOutcome.ModelNotAllowed, gw ? "The gateway doesn't allow this model for your key. Ask your admin to add the Claude models" : "Your Anthropic key isn't allowed to use this model." };
                 yield return new object[] { provider, "429", ConnectionOutcome.BudgetExhausted, gw ? "The gateway says this key's budget or rate limit is used up." : "Anthropic says the rate limit or credit is used up." };
                 yield return new object[] { provider, "500", ConnectionOutcome.Other, "HTTP 500: " };
