@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/abmorrill4/flare-ai-plugin/corpus/schema/labels.schema.json",
+  "title": "Corpus span label",
+  "description": "One line of a labels.jsonl file. A label says what the correct linter/AI output is for a span of text (violation), or that a span must not be flagged (clean, exempt), or that a block is fully labelled (block-complete). See docs/testing/CORPUS.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "file", "block", "label", "rules", "origin", "status", "by", "split"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+      "description": "<project>/<name>, unique across the corpus. The part before the slash is the project used for per-project scores."
+    },
+    "file": {
+      "type": "string",
+      "pattern": "^[^\\\\/].*",
+      "description": "Topic or snippet path relative to the project root, forward slashes."
+    },
+    "block": {
+      "type": "string",
+      "pattern": "^/",
+      "description": "Absolute path of qualified element names with 1-based same-name sibling indexes (always present except on html, head and body): /html/body/ol[1]/li[3]/p[1]. A block is a text-owning element (h1-h6, p, li, td, th, dt, dd, caption, figcaption, blockquote, pre, div, MadCap:dropDownHead, MadCap:toggler); its plain text excludes nested blocks. Without quote, any element (img, table) may be named and the label covers all of it."
+    },
+    "quote": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Selected text, exactly as in the block's plain text."
+    },
+    "prefix": { "type": "string", "description": "Up to 24 characters of block text before the quote; disambiguates repeated quotes." },
+    "suffix": { "type": "string", "description": "Up to 24 characters of block text after the quote." },
+    "label": {
+      "enum": ["violation", "clean", "exempt", "ambiguous", "block-complete"],
+      "description": "violation: a finding is expected. clean: no finding from `rules` may touch the span. exempt: a rule would match but the text is fine here (UI label, quoted text, code, boilerplate); counts as clean for `rules`. ambiguous: excluded from scoring. block-complete: every problem a lint rule can find in this block is labelled; any other finding in it is a false positive."
+    },
+    "kind": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Defect taxonomy id from defects.yaml; required for violations. Independent of rule ids."
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Acceptable rule ids (google:word-list/221), families (google:word-list/*), layers (google:*), * (any), lint (any non-AI finding), ai (any AI finding) or ai:<kind> (an AI finding of that judgment kind). For clean/exempt: the rules that must not fire there."
+    },
+    "fix": { "type": "string", "description": "The corrected text, when the label has one." },
+    "reason": { "type": "string", "description": "Why a span is clean or exempt (required for those)." },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "line": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["heading:h1", "heading:h2", "heading:h3", "heading:h4", "heading:h5", "heading:h6", "step", "list", "table-header", "table-cell", "note", "warning", "caption", "quote", "code-block", "dropdown-head", "toggler", "glossary-def", "paragraph"] }
+        },
+        "span": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["ui-label", "link-text", "xref", "emphasis", "inline-code", "kbd", "variable-adjacent", "in-snippet-block", "in-snippet-text", "conditional", "boilerplate"] }
+        }
+      },
+      "description": "Same vocabulary as TextLine/Segment context in the engine (issue #53). Computed from the DOM by the corpus tools, not by Core."
+    },
+    "origin": { "enum": ["seeded", "natural"], "description": "seeded: injected by a generator. natural: present in the source text." },
+    "seed": { "type": "object", "description": "Generator, variant and any source ids for seeded labels." },
+    "status": { "enum": ["proposed", "verified", "disputed"], "description": "Only verified labels are scored; proposed and disputed ones count as ambiguous." },
+    "by": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Sources that agreed: generator, llm-a, llm-b, human, hand-read, ..." },
+    "split": { "enum": ["dev", "test"], "description": "Chosen by file, fixed per project." }
+  },
+  "allOf": [
+    { "if": { "properties": { "label": { "const": "violation" } } }, "then": { "required": ["kind"] } },
+    { "if": { "properties": { "label": { "enum": ["clean", "exempt"] } } }, "then": { "required": ["reason"] } },
+    { "if": { "properties": { "label": { "const": "block-complete" } } }, "then": { "not": { "required": ["quote"] } } },
+    { "if": { "anyOf": [{ "required": ["prefix"] }, { "required": ["suffix"] }] }, "then": { "required": ["quote"] } }
+  ]
+}

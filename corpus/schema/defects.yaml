@@ -1,0 +1,330 @@
+# Defect taxonomy for corpus labels (`kind` in labels.jsonl) and for the defect injector (CorpusKit).
+#
+# A kind names WHAT is wrong with the text, independent of which rule reports it, so labels survive rule renames,
+# renumbering and de-duplication of overlapping rows. Rules are listed separately in each label's `rules`.
+#
+# Format: a list of entries, each starting with `- id: <name>` (the scoring tools read only those lines; keep it that way).
+#   group    theme of the defect
+#   detect   who can usually catch it: lint (a pattern), structure (a DOM check), ai (judgment). A hint for coverage reports, never used for scoring.
+#   status   active = used by labels today; planned = reserved for the corpus v2 projects (#72-#77), not yet in any label
+#   convention  true when "wrong" depends on a team's own conventions (company guide), not on a published guide
+#   summary  one line
+#   bad      an example of the defect as it appears in text (illustrative; the injector derives its own surface variants)
+#   aliases  other names seen in design notes
+#
+# Surface variants the injector applies to every kind (chosen by seed): case (lower, Sentence, Title), inflection,
+# mid-sentence vs sentence start, inside bold / link / table cell / step / heading, next to a variable or condition,
+# across an inline element boundary.
+
+# ---- tone and wording ------------------------------------------------------------------------------------------------
+- id: exclaim
+  group: tone
+  detect: lint
+  status: active
+  summary: Exclamation mark in running text.
+  bad: Your new transfer is ready to go!
+- id: please
+  group: tone
+  detect: lint
+  status: active
+  summary: Please in an instruction.
+  bad: Please check each item before you continue.
+- id: please_note
+  group: tone
+  detect: lint
+  status: active
+  summary: Filler lead-in "Please note that".
+  bad: Please note that a deposit can take a day to appear.
+- id: simply
+  group: tone
+  detect: lint
+  status: active
+  summary: Minimiser such as simply, just, easily.
+  bad: Simply select a deposit to see its details.
+- id: we
+  group: voice
+  detect: lint
+  status: active
+  summary: First person plural where the document should address the reader or name the product.
+  bad: We recommend that you check each transfer weekly.
+- id: will
+  group: voice
+  detect: lint
+  status: active
+  summary: Future tense for behaviour that is true now.
+  bad: The nickname will appear in your history.
+- id: passive
+  group: voice
+  detect: ai
+  status: active
+  summary: Passive voice that hides the actor.
+  bad: Each item is reviewed by the financial institution before it is released.
+- id: wordy
+  group: plain-language
+  detect: ai
+  status: active
+  summary: Long-winded phrasing that has a short equivalent.
+  bad: At this point in time, it is important to be aware of the fact that
+- id: vague
+  group: plain-language
+  detect: ai
+  status: active
+  summary: Instruction the reader cannot act on.
+  bad: Configure the remaining options as appropriate for your situation.
+- id: utilize
+  group: plain-language
+  detect: lint
+  status: active
+  summary: Needless formal verb (utilize for use).
+  bad: You can utilize the list to confirm the details.
+- id: in_order_to
+  group: plain-language
+  detect: lint
+  status: active
+  summary: '"In order to" where "to" does the job.'
+  bad: In order to change a deposit, open its details.
+- id: prior_to
+  group: plain-language
+  detect: lint
+  status: active
+  summary: '"Prior to" for "before".'
+  bad: Review the amount prior to saving.
+- id: is_able_to
+  group: plain-language
+  detect: lint
+  status: active
+  summary: '"Is able to" for "can".'
+  bad: A member is able to cancel a deposit until midnight.
+- id: the_user
+  group: plain-language
+  detect: lint
+  status: active
+  summary: Third-person "the user" where the text should say "you" or name the role.
+  bad: If the user deletes the payee, it can't be restored.
+- id: latin
+  group: plain-language
+  detect: lint
+  status: active
+  aliases: [latin-abbrev]
+  summary: Latin abbreviation (e.g., i.e., etc.) instead of the English phrase.
+  bad: Add a short label, e.g. the purpose of the card lock.
+- id: blacklist
+  group: inclusive-language
+  detect: lint
+  status: active
+  summary: Blacklist for blocklist.
+  bad: Accounts on the blacklist can't receive a payee.
+- id: whitelist
+  group: inclusive-language
+  detect: lint
+  status: active
+  summary: Whitelist for allowlist.
+  bad: Whitelist the IP ranges of your branch network.
+
+# ---- claims and promises ---------------------------------------------------------------------------------------------
+- id: claims_soon
+  group: claims
+  detect: lint
+  status: active
+  convention: true
+  summary: Promise about a future release ("coming soon").
+  bad: Shared access is coming soon.
+- id: claims_guaranteed
+  group: claims
+  detect: lint
+  status: active
+  convention: true
+  summary: Guarantee the company cannot back.
+  bad: Delivery of each transfer is guaranteed within one hour.
+- id: claims_free
+  group: claims
+  detect: lint
+  status: active
+  convention: true
+  summary: Pricing claim ("free of charge") that belongs to marketing or legal.
+  bad: Every transfer is free of charge.
+- id: marketing
+  group: claims
+  detect: ai
+  status: active
+  convention: true
+  summary: Promotional adjective or superlative in technical text.
+  bad: Our best-in-class transfer experience delights members.
+- id: timeline
+  group: claims
+  detect: ai
+  status: active
+  convention: true
+  summary: Undated promise about a future change.
+  bad: Bulk editing arrives in a future update.
+
+# ---- terminology -----------------------------------------------------------------------------------------------------
+- id: customer
+  group: terminology
+  detect: lint
+  status: active
+  convention: true
+  summary: Different word than the one the team's glossary requires for the same person.
+  bad: Customers can see each payee for 18 months.
+- id: bank
+  group: terminology
+  detect: lint
+  status: active
+  convention: true
+  summary: Generic term where the glossary requires the product's term.
+  bad: Contact your bank if a payee is missing.
+- id: sso_spelling
+  group: terminology
+  detect: lint
+  status: active
+  convention: true
+  summary: Glossary term in the wrong case or spelling.
+  bad: Turn on Single Sign-On for business members first.
+- id: idp
+  group: terminology
+  detect: lint
+  status: active
+  convention: true
+  summary: Glossary term written out where the abbreviation is preferred, or the reverse.
+  bad: Ask your Identity Provider for the metadata file.
+- id: oidc
+  group: terminology
+  detect: lint
+  status: active
+  convention: true
+  summary: Standard or product name spelled differently from the glossary.
+  bad: The app also supports OpenId Connect.
+- id: saml2
+  group: terminology
+  detect: lint
+  status: active
+  convention: true
+  summary: Standard name spelled differently from the glossary.
+  bad: Business sign-in supports SAML2.
+- id: undefined_abbr
+  group: terminology
+  detect: ai
+  status: active
+  summary: Abbreviation used without being expanded at first use.
+  bad: Members with MFA turned on get a code for each new login.
+- id: ui_not_bold
+  group: ui-references
+  detect: ai
+  status: active
+  convention: true
+  summary: UI label not marked up as one (not bold, no UI class).
+  bad: Click the save button to keep your changes.
+
+# ---- project facts ---------------------------------------------------------------------------------------------------
+- id: variable_product
+  group: variables
+  detect: lint
+  status: active
+  summary: Product name typed out where a variable exists.
+  bad: Acme Online Banking lists each alert on the dashboard.
+- id: variable_company
+  group: variables
+  detect: lint
+  status: active
+  summary: Company name typed out where a variable exists.
+  bad: Acme Financial reviews each alert within one business day.
+- id: phone
+  group: variables
+  detect: structure
+  status: active
+  summary: Hard-coded phone number where a variable exists.
+  bad: For help, call 1-800-555-0100.
+- id: url
+  group: variables
+  detect: structure
+  status: active
+  summary: Hard-coded URL in running text where a variable or link exists.
+  bad: The full terms are at https://www.example.com/terms.
+
+# ---- structure and accessibility --------------------------------------------------------------------------------------
+- id: alt_missing
+  group: accessibility
+  detect: structure
+  status: active
+  summary: Image without alternative text.
+  bad: <img src="..." />
+- id: click_here
+  group: accessibility
+  detect: structure
+  status: active
+  summary: Link text that does not name its destination.
+  bad: For the fee schedule, click here.
+- id: table_header
+  group: structure
+  detect: structure
+  status: active
+  summary: Table without header cells.
+  bad: <table> with only td cells
+- id: second_h1
+  group: structure
+  detect: structure
+  status: active
+  summary: More than one h1 in a topic.
+  bad: a second <h1> after the title
+- id: heading_skip
+  group: structure
+  detect: structure
+  status: active
+  summary: Heading level skipped (h2 followed by h4).
+  bad: <h2> then <h4>
+
+# ---- reserved for the corpus v2 projects ---------------------------------------------------------------------------------
+- id: gendered
+  group: inclusive-language
+  detect: lint
+  status: planned
+  summary: Gendered wording where a neutral form exists.
+  bad: Each user should update his profile.
+- id: number_format
+  group: numbers
+  detect: lint
+  status: planned
+  summary: Number, range or separator formatted against the guide.
+  bad: 10-20 users
+- id: unit_space
+  group: numbers
+  detect: lint
+  status: planned
+  summary: Missing or wrong space between a number and its unit.
+  bad: 10MB
+- id: date_format
+  group: numbers
+  detect: lint
+  status: planned
+  summary: Date written in an ambiguous or disallowed format.
+  bad: 03/04/2026
+- id: heading_case
+  group: structure
+  detect: lint
+  status: planned
+  summary: Heading capitalisation against the guide.
+  bad: Configuring The Gateway
+- id: list_parallel
+  group: structure
+  detect: ai
+  status: planned
+  summary: List items that do not share a grammatical form.
+  bad: "Install the agent / configuring the gateway / to restart"
+- id: link_text_url
+  group: accessibility
+  detect: structure
+  status: planned
+  summary: A raw URL as link text.
+  bad: <a href="https://...">https://...</a>
+- id: code_format
+  group: formatting
+  detect: lint
+  status: planned
+  summary: Code, command or file name not formatted as code.
+  bad: Run npm install in the folder.
+- id: contraction
+  group: tone
+  detect: lint
+  status: planned
+  summary: Contraction use against the guide.
+  bad: It can not be restored.
