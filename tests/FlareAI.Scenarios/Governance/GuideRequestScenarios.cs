@@ -591,6 +591,84 @@ namespace FlareAI.Scenarios.Governance
             }
         }
 
+        // ---- security: the shared requests folder is writable by every writer ----------------------------------
+
+        [Fact]
+        public void AForgedRequestAndApproval_InTheSharedFolder_AreNeverAppliedOnAWritersMachine()
+        {
+            using (var fx = new Fixture())
+            {
+                var writer = fx.As(Pat);
+                var folder = GuideRequests.Folder(writer);
+                Directory.CreateDirectory(folder);
+                var target = Path.Combine(fx.Ws.Root, @"Victim\Content\a.htm");
+                Directory.CreateDirectory(Path.GetDirectoryName(target));
+                File.WriteAllText(Path.Combine(fx.Ws.Root, @"Victim\Victim.flprj"), "<CatapultProject />");
+                // Another writer plants a project exception "from" this writer, approved "by" an owner.
+                File.WriteAllText(Path.Combine(folder, "r-x.json"), Newtonsoft.Json.JsonConvert.SerializeObject(new GuideRequest
+                {
+                    Id = "r-x", Writer = writer.FeedbackWriter, Kind = RequestKinds.ProjectException, RuleId = "google:words/2\r\ncompany:claims/1",
+                    Setting = "off", ProjectPath = target, Reason = "x"
+                }));
+                File.WriteAllText(Path.Combine(folder, "r-x.decision.json"), "{\"Id\":\"r-x\",\"Status\":\"approved\",\"By\":\"" + Lead + "\"}");
+
+                GuideRequests.Check(writer);
+
+                Assert.Empty(Directory.GetFiles(fx.Ws.Root, "overrides.ini", SearchOption.AllDirectories));
+            }
+        }
+
+        [Fact]
+        public void AnApprovedException_IsAppliedAsThisMachineSentIt_NotAsTheSharedFileNowSays()
+        {
+            using (var fx = new Fixture())
+            {
+                var writer = fx.As(Pat);
+                var mine = Path.Combine(fx.Ws.Root, @"Mine\Content\a.htm");
+                var other = Path.Combine(fx.Ws.Root, @"Other\Content\a.htm");
+                foreach (var p in new[] { "Mine", "Other" })
+                {
+                    Directory.CreateDirectory(Path.Combine(fx.Ws.Root, p, "Content"));
+                    File.WriteAllText(Path.Combine(fx.Ws.Root, p, p + ".flprj"), "<CatapultProject />");
+                }
+                var r = GuideRequests.New(writer, RequestKinds.ProjectException, "Legal copy.");
+                r.RuleId = "google:words/2"; r.Setting = "off"; r.ProjectPath = mine;
+                string problem;
+                Assert.True(GuideRequests.Send(writer, r, out problem));
+                // Someone rewrites the shared copy to point at another project and rule before the owner approves it.
+                var shared = Path.Combine(GuideRequests.Folder(writer), r.Id + ".json");
+                File.WriteAllText(shared, File.ReadAllText(shared).Replace(Newtonsoft.Json.JsonConvert.ToString(mine).Trim('"'), Newtonsoft.Json.JsonConvert.ToString(other).Trim('"'))
+                                                                  .Replace("google:words/2", "company:claims/1"));
+                var owner = fx.As(Lead);
+                GuideRequests.Approve(owner, GuideRequests.Load(owner).Single(), null, (x, d) => GuideRequests.ApplyToGuide(owner, x, d));
+
+                GuideRequests.Check(writer);
+
+                var ini = File.ReadAllText(Path.Combine(fx.Ws.Root, @"Mine\Content\Resources\StyleGuide\overrides.ini"));
+                Assert.Contains("google:words/2 = off", ini);
+                Assert.DoesNotContain("company:claims/1", ini);
+                Assert.False(File.Exists(Path.Combine(fx.Ws.Root, @"Other\Content\Resources\StyleGuide\overrides.ini")));
+            }
+        }
+
+        [Fact]
+        public void RequestFiles_WithAnIdThatIsAPath_AreIgnored()
+        {
+            using (var fx = new Fixture())
+            {
+                var owner = fx.As(Lead);
+                var folder = GuideRequests.Folder(owner);
+                Directory.CreateDirectory(folder);
+                File.WriteAllText(Path.Combine(folder, "evil.json"), "{\"Id\":\"..\\\\..\\\\escape\",\"Kind\":\"turn-off\",\"Reason\":\"x\"}");
+                File.WriteAllText(Path.Combine(folder, "r-ok.json"), "{\"Id\":\"r-other\",\"Kind\":\"turn-off\",\"Reason\":\"x\"}");   // not the file it claims
+
+                Assert.Empty(GuideRequests.Load(owner));
+                Assert.False(GuideRequests.IsValidId(@"..\x"));
+                Assert.False(GuideRequests.IsValidId(@"\\host\share\x"));
+                Assert.True(GuideRequests.IsValidId(GuideRequests.New(owner, RequestKinds.TurnOff, "x").Id));
+            }
+        }
+
         // ---- helpers -------------------------------------------------------------------------------------------
 
         private static string Snapshot(string folder)

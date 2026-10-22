@@ -83,10 +83,10 @@ namespace FlareAI.Core.Actions
         {
             var path = OverridesPath(anyProjectPath);
             if (path == null) throw new InvalidOperationException("This topic is not inside a Flare project.");
-            // A guide rule by its permanent id (lint and AI alike); an uncited AI judgment by its name.
-            var line = f.RuleId != null ? f.RuleId + " = " + setting
-                     : IsLinterRule(f) ? f.Rule + " = " + (setting == "off" ? "NO" : setting)
-                     : "# ai-ignore: " + f.Rule;
+            // A guide rule by its permanent id (lint and AI alike); an uncited AI judgment by its name. One line each, always.
+            var line = f.RuleId != null ? OneLine(f.RuleId) + " = " + OneLine(setting)
+                     : IsLinterRule(f) ? OneLine(f.Rule) + " = " + (setting == "off" ? "NO" : OneLine(setting))
+                     : "# ai-ignore: " + OneLine(f.Rule);
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -97,6 +97,8 @@ namespace FlareAI.Core.Actions
             }
             catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { throw new FlareAI.Core.Style.GuideWriteException(path, ex); }
         }
+
+        private static string OneLine(string s) { return (s ?? "").Replace('\r', ' ').Replace('\n', ' ').Trim(); }
 
         /// <summary>AI rule names this project ignores (lower case).</summary>
         public static HashSet<string> IgnoredAiRules(string anyProjectPath)

@@ -7,6 +7,14 @@ One "## <version>" section per release (optionally "## 0.2.0 — October 2026"),
 Write each entry from the writer's side, in short plain sentences. No arrows, colon joins or taglines.
 -->
 
+## 0.3.2
+
+- Security fixes. Updates are now signed, and House Style installs only an update that we signed.
+- Requests to style guide owners are safer. An approved project exception is added only for a request you sent, and
+  only to the project you named.
+- When House Style checks whether a team style guide in Git is up to date, it no longer runs programs from that
+  guide's Git settings.
+
 ## 0.3.1
 
 - The starter team rules are now general rules any docs team can use. If your team keeps its own style guide, nothing changes for you.

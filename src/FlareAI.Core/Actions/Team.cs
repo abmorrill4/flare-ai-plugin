@@ -308,10 +308,11 @@ namespace FlareAI.Core.Actions
         public static GuideStatus ReadStatus(string guideRoot, bool fetch)
         {
             if (string.IsNullOrEmpty(guideRoot) || !Directory.Exists(guideRoot)) return null;
-            var head = Git.Run(guideRoot, "rev-parse --short HEAD", 5000);
+            // The guide folder is shared: its .git/config is other people's, so nothing in it may run a program here.
+            var head = Git.Run(guideRoot, Git.Untrusted + "rev-parse --short HEAD", 5000);
             if (string.IsNullOrEmpty(head)) return null;
-            if (fetch) Git.Run(guideRoot, "fetch --quiet", 20000);
-            var behind = Git.Run(guideRoot, "rev-list --count HEAD..@{upstream}", 5000);
+            if (fetch) Git.Run(guideRoot, Git.Untrusted + "fetch --quiet --no-recurse-submodules", 20000);
+            var behind = Git.Run(guideRoot, Git.Untrusted + "rev-list --count HEAD..@{upstream}", 5000);
             int n;
             return new GuideStatus { Name = Path.GetFileName(guideRoot), Commit = head.Trim(), Behind = int.TryParse((behind ?? "").Trim(), out n) ? n : 0 };
         }
@@ -358,11 +359,21 @@ namespace FlareAI.Core.Actions
     /// <summary>Runs git without prompts. Returns stdout, or null when git is missing, fails, or times out.</summary>
     public static class Git
     {
+        /// <summary>
+        /// Options for a repository someone else controls: its config can't start a program (hooks, fsmonitor, credential
+        /// helpers, askpass, ssh), and fetch talks HTTPS only (no ssh, file or ext:: transports, which run commands).
+        /// </summary>
+        public static readonly string Untrusted =
+            "-c core.hooksPath=\"" + Path.Combine(Path.GetTempPath(), "housestyle-no-hooks") + "\" -c core.fsmonitor=false -c core.askPass= " +
+            "-c credential.helper= -c core.sshCommand=ssh -c protocol.allow=never -c protocol.https.allow=always ";
+
         public static string Run(string workDir, string args, int timeoutMs)
         {
             try
             {
-                var psi = new ProcessStartInfo("git", (workDir == null ? "" : "-C \"" + workDir + "\" ") + args)
+                var exe = Find();
+                if (exe == null) return null;
+                var psi = new ProcessStartInfo(exe, (workDir == null ? "" : "-C \"" + workDir + "\" ") + args)
                 {
                     UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true
                 };
@@ -375,6 +386,23 @@ namespace FlareAI.Core.Actions
                 }
             }
             catch (Exception) { return null; }
+        }
+
+        /// <summary>git.exe from an absolute PATH entry: never the current or Flare's own folder, where anyone could drop one.</summary>
+        private static string Find()
+        {
+            foreach (var dir in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+            {
+                try
+                {
+                    var d = dir.Trim().Trim('"');
+                    if (d.Length == 0 || !Path.IsPathRooted(d) || d.StartsWith(@"\\")) continue;
+                    var exe = Path.Combine(d, "git.exe");
+                    if (File.Exists(exe)) return exe;
+                }
+                catch (Exception) { }   // a malformed PATH entry
+            }
+            return null;
         }
 
         // net40 has no ReadToEndAsync on StreamReader: read on a pool thread so a slow fetch can't deadlock the pipe.

@@ -43,6 +43,13 @@ namespace FlareAI.TestKit.Update
         public string BaseUrl { get; private set; }
         public string LatestUrl { get { return BaseUrl + "/repos/abmorrill4/flare-ai-plugin/releases/latest"; } }
 
+        /// <summary>The test release key (a stand-in for House Style's): the stager under test trusts its public half.</summary>
+        private static readonly RSACryptoServiceProvider Key = new RSACryptoServiceProvider(3072, new CspParameters(24)) { PersistKeyInCsp = false };
+        public static readonly string PublicKeyXml = Key.ToXmlString(false);
+
+        /// <summary>A checksums.txt.sig body: the base64 RSA-SHA256 signature, as the release job writes it.</summary>
+        public static string Sign(byte[] data) { lock (Key) return Convert.ToBase64String(Key.SignData(data, CryptoConfig.MapNameToOID("SHA256"))); }
+
         /// <summary>Paths requested so far.</summary>
         public IList<string> Hits { get { lock (_gate) return _hits.ToArray(); } }
 
@@ -50,12 +57,20 @@ namespace FlareAI.TestKit.Update
         /// Publishes a release: <paramref name="zipBytes"/> as HouseStyle-&lt;version&gt;.zip, and checksums.txt holding
         /// its SHA-256 (or <paramref name="checksumOverride"/>, to test a mismatch).
         /// </summary>
-        public void Publish(string version, byte[] zipBytes, string checksumOverride = null, bool prerelease = false)
+        public void Publish(string version, byte[] zipBytes, string checksumOverride = null, bool prerelease = false, bool signed = true)
         {
             var zipName = "HouseStyle-" + version + ".zip";
             string hash;
             using (var sha = SHA256.Create()) hash = BitConverter.ToString(sha.ComputeHash(zipBytes)).Replace("-", "").ToLowerInvariant();
             var checksums = (checksumOverride ?? hash) + "  " + zipName + "\n";
+            var assets = new JArray(
+                new JObject { ["name"] = zipName, ["size"] = zipBytes.Length, ["browser_download_url"] = BaseUrl + "/download/" + zipName },
+                new JObject { ["name"] = "checksums.txt", ["size"] = checksums.Length, ["browser_download_url"] = BaseUrl + "/download/checksums.txt" });
+            if (signed)
+            {
+                assets.Add(new JObject { ["name"] = "checksums.txt.sig", ["browser_download_url"] = BaseUrl + "/download/checksums.txt.sig" });
+                Route("/download/checksums.txt.sig", Bytes(200, "text/plain", Encoding.ASCII.GetBytes(Sign(Encoding.ASCII.GetBytes(checksums)))));
+            }
             var json = new JObject
             {
                 ["tag_name"] = "v" + version,
@@ -64,9 +79,7 @@ namespace FlareAI.TestKit.Update
                 ["draft"] = false,
                 ["prerelease"] = prerelease,
                 ["body"] = "Notes for " + version,
-                ["assets"] = new JArray(
-                    new JObject { ["name"] = zipName, ["size"] = zipBytes.Length, ["browser_download_url"] = BaseUrl + "/download/" + zipName },
-                    new JObject { ["name"] = "checksums.txt", ["size"] = checksums.Length, ["browser_download_url"] = BaseUrl + "/download/checksums.txt" })
+                ["assets"] = assets
             }.ToString();
             Route("/repos/abmorrill4/flare-ai-plugin/releases/latest", Bytes(200, "application/json", Encoding.UTF8.GetBytes(json)));
             Route("/download/" + zipName, Bytes(200, "application/zip", zipBytes));
