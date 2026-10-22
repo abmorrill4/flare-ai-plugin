@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using FlareAI.Core;
-using FlareAI.Core.Settings;
 
 namespace FlareAI.Flare.UI
 {
@@ -84,34 +83,12 @@ namespace FlareAI.Flare.UI
                 // Flare picks the group (the left panes by default); the author can drag it anywhere and Flare's
                 // layout remembers it by pane name. (Installing under another pane replaces that pane's view.)
                 dock.InstallPane(_pane); // (PinPane = auto-hide: the pane collapses whenever the editor gets focus)
-                WidenOnce(_view, flareMainForm);
             }
             _view.SetContent(panel);
             _pane.Title = panel.Title;
             panel.CloseRequested += (s, e) => Hide(dock);
             _pane.BringPaneToFront(true);
             return true;
-        }
-
-        /// <summary>
-        /// The first time a writer sees the pane, its group is as narrow as the Content Explorer (~180 px) and every row is cut
-        /// off. Widen the docked side once; after that, Flare's layout keeps whatever width the writer drags it to.
-        /// </summary>
-        private static void WidenOnce(Control view, Form main)
-        {
-            try
-            {
-                if (UiState.Load("findings-pane") != null) return;
-                var target = Math.Min(view.LogicalToDeviceUnits(400), main.ClientSize.Width * 2 / 5);
-                for (var c = view.Parent; c != null && c != main; c = c.Parent)
-                {
-                    if (c.Dock != DockStyle.Left && c.Dock != DockStyle.Right) continue;
-                    if (c.Width < target) c.Width = target;
-                    break;
-                }
-                UiState.Save("findings-pane", new WindowState { Width = target });
-            }
-            catch (Exception ex) { Diagnostics.Log("Docked pane width", ex); }
         }
 
         private static void Hide(B3.AppKit.IPaneDock dock)
