@@ -458,6 +458,27 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void Extract_ContextDependentWords_BecomeProseRules_PhrasesStayRows()
+        {
+            var rules = Newtonsoft.Json.Linq.JArray.Parse(@"[
+                {""kind"":""row"",""title"":""Link text"",""avoid"":""click here, here, this link"",""use"":"""",""severity"":""warning"",""why"":""Say where the link goes."",""example"":""For details, click here."",""text"":"""",""bad"":"""",""good"":"""",""quote"":""never 'click here'""},
+                {""kind"":""row"",""title"":""Once"",""avoid"":""once"",""use"":""after"",""severity"":""warning"",""why"":""Once means one time."",""example"":""Once you sign in, open Settings."",""text"":"""",""bad"":"""",""good"":"""",""quote"":""once -> after""},
+                {""kind"":""row"",""title"":""Utilize"",""avoid"":""utilize"",""use"":""use"",""severity"":""warning"",""why"":""Plain words."",""example"":""Utilize the menu."",""text"":"""",""bad"":"""",""good"":"""",""quote"":""utilize""}]");
+            var found = GuideBuilder.FromExtracted(rules);
+
+            var link = found.Single(r => r.IsRow && r.Title == "Link text");
+            Assert.Equal("click here, this link", link.Avoid);                   // phrases stay linter rows
+            var here = found.Single(r => !r.IsRow && r.Text.Contains("\"here\""));
+            Assert.Equal("For details, click here.", here.Bad);
+            var once = found.Single(r => r.Title == "Once");
+            Assert.False(once.IsRow);                                             // no blanket "once" row
+            Assert.Contains("means \"after\"", once.Text);
+            Assert.Equal("After you sign in, open Settings.", once.Good);
+            Assert.True(found.Single(r => r.Title == "Utilize").IsRow);
+            Assert.Equal(found.Count, found.Select(r => r.Id).Distinct().Count());
+        }
+
+        [Fact]
         public void TeamCanChangeACacheLifetime()
         {
             var dir = Path.Combine(Path.GetTempPath(), "flareai-cache-" + Guid.NewGuid().ToString("N"));

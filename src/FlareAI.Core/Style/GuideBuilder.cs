@@ -159,9 +159,64 @@ namespace FlareAI.Core.Style
                 };
                 var sev = Severity.Normalize((string)c["severity"] ?? "warning");
                 rc.Severity = sev == "error" || sev == "suggestion" ? sev : "warning";
+                if (rc.IsRow)
+                {
+                    foreach (var prose in SplitContextDependent(rc)) { prose.Id = "notes:" + (++n); list.Add(prose); }
+                    if (!rc.IsRow) continue;   // every word was context-dependent: only the prose rules remain
+                }
                 if (rc.IsRow || !string.IsNullOrEmpty(rc.Text)) list.Add(rc);
             }
             return list;
+        }
+
+        /// <summary>
+        /// Words that are wrong only in some senses or places ("click here" yes, "here" no; "once" meaning "after"; the noun
+        /// "setup" is fine, the verb isn't): as an Avoid row the linter would flag every use. Measured: an import turned
+        /// "here", "once", "below"/"above", "setup" and "hit" into blanket rows.
+        /// </summary>
+        public static readonly HashSet<string> ContextDependent = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "here", "there", "this", "that", "these", "those", "once", "below", "above", "following", "later", "earlier", "former", "latter",
+            "since", "while", "as", "setup", "login", "logon", "signup", "backup", "checkout", "hit", "check", "via"
+        };
+
+        /// <summary>
+        /// Takes the context-dependent single words out of a row (<see cref="ContextDependent"/>) and returns a prose rule for
+        /// each: the AI reviewer applies a prose rule with judgment; the linter would flag every use. Phrases ("click here")
+        /// stay in the row. The row is left with no Avoid text when every word was context-dependent.
+        /// </summary>
+        private static List<RuleCandidate> SplitContextDependent(RuleCandidate row)
+        {
+            var avoid = row.Avoid.Split(',').Select(a => a.Trim()).Where(a => a.Length > 0).ToList();
+            var use = (row.Use ?? "").Split(',').Select(u => u.Trim()).ToList();
+            var paired = use.Count == avoid.Count;
+            var prose = new List<RuleCandidate>();
+            var keepAvoid = new List<string>();
+            var keepUse = new List<string>();
+            for (var i = 0; i < avoid.Count; i++)
+            {
+                var replacement = paired ? use[i] : (use.Count == 1 ? use[0] : "");
+                if (replacement == "(delete)") replacement = "";
+                if (!ContextDependent.Contains(avoid[i])) { keepAvoid.Add(avoid[i]); if (paired) keepUse.Add(use[i]); continue; }
+                var w = avoid[i];
+                prose.Add(new RuleCandidate
+                {
+                    Kind = "notes", Title = row.Title, Severity = row.Severity, Why = row.Why, Quote = row.Quote,
+                    Text = replacement.Length > 0
+                        ? "Where \"" + w + "\" means \"" + replacement + "\", write \"" + replacement + "\"; in its other senses \"" + w + "\" is fine."
+                        : "Don't use \"" + w + "\" where it is vague (for example as link text, or to point at a place the reader can't see); where its meaning is clear it is fine.",
+                    Bad = Empty(row.Example),
+                    Good = replacement.Length > 0 && !string.IsNullOrEmpty(row.Example)
+                        ? System.Text.RegularExpressions.Regex.Replace(row.Example, @"\b" + System.Text.RegularExpressions.Regex.Escape(w) + @"\b",
+                                                                        m => char.IsUpper(m.Value[0]) ? char.ToUpper(replacement[0]) + replacement.Substring(1) : replacement,
+                                                                        System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+                        : null
+                });
+            }
+            if (prose.Count == 0) return prose;
+            row.Avoid = keepAvoid.Count > 0 ? string.Join(", ", keepAvoid.ToArray()) : null;
+            if (paired) row.Use = string.Join(", ", keepUse.ToArray());
+            return prose;
         }
 
         private static string Empty(string s) { return string.IsNullOrEmpty(s) ? null : s; }
