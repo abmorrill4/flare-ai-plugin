@@ -129,7 +129,7 @@ namespace FlareAI.Core.Actions
                 {
                     Diagnostics.Log("Style rules: change " + one.Key, ex);
                     if (one == rule) throw;
-                    result.Incomplete = "\"" + one.Text + "\" and any after it were not changed: " + ex.Message;
+                    result.Incomplete = "\"" + one.Title + "\" and any after it were not changed: " + ex.Message;
                     break;
                 }
             }
@@ -159,6 +159,50 @@ namespace FlareAI.Core.Actions
             }
             result.File = RuleOverrides.TurnBackOn(o, rule.ChangeIsProject ? null : team);   // a project's own exception: no owner needed
             result.Changed.Add(rule.Key);
+            return result;
+        }
+
+        /// <summary>
+        /// The other rules that were turned off together with <paramref name="rule"/>: rules that flag the same words, off now
+        /// by a change with the same author, date, reason and place. Turn back on offers them, as Turn off offered them.
+        /// </summary>
+        public static List<CatalogRule> CompanionsOf(RuleCatalog catalog, CatalogRule rule)
+        {
+            var found = new List<CatalogRule>();
+            if (catalog == null || rule == null || rule.State != RuleState.Off || rule.Change == null) return found;
+            var c = rule.Change;
+            foreach (var o in catalog.OverlapsOf(rule))
+            {
+                var d = o.Change;
+                if (o == rule || o.State != RuleState.Off || d == null || o.ChangeIsProject != rule.ChangeIsProject) continue;
+                if (Same(c.By, d.By) && Same(c.Date, d.Date) && Same(c.Note, d.Note) && Same(c.File, d.File) && Same(c.Setting, d.Setting)) found.Add(o);
+            }
+            return found;
+        }
+
+        private static bool Same(string a, string b) { return string.Equals((a ?? "").Trim(), (b ?? "").Trim(), StringComparison.OrdinalIgnoreCase); }
+
+        /// <summary>Turn back on for <paramref name="rule"/> and, when given, the rules turned off with it (<see cref="CompanionsOf"/>).</summary>
+        public static RuleChangeResult Restore(Team team, CatalogRule rule, IList<CatalogRule> also, string reason)
+        {
+            var result = Restore(team, rule, reason);
+            if (also == null) return result;
+            foreach (var one in also)
+            {
+                if (one == null || one == rule || one.Change == null) continue;
+                try
+                {
+                    var r = Restore(team, one, reason);
+                    result.Changed.AddRange(r.Changed);
+                    if (r.File != null) result.File = r.File;
+                }
+                catch (Exception ex)
+                {
+                    Diagnostics.Log("Style rules: restore " + one.Key, ex);
+                    result.Incomplete = "\"" + one.Title + "\" and any after it were not turned back on: " + ex.Message;
+                    break;
+                }
+            }
             return result;
         }
 

@@ -125,6 +125,13 @@ namespace FlareAI.Flare.UI
             _clear.Click += (s, e) => ClearFilters();
             _list.SelectedIndexChanged += (s, e) => ShowSelected();
             _list.Resize += (s, e) => SizeColumns();
+            _list.ColumnWidthChanged += (s, e) =>
+            {
+                if (_sizing || e.ColumnIndex < 1 || e.ColumnIndex > 3) return;
+                if (_cols == null) _cols = _list.Columns.Cast<ColumnHeader>().Select(c => c.Width).ToArray();
+                _cols[e.ColumnIndex] = _list.Columns[e.ColumnIndex].Width;
+                SizeColumns();
+            };
             _off.Click += (s, e) => ChangeRule(false);
             _level.Click += (s, e) => ChangeRule(true);
             _restore.Click += (s, e) => Restore();
@@ -132,6 +139,72 @@ namespace FlareAI.Flare.UI
             Resize += (s, e) => FitHead();
             Shown += (s, e) => { split.SplitterDistance = Math.Max(split.Panel1MinSize, split.Width * 3 / 5); SizeColumns(); FitHead(); Reload(null, null); _search.Focus(); };
             FormClosed += (s, e) => _typing.Dispose();
+        }
+
+        // ---- window size, position and column widths, remembered per user -------------------------------------------
+
+        private const string StateName = "StyleRules";
+        private int[] _cols;
+        private bool _sizing;
+
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct Rect { public int Left, Top, Right, Bottom; }
+        [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern IntPtr GetWindow(IntPtr hWnd, uint cmd);
+        [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hWnd, out Rect r);
+
+        /// <summary>Flare's main window (this dialog's owner), or an empty rectangle.</summary>
+        private Rectangle OwnerBounds()
+        {
+            try
+            {
+                var owner = GetWindow(Handle, 4 /* GW_OWNER */);
+                Rect r;
+                if (owner != IntPtr.Zero && GetWindowRect(owner, out r)) return Rectangle.FromLTRB(r.Left, r.Top, r.Right, r.Bottom);
+            }
+            catch (Exception ex) { Diagnostics.Log("style rules: owner bounds", ex); }
+            return Rectangle.Empty;
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            try
+            {
+                var saved = FlareAI.Core.Settings.UiState.Load(StateName);
+                var ob = OwnerBounds();
+                var area = (ob.IsEmpty ? Screen.FromControl(this) : Screen.FromRectangle(ob)).WorkingArea;
+                var scale = DeviceDpi / 96f;
+                int w, h;
+                FlareAI.Core.Settings.UiState.Fit(saved, ob.IsEmpty ? area.Width : ob.Width, ob.IsEmpty ? area.Height : ob.Height, area.Width, area.Height, out w, out h,
+                                                  (int)(900 * scale), (int)(600 * scale));
+                var screens = Screen.AllScreens.Select(s => new[] { s.WorkingArea.X, s.WorkingArea.Y, s.WorkingArea.Width, s.WorkingArea.Height });
+                StartPosition = FormStartPosition.Manual;
+                if (saved != null && FlareAI.Core.Settings.UiState.IsVisible(saved, screens)) Bounds = new Rectangle(saved.X, saved.Y, w, h);
+                else
+                {
+                    var cx = ob.IsEmpty ? area.X + area.Width / 2 : ob.X + ob.Width / 2;
+                    var cy = ob.IsEmpty ? area.Y + area.Height / 2 : ob.Y + ob.Height / 2;
+                    Bounds = new Rectangle(Math.Max(area.X, Math.Min(cx - w / 2, area.Right - w)), Math.Max(area.Y, Math.Min(cy - h / 2, area.Bottom - h)), w, h);
+                }
+                if (saved != null && saved.Maximized) WindowState = FormWindowState.Maximized;
+                if (saved != null && saved.Columns != null && saved.Columns.Count == 4) _cols = saved.Columns.ToArray();
+            }
+            catch (Exception ex) { Diagnostics.Log("style rules: restore window", ex); }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            try
+            {
+                var b = WindowState == FormWindowState.Normal ? Bounds : RestoreBounds;
+                FlareAI.Core.Settings.UiState.Save(StateName, new FlareAI.Core.Settings.WindowState
+                {
+                    X = b.X, Y = b.Y, Width = b.Width, Height = b.Height, Maximized = WindowState == FormWindowState.Maximized,
+                    Columns = _list.Columns.Cast<ColumnHeader>().Select(c => c.Width).ToList()
+                });
+            }
+            catch (Exception ex) { Diagnostics.Log("style rules: save window", ex); }
         }
 
         private static ComboBox Combo(int width) { return new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = width, Margin = new Padding(0, 3, 12, 3) }; }
@@ -146,10 +219,15 @@ namespace FlareAI.Flare.UI
             if (_list.Columns.Count < 4) return;
             // In font heights, so the columns grow with the text at 125% and 150% scaling; the rule takes the rest.
             var em = _list.Font.Height;
-            _list.Columns[1].Width = em * 5;
-            _list.Columns[2].Width = em * 8;
-            _list.Columns[3].Width = em * 8;
-            _list.Columns[0].Width = Math.Max(em * 10, _list.ClientSize.Width - _list.Columns[1].Width - _list.Columns[2].Width - _list.Columns[3].Width - 4);
+            _sizing = true;
+            try
+            {
+                _list.Columns[1].Width = _cols != null ? Math.Max(em * 3, _cols[1]) : em * 5;
+                _list.Columns[2].Width = _cols != null ? Math.Max(em * 3, _cols[2]) : em * 8;
+                _list.Columns[3].Width = _cols != null ? Math.Max(em * 3, _cols[3]) : em * 8;
+                _list.Columns[0].Width = Math.Max(em * 10, _list.ClientSize.Width - _list.Columns[1].Width - _list.Columns[2].Width - _list.Columns[3].Width - 4);
+            }
+            finally { _sizing = false; }
         }
 
         private void FocusList()
@@ -263,7 +341,7 @@ namespace FlareAI.Flare.UI
                     _list.Items.Add(item);
                     if (select != null && string.Equals(r.Key, select, StringComparison.OrdinalIgnoreCase)) chosen = item;
                 }
-                if (chosen == null && _list.Items.Count > 0) chosen = _list.Items[0];
+                // Keep the same rule selected; if it isn't listed any more, select nothing (never an unrelated rule).
                 if (chosen != null) { chosen.Selected = true; chosen.Focused = true; chosen.EnsureVisible(); }
             }
             finally { _list.EndUpdate(); }
@@ -279,7 +357,7 @@ namespace FlareAI.Flare.UI
 
         private static string Row(CatalogRule r)
         {
-            var text = r.Text ?? "";
+            var text = r.Title ?? r.Text ?? "";
             return text.Length > 160 ? text.Substring(0, 159) + "…" : text;
         }
 
@@ -301,7 +379,7 @@ namespace FlareAI.Flare.UI
             if (r == null) { _detail.Text = _catalog != null && _list.Items.Count == 0 ? "No rule matches. Clear the filters or change the search." : ""; return; }
             var nl = Environment.NewLine;
             var sb = new StringBuilder();
-            sb.Append(r.Text).Append(nl).Append(nl);
+            sb.Append(r.Title).Append(nl).Append(nl);
             sb.Append("Source: ").Append(r.Source).Append(" › ").Append(r.Page).Append(r.Section.Length > 0 ? " › " + r.Section : "").Append(nl);
             if (r.IsTable)
             {
@@ -383,7 +461,7 @@ namespace FlareAI.Flare.UI
             var canProject = _openProject != null && ProjectRules.OverridesPath(_openProject) != null;
             var others = _catalog.OverlapsOf(r).Where(o => o.State != RuleState.Off).ToList();
             var setting = level ? r.Level ?? r.DefaultLevel ?? "warning" : "off";
-            var described = r.Source + " · " + r.Page + ": " + r.Text;
+            var described = r.Source + " · " + r.Page + ": " + r.Title;
             RuleSettingChoice choice;
             if (asking)
             {
@@ -400,7 +478,7 @@ namespace FlareAI.Flare.UI
             else
             {
                 using (var form = new RuleSettingForm(described, canTeam, _team != null && _team.IsPersonal,
-                                                      others.Select(o => new RuleRef { Id = o.Key, Layer = o.Origin, Name = o.Source + " · " + o.Page + ": " + o.Text }).ToList(),
+                                                      others.Select(o => new RuleRef { Id = o.Key, Layer = o.Origin, Name = o.Source + " · " + o.Page + ": " + o.Title }).ToList(),
                                                       setting, canProject, level ? "Change level" : "Turn off this rule"))
                 {
                     if (form.ShowDialog(this) != DialogResult.OK) return;
@@ -437,18 +515,30 @@ namespace FlareAI.Flare.UI
             if (r == null || r.Change == null) return;
             string reason = null;
             var toDefault = r.State != RuleState.Off;
+            var also = toDefault ? new List<CatalogRule>() : RuleChanges.CompanionsOf(_catalog, r);
+            if (also.Count > 0)
+            {
+                var asks = RuleChanges.WillRequest(_team, r, true);
+                using (var f = new AlsoRestoreForm(r.Source + " · " + r.Page + ": " + r.Title, also.Select(o => o.Source + " · " + o.Page + ": " + o.Title).ToList(),
+                                                   asks ? "Request turning it back on" : "Turn back on"))
+                {
+                    if (f.ShowDialog(this) != DialogResult.OK) return;
+                    if (!f.AlsoOthers) also.Clear();
+                }
+            }
             if (RuleChanges.WillRequest(_team, r, true))
             {
-                reason = RequestForm.AskReason(this, (toDefault ? "Return to the default: " : "Turn back on: ") + r.Text + (string.IsNullOrEmpty(r.Change.Note) ? "" : " (changed because: " + r.Change.Note + ")"),
+                reason = RequestForm.AskReason(this, (toDefault ? "Return to the default: " : "Turn back on: ") + r.Title + (string.IsNullOrEmpty(r.Change.Note) ? "" : " (changed because: " + r.Change.Note + ")"),
                     "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
                     (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice));
                 if (reason == null) return;
             }
             try
             {
-                var result = RuleChanges.Restore(_team, r, reason);
+                var result = RuleChanges.Restore(_team, r, also, reason);
                 Reload(result.Requested ? Describe(result, true, null)
-                       : (toDefault ? "Back to the default" : "Turned back on") + " (in " + result.File + "). It applies from the next check.", r.Key);
+                       : (toDefault ? "Back to the default" : "Turned back on") + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "") + " (in " + result.File + "). It applies from the next check." +
+                         (result.Incomplete != null ? " " + result.Incomplete : ""), r.Key);
             }
             catch (GuideWriteException ex) when (!r.ChangeIsProject && _team != null && _team.IsStrict && !_team.IsPersonal)
             {

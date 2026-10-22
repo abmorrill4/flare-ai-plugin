@@ -356,7 +356,7 @@ namespace FlareAI.Flare
         private static string RunLlmExport(PluginSettings settings, string output)
         {
             var r = FlareAI.Core.Output.LlmExport.Export(output.TrimEnd('\\'));
-            return r.Topics + " topic(s) exported as Markdown to " + r.Markdown + ", with llms.txt and llms-full.txt in " + output + ".";
+            return Plural.Of(r.Topics, "topic") + " exported as Markdown to " + r.Markdown + ", with llms.txt and llms-full.txt in " + output + ".";
         }
 
         /// <summary>The most recently built output folder of the project (Output\user\Target or Output\Target), or null.</summary>
@@ -526,7 +526,7 @@ namespace FlareAI.Flare
                 {
                     sb.AppendLine("AI use this session:");
                     foreach (var u in usage)
-                        sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + u.Calls + " call(s), " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
+                        sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + Plural.Of(u.Calls, "call") + ", " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
                 }
                 Diagnostics.Log("DIAG\n" + sb);
                 Notify.Report(Owner, Commands.Diagnostics.Label, sb + "\n(The same text is in the log: " + Diagnostics.LogPath + ")");

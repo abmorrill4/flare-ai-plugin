@@ -453,7 +453,9 @@ namespace FlareAI.Flare.UI
                 if (e.Error != null)
                 {
                     Diagnostics.Log("Check style", e.Error);
-                    _status.Text = Summary() + "  AI review failed: " + e.Error.Message;
+                    _status.Text = Summary() + "  " + (e.Error.Message == FlareAI.Core.Llm.LlmClientFactory.AiOffMessage
+                        ? "AI review is off. Turn it on in House Style > Settings."   // the writer chose No AI: not a failure
+                        : "AI review failed: " + e.Error.Message);
                 }
                 else if (_aiOff)
                     _status.Text = Summary() + "  These come from style rules only (free, no AI used).";
@@ -539,7 +541,7 @@ namespace FlareAI.Flare.UI
             {
                 if (focus != null && RuleBacklog.KeyOf(f) != focus) continue;
                 var item = new ListViewItem(new[] { A11y.SeverityGlyph(f.Severity) + " " + ProposalText(f), LayerLabel(f) }) { Tag = f, Group = GroupFor(f) };
-                item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + f.Rule + "\n" + f.Suggestion;
+                item.ToolTipText = A11y.SeverityLabel(f.Severity) + " · " + LayerLabel(f) + " · " + ReadableRule(f) + "\n" + f.Suggestion;
                 Restyle(item);
                 _list.Items.Add(item);
                 if (f == keep) item.Selected = true;
@@ -754,6 +756,13 @@ namespace FlareAI.Flare.UI
             return dir == null ? System.IO.Path.GetFileName(path) : path.Substring(dir.Length + 1);
         }
 
+        /// <summary>The rule by what it says (tooltips), not by its internal name.</summary>
+        private string ReadableRule(StyleFinding f)
+        {
+            var rule = f.RuleId == null ? null : _runner.RuleFor(f.RuleId);
+            return rule != null ? ReviewSession.Shorten(rule.Display, 80) : FlareAI.Core.Style.RuleWording.FromName(f.Rule);
+        }
+
         private static string LayerLabel(StyleFinding f)
         {
             return (f.RequestSent ? "Request sent · " : "") + RuleSource(f);
@@ -823,7 +832,7 @@ namespace FlareAI.Flare.UI
             Line(_cardWhy, f.Suggestion, FontStyle.Regular);
             var rule = _runner.RuleFor(f.RuleId);
             // The rule by what it says and where it lives; the id is only a reference for owners (Validate, Tune).
-            if (rule != null) Line(_cardWhy, SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text, FontStyle.Italic);
+            if (rule != null) Line(_cardWhy, SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Display, FontStyle.Italic);
             var ex = _runner.ExampleFor(f.RuleId);
             if (ex != null)
             {

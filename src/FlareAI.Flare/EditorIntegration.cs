@@ -156,6 +156,7 @@ namespace FlareAI.Flare
             {
                 var settings = PluginSettings.Load();
                 if (!settings.CheckOnSave) return;
+                if (FlareAI.Core.Editing.SelfSaves.IsOwn(SafePath(doc))) return;   // the plugin's own save (Apply in Check project): no notice
                 FlareDocumentAdapter adapter;
                 var lint = Lint(doc, out adapter);
                 if (lint == null) return;

@@ -179,6 +179,32 @@ namespace FlareAI.Scenarios.Governance
             }
         }
 
+        [Fact]
+        public void Owner_TurnsBackOn_ARuleWithTheRulesTurnedOffWithIt()
+        {
+            using (var fx = new Fixture())
+            {
+                var owner = fx.As(Lead);
+                var cat = fx.Catalog(owner);
+                var shown = fx.CheckStyle().Single(f => f.Excerpt != null && PleaseText.StartsWith(f.Excerpt, StringComparison.OrdinalIgnoreCase) && f.Excerpt.Length > 6);
+                var rule = cat.Find(shown.RuleId);
+                var others = cat.OverlapsOf(rule).Where(o => o.State != RuleState.Off).ToList();
+                Assert.NotEmpty(others);
+                RuleChanges.Change(owner, rule, Choice(true, "off", "We say please.", others: true), others, fx.TopicPath);
+
+                cat = fx.Catalog(owner);
+                var companions = RuleChanges.CompanionsOf(cat, cat.Find(rule.Key));
+                Assert.Equal(others.Select(o => o.Key).OrderBy(k => k).ToArray(), companions.Select(o => o.Key).OrderBy(k => k).ToArray());
+
+                var back = RuleChanges.Restore(owner, cat.Find(rule.Key), companions, null);
+
+                Assert.Equal(1 + others.Count, back.Changed.Count);
+                cat = fx.Catalog(owner);
+                Assert.NotEqual(RuleState.Off, cat.Find(rule.Key).State);
+                foreach (var o in others) Assert.NotEqual(RuleState.Off, cat.Find(o.Key).State);
+            }
+        }
+
         // ---- writers on a read-only guide ----------------------------------------------------------------------
 
         [Fact]

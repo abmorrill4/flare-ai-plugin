@@ -79,8 +79,8 @@ namespace FlareAI.Flare.UI
                 _examples = (IList<GuideExample>)parts[1];
                 Write(report);
                 var keyed = (int)parts[2];
-                _status.Text = (keyed > 0 ? "Gave " + keyed + " new rule(s) permanent ids.  " : "") + (report.Errors == 0 ? "Rule tables pass." : report.Errors + " error(s) to fix.") +
-                               (_examples.Count > 0 ? "  " + _examples.Count + " prose rule(s) have Bad/Good examples you can check against the AI." : "");
+                _status.Text = (keyed > 0 ? "Gave " + Plural.Of(keyed, "new rule") + " permanent ids.  " : "") + (report.Errors == 0 ? "Rule tables pass." : Plural.Of(report.Errors, "error") + " to fix.") +
+                               (_examples.Count > 0 ? "  " + Plural.Of(_examples.Count, "prose rule") + (_examples.Count == 1 ? " has" : " have") + " Bad/Good examples you can check against the AI." : "");
                 _ai.Enabled = _examples.Count > 0;
             };
             worker.RunWorkerAsync();
@@ -89,9 +89,9 @@ namespace FlareAI.Flare.UI
         private void Write(GuideReport r)
         {
             _report.AppendLine("Sources (later wins): " + string.Join(" → ", r.Layers.ToArray()));
-            _report.AppendLine(r.TableRules + " table rule(s), " + r.TestedByExample + " tested by their Example. " +
-                               r.ProseRules + " prose rule(s), " + r.ProseRulesWithExamples + " with Bad/Good examples.");
-            _report.AppendLine(r.Errors + " error(s), " + r.Warnings + " warning(s).").AppendLine();
+            _report.AppendLine(Plural.Of(r.TableRules, "table rule") + ", " + r.TestedByExample + " tested by their Example. " +
+                               Plural.Of(r.ProseRules, "prose rule") + ", " + r.ProseRulesWithExamples + " with Bad/Good examples.");
+            _report.AppendLine(Plural.Of(r.Errors, "error") + ", " + Plural.Of(r.Warnings, "warning") + ".").AppendLine();
             foreach (var level in new[] { "error", "warning" })
             {
                 var list = r.Issues.FindAll(i => i.Level == level);
@@ -132,9 +132,9 @@ namespace FlareAI.Flare.UI
                     if (x.GoodClean.HasValue) notes.Add(x.GoodClean.Value ? "Good example clean" : "Good example wrongly flagged");
                     _report.AppendLine("  " + (x.Passed ? "✓ " : "✗ ") + x.Example.Id + "  " + Shorten(x.Example.Text, 70)).AppendLine("      " + string.Join("; ", notes.ToArray()));
                 }
-                _report.AppendLine().AppendLine(passed + " of " + results.Count + " prose rule(s) applied as written. For a missed rule: sharpen its wording, add a clearer Bad example, or make it a table row (deterministic).");
+                _report.AppendLine().AppendLine(passed + " of " + Plural.Of(results.Count, "prose rule") + " applied as written. For a missed rule: sharpen its wording, add a clearer Bad example, or make it a table row (deterministic).");
                 _text.Text = _report.ToString();
-                _status.Text = "AI applies " + passed + " of " + results.Count + " prose rule(s) as written.";
+                _status.Text = "AI applies " + passed + " of " + Plural.Of(results.Count, "prose rule") + " as written.";
             };
             worker.RunWorkerAsync();
         }

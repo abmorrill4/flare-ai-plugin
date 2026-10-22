@@ -927,7 +927,7 @@ namespace FlareAI.Core.Actions
 
         private static string Describe(StyleFinding f, GuideRule rule)
         {
-            return rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
+            return rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Display : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
         }
 
         /// <summary>The guide topic a rule is written in (a local file), or null.</summary>

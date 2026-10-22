@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
+    <NoCoreReference>true</NoCoreReference>
     <IsPackable>false</IsPackable>
     <RootNamespace>FlareAI.Scoring.Tests</RootNamespace>
   </PropertyGroup>

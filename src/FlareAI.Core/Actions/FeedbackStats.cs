@@ -149,7 +149,7 @@ namespace FlareAI.Core.Actions
                         Kind = "review", Rule = g.Key, Title = "Often rejected: " + g.Key + " (" + Pct(rate) + " of " + (acc + rej) + ")",
                         Accepted = acc, Rejected = rej, Writers = writers,
                         Evidence = Reasons(all).Concat(Samples(all.Where(d => d.IsReject), 4))
-                            .Concat(earlier > 0 ? new[] { earlier + " older decision(s) about an earlier wording of this rule aren't counted." } : new string[0]).ToList()
+                            .Concat(earlier > 0 ? new[] { Plural.Of(earlier, "older decision") + " about an earlier wording of this rule aren't counted." } : new string[0]).ToList()
                     });
                 }
                 else if (acc + rej >= minDecisions && rate <= 0.1)
@@ -182,7 +182,7 @@ namespace FlareAI.Core.Actions
                 var all = g.ToList();
                 items.Add(new TuneItem
                 {
-                    Kind = "ignore", Rule = g.Key, Title = "Asked to turn off: " + g.Key + " (" + all.Count + " request(s))",
+                    Kind = "ignore", Rule = g.Key, Title = "Asked to turn off: " + g.Key + " (" + Plural.Of(all.Count, "request") + ")",
                     Rejected = all.Count, Writers = all.Select(d => d.Writer).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
                     Evidence = all.Select(d => d.Writer + ": " + (d.Reason ?? "(no reason)") + " — " + Path.GetFileName(d.File ?? "")).ToList()
                 });

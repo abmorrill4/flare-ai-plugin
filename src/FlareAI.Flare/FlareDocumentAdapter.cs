@@ -30,6 +30,7 @@ namespace FlareAI.Flare
         /// </summary>
         public void SaveAndClose()
         {
+            FlareAI.Core.Editing.SelfSaves.Mark(SourcePath);   // the check-on-save notice is for the writer's own saves
             _doc.Save();
             _doc.Close();
         }

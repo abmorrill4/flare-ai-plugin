@@ -325,7 +325,7 @@ namespace FlareAI.Core.Actions
         public int Behind { get; set; }
         public override string ToString()
         {
-            return "Style guide " + Name + " @ " + Commit + (Behind > 0 ? " — " + Behind + " change(s) behind: pull it to get the team's latest rules." : "");
+            return "Style guide " + Name + " @ " + Commit + (Behind > 0 ? " — " + Plural.Of(Behind, "change") + " behind: pull it to get the team's latest rules." : "");
         }
     }
 

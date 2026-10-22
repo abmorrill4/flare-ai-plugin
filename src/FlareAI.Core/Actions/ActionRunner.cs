@@ -177,7 +177,7 @@ namespace FlareAI.Core.Actions
                 var f = MapToRun(lines[h.Index], h);
                 if (f != null) findings.Add(f); else inVariables++;
             }
-            if (inVariables > 0) Diagnostics.Log("Lint: " + inVariables + " finding(s) inside variable values skipped");
+            if (inVariables > 0) Diagnostics.Log("Lint: " + Plural.Of(inVariables, "finding") + " inside variable values skipped");
             return findings;
         }
 
@@ -394,7 +394,7 @@ namespace FlareAI.Core.Actions
             var resp = Ask("review", unit.Prompt, Contracts.ReviewSchema, null, unit.Scope);
             int dropped;
             var raw = Contracts.ReadReview(resp.Json, unit.Runs, out dropped);
-            if (dropped > 0) Diagnostics.Log("Review: dropped " + dropped + " finding(s) that broke the contract");
+            if (dropped > 0) Diagnostics.Log("Review: dropped " + Plural.Of(dropped, "finding") + " that broke the contract");
             // The model may cite only the rules it was given for this unit.
             HashSet<string> allowed = null;
             if (_style != null) try { allowed = new HashSet<string>(_style.RuleIdsFor(_project, unit.Scope), StringComparer.OrdinalIgnoreCase); } catch (Exception ex) { Diagnostics.Log("rule ids", ex); }
@@ -883,7 +883,7 @@ namespace FlareAI.Core.Actions
                     var n = ApplyFixes(doc, plan, operationName);
                     if (n < plan.Count) Diagnostics.Log(operationName + ": only " + n + "/" + plan.Count + " word edits applied");
                     return n == plan.Count
-                        ? "Applied as " + n + " word-level tracked change(s)."
+                        ? "Applied as " + Plural.Of(n, "word-level tracked change") + "."
                         : "Applied " + n + " of " + plan.Count + " word-level changes — review them, or Ctrl+Z to undo all.";
                 }
                 Diagnostics.Log(operationName + ": word plan not locatable, falling back to block replacement");

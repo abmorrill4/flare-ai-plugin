@@ -1,0 +1,13 @@
+<Project>
+  <!--
+    Every test project runs with the writer's data folder (Paths.Root) redirected to a temp folder, so no test writes to the
+    real %APPDATA%\FlareAI (diag.log, settings), and a guard test fails if the real diag.log changed during the run.
+  -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(NoCoreReference)' != 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)Isolation\IsolatedTestFramework.cs" Link="IsolatedTestFramework.cs" />
+    <AssemblyAttribute Include="Xunit.TestFrameworkAttribute">
+      <_Parameter1>FlareAI.TestIsolation.IsolatedTestFramework</_Parameter1>
+      <_Parameter2>$(AssemblyName)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>
