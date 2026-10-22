@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Fixes in 2.5.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Fixes in 2.5.0</h1>
+        <p>This release fixes the following problems.</p>
+        <h2>Fixes</h2>
+        <h3>Core</h3>
+        <ul>
+            <li>When using DB-less mode, <code>select_by_cache_key</code> now finds entities by using the provided <code>field</code> directly in <code>select_by_key</code> and does not complete unnecessary cache reads.</li>
+            <li><MadCap:variable name="General.ProductName" /> can now finish initialization even if a plugin’s <code>init_worker</code> handler fails, improving stability.</li>
+        </ul>
+        <h3>Hybrid Mode</h3>
+        <ul>
+            <li>Control planes no longer perform health checks on CRUD upstreams’ and targets’ events.</li>
+            <li>To prevent unnecessary cache flips on data planes, <MadCap:variable name="General.ProductName" /> now checks <code>dao:crud</code> events more strictly and has a new cluster event, <code>clustering:push_config</code> for configuration pushes. These updates allow <MadCap:variable name="General.ProductName" /> to filter invalidation events that do not actually require a database change. Furthermore, the clustering module does not subscribe to the generic <code>invalidations</code> event, which has a more broad scope than database entity invalidations.</li>
+        </ul>
+        <h3>Balancer</h3>
+        <ul>
+            <li>All targets are returned by the Admin API now, including targets with a <code>weight=0</code>, or disabled targets. <span class="keyword">Prior</span> to disabled targets were not included in the output when users attempted to list all targets. Then when users attempted to add the targets again, they received an error message telling them the targets already existed.</li>
+            <li>Upserting existing targets no longer fails. <b>Prior to</b>, because of updates made to target configurations since <MadCap:variable name="General.ProductName" /> v2.2.0, upserting older configurations would fail. This fix allows older configurations to be imported.</li>
+        </ul>
+        <h3>CLI</h3>
+        <ul>
+            <li>The <code>prefix</code> argument in the <code>orbit stop</code> command now takes precedence over environment variables, as it does in the <code>orbit start</code> command.</li>
+        </ul>
+        <h3>Configuration</h3>
+        <ul>
+            <li>Declarative configurations now correctly parse custom plugin entities schemas with attributes called "plugins". Before when using declarative configurations, users with custom plugins that included a "plugins" field would encounter startup exceptions. With this fix, the declarative configuration can now distinguish between plugins schema and custom plugins fields.</li>
+            <li>The stream access log configuration options are now properly separated from the HTTP access log. Before when users used <MadCap:variable name="General.ProductName" /> with TCP, they couldn’t use a custom log format. With this fix, <code>proxy_stream_access_log</code> and <code>proxy_stream_error_log</code> have been added to differentiate stream access log from the HTTP subsystem. See <code>proxy_stream_access_log</code> and <code>proxy_stream_error</code> in the Configuration Property Reference for more information.</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>With this update, <code>orbit.response.get_XXX()</code> functions now work in the log phase on external plugins. Before <code>orbit.response.get_XXX()</code> functions required data from the response object, which was not accessible in the post-log timer used to call log handlers in external plugins. Now these functions work by accessing the required data from the set saved at the start of the log phase. See <code>orbit.response</code> in the Plugin Development Kit for more information.</li>
+            <li>External plugins handle certain error conditions better while the <MadCap:variable name="General.ProductName" /> balancer is being refreshed. Before when an <code>instance_id</code> of an external plugin changed, and the plugin instance attempted to reset and retry, it was failing because of a typo in the comparison. .</li>
+        </ul>
+        <h3>Plugins</h3>
+        <ul>
+            <li>All custom plugins that are using the deprecated <code>BasePlugin</code> class have to remove this inheritance.</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-2-5-0.htm">Release 2.5.0</MadCap:xref>.</p>
+    </body>
+</html>

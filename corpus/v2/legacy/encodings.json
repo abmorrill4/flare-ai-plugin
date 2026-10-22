@@ -1,0 +1,30 @@
+{
+ "utf8_bom": [
+  "Content/Admin/ConfigureEmail.htm",
+  "Content/Admin/set-permissions.htm",
+  "Content/Customers/RestoreAArchivedCustomerRecord.htm",
+  "Content/Integrations/test-the-connection.htm",
+  "Content/Inventory/WO_AdjustStockQuantity.htm",
+  "Content/Invoices/void-an-invoice.htm",
+  "Content/Reference/Whats new in 2.5.doc.htm",
+  "Content/Routes/Send_a_route_to_the_mobile_app_new.htm",
+  "Content/Sites/WO_SearchForASite.htm",
+  "Content/Support/troubleshooting.htm",
+  "Content/Technicians/ReactivateATechnicianProfile.htm",
+  "Content/WordImport/SetUpRecurringAppointmentsv7.htm",
+  "Content/WorkOrders/change-the-priority-of-a-work-order.htm",
+  "Content/WorkOrders/topic_907.htm"
+ ],
+ "windows_1252": [
+  "Content/Admin/Checklist.doc.htm",
+  "Content/Getting Started/Welcome.doc.htm",
+  "Content/Install/Server install.doc.htm",
+  "Content/Inventory/WO_ImportPartsFromASpreadsheet.htm",
+  "Content/WordImport/ArchiveACustomerRecordv8.htm",
+  "Content/WordImport/ConfigureEmailv3.htm",
+  "Content/WordImport/Dashboard guide.doc.htm",
+  "Content/WordImport/ExportReportsToAFilev2.htm",
+  "Content/WordImport/Reports - Run a report.doc.htm",
+  "Content/WordImport/Work Orders - Update several Work Orders at once.doc.htm"
+ ]
+}

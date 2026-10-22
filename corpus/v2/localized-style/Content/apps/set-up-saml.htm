@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Set up SAML 2.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Set up SAML 2.0</h1>
+        <p>Use SAML 2.0 when an application asks for an identity provider metadata file. The console is the identity provider.</p>
+        <h2>Get the metadata</h2>
+        <ol>
+            <li>Select <b>Applications</b>, and then select the application.</li>
+            <li>Click <b>Sign-On Settings</b> &gt; <b>SAML 2.0</b>.</li>
+            <li>Click <b>Download metadata</b>.</li>
+        </ol>
+        <h2>Send the metadata to the application</h2>
+        <p>Upload the file in the application's SAML settings, or copy the values that the console shows: the issuer, the single sign-on URL, and the signing certificate.</p>
+        <h2>Check the setup</h2>
+        <p>Click <b>Test login</b>. If the application rejects the response, compare the audience and the name ID format with the values that the application expects!</p>
+        <p class="note">Some older applications support only SAML2 with SHA-1 signatures. The console does not allow SHA-1 signatures. Ask the application's vendor for an update.</p>
+    </body>
+</html>

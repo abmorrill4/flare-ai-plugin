@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Versioning policy</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Versioning policy</h1>
+        <p><MadCap:variable name="General.ProductName" /> uses three-part version numbers: major.minor.patch. The numbers tell you how much changes between two releases.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Part</th>
+                    <th>Changes when</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Major</td>
+                    <td>A change can break an existing integration</td>
+                    <td>2.8.0 to 3.0.0</td>
+                </tr>
+                <tr>
+                    <td>Minor</td>
+                    <td>A release adds features and stays compatible</td>
+                    <td>3.1.0 to 3.2.0</td>
+                </tr>
+                <tr>
+                    <td>Patch</td>
+                    <td>A release fixes problems only</td>
+                    <td>3.9.0 to 3.9.1</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Minor releases are published about every 3 months. Patch releases are published when a fix is ready, <span MadCap:conditions="Default.Print">usually within 2 weeks of the report</span>.</p>
+        <h2>What stays the same</h2>
+        <p>Within a major version, the Admin API keeps its paths, field names, and response codes. A field that you rely on can still gain new values, so your client should ignore values it does not recognize.</p>
+        <h2>What can change</h2>
+        <p>A major release can remove a deprecated setting, rename a field, or change a default value! Each of these changes is listed in the breaking changes topic for the release. Read that topic before you upgrade.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+    </body>
+</html>

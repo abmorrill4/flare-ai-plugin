@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Troubleshoot directory sync</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Troubleshoot directory sync</h1>
+        <p>If users or groups are missing after a directory sync, read the sections below.</p>
+        <h2>Check the sync status</h2>
+        <p>Select <b>Security</b> &gt; <b>Directory sync</b>. The <b>Last sync</b> column shows the time and the result of the most recent sync.</p>
+        <h2>Common problems</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Message</th>
+                    <th>Cause</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Connection refused</td>
+                    <td>The console cannot reach the directory</td>
+                    <td>Check the firewall and the port</td>
+                </tr>
+                <tr>
+                    <td>Bind failed</td>
+                    <td>The service account password is wrong</td>
+                    <td>Update the password</td>
+                </tr>
+                <tr>
+                    <td>0 users found</td>
+                    <td>The search base is wrong</td>
+                    <td>Correct the search base</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Run a sync now</h2>
+        <p>Click <b>Sync now</b>. The console starts a sync at once and shows the progress.</p>
+        <p>If a user still does not appear, check that the user has an email address in the directory. The console skips entries that have none.</p>
+    </body>
+</html>

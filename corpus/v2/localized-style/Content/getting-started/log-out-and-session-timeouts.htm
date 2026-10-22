@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Log out and session timeouts</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Log out and session timeouts</h1>
+        <p>The console logs you out automatically when your session ends. You can also log out at any time.</p>
+        <h2>Log out</h2>
+        <ol>
+            <li>Click your name in the upper-right corner.</li>
+            <li>Click <b>Log out</b>.</li>
+        </ol>
+        <h2>Session timeouts</h2>
+        <p>A session ends when you are inactive for the idle timeout, or when it reaches the maximum length. Administrators set both values.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Setting</th>
+                    <th>Default</th>
+                    <th>Allowed range</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Idle timeout</td>
+                    <td>30 min</td>
+                    <td>5 min to 8 hr</td>
+                </tr>
+                <tr>
+                    <td>Maximum session length</td>
+                    <td>12 hr</td>
+                    <td>1 hr to 24 hr</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>When a session is about to end, the console shows a warning for 60 seconds. Click <b>Stay logged in</b> to extend the session.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/if-you-cannot-log.flsnp" />
+    </body>
+</html>

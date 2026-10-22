@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Deprecation policy</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Deprecation policy</h1>
+        <p>A deprecated feature still works, but it is scheduled for removal. This topic explains how <MadCap:variable name="General.ProductName" /> announces and removes deprecated features.</p>
+        <ul>
+            <li>A deprecation is announced in the release notes of a minor release.</li>
+            <li>The feature keeps working for at least one full major version.</li>
+            <li>The removal is listed under breaking changes in the release that removes it.</li>
+        </ul>
+        <h2>Deprecated settings</h2>
+        <p>The following settings are deprecated as of <MadCap:variable name="Versions.CurrentRelease" />. Each one has a replacement that you can use today.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Setting</th>
+                    <th>Replacement</th>
+                    <th>Removed in</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>node_id</code></td>
+                    <td>The cluster node identity</td>
+                    <td>4.0.0</td>
+                </tr>
+                <tr>
+                    <td><code>legacy_router</code></td>
+                    <td>The expressions router</td>
+                    <td>4.0.0</td>
+                </tr>
+                <tr>
+                    <td><code>admin_gui_url</code></td>
+                    <td><code>admin_gui_listen</code></td>
+                    <td>4.0.0</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>If you must keep a deprecated setting for now, plan the change before the next major release. We will publish a migration note a month before each removal.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+    </body>
+</html>

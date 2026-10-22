@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Breaking changes and deprecations in 3.5.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Breaking changes and deprecations in 3.5.0</h1>
+        <p>Review these changes before you upgrade to <MadCap:variable name="General.ProductName" /> 3.5.0.</p>
+        <h2>Breaking changes</h2>
+        <ul>
+            <li><b>Session</b>: a new configuration field <code>read_body_for_logout</code> was added with a default value of <code>false</code>, that changes behavior of <code>logout_post_arg</code> in a way that it is not anymore considered if the <code>read_body_for_logout</code> is not explicitly set to <code>true</code>. This is to avoid session plugin from reading request bodies by default on e.g. <code>POST</code> request for logout detection (ORB-10333).</li>
+        </ul>
+        <h2>Before you upgrade</h2>
+        <MadCap:snippetBlock src="../Resources/Snippets/back-up-your-configuration.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="../releases/release-3-5-0.htm">Release 3.5.0</MadCap:xref>.</p>
+    </body>
+</html>

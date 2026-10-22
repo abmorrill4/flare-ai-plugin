@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultVariableSet>
+    <Variable Name="CompanyName" EvaluatedDefinition="Marlowe Systems">Marlowe Systems</Variable>
+    <Variable Name="ProductName" EvaluatedDefinition="Marlowe Dispatch">Marlowe Dispatch</Variable>
+    <Variable Name="SupportPhone" EvaluatedDefinition="1-800-555-0142">1-800-555-0142</Variable>
+    <Variable Name="SupportUrl" EvaluatedDefinition="http://support.marlowe-dispatch.example.com/help">http://support.marlowe-dispatch.example.com/help</Variable>
+</CatapultVariableSet>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Set up OpenID Connect</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Set up OpenID Connect</h1>
+        <p>Use OpenID Connect when an application asks for a client ID and a client secret. The console is the provider.</p>
+        <ol>
+            <li>Select <b>Applications</b>, and then select the application.</li>
+            <li>Click <b>Sign-On Settings</b> &gt; <b>OpenID Connect</b>.</li>
+            <li>Copy the <b>Client ID</b> and the <b>Client secret</b>.</li>
+            <li>In the application, paste both values, and then enter the redirect address that the application shows.</li>
+            <li>In the console, add the same redirect address in the <b>Redirect URLs</b> list, and then click <b>Save</b>.</li>
+        </ol>
+        <h2>Scopes</h2>
+        <p>The console supports the <code>openid</code>, <code>profile</code>, and <code>email</code> scopes. An application that asks for other scopes receives an error. We recommend that you review this setting regularly.</p>
+        <p class="warning">Treat the client secret like a password. If it is exposed, select <b>Rotate secret</b> and update the application.</p>
+        <p>The first version of this feature supported OpenId Connect only in the authorization code flow. Other flows are not available.</p>
+    </body>
+</html>

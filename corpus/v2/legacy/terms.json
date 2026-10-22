@@ -1,0 +1,147 @@
+{
+  "method": "Case-sensitive regular expressions over the plain text of every block in Content/ (the BlockWalker definition: variables expanded to their values, nested blocks separate). \"all\" counts every block; \"prose\" ignores text inside b, strong, i, em, code and kbd, so UI labels written in bold (Work Orders, Technicians, Customers) are out of it. Counts are exact for the delivered files; they change only if the files change.",
+  "groups": {
+    "work order": {
+      "work order": {
+        "regex": "\\bwork orders?\\b",
+        "all": 44,
+        "prose": 43
+      },
+      "Work Order": {
+        "regex": "\\bWork Orders?\\b",
+        "all": 78,
+        "prose": 63
+      },
+      "WO": {
+        "regex": "\\bWOs?\\b",
+        "all": 10,
+        "prose": 9
+      },
+      "job ticket": {
+        "regex": "\\bjob tickets?\\b",
+        "all": 12,
+        "prose": 11
+      },
+      "service call": {
+        "regex": "\\bservice calls?\\b",
+        "all": 9,
+        "prose": 8
+      }
+    },
+    "technician": {
+      "technician": {
+        "regex": "\\btechnicians?\\b",
+        "all": 75,
+        "prose": 75
+      },
+      "Technician": {
+        "regex": "\\bTechnicians?\\b",
+        "all": 26,
+        "prose": 20
+      },
+      "tech": {
+        "regex": "\\btechs?\\b",
+        "all": 7,
+        "prose": 7
+      },
+      "field engineer": {
+        "regex": "\\bfield engineers?\\b",
+        "all": 4,
+        "prose": 4
+      },
+      "field rep": {
+        "regex": "\\bfield reps?\\b",
+        "all": 3,
+        "prose": 3
+      }
+    },
+    "customer": {
+      "customer": {
+        "regex": "\\bcustomers?\\b",
+        "all": 112,
+        "prose": 109
+      },
+      "Customer": {
+        "regex": "\\bCustomers?\\b",
+        "all": 67,
+        "prose": 49
+      },
+      "client": {
+        "regex": "\\bclients?\\b",
+        "all": 14,
+        "prose": 14
+      }
+    },
+    "log in": {
+      "log in": {
+        "regex": "\\blog in\\b",
+        "all": 16,
+        "prose": 16
+      },
+      "sign in": {
+        "regex": "\\bsign in\\b",
+        "all": 7,
+        "prose": 7
+      },
+      "log on": {
+        "regex": "\\blog on\\b",
+        "all": 3,
+        "prose": 3
+      },
+      "login": {
+        "regex": "\\blogin\\b",
+        "all": 4,
+        "prose": 3
+      }
+    },
+    "email": {
+      "email": {
+        "regex": "\\bemail\\b",
+        "all": 20,
+        "prose": 20
+      },
+      "e-mail": {
+        "regex": "\\be-mail\\b",
+        "all": 11,
+        "prose": 11
+      },
+      "E-mail": {
+        "regex": "\\bE-mail\\b",
+        "all": 7,
+        "prose": 7
+      },
+      "Email": {
+        "regex": "\\bEmail\\b",
+        "all": 36,
+        "prose": 35
+      }
+    },
+    "product name": {
+      "Marlowe Dispatch": {
+        "regex": "\\bMarlowe Dispatch\\b",
+        "all": 35,
+        "prose": 23
+      },
+      "MarloweDispatch": {
+        "regex": "\\bMarloweDispatch\\b",
+        "all": 10,
+        "prose": 10
+      },
+      "Marlowe-Dispatch": {
+        "regex": "\\bMarlowe-Dispatch\\b",
+        "all": 7,
+        "prose": 7
+      },
+      "MD": {
+        "regex": "\\bMD\\b",
+        "all": 10,
+        "prose": 10
+      },
+      "General.ProductName variable": {
+        "regex": "<MadCap:variable name=\"General.ProductName\" />",
+        "all": 12,
+        "prose": 12
+      }
+    }
+  }
+}

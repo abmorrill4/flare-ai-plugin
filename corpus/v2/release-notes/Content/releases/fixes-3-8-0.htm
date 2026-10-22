@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Fixes in 3.8.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Fixes in 3.8.0</h1>
+        <p>This release fixes the following problems.</p>
+        <h2>Fixes</h2>
+        <h3>CLI Command</h3>
+        <ul>
+            <li>Fixed an issue where some debug level error logs were not being displayed by the CLI (ORB-13143).</li>
+        </ul>
+        <h3>Core</h3>
+        <ul>
+            <li>Deprecated shorthand fields don't take precedence over replacement fields when both are specified (ORB-13486).</li>
+            <li>Changed the way deprecated shorthand fields are used with new fields! If the new field contains null it allows for deprecated field to overwrite it if both are present in the request (ORB-13592).</li>
+            <li>Fixed an issue where unnecessary uninitialized variable error log is reported when 400 bad requests were received (ORB-13201).</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li><b>PDK</b>: Fixed a bug that log serializer will log <code>upstream_status</code> as nil in the requests that contains subrequest (ORB-12953).</li>
+            <li>Fixed an issue that pdk.log.serialize() will throw an error when JSON entity set by serialize_value contains json.null (ORB-13376).</li>
+        </ul>
+        <h3>Plugin</h3>
+        <ul>
+            <li><b>AI-Transformer-Plugins</b>: Fixed a bug where cloud identity authentication was not used in <code>ai-request-transformer</code> and <code>ai-response-transformer</code> plugins (ORB-13487).</li>
+            <li><b>AI-proxy-plugin</b>: Fixed a bug where AI Proxy would still allow callers to specify their own model, ignoring the plugin-configured model name (ORB-13000).</li>
+        </ul>
+        <h3>Admin API</h3>
+        <ul>
+            <li>Fixed an issue where validation of the certificate schema failed if the <code>snis</code> field was present in the request body (ORB-13357).</li>
+        </ul>
+        <h3>Clustering</h3>
+        <ul>
+            <li>Fixed an issue where hybrid mode not working if the forward proxy password contains special character(#). Note that the <code>proxy_server</code> configuration parameter still needs to be url-encoded (ORB-13457).</li>
+        </ul>
+        <h3>Default</h3>
+        <ul>
+            <li><b>AI-proxy</b>: A configuration validation is added to prevent from enabling <code>log_statistics</code> upon providers not supporting statistics. Accordingly, the default of <code>log_statistics</code> is changed from <code>true</code> to <code>false</code>, and a database migration is added as well for disabling <code>log_statistics</code> if it has already been enabled upon unsupported providers (ORB-12860).</li>
+            <li>Improved the user experience in <MadCap:variable name="General.ProductName" /> Manager by fixing various UI-related issues.</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-3-8-0.htm">Release 3.8.0</MadCap:xref>.</p>
+    </body>
+</html>
