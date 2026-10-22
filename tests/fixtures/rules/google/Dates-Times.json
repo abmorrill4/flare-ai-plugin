@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -33,7 +33,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -62,7 +62,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -91,7 +91,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -120,7 +120,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -178,7 +178,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -207,7 +207,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -236,7 +236,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 4,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -265,7 +265,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 4,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"
@@ -294,7 +294,7 @@
     "Layer": "google",
     "Page": "Dates-Times",
     "Row": 5,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Numbers"

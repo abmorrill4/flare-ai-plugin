@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Contractions",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Apostrophes"
@@ -33,7 +33,7 @@
     "Layer": "google",
     "Page": "Contractions",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Apostrophes"

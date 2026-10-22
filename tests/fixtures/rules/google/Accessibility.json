@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Accessibility",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Links"
@@ -55,7 +55,7 @@
     "Layer": "google",
     "Page": "Accessibility",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [

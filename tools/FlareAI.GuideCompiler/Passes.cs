@@ -12,7 +12,8 @@ namespace FlareAI.GuideCompiler
 {
     /// <summary>
     /// The maintainer decisions the passes read (tools/google-style): owners.json (who owns a span shared by several pages, #56),
-    /// products.json (Product tags the source doesn't spell out, #57) and fixes.json (row fixes settled by hand, #59).
+    /// products.json (Product tags the source doesn't spell out, #57) and fixes.json (rule fixes settled by hand, #59-#64: rows,
+    /// patterns, prose wording, scope tags, added rows, the severity policy and the Good examples the checks accept).
     /// A missing file is an empty decision set.
     /// </summary>
     internal sealed class PassConfig
@@ -59,14 +60,18 @@ namespace FlareAI.GuideCompiler
     ///   1. Term scope (#58): a word-list Term cell names its own entry only; rules that claim another entry's units are noted.
     ///   2. Products (#57): Product tags from the source (an entry or section about Android, Google Cloud or Workspace
     ///      documentation, or a rule that says so) and from products.json, on every kind of rule, lint rows included.
-    ///   3. Fix decisions (fixes.json): replacements settled by hand.
+    ///   3. Fix decisions (fixes.json): replacements, patterns, prose wording and scope settled by hand (#59, #60, #63), and
+    ///      rules the source states mechanically that the page compile left as prose (#64, "add").
+    ///   3b. Markup rows (#55): a row or pattern that can only match markup becomes a prose rule.
     ///   4. Canonical owner (#56): every lint row's Avoid terms and Example are probed against every other row; a span that
     ///      a higher-ranked rule also flags (same words, at least as broad a scope) is removed from the lower one, and a row
     ///      left with nothing is dropped. Its source units move to the owner, its key is retired. owners.json ranks pages and
     ///      settles conflicts; the choices are recorded there.
     ///   5. Fixes that create findings (#59): each row's fix is applied to its Example and the result linted with the whole
     ///      guide. A new finding gets a trailing comma tried ("for example,"), else the row becomes flag-only.
+    ///   5b. Severity (#61): the policy in fixes.json "severity".
     ///   6. Validate: the guide validator over the result; its errors are noted.
+    ///   7. Checks (#62): <see cref="GuideChecks"/> over the result; failures are noted (tests/FlareAI.GuideCompiler.Tests fails on any).
     /// </summary>
     internal static class Passes
     {
@@ -77,12 +82,22 @@ namespace FlareAI.GuideCompiler
         public static List<string> Run(JObject compiled, JObject coverage, PassConfig cfg)
         {
             var log = new List<string>();
+            // Validator and check notes describe the guide as it is now: last run's are dropped, this run writes its own.
+            foreach (var p in compiled.Properties())
+            {
+                var notes = p.Value["passes"] as JArray;
+                if (notes != null) foreach (var n in notes.Where(n => ((string)n).StartsWith("check ") || ((string)n).StartsWith("validator: ")).ToList()) notes.Remove(n);
+            }
             ScopeTerms(compiled, log);
             TagProducts(compiled, cfg, log);
             ApplyFixDecisions(compiled, cfg, log);
+            AddRules(compiled, cfg, log);
+            MarkupRows(compiled, log);
             for (var round = 0; round < 3 && Canonicalize(compiled, coverage, cfg, log) > 0; round++) { }
             CheckFixes(compiled, coverage, log);
+            CalibrateSeverity(compiled, cfg, log);
             ValidateAll(compiled, coverage, log);
+            RunChecks(compiled, coverage, cfg, log);
             return log;
         }
 
@@ -124,12 +139,12 @@ namespace FlareAI.GuideCompiler
 
         private static bool IsFix(string use) { return !GuideLayer.IsFlagOnly(use) && !GuideLayer.IsDelete(use); }
 
-        /// <summary>Structural scope: the rule's own tags plus the pack trigger stamped on every row of its page.</summary>
+        /// <summary>Structural scope: the rule's own tags plus the pack trigger stamped on every row of its page (unless the rule opts out).</summary>
         private static HashSet<string> Scope(Compiled c, JObject coverage)
         {
             var s = new HashSet<string>(((JArray)c.Rule["applies"] ?? new JArray()).Select(a => (string)a).Where(Structural.Contains), StringComparer.OrdinalIgnoreCase);
             var page = coverage == null ? null : coverage[c.Slug] as JObject;
-            if (page != null && (string)page["scope"] == "pack") { var t = Program.TagFor((string)page["trigger"]); if (t != null && Structural.Contains(t)) s.Add(t); }
+            if (page != null && (string)page["scope"] == "pack" && Topic.TakesPageScope(c.Rule)) { var t = Program.TagFor((string)page["trigger"]); if (t != null && Structural.Contains(t)) s.Add(t); }
             return s;
         }
 
@@ -160,15 +175,28 @@ namespace FlareAI.GuideCompiler
 
         private static void TagProducts(JObject compiled, PassConfig cfg, List<string> log)
         {
+            foreach (var c in All(compiled))
+            {
+                var have = ProductSet(c.Rule);
+                foreach (var a in ProductCues(c, cfg).Where(a => !have.Contains(a.Key)).GroupBy(a => a.Key).Select(g => g.First()))
+                {
+                    have.Add(a.Key);
+                    ((JArray)(c.Rule["products"] ?? (c.Rule["products"] = new JArray()))).Add(a.Key);
+                    Note(c.Page, c.Id + " Product." + a.Key + " (" + a.Value + ")", log);
+                }
+            }
+        }
+
+        /// <summary>The Product tags a rule must carry (product, why): what the product pass adds and the #62 check expects.</summary>
+        internal static List<KeyValuePair<string, string>> ProductCues(Compiled c, PassConfig cfg)
+        {
             // names: what the source calls each product. A rule is about a product when it is scoped to it ("In Android
             // documentation, ...", "For Google Cloud ..."), sits under a section named for it (topical pages), or its fix
             // writes the product's name into text that didn't have it.
             var names = ((JObject)cfg.Products["names"] ?? new JObject()).Properties().ToDictionary(p => p.Name, p => "(?:" + (string)p.Value + ")");
             var entries = ((JObject)cfg.Products["entries"] ?? new JObject()).Properties().ToDictionary(p => p.Name, p => p.Value.Select(x => Norm((string)x)).ToList());
             var rules = ((JObject)cfg.Products["rules"] ?? new JObject()).Properties().ToDictionary(p => p.Name, p => p.Value.Select(x => (string)x).ToList(), StringComparer.OrdinalIgnoreCase);
-            foreach (var c in All(compiled))
             {
-                var have = ProductSet(c.Rule);
                 var add = new List<KeyValuePair<string, string>>();   // product, why
                 var own = (string)c.Rule["text"] + "\n" + (string)c.Rule["why"];
                 foreach (var n in names)
@@ -193,12 +221,7 @@ namespace FlareAI.GuideCompiler
                 }
                 List<string> listed;
                 if (rules.TryGetValue(c.Id, out listed)) foreach (var p in listed) add.Add(new KeyValuePair<string, string>(p, "products.json lists the rule"));
-                foreach (var a in add.Where(a => !have.Contains(a.Key)).GroupBy(a => a.Key).Select(g => g.First()))
-                {
-                    have.Add(a.Key);
-                    ((JArray)(c.Rule["products"] ?? (c.Rule["products"] = new JArray()))).Add(a.Key);
-                    Note(c.Page, c.Id + " Product." + a.Key + " (" + a.Value + ")", log);
-                }
+                return add;
             }
         }
 
@@ -230,6 +253,22 @@ namespace FlareAI.GuideCompiler
                 Compiled c;
                 if (!byId.TryGetValue((string)d["rule"], out c)) continue;   // already gone (dropped as a duplicate)
                 var why = (string)d["reason"] ?? "";
+                if (d["drop"] != null)
+                {
+                    // A row that is wrong as a lint rule and whose words another rule already states (as prose for the reviewer).
+                    Compiled owner;
+                    if (byId.TryGetValue((string)d["drop"], out owner)) Drop(c, new List<Compiled> { owner }, "fixes.json: " + why, log);
+                    continue;
+                }
+                if (d["kind"] != null && (string)c.Rule["kind"] != (string)d["kind"])
+                {
+                    var kind = (string)d["kind"];
+                    Note(c.Page, c.Id + " " + (string)c.Rule["kind"] + " → " + kind + " (fixes.json: " + why + ")", log);
+                    c.Rule["kind"] = kind;
+                    if (kind == "pattern") c.Rule["avoid"] = "";
+                    if (kind == "row") c.Rule["pattern"] = "";
+                    if (kind == "prose") foreach (var f in new[] { "avoid", "use", "pattern", "example" }) c.Rule[f] = "";
+                }
                 var removed = (d["remove"] ?? new JArray()).Select(x => (string)x).Where(t => RemoveTerm(c, t)).ToList();
                 foreach (var t in removed) Note(c.Page, c.Id + " drops '" + t + "' (fixes.json: " + why + ")", log);
                 if (removed.Count > 0) RepairExample(c, log, removed);
@@ -238,8 +277,110 @@ namespace FlareAI.GuideCompiler
                     Note(c.Page, c.Id + " Use '" + (string)c.Rule["use"] + "' → '" + (string)d["use"] + "' (fixes.json: " + why + ")", log);
                     c.Rule["use"] = (string)d["use"];
                 }
-                foreach (var f in new[] { "pattern", "example", "severity", "why" })
+                foreach (var f in new[] { "avoid", "pattern", "example", "severity", "why", "text", "bad", "good" })
                     if (d[f] != null && (string)c.Rule[f] != (string)d[f]) { c.Rule[f] = (string)d[f]; Note(c.Page, c.Id + " " + f + " → '" + (string)d[f] + "' (fixes.json)", log); }
+                if (d["applies"] != null && !JToken.DeepEquals(c.Rule["applies"] ?? new JArray(), d["applies"]))
+                {
+                    c.Rule["applies"] = d["applies"].DeepClone();
+                    Note(c.Page, c.Id + " applies → [" + string.Join(", ", d["applies"].Select(x => (string)x).ToArray()) + "] (fixes.json: " + why + ")", log);
+                }
+                if (d["page_scope"] != null && Topic.TakesPageScope(c.Rule) != (bool)d["page_scope"])
+                {
+                    c.Rule["page_scope"] = (bool)d["page_scope"];
+                    Note(c.Page, c.Id + " " + ((bool)d["page_scope"] ? "takes" : "drops") + " its page's pack tag (fixes.json: " + why + ")", log);
+                }
+                AddApplies(c, d["applies_add"], why, log);
+            }
+            foreach (var p in ((JObject)cfg.Fixes["pages"] ?? new JObject()).Properties())
+                foreach (var c in All(compiled).Where(c => c.Slug == p.Name)) AddApplies(c, p.Value["applies_add"], (string)p.Value["reason"] ?? "", log);
+        }
+
+        private static void AddApplies(Compiled c, JToken tags, string why, List<string> log)
+        {
+            if (tags == null) return;
+            var applies = (JArray)(c.Rule["applies"] ?? (c.Rule["applies"] = new JArray()));
+            foreach (var t in tags.Select(x => (string)x).Where(t => !applies.Any(a => (string)a == t)))
+            {
+                applies.Add(t);
+                Note(c.Page, c.Id + " Content." + t + " (fixes.json: " + why + ")", log);
+            }
+        }
+
+        /// <summary>
+        /// Rules the source states mechanically but the page compile left as prose (#64): fixes.json "add". Each names its page,
+        /// a permanent key (never a retired one) and the source units it comes from. Added once; a later run finds the key.
+        /// </summary>
+        private static void AddRules(JObject compiled, PassConfig cfg, List<string> log)
+        {
+            foreach (var d in ((JArray)cfg.Fixes["add"] ?? new JArray()).OfType<JObject>())
+            {
+                var page = compiled[(string)d["page"]] as JObject;
+                var key = (string)d["key"];
+                if (page == null || string.IsNullOrEmpty(key)) { log.Add("fixes.json add: no page or key in " + d.ToString(Formatting.None)); continue; }
+                var rules = (JArray)page["rules"];
+                var had = rules.OfType<JObject>().FirstOrDefault(r => (string)r["key"] == key);
+                if (had != null)
+                {
+                    // Added before: the decision is the source of truth, so a changed cell in fixes.json reaches the rule.
+                    foreach (var f in new[] { "heading", "kind", "text", "bad", "good", "avoid", "use", "pattern", "severity", "why", "example" })
+                        if (((string)d[f] ?? "") != ((string)had[f] ?? "")) { had[f] = (string)d[f] ?? ""; Note(page, Topic.RuleId((string)d["page"], key) + " " + f + " → '" + (string)had[f] + "' (fixes.json add)", log); }
+                    foreach (var f in new[] { "applies", "products", "units" })
+                        if (!JToken.DeepEquals(had[f] ?? new JArray(), d[f] ?? new JArray())) had[f] = (d[f] ?? new JArray()).DeepClone();
+                    continue;
+                }
+                if (((JArray)page["retired"] ?? new JArray()).Any(r => (string)r["key"] == key)) { log.Add("fixes.json add: key " + key + " of " + (string)d["page"] + " is retired"); continue; }
+                var rule = new JObject();
+                foreach (var f in new[] { "heading", "kind", "text", "bad", "good", "avoid", "use", "pattern", "severity", "why", "example" }) rule[f] = (string)d[f] ?? "";
+                rule["applies"] = (d["applies"] ?? new JArray()).DeepClone();
+                rule["products"] = (d["products"] ?? new JArray()).DeepClone();
+                rule["units"] = (d["units"] ?? new JArray()).DeepClone();
+                rule["key"] = key;
+                if (d["page_scope"] != null) rule["page_scope"] = (bool)d["page_scope"];
+                rules.Add(rule);
+                Note(page, Topic.RuleId((string)d["page"], key) + " added: " + (string)d["kind"] + " '" + (string)d["avoid"] + (string)d["pattern"] + "' (fixes.json: " + (string)d["reason"] + ")", log);
+            }
+        }
+
+        // ---- markup-only rows (#55) -----------------------------------------------------------------------------------
+
+        /// <summary>
+        /// A row or pattern that matches markup (a tag, an entity, an attribute) can never fire: lint reads text. It becomes a
+        /// prose rule (its own sentence, for the reviewer) with the same key and units. A pattern with a text branch as well is
+        /// settled in fixes.json first (hyphens/30 loses its entity branch).
+        /// </summary>
+        private static void MarkupRows(JObject compiled, List<string> log)
+        {
+            foreach (var c in All(compiled).Where(c => c.IsLint).ToList())
+            {
+                var avoid = c.Kind == "row" ? Split((string)c.Rule["avoid"]) : new List<string> { (string)c.Rule["pattern"] };
+                var shape = avoid.FirstOrDefault(a => LintPatterns.MatchesMarkup(c.Kind == "row" ? Regex.Escape(a) : a));
+                if (shape == null) continue;
+                var text = ((string)c.Rule["text"] ?? "").Trim();
+                if (text.Length == 0) text = ((string)c.Rule["why"] ?? "").Trim();
+                Note(c.Page, c.Id + " " + c.Kind + " → prose: '" + shape + "' matches markup; lint sees text only (#55)", log);
+                c.Rule["kind"] = "prose";
+                c.Rule["text"] = text;
+                c.Rule["bad"] = ""; c.Rule["good"] = "";   // the Example was markup
+                foreach (var f in new[] { "avoid", "use", "pattern", "example" }) c.Rule[f] = "";
+            }
+        }
+
+        // ---- severity (#61) ---------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// The severity policy (fixes.json "severity"): error only for the rows it lists (offensive terms); a flag-only row (no
+        /// safe fix) is a suggestion unless it is listed under keep_warning (a "don't use" term, such as inclusive language);
+        /// rows listed under suggestion (typographic and advisory rows) are suggestions. A severity fixes.json sets for one rule wins.
+        /// </summary>
+        private static void CalibrateSeverity(JObject compiled, PassConfig cfg, List<string> log)
+        {
+            var policy = SeverityPolicy.Of(cfg);
+            foreach (var c in All(compiled).Where(c => c.IsLint))
+            {
+                var want = policy.For(c);
+                if (want == null || want == (string)c.Rule["severity"]) continue;
+                Note(c.Page, c.Id + " severity " + (string)c.Rule["severity"] + " → " + want + " (" + policy.Why(c, want) + ")", log);
+                c.Rule["severity"] = want;
             }
         }
 
@@ -538,13 +679,13 @@ namespace FlareAI.GuideCompiler
             }
         }
 
-        private sealed class CreatedFinding { public Compiled Row; public string Why; public bool OnInsertedWords; }
+        internal sealed class CreatedFinding { public Compiled Row; public string Why; public bool OnInsertedWords; }
 
         /// <summary>
         /// Rows whose fix, applied to their Example (and to each bare Avoid term), leaves a finding that wasn't there. A finding
         /// of a rule that already flagged the replaced words is the same finding moved, not a new one.
         /// </summary>
-        private static List<CreatedFinding> Created(Composition comp, Dictionary<string, Compiled> rows)
+        internal static List<CreatedFinding> Created(Composition comp, Dictionary<string, Compiled> rows)
         {
             var result = new List<CreatedFinding>();
             foreach (var r in comp.Rules.Where(r => r.Id != null && rows.ContainsKey(r.Id) && r.Action == "replace"))
@@ -581,6 +722,25 @@ namespace FlareAI.GuideCompiler
                 }
             }
             return result;
+        }
+
+        // ---- 7. the #62 checks ---------------------------------------------------------------------------------------------
+
+        /// <summary>Runs <see cref="GuideChecks"/> over the result and notes every failure on its page (coverage.md lists them).</summary>
+        private static void RunChecks(JObject compiled, JObject coverage, PassConfig cfg, List<string> log)
+        {
+            Dictionary<string, List<string>> r;
+            using (var s = new Scratch(compiled, coverage)) r = GuideChecks.Run(s.Comp, compiled, cfg);
+            log.Add("checks: " + GuideChecks.Summary(r));
+            var bySlug = compiled.Properties().ToDictionary(p => Topic.RuleId(p.Name, "x").Replace("/x", "/"), p => (JObject)p.Value);
+            foreach (var kv in r)
+                foreach (var f in kv.Value)
+                {
+                    var m = Regex.Match(f, @"(google:[^/]+/)");
+                    JObject page;
+                    if (m.Success && bySlug.TryGetValue(m.Groups[1].Value, out page)) Note(page, "check " + kv.Key + ": " + f, log);
+                    else log.Add("check " + kv.Key + ": " + f);
+                }
         }
 
         // ---- 6. validate -------------------------------------------------------------------------------------------------

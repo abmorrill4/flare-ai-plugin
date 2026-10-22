@@ -18,6 +18,10 @@
             <li id="rule-7" MadCap:conditions="Content.Headings">For a conceptual or non-task-based heading, use a noun phrase that doesn&apos;t start with an -ing verb.<ul><li>Bad: Migrating to Google Cloud</li><li>Good: Migration to Google Cloud</li></ul></li>
             <li id="rule-8" MadCap:conditions="Content.Headings">If a section is not required for all users or scenarios, use the Optional: prefix in the heading.<ul><li>Bad: Customize your alias (optional)</li><li>Good: Optional: Customize your alias</li></ul></li>
         </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr id="rule-33" MadCap:conditions="Content.Headings"><td>\((?i:optional)\)</td><td></td><td>suggestion</td><td>Use the Optional: prefix.</td><td>Configure DNS (optional)</td></tr>
+        </table>
         <h2>Title phrasing</h2>
         <ul>
             <li id="rule-9" MadCap:conditions="Content.Headings">Use a unique level-1 heading (h1) for each page in a set of documents.</li>
@@ -34,6 +38,10 @@
             <li id="rule-14" MadCap:conditions="Content.Headings">It&apos;s OK to use a gerund such as Billing or Pricing when there isn&apos;t a better alternative.<ul><li>Good: Billing</li></ul></li>
             <li id="rule-15" MadCap:conditions="Content.Headings">It&apos;s OK to use an -ing verb form later in a heading or title.<ul><li>Good: Introduction to BigQuery monitoring</li></ul></li>
         </ul>
+        <table>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr id="rule-32" MadCap:conditions="Content.Headings"><td>^\s*(?!(?:Billing|Pricing)\b)[A-Z][a-z]{2,}ing\s+(?:a|an|the|your|you|up|this|that|these|those|new|existing|multiple|custom)\b</td><td></td><td>suggestion</td><td>-ing forms are translated inconsistently.</td><td>Creating an instance</td></tr>
+        </table>
         <h2>Heading and title format</h2>
         <ul>
             <li id="rule-16" MadCap:conditions="Content.Headings">Apply the guidance for standard text, such as contractions and articles, to headings.</li>

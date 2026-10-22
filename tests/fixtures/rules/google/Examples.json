@@ -1,6 +1,6 @@
 [
   {
-    "Id": "google:examples/27",
+    "Id": "google:examples/29",
     "Layer": "google",
     "Page": "Examples",
     "Row": 2,
@@ -10,16 +10,17 @@
       "Examples"
     ],
     "Avoid": [
-      "baz"
+      "Alice and Bob",
+      "Bob and Alice"
     ],
     "Use": "",
-    "Example": "Don't use unclear components like foo, bar, and baz in names.",
-    "IgnoreCase": true,
+    "Example": "Alice and Bob exchange keys over the channel.",
+    "IgnoreCase": false,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Don't use unclear components like foo, bar, and baz in names.",
+        "Text": "Alice and Bob exchange keys over the channel.",
         "Expect": {
           "any": "code-inline, pre, kbd",
           "clean": "ui-b, ui-span",
@@ -28,7 +29,7 @@
       },
       {
         "Source": "avoid",
-        "Text": "baz",
+        "Text": "Alice and Bob",
         "Expect": {
           "any": "code-inline, pre, kbd",
           "clean": "ui-b, ui-span",
@@ -37,14 +38,7 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "Baz",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "BAZ",
+        "Text": "Bob and Alice",
         "Expect": {
           "fires": "paragraph"
         }

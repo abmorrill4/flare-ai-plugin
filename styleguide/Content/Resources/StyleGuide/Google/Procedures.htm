@@ -48,8 +48,8 @@
             <li id="rule-19" MadCap:conditions="Content.Steps">For an optional step, at the beginning of the step, type Optional followed by a colon.<ul><li>Bad: (Optional) Type an arbitrary string ...</li><li>Good: Optional: Type an arbitrary string ...</li></ul></li>
         </ul>
         <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-20" MadCap:conditions="Content.Steps"><td>(Optional)</td><td></td><td>warning</td><td>Optional steps start with &quot;Optional:&quot;.</td><td>(Optional) Type an arbitrary string ...</td></tr>
+            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
+            <tr id="rule-20" MadCap:conditions="Content.Steps"><td>^\s*\((?i:optional)\)</td><td>Optional:</td><td>warning</td><td>Optional steps start with &quot;Optional:&quot;.</td><td>(Optional) Type an arbitrary string.</td></tr>
         </table>
         <h2>Steps that say where to complete a task</h2>
         <ul>
@@ -77,9 +77,9 @@
         </ul>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-40" MadCap:conditions="Content.Steps"><td>(?i)\b(?:the\s+above\b|(?:diagram|image|figure|screenshot|table|example|list|steps?)\s+below\b|(?:right|left)-hand\s+side\b)</td><td></td><td>warning</td><td>Directional language fails accessibility and localization.</td><td>In the diagram below, ...</td></tr>
-            <tr id="rule-41" MadCap:conditions="Content.Steps,Content.Code"><td>(?i)\brun(?:ning)?\s+the\s+following\s+commands?\b</td><td></td><td>warning</td><td>Focus on what the command does.</td><td>Run the following command:...</td></tr>
-            <tr id="rule-42" MadCap:conditions="Content.Steps"><td>\b(?:Ctrl|Control|Cmd|Command|Alt|Option|Shift)\+\w</td><td></td><td>warning</td><td>Don&apos;t include keyboard shortcuts in procedures.</td><td>Press Ctrl+C, and then press Ctrl+V...</td></tr>
+            <tr id="rule-40" MadCap:conditions="Content.Steps"><td>(?i)\b(?:the\s+above\b|(?:diagram|image|figure|screenshot|table|example|list|steps?)\s+below\b|(?:right|left)-hand\s+side\b)</td><td></td><td>suggestion</td><td>Directional language fails accessibility and localization.</td><td>In the diagram below, ...</td></tr>
+            <tr id="rule-41" MadCap:conditions="Content.Steps,Content.Code"><td>(?i)\brun(?:ning)?\s+the\s+following\s+commands?\b</td><td></td><td>suggestion</td><td>Focus on what the command does.</td><td>Run the following command:...</td></tr>
+            <tr id="rule-42" MadCap:conditions="Content.Steps"><td>\b(?:Ctrl|Cmd|Alt|Option)\+\w</td><td></td><td>suggestion</td><td>Don&apos;t include keyboard shortcuts in procedures.</td><td>Press Ctrl+C, and then press Ctrl+V...</td></tr>
         </table>
         <h2>Steps with goals</h2>
         <ul>

@@ -4,13 +4,13 @@
     "Layer": "google",
     "Page": "Hyphens",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Hyphens"
     ],
     "Avoid": [
-      "\\b(?:[A-Za-z]{2,}(?:ically|ally|ently|antly|ously|ively|ately|edly|licly)|[A-Za-z]*fully)-[a-z]+"
+      "\\b(?!(?i:family|early|daily|weekly|monthly|yearly|hourly|quarterly|nightly|friendly|likely|unlikely|lonely|lovely|costly|timely|orderly|elderly|supply|apply|reply|multiply|assembly|anomaly|butterfly|holy|ugly|curly|silly|jelly|belly|bully|rally|ally|only|homely|deadly|lively|worldly|scholarly|leisurely|kindly|stately|sickly|wobbly|bubbly|chilly|hilly|smelly|wily)-)[A-Za-z]{2,}ly-[a-z]+"
     ],
     "Use": "",
     "Example": "Publicly-available implementations",
@@ -33,7 +33,7 @@
     "Layer": "google",
     "Page": "Hyphens",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Hyphens"
@@ -62,19 +62,28 @@
     "Layer": "google",
     "Page": "Hyphens",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Hyphens"
     ],
     "Avoid": [
-      "(?<=\\d)(?:–|&ndash;)(?=\\d)"
+      "(?<=\\d)\\u2013(?=\\d)"
     ],
     "Use": "-",
     "Example": "Upload 8–20 files.",
     "IgnoreCase": false,
-    "MarkupOnly": true,
-    "Bad": [],
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Upload 8–20 files.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      }
+    ],
     "Good": []
   },
   {
@@ -82,7 +91,7 @@
     "Layer": "google",
     "Page": "Hyphens",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Hyphens"
@@ -111,13 +120,13 @@
     "Layer": "google",
     "Page": "Hyphens",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Hyphens"
     ],
     "Avoid": [
-      "\\b(?:[Ff]rom|[Bb]etween) \\d[\\d,.]*\\s?-\\s?\\d"
+      "\\b[Ff]rom \\d{1,4}\\s?-\\s?\\d{1,4}\\b(?!-)"
     ],
     "Use": "",
     "Example": "Upload from 8-20 files.",

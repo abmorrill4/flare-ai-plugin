@@ -59,7 +59,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -387,7 +387,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -513,7 +513,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -729,7 +729,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -1424,7 +1424,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -2044,7 +2044,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -2241,7 +2241,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -2268,7 +2268,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -2465,7 +2465,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -2713,7 +2713,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -2805,7 +2805,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Links"
@@ -2883,7 +2883,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -3181,7 +3181,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -3208,7 +3208,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -3235,7 +3235,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -3262,7 +3262,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -3392,7 +3392,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -3907,7 +3907,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -4058,7 +4058,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -4129,7 +4129,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -4200,7 +4200,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -4365,10 +4365,10 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "denial of service",
-      "Denial of service"
+      "distributed denial of service",
+      "Distributed denial of service"
     ],
-    "Use": "denial-of-service, Denial-of-service",
+    "Use": "distributed denial-of-service, Distributed denial-of-service",
     "Example": "Protect your app from distributed denial of service attacks.",
     "IgnoreCase": false,
     "MarkupOnly": false,
@@ -4383,7 +4383,7 @@
       },
       {
         "Source": "avoid",
-        "Text": "denial of service",
+        "Text": "distributed denial of service",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -4391,7 +4391,7 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "Denial of service",
+        "Text": "Distributed denial of service",
         "Expect": {
           "fires": "paragraph"
         }
@@ -4400,7 +4400,7 @@
     "Good": [
       {
         "Source": "use",
-        "Text": "Denial-of-service, Denial-of-service",
+        "Text": "Distributed denial-of-service, Distributed denial-of-service",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -5524,11 +5524,11 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "error",
+    "Severity": "warning",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
-      "\\betc\\b(?!\\.)"
+      "(?<![/\\\\])\\betc\\b(?![./\\\\])"
     ],
     "Use": "",
     "Example": "If your app experiences instability, high latency, etc, follow these steps:",
@@ -5551,7 +5551,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -6245,7 +6245,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -6272,7 +6272,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -6459,11 +6459,60 @@
     ]
   },
   {
-    "Id": "google:word-list/313",
+    "Id": "google:word-list/768",
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
     "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "ghetto"
+    ],
+    "Use": "",
+    "Example": "This is a ghetto fix for the timeout.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "This is a ghetto fix for the timeout.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "ghetto",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Ghetto",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "GHETTO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:word-list/313",
+    "Layer": "google",
+    "Page": "Word-List",
+    "Row": 2,
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -6564,7 +6613,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -6681,7 +6730,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -6895,11 +6944,82 @@
     "Good": []
   },
   {
-    "Id": "google:word-list/329",
+    "Id": "google:word-list/770",
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
     "Severity": "warning",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "grandfathered",
+      "grandfathering"
+    ],
+    "Use": "",
+    "Example": "Existing accounts are grandfathered into the old plan.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "Existing accounts are grandfathered into the old plan.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "grandfathered",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Grandfathered",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "GRANDFATHERED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "grandfathering",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Grandfathering",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "GRANDFATHERING",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
+    "Id": "google:word-list/329",
+    "Layer": "google",
+    "Page": "Word-List",
+    "Row": 2,
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -7533,7 +7653,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -7894,7 +8014,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -7945,7 +8065,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -7997,7 +8117,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "error",
+    "Severity": "warning",
     "Action": "replace",
     "Tags": [],
     "Avoid": [
@@ -8201,6 +8321,61 @@
     "Good": []
   },
   {
+    "Id": "google:word-list/772",
+    "Layer": "google",
+    "Page": "Word-List",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "replace",
+    "Tags": [],
+    "Avoid": [
+      "in order to"
+    ],
+    "Use": "to",
+    "Example": "In order to save the file, click Save.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "In order to save the file, click Save.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "in order to",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "In order to",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "IN ORDER TO",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "To",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
+  },
+  {
     "Id": "google:word-list/387",
     "Layer": "google",
     "Page": "Word-List",
@@ -8364,7 +8539,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -8766,7 +8941,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -9033,6 +9208,100 @@
     ]
   },
   {
+    "Id": "google:word-list/771",
+    "Layer": "google",
+    "Page": "Word-List",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "kill",
+      "kills",
+      "killed",
+      "killing"
+    ],
+    "Use": "",
+    "Example": "To kill the job, click Cancel.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "To kill the job, click Cancel.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "kill",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Kill",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "KILL",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "kills",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Kills",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "KILLS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "killed",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Killed",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "KILLED",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
+  },
+  {
     "Id": "google:word-list/421",
     "Layer": "google",
     "Page": "Word-List",
@@ -9086,11 +9355,11 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
-      "\\b\\d+(\\.\\d+)*\\+(?=\\s|$|[.,;:)])"
+      "\\b\\d+\\.\\d+(?:\\.\\d+)*\\+(?=\\s|$|[.,;:)])"
     ],
     "Use": "",
     "Example": "Use version 2.2+.",
@@ -9113,7 +9382,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -9162,7 +9431,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -9256,7 +9525,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -10434,7 +10703,7 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "(?-i)(?<=[a-z,;] )Microservices\\b"
+      "(?<=[a-z,;] )(?<![Ss]ee )Microservices\\b"
     ],
     "Use": "microservices",
     "Example": "You can deploy Microservices to the cluster.",
@@ -10881,7 +11150,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -11014,7 +11283,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -11084,6 +11353,77 @@
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
+  },
+  {
+    "Id": "google:word-list/769",
+    "Layer": "google",
+    "Page": "Word-List",
+    "Row": 2,
+    "Severity": "suggestion",
+    "Action": "flag",
+    "Tags": [],
+    "Avoid": [
+      "ninja",
+      "ninjas"
+    ],
+    "Use": "",
+    "Example": "You don't need to be a ninja to configure the server.",
+    "IgnoreCase": true,
+    "MarkupOnly": false,
+    "Bad": [
+      {
+        "Source": "example",
+        "Text": "You don't need to be a ninja to configure the server.",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid",
+        "Text": "ninja",
+        "Expect": {
+          "clean": "ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Ninja",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "NINJA",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "ninjas",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "Ninjas",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      },
+      {
+        "Source": "avoid-variant",
+        "Text": "NINJAS",
+        "Expect": {
+          "fires": "paragraph"
+        }
+      }
+    ],
+    "Good": []
   },
   {
     "Id": "google:word-list/508",
@@ -11229,7 +11569,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -11282,7 +11622,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -11309,7 +11649,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -11795,7 +12135,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -11887,7 +12227,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -12048,7 +12388,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -12124,7 +12464,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -12176,7 +12516,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -12604,7 +12944,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -12696,7 +13036,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -13016,7 +13356,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -13158,7 +13498,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -13491,7 +13831,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -13595,7 +13935,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -13769,7 +14109,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -13918,7 +14258,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -13949,7 +14289,7 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "\\bsingle sign on\\b"
+      "(?i)\\bsingle sign on\\b"
     ],
     "Use": "single sign-on",
     "Example": "Enable single sign on for your domain.",
@@ -14033,7 +14373,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -14131,7 +14471,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -14180,7 +14520,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -14292,7 +14632,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -15056,7 +15396,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -15423,7 +15763,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -15677,7 +16017,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -15863,7 +16203,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -15890,7 +16230,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -15917,7 +16257,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -15966,7 +16306,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -16072,7 +16412,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -16948,7 +17288,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -17415,7 +17755,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [
@@ -17464,7 +17804,7 @@
     "Layer": "google",
     "Page": "Word-List",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [

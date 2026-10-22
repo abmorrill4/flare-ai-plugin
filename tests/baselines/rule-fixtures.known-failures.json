@@ -1,18 +1,6 @@
 {
   "about": "Rule fixture cases that fail today, by owning issue. Case ids are check|rule|context|case. CI fails on a failure not listed here and on a listed case that now passes: only ever remove entries (run with FLAREAI_UPDATE_KNOWN=1 after a fix).",
   "issues": {
-    "#53": {
-      "title": "Lint honours content scope (steps, UI labels, links, tables, notes), not only headings",
-      "count": 6,
-      "cases": [
-        "bad-clean|google:images/40|conditional-span|0",
-        "bad-clean|google:images/40|conditional-span|1",
-        "bad-clean|google:images/40|variable-adjacent|0",
-        "bad-clean|google:images/40|variable-adjacent|1",
-        "bad-clean|google:images/41|conditional-span|0",
-        "bad-clean|google:images/41|variable-adjacent|0"
-      ]
-    },
     "#54": {
       "title": "Same-span findings: deterministic owner, and turning off covers every rule on that span",
       "count": 8,
@@ -25,63 +13,6 @@
         "off-team|company:terminology/6|paragraph|2",
         "off-team|company:terminology/7|paragraph|0",
         "off-team|company:terminology/7|paragraph|1"
-      ]
-    },
-    "#55": {
-      "title": "Report and skip lint patterns that can only match markup",
-      "count": 8,
-      "cases": [
-        "pattern-plain|google:hyphens/30|-|0",
-        "pattern-plain|google:placeholders/8|-|0",
-        "pattern-plain|google:placeholders/9|-|0",
-        "pattern-plain|google:semantic-tagging/10|-|0",
-        "pattern-plain|google:tables/21|-|0",
-        "pattern-plain|google:tables/28|-|0",
-        "pattern-plain|google:tables/29|-|0",
-        "pattern-plain|google:tables/34|-|0"
-      ]
-    },
-    "#59": {
-      "title": "Google fixes that create new findings",
-      "count": 1,
-      "cases": [
-        "fix-clean|google:ui-elements/68|paragraph|0"
-      ]
-    },
-    "#62": {
-      "title": "Validation test: duplicates, conflicts, Bad/Good examples, fixes that add findings",
-      "count": 19,
-      "cases": [
-        "good-clean|company:plain-language/7|caption|0",
-        "good-clean|company:plain-language/7|conditional-span|0",
-        "good-clean|company:plain-language/7|dropdown-head|0",
-        "good-clean|company:plain-language/7|heading-h2|0",
-        "good-clean|company:plain-language/7|heading-h4|0",
-        "good-clean|company:plain-language/7|link-a|0",
-        "good-clean|company:plain-language/7|link-xref|0",
-        "good-clean|company:plain-language/7|list|0",
-        "good-clean|company:plain-language/7|note|0",
-        "good-clean|company:plain-language/7|paragraph|0",
-        "good-clean|company:plain-language/7|step-p|0",
-        "good-clean|company:plain-language/7|step|0",
-        "good-clean|company:plain-language/7|table-cell|0",
-        "good-clean|company:plain-language/7|table-header|0",
-        "good-clean|company:plain-language/7|variable-adjacent|0",
-        "good-clean|google:word-list/474|link-a|0",
-        "good-clean|google:word-list/474|link-xref|0",
-        "good-clean|google:word-list/475|link-a|0",
-        "good-clean|google:word-list/475|link-xref|0"
-      ]
-    },
-    "#65": {
-      "title": "Google guide accuracy (not yet attributed to a child issue)",
-      "count": 5,
-      "cases": [
-        "bad-fires|google:tables/22|list|0",
-        "bad-fires|google:tables/22|note|0",
-        "bad-fires|google:tables/22|paragraph|0",
-        "bad-fires|google:tables/22|step-p|0",
-        "bad-fires|google:tables/22|step|0"
       ]
     }
   }

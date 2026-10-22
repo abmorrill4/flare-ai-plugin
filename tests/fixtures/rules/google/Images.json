@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Images",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Images"
@@ -28,16 +28,16 @@
         "Source": "example",
         "Text": "As shown in the image above, the app has three services.",
         "Expect": {
-          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, table-cell, note, caption"
+          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, table-cell, note, caption, variable-adjacent, conditional-span"
         }
       },
       {
         "Source": "avoid",
         "Text": "the image above",
         "Expect": {
-          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, table-cell, note, caption"
+          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, table-cell, note, caption, variable-adjacent, conditional-span"
         }
       },
       {
@@ -121,8 +121,8 @@
         "Source": "example",
         "Text": "The services are as shown in Figure 1.",
         "Expect": {
-          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, table-cell, note, caption"
+          "clean": "heading-h2, heading-h4, table-header, dropdown-head, link-a, link-xref, ui-b, ui-span, code-inline, pre, kbd",
+          "fires": "paragraph, step, step-p, list, table-cell, note, caption, variable-adjacent, conditional-span"
         }
       }
     ],

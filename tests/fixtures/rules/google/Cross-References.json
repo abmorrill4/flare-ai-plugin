@@ -10,11 +10,12 @@
       "Links"
     ],
     "Avoid": [
-      "more information on"
+      "For more information on",
+      "for more information on"
     ],
-    "Use": "more information about",
+    "Use": "For more information about, for more information about",
     "Example": "For more information on indexes, see Manage indexes.",
-    "IgnoreCase": true,
+    "IgnoreCase": false,
     "MarkupOnly": false,
     "Bad": [
       {
@@ -27,7 +28,7 @@
       },
       {
         "Source": "avoid",
-        "Text": "more information on",
+        "Text": "For more information on",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -35,14 +36,7 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "More information on",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "MORE INFORMATION ON",
+        "Text": "for more information on",
         "Expect": {
           "fires": "paragraph"
         }
@@ -51,7 +45,7 @@
     "Good": [
       {
         "Source": "use",
-        "Text": "More information about",
+        "Text": "For more information about, for more information about",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]

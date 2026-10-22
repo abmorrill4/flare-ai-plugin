@@ -4,7 +4,7 @@
     "Layer": "google",
     "Page": "Pronouns",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [],
     "Avoid": [

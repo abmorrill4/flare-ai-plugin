@@ -166,14 +166,17 @@ namespace FlareAI.Core.Style
 
         /// <summary>
         /// Always-on: untagged prose rules. Packs: rules tagged for content the unit has, and Term rows for words it uses.
-        /// Never: lint rows (the linter enforces them) and rules for products the guide doesn't cover.
+        /// Never: lint rows (the linter enforces them), rules for products the guide doesn't cover, and web-markup rules
+        /// (Content.WebMarkup) unless the scope asks for them.
         /// </summary>
         private static void Selectors(Composition comp, GuideScope scope, out Func<GuideRule, bool> core, out Func<GuideRule, bool> packs)
         {
             scope = scope ?? new GuideScope();
             var always = scope.Always;
             Func<GuideRule, bool> applies = r => r.Applies.Count == 0 || r.Applies.Any(scope.Content.Contains) || r.Applies.Any(always.Contains);
-            Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products) && !comp.IsOff(r.Id);
+            // Web-markup rules (hand-written HTML: entities, attributes, elements) only when the scope asks for them: Flare writes the markup.
+            Func<GuideRule, bool> eligible = r => !r.IsLint && comp.ForOurProducts(r.Products) && !comp.IsOff(r.Id) &&
+                                                  (!r.Applies.Contains(ContentTags.WebMarkup) || scope.Content.Contains(ContentTags.WebMarkup));
             // Always-on: untagged rules plus the packs nearly every section needs; one block, cached for an hour.
             core = r => eligible(r) && r.Triggers.Count == 0 && (r.Applies.Count == 0 || r.Applies.Any(always.Contains));
             packs = r => eligible(r) && (r.Triggers.Count > 0 ? applies(r) && r.TriggeredBy(scope.Text)
@@ -325,7 +328,9 @@ namespace FlareAI.Core.Style
             for (var i = 0; i < lines.Count; i++)
             {
                 var line = lines[i] ?? LintLine.Plain("");
-                var text = (line.Text ?? "").Replace('\r', ' ').Replace('\n', ' ');
+                var raw = line.Text ?? "";
+                var text = raw.Replace('\r', ' ').Replace('\n', ' ');
+                var breaks = raw.IndexOfAny(LineBreaks) >= 0;
                 foreach (var x in active)
                 {
                     var r = x.r;
@@ -333,6 +338,8 @@ namespace FlareAI.Core.Style
                         foreach (Match m in swap.Key.Matches(text))
                         {
                             if (m.Length == 0) continue;
+                            // Spacing made of a line break in the source (a wrapped text node) is formatting, not typed spaces.
+                            if (breaks && m.Value.Trim().Length == 0 && raw.IndexOfAny(LineBreaks, m.Index, m.Length) >= 0) continue;
                             if (!x.scope.Allows(line, m.Index, m.Index + m.Length)) continue;
                             var hit = Hit(r, swap.Value, text, m.Index, m.Index + m.Length, x.o);
                             if (hit == null) continue;
@@ -368,6 +375,15 @@ namespace FlareAI.Core.Style
                 else outer.AlsoFlaggedBy(h);
             }
             return shown;
+        }
+
+        private static readonly char[] LineBreaks = { '\r', '\n' };
+
+        /// <summary>The fix a row gives for its i-th Avoid term (one Use per term, or one for all), as the loader builds it.</summary>
+        private static string UseOf(LintRule r, int i)
+        {
+            if (i < r.Swaps.Count && r.Swaps.Count == r.Avoid.Count) return r.Swaps[i].Value ?? "";
+            return (r.Use ?? "").Trim();
         }
 
         private Dictionary<string, int> _owners;
@@ -411,7 +427,7 @@ namespace FlareAI.Core.Style
                     end++;
                 }
                 else replacement = "";
-                message = "Delete '" + match.Trim() + "'.";
+                message = match.Trim().Length == 0 ? "Delete the extra space." : "Delete '" + match.Trim() + "'.";
                 match = text.Substring(start, end - start);
             }
             else message = "Avoid '" + match + "'.";
@@ -429,8 +445,10 @@ namespace FlareAI.Core.Style
         // ---- validation --------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Tests the guide: every row's Example must trigger it and its fix must resolve it, the Use wording must not trip a
-        /// rule, rows must not replace each other, topics must parse. Also counts prose rules and their examples.
+        /// Tests the guide: every row's Example must trigger it and its fix must resolve it without creating another finding,
+        /// the Use wording must not trip a rule, rows must not replace each other or give two fixes for the same words (within
+        /// a layer too), Good examples must be clean, rows that can only match markup are reported (the loader skips them),
+        /// topics must parse. Also counts prose rules and their examples.
         /// </summary>
         public GuideReport Validate()
         {
@@ -447,7 +465,8 @@ namespace FlareAI.Core.Style
             {
                 var heads = Enumerable.Range(0, withEx.Count).Where(i => withEx[i].Applies.Contains("Headings")).ToList();
                 var hits = Lint(withEx.Select(r => r.Example).ToList(), heads, true);
-                var fixedTexts = new List<string>(); var fixedRows = new List<LintRule>();
+                var fixedTexts = new List<string>(); var fixedRows = new List<LintRule>(); var fixedFrom = new List<int>();
+                var moved = new List<HashSet<string>>();   // rules that flagged the replaced words: their finding moves with the fix, it isn't new
                 for (var i = 0; i < withEx.Count; i++)
                 {
                     var r = withEx[i];
@@ -463,7 +482,10 @@ namespace FlareAI.Core.Style
                             if (!chosen.Any(c => h.Start < c.Start + c.Length && c.Start < h.Start + h.Length)) chosen.Add(h);
                         foreach (var h in chosen.OrderByDescending(h => h.Start))
                             t = t.Substring(0, h.Start) + h.Replacement + t.Substring(h.Start + h.Length);
-                        fixedTexts.Add(t); fixedRows.Add(r);
+                        fixedTexts.Add(t); fixedRows.Add(r); fixedFrom.Add(i);
+                        var idx = i;
+                        moved.Add(new HashSet<string>(hits.Where(b => b.Index == idx && b.RuleId != r.Id && chosen.Any(h => b.Start < h.Start + h.Length && h.Start < b.Start + b.Length))
+                                                          .Select(b => b.RuleId ?? b.Rule)));
                     }
                 }
                 if (fixedTexts.Count > 0)
@@ -471,7 +493,15 @@ namespace FlareAI.Core.Style
                     var heads2 = Enumerable.Range(0, fixedRows.Count).Where(i => fixedRows[i].Applies.Contains("Headings")).ToList();
                     var again = Lint(fixedTexts, heads2, true);
                     for (var i = 0; i < fixedRows.Count; i++)
-                        if (again.Any(h => h.Index == i && h.RuleId == fixedRows[i].Id)) issue("error", fixedRows[i], "Applying the fix doesn't resolve the rule: '" + fixedTexts[i] + "'.");
+                    {
+                        if (again.Any(h => h.Index == i && h.RuleId == fixedRows[i].Id)) { issue("error", fixedRows[i], "Applying the fix doesn't resolve the rule: '" + fixedTexts[i] + "'."); continue; }
+                        // The fix must leave the text clean of every other rule too (#59, #62): a new finding sends the writer round again.
+                        var k = i;
+                        var created = again.FirstOrDefault(h => h.Index == k && !moved[k].Contains(h.RuleId ?? h.Rule) &&
+                                                                !hits.Any(b => b.Index == fixedFrom[k] && (b.RuleId ?? b.Rule) == (h.RuleId ?? h.Rule) && b.Match == h.Match));
+                        if (created != null)
+                            issue("error", fixedRows[i], "Applying the fix creates a finding from " + (created.RuleId ?? created.Rule) + " ('" + created.Match + "'): '" + fixedTexts[i] + "'.");
+                    }
                 }
             }
             var uses = rows.Where(r => r.Action == "replace").ToList();
@@ -493,19 +523,43 @@ namespace FlareAI.Core.Style
                     if (b.Avoid.Any(x => string.Equals(x, a.Use, StringComparison.OrdinalIgnoreCase)) && a.Avoid.Any(x => string.Equals(x, b.Use, StringComparison.OrdinalIgnoreCase)))
                         issue("error", a, "Contradicts " + b.Id + " (" + b.File + " row " + b.Row + "): each replaces the other.");
                 }
-            // Where a later layer meets an earlier one: the same word with the same fix is redundant; with a different fix
-            // the later layer wins (worth knowing, not an error).
+            // Two rows on the same words. Within a layer: the same fix is a duplicate (turning one off leaves the other), a
+            // different fix is a conflict (which one shows depends on rule order). Where a later layer meets an earlier one the
+            // later layer wins: redundant with the same fix, worth knowing with a different one.
             for (var i = 0; i < rows.Count; i++)
                 for (var j = i + 1; j < rows.Count; j++)
                 {
                     LintRule a = rows[i], b = rows[j];
-                    if (a.Layer == b.Layer) continue;
-                    var shared = b.Avoid.Where(x => a.Avoid.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase))).ToList();
-                    if (shared.Count == 0) continue;
-                    var same = string.Equals(a.Use ?? "", b.Use ?? "", StringComparison.OrdinalIgnoreCase);
-                    issue("warning", b, same ? "Duplicates " + a.Id + " ('" + shared[0] + "'): the " + a.Layer + " rule already does this; remove one."
-                                             : "Overrides " + a.Id + " for '" + shared[0] + "': " + b.Layer + " says '" + b.Use + "', " + a.Layer + " says '" + a.Use + "'. The " + b.Layer + " rule wins.");
+                    // The same words as both rows match them: case-insensitively when either row is, exactly otherwise ("A SAP" at a
+                    // sentence start and "a SAP" mid-sentence are different words to two exact-case rows).
+                    var cmp = a.IgnoreCase || b.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                    var pair = Enumerable.Range(0, b.Avoid.Count).SelectMany(bi => Enumerable.Range(0, a.Avoid.Count).Where(ai => string.Equals(a.Avoid[ai], b.Avoid[bi], cmp)).Select(ai => new[] { ai, bi })).FirstOrDefault();
+                    if (pair == null) continue;
+                    string term = b.Avoid[pair[1]], useA = UseOf(a, pair[0]), useB = UseOf(b, pair[1]);
+                    var same = string.Equals(useA, useB, StringComparison.OrdinalIgnoreCase);
+                    if (a.Layer == b.Layer)
+                    {
+                        if (!a.Products.SequenceEqual(b.Products)) continue;   // rows for different products never meet
+                        issue(same ? "warning" : "error", b, same ? "Duplicates " + a.Id + " ('" + term + "'): turning one off leaves the other; remove one."
+                                                                 : "Conflicts with " + a.Id + " for '" + term + "': this row says '" + useB + "', that one says '" + useA + "'. Keep one fix.");
+                        continue;
+                    }
+                    issue("warning", b, same ? "Duplicates " + a.Id + " ('" + term + "'): the " + a.Layer + " rule already does this; remove one."
+                                             : "Overrides " + a.Id + " for '" + term + "': " + b.Layer + " says '" + useB + "', " + a.Layer + " says '" + useA + "'. The " + b.Layer + " rule wins.");
                 }
+            // A rule's Good example must be clean: a Good example the guide itself flags teaches the writer two things at once.
+            // (Linted as a paragraph; a Good example that is markup or code is a source snippet, not text a writer types.)
+            var goods = Items.Where(it => it.Good.Length > 0 && !IsOff(it.Id) && ForOurProducts(it.Products) && !LintPatterns.MatchesMarkup(it.Good)).ToList();
+            if (goods.Count > 0)
+            {
+                var lines = goods.Select(it => new LintLine { Text = it.Good, Known = true }).ToList();
+                foreach (var h in Lint(lines))
+                {
+                    var it = goods[h.Index];
+                    report.Issues.Add(new GuideIssue { Level = "warning", Layer = it.Layer, File = it.Source == null ? "" : Path.GetFileName(it.Source), Location = "rule " + it.Id,
+                                                       Message = "The Good example is flagged by " + (h.RuleId ?? h.Rule) + " ('" + h.Match + "'): '" + it.Good + "'." });
+                }
+            }
             // Override tables must name rules that exist.
             var known = new HashSet<string>(Rules.Select(r => r.Id).Where(x => x != null).Concat(Rules.Select(r => r.Name)).Concat(Items.Select(x => x.Id)), StringComparer.OrdinalIgnoreCase);
             foreach (var l in Layers)

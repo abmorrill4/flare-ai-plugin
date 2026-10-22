@@ -22,12 +22,9 @@
             <li id="rule-5" MadCap:conditions="Content.Code">Use uppercase characters with underscore delimiters in placeholder text.<ul><li>Bad: .../&lt;var&gt;API-name&lt;/var&gt;</li><li>Good: .../&lt;var&gt;API_NAME&lt;/var&gt;</li></ul></li>
             <li id="rule-6" MadCap:conditions="Content.Code">If the context in which your placeholders appear makes using uppercase characters with underscore delimiters a bad idea, use something else that makes sense to you, but be internally consistent.</li>
             <li id="rule-7" MadCap:conditions="Content.Code">Don&apos;t include possessive adjectives in placeholders.<ul><li>Bad: .../&lt;var&gt;MY_API_NAME&lt;/var&gt;</li><li>Good: .../&lt;var&gt;API_NAME&lt;/var&gt;</li></ul></li>
+            <li id="rule-8" MadCap:conditions="Content.Code">Use uppercase characters with underscore delimiters in placeholder text.</li>
+            <li id="rule-9" MadCap:conditions="Content.Code">Don&apos;t include possessive adjectives in placeholders.</li>
         </ul>
-        <table>
-            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-8" MadCap:conditions="Content.Code"><td>&lt;var&gt;[^&lt;]*[a-z \-][^&lt;]*&lt;/var&gt;</td><td></td><td>suggestion</td><td>Placeholders use uppercase with underscore delimiters.</td><td>.../&lt;var&gt;apiName&lt;/var&gt;</td></tr>
-            <tr id="rule-9" MadCap:conditions="Content.Code"><td>&lt;var&gt;(?:MY|YOUR|OUR|THEIR)_[A-Z0-9_]+&lt;/var&gt;</td><td></td><td>warning</td><td>Placeholders shouldn&apos;t contain possessive adjectives.</td><td>.../&lt;var&gt;YOUR_API_NAME&lt;/var&gt;</td></tr>
-        </table>
         <h2>Explain placeholders</h2>
         <ul>
             <li id="rule-10" MadCap:conditions="Content.Code">When you use a placeholder in text or code, explain the placeholder the first time you use it.<ul><li>Good: gcloud compute instances create INSTANCE_NAME --metadata enable-guest-attributes=TRUE Replace INSTANCE_NAME with the name that you want your new VM instance to have.</li></ul></li>

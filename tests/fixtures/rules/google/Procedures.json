@@ -5,35 +5,41 @@
     "Page": "Procedures",
     "Row": 2,
     "Severity": "warning",
-    "Action": "flag",
+    "Action": "replace",
     "Tags": [
       "Steps"
     ],
     "Avoid": [
-      "(Optional)"
+      "^\\s*\\((?i:optional)\\)"
     ],
-    "Use": "",
-    "Example": "(Optional) Type an arbitrary string ...",
+    "Use": "Optional:",
+    "Example": "(Optional) Type an arbitrary string.",
     "IgnoreCase": false,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "(Optional) Type an arbitrary string ...",
+        "Text": "(Optional) Type an arbitrary string.",
         "Expect": {
           "clean": "paragraph, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span, code-inline, pre, kbd",
           "fires": "step, step-p"
         }
       }
     ],
-    "Good": []
+    "Good": [
+      {
+        "Source": "use",
+        "Text": "Optional:",
+        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
+      }
+    ]
   },
   {
     "Id": "google:procedures/40",
     "Layer": "google",
     "Page": "Procedures",
     "Row": 2,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Steps"
@@ -62,7 +68,7 @@
     "Layer": "google",
     "Page": "Procedures",
     "Row": 3,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Code",
@@ -92,13 +98,13 @@
     "Layer": "google",
     "Page": "Procedures",
     "Row": 4,
-    "Severity": "warning",
+    "Severity": "suggestion",
     "Action": "flag",
     "Tags": [
       "Steps"
     ],
     "Avoid": [
-      "\\b(?:Ctrl|Control|Cmd|Command|Alt|Option|Shift)\\+\\w"
+      "\\b(?:Ctrl|Cmd|Alt|Option)\\+\\w"
     ],
     "Use": "",
     "Example": "Press Ctrl+C, and then press Ctrl+V...",
