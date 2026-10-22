@@ -83,7 +83,7 @@ Pass: `House Style: 3,842 topics checked in 4.1 s. No new issues.`
 ### 4.1 Extend FlareAI.Mcp.exe vs a separate exe: decision
 
 **Extend `FlareAI.Mcp.exe` with verbs.** Reasons:
-- Smallest surface: it is already built (net48), already in `package.ps1` and `install-plugin.ps1`, already signed in the release
+- Smallest surface: it is already built (net48), already in `package.ps1` and `install-plugin.ps1`, already in the release
   pipeline, already references Core, and already hosts a non-MCP mode (`--llm-export`) that madbuild post-build events call.
 - No new csproj, no new CI/signing/packaging entry, no second thing to version-match against Core.
 - Cost: the name says "Mcp". Mitigation: ship the `housestyle.exe` copy and document that name.
@@ -329,7 +329,7 @@ Risks / edge cases:
 6. **Annotation noise** on first adoption: mitigated by the baseline and `--changed-since`; GitHub's 10-per-type cap is handled.
 7. **Flare-agnostic Core**: all new Core code uses System.Xml/IO/Newtonsoft only. Process and git live in the exe.
 8. **Naming and back-compat**: copy, not rename, so existing MCP configs keep working.
-9. **Signing / SmartScreen / AV** on a downloaded exe in CI: the same SignPath pipeline signs it; the zip carries it.
+9. **Signing / SmartScreen / AV** on a downloaded exe in CI: releases are unsigned; the zip carries it, and the installer unblocks it.
 10. **Mono/Linux**: state "Windows runner required" in the docs.
 
 Decisions (resolved at the gate):
