@@ -82,3 +82,20 @@ jobs:
           $body = if (Test-Path $notesFile) { "$note`n`n" + (Get-Content $notesFile -Raw) } else { "$note`n`nInstall: see the README." }
           $body | Set-Content release-body.md -Encoding utf8
           gh release create $env:GITHUB_REF_NAME $zip dist/checksums.txt --title "House Style ${{ steps.v.outputs.version }}" --notes-file release-body.md --verify-tag
+
+  feedback-worker:
+    # The Cloudflare Worker that receives in-app reports (#124). Tests only; the owner deploys it by hand (see its README).
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/feedback-worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/feedback-worker/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
