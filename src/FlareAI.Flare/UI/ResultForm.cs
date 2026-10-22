@@ -146,6 +146,11 @@ namespace FlareAI.Flare.UI
                 }
                 else if (!string.IsNullOrEmpty(_proposal.RestructureNote))
                     _status.Text += "  Note from the AI: " + _proposal.RestructureNote;   // e.g. a fact only the author can supply
+                if (_proposal.ApplyBlocked != null)
+                {
+                    _apply.Enabled = false;   // the wording pass deleted what the task means to move
+                    _status.Text = _proposal.ApplyBlocked;
+                }
                 if (_proposal.WordPlan != null && _proposal.WordPlan.Count == 0)
                 {
                     _status.Text = _proposal.NeedsRestructure ? "No wording changes; the AI says this needs a structural change" + (string.IsNullOrEmpty(_proposal.RestructureNote) ? "." : ": " + _proposal.RestructureNote)

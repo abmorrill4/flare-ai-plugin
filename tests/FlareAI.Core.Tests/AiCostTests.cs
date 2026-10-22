@@ -380,6 +380,41 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void WordingPass_ThatDeletesTheSentenceItMeantToMove_CantBeApplied()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>Open the <b>Transfers</b> page to see your transfers. Each transfer shows its date, amount and status in the list.</p>");
+            var llm = new FakeLlmClient(r => "{\"changes\":[{\"run_id\":\"r3\",\"text\":\" page to see your transfers.\"}],\"needs_restructure\":true,\"note\":\"Move the second sentence into its own paragraph.\"}");
+            var runner = new ActionRunner(llm, new PromptBuilder(null), 1024);
+            var proposal = runner.Rewrite(doc, new List<System.Xml.XmlNode> { p }, "Split this into two paragraphs", false);
+            Assert.NotNull(proposal.ApplyBlocked);
+            Assert.Contains("Each transfer shows its date", proposal.ApplyBlocked);
+            Assert.Throws<InvalidOperationException>(() => runner.Apply(doc, proposal, "x"));
+            Assert.Contains("Each transfer shows", p.InnerText);                 // nothing was lost
+        }
+
+        [Theory]
+        [InlineData("Open the page. Each transfer shows its date and amount.", "Open the page. Every transfer lists its date and amount.", false)]
+        [InlineData("Open the page. Each transfer shows its date and amount.", "Open the page.", true)]
+        [InlineData("Click OK. Done.", "Click OK.", false)]   // too short to judge
+        public void LostSentence_FindsADeletedSentence_NotARewordedOne(string before, string after, bool lost)
+        {
+            Assert.Equal(lost, ActionRunner.LostSentence(before, after) != null);
+        }
+
+        [Fact]
+        public void WordingPass_ThatNeedsRestructure_ButKeepsEverySentence_CanBeApplied()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>Open the <b>Transfers</b> page to see your transfers. Each transfer shows its date, amount and status in the list.</p>");
+            var llm = new FakeLlmClient(r => "{\"changes\":[{\"run_id\":\"r3\",\"text\":\" page to see your transfers. Each transfer lists its date, amount and status.\"}],\"needs_restructure\":true,\"note\":\"Split into two paragraphs.\"}");
+            var runner = new ActionRunner(llm, new PromptBuilder(null), 1024);
+            var proposal = runner.Rewrite(doc, new List<System.Xml.XmlNode> { p }, "Split this into two paragraphs", false);
+            Assert.Null(proposal.ApplyBlocked);
+            runner.Apply(doc, proposal, "x");
+        }
+
+        [Fact]
         public void TeamCanChangeACacheLifetime()
         {
             var dir = Path.Combine(Path.GetTempPath(), "flareai-cache-" + Guid.NewGuid().ToString("N"));

@@ -34,6 +34,11 @@ namespace FlareAI.Core.Actions
         /// <summary>The model could only do part of the task by changing wording; the rest needs a structural edit.</summary>
         public bool NeedsRestructure { get; set; }
         public string RestructureNote { get; set; }
+        /// <summary>
+        /// Why this proposal must not be applied as it stands (null = it may): a wording-only pass that leaves out a whole
+        /// sentence while the AI says the task needs restructuring has deleted what it meant to move. Apply refuses it.
+        /// </summary>
+        public string ApplyBlocked { get; set; }
         /// <summary>Changes the model proposed but that only the author may make (a modal verb, a code term): left out, with the reason.</summary>
         public List<string> Held { get; set; } = new List<string>();
     }
@@ -930,6 +935,13 @@ namespace FlareAI.Core.Actions
             }
             proposal.ProposedBlocks = AcceptedView.Of(proposed);
             proposal.ProposedXml = XhtmlFragment.Serialize(proposal.ProposedBlocks);
+            if (proposal.NeedsRestructure)
+            {
+                var lost = LostSentence(string.Join(" ", proposal.View.Select(b => b.InnerText).ToArray()), string.Join(" ", proposal.ProposedBlocks.Select(b => b.InnerText).ToArray()));
+                if (lost != null)
+                    proposal.ApplyBlocked = "The wording-only version leaves out \"" + (lost.Length > 60 ? lost.Substring(0, 57) + "…" : lost) +
+                                            "\", which the task needs moved, not deleted. Use Restructure instead.";
+            }
             return proposal;
         }
 
@@ -991,6 +1003,7 @@ namespace FlareAI.Core.Actions
         {
             if (proposal == null || !proposal.Validation.IsValid)
                 throw new InvalidOperationException("Cannot apply: the suggestion failed validation.");
+            if (proposal.ApplyBlocked != null) throw new InvalidOperationException(proposal.ApplyBlocked);
 
             var plan = proposal.WordPlan;
             if (plan != null)
@@ -1016,6 +1029,24 @@ namespace FlareAI.Core.Actions
         }
 
         // ---- helpers -----------------------------------------------------------------------------
+
+        /// <summary>
+        /// The first sentence of <paramref name="before"/> (4+ words) that is gone from <paramref name="after"/>: fewer than
+        /// half of its content words are still there. Null when every sentence survives, reworded or not.
+        /// </summary>
+        public static string LostSentence(string before, string after)
+        {
+            var words = new HashSet<string>(System.Text.RegularExpressions.Regex.Matches((after ?? "").ToLowerInvariant(), @"[a-z0-9']+").Cast<System.Text.RegularExpressions.Match>().Select(m => m.Value));
+            foreach (var s in System.Text.RegularExpressions.Regex.Split((before ?? "").Trim(), @"(?<=[.!?])\s+"))
+            {
+                var content = System.Text.RegularExpressions.Regex.Matches(s.ToLowerInvariant(), @"[a-z0-9']+").Cast<System.Text.RegularExpressions.Match>().Select(m => m.Value).ToList();
+                if (content.Count < 4) continue;
+                var key = content.Where(w => w.Length > 3).ToList();
+                if (key.Count == 0) continue;
+                if (key.Count(words.Contains) * 2 < key.Count) return System.Text.RegularExpressions.Regex.Replace(s, @"\s+", " ").Trim();
+            }
+            return null;
+        }
 
         private List<StyleFinding> SafeLint(IList<XmlNode> blocks, List<string> notes)
         {
