@@ -10,11 +10,13 @@ Thank you for testing House Style. This page gets you started. The full user gui
 2. Close Flare.
 3. Double-click `Install.cmd` and approve the administrator prompt. It replaces a copy you installed by hand and keeps
    your settings.
-4. Start Flare. If House Style isn't enabled, select **File > Options > Plugins > House Style > Enable**, and restart
-   Flare.
+4. Start Flare. If House Style isn't enabled, select **File > Options > Plugins > House Style > Enable**. The tab
+   appears right away.
 
-From now on, House Style updates itself. When a notice says a new version is available, select **Update now**, then
-**Install when Flare closes**, and close Flare.
+If you had an earlier test build that updated itself, run `Install.cmd` from this download once too.
+
+From now on, House Style updates itself. When a new version is out, it downloads and checks it in the background, and
+a notice says it installs when you close Flare. Your next start shows what's new.
 
 If House Style isn't on the ribbon, see the [install page](https://abmorrill4.github.io/flare-ai-plugin/install.html).
 

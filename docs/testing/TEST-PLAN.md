@@ -116,7 +116,7 @@ header row, "click here", typed phone numbers and URLs). One shared snippet (`Le
 | # | Do | Expect |
 |---|---|---|
 | U1 | **Diagnostics**. | Your version, "Automatic updates: on", and the last update check. |
-| U2 | When a new release is out: **Update now**, **Install when Flare closes**, close Flare, start it. | The new version runs; **What's new** opens. No administrator prompt. |
+| U2 | When a new release is out, wait for the notice "House Style X installs when you close Flare". Close Flare and start it. | No prompt before the notice. The new version runs, "Updated to House Style X" and **What's new** show. No administrator prompt. |
 | U3 | Clear **Keep House Style up to date** on the **Advanced** tab. | Diagnostics says updates are turned off in Settings. |
 
 ## F. Headless bench (optional, needs the .NET SDK)

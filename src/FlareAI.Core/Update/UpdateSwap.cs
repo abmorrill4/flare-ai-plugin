@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace FlareAI.Core.Update
@@ -34,114 +33,186 @@ namespace FlareAI.Core.Update
     }
 
     /// <summary>
-    /// Installs a staged update while Flare is closed (run by FlareAI.Updater.exe): moves <c>staged\&lt;ver&gt;\FlareAI</c>
-    /// to <c>versions\&lt;ver&gt;</c>, carries the IT policy file over, and repoints <c>current</c> with a rename dance
-    /// (<c>current.new</c> made beside it, <c>current</c> renamed to <c>current.old</c>, <c>current.new</c> renamed to
-    /// <c>current</c>) so <c>current</c> is never missing for longer than one rename. If anything fails, <c>current</c>
-    /// goes back to the previous version. The previous version stays in <c>versions\</c> for rollback; older ones are removed.
+    /// Installs a staged update while Flare is closed (run by FlareAI.Updater.exe). <c>current</c> is a real folder
+    /// (never a junction: see <see cref="UpdateLayout"/> on why Flare 2026 needs a single hop), so the swap is folder renames:
+    /// <list type="number">
+    /// <item>copy the verified payload (<c>staged\&lt;ver&gt;\FlareAI</c>, or a kept <c>versions\&lt;ver&gt;</c>) to
+    /// <c>current.new</c>, with the IT policy file from <c>current</c>;</item>
+    /// <item>rename <c>current</c> to <c>current.old</c> (retried, then refused, while Flare still holds the files), then
+    /// <c>current.new</c> to <c>current</c>;</item>
+    /// <item>check that <c>current</c> holds the new version; if not, rename back (rollback);</item>
+    /// <item>move <c>current.old</c> to <c>versions\&lt;previous&gt;</c> for rollback and remove older kept versions.</item>
+    /// </list>
+    /// <c>current</c> is missing only between two renames. A swap interrupted there is finished backwards on the next run.
+    /// A <c>current</c> that is a junction (earlier release candidates) is replaced by a real folder the same way.
     /// </summary>
     public sealed class UpdateSwap
     {
         private readonly UpdateLayout _layout;
 
-        public UpdateSwap(UpdateLayout layout) { _layout = layout; }
+        public UpdateSwap(UpdateLayout layout)
+        {
+            _layout = layout;
+            LockRetries = 5;
+            LockRetryDelayMs = 2000;
+        }
 
-        /// <summary>Test seam: runs after <c>current</c> points at the new version, before it is accepted (throw to force a rollback).</summary>
-        public Action<string> AfterRepoint;
+        /// <summary>Test seam: runs after the new files are in <c>current</c>, before they are accepted (throw to force a rollback).</summary>
+        public Action<string> AfterSwap;
+
+        /// <summary>How often renaming <c>current</c> away is retried while its files are in use, and the pause between tries.</summary>
+        public int LockRetries { get; set; }
+        public int LockRetryDelayMs { get; set; }
+
+        private string Fresh { get { return _layout.Current + ".new"; } }
+        private string Old { get { return _layout.Current + ".old"; } }
 
         public UpdateResult Apply(string version)
         {
             var result = new UpdateResult { To = version, TimeUtc = DateTime.UtcNow };
             var current = _layout.Current;
-            string previousTarget = null;
             try
             {
-                if (!Junction.IsLink(current)) throw new UpdateException("House Style isn't installed in the per-user layout (" + current + " is not a link).");
-                previousTarget = Junction.FinalPath(current);
+                RecoverInterruptedSwap();
+                if (!Directory.Exists(current)) throw new UpdateException("House Style isn't installed in the per-user layout (" + current + " is missing).");
+                var wasLink = Junction.IsLink(current);
                 result.From = UpdateLayout.VersionIn(current);
+                if (result.From != null && SemVer.Compare(result.From, version) == 0) throw new UpdateException("Version " + version + " is already installed.");
 
-                var payload = UpdateStager.ReadyPayload(_layout, version);
-                var target = _layout.VersionDir(version);
-                if (payload != null)
-                {
-                    if (previousTarget != null && string.Equals(Junction.FinalPath(target), previousTarget, StringComparison.OrdinalIgnoreCase))
-                        throw new UpdateException("Version " + version + " is already installed.");
-                    UpdateStager.DeleteDir(target);
-                    Directory.CreateDirectory(_layout.Versions);
-                    Directory.Move(payload, target);
-                }
-                else if (!File.Exists(Path.Combine(target, "FlareAI.Flare.dll")))
-                    throw new UpdateException("No downloaded update for " + version + " was found.");
-
+                // 1. The new files, as a real folder beside current.
+                var source = UpdateStager.ReadyPayload(_layout, version);
+                if (source == null && File.Exists(Path.Combine(_layout.VersionDir(version), "FlareAI.Flare.dll"))) source = _layout.VersionDir(version);
+                if (source == null) throw new UpdateException("No downloaded update for " + version + " was found.");
+                UpdateStager.DeleteDir(Fresh);
+                CopyDir(source, Fresh);
                 var policy = Path.Combine(current, UpdateLayout.PolicyFileName);
-                if (File.Exists(policy)) File.Copy(policy, Path.Combine(target, UpdateLayout.PolicyFileName), true);
+                if (File.Exists(policy)) File.Copy(policy, Path.Combine(Fresh, UpdateLayout.PolicyFileName), true);
 
-                Repoint(target);
+                // 2. Swap by renaming. The first rename fails while Flare still has the files open: nothing changes then.
+                Retry(() => Directory.Move(current, Old));
+                try { Directory.Move(Fresh, current); }
+                catch (Exception) { Directory.Move(Old, current); throw; }
+
+                // 3. Accept or roll back.
                 try
                 {
                     var now = UpdateLayout.VersionIn(current);
                     if (SemVer.Compare(now, version) != 0) throw new UpdateException("After the update the plugin folder holds " + (now ?? "nothing") + ", not " + version + ".");
-                    var hook = AfterRepoint;
-                    if (hook != null) hook(target);
+                    var hook = AfterSwap;
+                    if (hook != null) hook(current);
                 }
                 catch (Exception)
                 {
-                    if (previousTarget != null) Repoint(previousTarget);
+                    RollBack();
+                    UpdateStager.DeleteDir(_layout.StagedDir(version));   // a payload that failed its check isn't offered again
                     throw;
                 }
 
                 result.Ok = true;
                 UpdateStager.DeleteDir(_layout.StagedDir(version));
-                Prune(target, previousTarget);
+                KeepPrevious(result.From, wasLink);
             }
             catch (Exception ex)
             {
                 result.Ok = false;
                 result.Error = ex is UpdateException ? ex.Message : "The files couldn't be swapped (" + ex.Message + ").";
                 Diagnostics.Log("Update swap to " + version, ex);
+                if (Directory.Exists(current)) UpdateStager.DeleteDir(Fresh);
             }
             try { result.Write(_layout.ResultPath); } catch (Exception ex) { Diagnostics.Log("update result", ex); }
             return result;
         }
 
-        /// <summary>Points <c>current</c> at <paramref name="target"/> with the rename dance; restores the old link on failure.</summary>
-        public void Repoint(string target)
+        /// <summary>A swap that stopped between its two renames leaves current.old and no current: put it back. Leftovers go.</summary>
+        private void RecoverInterruptedSwap()
         {
-            var current = _layout.Current;
-            var fresh = current + ".new";
-            var old = current + ".old";
-            if (Junction.IsLink(fresh)) Junction.Remove(fresh);
-            if (Junction.IsLink(old)) Junction.Remove(old);
-            Junction.Create(fresh, target);
-            var hadCurrent = Directory.Exists(current);
-            if (hadCurrent) Directory.Move(current, old);
-            try { Directory.Move(fresh, current); }
-            catch (Exception)
+            if (!Directory.Exists(_layout.Current) && Directory.Exists(Old))
             {
-                if (hadCurrent && !Directory.Exists(current)) Directory.Move(old, current);
-                try { Junction.Remove(fresh); } catch (Exception) { }
-                throw;
+                Diagnostics.Log("Update swap: restoring " + _layout.Current + " from an interrupted update");
+                Directory.Move(Old, _layout.Current);
             }
-            try { if (hadCurrent) Junction.Remove(old); } catch (Exception ex) { Diagnostics.Log("remove " + old, ex); }
+            UpdateStager.DeleteDir(Fresh);
+            UpdateStager.DeleteDir(Old);
         }
 
-        /// <summary>Removes versions other than the new and previous ones (best effort; a locked folder stays).</summary>
-        private void Prune(string keep, string previous)
+        /// <summary>current (the rejected version) back to current.new, current.old back to current; then current.new goes.</summary>
+        private void RollBack()
+        {
+            try
+            {
+                Directory.Move(_layout.Current, Fresh);
+                Directory.Move(Old, _layout.Current);
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Update rollback", ex);
+                throw new UpdateException("The update failed and the previous version couldn't be restored (" + ex.Message + "). Run Install.cmd from the download to repair House Style.", ex);
+            }
+            UpdateStager.DeleteDir(Fresh);
+        }
+
+        /// <summary>
+        /// current.old becomes versions\&lt;previous&gt; (the rollback copy); older kept versions are removed. When the old
+        /// current was a junction, only the link goes: the folder it pointed to is already in versions\. Best effort.
+        /// </summary>
+        private void KeepPrevious(string previous, bool wasLink)
+        {
+            try
+            {
+                string keep;
+                if (wasLink)
+                {
+                    keep = Junction.FinalPath(Old);
+                    Junction.Remove(Old);
+                }
+                else
+                {
+                    keep = _layout.VersionDir(string.IsNullOrEmpty(previous) ? "previous" : previous);
+                    UpdateStager.DeleteDir(keep);
+                    Directory.CreateDirectory(_layout.Versions);
+                    Directory.Move(Old, keep);
+                }
+                if (keep != null) Prune(keep);
+            }
+            catch (Exception ex) { Diagnostics.Log("keep previous version", ex); }
+        }
+
+        /// <summary>Removes kept versions other than <paramref name="keep"/> (best effort; a locked folder stays).</summary>
+        private void Prune(string keep)
         {
             if (!Directory.Exists(_layout.Versions)) return;
+            var k = Junction.FinalPath(keep) ?? keep;
             foreach (var dir in Directory.GetDirectories(_layout.Versions))
             {
-                var real = Junction.FinalPath(dir) ?? dir;
-                if (Same(real, keep) || Same(real, previous)) continue;
+                if (UpdateLayout.SamePath(Junction.FinalPath(dir) ?? dir, k)) continue;
                 UpdateStager.DeleteDir(dir);
             }
         }
 
-        private static bool Same(string a, string b)
+        private void Retry(Action action)
         {
-            if (a == null || b == null) return false;
-            var fa = Junction.FinalPath(a) ?? a; var fb = Junction.FinalPath(b) ?? b;
-            return string.Equals(fa.TrimEnd('\\'), fb.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
+            for (int i = 0; ; i++)
+            {
+                try { action(); return; }
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+                {
+                    if (i >= LockRetries)
+                        throw new UpdateException("House Style's files are still in use (is Flare still running?), so nothing was changed. House Style offers the update again when Flare starts.", ex);
+                    Thread.Sleep(LockRetryDelayMs);
+                }
+            }
+        }
+
+        /// <summary>Copies a folder tree (junctions inside it are skipped, never followed).</summary>
+        internal static void CopyDir(string from, string to)
+        {
+            Directory.CreateDirectory(to);
+            foreach (var f in Directory.GetFiles(from)) File.Copy(f, Path.Combine(to, Path.GetFileName(f)), true);
+            foreach (var d in Directory.GetDirectories(from))
+            {
+                if (Junction.IsLink(d)) continue;
+                CopyDir(d, Path.Combine(to, Path.GetFileName(d)));
+            }
         }
     }
 }

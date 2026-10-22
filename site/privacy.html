@@ -176,8 +176,8 @@
       <li>The check is one request to <code>api.github.com</code> for the project's latest release. It carries no
         document text, no key and no identifier: GitHub sees your IP address and a generic
         <code>HouseStyle-Updater</code> program name, as it would for any download.</li>
-      <li>Nothing is downloaded unless you choose <b>Update now</b>. The download comes from the project's GitHub
-        release. Before installing it, House Style checks it against the release's published SHA-256 checksum and,
+      <li>When a newer release exists, House Style downloads it from the project's GitHub release. Before installing
+        it, House Style checks it against the release's published SHA-256 checksum and,
         for signed releases, its digital signature.</li>
       <li>Offline or behind a firewall, the check fails silently and House Style works as before.</li>
       <li>You can turn the check off yourself: in <b>Settings</b>, on the <b>Advanced</b> tab, clear

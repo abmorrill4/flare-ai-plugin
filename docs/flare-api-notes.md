@@ -13,6 +13,12 @@ Treat `docs/api-dump.txt` (reflection over the real DLL) as authoritative where 
 - Deploy to `Flare.app\Plugins\<PluginName>\` (assemblies + resources). Enable via
   File > Options > Plugins; restart Flare.
 - Relative paths passed to API methods resolve from the `Plugins` folder.
+- **Plugin folder: at most ONE junction hop (verified Flare 2026, 2026-10-22).** With `Plugins\FlareAI` a junction to
+  a folder that is itself a junction, Flare dies while creating its main window (TargetInvocationException from
+  `B3.WpfKit.WpfMain.RunAsync` -> `Activator.CreateInstance`; the plugin's `Execute` never runs), 3/3 launches. A plain
+  folder, or a single junction to a real folder, loads fine. The per-user install therefore keeps
+  `%LOCALAPPDATA%\HouseStyle\current` a real folder and swaps it by renaming (`UpdateLayout`, `UpdateSwap`,
+  `scripts/release/Install.ps1`). Don't reintroduce `current` -> `versions\<ver>` as a junction.
 
 ## IHost
 - `GetCompany()`, `GetName()`, `GetEditorContext()`, `GetNavContext()`, `Dispose()`.

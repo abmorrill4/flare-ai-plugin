@@ -11,15 +11,20 @@ namespace FlareAI.Core.Update
     /// The per-user install that self-updates (issue #101):
     /// <code>
     /// %LOCALAPPDATA%\HouseStyle\
-    ///   versions\0.4.0\        the plugin files of one version (FlareAI.Flare.dll, StyleGuide\, ...)
+    ///   current\               a REAL folder holding the active plugin files (FlareAI.Flare.dll, StyleGuide\, ...)
     ///   versions\0.3.2\        the previous version, kept for rollback
-    ///   current               junction -> versions\0.4.0
     ///   staged\0.5.0\          a downloaded, verified update waiting for Flare to close
-    ///   updater\              a copy of FlareAI.Updater.exe that does the swap (so it locks nothing in versions\)
+    ///   updater\              a copy of FlareAI.Updater.exe that does the swap (so it locks nothing in current\)
     ///   update-state.json     last check, latest version seen
     ///   update-result.json    what the last swap did, read once by the plugin on the next start
     /// ...\Flare.app\Plugins\FlareAI  junction -> %LOCALAPPDATA%\HouseStyle\current (made once by Install.cmd, as admin)
     /// </code>
+    /// Flare must see exactly ONE junction hop. Never make <c>current</c> a junction again: Flare 2026 crashes at
+    /// startup (TargetInvocationException in B3.WpfKit.WpfMain.RunAsync, before any plugin code runs) when
+    /// Plugins\FlareAI is a junction to a junction. Earlier release candidates did that (current -> versions\&lt;ver&gt;);
+    /// <see cref="Manages"/> refuses that layout, and Install.cmd and the updater replace it with a real folder.
+    /// An update swaps <c>current</c> by renaming folders (<see cref="UpdateSwap"/>), which needs no admin rights
+    /// because the Plugins junction points at the path <c>...\current</c>, not at a particular folder.
     /// </summary>
     public sealed class UpdateLayout
     {
@@ -44,19 +49,39 @@ namespace FlareAI.Core.Update
         public string StagedDir(string version) { return Path.Combine(Staged, version); }
 
         /// <summary>
+        /// True when <c>current</c> is itself a junction: the layout of earlier release candidates, which Flare 2026
+        /// can't start with (junction to junction). Install.cmd, or the next update, replaces it with a real folder.
+        /// </summary>
+        public bool NeedsRepair { get { return Junction.IsLink(Current); } }
+
+        /// <summary>
         /// True when the running plugin (<paramref name="pluginDir"/>, usually <c>Flare.app\Plugins\FlareAI</c>) resolves
-        /// into this layout's <c>versions\</c> folder, so the writer can update it without admin rights. False for the
-        /// Program Files copy layout (<c>Install.ps1 -NoJunction</c>), a developer install, or another Windows user's junction.
+        /// to this layout's <c>current</c> folder, so the writer can update it without admin rights. False for the
+        /// Program Files copy layout (<c>Install.ps1 -NoJunction</c>), a developer install, another Windows user's junction,
+        /// and a <c>current</c> that is itself a junction (<see cref="NeedsRepair"/>, logged).
         /// </summary>
         public bool Manages(string pluginDir, out string reason)
         {
-            if (!Directory.Exists(Versions)) { reason = "not installed per user (no " + Versions + ")"; return false; }
+            if (!Directory.Exists(Current)) { reason = "not installed per user (no " + Current + ")"; return false; }
+            if (NeedsRepair)
+            {
+                reason = Current + " is a junction (the layout of an earlier build; Flare 2026 can't start with a plugin behind two junctions). Run Install.cmd again to repair it";
+                Diagnostics.Log("Update layout: " + reason);
+                return false;
+            }
             var real = Junction.FinalPath(pluginDir);
-            var versions = Junction.FinalPath(Versions);
-            if (real == null || versions == null) { reason = "cannot resolve the plugin folder"; return false; }
-            if (!PathUnder(real, versions)) { reason = "plugin folder " + real + " is not under " + versions; return false; }
+            var current = Junction.FinalPath(Current);
+            if (real == null || current == null) { reason = "cannot resolve the plugin folder"; return false; }
+            if (!SamePath(real, current)) { reason = "plugin folder " + real + " is not " + current; return false; }
             reason = null;
             return true;
+        }
+
+        /// <summary>True when both paths name the same folder (case-insensitive, ignoring a trailing slash).</summary>
+        public static bool SamePath(string a, string b)
+        {
+            if (a == null || b == null) return false;
+            return string.Equals(a.TrimEnd('\\', '/'), b.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>The version installed in <paramref name="dir"/>: FlareAI.Flare.dll's product version, without "+commit". Null if none.</summary>

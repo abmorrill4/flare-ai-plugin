@@ -1,11 +1,15 @@
 # House Style installer. Run by double-clicking Install.cmd (or: powershell -ExecutionPolicy Bypass -File .\Install.ps1).
 #
 # Default (per-user, self-updating, issue #101):
-#   copies the FlareAI folder next to this script to %LOCALAPPDATA%\HouseStyle\versions\<version>,
-#   points %LOCALAPPDATA%\HouseStyle\current at it (a junction), and links MadCap Flare's Plugins\FlareAI to
-#   ...\HouseStyle\current (a junction; the only step that needs administrator rights, and only the first time).
-#   Later updates swap "current" without admin rights. Re-running the installer is safe: your settings, style guide
-#   and decisions live in %APPDATA%\FlareAI and are never touched.
+#   copies the FlareAI folder next to this script to %LOCALAPPDATA%\HouseStyle\current (a REAL folder; the version
+#   it replaces is kept in ...\HouseStyle\versions\<version> for rollback), and links MadCap Flare's Plugins\FlareAI
+#   to ...\HouseStyle\current (a junction; the only step that needs administrator rights, and only the first time).
+#   Later updates swap "current" by renaming folders, without admin rights. Re-running the installer is safe: your
+#   settings, style guide and decisions live in %APPDATA%\FlareAI and are never touched.
+#
+#   Flare must see ONE junction hop only. Never make "current" a junction: Flare 2026 crashes at startup (before any
+#   plugin code runs) when Plugins\FlareAI is a junction to a junction. Earlier release candidates did exactly that
+#   (current -> versions\<version>); this installer replaces such a "current" with a real folder.
 #
 # Options:
 #   -Flare <n>       pick a Flare folder number (22 = Flare 2026, 21 = Flare 2025, ...)
@@ -199,7 +203,6 @@ try {
         # ---- per-user install, linked from Flare (automatic updates) ----------------------------------------
         $root = Join-Path $env:LOCALAPPDATA "HouseStyle"
         $versions = Join-Path $root "versions"
-        $verDir = Join-Path $versions $version
         $current = Join-Path $root "current"
         New-Item -ItemType Directory -Force -Path $versions | Out-Null
 
@@ -209,27 +212,38 @@ try {
             if (-not $keepPolicy -and (Test-Path -LiteralPath $p)) { $keepPolicy = Get-Content -LiteralPath $p -Raw }
         }
 
-        # A real folder at "current" (hand-made layout): keep it as a version instead of deleting it.
-        if ((Test-Path -LiteralPath $current) -and -not (Test-Link $current)) {
-            $old = Get-PluginVersion $current
-            if (-not $old) { $old = "previous" }
-            $keep = Join-Path $versions $old
-            if (Test-Path -LiteralPath $keep) { $keep = "$keep-" + (Get-Date -Format "yyyyMMddHHmmss") }
-            Move-Item -LiteralPath $current -Destination $keep
-        }
+        # Leftovers of an interrupted update swap (the updater renames current <-> current.old / current.new).
+        $fresh = "$current.new"
+        $oldCur = "$current.old"
+        if (-not (Test-Path -LiteralPath $current) -and (Test-Path -LiteralPath $oldCur)) { Rename-Item -LiteralPath $oldCur -NewName "current" }
+        Remove-RealFolder $fresh
+        Remove-RealFolder $oldCur
 
-        # Copy to versions\<version>.installing, then swap it in (re-installing the same version replaces it).
-        $tmp = "$verDir.installing"
+        # Copy the new files to current.new (a real folder), then swap it in by renaming.
+        $tmp = "$current.installing"
         Remove-RealFolder $tmp
         Copy-Item $src -Destination $tmp -Recurse -Force
         Get-ChildItem $tmp -Recurse -File | ForEach-Object { try { Unblock-File -LiteralPath $_.FullName } catch { } }
         if ($NoAutoUpdate) { Set-Content -LiteralPath (Join-Path $tmp "update-policy.json") -Value $policyJson -Encoding UTF8 }
         elseif ($keepPolicy) { Set-Content -LiteralPath (Join-Path $tmp "update-policy.json") -Value $keepPolicy -Encoding UTF8 }
-        Remove-RealFolder $verDir
-        Rename-Item -LiteralPath $tmp -NewName (Split-Path $verDir -Leaf)
+        if (-not (Test-Path -LiteralPath (Join-Path $tmp "FlareAI.Flare.dll"))) { Fail "Copy finished but FlareAI.Flare.dll is missing from $tmp." }
 
-        if (Test-Link $current) { Remove-Link $current }
-        New-Junction $current $verDir
+        if (Test-Link $current) {
+            # Migration from earlier release candidates: "current" was a junction to versions\<version>. Flare 2026
+            # crashes with that (two junction hops). Drop only the link; the folder it pointed to stays in versions\.
+            Write-Host "Repairing the folder layout of an earlier House Style build."
+            Remove-Link $current
+        } elseif (Test-Path -LiteralPath $current) {
+            # The version being replaced is kept in versions\<version> for rollback (re-installing replaces that copy).
+            $old = Get-PluginVersion $current
+            if (-not $old) { $old = "previous" }
+            $keep = Join-Path $versions $old
+            Remove-RealFolder $keep
+            Rename-Item -LiteralPath $current -NewName "current.old"
+            Move-Item -LiteralPath $oldCur -Destination $keep
+        }
+        Rename-Item -LiteralPath $tmp -NewName "current"
+        if (Test-Link $current) { Fail "$current must be a real folder, not a link." }
         # A download from before this install would be older than or equal to what was just installed.
         Remove-RealFolder (Join-Path $root "staged")
 
@@ -246,7 +260,7 @@ try {
         }
         if (-not (Test-Path (Join-Path $dest "FlareAI.Flare.dll"))) { Fail "Install finished but Flare can't see FlareAI.Flare.dll at $dest." }
         Write-Host ""
-        Write-Host "Installed House Style $version to: $verDir" -ForegroundColor Green
+        Write-Host "Installed House Style $version to: $current" -ForegroundColor Green
         Write-Host "Flare loads it through: $dest"
         if ($NoAutoUpdate -or $keepPolicy) { Write-Host "Automatic updates: set by update-policy.json." }
         else { Write-Host "Automatic updates: on. House Style checks GitHub once a day and installs updates when you close Flare (no admin prompt)." }

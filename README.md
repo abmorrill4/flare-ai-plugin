@@ -14,7 +14,7 @@ Website: <https://abmorrill4.github.io/flare-ai-plugin/>
 1. Download `HouseStyle-<version>.zip` from [Releases](../../releases) and extract all of it.
 2. Close Flare.
 3. Double-click `Install.cmd` and approve the administrator prompt. You see the prompt only the first time.
-4. Start Flare, select **File > Options > Plugins > House Style > Enable**, and restart Flare.
+4. Start Flare and select **File > Options > Plugins > House Style > Enable**. The House Style tab appears.
 5. Select any **House Style** command. A three-step setup asks how you use AI and where your style rules are.
 
 House Style needs Flare 2026 in the Ribbon interface. Flare 2024 and 2025 aren't tested. Updates install themselves
