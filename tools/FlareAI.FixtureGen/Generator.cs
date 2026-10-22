@@ -17,6 +17,8 @@ namespace FlareAI.FixtureGen
         /// <summary>
         /// Loads the layers the way StyleEngine does for a team guide that is also the bundled one. Overrides are cleared:
         /// company defaults that turn Google rows off (#52) are policy, and the fixtures test what every row does when on.
+        /// For the same reason the guide covers every product a row is tagged for (#57): a Product.Android row is on for an
+        /// Android team, and off (never linting) for a guide without that product, which the compiler tests check.
         /// </summary>
         public static GuideSet Load(string guideRoot)
         {
@@ -27,6 +29,8 @@ namespace FlareAI.FixtureGen
             };
             g.Google.Overrides.Clear();
             g.Company.Overrides.Clear();
+            foreach (var p in g.Rows.SelectMany(r => r.Products).Distinct().OrderBy(p => p, StringComparer.Ordinal).ToList())
+                if (!g.Company.ProductTags.Contains(p)) g.Company.ProductTags.Add(p);
             return g;
         }
 

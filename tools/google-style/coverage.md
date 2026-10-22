@@ -1,6 +1,6 @@
 # Google style guide: compile coverage
 
-3133 source units in compiled pages: 2749 covered by rules, 380 not applicable (with reasons), 4 uncovered, 6 rules dropped by the validator. 2023 rules: 1565 prose (AI), 344 lint rows, 114 patterns.
+3133 source units in compiled pages: 2749 covered by rules, 380 not applicable (with reasons), 4 uncovered, 6 rules dropped by the validator. 1991 rules: 1565 prose (AI), 320 lint rows, 106 patterns.
 
 ## Pages
 
@@ -10,7 +10,7 @@
 | highlights | reference | 21 | — | — | — | Summary; each item links to the page that holds the rule. |
 | whats-new | reference | 636 | — | — | — | Change log: drives updates of this layer, not reviews. |
 | philosophy | reference | 16 | — | — | — | Why the guide exists; no writing rules. |
-| word-list | lint | 619 | 767 | 38 | 8 |  |
+| word-list | lint | 619 | 753 | 38 | 8 |  |
 | product-names | core | 25 | 14 | 4 | 0 |  |
 | text-formatting | reference | 10 | — | — | — | Summary table of formatting rules on other pages. |
 | accessibility | core | 87 | 67 | 14 | 0 |  |
@@ -18,18 +18,18 @@
 | future | core | 2 | 2 | 1 | 0 |  |
 | translation | core | 63 | 47 | 10 | 0 |  |
 | inclusive-documentation | core | 71 | 43 | 9 | 0 |  |
-| jargon | core | 8 | 9 | 2 | 0 |  |
+| jargon | core | 8 | 7 | 2 | 0 |  |
 | prescriptive-documentation | core | 25 | 12 | 3 | 0 |  |
 | other-sources | pack:links | 9 | 5 | 0 | 0 |  |
 | timeless-documentation | core | 28 | 20 | 4 | 0 |  |
-| tone | core | 34 | 28 | 6 | 0 |  |
-| abbreviations | pack:abbreviations | 74 | 28 | 19 | 0 |  |
+| tone | core | 34 | 26 | 6 | 0 |  |
+| abbreviations | pack:abbreviations | 74 | 26 | 19 | 0 |  |
 | voice | core | 16 | 6 | 1 | 0 |  |
 | anthropomorphism | core | 6 | 2 | 0 | 0 |  |
 | articles | core | 7 | 1 | 4 | 0 |  |
 | capitalization | core | 26 | 19 | 4 | 0 |  |
 | contractions | pack:apostrophes | 5 | 7 | 0 | 0 |  |
-| pluralization | core | 46 | 18 | 6 | 0 |  |
+| pluralization | core | 46 | 17 | 6 | 0 |  |
 | possessives | pack:apostrophes | 26 | 9 | 2 | 0 |  |
 | prepositions | core | 6 | 4 | 1 | 0 |  |
 | tense | core | 12 | 4 | 0 | 0 |  |
@@ -41,12 +41,12 @@
 | commas | core | 28 | 10 | 5 | 0 |  |
 | dashes | pack:dashes | 21 | 6 | 11 | 0 |  |
 | ellipses | pack:ellipses | 14 | 12 | 0 | 0 |  |
-| hyphens | pack:hyphens | 80 | 34 | 6 | 0 |  |
-| parentheses | pack:parentheses | 9 | 4 | 0 | 0 |  |
-| periods | core | 42 | 20 | 11 | 2 |  |
+| hyphens | pack:hyphens | 80 | 33 | 6 | 0 |  |
+| parentheses | pack:parentheses | 9 | 3 | 0 | 0 |  |
+| periods | core | 42 | 19 | 11 | 2 |  |
 | quotation-marks | pack:quotes | 34 | 14 | 2 | 0 |  |
 | semicolons | pack:semicolons | 4 | 4 | 0 | 0 |  |
-| slashes | pack:slashes | 27 | 15 | 1 | 0 |  |
+| slashes | pack:slashes | 27 | 14 | 1 | 0 |  |
 | dates-times | pack:numbers | 52 | 38 | 6 | 0 |  |
 | format-examples | pack:code | 5 | 5 | 2 | 0 |  |
 | images | pack:images | 98 | 70 | 28 | 0 |  |
@@ -56,24 +56,24 @@
 | lists | pack:lists | 150 | 36 | 9 | 0 |  |
 | mathematical-notation | pack:math | 71 | 21 | 6 | 0 |  |
 | notices | pack:notes | 20 | 16 | 3 | 0 |  |
-| numbers | pack:numbers | 72 | 53 | 10 | 0 |  |
+| numbers | pack:numbers | 72 | 51 | 10 | 0 |  |
 | paragraph-structure | core | 6 | 8 | 0 | 0 |  |
 | phone-numbers | pack:numbers | 14 | 10 | 2 | 0 |  |
-| procedures | pack:steps | 111 | 47 | 8 | 0 |  |
+| procedures | pack:steps | 111 | 46 | 8 | 0 |  |
 | tables | pack:table | 43 | 36 | 9 | 0 |  |
 | units-of-measure | pack:numbers | 53 | 24 | 6 | 0 |  |
-| cross-references | pack:links | 73 | 30 | 5 | 0 |  |
+| cross-references | pack:links | 73 | 29 | 5 | 0 |  |
 | headings-targets | pack:links | 31 | 5 | 15 | 0 |  |
-| api-reference-comments | pack:api | 71 | 47 | 7 | 0 |  |
+| api-reference-comments | pack:api | 71 | 46 | 7 | 0 |  |
 | code-in-text | pack:code | 110 | 58 | 12 | 0 |  |
 | code-samples | pack:code | 28 | 9 | 14 | 0 |  |
 | code-syntax | pack:code | 115 | 45 | 32 | 0 |  |
 | placeholders | pack:code | 99 | 27 | 13 | 0 |  |
-| ui-elements | pack:ui | 159 | 75 | 7 | 0 |  |
+| ui-elements | pack:ui | 159 | 74 | 7 | 0 |  |
 | semantic-tagging | pack:code | 9 | 10 | 1 | 0 |  |
 | html-formatting | reference | 13 | — | — | — | Source-HTML formatting (indentation, quoting attributes); Flare writes the XHTML, writers don't. |
 | markdown | reference | 3 | — | — | — | When to use Markdown vs HTML in Google's own docs; not applicable to Flare topics. |
-| examples | pack:examples | 82 | 28 | 2 | 0 |  |
+| examples | pack:examples | 82 | 27 | 2 | 0 |  |
 | filenames | pack:code | 53 | 14 | 2 | 0 |  |
 | trademarks | core | 10 | 6 | 2 | 0 |  |
 
@@ -89,6 +89,226 @@
 - dropped in word-list: row 'long press': The Example doesn't trigger this rule: 'To open the menu, long press the app icon.'.
 - dropped in word-list: row 'lockscreen, lock-screen': The Example doesn't trigger this rule: 'Swipe up on the lockscreen.'.
 - dropped in word-list: row 'Tap & hold, Tap and hold, tap & hold, tap and hold': The Example doesn't trigger this rule: 'To open the menu, tap and hold the icon.'.
+
+## Compiler passes (canonical owner, Product tags, Term scope, fixes)
+
+- numbers: google:numbers/32 dropped (\b\d+(?:\.\d+)?\s+%): owners.json: Units-Of-Measure owns the space before %
+- numbers: google:numbers/35 dropped (\d\s*(?:–|&ndash;)\s*\d): owners.json: Hyphens owns en dashes in number ranges
+- procedures: google:procedures/39 dropped (please, Please): duplicate of google:tone/28
+- ellipses: google:ellipses/10 Use '...' → '' (fixes.json: three periods are still an ellipsis; Google says not to use ellipses in text or UI references)
+- ellipses: google:ellipses/10 severity → 'suggestion' (fixes.json)
+- ellipses: google:ellipses/10 why → 'Don't use ellipses; leave them out of UI labels.' (fixes.json)
+- periods: google:periods/14 dropped (\b(?:[A-Z]\.){2,}): duplicate of google:abbreviations/25, google:word-list/719
+- dashes: google:dashes/4 pattern → '(?<!\d)\u2013|\u2013(?!\d)' (fixes.json)
+- dashes: google:dashes/4 example → 'Install the app – then restart it.' (fixes.json)
+- pluralization: google:pluralization/13 dropped (\b\d+(?:\.\d+)?(?:KB|MB|GB|TB|PB)\b): duplicate of google:units-of-measure/4
+- accessibility: google:accessibility/30 drops 'click here' (owned by google:word-list/136)
+- accessibility: google:accessibility/30 Example → 'Don't use click here or read this document.'
+- tone: google:tone/19 dropped (let's, Let's): duplicate of google:word-list/432
+- tone: google:tone/20 drops 'simply' (owned by google:inclusive-documentation/20)
+- tone: google:tone/20 drops 'Simply' (owned by google:inclusive-documentation/20)
+- tone: google:tone/21 dropped (tl;dr, TL;DR, ymmv, YMMV): duplicate of google:word-list/694, google:word-list/765
+- slashes: google:slashes/3 dropped ((?<![\w/.])\d{1,2}/\d{1,2}/(?:\d{4}|\d{2})(?![\w/])): duplicate of google:dates-times/33
+- hyphens: google:hyphens/19 drops 'web page' (fixes.json: inferred by the model, not in the source (Google itself writes web page))
+- hyphens: google:hyphens/19 drops 'trade-off' (fixes.json: inferred by the model, not in the source (Google itself writes web page))
+- hyphens: google:hyphens/19 drops 'work-around' (fixes.json: inferred by the model, not in the source (Google itself writes web page))
+- hyphens: google:hyphens/19 Example → 'Open the host name in a browser.'
+- hyphens: google:hyphens/19 dropped (host name): duplicate of google:word-list/362
+- abbreviations: google:abbreviations/18 dropped (i.e., e.g.): duplicate of google:word-list/244, google:word-list/377
+- abbreviations: google:abbreviations/19 dropped (tl;dr, TL;DR, ymmv, YMMV, RTFM): duplicate of google:word-list/606, google:word-list/694, google:word-list/765
+- abbreviations: google:abbreviations/24 drops 'U.S.' (owned by google:word-list/719)
+- abbreviations: google:abbreviations/24 Example → 'The service is available in the U.K. only.'
+- abbreviations: google:abbreviations/28 drops 'an SQL' (owned by google:word-list/283, google:word-list/613, google:word-list/653)
+- abbreviations: google:abbreviations/28 drops 'an FHIR' (owned by google:word-list/283, google:word-list/613, google:word-list/653)
+- abbreviations: google:abbreviations/28 drops 'An FHIR' (owned by google:word-list/283, google:word-list/613, google:word-list/653)
+- abbreviations: google:abbreviations/28 drops 'a SAP' (owned by google:word-list/283, google:word-list/613, google:word-list/653)
+- abbreviations: google:abbreviations/28 Example → 'Run An SQL query against the table.'
+- parentheses: google:parentheses/4 dropped (\b[A-Za-z]+\((s|es)\)): owners.json: pluralization/18 is the broader (s)/(es)/(ren) rule
+- code-syntax: google:code-syntax/32 Product.GoogleCloud (products.json lists the rule)
+- code-syntax: google:code-syntax/34 Product.GoogleCloud (its section is about it)
+- code-syntax: google:code-syntax/36 Product.GoogleCloud (products.json lists the rule)
+- cross-references: google:cross-references/15 dropped (click here, Click here): duplicate of google:word-list/136
+- inclusive-documentation: google:inclusive-documentation/2 drops 'man-hours' (owned by google:word-list/450)
+- inclusive-documentation: google:inclusive-documentation/2 Example → 'Build AI that benefits mankind.'
+- inclusive-documentation: google:inclusive-documentation/10 drops 'crazy' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
+- inclusive-documentation: google:inclusive-documentation/10 drops 'insane' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
+- inclusive-documentation: google:inclusive-documentation/10 drops 'cripple' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
+- inclusive-documentation: google:inclusive-documentation/10 drops 'cripples' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
+- inclusive-documentation: google:inclusive-documentation/10 drops 'crippled' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
+- inclusive-documentation: google:inclusive-documentation/10 drops 'blind to' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
+- inclusive-documentation: google:inclusive-documentation/10 drops 'sanity check' (owned by google:word-list/100, google:word-list/169, google:word-list/172, google:word-list/612)
+- inclusive-documentation: google:inclusive-documentation/29 drops 'blacklist' (owned by google:word-list/292, google:word-list/95)
+- inclusive-documentation: google:inclusive-documentation/29 drops 'first-class citizen' (owned by google:word-list/292, google:word-list/95)
+- inclusive-documentation: google:inclusive-documentation/29 Example → 'For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.'
+- jargon: google:jargon/7 dropped (blast radius): duplicate of google:word-list/98
+- jargon: google:jargon/9 dropped (off-the-shelf): duplicate of google:word-list/519
+- api-reference-comments: google:api-reference-comments/17 dropped (e.g.): duplicate of google:word-list/244
+- ui-elements: google:ui-elements/13 dropped (hamburger icon, zippy, expando): duplicate of google:word-list/273, google:word-list/340
+- examples: google:examples/27 drops 'foo' (owned by google:word-list/294)
+- examples: google:examples/27 Example → 'Don't use unclear components like foo, bar, and baz in names.'
+- examples: google:examples/18 dropped (\b(?!800[-‑.]555[-‑.]01\d\d\b)\d{3}[-‑.]\d{3}[-‑.]\d{4}\b): owners.json: Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose
+- word-list: google:word-list/23 claims units of several entries (action bar; app bar); its Term is its own entry, 'action bar'
+- word-list: google:word-list/23 Term 'action bar, app bar' → 'action bar'
+- word-list: google:word-list/144 claims units of several entries (Cloud console; console); its Term is its own entry, 'Cloud console'
+- word-list: google:word-list/144 Term 'Cloud console, console' → 'Cloud console'
+- word-list: google:word-list/145 claims units of several entries (Cloud console; console); its Term is its own entry, 'Cloud console'
+- word-list: google:word-list/145 Term 'Cloud console, console' → 'Cloud console'
+- word-list: google:word-list/232 claims units of several entries (drop-down; downscope); its Term is its own entry, 'drop-down'
+- word-list: google:word-list/232 Term 'drop-down, downscope' → 'drop-down'
+- word-list: google:word-list/233 claims units of several entries (drop-down; downscope); its Term is its own entry, 'drop-down'
+- word-list: google:word-list/233 Term 'drop-down, downscope' → 'drop-down'
+- word-list: google:word-list/278 Term 'fail over (verb), failover (noun, adjective)' → 'fail over (verb), failover (noun or adjective)'
+- word-list: google:word-list/315 Term 'Google API Client Library for LANGUAGE (Java, .NET, etc.)' → 'Google API Client Library for LANGUAGE (Java or .NET or etc.)'
+- word-list: google:word-list/349 claims units of several entries (health check; healthy); its Term is its own entry, 'health check'
+- word-list: google:word-list/349 Term 'health check, healthy' → 'health check'
+- word-list: google:word-list/479 claims units of several entries (mobile device; mobile phone); its Term is its own entry, 'mobile device'
+- word-list: google:word-list/479 Term 'mobile device, mobile phone' → 'mobile device'
+- word-list: google:word-list/548 claims units of several entries (personally identifiable information (PII); persistent disk); its Term is its own entry, 'personally identifiable information (PII)'
+- word-list: google:word-list/548 Term 'personally identifiable information (PII), persistent disk' → 'personally identifiable information (PII)'
+- word-list: google:word-list/550 claims units of several entries (plain text; persistent disk); its Term is its own entry, 'plain text'
+- word-list: google:word-list/550 Term 'plain text, persistent disk' → 'plain text'
+- word-list: google:word-list/551 claims units of several entries (please; persistent disk); its Term is its own entry, 'please'
+- word-list: google:word-list/551 Term 'please, persistent disk' → 'please'
+- word-list: google:word-list/552 claims units of several entries (please; persistent disk); its Term is its own entry, 'please'
+- word-list: google:word-list/552 Term 'please, persistent disk' → 'please'
+- word-list: google:word-list/554 claims units of several entries (plugin (noun), plug-in (adjective), plug in (verb); persistent disk; please); its Term is its own entry, 'plugin (noun), plug-in (adjective), plug in (verb)'
+- word-list: google:word-list/554 Term 'plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please' → 'plugin (noun), plug-in (adjective), plug in (verb)'
+- word-list: google:word-list/555 claims units of several entries (plugin (noun), plug-in (adjective), plug in (verb); persistent disk; please); its Term is its own entry, 'plugin (noun), plug-in (adjective), plug in (verb)'
+- word-list: google:word-list/555 Term 'plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please' → 'plugin (noun), plug-in (adjective), plug in (verb)'
+- word-list: google:word-list/556 claims units of several entries (plugin (noun), plug-in (adjective), plug in (verb); persistent disk; please); its Term is its own entry, 'plugin (noun), plug-in (adjective), plug in (verb)'
+- word-list: google:word-list/556 Term 'plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please' → 'plugin (noun), plug-in (adjective), plug in (verb)'
+- word-list: google:word-list/557 claims units of several entries (point to; persistent disk; please); its Term is its own entry, 'point to'
+- word-list: google:word-list/557 Term 'point to, persistent disk, please' → 'point to'
+- word-list: google:word-list/558 claims units of several entries (point to; persistent disk; please); its Term is its own entry, 'point to'
+- word-list: google:word-list/558 Term 'point to, persistent disk, please' → 'point to'
+- word-list: google:word-list/559 claims units of several entries (POJO; persistent disk; please); its Term is its own entry, 'POJO'
+- word-list: google:word-list/559 Term 'POJO, persistent disk, please' → 'POJO'
+- word-list: google:word-list/562 claims units of several entries (populate; persistent disk; please); its Term is its own entry, 'populate'
+- word-list: google:word-list/562 Term 'populate, persistent disk, please' → 'populate'
+- word-list: google:word-list/564 claims units of several entries (portal; persistent disk; please); its Term is its own entry, 'portal'
+- word-list: google:word-list/564 Term 'portal, persistent disk, please' → 'portal'
+- word-list: google:word-list/565 claims units of several entries (possible; persistent disk; please); its Term is its own entry, 'possible'
+- word-list: google:word-list/565 Term 'possible, persistent disk, please' → 'possible'
+- word-list: google:word-list/566 claims units of several entries (PostgreSQL; persistent disk; please); its Term is its own entry, 'PostgreSQL'
+- word-list: google:word-list/566 Term 'PostgreSQL, persistent disk, please' → 'PostgreSQL'
+- word-list: google:word-list/567 claims units of several entries (postmortem; persistent disk; please); its Term is its own entry, 'postmortem'
+- word-list: google:word-list/567 Term 'postmortem, persistent disk, please' → 'postmortem'
+- word-list: google:word-list/568 claims units of several entries (postmortem; persistent disk; please); its Term is its own entry, 'postmortem'
+- word-list: google:word-list/568 Term 'postmortem, persistent disk, please' → 'postmortem'
+- word-list: google:word-list/569 claims units of several entries (practitioner; persistent disk; please); its Term is its own entry, 'practitioner'
+- word-list: google:word-list/569 Term 'practitioner, persistent disk, please' → 'practitioner'
+- word-list: google:word-list/578 claims units of several entries (press; persistent disk; please); its Term is its own entry, 'press'
+- word-list: google:word-list/578 Term 'press, persistent disk, please' → 'press'
+- word-list: google:word-list/579 claims units of several entries (press; persistent disk; please); its Term is its own entry, 'press'
+- word-list: google:word-list/579 Term 'press, persistent disk, please' → 'press'
+- word-list: google:word-list/581 claims units of several entries (primitive; persistent disk; please); its Term is its own entry, 'primitive'
+- word-list: google:word-list/581 Term 'primitive, persistent disk, please' → 'primitive'
+- word-list: google:word-list/582 claims units of several entries (project; persistent disk; please); its Term is its own entry, 'project'
+- word-list: google:word-list/582 Term 'project, persistent disk, please' → 'project'
+- word-list: google:word-list/583 claims units of several entries (proper, properly; persistent disk; please); its Term is its own entry, 'proper, properly'
+- word-list: google:word-list/583 Term 'proper, properly, persistent disk, please' → 'proper, properly'
+- word-list: google:word-list/625 claims units of several entries (service level agreement; service level indicator; service level objective); its Term is its own entry, 'service level agreement'
+- word-list: google:word-list/625 Term 'service level agreement, service level indicator, service level objective' → 'service level agreement'
+- word-list: google:word-list/626 claims units of several entries (service level indicator; service level objective); its Term is its own entry, 'service level indicator'
+- word-list: google:word-list/626 Term 'service level indicator, service level objective' → 'service level indicator'
+- word-list: google:word-list/637 claims units of several entries (sign-in (noun or adjective), sign in (verb); sign-out (noun or adjective), sign out (verb)); its Term is its own entry, 'sign-in (noun or adjective), sign in (verb)'
+- word-list: google:word-list/637 Term 'sign-in (noun or adjective), sign in (verb), sign-out (noun or adjective), sign out (verb)' → 'sign-in (noun or adjective), sign in (verb)'
+- word-list: google:word-list/677 claims units of several entries (target; tap); its Term is its own entry, 'target'
+- word-list: google:word-list/677 Term 'target, tap' → 'target'
+- word-list: google:word-list/678 claims units of several entries (terminate; tap); its Term is its own entry, 'terminate'
+- word-list: google:word-list/678 Term 'terminate, tap' → 'terminate'
+- word-list: google:word-list/679 claims units of several entries (text box, textbox; terminate); its Term is its own entry, 'text box, textbox'
+- word-list: google:word-list/679 Term 'text box, textbox, terminate' → 'text box, textbox'
+- word-list: google:word-list/681 claims units of several entries (then; terminate; tap); its Term is its own entry, 'then'
+- word-list: google:word-list/681 Term 'then, terminate, tap' → 'then'
+- word-list: google:word-list/682 claims units of several entries (they (singular); terminate; tap); its Term is its own entry, 'they (singular)'
+- word-list: google:word-list/682 Term 'they (singular), terminate, tap' → 'they (singular)'
+- word-list: google:word-list/684 claims units of several entries (third party (noun), third-party (adjective); terminate; tap); its Term is its own entry, 'third party (noun), third-party (adjective)'
+- word-list: google:word-list/684 Term 'third party (noun), third-party (adjective), terminate, tap' → 'third party (noun), third-party (adjective)'
+- word-list: google:word-list/686 claims units of several entries (this, that; terminate; tap); its Term is its own entry, 'this, that'
+- word-list: google:word-list/686 Term 'this, that, terminate, tap' → 'this, that'
+- word-list: google:word-list/689 claims units of several entries (timeout (noun), time out (verb); terminate; tap); its Term is its own entry, 'timeout (noun), time out (verb)'
+- word-list: google:word-list/689 Term 'timeout (noun), time out (verb), terminate, tap' → 'timeout (noun), time out (verb)'
+- word-list: google:word-list/693 claims units of several entries (time zone (noun), time-zone (adjective); terminate; tap); its Term is its own entry, 'time zone (noun), time-zone (adjective)'
+- word-list: google:word-list/693 Term 'time zone (noun), time-zone (adjective), terminate, tap' → 'time zone (noun), time-zone (adjective)'
+- word-list: google:word-list/696 claims units of several entries (touch; terminate; tap); its Term is its own entry, 'touch'
+- word-list: google:word-list/696 Term 'touch, terminate, tap' → 'touch'
+- word-list: google:word-list/699 claims units of several entries (traditional; terminate; tap); its Term is its own entry, 'traditional'
+- word-list: google:word-list/699 Term 'traditional, terminate, tap' → 'traditional'
+- word-list: google:word-list/702 claims units of several entries (trojan; terminate; tap); its Term is its own entry, 'trojan'
+- word-list: google:word-list/702 Term 'trojan, terminate, tap' → 'trojan'
+- word-list: google:word-list/703 claims units of several entries (turn on; terminate; tap); its Term is its own entry, 'turn on'
+- word-list: google:word-list/703 Term 'turn on, terminate, tap' → 'turn on'
+- word-list: google:word-list/705 claims units of several entries (type; terminate; tap); its Term is its own entry, 'type'
+- word-list: google:word-list/705 Term 'type, terminate, tap' → 'type'
+- word-list: google:word-list/720 claims units of several entries (user; unselect); its Term is its own entry, 'user'
+- word-list: google:word-list/720 Term 'user, unselect' → 'user'
+- word-list: google:word-list/723 claims units of several entries (using; unselect); its Term is its own entry, 'using'
+- word-list: google:word-list/723 Term 'using, unselect' → 'using'
+- word-list: google:word-list/725 claims units of several entries (utilize, utilization; UTF; unselect); its Term is its own entry, 'utilize, utilization'
+- word-list: google:word-list/725 Term 'utilize, utilization, UTF, unselect' → 'utilize, utilization'
+- word-list: google:word-list/62 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/141 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/142 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/143 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/144 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/145 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/146 Product.GoogleCloud (its fix writes the product name)
+- word-list: google:word-list/147 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/176 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/217 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/242 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/243 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/275 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/276 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/317 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/318 Product.GoogleCloud (its fix writes the product name)
+- word-list: google:word-list/321 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/322 Product.GoogleCloud (its fix writes the product name)
+- word-list: google:word-list/388 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/391 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/392 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/393 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/395 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/500 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/538 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/546 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/547 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/599 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/697 Product.Android (products.json lists the entry)
+- word-list: google:word-list/733 Product.GoogleCloud (products.json lists the entry)
+- word-list: google:word-list/450 Use 'person hours' → 'person-hours' (fixes.json: one fix for man-hours: Inclusive-Documentation and Hyphens write person-hours)
+- word-list: google:word-list/340 takes over 'Hamburger icon' from google:ui-elements/13
+- word-list: google:word-list/26 dropped (omnibox): duplicate of google:word-list/523
+- word-list: google:word-list/57 dropped (as of this writing, As of this writing): duplicate of google:timeless-documentation/15
+- word-list: google:word-list/95 drops 'whitelist' (owned by google:word-list/333, google:word-list/752)
+- word-list: google:word-list/95 drops 'graylist' (owned by google:word-list/333, google:word-list/752)
+- word-list: google:word-list/95 drops 'greylist' (owned by google:word-list/333, google:word-list/752)
+- word-list: google:word-list/129 dropped (Uncheck, uncheck): duplicate of google:word-list/711
+- word-list: google:word-list/202 dropped (Uncheck, uncheck): duplicate of google:word-list/711
+- word-list: google:word-list/223 dropped (does not yet): duplicate of google:timeless-documentation/17
+- word-list: google:word-list/260 drops 'allows you to' (owned by google:word-list/39)
+- word-list: google:word-list/277 drops 'unarchive' (owned by google:word-list/709)
+- word-list: google:word-list/277 drops 'Unarchive' (owned by google:word-list/709)
+- word-list: google:word-list/301 dropped (in the future, In the future): duplicate of google:timeless-documentation/19
+- word-list: google:word-list/303 dropped (Gb/s): duplicate of google:units-of-measure/23
+- word-list: google:word-list/306 dropped (he/she, (s)he, s/he, him/her, his/her): duplicate of google:pronouns/6
+- word-list: google:word-list/368 dropped (hover over, Hover over): duplicate of google:inclusive-documentation/15
+- word-list: google:word-list/478 dropped (cellular data): duplicate of google:word-list/121
+- word-list: google:word-list/480 dropped (cellular network): duplicate of google:word-list/122
+- word-list: google:word-list/577 dropped (presently, Presently, at present, At present): duplicate of google:timeless-documentation/20
+- word-list: google:word-list/709 drops 'uncompress' (owned by google:word-list/277)
+- word-list: google:word-list/709 drops 'untar' (owned by google:word-list/277)
+- word-list: google:word-list/709 drops 'unzip' (owned by google:word-list/277)
+- word-list: google:word-list/709 Example → 'To get the files, unarchive the downloaded archive.'
+- word-list: google:word-list/752 drops 'whitelisted' (owned by google:word-list/96, google:word-list/97)
+- word-list: google:word-list/752 drops 'whitelisting' (owned by google:word-list/96, google:word-list/97)
+- word-list: google:word-list/752 drops 'Whitelisted' (owned by google:word-list/96, google:word-list/97)
+- word-list: google:word-list/752 drops 'Whitelisting' (owned by google:word-list/96, google:word-list/97)
+- word-list: google:word-list/42 dropped (\b\d{1,2}(?::\d{2})?(?:\s?(?:[ap]\.m\.|[ap]m\b|[AP]\.M\.)|(?:AM|PM)\b)): owners.json: Dates-Times owns time formats (dates-times/8 and /9 cover every form; word-list/42 differs only by a trailing period)
+- word-list: google:word-list/512 dropped (noops): owners.json: same entry (NoOps); 511 has the fix
+- word-list: google:word-list/244 Use 'for example, For example' → 'for example,' (the fix 'Use a supported format, for example JSON.' is flagged by google:word-list/296 ('for example'))
+- word-list: google:word-list/269 flag-only, was Use 'etc.' (the fix 'If your app experiences instability, high latency, etc., follow these steps:' is flagged by google:lists/36 (', etc.'))
 
 ## Not applicable (reasons)
 

@@ -82,7 +82,7 @@
         <h2>action bar</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-23" MadCap:conditions="Product.Android"><td>action bar, app bar</td><td>In Android documentation, don&apos;t use action bar; instead, use app bar.</td><td></td><td></td></tr>
+            <tr id="rule-23" MadCap:conditions="Product.Android"><td>action bar</td><td>In Android documentation, don&apos;t use action bar; instead, use app bar.</td><td></td><td></td></tr>
         </table>
         <h2>ad tech</h2>
         <table>
@@ -92,11 +92,6 @@
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
             <tr id="rule-25"><td>adtech, ad-tech</td><td>ad tech</td><td>warning</td><td></td><td>Measure your adtech spending.</td></tr>
-        </table>
-        <h2>address bar</h2>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-26"><td>omnibox</td><td>address bar</td><td>warning</td><td></td><td>Type the URL in the omnibox.</td></tr>
         </table>
         <h2>ad hoc</h2>
         <table>
@@ -166,11 +161,6 @@
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-41"><td>America, American</td><td>Use America and American only to refer to the Americas or the American continent; to refer to the United States, use a more precise term like the US or the United States, and people in the US.</td><td></td><td></td></tr>
-        </table>
-        <h2>AM, PM</h2>
-        <table>
-            <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-42"><td>\b\d{1,2}(?::\d{2})?(?:\s?(?:[ap]\.m\.|[ap]m\b|[AP]\.M\.)|(?:AM|PM)\b)</td><td></td><td>warning</td><td>Consistent with Material Design.</td><td>The job runs at 9:00 am every day.</td></tr>
         </table>
         <h2>and/or</h2>
         <table>
@@ -242,10 +232,6 @@
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-56"><td>as of this writing</td><td>Avoid as of this writing because this phrase is implied.</td><td>As of this writing, BigQuery doesn&apos;t support that function.</td><td>BigQuery doesn&apos;t support that function.</td></tr>
         </table>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-57"><td>as of this writing, As of this writing</td><td></td><td>warning</td><td></td><td>As of this writing, BigQuery doesn&apos;t support that function.</td></tr>
-        </table>
         <h2>authentication and authorization</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
@@ -265,7 +251,7 @@
         <h2>auto mode VPC network</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-62"><td>auto mode network</td><td>auto mode VPC network</td><td>warning</td><td></td><td>Create an auto mode network in your project.</td></tr>
+            <tr id="rule-62" MadCap:conditions="Product.GoogleCloud"><td>auto mode network</td><td>auto mode VPC network</td><td>warning</td><td></td><td>Create an auto mode network in your project.</td></tr>
         </table>
         <h2>autopopulate</h2>
         <table>
@@ -394,7 +380,7 @@
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-95"><td>blacklist, black list, black-list, whitelist, graylist, greylist</td><td></td><td>warning</td><td>Use precise terms such as denylist or allowlist.</td><td>Add the IP address to the blacklist.</td></tr>
+            <tr id="rule-95"><td>blacklist, black list, black-list</td><td></td><td>warning</td><td>Use precise terms such as denylist or allowlist.</td><td>Add the IP address to the blacklist.</td></tr>
         </table>
         <h2>blacklisted, black listed, black-listed</h2>
         <table>
@@ -532,10 +518,6 @@
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-128" MadCap:conditions="Content.UI"><td>clear</td><td>Use clear (as a verb) to refer to clearing a check mark from a checkbox, not uncheck or deselect.</td><td>Uncheck Automatically check for updates.</td><td>Clear Automatically check for updates.</td></tr>
         </table>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-129"><td>Uncheck, uncheck</td><td>Clear, clear</td><td>warning</td><td></td><td>Uncheck Automatically check for updates.</td></tr>
-        </table>
         <h2>CLI</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
@@ -581,27 +563,27 @@
         <h2>Cloud</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-141"><td>Cloud</td><td>Don&apos;t use Cloud as short for Google Cloud.</td><td></td><td></td></tr>
-            <tr id="rule-142"><td>Cloud</td><td>For generic references such as the cloud or hybrid cloud, use lowercase.</td><td></td><td></td></tr>
+            <tr id="rule-141" MadCap:conditions="Product.GoogleCloud"><td>Cloud</td><td>Don&apos;t use Cloud as short for Google Cloud.</td><td></td><td></td></tr>
+            <tr id="rule-142" MadCap:conditions="Product.GoogleCloud"><td>Cloud</td><td>For generic references such as the cloud or hybrid cloud, use lowercase.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-143"><td>hybrid Cloud</td><td>hybrid cloud</td><td>warning</td><td></td><td>Run workloads in a hybrid Cloud.</td></tr>
+            <tr id="rule-143" MadCap:conditions="Product.GoogleCloud"><td>hybrid Cloud</td><td>hybrid cloud</td><td>warning</td><td></td><td>Run workloads in a hybrid Cloud.</td></tr>
         </table>
         <h2>Cloud console</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-144"><td>Cloud console, console</td><td>Use the before the name of a console.</td><td></td><td></td></tr>
-            <tr id="rule-145"><td>Cloud console, console</td><td>Abbreviate Google Cloud console to the console only after first mention and only if you aren&apos;t discussing any other console.</td><td></td><td></td></tr>
+            <tr id="rule-144" MadCap:conditions="Product.GoogleCloud"><td>Cloud console</td><td>Use the before the name of a console.</td><td></td><td></td></tr>
+            <tr id="rule-145" MadCap:conditions="Product.GoogleCloud"><td>Cloud console</td><td>Abbreviate Google Cloud console to the console only after first mention and only if you aren&apos;t discussing any other console.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-146"><td>(?&lt;!Google )\bCloud [Cc]onsole\b</td><td>Google Cloud console</td><td>warning</td><td></td><td>Open the Cloud console.</td></tr>
+            <tr id="rule-146" MadCap:conditions="Product.GoogleCloud"><td>(?&lt;!Google )\bCloud [Cc]onsole\b</td><td>Google Cloud console</td><td>warning</td><td></td><td>Open the Cloud console.</td></tr>
         </table>
         <h2>Cloud SDK</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-147"><td>Google Cloud SDK</td><td>Cloud SDK</td><td>warning</td><td></td><td>Install the Google Cloud SDK.</td></tr>
+            <tr id="rule-147" MadCap:conditions="Product.GoogleCloud"><td>Google Cloud SDK</td><td>Cloud SDK</td><td>warning</td><td></td><td>Install the Google Cloud SDK.</td></tr>
         </table>
         <h2>codebase</h2>
         <table>
@@ -723,7 +705,7 @@
         <h2>custom mode VPC network</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-176"><td>custom mode network, Custom mode network</td><td>custom mode VPC network, Custom mode VPC network</td><td>warning</td><td></td><td>Create a custom mode network.</td></tr>
+            <tr id="rule-176" MadCap:conditions="Product.GoogleCloud"><td>custom mode network, Custom mode network</td><td>custom mode VPC network, Custom mode VPC network</td><td>warning</td><td></td><td>Create a custom mode network.</td></tr>
         </table>
         <h2>curl</h2>
         <table>
@@ -840,10 +822,6 @@
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-201"><td>deselect</td><td>Don&apos;t use deselect to refer to clearing a check mark from a checkbox; use clear.</td><td>Deselect Automatically check for updates.</td><td>Clear Automatically check for updates.</td></tr>
         </table>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-202"><td>Uncheck, uncheck</td><td>Clear, clear</td><td>warning</td><td></td><td>Uncheck Automatically check for updates.</td></tr>
-        </table>
         <h2>desire, desired</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
@@ -903,7 +881,7 @@
         <h2>DNS server policy</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-217"><td>DNS Server Policy</td><td>DNS server policy</td><td>warning</td><td></td><td>Create a DNS Server Policy for the network.</td></tr>
+            <tr id="rule-217" MadCap:conditions="Product.GoogleCloud"><td>DNS Server Policy</td><td>DNS server policy</td><td>warning</td><td></td><td>Create a DNS Server Policy for the network.</td></tr>
         </table>
         <h2>DNSKEY</h2>
         <table>
@@ -924,11 +902,6 @@
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
             <tr id="rule-222"><td>doc set, docset</td><td>documentation set</td><td>warning</td><td></td><td>This topic is part of the admin docset.</td></tr>
-        </table>
-        <h2>does not yet</h2>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-223"><td>does not yet</td><td>doesn&apos;t</td><td>warning</td><td>Can become outdated or disclose product strategy.</td><td>The Google Cloud console does not yet support this IAM role.</td></tr>
         </table>
         <h2>dojo</h2>
         <table>
@@ -968,8 +941,8 @@
         <h2>drop-down</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-232"><td>drop-down, downscope</td><td>In most cases, omit drop-down from phrases like drop-down list or drop-down menu and just use list or menu; include drop-down as a modifier only if the omission would cause ambiguity.</td><td></td><td></td></tr>
-            <tr id="rule-233"><td>drop-down, downscope</td><td>Don&apos;t use drop-down as a standalone noun.</td><td></td><td></td></tr>
+            <tr id="rule-232"><td>drop-down</td><td>In most cases, omit drop-down from phrases like drop-down list or drop-down menu and just use list or menu; include drop-down as a modifier only if the omission would cause ambiguity.</td><td></td><td></td></tr>
+            <tr id="rule-233"><td>drop-down</td><td>Don&apos;t use drop-down as a standalone noun.</td><td></td><td></td></tr>
         </table>
         <h2>dumb down</h2>
         <table>
@@ -1006,13 +979,13 @@
         <h2>edge availability domain</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-242"><td>edge availability zone, metro availability domain, metro availability zone</td><td>edge availability domain</td><td>warning</td><td></td><td>Deploy the instance in an edge availability zone.</td></tr>
-            <tr id="rule-243"><td>EAD</td><td>edge availability domain</td><td>warning</td><td>Don&apos;t shorten edge availability domain.</td><td>Select an EAD for your connection.</td></tr>
+            <tr id="rule-242" MadCap:conditions="Product.GoogleCloud"><td>edge availability zone, metro availability domain, metro availability zone</td><td>edge availability domain</td><td>warning</td><td></td><td>Deploy the instance in an edge availability zone.</td></tr>
+            <tr id="rule-243" MadCap:conditions="Product.GoogleCloud"><td>EAD</td><td>edge availability domain</td><td>warning</td><td>Don&apos;t shorten edge availability domain.</td><td>Select an EAD for your connection.</td></tr>
         </table>
         <h2>e.g.</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-244"><td>e.g., E.g.</td><td>for example, For example</td><td>warning</td><td>Many people confuse e.g. and i.e.</td><td>Use a supported format, e.g. JSON.</td></tr>
+            <tr id="rule-244"><td>e.g., E.g.</td><td>for example,</td><td>warning</td><td>Many people confuse e.g. and i.e.</td><td>Use a supported format, e.g. JSON.</td></tr>
         </table>
         <h2>egress</h2>
         <table>
@@ -1058,7 +1031,7 @@
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-260"><td>enables you to, allows you to</td><td>lets you</td><td>warning</td><td>For making it feasible to do something, use lets you.</td><td>The API enables you to detect features in images.</td></tr>
+            <tr id="rule-260"><td>enables you to</td><td>lets you</td><td>warning</td><td>For making it feasible to do something, use lets you.</td><td>The API enables you to detect features in images.</td></tr>
         </table>
         <h2>endpoint</h2>
         <table>
@@ -1093,7 +1066,7 @@
         </table>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-269"><td>\betc\b(?!\.)</td><td>etc.</td><td>error</td><td></td><td>If your app experiences instability, high latency, etc, follow these steps:</td></tr>
+            <tr id="rule-269"><td>\betc\b(?!\.)</td><td></td><td>error</td><td></td><td>If your app experiences instability, high latency, etc, follow these steps:</td></tr>
         </table>
         <h2>eventually</h2>
         <table>
@@ -1122,21 +1095,21 @@
         <h2>external VPN gateway</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-275"><td>external VPN gateway</td><td>Write external and gateway in external VPN gateway all lowercase except at the beginning of a sentence, heading, or list item.</td><td></td><td></td></tr>
+            <tr id="rule-275" MadCap:conditions="Product.GoogleCloud"><td>external VPN gateway</td><td>Write external and gateway in external VPN gateway all lowercase except at the beginning of a sentence, heading, or list item.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-276"><td>external VPN Gateway, External VPN Gateway</td><td>external VPN gateway, External VPN gateway</td><td>warning</td><td></td><td>Create an external VPN Gateway resource.</td></tr>
+            <tr id="rule-276" MadCap:conditions="Product.GoogleCloud"><td>external VPN Gateway, External VPN Gateway</td><td>external VPN gateway, External VPN gateway</td><td>warning</td><td></td><td>Create an external VPN Gateway resource.</td></tr>
         </table>
         <h2>extract</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-277"><td>unarchive, uncompress, untar, unzip, Unarchive, Uncompress, Untar, Unzip</td><td>extract, extract, extract, extract, Extract, Extract, Extract, Extract</td><td>warning</td><td></td><td>Unzip the downloaded file to a local folder.</td></tr>
+            <tr id="rule-277"><td>uncompress, untar, unzip, Uncompress, Untar, Unzip</td><td>extract, extract, extract, Extract, Extract, Extract</td><td>warning</td><td></td><td>Unzip the downloaded file to a local folder.</td></tr>
         </table>
         <h2>fail over (verb), failover (noun, adjective)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-278"><td>fail over (verb), failover (noun, adjective)</td><td>Use fail over as a verb, and use failover as a noun or adjective.</td><td></td><td></td></tr>
+            <tr id="rule-278"><td>fail over (verb), failover (noun or adjective)</td><td>Use fail over as a verb, and use failover as a noun or adjective.</td><td></td><td></td></tr>
         </table>
         <h2>fat</h2>
         <table>
@@ -1240,19 +1213,10 @@
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-300"><td>future, in the future</td><td>Avoid future and in the future in timeless documentation because this word or phrase can become outdated.</td><td></td><td></td></tr>
         </table>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-301"><td>in the future, In the future</td><td></td><td>suggestion</td><td>Can become outdated.</td><td>In the future, this API will support streaming.</td></tr>
-        </table>
         <h2>GBps</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
             <tr id="rule-302"><td>GB/s</td><td>GBps</td><td>warning</td><td>By convention, Google uses GBps for gigabytes per second.</td><td>The disk reads at 2 GB/s.</td></tr>
-        </table>
-        <h2>Gbps</h2>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-303"><td>Gb/s</td><td>Gbps</td><td>warning</td><td>By convention, Google uses Gbps for gigabits per second.</td><td>The link supports 10 Gb/s.</td></tr>
         </table>
         <h2>gcloud CLI</h2>
         <table>
@@ -1263,10 +1227,6 @@
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-305"><td>gender-neutral he, him, or his (or she or her)</td><td>Don&apos;t use he, him, or his (or she or her) as gender-neutral pronouns; instead, use the singular they.</td><td></td><td></td></tr>
-        </table>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-306"><td>he/she, (s)he, s/he, him/her, his/her</td><td></td><td>warning</td><td>Use the singular they instead.</td><td>When a user signs in, he/she sees the dashboard.</td></tr>
         </table>
         <h2>generative AI</h2>
         <table>
@@ -1309,7 +1269,7 @@
         <h2>Google API Client Library for LANGUAGE (Java, .NET, etc.)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-315"><td>Google API Client Library for LANGUAGE (Java, .NET, etc.)</td><td>On second and subsequent use, you can abbreviate Google API Client Library for LANGUAGE to LANGUAGE client library.</td><td></td><td></td></tr>
+            <tr id="rule-315"><td>Google API Client Library for LANGUAGE (Java or .NET or etc.)</td><td>On second and subsequent use, you can abbreviate Google API Client Library for LANGUAGE to LANGUAGE client library.</td><td></td><td></td></tr>
         </table>
         <h2>Google API Console, Google APIs Console</h2>
         <table>
@@ -1319,11 +1279,11 @@
         <h2>Google Cloud</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-317"><td>Google Cloud</td><td>Use Google Cloud, not GCP, Cloud Platform, or Cloud.</td><td></td><td></td></tr>
+            <tr id="rule-317" MadCap:conditions="Product.GoogleCloud"><td>Google Cloud</td><td>Use Google Cloud, not GCP, Cloud Platform, or Cloud.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-318"><td>GCP</td><td>Google Cloud</td><td>warning</td><td>Use the product name Google Cloud.</td><td>Deploy the app to GCP.</td></tr>
+            <tr id="rule-318" MadCap:conditions="Product.GoogleCloud"><td>GCP</td><td>Google Cloud</td><td>warning</td><td>Use the product name Google Cloud.</td><td>Deploy the app to GCP.</td></tr>
         </table>
         <h2>Google Cloud console</h2>
         <table>
@@ -1334,11 +1294,11 @@
         <h2>Google Cloud project ID</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-321"><td>Google Cloud project ID</td><td>You can shorten Google Cloud project ID to project ID, but be aware that that term is ambiguous in some contexts.</td><td></td><td></td></tr>
+            <tr id="rule-321" MadCap:conditions="Product.GoogleCloud"><td>Google Cloud project ID</td><td>You can shorten Google Cloud project ID to project ID, but be aware that that term is ambiguous in some contexts.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-322"><td>(?&lt;!Google )\bCloud project ID\b|\bGCP project ID\b</td><td>Google Cloud project ID</td><td>warning</td><td>Use the full term Google Cloud project ID.</td><td>Enter your Cloud project ID.</td></tr>
+            <tr id="rule-322" MadCap:conditions="Product.GoogleCloud"><td>(?&lt;!Google )\bCloud project ID\b|\bGCP project ID\b</td><td>Google Cloud project ID</td><td>warning</td><td>Use the full term Google Cloud project ID.</td><td>Enter your Cloud project ID.</td></tr>
         </table>
         <h2>Google Developers Console</h2>
         <table>
@@ -1423,7 +1383,7 @@
         <h2>hamburger, hamburger menu</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-340"><td>hamburger menu, hamburger icon, Hamburger menu</td><td></td><td>warning</td><td>Use the icon&apos;s aria-label, such as Menu.</td><td>Click the hamburger menu.</td></tr>
+            <tr id="rule-340"><td>hamburger menu, hamburger icon, Hamburger menu, Hamburger icon</td><td></td><td>warning</td><td>Use the icon&apos;s aria-label, such as Menu.</td><td>Click the hamburger menu.</td></tr>
         </table>
         <h2>hands off, hands-off</h2>
         <table>
@@ -1464,7 +1424,7 @@
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-348"><td>health check</td><td>When describing an action taken for a computer system, only use the term health check if this is the term that appears in the interface, and remove any ambiguity regarding whether the term refers to health in the medical sense.</td><td></td><td></td></tr>
-            <tr id="rule-349"><td>health check, healthy</td><td>Use detailed, non-figurative language as much as possible, such as referring to a node being responsive instead of referring to a node being healthy.</td><td></td><td></td></tr>
+            <tr id="rule-349"><td>health check</td><td>Use detailed, non-figurative language as much as possible, such as referring to a node being responsive instead of referring to a node being healthy.</td><td></td><td></td></tr>
         </table>
         <h2>high availability (noun), high-availability (adjective)</h2>
         <table>
@@ -1533,11 +1493,6 @@
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
             <tr id="rule-367"><td>housekeeping, house keeping, house-keeping, Housekeeping</td><td></td><td>warning</td><td>Use precise terms such as maintenance or cleanup.</td><td>The job performs housekeeping tasks every night.</td></tr>
-        </table>
-        <h2>hover</h2>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-368"><td>hover over, Hover over</td><td>hold the pointer over, Hold the pointer over</td><td>warning</td><td></td><td>In the Admin menu, hover over File, and then click New.</td></tr>
         </table>
         <h2>HTTPS</h2>
         <table>
@@ -1622,7 +1577,7 @@
         <h2>instance group</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-388"><td>IG, IGs</td><td>instance group, instance groups</td><td>warning</td><td>Don&apos;t abbreviate instance group to IG.</td><td>Create an IG in your project.</td></tr>
+            <tr id="rule-388" MadCap:conditions="Product.GoogleCloud"><td>IG, IGs</td><td>instance group, instance groups</td><td>warning</td><td>Don&apos;t abbreviate instance group to IG.</td><td>Create an IG in your project.</td></tr>
         </table>
         <h2>intercluster</h2>
         <table>
@@ -1637,12 +1592,12 @@
         <h2>Interconnect connection</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-391"><td>Interconnect connection</td><td>Only use Interconnect connection relative to a product (CDN Interconnect connection, Cloud Interconnect connection, Dedicated Interconnect connection, Partner Interconnect connection); connection is OK on subsequent mentions.</td><td></td><td></td></tr>
-            <tr id="rule-392"><td>Interconnect connection</td><td>When you&apos;re referring to a Google Cloud product, always specify the product name; don&apos;t use Interconnect or interconnect as standalone terms.</td><td></td><td></td></tr>
+            <tr id="rule-391" MadCap:conditions="Product.GoogleCloud"><td>Interconnect connection</td><td>Only use Interconnect connection relative to a product (CDN Interconnect connection, Cloud Interconnect connection, Dedicated Interconnect connection, Partner Interconnect connection); connection is OK on subsequent mentions.</td><td></td><td></td></tr>
+            <tr id="rule-392" MadCap:conditions="Product.GoogleCloud"><td>Interconnect connection</td><td>When you&apos;re referring to a Google Cloud product, always specify the product name; don&apos;t use Interconnect or interconnect as standalone terms.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-393"><td>cloud interconnect connection, cross-connect</td><td></td><td>warning</td><td>Don&apos;t use generic terms; specify the product name.</td><td>Create a cross-connect to your network.</td></tr>
+            <tr id="rule-393" MadCap:conditions="Product.GoogleCloud"><td>cloud interconnect connection, cross-connect</td><td></td><td>warning</td><td>Don&apos;t use generic terms; specify the product name.</td><td>Create a cross-connect to your network.</td></tr>
         </table>
         <h2>Interconnect connection location</h2>
         <table>
@@ -1652,7 +1607,7 @@
         <h2>interconnect type</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-395"><td>interconnect type</td><td>connection type</td><td>warning</td><td>Don&apos;t use interconnect type.</td><td>Select an interconnect type.</td></tr>
+            <tr id="rule-395" MadCap:conditions="Product.GoogleCloud"><td>interconnect type</td><td>connection type</td><td>warning</td><td>Don&apos;t use interconnect type.</td><td>Select an interconnect type.</td></tr>
         </table>
         <h2>interface</h2>
         <table>
@@ -1880,7 +1835,7 @@
         <h2>man hours, manhours, man-hours</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-450"><td>man hours, manhours, man-hours</td><td>person hours</td><td>warning</td><td>Avoid using gendered terms.</td><td>The migration took 40 man-hours.</td></tr>
+            <tr id="rule-450"><td>man hours, manhours, man-hours</td><td>person-hours</td><td>warning</td><td>Avoid using gendered terms.</td><td>The migration took 40 man-hours.</td></tr>
         </table>
         <h2>man-in-the-middle (MITM)</h2>
         <table>
@@ -1998,20 +1953,10 @@
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-477"><td>mobile</td><td>Don&apos;t use mobile as a standalone noun; instead, specify mobile phone, or if you&apos;re talking about more than phones, use mobile device.</td><td></td><td></td></tr>
         </table>
-        <h2>mobile data</h2>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-478"><td>cellular data</td><td>mobile data</td><td>warning</td><td></td><td>Turn off cellular data to save battery.</td></tr>
-        </table>
         <h2>mobile device</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-479"><td>mobile device, mobile phone</td><td>Use mobile device, not mobile phone, when you&apos;re referring to more than phones (for example, tablets and phones); it&apos;s OK to use phone without mobile when the context is clear.</td><td></td><td></td></tr>
-        </table>
-        <h2>mobile network</h2>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-480"><td>cellular network</td><td>mobile network</td><td>warning</td><td></td><td>Connect to a cellular network.</td></tr>
+            <tr id="rule-479"><td>mobile device</td><td>Use mobile device, not mobile phone, when you&apos;re referring to more than phones (for example, tablets and phones); it&apos;s OK to use phone without mobile when the context is clear.</td><td></td><td></td></tr>
         </table>
         <h2>mom test</h2>
         <table>
@@ -2096,7 +2041,7 @@
         <h2>network IP address</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-500"><td>network IP address, Network IP address</td><td>internal IP address, Internal IP address</td><td>warning</td><td>Google style uses internal IP address.</td><td>Enter the network IP address of the VM.</td></tr>
+            <tr id="rule-500" MadCap:conditions="Product.GoogleCloud"><td>network IP address, Network IP address</td><td>internal IP address, Internal IP address</td><td>warning</td><td>Google style uses internal IP address.</td><td>Enter the network IP address of the VM.</td></tr>
         </table>
         <h2>new, newer</h2>
         <table>
@@ -2131,7 +2076,6 @@
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
             <tr id="rule-511"><td>NoOps</td><td>fully managed</td><td>warning</td><td>Google style uses fully managed instead.</td><td>The service provides a NoOps experience.</td></tr>
-            <tr id="rule-512"><td>noops</td><td></td><td>warning</td><td>Don&apos;t use noops.</td><td>The platform is noops by design.</td></tr>
         </table>
         <h2>NoSQL</h2>
         <table>
@@ -2240,7 +2184,7 @@
         <h2>peering zone</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-538"><td>peer zone</td><td>peering zone</td><td>warning</td><td></td><td>Create a peer zone for the network.</td></tr>
+            <tr id="rule-538" MadCap:conditions="Product.GoogleCloud"><td>peer zone</td><td>peering zone</td><td>warning</td><td></td><td>Create a peer zone for the network.</td></tr>
         </table>
         <h2>per</h2>
         <table>
@@ -2270,13 +2214,13 @@
         <h2>persistent disk</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-546"><td>PD</td><td>persistent disk</td><td>warning</td><td></td><td>Attach a PD to the instance.</td></tr>
-            <tr id="rule-547"><td>Persistent Disk</td><td>persistent disk</td><td>warning</td><td>Lowercase except at the start of a sentence.</td><td>Attach a Persistent Disk to the instance.</td></tr>
+            <tr id="rule-546" MadCap:conditions="Product.GoogleCloud"><td>PD</td><td>persistent disk</td><td>warning</td><td></td><td>Attach a PD to the instance.</td></tr>
+            <tr id="rule-547" MadCap:conditions="Product.GoogleCloud"><td>Persistent Disk</td><td>persistent disk</td><td>warning</td><td>Lowercase except at the start of a sentence.</td><td>Attach a Persistent Disk to the instance.</td></tr>
         </table>
         <h2>personally identifiable information (PII)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-548"><td>personally identifiable information (PII), persistent disk</td><td>Use personally identifiable information; use personally identifying information only in contexts where you&apos;re referring to a document that uses this term.</td><td></td><td></td></tr>
+            <tr id="rule-548"><td>personally identifiable information (PII)</td><td>Use personally identifiable information; use personally identifying information only in contexts where you&apos;re referring to a document that uses this term.</td><td></td><td></td></tr>
         </table>
         <h2>pets versus cattle, pets vs. cattle, pets v. cattle</h2>
         <table>
@@ -2286,13 +2230,13 @@
         <h2>plain text</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-550"><td>plain text, persistent disk</td><td>In most contexts, use plain text, but use plaintext in a cryptography context.</td><td></td><td></td></tr>
+            <tr id="rule-550"><td>plain text</td><td>In most contexts, use plain text, but use plaintext in a cryptography context.</td><td></td><td></td></tr>
         </table>
         <h2>please</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-551"><td>please, persistent disk</td><td>Don&apos;t use please in the normal course of explaining how to use a product, even if you&apos;re explaining a difficult task.</td><td></td><td></td></tr>
-            <tr id="rule-552"><td>please, persistent disk</td><td>Use please only when you&apos;re asking for permission or forgiveness—for example, when what you&apos;re asking for benefits you, inconveniences a reader, or suggests a potential issue with a product.</td><td></td><td>If the issue persists, please contact your account representative.</td></tr>
+            <tr id="rule-551"><td>please</td><td>Don&apos;t use please in the normal course of explaining how to use a product, even if you&apos;re explaining a difficult task.</td><td></td><td></td></tr>
+            <tr id="rule-552"><td>please</td><td>Use please only when you&apos;re asking for permission or forgiveness—for example, when what you&apos;re asking for benefits you, inconveniences a reader, or suggests a potential issue with a product.</td><td></td><td>If the issue persists, please contact your account representative.</td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
@@ -2301,20 +2245,20 @@
         <h2>plugin (noun), plug-in (adjective), plug in (verb)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-554"><td>plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please</td><td>Use the noun form plugin when referring to the software component.</td><td></td><td></td></tr>
-            <tr id="rule-555"><td>plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please</td><td>Use the adjective form plug-in when referring to the action of installing a software component.</td><td></td><td></td></tr>
-            <tr id="rule-556"><td>plugin (noun), plug-in (adjective), plug in (verb), persistent disk, please</td><td>Use the verb form plug in when you&apos;re describing the process of installing a software component.</td><td></td><td></td></tr>
+            <tr id="rule-554"><td>plugin (noun), plug-in (adjective), plug in (verb)</td><td>Use the noun form plugin when referring to the software component.</td><td></td><td></td></tr>
+            <tr id="rule-555"><td>plugin (noun), plug-in (adjective), plug in (verb)</td><td>Use the adjective form plug-in when referring to the action of installing a software component.</td><td></td><td></td></tr>
+            <tr id="rule-556"><td>plugin (noun), plug-in (adjective), plug in (verb)</td><td>Use the verb form plug in when you&apos;re describing the process of installing a software component.</td><td></td><td></td></tr>
         </table>
         <h2>point to</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-557" MadCap:conditions="Content.UI"><td>point to, persistent disk, please</td><td>Use point to to refer to the action of pointing the mouse pointer (focus).</td><td></td><td></td></tr>
-            <tr id="rule-558" MadCap:conditions="Content.UI"><td>point to, persistent disk, please</td><td>Use the verb phrase hold the pointer over if you want the user to wait for the UI to react.</td><td></td><td></td></tr>
+            <tr id="rule-557" MadCap:conditions="Content.UI"><td>point to</td><td>Use point to to refer to the action of pointing the mouse pointer (focus).</td><td></td><td></td></tr>
+            <tr id="rule-558" MadCap:conditions="Content.UI"><td>point to</td><td>Use the verb phrase hold the pointer over if you want the user to wait for the UI to react.</td><td></td><td></td></tr>
         </table>
         <h2>POJO</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-559"><td>POJO, persistent disk, please</td><td>If you&apos;re not actually writing about a Plain Old Java Object for a Java audience, use simple object.</td><td></td><td>a simple object, similar to a POJO in Java</td></tr>
+            <tr id="rule-559"><td>POJO</td><td>If you&apos;re not actually writing about a Plain Old Java Object for a Java audience, use simple object.</td><td></td><td>a simple object, similar to a POJO in Java</td></tr>
         </table>
         <h2>PoP</h2>
         <table>
@@ -2329,7 +2273,7 @@
         <h2>populate</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-562"><td>populate, persistent disk, please</td><td>If you&apos;re writing about a person, use fill in, not populate; populate is OK for a process populating a table or other entity.</td><td>When you have finished populating the form ...</td><td>When you have finished filling in the form ...</td></tr>
+            <tr id="rule-562"><td>populate</td><td>If you&apos;re writing about a person, use fill in, not populate; populate is OK for a process populating a table or other entity.</td><td>When you have finished populating the form ...</td><td>When you have finished filling in the form ...</td></tr>
         </table>
         <h2>port</h2>
         <table>
@@ -2339,28 +2283,28 @@
         <h2>portal</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-564"><td>portal, persistent disk, please</td><td>Don&apos;t use portal to refer to the Google Cloud console.</td><td></td><td></td></tr>
+            <tr id="rule-564"><td>portal</td><td>Don&apos;t use portal to refer to the Google Cloud console.</td><td></td><td></td></tr>
         </table>
         <h2>possible</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-565"><td>possible, persistent disk, please</td><td>Don&apos;t use possible or impossible to mean you can or you can&apos;t.</td><td></td><td></td></tr>
+            <tr id="rule-565"><td>possible</td><td>Don&apos;t use possible or impossible to mean you can or you can&apos;t.</td><td></td><td></td></tr>
         </table>
         <h2>PostgreSQL</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-566"><td>PostgreSQL, persistent disk, please</td><td>Use PostgreSQL; if the UI uses the name Postgres, it&apos;s OK to match the UI.</td><td></td><td></td></tr>
+            <tr id="rule-566"><td>PostgreSQL</td><td>Use PostgreSQL; if the UI uses the name Postgres, it&apos;s OK to match the UI.</td><td></td><td></td></tr>
         </table>
         <h2>postmortem</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-567"><td>postmortem, persistent disk, please</td><td>Avoid postmortem in general usage; instead, use retrospective.</td><td></td><td></td></tr>
-            <tr id="rule-568"><td>postmortem, persistent disk, please</td><td>In disaster recovery (DR) and DevOps contexts, use blameless postmortem.</td><td></td><td></td></tr>
+            <tr id="rule-567"><td>postmortem</td><td>Avoid postmortem in general usage; instead, use retrospective.</td><td></td><td></td></tr>
+            <tr id="rule-568"><td>postmortem</td><td>In disaster recovery (DR) and DevOps contexts, use blameless postmortem.</td><td></td><td></td></tr>
         </table>
         <h2>practitioner</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-569"><td>practitioner, persistent disk, please</td><td>Avoid using practitioner without any supporting information to define the roles that you&apos;re referring to.</td><td>The framework describes best practices for cloud practitioners.</td><td>The framework describes best practices for architects, developers, administrators, and other cloud practitioners.</td></tr>
+            <tr id="rule-569"><td>practitioner</td><td>Avoid using practitioner without any supporting information to define the roles that you&apos;re referring to.</td><td>The framework describes best practices for cloud practitioners.</td><td>The framework describes best practices for architects, developers, administrators, and other cloud practitioners.</td></tr>
         </table>
         <h2>prebuilt</h2>
         <table>
@@ -2397,16 +2341,11 @@
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
             <tr id="rule-576"><td>preshared key, Preshared key</td><td>pre-shared key, Pre-shared key</td><td>warning</td><td></td><td>Enter the preshared key for the tunnel.</td></tr>
         </table>
-        <h2>presently, at present</h2>
-        <table>
-            <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-577"><td>presently, Presently, at present, At present</td><td></td><td>warning</td><td>Implied; can disclose strategy or imply future change.</td><td>At present, this setting is required.</td></tr>
-        </table>
         <h2>press</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-578"><td>press, persistent disk, please</td><td>Use press when referring to pressing a key or a key combination to cause an action to occur, and for mechanical buttons.</td><td></td><td>Press Control+C (or Command+C on macOS).</td></tr>
-            <tr id="rule-579"><td>press, persistent disk, please</td><td>For on-screen and soft (capacitive) buttons, use tap.</td><td></td><td></td></tr>
+            <tr id="rule-578"><td>press</td><td>Use press when referring to pressing a key or a key combination to cause an action to occur, and for mechanical buttons.</td><td></td><td>Press Control+C (or Command+C on macOS).</td></tr>
+            <tr id="rule-579"><td>press</td><td>For on-screen and soft (capacitive) buttons, use tap.</td><td></td><td></td></tr>
         </table>
         <h2>presubmit</h2>
         <table>
@@ -2416,17 +2355,17 @@
         <h2>primitive</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-581"><td>primitive, persistent disk, please</td><td>Use primitive with caution, and don&apos;t use primitive in a disparaging sense.</td><td></td><td></td></tr>
+            <tr id="rule-581"><td>primitive</td><td>Use primitive with caution, and don&apos;t use primitive in a disparaging sense.</td><td></td><td></td></tr>
         </table>
         <h2>project</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-582" MadCap:conditions="Product.GoogleCloud"><td>project, persistent disk, please</td><td>Use Google Cloud project on first mention and in any context in which there might be ambiguity about what kind of project you&apos;re referring to.</td><td></td><td></td></tr>
+            <tr id="rule-582" MadCap:conditions="Product.GoogleCloud"><td>project</td><td>Use Google Cloud project on first mention and in any context in which there might be ambiguity about what kind of project you&apos;re referring to.</td><td></td><td></td></tr>
         </table>
         <h2>proper, properly</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-583"><td>proper, properly, persistent disk, please</td><td>Avoid proper and properly, which are vague and can imply subjective judgments of correctness or superiority; instead, focus on describing the technical details.</td><td>Ensure the port is properly configured.</td><td>Verify that the port is open and accepting connections.</td></tr>
+            <tr id="rule-583"><td>proper, properly</td><td>Avoid proper and properly, which are vague and can imply subjective judgments of correctness or superiority; instead, focus on describing the technical details.</td><td>Ensure the port is properly configured.</td><td>Verify that the port is open and accepting connections.</td></tr>
         </table>
         <h2>pros</h2>
         <table>
@@ -2497,7 +2436,7 @@
         <h2>resource record set</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-599"><td>resource recordset</td><td>resource record set</td><td>warning</td><td></td><td>Add a resource recordset to the zone.</td></tr>
+            <tr id="rule-599" MadCap:conditions="Product.GoogleCloud"><td>resource recordset</td><td>resource record set</td><td>warning</td><td></td><td>Add a resource recordset to the zone.</td></tr>
         </table>
         <h2>retarded</h2>
         <table>
@@ -2613,12 +2552,12 @@
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
             <tr id="rule-624"><td>service level agreement</td><td>Lowercase service level agreement when referring to service level agreements in general; use title case (Service Level Agreement) only when referring to a specific document.</td><td></td><td></td></tr>
-            <tr id="rule-625"><td>service level agreement, service level indicator, service level objective</td><td>Abbreviate service level agreement, service level indicator, and service level objective as SLA, SLI, and SLO only after first use.</td><td></td><td></td></tr>
+            <tr id="rule-625"><td>service level agreement</td><td>Abbreviate service level agreement, service level indicator, and service level objective as SLA, SLI, and SLO only after first use.</td><td></td><td></td></tr>
         </table>
         <h2>service level indicator</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-626"><td>service level indicator, service level objective</td><td>Lowercase service level indicator and service level objective except at the beginning of a sentence, heading, or list item.</td><td></td><td></td></tr>
+            <tr id="rule-626"><td>service level indicator</td><td>Lowercase service level indicator and service level objective except at the beginning of a sentence, heading, or list item.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
@@ -2668,7 +2607,7 @@
         <h2>sign-in (noun or adjective), sign in (verb)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-637"><td>sign-in (noun or adjective), sign in (verb), sign-out (noun or adjective), sign out (verb)</td><td>Use sign-in and sign-out as nouns or adjectives, and sign in and sign out as verbs.</td><td></td><td></td></tr>
+            <tr id="rule-637"><td>sign-in (noun or adjective), sign in (verb)</td><td>Use sign-in and sign-out as nouns or adjectives, and sign in and sign out as verbs.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
@@ -2848,17 +2787,17 @@
         <h2>target</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-677"><td>target, tap</td><td>Avoid using target as a verb when possible, especially in reference to people; use alternatives such as intended for, looking for, focused on, or interacting with.</td><td></td><td></td></tr>
+            <tr id="rule-677"><td>target</td><td>Avoid using target as a verb when possible, especially in reference to people; use alternatives such as intended for, looking for, focused on, or interacting with.</td><td></td><td></td></tr>
         </table>
         <h2>terminate</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-678"><td>terminate, tap</td><td>Avoid using terminate as a synonym for stop; instead, use words like stop, exit, cancel, or end.</td><td></td><td></td></tr>
+            <tr id="rule-678"><td>terminate</td><td>Avoid using terminate as a synonym for stop; instead, use words like stop, exit, cancel, or end.</td><td></td><td></td></tr>
         </table>
         <h2>text box, textbox</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-679" MadCap:conditions="Product.GoogleCloud,Product.GoogleWorkspace"><td>text box, textbox, terminate</td><td>Use field instead of box.</td><td></td><td>In the Instance field, specify a value less than 64 characters long.</td></tr>
+            <tr id="rule-679" MadCap:conditions="Product.GoogleCloud,Product.GoogleWorkspace"><td>text box, textbox</td><td>Use field instead of box.</td><td></td><td>In the Instance field, specify a value less than 64 characters long.</td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
@@ -2867,18 +2806,18 @@
         <h2>then</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-681"><td>then, terminate, tap</td><td>Include helper words like then in if...then statements.</td><td></td><td></td></tr>
+            <tr id="rule-681"><td>then</td><td>Include helper words like then in if...then statements.</td><td></td><td></td></tr>
         </table>
         <h2>they (singular)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-682"><td>they (singular), terminate, tap</td><td>Use they as the preferred gender-neutral pronoun.</td><td></td><td>A user enters their password, and then they insert their security key.</td></tr>
+            <tr id="rule-682"><td>they (singular)</td><td>Use they as the preferred gender-neutral pronoun.</td><td></td><td>A user enters their password, and then they insert their security key.</td></tr>
             <tr id="rule-683"><td>they (singular)</td><td>Whether they is used as singular or plural, use the plural verb.</td><td></td><td>A user enters their password, and then they insert their security key.</td></tr>
         </table>
         <h2>third party (noun), third-party (adjective)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-684"><td>third party (noun), third-party (adjective), terminate, tap</td><td>Spell as third party when used as a noun and as third-party when used as an adjective.</td><td></td><td></td></tr>
+            <tr id="rule-684"><td>third party (noun), third-party (adjective)</td><td>Spell as third party when used as a noun and as third-party when used as an adjective.</td><td></td><td></td></tr>
         </table>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
@@ -2887,7 +2826,7 @@
         <h2>this, that</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-686"><td>this, that, terminate, tap</td><td>Where possible, put a noun after this or that for clarity.</td><td></td><td></td></tr>
+            <tr id="rule-686"><td>this, that</td><td>Where possible, put a noun after this or that for clarity.</td><td></td><td></td></tr>
         </table>
         <h2>timeframe</h2>
         <table>
@@ -2901,7 +2840,7 @@
         <h2>timeout (noun), time out (verb)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-689"><td>timeout (noun), time out (verb), terminate, tap</td><td>Use timeout as a noun and time out as a verb.</td><td></td><td></td></tr>
+            <tr id="rule-689"><td>timeout (noun), time out (verb)</td><td>Use timeout as a noun and time out as a verb.</td><td></td><td></td></tr>
         </table>
         <h2>timestamp</h2>
         <table>
@@ -2920,7 +2859,7 @@
         <h2>time zone (noun), time-zone (adjective)</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-693"><td>time zone (noun), time-zone (adjective), terminate, tap</td><td>Spell as time zone when used as a noun and as time-zone when used as an adjective.</td><td></td><td></td></tr>
+            <tr id="rule-693"><td>time zone (noun), time-zone (adjective)</td><td>Spell as time zone when used as a noun and as time-zone when used as an adjective.</td><td></td><td></td></tr>
         </table>
         <h2>tl;dr</h2>
         <table>
@@ -2935,12 +2874,12 @@
         <h2>touch</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-696" MadCap:conditions="Product.Android"><td>touch, terminate, tap</td><td>Don&apos;t use touch; instead, use tap, although touch &amp; hold is OK to use.</td><td></td><td></td></tr>
+            <tr id="rule-696" MadCap:conditions="Product.Android"><td>touch</td><td>Don&apos;t use touch; instead, use tap, although touch &amp; hold is OK to use.</td><td></td><td></td></tr>
         </table>
         <h2>&quot;touch &amp; hold&quot;</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-697"><td>touch and hold, Touch and hold</td><td>touch &amp; hold, Touch &amp; hold</td><td>warning</td><td></td><td>Touch and hold the app icon.</td></tr>
+            <tr id="rule-697" MadCap:conditions="Product.Android"><td>touch and hold, Touch and hold</td><td>touch &amp; hold, Touch &amp; hold</td><td>warning</td><td></td><td>Touch and hold the app icon.</td></tr>
         </table>
         <h2>touchscreen</h2>
         <table>
@@ -2950,7 +2889,7 @@
         <h2>traditional</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-699"><td>traditional, terminate, tap</td><td>If possible, use a more precise term than traditional.</td><td>This tutorial explains how to migrate from a traditional data warehouse to BigQuery.</td><td>This tutorial explains how to migrate from an on-premises data warehouse to BigQuery.</td></tr>
+            <tr id="rule-699"><td>traditional</td><td>If possible, use a more precise term than traditional.</td><td>This tutorial explains how to migrate from a traditional data warehouse to BigQuery.</td><td>This tutorial explains how to migrate from an on-premises data warehouse to BigQuery.</td></tr>
         </table>
         <h2>transpile</h2>
         <table>
@@ -2965,18 +2904,18 @@
         <h2>trojan</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-702"><td>trojan, terminate, tap</td><td>Lowercase trojan when referring to malware.</td><td></td><td></td></tr>
+            <tr id="rule-702"><td>trojan</td><td>Lowercase trojan when referring to malware.</td><td></td><td></td></tr>
         </table>
         <h2>turn on</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-703" MadCap:conditions="Content.Steps,Content.UI"><td>turn on, terminate, tap</td><td>In procedures, use the appropriate label and action for the UI element that the user interacts with.</td><td></td><td>In Settings, click the Magic mode toggle to the on position.</td></tr>
+            <tr id="rule-703" MadCap:conditions="Content.Steps,Content.UI"><td>turn on</td><td>In procedures, use the appropriate label and action for the UI element that the user interacts with.</td><td></td><td>In Settings, click the Magic mode toggle to the on position.</td></tr>
             <tr id="rule-704"><td>turn on</td><td>For turning on or activating an option or feature, use turn on or enable consistently throughout your document.</td><td></td><td>To turn on Magic Mode, follow these steps.</td></tr>
         </table>
         <h2>type</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-705"><td>type, terminate, tap</td><td>In general, use enter instead of type for entering text.</td><td></td><td></td></tr>
+            <tr id="rule-705"><td>type</td><td>In general, use enter instead of type for entering text.</td><td></td><td></td></tr>
         </table>
         <h2>typically</h2>
         <table>
@@ -2992,7 +2931,7 @@
         <h2>unarchive</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-709"><td>unarchive, uncompress, untar, unzip</td><td>extract</td><td>warning</td><td></td><td>To get the files, unzip the downloaded archive.</td></tr>
+            <tr id="rule-709"><td>unarchive</td><td>extract</td><td>warning</td><td></td><td>To get the files, unarchive the downloaded archive.</td></tr>
         </table>
         <h2>uncheck</h2>
         <table>
@@ -3042,7 +2981,7 @@
         <h2>user</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-720"><td>user, unselect</td><td>Use the word user only to refer to the user of the software that your reader is developing.</td><td></td><td></td></tr>
+            <tr id="rule-720"><td>user</td><td>Use the word user only to refer to the user of the software that your reader is developing.</td><td></td><td></td></tr>
             <tr id="rule-721"><td>user</td><td>Otherwise, address the reader as you and assume that they will complete the tasks that you&apos;re documenting.</td><td></td><td></td></tr>
         </table>
         <h2>user base</h2>
@@ -3053,7 +2992,7 @@
         <h2>using</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-723"><td>using, unselect</td><td>Where using might have more than one interpretation, use by using or that use instead to help clarify the logic of the sentence; it&apos;s OK to use using (or with) when misinterpretation is unlikely.</td><td>Filter the IAM roles using custom permissions.</td><td>Remove the Compute Engine VMs by using the test tag.</td></tr>
+            <tr id="rule-723"><td>using</td><td>Where using might have more than one interpretation, use by using or that use instead to help clarify the logic of the sentence; it&apos;s OK to use using (or with) when misinterpretation is unlikely.</td><td>Filter the IAM roles using custom permissions.</td><td>Remove the Compute Engine VMs by using the test tag.</td></tr>
         </table>
         <h2>UTF</h2>
         <table>
@@ -3063,7 +3002,7 @@
         <h2>utilize, utilization</h2>
         <table>
             <tr><th>Term</th><th>Rule</th><th>Bad</th><th>Good</th></tr>
-            <tr id="rule-725"><td>utilize, utilization, UTF, unselect</td><td>Don&apos;t use utilize when you mean use; it&apos;s OK to use utilize or utilization when referring to the quantity of a resource being used.</td><td>To distribute network traffic, utilize a load balancer.</td><td>To distribute network traffic, use a load balancer.</td></tr>
+            <tr id="rule-725"><td>utilize, utilization</td><td>Don&apos;t use utilize when you mean use; it&apos;s OK to use utilize or utilization when referring to the quantity of a resource being used.</td><td>To distribute network traffic, utilize a load balancer.</td><td>To distribute network traffic, use a load balancer.</td></tr>
         </table>
         <h2>v (abbreviating version)</h2>
         <table>
@@ -3094,7 +3033,7 @@
         <h2>VLAN attachment</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-733"><td>Cloud Interconnect attachment, Interconnect attachment, interconnect attachment</td><td>VLAN attachment</td><td>warning</td><td></td><td>Create an Interconnect attachment for your connection.</td></tr>
+            <tr id="rule-733" MadCap:conditions="Product.GoogleCloud"><td>Cloud Interconnect attachment, Interconnect attachment, interconnect attachment</td><td>VLAN attachment</td><td>warning</td><td></td><td>Create an Interconnect attachment for your connection.</td></tr>
         </table>
         <h2>voila</h2>
         <table>
@@ -3189,7 +3128,7 @@
         <h2>whitelist, white list, white-list</h2>
         <table>
             <tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-752"><td>whitelist, white list, white-list, whitelisted, white listed, white-listed, whitelisting, white listing, white-listing, Whitelist, White list, White-list, Whitelisted, Whitelisting</td><td></td><td>warning</td><td>See the blacklist entry.</td><td>Add the IP address to the whitelist.</td></tr>
+            <tr id="rule-752"><td>whitelist, white list, white-list, white listed, white-listed, white listing, white-listing, Whitelist, White list, White-list</td><td></td><td>warning</td><td>See the blacklist entry.</td><td>Add the IP address to the whitelist.</td></tr>
         </table>
         <h2>whitepaper</h2>
         <table>

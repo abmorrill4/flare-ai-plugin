@@ -16,7 +16,7 @@
         <h2>En dashes</h2>
         <table>
             <tr><th>Pattern</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr>
-            <tr id="rule-4" MadCap:conditions="Content.Dashes"><td>\u2013</td><td></td><td>warning</td><td>Google style doesn&apos;t use en dashes.</td><td>Choose a value from 1–10.</td></tr>
+            <tr id="rule-4" MadCap:conditions="Content.Dashes"><td>(?&lt;!\d)\u2013|\u2013(?!\d)</td><td></td><td>warning</td><td>Google style doesn&apos;t use en dashes.</td><td>Install the app – then restart it.</td></tr>
         </table>
         <h2>Colons instead of dashes in description lists</h2>
         <ul>

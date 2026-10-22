@@ -29,10 +29,9 @@
     },
     "#55": {
       "title": "Report and skip lint patterns that can only match markup",
-      "count": 9,
+      "count": 8,
       "cases": [
         "pattern-plain|google:hyphens/30|-|0",
-        "pattern-plain|google:numbers/35|-|0",
         "pattern-plain|google:placeholders/8|-|0",
         "pattern-plain|google:placeholders/9|-|0",
         "pattern-plain|google:semantic-tagging/10|-|0",
@@ -44,22 +43,9 @@
     },
     "#59": {
       "title": "Google fixes that create new findings",
-      "count": 14,
+      "count": 1,
       "cases": [
-        "fix-clean|google:abbreviations/18|paragraph|0",
-        "fix-clean|google:api-reference-comments/17|paragraph|0",
-        "fix-clean|google:ui-elements/68|paragraph|0",
-        "fix-clean|google:word-list/244|paragraph|0",
-        "fix-clean|google:word-list/269|paragraph|0",
-        "good-clean|google:abbreviations/18|link-a|0",
-        "good-clean|google:abbreviations/18|link-xref|0",
-        "good-clean|google:abbreviations/18|variable-adjacent|0",
-        "good-clean|google:api-reference-comments/17|link-a|0",
-        "good-clean|google:api-reference-comments/17|link-xref|0",
-        "good-clean|google:api-reference-comments/17|variable-adjacent|0",
-        "good-clean|google:word-list/244|link-a|0",
-        "good-clean|google:word-list/244|link-xref|0",
-        "good-clean|google:word-list/244|variable-adjacent|0"
+        "fix-clean|google:ui-elements/68|paragraph|0"
       ]
     },
     "#62": {

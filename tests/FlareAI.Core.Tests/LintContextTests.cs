@@ -93,11 +93,11 @@ namespace FlareAI.Core.Tests
         public void StepsRule_FiresInAStep_NotInAParagraph()
         {
             var e = Bundled();
-            const string id = "google:procedures/39";   // "please" (Content.Steps)
-            Assert.Contains(id, RulesOn(e, "<ol><li>Please select a file.</li></ol>", "please"));
-            Assert.Contains(id, RulesOn(e, "<ol><li><p>Please select a file.</p></li></ol>", "please"));
-            Assert.DoesNotContain(id, RulesOn(e, "<p>Please select a file.</p>", "please"));
-            Assert.DoesNotContain(id, RulesOn(e, "<ul><li>Please select a file.</li></ul>", "please"));
+            const string id = "google:procedures/20";   // "(Optional)" (Content.Steps)
+            Assert.Contains(id, RulesOn(e, "<ol><li>(Optional) Select a file.</li></ol>", "(Optional)"));
+            Assert.Contains(id, RulesOn(e, "<ol><li><p>(Optional) Select a file.</p></li></ol>", "(Optional)"));
+            Assert.DoesNotContain(id, RulesOn(e, "<p>(Optional) Select a file.</p>", "(Optional)"));
+            Assert.DoesNotContain(id, RulesOn(e, "<ul><li>(Optional) Select a file.</li></ul>", "(Optional)"));
         }
 
         [Fact]
@@ -130,8 +130,8 @@ namespace FlareAI.Core.Tests
         public void UnknownContext_LintsAsBefore()
         {
             // MCP and callers that pass plain text: only Headings scoping applies, so a Steps row fires in any text.
-            var hits = Bundled().Lint(new[] { "Please select a file.", "Click Sign-On Settings." }, null, null);
-            Assert.Contains(hits, h => h.Index == 0 && h.RuleIds.Contains("google:procedures/39"));
+            var hits = Bundled().Lint(new[] { "(Optional) Select a file.", "Click Sign-On Settings." }, null, null);
+            Assert.Contains(hits, h => h.Index == 0 && h.RuleIds.Contains("google:procedures/20"));
             Assert.Contains(hits, h => h.Index == 1 && h.RuleIds.Contains("google:word-list/640"));
         }
 
@@ -139,10 +139,10 @@ namespace FlareAI.Core.Tests
         public void Runner_MapsContextHitsBackToTheirRun()
         {
             var runner = new ActionRunner(new FakeLlmClient(r => "[]"), new PromptBuilder(null), 1024, Bundled());
-            var blocks = Blocks("<ol><li>Please click <b>Sign-On Settings</b> to configure sign-on.</li></ol>");
+            var blocks = Blocks("<ol><li>(Optional) Click <b>Sign-On Settings</b> to configure sign-on.</li></ol>");
             var findings = runner.Lint(blocks);
-            // The step's "Please" is found (Steps scope) on the first run; "sign-on" in the prose run after the label; nothing in the label.
-            Assert.Contains(findings, f => f.Excerpt.StartsWith("Please") && f.Before == "" && (f.RuleId == "google:procedures/39" || f.AlsoRules.Any(r => r.Id == "google:procedures/39")));
+            // The step's "(Optional)" is found (Steps scope) on the first run; "sign-on" in the prose run after the label; nothing in the label.
+            Assert.Contains(findings, f => f.Excerpt.StartsWith("(Optional)") && f.Before == "" && (f.RuleId == "google:procedures/20" || f.AlsoRules.Any(r => r.Id == "google:procedures/20")));
             Assert.Contains(findings, f => f.Excerpt == "sign-on" && f.Before.EndsWith(" to configure "));
             Assert.DoesNotContain(findings, f => f.Excerpt.Contains("Sign-On"));
         }
