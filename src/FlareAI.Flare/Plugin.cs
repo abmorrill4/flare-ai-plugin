@@ -456,7 +456,7 @@ namespace FlareAI.Flare
                 settings.GuideRoots(PluginDirectory);   // upgrades a writer's guide in the old layout (a full copy) before first use
                 Team.Current = team;
                 PromptBuilder.DefaultOverrideFolder = team.GuideRoot == null ? null : Path.Combine(team.GuideRoot, Path.Combine("FlareAI", "prompts"));
-                Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
+                Diagnostics.Log("Team: writer " + (string.IsNullOrEmpty(team.Writer) ? "not set" : "set") + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
                 System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                 {
                     // Read-only detection on load: a create-and-delete probe (shares report attributes unreliably).

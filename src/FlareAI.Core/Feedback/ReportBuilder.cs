@@ -60,15 +60,15 @@ namespace FlareAI.Core.Feedback
             var secrets = Secrets(ctx);
             ex = ErrorKinds.Unwrap(ex);
             var r = Base(ctx, ReportPayload.KindError, automatic);
-            r.WhatHappened = Text(whatFailed, FeedbackLimits.Text, true, secrets);
+            r.WhatHappened = Text(Anonymize(whatFailed, ctx.Settings), FeedbackLimits.Text, true, secrets);
             r.UserNote = Text(userNote, FeedbackLimits.Text, true, secrets);
             r.Exception = new ExceptionInfo
             {
                 Type = Text(ex == null ? "Unknown" : ex.GetType().FullName, FeedbackLimits.ExceptionType, false, secrets) ?? "Unknown",
-                Message = Text(ex == null ? "" : Diagnostics.WithoutQuotedText(ex.Message), FeedbackLimits.ExceptionMessage, true, secrets) ?? "",
-                Stack = Text(ex == null ? "" : Diagnostics.WithoutQuotedText(ex.ToString()), FeedbackLimits.Stack, true, secrets) ?? ""
+                Message = Text(ex == null ? "" : Anonymize(Diagnostics.WithoutQuotedText(ex.Message), ctx.Settings), FeedbackLimits.ExceptionMessage, true, secrets) ?? "",
+                Stack = Text(ex == null ? "" : Anonymize(Diagnostics.WithoutQuotedText(ex.ToString()), ctx.Settings), FeedbackLimits.Stack, true, secrets) ?? ""
             };
-            r.DiagLogTail = DiagTail(ctx.DiagLogPath, secrets);
+            r.DiagLogTail = DiagTail(ctx.DiagLogPath, secrets, ctx.Settings);
             r.Settings = SafeSettings(ctx.Settings);
             return r;
         }
@@ -82,7 +82,7 @@ namespace FlareAI.Core.Feedback
             r.Expected = Text(expected, FeedbackLimits.Text, true, secrets);
             if (includeDiagnostics)
             {
-                r.DiagLogTail = DiagTail(ctx.DiagLogPath, secrets);
+                r.DiagLogTail = DiagTail(ctx.DiagLogPath, secrets, ctx.Settings);
                 r.Settings = SafeSettings(ctx.Settings);
             }
             else
@@ -285,7 +285,7 @@ namespace FlareAI.Core.Feedback
         }
 
         /// <summary>The end of diag.log (it is being written to, so it is read shared), cut to the service's limit and scrubbed.</summary>
-        public static string DiagTail(string path, IList<string> secrets)
+        public static string DiagTail(string path, IList<string> secrets, PluginSettings settings = null)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) return null;
             try
@@ -303,10 +303,54 @@ namespace FlareAI.Core.Feedback
                     while (skip < read && skip < 4 && (buf[skip] & 0xC0) == 0x80) skip++;
                     text = new UTF8Encoding(false, false).GetString(buf, skip, read - skip);
                 }
-                text = Redact(WithoutContent(Strip(text, true)), secrets);
+                text = text.TrimStart((char)0xFEFF);   // the log file starts with a byte order mark
+                text = Anonymize(Redact(WithoutContent(Strip(text, true)), secrets), settings);
                 return Tail(text, FeedbackLimits.DiagLog);
             }
             catch (Exception) { return null; }
+        }
+
+        // ---- who and where: no names, addresses or folder paths ------------------------------------------------------
+
+        private static readonly Regex Email = new Regex(@"[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex WriterValue = new Regex(@"(?i)\b(writer\s*[=:]\s*)[^\s,;)]+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex AnyProfile = new Regex(@"(?i)\b[A-Z]:\\Users\\[^\\/\s""]+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// The text without the writer's identity or folder paths: email addresses become [email], writer= values are
+        /// removed, the configured team guide and feedback folders become [team guide] and [feedback folder], and the
+        /// writer's own folders become %LOCALAPPDATA%, %APPDATA%, %DOCUMENTS% and %USERPROFILE% (any other C:\Users\name
+        /// becomes C:\Users\[user]). Applied to everything House Style adds to a report, not to what the writer types.
+        /// </summary>
+        public static string Anonymize(string text, PluginSettings settings)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            var places = new List<KeyValuePair<string, string>>();
+            if (settings != null)
+            {
+                foreach (var line in (settings.StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    Place(places, line.Trim().TrimEnd('\\', '/'), "[team guide]");
+                Place(places, (settings.FeedbackFolder ?? "").Trim().TrimEnd('\\', '/'), "[feedback folder]");
+            }
+            Place(places, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "%LOCALAPPDATA%");
+            Place(places, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "%APPDATA%");
+            Place(places, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "%DOCUMENTS%");
+            Place(places, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%USERPROFILE%");
+            places.Sort((a, b) => b.Key.Length.CompareTo(a.Key.Length));   // the longest (most specific) first
+            foreach (var p in places)
+                text = Regex.Replace(text, Regex.Escape(p.Key), p.Value.Replace("$", "$$"), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            text = AnyProfile.Replace(text, m => m.Value.Substring(0, m.Value.IndexOf("\\Users\\", StringComparison.OrdinalIgnoreCase)) + "\\Users\\[user]");
+            text = WriterValue.Replace(text, "$1[removed]");
+            text = Email.Replace(text, "[email]");
+            return text;
+        }
+
+        private static void Place(List<KeyValuePair<string, string>> places, string path, string placeholder)
+        {
+            if (string.IsNullOrEmpty(path) || path.Length < 4 || path.IndexOf('{') >= 0) return;
+            places.Add(new KeyValuePair<string, string>(path, placeholder));
+            var forward = path.Replace('\\', '/');
+            if (forward != path) places.Add(new KeyValuePair<string, string>(forward, placeholder));
         }
 
         private static readonly Regex EntryStart = new Regex(@"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}  ", RegexOptions.CultureInvariant);

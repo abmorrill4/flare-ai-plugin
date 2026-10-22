@@ -92,6 +92,50 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void AReport_HasNoEmailAddress_WriterName_OrFolderPath()
+        {
+            const string Email = "sentinel.writer@example-corp.com";
+            var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var ctx = Context(
+                "2026-10-22 10:00:00.000  Team: writer=" + Email + " guide=" + @"\\fileserver\Docs\Jane Doe\Team Guide" + " feedback=" + @"C:\Users\jane.doe\OneDrive\Decisions" + "\n" +
+                "2026-10-22 10:00:01.000  Rule set to off in " + roaming + @"\FlareAI\StyleGuide\Content\Resources\StyleGuide\Company\Terms.htm" + "\n" +
+                "2026-10-22 10:00:02.000  Markers in " + local + @"\Temp\FlareAI-markers\m1.css; practice project in " + docs + @"\House Style Practice" + "\n" +
+                "2026-10-22 10:00:03.000  Opened " + profile + @"\Projects\Bank\Content\Transfers.htm and C:\Users\otherperson\Desktop\x.htm (writer: jdoe-sentinel)" + "\n" +
+                "2026-10-22 10:00:04.000  Lint topic done\n");
+            Exception ex;
+            try { throw new IOException("Couldn't write " + profile + @"\Projects\Bank\Content\Transfers.htm for " + Email); }
+            catch (Exception e) { ex = e; }
+            var reports = new[]
+            {
+                ReportBuilder.ToJson(ReportBuilder.ForError(ctx, ex, "House Style couldn't write to " + profile + @"\Projects\Bank.", null, false)),
+                ReportBuilder.ToJson(ReportBuilder.ForProblem(ctx, "The pane went blank.", null, true))
+            };
+            foreach (var json in reports)
+            {
+                // Compare the values as sent, not their JSON escaping.
+                var text = string.Join("\n", JObject.Parse(json).Descendants().OfType<JValue>().Where(v => v.Type == JTokenType.String).Select(v => (string)v).ToArray());
+                foreach (var gone in new[] { Email, "sentinel.writer", profile, roaming, local, docs, @"\\fileserver", "Jane Doe", "jane.doe", "otherperson", "jdoe-sentinel", Environment.UserName + @"\" })
+                    Assert.True(text.IndexOf(gone, StringComparison.OrdinalIgnoreCase) < 0, "\"" + gone + "\" is in the report:\n" + text);
+                Assert.Contains("Lint topic done", text);
+            }
+            var log = (string)JObject.Parse(reports[1])["diag_log_tail"];
+            Assert.Contains("[team guide]", log);
+            Assert.Contains("[feedback folder]", log);
+            Assert.Contains(@"%APPDATA%\FlareAI\StyleGuide", log);
+            Assert.Contains(@"%LOCALAPPDATA%\Temp", log);
+            Assert.Contains(@"%DOCUMENTS%\House Style Practice", log);
+            Assert.Contains(@"%USERPROFILE%\Projects\Bank", log);
+            Assert.Contains(@"C:\Users\[user]\Desktop", log);
+            Assert.Contains("writer=[removed]", log);
+            Assert.Contains("[email]", (string)JObject.Parse(reports[0])["exception"]["message"]);
+            // What the writer types is theirs to send.
+            Assert.Contains(Email, ReportBuilder.ToJson(ReportBuilder.ForProblem(ctx, "Write to " + Email + ".", null, false)));
+        }
+
+        [Fact]
         public void Settings_AreAWhitelist_OfHarmlessValues()
         {
             var s = Context().Settings;
