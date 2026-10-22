@@ -53,6 +53,18 @@ namespace FlareAI.Flare.UI
         private bool _aiOff;              // the writer chose no AI: no AI review, and cached AI suggestions stay hidden
         private volatile bool _aiHidden;  // a cached AI review was hidden this check
         private readonly LinkLabel _aiOffNote;
+        // Narrow pane (Flare docks it at ~150 logical px and ignores the width we ask for): rows wrap, buttons wrap,
+        // labels grow to their text; sizing rules in PaneRows.
+        private readonly LinkLabel _widthTip;
+        private static bool _widthTipShown;   // once per Flare session, in the first pane that is narrow
+        private bool _widthTipHere;
+        private readonly SplitContainer _split;
+        private readonly Panel _card;
+        private readonly List<Button> _buttons = new List<Button>();
+        private Font _metaFont;
+        private int _rowLines = -1;            // lines of text per row now (1 = two one-line columns)
+        private readonly Dictionary<string, List<string>> _wrapped = new Dictionary<string, List<string>>();
+        private int _wrappedWidth;
 
         /// <summary>Opens House Style Settings (the AI-off note's link).</summary>
         public Action OpenSettings { get; set; }
@@ -120,10 +132,9 @@ namespace FlareAI.Flare.UI
             _wholeTopic = string.IsNullOrEmpty(doc.SelectionText);
             Title = "House Style — " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             Font = SystemFonts.MessageBoxFont;
-            Padding = new Padding(6);
-            MinimumSize = new Size(260, 320);
+            Padding = new Padding(6);   // no minimum width: Flare docks the pane narrow, and a minimum only cuts the right side off
 
-            _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, Height = 36, Text = "Checking…" };
+            _status = new LiveLabel { Dock = DockStyle.Top, AutoSize = false, AutoEllipsis = true, Height = 36, Text = "Checking…" };
             _progress = new ProgressBar { Dock = DockStyle.Top, Height = 5, Style = ProgressBarStyle.Marquee };
             var triage = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true };
             _acceptAll = Btn(triage, "Apply all fixes", (s, e) => { if (_files != null) _session.FixAllAutomatic(); else _session.FixAll(); });
@@ -154,17 +165,26 @@ namespace FlareAI.Flare.UI
             _showSkipped = Btn(_viewBar, "Show skipped rules", (s, e) => _session.ShowSkippedRules());
             _backToRules.Visible = _showSkipped.Visible = false;
 
-            _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable };
+            // Owner-drawn so a row can wrap: the suggestion on up to 3 lines, then a smaller grey line (source or counts).
+            // Items, groups, selection, keys, menu and tooltips are the ListView's own; only the painting is ours.
+            _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable, OwnerDraw = true };
             _list.Columns.Add("Suggestion");
             _list.Columns.Add("Source");
             _list.Resize += (s, e) => FitColumns();
+            _list.DrawColumnHeader += (s, e) => e.DrawDefault = true;
+            _list.DrawItem += (s, e) => Safe.Run("Draw row", () => DrawRow(e));
+            _list.DrawSubItem += (s, e) => { };   // the whole row is painted in DrawItem (hover repaints raise only DrawItem)
+            _list.ColumnWidthChanging += (s, e) => { if (_rowLines > 1 && e.ColumnIndex == 1) { e.Cancel = true; e.NewWidth = 0; } };
+            _list.FontChanged += (s, e) => { _rowLines = -1; FitColumns(); };
+            _list.GotFocus += (s, e) => _list.Invalidate();   // the selected row: highlighted when the list has focus, grey when not
+            _list.LostFocus += (s, e) => _list.Invalidate();
             _list.SelectedIndexChanged += (s, e) => Safe.Run("Select finding", () => { _session.Current = Current(); ShowCard(); _session.OnSelected(Current()); });
             _list.DoubleClick += (s, e) => Safe.Run("Apply", Accept);
             _list.KeyDown += (s, e) => Safe.Run("List key", () => OnListKey(s, e));
             _list.ContextMenuStrip = BuildRowMenu();
 
             // The card: what, why, impact, and the decision.
-            var card = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0) };
+            var card = _card = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0) };
             _cardHead = new Label { Dock = DockStyle.Top, AutoSize = false, Height = 34, Font = new Font(SystemFonts.MessageBoxFont, FontStyle.Bold) };
             _cardDiff = DiffView.Create();
             _cardDiff.Dock = DockStyle.Top; _cardDiff.Height = 64; _cardDiff.BackColor = SystemColors.Window;
@@ -197,19 +217,19 @@ namespace FlareAI.Flare.UI
             card.Controls.Add(actions);
             card.Controls.Add(_ruleActions);
 
-            var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterWidth = 6, FixedPanel = FixedPanel.Panel2 };
+            var split = _split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterWidth = 6, FixedPanel = FixedPanel.Panel2 };
             split.Panel1.Controls.Add(_list);
             // What the last batch did (changed, skipped with the reason, failed) stays here until the next check.
             _result = new TextBox { Dock = DockStyle.Bottom, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Height = 90, Visible = false, BackColor = SystemColors.Window };
             split.Panel1.Controls.Add(_result);
             split.Panel2.Controls.Add(card);
-            // The pane is laid out small first and grows; keep the card at a readable height whenever it does.
-            const int CardHeight = 250;
-            split.SizeChanged += (s, e) =>
-            {
-                if (split.Height < CardHeight + 140 || split.Panel2.Height >= CardHeight) return;
-                try { split.SplitterDistance = split.Height - CardHeight - split.SplitterWidth; } catch (Exception) { }
-            };
+            // The pane is laid out small first and grows; keep the card tall enough for its wrapped buttons whenever it does.
+            split.SizeChanged += (s, e) => FitCard();
+            actions.SizeChanged += (s, e) => { FitCard(); FitCardHead(); };
+            _ruleActions.SizeChanged += (s, e) => { FitCard(); FitCardHead(); };
+            actions.VisibleChanged += (s, e) => FitCardHead();
+            _ruleActions.VisibleChanged += (s, e) => FitCardHead();
+            card.SizeChanged += (s, e) => FitCardHead();
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             _recheck = Btn(bar, "Check again", (s, e) => { _aiOnStart = true; Start(); });
@@ -236,6 +256,8 @@ namespace FlareAI.Flare.UI
 
             // The last notice (a toast vanishes by itself) stays reachable here, with its action as a focusable link.
             _notice = new NoticeLink { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, AccessibleRole = AccessibleRole.Link };
+            _notice.TextChanged += (s, e) => FitLabel(_notice, 0);
+            _notice.VisibleChanged += (s, e) => FitLabel(_notice, 0);
             _notice.LinkClicked += (s, e) => { var n = Toast.Last; if (n != null && n.Action != null) n.Action(); };
             Toast.LastChanged += OnNoticeChanged;
             HandleDestroyed += (s, e) => Toast.LastChanged -= OnNoticeChanged;
@@ -254,6 +276,16 @@ namespace FlareAI.Flare.UI
             _aiOffNote.LinkClicked += (s, e) => Safe.Run("Settings", () => { var settings = OpenSettings; if (settings != null) settings(); });
             Controls.Add(_aiOffNote);
             Controls.Add(_status);
+            _widthTip = new LinkLabel { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, Text = WidthTipText + "  Got it", AccessibleRole = AccessibleRole.Link,
+                                        AccessibleName = WidthTipText, AccessibleDescription = "Got it hides this tip for good.", Padding = new Padding(0, 0, 0, 4) };
+            _widthTip.LinkArea = new LinkArea(WidthTipText.Length + 2, "Got it".Length);
+            _widthTip.LinkClicked += (s, e) => Safe.Run("Hide tip", HideWidthTip);
+            Controls.Add(_widthTip);   // added last: the topmost line
+            _status.TextChanged += (s, e) => { FitLabel(_status, 2); _ignoreTip.SetToolTip(_status, _status.Text); };
+            _aiOffNote.VisibleChanged += (s, e) => FitLabel(_aiOffNote, 0);
+            _cost.TextChanged += (s, e) => FitLabel(_cost, 0);
+            SizeChanged += (s, e) => FitToWidth();
+            HandleCreated += (s, e) => FitToWidth();
             NameControls();
             HandleDestroyed += (s, e) => { if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); };
             ShowCard();
@@ -290,7 +322,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_recheck, "Check again");
             A11y.Name(_ignore, "Turn off this rule", "Turns the selected rule off or changes its level, or asks the style guide owner to. Opens a dialog.");
             // Tab order: notice, triage buttons, list, decision buttons, card text, bottom bar.
-            var top = new Control[] { _status, _notice, _acceptAll.Parent, _viewBar, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
+            var top = new Control[] { _widthTip, _status, _notice, _acceptAll.Parent, _viewBar, _progress, _list.Parent.Parent, _cost, _recheck.Parent };
             for (var i = 0; i < top.Length; i++) top[i].TabIndex = i;
             A11y.Name(_acceptAll.Parent, "Bulk actions"); A11y.Name(_recheck.Parent, "Panel actions"); A11y.Name(_accept.Parent, "Decision for the selected suggestion");
             A11y.Name(_viewBar, "View", "List the project's suggestions by rule or by file.");
@@ -300,7 +332,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_skipRule, "Skip", "Hides this rule until the next check.");
             A11y.Name(_backToRules, "All rules", "Ends Review one by one and lists every rule again (Escape).");
             A11y.Name(_batchStop, "Stop after this file");
-            var order = new Control[] { _notice, _acceptAll, _bulk, _stop, _batchStop, _byRule, _byFile, _backToRules, _showSkipped, _list, _result,
+            var order = new Control[] { _widthTip, _notice, _acceptAll, _bulk, _stop, _batchStop, _byRule, _byFile, _backToRules, _showSkipped, _list, _result,
                                         _accept, _reject, _edit, _refine, _reanalyze, _rule, _fixRule, _reviewRule, _turnOffRule, _skipRule, _cardDiff, _cardWhy, _recheck, _ignore };
             for (var i = 0; i < order.Length; i++) order[i].TabIndex = i;
             A11y.Apply(this);
@@ -315,19 +347,210 @@ namespace FlareAI.Flare.UI
             else HandleCreated += (s, e) => BeginInvoke((Action)Start);
         }
 
-        private static Button Btn(FlowLayoutPanel bar, string text, EventHandler click)
+        /// <summary>A button sized to its text, or to the pane's width with its text wrapped when the pane is narrower (<see cref="FitButton"/>).</summary>
+        private Button Btn(FlowLayoutPanel bar, string text, EventHandler click)
         {
-            var b = new Button { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Height = 26, Margin = new Padding(0, 0, 4, 4) };
+            var b = new Button { Text = text, AutoSize = false, Margin = new Padding(0, 0, 4, 4) };
             b.Click += (s, e) => Safe.Run(text, () => click(s, e));
+            b.TextChanged += (s, e) => FitButton(b);
+            b.FontChanged += (s, e) => FitButton(b);
             bar.Controls.Add(b);
+            _buttons.Add(b);
+            FitButton(b);
             return b;
         }
 
+        // ---- narrow pane -------------------------------------------------------------------------
+
+        private const string WidthTipText = "Tip: drag this pane's edge to make it wider.";
+
+        /// <summary>This pane's DPI scale (1 at 100%, 1.25 at 125%).</summary>
+        private float Dpi { get { return DeviceDpi / 96f; } }
+
+        private int S(int px) { return PaneRows.S(px, Dpi); }
+
+        /// <summary>The pane changed width: buttons, labels and the card head follow, and the tip shows or hides.</summary>
+        private void FitToWidth()
+        {
+            if (Width <= 0) return;
+            foreach (var b in _buttons) FitButton(b);
+            FitLabel(_status, 2); FitLabel(_notice, 0); FitLabel(_aiOffNote, 0); FitLabel(_cost, 0);
+            UpdateWidthTip();
+            FitCardHead();
+        }
+
+        /// <summary>One line when it fits, else the full width with the text wrapped: a button never runs past the pane's edge.</summary>
+        private void FitButton(Button b)
+        {
+            var bar = b.Parent;
+            var width = ClientSize.Width - Padding.Horizontal - (bar != null ? bar.Padding.Horizontal : 0);
+            var available = width - b.Margin.Horizontal;
+            const TextFormatFlags Flags = TextFormatFlags.NoPrefix;
+            var text = (b.Text ?? "").Replace("&&", "\u0001").Replace("&", "").Replace("\u0001", "&");
+            var one = TextRenderer.MeasureText(text, b.Font, Size.Empty, Flags);
+            var wrapped = TextRenderer.MeasureText(text, b.Font, new Size(PaneRows.ButtonTextWidth(available, Dpi), 0), Flags | TextFormatFlags.WordBreak).Height;
+            var size = PaneRows.ButtonSize(one, wrapped, available, Dpi);
+            if (b.Size != size) b.Size = size;
+        }
+
+        /// <summary>A label as tall as its wrapped text (the status line: at least <paramref name="minLines"/> lines, at most 40% of the pane).</summary>
+        private void FitLabel(Control label, int minLines)
+        {
+            if (label == null || (!label.Visible && label != _status)) return;
+            var w = label.Width - label.Padding.Horizontal - S(4);
+            if (w <= 0) return;
+            var text = string.IsNullOrEmpty(label.Text) ? " " : label.Text;
+            var measured = TextRenderer.MeasureText(text, label.Font, new Size(w, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height;
+            // A very long status ends with … (full text in its tooltip and for screen readers) so the list keeps its room.
+            var max = label == _status && Height > 0 ? Math.Min(Height / 4, label.Font.Height * 6) : 0;
+            var h = PaneRows.LabelHeight(measured, label.Font.Height, minLines, max, Dpi) + label.Padding.Vertical;
+            if (label.Height != h) label.Height = h;
+        }
+
+        /// <summary>Shows the "make it wider" tip the first time a narrow pane appears in this Flare session, until Got it.</summary>
+        private void UpdateWidthTip()
+        {
+            if (_widthTip == null) return;
+            var narrow = PaneRows.ShowWidthTip(Width, Dpi);
+            if (!_widthTipHere && narrow && !_widthTipShown && IsHandleCreated && Parent != null)
+            {
+                bool dismissed;
+                try { dismissed = FlareAI.Core.Settings.PluginSettings.Load().PaneWidthTipDismissed; }
+                catch (Exception ex) { Diagnostics.Log("width tip", ex); dismissed = true; }
+                _widthTipShown = true;
+                _widthTipHere = !dismissed;
+            }
+            var show = _widthTipHere && narrow;
+            if (_widthTip.Visible != show) _widthTip.Visible = show;
+            if (show) FitLabel(_widthTip, 0);
+        }
+
+        private void HideWidthTip()
+        {
+            _widthTipHere = false;
+            _widthTip.Visible = false;
+            try
+            {
+                var settings = FlareAI.Core.Settings.PluginSettings.Load();
+                if (!settings.PaneWidthTipDismissed) { settings.PaneWidthTipDismissed = true; settings.Save(); }
+            }
+            catch (Exception ex) { Diagnostics.Log("width tip: save", ex); }
+            _list.Focus();
+        }
+
+        /// <summary>Grows the card (never shrinks it: the writer may have dragged it taller) to fit its heading, text and buttons.</summary>
+        private void FitCard()
+        {
+            if (_split == null || _card == null || _split.Height <= 0) return;
+            var buttons = (_actions.Visible ? _actions.Height : 0) + (_ruleActions.Visible ? _ruleActions.Height : 0);
+            var want = _card.Padding.Vertical + _cardHead.Height + S(DiffHeight) + S(70) + buttons;
+            var list = Math.Max(S(140), _split.Height / 3);   // the list keeps room for a few rows
+            var target = Math.Min(want, _split.Height - _split.SplitterWidth - list);
+            if (target < S(100) || _split.Panel2.Height >= target) return;
+            try { _split.SplitterDistance = _split.Height - target - _split.SplitterWidth; } catch (Exception) { }
+        }
+
+        /// <summary>The card's heading wraps at the card's width; the snippet line ("used in N topics") is never cut off.</summary>
+        private void FitCardHead()
+        {
+            if (_cardHead == null || _card == null || _actions == null || _ruleActions == null || _cardHead.Width <= 0) return;
+            var measured = TextRenderer.MeasureText(_cardHead.Text ?? "", _cardHead.Font, new Size(Math.Max(50, _cardHead.Width - S(4)), 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height;
+            var h = Math.Max(S(34), measured + S(6));
+            if (_cardHead.Height != h) _cardHead.Height = h;
+            // A short card (narrow pane, wrapped buttons) gives up diff height first, so the buttons are never covered.
+            var buttons = (_actions.Visible ? _actions.Height : 0) + (_ruleActions.Visible ? _ruleActions.Height : 0);
+            var diff = Math.Max(S(28), Math.Min(S(DiffHeight), _card.ClientSize.Height - _card.Padding.Vertical - h - buttons - S(24)));
+            if (_cardDiff.Height != diff) _cardDiff.Height = diff;
+        }
+
+        private const int DiffHeight = 64;   // logical px: the "what changes" box at full size
+
+        /// <summary>
+        /// One column of wrapped rows when the list is narrow, two one-line columns when it is wide; the row height follows
+        /// (a ListView's rows take their height from its small image list).
+        /// </summary>
         private void FitColumns()
         {
-            var w = Math.Max(150, _list.ClientSize.Width - 4);
-            _list.Columns[0].Width = w * 62 / 100;
-            _list.Columns[1].Width = w - _list.Columns[0].Width;
+            var lines = PaneRows.TextLines(_list.Width, Dpi);
+            if (lines != _rowLines)
+            {
+                _rowLines = lines;
+                if (_metaFont != null) _metaFont.Dispose();
+                _metaFont = new Font(_list.Font.FontFamily, Math.Max(6f, _list.Font.SizeInPoints - 1f), FontStyle.Regular, GraphicsUnit.Point);
+                var h = PaneRows.RowHeight(lines, lines == 1, _list.Font.Height, _metaFont.Height, Dpi);
+                var old = _list.SmallImageList;
+                _list.SmallImageList = new ImageList { ImageSize = new Size(1, Math.Min(256, h)) };
+                if (old != null) old.Dispose();
+            }
+            var w = Math.Max(S(40), _list.ClientSize.Width - 4);
+            if (lines == 1)
+            {
+                _list.Columns[0].Width = w * 62 / 100;
+                _list.Columns[1].Width = w - _list.Columns[0].Width;
+            }
+            else
+            {
+                _list.Columns[0].Width = w;
+                _list.Columns[1].Width = 0;
+            }
+            _list.Invalidate();
+        }
+
+        private const TextFormatFlags OneLine = TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine;
+
+        /// <summary>
+        /// Paints a row: the severity glyph and suggestion (wrapped, or one line when wide), then the source or counts in small
+        /// grey type. Colour and strike-through come from the item (Restyle), so an applied fix still reads as struck through.
+        /// </summary>
+        private void DrawRow(DrawListViewItemEventArgs e)
+        {
+            var item = e.Item;
+            var g = e.Graphics;
+            var b = e.Bounds;
+            var focused = _list.Focused;
+            var selected = item.Selected;
+            var back = !selected ? _list.BackColor : focused ? SystemColors.Highlight : SystemColors.ButtonFace;
+            var fore = !_list.Enabled ? SystemColors.GrayText : selected && focused ? SystemColors.HighlightText : item.ForeColor;
+            var grey = selected && focused ? SystemColors.HighlightText : SystemColors.GrayText;
+            using (var brush = new SolidBrush(back)) g.FillRectangle(brush, b);
+            var meta = item.SubItems.Count > 1 ? item.SubItems[1].Text : "";
+            var font = item.Font ?? _list.Font;
+            var pad = S(4);
+            if (_rowLines <= 1 || _metaFont == null)
+            {
+                var c0 = _list.Columns[0].Width;
+                var first = new Rectangle(b.X + pad, b.Y, Math.Max(1, c0 - 2 * pad), b.Height);
+                var second = new Rectangle(b.X + c0 + pad, b.Y, Math.Max(1, b.Width - c0 - 2 * pad), b.Height);
+                TextRenderer.DrawText(g, item.Text, font, first, fore, OneLine | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                TextRenderer.DrawText(g, meta, _list.Font, second, grey, OneLine | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            }
+            else
+            {
+                var width = Math.Max(1, b.Width - 2 * pad);
+                var y = b.Y + S(3);
+                foreach (var line in Wrapped(item.Text, font, width, _rowLines))
+                {
+                    TextRenderer.DrawText(g, line, font, new Point(b.X + pad, y), fore, OneLine);
+                    y += font.Height;
+                }
+                y += S(1);   // the meta line follows the text, however many lines it used
+                var metaFont = _metaFont;
+                var metaText = PaneRows.Ellipsize(meta, s => TextRenderer.MeasureText(g, s, metaFont, Size.Empty, OneLine).Width, width);
+                TextRenderer.DrawText(g, metaText, metaFont, new Point(b.X + pad, y), grey, OneLine);
+            }
+            if ((e.State & ListViewItemStates.Focused) != 0 && focused) ControlPaint.DrawFocusRectangle(g, b, fore, back);
+        }
+
+        /// <summary>A row's text wrapped at this width, remembered until the width changes (painting a row must stay cheap).</summary>
+        private List<string> Wrapped(string text, Font font, int width, int lines)
+        {
+            if (width != _wrappedWidth || _wrapped.Count > 4000) { _wrapped.Clear(); _wrappedWidth = width; }
+            var key = lines + "|" + (int)font.Style + "|" + text;
+            List<string> result;
+            if (_wrapped.TryGetValue(key, out result)) return result;
+            result = PaneRows.Wrap(text, s => TextRenderer.MeasureText(s, font, Size.Empty, OneLine).Width, width, lines);
+            _wrapped[key] = result;
+            return result;
         }
 
         /// <summary>Right-click on a row: Go to, Open file (the whole topic or snippet, nothing selected), Copy file path.</summary>
@@ -575,7 +798,7 @@ namespace FlareAI.Flare.UI
             foreach (var r in _session.Backlog())
             {
                 var counts = r.Counts() + (r.Snippets.Count > 0 ? " · in " + Plural.Of(r.Snippets.Count, "snippet") : "");
-                var item = new ListViewItem(new[] { A11y.SeverityGlyph(r.Severity) + " " + Shorten(r.Reason, 90), counts }) { Tag = r };
+                var item = new ListViewItem(new[] { A11y.SeverityGlyph(r.Severity) + " " + Shorten(r.Reason, 160), counts }) { Tag = r };
                 item.ToolTipText = r.Title + "\n" + r.Reason + "\n" + counts;
                 item.ForeColor = r.Severity == "error" ? Color.Firebrick : SystemColors.WindowText;
                 _list.Items.Add(item);
@@ -618,7 +841,7 @@ namespace FlareAI.Flare.UI
         private void ShowRuleCard(BacklogRule r)
         {
             _cardHead.Text = A11y.SeverityLabel(r.Severity) + "  ·  " + r.Title + "\n" + r.Counts();
-            _cardHead.Height = Math.Max(34, TextRenderer.MeasureText(_cardHead.Text, _cardHead.Font, new Size(Math.Max(50, _cardHead.Width), 0), TextFormatFlags.WordBreak).Height + 6);
+            FitCardHead();
             var shown = 0;
             foreach (var f in r.Findings)
             {
@@ -813,8 +1036,7 @@ namespace FlareAI.Flare.UI
                     : "In " + System.IO.Path.GetFileName(f.DocumentPath);
             _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  applied" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
-            // Grow to fit: the snippet line ("used in N topics") must never be cut off.
-            _cardHead.Height = Math.Max(34, TextRenderer.MeasureText(_cardHead.Text, _cardHead.Font, new Size(Math.Max(50, _cardHead.Width), 0), TextFormatFlags.WordBreak).Height + 6);
+            FitCardHead();   // grow to fit: the snippet line ("used in N topics") must never be cut off
             _list.AccessibleDescription = (_cardHead.Text + ". " + f.Suggestion).Replace("\n", " ");   // what a screen reader says for the selected row
 
             // What: the words around it, and the change marked.
