@@ -189,6 +189,12 @@ namespace FlareAI.Core.Style
             var doc = new XmlDocument { PreserveWhitespace = true };
             try { doc.Load(path); }
             catch (XmlException e) { Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Not well-formed XML: " + e.Message }); return; }
+            catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
+            {
+                Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Can't read this topic: " + e.Message });
+                Diagnostics.Log("Style guide topic " + path + " can't be read", e);
+                return;
+            }
             var body = BlockSelector.FindBody(doc);
             if (body == null) return;
             var h1 = body.SelectSingleNode(".//*[local-name()='h1']");

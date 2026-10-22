@@ -433,6 +433,8 @@ namespace FlareAI.Flare.UI
                     _status.Text = Summary() + "  These come from style rules only (free, no AI used). Check again" + (_unitCount > 0 ? " reviews " + Plural.Of(_unitCount, "paragraph") + " with AI." : " adds the AI wording review.");
                 else _status.Text = Open().Count == 0 ? "No open suggestions." : Summary();
                 if (_lintNote != null) _status.Text += "  " + _lintNote;
+                var guide = _runner.GuideNotice;
+                if (guide != null) _status.Text += "  " + guide;
                 ShowRequestNote();
                 var team = Team.Current;
                 if (team != null && team.Status != null && team.Status.Behind > 0) _status.Text += "  " + team.Status;
@@ -476,6 +478,8 @@ namespace FlareAI.Flare.UI
                     var found = (List<StyleFinding>)e.Result;
                     _session.Add(found);
                     _status.Text = Summary() + "  Checked " + Plural.Of(_files.Count, "file") + " with style rules only (free, no AI).";
+                    var guide = _runner.GuideNotice;
+                    if (guide != null) _status.Text += "  " + guide;
                     ShowRequestNote();
                     if (RuleRows && _list.Items.Count > 0) { _list.Items[0].Selected = true; _list.Items[0].Focused = true; }
                 }

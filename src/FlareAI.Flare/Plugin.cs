@@ -616,7 +616,11 @@ namespace FlareAI.Flare
             if (_style == null || _styleKey != key)
             {
                 var pluginDir = PluginDirectory;
-                _style = new StyleEngine(() => settings.GuideRoots(pluginDir), PluginSettings.BundledGuide(pluginDir));
+                // A team guide that can't be read: check with the bundled guide plus the writer's own changes, and say so.
+                _style = new StyleEngine(() => settings.GuideRoots(pluginDir), PluginSettings.BundledGuide(pluginDir))
+                {
+                    Fallback = () => new PluginSettings { StyleLayers = "" }.GuideRoots(pluginDir)
+                };
                 _styleKey = key;
             }
             return _style;

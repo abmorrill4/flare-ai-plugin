@@ -92,7 +92,18 @@ namespace FlareAI.Flare.UI
                 if (line.Trim().Length > 0) _layers.Items.Add(line.Trim());
             _addGuide = g.Add(new Button { Text = "Add…", Left = g.FieldLeft + g.FieldWidth - g.S(86), Top = _layers.Top - 1, Width = g.S(86), Height = g.S(26) });
             _removeGuide = g.Add(new Button { Text = "Remove", Left = _addGuide.Left, Top = _addGuide.Bottom + g.S(4), Width = g.S(86), Height = g.S(26) });
-            _addGuide.Click += (s, e) => { var f = PickFolder("Choose your team's style guide (a Flare project folder)"); if (f != null && !_layers.Items.Contains(f)) { _layers.Items.Add(f); CheckGuides(); } };
+            _addGuide.Click += (s, e) =>
+            {
+                var f = PickFolder("Choose your team's style guide (a Flare project folder)");
+                if (f == null || _layers.Items.Contains(f)) return;
+                if (GuideFolderCheck.HasGoogleLayer(f))
+                {
+                    MessageBox.Show(this, GuideFolderCheck.GoogleLayerMessage, "House Style", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                _layers.Items.Add(f);
+                CheckGuides();
+            };
             _removeGuide.Click += (s, e) => { if (_layers.SelectedIndex >= 0) { _layers.Items.RemoveAt(_layers.SelectedIndex); CheckGuides(); } };
             g.Y = Math.Max(g.Y, _removeGuide.Bottom + g.S(6));
             _guideStatus = g.Status(5);

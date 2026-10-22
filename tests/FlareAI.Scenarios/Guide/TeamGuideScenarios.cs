@@ -105,6 +105,56 @@ namespace FlareAI.Scenarios.Guide
         }
 
         [Fact]
+        public void AnUnreadableTeamGuide_ChecksWithTheBundledGuide_AndSaysWhichFolderAndWhy()
+        {
+            using (var ws = FakeWorkspace.Empty())
+            {
+                var i = Installed(ws);
+                ws.MakeUnreadable(i.TeamGuide);
+                ws.WriteFile(Topic, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html><head><title>Help</title></head><body><h1>Help</h1><p>Utilize this page.</p></body></html>");
+                var runner = new ActionRunner(ScriptedLlmClient.NoFindings(), PromptBuilder.For(i.Engine, ws.PathOf(Topic)), 16000, i.Engine, ws.PathOf(Topic));
+
+                // The project check runs (it used to fail with "Access to the path … is denied")…
+                var found = runner.LintFiles(new[] { ws.PathOf(Topic) });
+
+                // …with Google's guide and the bundled defaults, and says plainly which folder couldn't be read and why.
+                Assert.NotEmpty(found);
+                Assert.DoesNotContain(found, f => f.RuleId == ThisPage);
+                var notice = runner.GuideNotice;
+                Assert.NotNull(notice);
+                Assert.StartsWith(StyleEngine.UnreadableNotice, notice);
+                Assert.Contains(i.TeamGuide, notice);
+                Assert.Contains("permission", notice);
+                Assert.Contains("can't be read", File.ReadAllText(ws.DiagLog));
+
+                // Access comes back: the next check uses the team guide again, with no notice.
+                ws.ClearReadOnly();
+                Assert.Null(runner.GuideNotice);
+            }
+        }
+
+        [Fact]
+        public void TheGuideFolderCheck_RefusesAFolderWithGooglesGuide_AndNamesAnUnreadableOne()
+        {
+            using (var ws = FakeWorkspace.Empty())
+            {
+                var i = Installed(ws);
+                var bundled = FlareAI.Core.Settings.GuideFolderCheck.Check(i.Bundled, "pat@example.com");
+                Assert.False(bundled.Ok);
+                Assert.Contains("loaded twice", bundled.Message);
+                Assert.True(FlareAI.Core.Settings.GuideFolderCheck.HasGoogleLayer(i.Bundled));
+                Assert.False(FlareAI.Core.Settings.GuideFolderCheck.HasGoogleLayer(i.TeamGuide));
+                Assert.True(FlareAI.Core.Settings.GuideFolderCheck.Check(i.TeamGuide, "pat@example.com").Ok);
+
+                ws.MakeUnreadable(i.TeamGuide);
+                var r = FlareAI.Core.Settings.GuideFolderCheck.Check(i.TeamGuide, "pat@example.com");
+                Assert.False(r.Ok);
+                Assert.Contains(i.TeamGuide, r.Message);
+                Assert.Contains("permission", r.Message);
+            }
+        }
+
+        [Fact]
         public void APersonalGuidesOwnOverridesTopic_DoesNotHideTheBundledDefaultRows()
         {
             using (var ws = FakeWorkspace.Empty())
