@@ -110,7 +110,7 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>The note the review pane shows when AI is off and earlier AI reviews of the text were hidden.</summary>
-        public const string AiOffNote = "AI is off; earlier AI suggestions are hidden.";
+        public const string AiOffNote = "AI is off. Earlier AI issues are hidden.";
 
         /// <summary>
         /// The cached review to show for <paramref name="prompt"/>: none while AI is off (the writer chose no AI, so earlier AI

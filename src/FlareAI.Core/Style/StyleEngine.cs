@@ -88,7 +88,7 @@ namespace FlareAI.Core.Style
         public string Notice(string project) { return Compose(project).Notice; }
 
         /// <summary>The first line of <see cref="Notice"/>.</summary>
-        public const string UnreadableNotice = "Your team's style guide couldn't be read; checked with Google's guide only.";
+        public const string UnreadableNotice = "Your team's style guide couldn't be read, so House Style linted with Google's guide only.";
 
         // ---- composition ---------------------------------------------------------------------------------------
 
@@ -608,7 +608,7 @@ namespace FlareAI.Core.Style
                         var created = again.FirstOrDefault(h => h.Index == k && !moved[k].Contains(h.RuleId ?? h.Rule) &&
                                                                 !hits.Any(b => b.Index == fixedFrom[k] && (b.RuleId ?? b.Rule) == (h.RuleId ?? h.Rule) && b.Match == h.Match));
                         if (created != null)
-                            issue("error", fixedRows[i], "Applying the fix creates a finding from " + (created.RuleId ?? created.Rule) + " ('" + created.Match + "'): '" + fixedTexts[i] + "'.");
+                            issue("error", fixedRows[i], "Applying the fix creates an issue from " + (created.RuleId ?? created.Rule) + " ('" + created.Match + "'): '" + fixedTexts[i] + "'.");
                     }
                 }
             }

@@ -27,7 +27,7 @@ namespace FlareAI.Flare
     {
         private readonly IHost _host;
         private readonly Func<FlareDocumentAdapter, ActionRunner> _lintRunner;
-        private readonly Action _checkStyle, _rewrite, _ask, _checkProject;
+        private readonly Action _lintTopic, _rewrite, _ask, _lintProject;
         private readonly Func<Form> _owner;
         // Keyed by file path: Flare hands out a new IDocument wrapper for the same document on each call.
         private readonly Dictionary<string, DocState> _docs = new Dictionary<string, DocState>(StringComparer.OrdinalIgnoreCase);
@@ -43,10 +43,10 @@ namespace FlareAI.Flare
         }
 
         public EditorIntegration(IHost host, Func<FlareDocumentAdapter, ActionRunner> lintRunner, Func<Form> owner,
-                                 Action checkStyle, Action rewrite, Action ask, Action checkProject)
+                                 Action lintTopic, Action rewrite, Action ask, Action lintProject)
         {
             _host = host; _lintRunner = lintRunner; _owner = owner;
-            _checkStyle = checkStyle; _rewrite = rewrite; _ask = ask; _checkProject = checkProject;
+            _lintTopic = lintTopic; _rewrite = rewrite; _ask = ask; _lintProject = lintProject;
             FindingsPanel.Changed += panel => { var d = DocFor(panel.TopicPath); if (d != null) UpdateMarkers(d); };
             try { Directory.CreateDirectory(MarkerDir); foreach (var f in Directory.GetFiles(MarkerDir, "*.css")) File.Delete(f); } catch (Exception) { }
         }
@@ -79,7 +79,7 @@ namespace FlareAI.Flare
                 if (items != null && !items.Any(i => i.Text == Commands.Context[0].ContextLabel))
                 {
                     items.Add(new ToolStripSeparator());
-                    foreach (var c in Commands.Context) items.Add(Item(c, c == Commands.CheckStyle ? _checkStyle : c == Commands.Rewrite ? _rewrite : _ask));
+                    foreach (var c in Commands.Context) items.Add(Item(c, c == Commands.LintTopic ? _lintTopic : c == Commands.Rewrite ? _rewrite : _ask));
                 }
             }
             catch (Exception ex) { Diagnostics.Log("context menu", ex); }
@@ -147,7 +147,7 @@ namespace FlareAI.Flare
                 if (panel != null && !panel.IsProjectReport && SamePath(panel.TopicPath, adapter.SourcePath)) panel.RefreshLint(lint);   // raises Changed → markers
                 else UpdateMarkers(doc);
             }
-            catch (Exception ex) { Diagnostics.Log("live check", ex); }
+            catch (Exception ex) { Diagnostics.Log("live check", ex); ErrorReporter.Background(_owner(), "House Style couldn't lint the topic as you type.", ex); }
         }
 
         private void OnSaved(IDocument doc, DocState state)
@@ -163,11 +163,11 @@ namespace FlareAI.Flare
                 state.Lint = lint;
                 if (lint.Count == 0) return;   // nothing to say
                 var errors = lint.Count(f => f.Severity == "error");
-                Toast.Show(_owner(), Plural.Of(lint.Count, "suggestion") + " in " + Path.GetFileName(adapter.SourcePath) + (errors > 0 ? " (" + Plural.Of(errors, "error") + ")" : "") + ". Saved anyway.",
-                           "Show them", _checkStyle);
+                Toast.Show(_owner(), Plural.Of(lint.Count, "issue") + " in " + Path.GetFileName(adapter.SourcePath) + (errors > 0 ? " (" + Plural.Of(errors, "error") + ")" : "") + ". Saved anyway.",
+                           "Show Issues", _lintTopic);
                 UpdateMarkers(doc);
             }
-            catch (Exception ex) { Diagnostics.Log("check on save", ex); }
+            catch (Exception ex) { Diagnostics.Log("check on save", ex); ErrorReporter.Background(_owner(), "House Style couldn't lint the topic you saved.", ex); }
         }
 
         // ---- markers ------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ namespace FlareAI.Flare
                 if (previous != null) { try { doc.RemoveStylesheet(previous); } catch (Exception) { } try { File.Delete(previous); } catch (Exception) { } }
                 if (css != null || previous != null) doc.UpdateView();
             }
-            catch (Exception ex) { Diagnostics.Log("markers", ex); }
+            catch (Exception ex) { Diagnostics.Log("markers", ex); ErrorReporter.Background(_owner(), "House Style couldn't mark the paragraphs that have issues.", ex); }
         }
 
         private IDocument DocFor(string path)
@@ -232,17 +232,17 @@ namespace FlareAI.Flare
                 worker.DoWork += (s, e) => e.Result = runner.LintFiles(files);
                 worker.RunWorkerCompleted += (s, e) =>
                 {
-                    if (e.Error != null) { Diagnostics.Log("report before build", e.Error); return; }
+                    if (e.Error != null) { Diagnostics.Log("report before build", e.Error); ErrorReporter.Background(owner, "House Style couldn't lint the project before the build.", e.Error); return; }
                     var found = (List<StyleFinding>)e.Result;
-                    if (found.Count == 0) { Toast.Show(owner, "Building. No style issues in the project's " + Plural.Of(files.Count, "file") + "."); return; }
+                    if (found.Count == 0) { Toast.Show(owner, "Building. No issues found in the project's " + Plural.Of(files.Count, "file") + "."); return; }
                     var inFiles = found.Select(f => f.DocumentPath).Distinct(StringComparer.OrdinalIgnoreCase).Count();
                     var errors = found.Count(f => f.Severity == "error");
-                    Toast.Show(owner, "Building. " + Plural.Of(found.Count, "style issue") + " in " + Plural.Of(inFiles, "file") + (errors > 0 ? ", " + Plural.Of(errors, "error") : "") + ".",
-                               "Open the report", _checkProject);
+                    Toast.Show(owner, "Building. " + Plural.Of(found.Count, "issue") + " in " + Plural.Of(inFiles, "file") + (errors > 0 ? ", " + Plural.Of(errors, "error") : "") + ".",
+                               "Show Issues", _lintProject);
                 };
                 worker.RunWorkerAsync();
             }
-            catch (Exception ex) { Diagnostics.Log("report before build", ex); }
+            catch (Exception ex) { Diagnostics.Log("report before build", ex); ErrorReporter.Background(_owner(), "House Style couldn't lint the project before the build.", ex); }
         }
 
         private static string SafePath(IDocument d) { try { return d.GetSourceUrl(); } catch (Exception) { return null; } }

@@ -34,8 +34,8 @@ namespace FlareAI.Core.Tests
         public void RequestTitle_CanShowTheReadableName()
         {
             var r = new FlareAI.Core.Actions.GuideRequest { Kind = FlareAI.Core.Actions.RequestKinds.TurnOff, Rule = "Company.PlainLanguage2" };
-            Assert.Equal("Turn off: Company.PlainLanguage2", r.Title);
-            Assert.Equal("Turn off: Plain language 2", r.TitleWith(q => RuleWording.FromName(q.Rule)));
+            Assert.Equal("Disable: Company.PlainLanguage2", r.Title);
+            Assert.Equal("Disable: Plain language 2", r.TitleWith(q => RuleWording.FromName(q.Rule)));
         }
 
         [Fact]

@@ -933,7 +933,8 @@ namespace FlareAI.Core.Actions
                 if (errors.Count > 0)
                 {
                     // One retry with the contract breaches spelled out; then keep what was valid.
-                    Diagnostics.Log(task + ": contract breaches, retrying: " + string.Join(" ", errors.ToArray()));
+                    Diagnostics.Log(task + ": " + errors.Count + " contract breach(es), retrying");
+                    Diagnostics.LogContent(task + ": contract breaches: " + string.Join(" ", errors.ToArray()));   // they quote the text
                     var retryErrors = new List<string>();
                     var retry = Contracts.ReadRewrite(Ask(task, prompts[i] + "\n\nYour previous answer broke the format: " + string.Join(" ", errors.ToArray()) + " Answer again.", schema, null, units[i].Scope).Json,
                                                       units[i].Map, retryErrors, out restructure[i], out restructureNotes[i]);
@@ -1098,7 +1099,7 @@ namespace FlareAI.Core.Actions
             catch (Exception ex)
             {
                 Diagnostics.Log("docstyle", ex);
-                notes.Add("The style rules couldn't be loaded: " + ex.Message);
+                notes.Add("The rules couldn't be loaded. " + ex.Message);
                 return new List<StyleFinding>();
             }
         }
@@ -1116,7 +1117,7 @@ namespace FlareAI.Core.Actions
             foreach (var f in findings)
             {
                 sb.Append("- \"").Append(f.Excerpt).Append('"');
-                if (f.Replacement != null) sb.Append(" → \"").Append(f.Replacement).Append('"');
+                if (f.Replacement != null) sb.Append(" to \"").Append(f.Replacement).Append('"');
                 sb.Append(" (").Append(f.Rule).Append(": ").Append(f.Suggestion).AppendLine(")");
             }
             return sb.ToString().TrimEnd();

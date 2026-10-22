@@ -53,7 +53,7 @@ namespace FlareAI.Flare.UI
             {
                 Controls.Add(new Label { Text = "Set the rule to:", Left = 12, Top = y + 4, Width = 110 });
                 _setting = new ComboBox { Left = 124, Top = y, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
-                _setting.Items.AddRange(new object[] { "Off", "Tip", "Warning", "Error" });
+                _setting.Items.AddRange(new object[] { "Disabled", "Suggestion", "Warning", "Error" });
                 _setting.SelectedItem = FlareAI.Core.Severity.Label(r.Setting ?? "off");
                 if (_setting.SelectedIndex < 0) _setting.SelectedIndex = 0;
                 Controls.Add(_setting); y += 34;
@@ -85,11 +85,11 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(W + 24, y + 40);
             CancelButton = cancel;
             A11y.Name(info, "The request", "What was asked, why, and the evidence.");
-            A11y.Name(_note, "Note to the writer", "Optional. The writer sees it with the outcome on their next check.");
+            A11y.Name(_note, "Note to the writer", "Optional. The writer sees it with your answer the next time they lint.");
             A11y.Name(approve, "Approve", r.Kind == RequestKinds.ProjectException
-                ? "Approves the exception. The writer's plugin writes it into their project on their next check."
-                : "Applies the change to the style guide now.");
-            A11y.Name(decline, "Decline", "Nothing changes; the writer sees your note.");
+                ? "Approves the exception. It's written into the writer's project the next time they lint."
+                : "Makes the change in the style guide now.");
+            A11y.Name(decline, "Decline", "Nothing changes. The writer sees your note.");
             A11y.Apply(this);
         }
     }

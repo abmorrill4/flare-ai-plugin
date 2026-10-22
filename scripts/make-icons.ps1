@@ -20,6 +20,7 @@ $icons = [ordered]@{
     assist   = 0xE82F  # Lightbulb
     rules    = 0xE8FD  # BulletedList (Style rules)
     whatsnew = 0xE789  # Megaphone (What's new)
+    help     = 0xE897  # Help (user guide, What's New, the tour)
 }
 $color = [System.Drawing.Color]::FromArgb(255, 14, 124, 134)  # FlareAI teal; reads on Flare's light ribbon
 

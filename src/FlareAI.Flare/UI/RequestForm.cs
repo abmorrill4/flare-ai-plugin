@@ -32,7 +32,7 @@ namespace FlareAI.Flare.UI
 
         private RequestForm(RequestQuestion q, bool choices)
         {
-            Text = "House Style — Request a change";
+            Text = "House Style — Request Rule Change";
             StartPosition = FormStartPosition.CenterParent; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
             Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;
@@ -45,27 +45,27 @@ namespace FlareAI.Flare.UI
             if (choices)
             {
                 _team = new RadioButton { Text = "For the whole team (the owners change the style guide)", Left = 12, Top = y, Width = W, Enabled = q.CanAskTeam };
-                _project = new RadioButton { Text = "For this project only (an exception; the team rule stays on)", Left = 12, Top = y + 24, Width = W, Enabled = q.CanAskProject };
+                _project = new RadioButton { Text = "For this project only (an exception, and the team rule stays enabled)", Left = 12, Top = y + 24, Width = W, Enabled = q.CanAskProject };
                 var forProject = (q.ForProject || !q.CanAskTeam) && q.CanAskProject;
                 _team.Checked = !forProject; _project.Checked = forProject;
                 Controls.Add(_team); Controls.Add(_project); y += 56;
                 Controls.Add(new Label { Text = "Set the rule to:", Left = 12, Top = y + 4, Width = 110 });
                 _setting = new ComboBox { Left = 124, Top = y, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
-                _setting.Items.AddRange(new object[] { "Off", "Tip", "Warning", "Error" });
+                _setting.Items.AddRange(new object[] { "Disabled", "Suggestion", "Warning", "Error" });
                 _setting.SelectedItem = FlareAI.Core.Severity.Label(q.Setting ?? "off");
                 if (_setting.SelectedIndex < 0) _setting.SelectedIndex = 0;
                 Controls.Add(_setting); y += 34;
                 if (q.Wording != null)
                 {
                     _originalWording = q.Wording;
-                    Controls.Add(new Label { Text = "Or ask for new wording (edit the rule; the level above is then ignored):", Left = 12, Top = y, Width = W });
+                    Controls.Add(new Label { Text = "Or ask for new wording. Edit the rule here, and the level above is ignored.", Left = 12, Top = y, Width = W });
                     _wording = new TextBox { Left = 12, Top = y + 20, Width = W, Height = 48, Multiline = true, ScrollBars = ScrollBars.Vertical, Text = q.Wording };
                     Controls.Add(_wording); y += 74;
                     _team.CheckedChanged += (s, e) => _wording.Enabled = _team.Checked;
                     _wording.Enabled = _team.Checked;
                 }
             }
-            Controls.Add(new Label { Text = "Why (required; the owners read this to decide):", Left = 12, Top = y, Width = W });
+            Controls.Add(new Label { Text = "Reason (required, the owners read it to decide):", Left = 12, Top = y, Width = W });
             _reason = new TextBox { Left = 12, Top = y + 20, Width = W, Height = 48, Multiline = true, ScrollBars = ScrollBars.Vertical, Text = q.Reason ?? "" };
             Controls.Add(_reason); y += 76;
             var ok = new Button { Text = "Send request", Left = 12 + W - 75 - 6 - 100, Top = y, Width = 100, DialogResult = DialogResult.OK };
@@ -78,7 +78,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(rule, "Rule", q.RuleText);
             A11y.Name(notice, "Where this goes", q.Notice);
             if (_team != null) { A11y.Name(_team, _team.Text); A11y.Name(_project, _project.Text); A11y.Name(_setting, "Set the rule to"); }
-            if (_wording != null) A11y.Name(_wording, "New wording", "Edit the rule's text to ask the owners to reword it.");
+            if (_wording != null) A11y.Name(_wording, "New wording", "Edit the rule's text to ask the owners to change its wording.");
             A11y.Name(_reason, "Why", "Required. The style guide owners read this to decide.");
             A11y.Name(ok, "Send request", "Sends this request to the style guide owners.");
             A11y.Apply(this);

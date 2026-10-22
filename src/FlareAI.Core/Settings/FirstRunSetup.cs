@@ -5,7 +5,7 @@ using FlareAI.Core.Llm;
 namespace FlareAI.Core.Settings
 {
     /// <summary>The steps of first-run setup, in order.</summary>
-    public enum SetupStep { Ai = 0, Guide = 1, Done = 2 }
+    public enum SetupStep { Role = 0, Ai = 1, Guide = 2, Done = 3 }
 
     /// <summary>
     /// The writer's answers in first-run setup (and "Run setup again" in Settings), and how they become settings.
@@ -13,6 +13,8 @@ namespace FlareAI.Core.Settings
     /// </summary>
     public sealed class SetupAnswers
     {
+        /// <summary>How the writer uses House Style (setup's first question); it decides the ribbon.</summary>
+        public UserRole Role { get; set; }
         /// <summary>The writer skipped the AI step: the AI settings stay as they are.</summary>
         public bool AiSkipped { get; set; }
         public AiChoice Ai { get; set; }
@@ -37,6 +39,7 @@ namespace FlareAI.Core.Settings
             var ai = AiChoices.Of(s);
             return new SetupAnswers
             {
+                Role = s.Role ?? UserRole.Writer,
                 Ai = ai,
                 BaseUrl = ai == AiChoice.Gateway ? s.BaseUrl : "",
                 UseTeamGuide = last != null,
@@ -77,6 +80,7 @@ namespace FlareAI.Core.Settings
         {
             error = AiProblem(s) ?? GuideProblem();
             if (error != null) return false;
+            s.Role = Role;
             if (!AiSkipped)
             {
                 var sameChoice = AiChoices.Of(s) == Ai;
@@ -144,14 +148,14 @@ namespace FlareAI.Core.Settings
         {
             var ai = AiChoices.Of(s);
             string aiLine;
-            if (ai == AiChoice.None) aiLine = "AI: off. Style checks work without it.";
+            if (ai == AiChoice.None) aiLine = "AI: off. Lint works without it.";
             else
             {
                 var hasKey = !string.IsNullOrEmpty(s.ResolveApiKey());
                 aiLine = "AI: " + AiChoices.Label(ai) + (hasKey ? "." : ". No key yet: add it in Settings when you have one.");
             }
-            var guide = (s.StyleLayers ?? "").Trim().Length == 0 ? "Style rules: Google's guide plus your own changes." : "Style rules: your team's guide in " + s.StyleLayers.Trim().Replace("\r", "").Replace("\n", ", ") + ".";
-            return aiLine + "\n" + guide;
+            var guide = (s.StyleLayers ?? "").Trim().Length == 0 ? "Rules: Google's guide plus your own changes." : "Rules: your team's guide in " + s.StyleLayers.Trim().Replace("\r", "").Replace("\n", ", ") + ".";
+            return Roles.Summary(s.Role ?? UserRole.Writer) + "\n" + aiLine + "\n" + guide;
         }
     }
 }

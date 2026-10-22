@@ -84,7 +84,7 @@ namespace FlareAI.Scenarios.Review
                 Assert.False(f.IsFixed);
                 Assert.False(f.IsStale);
                 Assert.Contains(f, p.Session.Open());
-                Assert.Equal("That change was undone: the suggestion is back.", p.Session.Status);
+                Assert.Equal("The change was undone. The issue is back.", p.Session.Status);
                 Assert.Equal(AcceptOutcome.Applied, p.Session.Accept());   // and Apply works again
                 Assert.True(f.IsFixed);
             }

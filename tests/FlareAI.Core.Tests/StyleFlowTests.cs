@@ -49,7 +49,7 @@ namespace FlareAI.Core.Tests
             ]");
             var findings = Runner(llm, new FakeStyleService()).CheckStyle(doc);
 
-            Assert.Contains(llm.Requests, q => q.User.Contains("\"utilize\" → \"use\""));
+            Assert.Contains(llm.Requests, q => q.User.Contains("\"utilize\" to \"use\""));
             Assert.Contains("members", llm.Requests[0].System);
             var ai = findings.Where(f => f.Source == "ai").ToList();
             Assert.Equal(new[] { "passive", "markup" }, ai.Select(f => f.Rule).ToArray());
@@ -103,7 +103,7 @@ namespace FlareAI.Core.Tests
             var proposal = Runner(llm, new FakeStyleService()).Rewrite(doc, null);
 
             Assert.Equal(2, llm.Requests.Count);
-            Assert.Contains("\"utilize\" → \"use\"", llm.Requests[0].User);   // original lint in the first prompt
+            Assert.Contains("\"utilize\" to \"use\"", llm.Requests[0].User);   // original lint in the first prompt
             Assert.Contains("your first version left in", llm.Requests[1].User);   // repair round
             Assert.True(proposal.Validation.IsValid, proposal.Validation.ToString());
             Assert.Empty(proposal.RemainingLint);
@@ -117,7 +117,7 @@ namespace FlareAI.Core.Tests
             doc.SelectXPath("//body/p[2]/text()");
             var proposal = Runner(new FakeLlmClient(FakeLlmClient.EchoRevised), new BrokenStyleService()).Rewrite(doc, null);
             Assert.True(proposal.Validation.IsValid);
-            Assert.Contains(proposal.Notes, n => n.Contains("style rules couldn't be loaded"));
+            Assert.Contains(proposal.Notes, n => n.Contains("rules couldn't be loaded"));
         }
 
         private sealed class BrokenStyleService : IStyleService

@@ -25,12 +25,12 @@ namespace FlareAI.Core.Actions
         {
             switch (kind)
             {
-                case TurnOff: return "Turn off";
+                case TurnOff: return "Disable";
                 case Severity: return "Change the level";
                 case Wording: return "Change the wording";
                 case AddRule: return "Add a rule";
                 case ProjectException: return "Project exception";
-                case TurnOn: return "Turn back on";
+                case TurnOn: return "Enable";
                 default: return kind ?? "";
             }
         }
@@ -112,7 +112,7 @@ namespace FlareAI.Core.Actions
         {
             get
             {
-                if (Unsent) return "Not sent yet (the requests folder couldn't be reached; House Style retries on your next check)";
+                if (Unsent) return "Not sent yet. House Style couldn't reach the requests folder and tries again the next time you lint.";
                 var d = Decision;
                 switch (Status)
                 {

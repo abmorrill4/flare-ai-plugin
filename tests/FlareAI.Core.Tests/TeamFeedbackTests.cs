@@ -77,8 +77,8 @@ namespace FlareAI.Core.Tests
             ds.AddRange(Enumerable.Range(0, 4).Select(i => D("sam", "rejected", reason: "wrong")));
             var item = FeedbackStats.Analyze(ds).First();
             Assert.Equal("disputed", item.Kind);
-            Assert.Contains(item.Evidence, e => e.StartsWith("pat accepts"));
-            Assert.Contains(item.Evidence, e => e.StartsWith("sam rejects"));
+            Assert.Contains(item.Evidence, e => e.StartsWith("pat changes"));
+            Assert.Contains(item.Evidence, e => e.StartsWith("sam ignores"));
         }
 
         [Fact]

@@ -34,7 +34,7 @@ namespace FlareAI.Flare.UI
         public TurnedOffRulesForm(Team team, IStyleService style, string project, Func<IList<string>> guideRoots, string openProject, Func<string, bool> isDefault = null)
         {
             _team = team; _style = style; _project = project; _guideRoots = guideRoots; _openProject = openProject; _isDefault = isDefault;
-            Text = "House Style — Turned-off rules";
+            Text = "House Style — Disabled Rules";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 440);
             MinimumSize = new Size(560, 300);
@@ -49,15 +49,15 @@ namespace FlareAI.Flare.UI
             _list.SelectedIndexChanged += (s, e) => UpdateButton();
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
-            _turnOn = new Button { Text = "Turn back on", AutoSize = true, Enabled = false };
+            _turnOn = new Button { Text = "Enable Rule", AutoSize = true, Enabled = false };
             _turnOn.Click += (s, e) => TurnBackOn();
             bar.Controls.AddRange(new Control[] { close, _turnOn });
             Controls.Add(_list);
             Controls.Add(bar);
             Controls.Add(_head);
             CancelButton = close;
-            A11y.Name(_list, "Turned-off rules", "Columns: rule, source, applies to, setting, changed by, date, note, request (approved by an owner).");
-            A11y.Name(_turnOn, "Turn back on", "Turns the selected rule back on (or, for a rule you turned back on, returns it to the default) from the next check. On a read-only guide, asks the owners instead.");
+            A11y.Name(_list, "Disabled rules", "Columns are rule, source, applies to, setting, changed by, date, note and request.");
+            A11y.Name(_turnOn, "Enable Rule", "Lint with this rule again.");
             A11y.Name(bar, "Dialog buttons");
             A11y.Apply(this);
             Shown += (s, e) => Reload(null);
@@ -71,7 +71,7 @@ namespace FlareAI.Flare.UI
             var o = Current();
             var request = o != null && _guideEntries.Contains(o) && Requesting;
             var toDefault = o != null && o.IsTurnOn;
-            _turnOn.Text = request ? (toDefault ? "Request the default…" : "Request turning it back on…") : toDefault ? "Use the default" : "Turn back on";
+            _turnOn.Text = request ? (toDefault ? "Request the Default…" : "Request to Enable…") : toDefault ? "Use the Default" : "Enable Rule";
             _turnOn.AccessibleName = _turnOn.Text;
             _turnOn.Enabled = o != null && (!o.IsDefault || _team != null);   // a default needs a guide to record the "on" row
         }
@@ -106,9 +106,9 @@ namespace FlareAI.Flare.UI
             }
             _list.ShowItemToolTips = true;
             if (_team != null) _team.Recheck();
-            var role = Requesting ? "  " + _team.AccessNotice + " Your project's own exceptions you can turn back on yourself." : "";
+            var role = Requesting ? "  " + _team.AccessNotice + " You can enable your project's own exceptions yourself." : "";
             _head.Text = (done != null ? done + "  " : "") +
-                         (entries.Count == 0 ? "No rules are turned off or changed." : Plural.Of(entries.Count, "rule") + " turned off or changed (Default: shipped with House Style). Select one and choose Turn back on to apply it again.") + role;
+                         (entries.Count == 0 ? "No rules are disabled or changed." : Plural.Of(entries.Count, "rule") + " disabled or changed. Default means it ships with House Style. Select a rule and click Enable Rule to lint with it again.") + role;
             if (_list.Items.Count > 0) _list.Items[0].Selected = true;
             UpdateButton();
         }
@@ -123,34 +123,35 @@ namespace FlareAI.Flare.UI
             try
             {
                 var file = RuleOverrides.TurnBackOn(o, guide ? _team : null);   // a project's own exception: no owner needed
-                Reload((o.IsTurnOn ? "Back to the default: " : "Turned back on: ") + o.RuleId + " (in " + file + "). It applies from the next check.");
+                FlareAI.Core.Diagnostics.Log("Disabled Rules: " + o.RuleId + " enabled in " + file);
+                Reload((o.IsTurnOn ? "Back to the default. " : "Enabled. ") + "It applies the next time you lint.");
             }
             catch (GuideWriteException ex) when (guide && _team != null && _team.IsStrict && !_team.IsPersonal)
             {
                 Diagnostics.Log("turn rule back on", ex);
                 _team.ProbeGuide();
-                if (Notify.Confirm(this, "House Style couldn't write to " + o.File + ": " + ex.Message + "\n\nNothing was changed. Ask the style guide owners (" + _team.OwnerNames + ") to turn it back on instead?", "Turned-off rules"))
+                if (Notify.Confirm(this, "House Style couldn't write to " + o.File + ". " + ex.Message + "\n\nNothing was changed. Ask the style guide owners (" + _team.OwnerNames + ") to enable it instead?", "Disabled Rules"))
                     RequestTurnOn(o);
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("turn rule back on", ex);
-                Notify.Error(this, "House Style couldn't turn " + o.RuleId + " back on.", ex.Message + "\n\nNothing was changed. File: " + o.File, ex, "Turned-off rules");
+                Notify.Error(this, "House Style couldn't enable " + o.RuleId + ".", ex.Message + "\n\nNothing was changed. File: " + o.File, ex, "Disabled Rules");
             }
         }
 
         /// <summary>Asks the owners to turn a guide rule back on, with a reason.</summary>
         private void RequestTurnOn(RuleOverride o)
         {
-            var reason = RequestForm.AskReason(this, (o.IsTurnOn ? "Return to the default: " : "Turn back on: ") + o.RuleId + (string.IsNullOrEmpty(o.Note) ? "" : " (turned off because: " + o.Note + ")"),
-                "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
+            var reason = RequestForm.AskReason(this, (o.IsTurnOn ? "Return to the default " : "Enable ") + o.RuleId + (string.IsNullOrEmpty(o.Note) ? "" : " (disabled because " + o.Note + ")"),
+                "This goes to the style guide owners (" + _team.OwnerNames + "). You see their answer the next time you lint." +
                 (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice));
             if (reason == null) return;
             var r = RuleChanges.TurnOnRequest(_team, o, reason);
             string problem;
             try { problem = RuleChanges.Send(_team, r); }
             catch (Exception ex) { Diagnostics.Log("request turn on", ex); Notify.Error(this, "House Style couldn't send your request.", ex.Message + "\n\nYour reason: " + reason, ex, "Turned-off rules"); return; }
-            Reload(problem == null ? "Request sent to the owners to " + (o.IsTurnOn ? "return " + o.RuleId + " to the default." : "turn " + o.RuleId + " back on.") : "Request saved but not sent yet: " + problem + ". House Style sends it on your next check.");
+            Reload(problem == null ? "Request sent to the owners to " + (o.IsTurnOn ? "return " + o.RuleId + " to the default." : "enable " + o.RuleId + ".") : "Request saved but not sent yet (" + problem + "). House Style sends it the next time you lint.");
         }
 
         private static string LayerOf(RuleOverride o)

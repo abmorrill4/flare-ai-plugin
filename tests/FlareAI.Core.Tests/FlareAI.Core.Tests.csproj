@@ -34,6 +34,8 @@
     <Compile Include="..\..\src\FlareAI.Flare\Commands.cs" Link="Commands.cs" />
     <!-- The update unzipper (net48 only, so it lives in the plugin); no Flare dependencies. -->
     <Compile Include="..\..\src\FlareAI.Flare\ZipExtractor.cs" Link="ZipExtractor.cs" />
+    <!-- The report zip (the fallback when the feedback service can't be reached); no Flare dependencies. -->
+    <Compile Include="..\..\src\FlareAI.Flare\ReportZip.cs" Link="ReportZip.cs" />
     <!-- The dialog layout (WinForms only, no Flare dependencies): status lines fit their text, hidden blocks leave no gap. -->
     <Compile Include="..\..\src\FlareAI.Flare\UI\StackLayout.cs" Link="StackLayout.cs" />
     <Compile Include="..\..\src\FlareAI.Flare\UI\A11y.cs" Link="A11y.cs" />

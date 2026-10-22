@@ -9,10 +9,11 @@ using Xunit;
 namespace FlareAI.Core.Tests
 {
     /// <summary>
-    /// The UI consistency check (issues #6 and #9). The Flare project can't be referenced from tests, so this scans the
-    /// source text: every string literal in src/FlareAI.Flare and src/FlareAI.Core (comments, Diagnostics.Log calls and
+    /// The UI consistency check (issues #6, #9 and #123). The Flare project can't be referenced from tests, so this scans
+    /// the source text: every string literal in src/FlareAI.Flare and src/FlareAI.Core (comments, Diagnostics.Log calls and
     /// identifiers excluded) must be free of the terms the glossary retired (docs/plans/ux/review-deliberate.md 5.1).
     /// A legitimate non-UI use (AI prompt text, internal keys, file names) goes in <see cref="Allowed"/> with a reason.
+    /// "Lint" was retired once and is the word again since #123 (Flare and docs-linting vocabulary).
     /// </summary>
     public class UiVocabularyTests
     {
@@ -20,7 +21,6 @@ namespace FlareAI.Core.Tests
         {
             new[] { "mechanical", @"\bmechanical" },
             new[] { "linter", @"\blinters?\b" },
-            new[] { "lint", @"\blint(?:ed|ing|s)?\b" },
             new[] { "layer", @"\blayers?\b" },
             new[] { "rule id", @"\brule ids?\b" },
             new[] { "XHTML", @"\bXHTML\b" },
@@ -62,6 +62,109 @@ namespace FlareAI.Core.Tests
             Assert.True(violations.Count == 0, "Banned UI terms (use the glossary, docs/plans/ux/review-deliberate.md 5.1):\n" + string.Join("\n", violations.ToArray()));
         }
 
+        // ---- the #123 vocabulary: Flare and docs-linting words, no "Claude-speak" ------------------------------
+
+        /// <summary>
+        /// Words #123 retired from the plugin's own UI: lint finds issues (not findings), Disable Rule (not turn off), and
+        /// Accept/Reject belong to Flare's tracked changes. Arrows don't join text.
+        /// </summary>
+        private static readonly string[][] Retired =
+        {
+            new[] { "Check style", @"\bcheck style\b" },
+            new[] { "finding", @"\bfindings?\b" },
+            new[] { "Turn off", @"\bturn(?:ed|ing|s)? (?:\S+ )?off\b" },
+            new[] { "arrow", @" → " },
+            new[] { "Reject", @"\breject(?:ed|s|ing)?\b" },
+        };
+
+        /// <summary>file-name regex, literal regex, reason. A literal matching both is skipped.</summary>
+        private static readonly string[][] RetiredAllowed =
+        {
+            new[] { @"PanelHost\.cs$", @"^FlareAI\.Findings$", "the pane's internal name in Flare's layout file, never shown" },
+            new[] { @"UpdateFlow\.cs$|SettingsForm\.cs$", @"updates|update-policy", "automatic updates are turned off, not a rule" },
+            new[] { @"\.cs$", @"tracked change|Review tab", "Accept and Reject of Flare's tracked changes" },
+        };
+
+        [Fact]
+        public void UiStringsUseTheFlareLintingVocabulary()
+        {
+            var root = RepoRoot();
+            var files = Directory.GetFiles(Path.Combine(root, "src/FlareAI.Flare/UI"), "*.cs", SearchOption.AllDirectories).ToList();
+            files.Add(Path.Combine(root, "src/FlareAI.Flare/Commands.cs"));
+            var violations = new List<string>();
+            foreach (var file in files)
+            {
+                var rel = file.Substring(root.Length).TrimStart('\\', '/').Replace('\\', '/');
+                foreach (var lit in Literals(File.ReadAllText(file)))
+                {
+                    if (RetiredAllowed.Any(a => Regex.IsMatch(rel, a[0]) && Regex.IsMatch(lit.Text, a[1], RegexOptions.Singleline | RegexOptions.IgnoreCase))) continue;
+                    foreach (var b in Retired)
+                        if (Regex.IsMatch(lit.Text, b[1], RegexOptions.IgnoreCase))
+                            violations.Add(rel + ":" + lit.Line + "  [" + b[0] + "]  " + Shorten(lit.Text));
+                }
+            }
+            Assert.True(violations.Count == 0, "Retired UI words (#123: lint, issues, Change, Ignore, Disable Rule):\n" + string.Join("\n", violations.ToArray()));
+        }
+
+        [Fact]
+        public void TheScannerCatchesRetiredWords()
+        {
+            var lits = Literals("var a = \"Check style\"; var b = \"Turn off this rule\"; var c = \"x → y\"; var d = \"3 findings\"; var e = \"Reject\";").ToList();
+            foreach (var l in lits) Assert.Contains(Retired, b => Regex.IsMatch(l.Text, b[1], RegexOptions.IgnoreCase));
+            Assert.DoesNotContain(Retired, b => Regex.IsMatch("Disable Rule", b[1], RegexOptions.IgnoreCase));
+            Assert.DoesNotContain(Retired, b => Regex.IsMatch("Accept them on the Review tab", b[1], RegexOptions.IgnoreCase));
+        }
+
+        /// <summary>The tooltips the product owner approved in #123, verbatim.</summary>
+        [Fact]
+        public void RibbonTooltipsAreTheApprovedOnes()
+        {
+            var expected = new Dictionary<string, string>
+            {
+                { "Lint Topic", "Lint this topic against your style guide." },
+                { "Lint Project", "Lint every topic and snippet in this project." },
+                { "Rewrite", "Rewrite the selected text with AI." },
+                { "Ask AI", "Tell the AI what to change in the selected text." },
+                { "Rules", "View the style guide rules and enable or disable them." },
+                { "Topic Metadata", "Suggest a description, keywords, and other metadata for this topic." },
+                { "Settings", "Change your AI and style guide settings." },
+                { "Help", "Open the House Style user guide." },
+                { "Rule Decisions", "See how writers handle each rule, and review change requests." },
+                { "Import Rules", "Add rules to your style guide from an existing document." },
+                { "Test Rules", "Check that each rule catches its own examples." },
+            };
+            foreach (var e in expected)
+            {
+                var c = FlareAI.Flare.Commands.All.Single(x => x.Label == e.Key);
+                Assert.Equal(e.Value, c.Tooltip);
+            }
+        }
+
+        [Fact]
+        public void TheRibbonFollowsTheRole()
+        {
+            var writer = FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Writer).Select(c => c.Label).ToArray();
+            Assert.Equal(new[] { "Lint Topic", "Lint Project", "Rules", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, writer);
+            var owner = FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Owner);
+            Assert.Equal(writer.Length + 3, owner.Count);
+            var guide = owner.Where(c => c.Group == FlareAI.Flare.Commands.GroupGuide).Select(c => c.Label).ToArray();
+            Assert.Equal(new[] { "Rule Decisions", "Import Rules", "Test Rules" }, guide);
+            Assert.Equal("Style Guide", FlareAI.Flare.Commands.GroupGuide);
+            // Export for LLMs and Diagnostics live in Settings; What's New, the tour and Report a Problem under Help.
+            foreach (var role in new[] { FlareAI.Core.Settings.UserRole.Writer, FlareAI.Core.Settings.UserRole.Owner })
+            {
+                Assert.DoesNotContain(FlareAI.Flare.Commands.ExportLlm, FlareAI.Flare.Commands.Ribbon(role));
+                Assert.DoesNotContain(FlareAI.Flare.Commands.Diagnostics, FlareAI.Flare.Commands.Ribbon(role));
+            }
+            Assert.Equal(new[] { FlareAI.Flare.Commands.WhatsNew, FlareAI.Flare.Commands.Tour, FlareAI.Flare.Commands.ReportProblem }, FlareAI.Flare.Commands.HelpMenu.ToArray());
+            // A writer on a team guide gets My Requests after Rules, with the approved tooltip; an owner doesn't need it.
+            var teamWriter = FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Writer, true).Select(c => c.Label).ToArray();
+            Assert.Equal(new[] { "Lint Topic", "Lint Project", "Rules", "My Requests", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, teamWriter);
+            Assert.Equal("See your rule change requests and the owners' answers.", FlareAI.Flare.Commands.MyRequests.Tooltip);
+            Assert.DoesNotContain(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Owner, true));
+            Assert.StartsWith("https://abmorrill4.github.io/flare-ai-plugin", FlareAI.Flare.Commands.UserGuideUrl);
+        }
+
         // ---- the command table (issue #9) ----------------------------------------------------------------------
 
         [Fact]
@@ -79,10 +182,16 @@ namespace FlareAI.Core.Tests
                 Assert.False(string.IsNullOrWhiteSpace(c.Group), c.Id + " has no group");
             }
             // Every menu, toolbar and right-click entry is a command from the table.
-            foreach (var c in FlareAI.Flare.Commands.Menu.Concat(FlareAI.Flare.Commands.Toolbar).Concat(FlareAI.Flare.Commands.Context))
+            var ownerMenu = FlareAI.Flare.Commands.Menu(FlareAI.Core.Settings.UserRole.Owner);
+            foreach (var c in ownerMenu.Concat(FlareAI.Flare.Commands.Toolbar).Concat(FlareAI.Flare.Commands.Context))
                 Assert.True(c == null || all.Contains(c));
-            // Every command is reachable from the Tool Strip menu too.
-            foreach (var c in all) Assert.Contains(c, FlareAI.Flare.Commands.Menu);
+            // Every command is reachable from the owner's Tool Strip menu, except the two that moved into Settings.
+            foreach (var c in all)
+                if (c != FlareAI.Flare.Commands.ExportLlm && c != FlareAI.Flare.Commands.Diagnostics && c != FlareAI.Flare.Commands.MyRequests) Assert.Contains(c, ownerMenu);
+            // My Requests is for writers on a team guide (an owner has Rule Decisions, which holds the requests).
+            Assert.Contains(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Menu(FlareAI.Core.Settings.UserRole.Writer, true));
+            Assert.DoesNotContain(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Menu(FlareAI.Core.Settings.UserRole.Owner, true));
+            Assert.DoesNotContain(FlareAI.Flare.Commands.RuleDecisions, FlareAI.Flare.Commands.Menu(FlareAI.Core.Settings.UserRole.Writer));
         }
 
         [Fact]

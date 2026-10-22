@@ -28,6 +28,9 @@ Copy-Item "$repo\styleguide" -Destination "$target\StyleGuide" -Recurse -Force
 $mcp = Join-Path $repo "tools\FlareAI.Mcp\bin\$Configuration\net48\FlareAI.Mcp.exe"
 if (Test-Path $mcp) { Copy-Item $mcp, "$mcp.config" -Destination $target -Force -ErrorAction SilentlyContinue }
 if (Test-Path "$repo\src\FlareAI.Flare\Icons") { Copy-Item "$repo\src\FlareAI.Flare\Icons" -Destination $target -Recurse -Force }
+# The practice project for the guided first lint.
+Remove-Item "$target\Samples" -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item "$repo\src\FlareAI.Flare\Samples" -Destination "$target\Samples" -Recurse -Force
 
 # Mark of the Web: Windows silently blocks .NET assemblies that came from a downloaded zip, and Flare then just
 # doesn't list the plugin. Clear it on everything we installed.

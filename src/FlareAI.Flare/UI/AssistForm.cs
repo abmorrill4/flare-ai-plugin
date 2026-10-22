@@ -22,7 +22,7 @@ namespace FlareAI.Flare.UI
 
         public AssistForm(ActionRunner runner, IDocumentAdapter doc)
         {
-            Text = "House Style — Topic assists: " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
+            Text = Notify.Caption(Commands.TopicMetadata.Label) + " · " + System.IO.Path.GetFileName(doc.SourcePath ?? "");
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(760, 620);
             MinimumSize = new Size(520, 360);
@@ -46,9 +46,9 @@ namespace FlareAI.Flare.UI
             worker.RunWorkerCompleted += (s, e) =>
             {
                 if (IsDisposed) return;
-                if (e.Error != null) { Diagnostics.Log("Topic assists", e.Error); _status.Text = "Failed: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Topic assists", e.Error); ErrorReporter.Background(this, "House Style couldn't suggest topic metadata.", e.Error); _status.Text = "Failed: " + e.Error.Message; return; }
                 var a = (TopicAssist)e.Result;
-                _status.Text = "Drafted from this topic only. Review each, then copy it into Flare (Topic Properties, Index, Synonyms, Micro Content, Glossary).";
+                _status.Text = "Suggested from this topic only. Review each one, then copy it into Flare.";
                 Section("Meta description  (Topic Properties ▸ Description)", a.Description ?? "", a.Description ?? "");
                 Section("Index keywords  (Insert ▸ Index Keyword; one term per line)", string.Join("\n", a.Keywords.ToArray()), string.Join(";", a.Keywords.ToArray()));
                 Section("Search synonyms  (Synonyms file ▸ Groups)", string.Join("\n", a.Synonyms.Select(g => string.Join(", ", g.ToArray())).ToArray()), null);

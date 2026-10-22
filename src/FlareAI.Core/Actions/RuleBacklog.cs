@@ -32,12 +32,51 @@ namespace FlareAI.Core.Actions
         /// <summary>The suggestions Fix all writes: exact rule fixes.</summary>
         public List<StyleFinding> Automatic { get { return Findings.FindAll(RuleBacklog.IsAutomatic); } }
 
-        /// <summary>"23 in 14 files · 20 automatic".</summary>
+        /// <summary>"23 in 14 files · 20 Auto-fix" (the issue types the card shows: Auto-fix and Needs you).</summary>
         public string Counts()
         {
             var auto = Automatic.Count;
             return Occurrences + " in " + Plural.Of(Files.Count, "file") +
-                   (auto == 0 ? " · needs you" : auto == Occurrences ? " · all automatic" : " · " + auto + " automatic");
+                   (auto == 0 ? " · Needs you" : auto == Occurrences ? " · Auto-fix" : " · " + auto + " Auto-fix");
+        }
+    }
+
+    /// <summary>
+    /// The first Lint Project starts focused: the few rules that cover most issues, then Show all rules. Pure maths, so
+    /// the pane only shows it.
+    /// </summary>
+    public sealed class RuleFocus
+    {
+        /// <summary>The rules to list now (the top ones, or every rule when there are few).</summary>
+        public List<BacklogRule> Shown { get; } = new List<BacklogRule>();
+        /// <summary>True when rules were left out (the list is shorter than the backlog).</summary>
+        public bool Focused { get; set; }
+        /// <summary>Issues the shown rules cover, and issues in all.</summary>
+        public int Covered { get; set; }
+        public int Total { get; set; }
+
+        /// <summary>"Start with these 3 rules. They cover 40 of the 52 issues." Empty when not focused.</summary>
+        public string Line
+        {
+            get
+            {
+                if (!Focused) return "";
+                return "Start with these " + Shown.Count + " rules. They cover " + Covered + " of the " + Total + " issues.";
+            }
+        }
+
+        /// <summary>The top <paramref name="top"/> rules of <paramref name="rules"/> (already most frequent first).</summary>
+        public static RuleFocus Of(IList<BacklogRule> rules, int top = 3)
+        {
+            var f = new RuleFocus();
+            foreach (var r in rules) f.Total += r.Occurrences;
+            f.Focused = rules.Count > top;
+            for (var i = 0; i < rules.Count && (!f.Focused || i < top); i++)
+            {
+                f.Shown.Add(rules[i]);
+                f.Covered += rules[i].Occurrences;
+            }
+            return f;
         }
     }
 
@@ -112,7 +151,7 @@ namespace FlareAI.Core.Actions
         public static string Summary(IList<StyleFinding> open, string openTopicPath, int skippedRules = 0)
         {
             var skipped = skippedRules > 0 ? " " + Plural.Of(skippedRules, "rule") + " skipped for now." : "";
-            if (open.Count == 0) return "No open suggestions." + skipped;
+            if (open.Count == 0) return "No issues found in this project." + skipped;
             var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var autoRules = new HashSet<string>(StringComparer.Ordinal);
             var auto = 0;
@@ -123,9 +162,9 @@ namespace FlareAI.Core.Actions
                 auto++;
                 autoRules.Add(KeyOf(f));
             }
-            var head = Plural.Of(open.Count, "suggestion") + " in " + Plural.Of(files.Count, "file") + ". ";
-            var tail = auto == 0 ? "None can be fixed automatically: review them one rule at a time."
-                     : (auto == open.Count ? (auto == 1 ? "It" : "All") : auto.ToString()) + " can be fixed automatically" +
+            var head = Plural.Of(open.Count, "issue") + " in " + Plural.Of(files.Count, "file") + ". ";
+            var tail = auto == 0 ? "None can be changed automatically. Review them one rule at a time."
+                     : (auto == open.Count ? (auto == 1 ? "It" : "All") : auto.ToString()) + " can be changed automatically" +
                        (autoRules.Count > 1 ? " across " + autoRules.Count + " rules." : " by one rule.");
             return head + tail + skipped;
         }
@@ -140,7 +179,7 @@ namespace FlareAI.Core.Actions
         {
             if (string.IsNullOrEmpty(text)) return null;
             var m = PatternRule.Match(text);
-            if (!m.Success) return text.Trim();
+            if (!m.Success) return RuleWording.Plain(text.Trim());   // "Use 'to' instead of 'in order to'.", never an arrow
             var rest = text.Substring(m.Length).Trim();
             return rest.Length == 0 ? null : rest;
         }

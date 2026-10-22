@@ -41,7 +41,7 @@ namespace FlareAI.Flare.UI
             AutoScaleMode = AutoScaleMode.Font;
             AccessibleRole = AccessibleRole.Alert;
             AccessibleName = "House Style notice";
-            AccessibleDescription = text + (action != null ? ". " + actionLabel + ": also in the House Style pane, or run Check style from the House Style ribbon." : "");
+            AccessibleDescription = text + (action != null ? ". " + actionLabel + " is also in the House Style Issues pane." : "");
             FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual; TopMost = true;
             BackColor = Color.FromArgb(45, 45, 48); ForeColor = Color.White; Font = SystemFonts.MessageBoxFont; Padding = new Padding(12, 10, 12, 10);
             var label = new Label { Text = text, AutoSize = true, MaximumSize = new Size(340, 0), Left = 12, Top = 10, ForeColor = Color.White };
@@ -82,6 +82,24 @@ namespace FlareAI.Flare.UI
         {
             c.MouseEnter += (s, e) => _timer.Stop();
             c.MouseLeave += (s, e) => { if (!IsDisposed && !ClientRectangle.Contains(PointToClient(Cursor.Position))) { _timer.Stop(); _timer.Start(); } };
+        }
+
+        /// <summary>
+        /// Takes back a notice that no longer applies (a tour hint after its step): closes it if it is still showing and
+        /// clears it from the pane. Does nothing when a newer notice has replaced it.
+        /// </summary>
+        public static void Withdraw(string text)
+        {
+            try
+            {
+                var last = Last;
+                if (last == null || last.Text != text) return;
+                Last = null;
+                if (_open != null && !_open.IsDisposed) _open.Close();
+                var changed = LastChanged;
+                if (changed != null) changed();
+            }
+            catch (Exception ex) { FlareAI.Core.Diagnostics.Log("toast withdraw", ex); }
         }
 
         /// <summary>Shows the notice over the owner's bottom-right corner, replacing any notice still showing.</summary>

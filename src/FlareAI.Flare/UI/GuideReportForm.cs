@@ -31,7 +31,7 @@ namespace FlareAI.Flare.UI
         public GuideReportForm(IStyleService style, Func<ActionRunner> runner, string project)
         {
             _style = style; _runner = runner; _project = project;
-            Text = "House Style — Validate style guide";
+            Text = Notify.Caption(Commands.TestRules.Label);
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(820, 560);
             MinimumSize = new Size(520, 320);
@@ -43,7 +43,7 @@ namespace FlareAI.Flare.UI
             _text = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, Font = new Font(FontFamily.GenericMonospace, 9f) };
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
-            _ai = new Button { Text = "Check prose rules with AI…", AutoSize = true, Enabled = false };
+            _ai = new Button { Text = "Test Prose Rules with AI…", AutoSize = true, Enabled = false };
             _ai.Click += (s, e) => CheckWithAi();
             // Google's examples are compiled and validated with the guide; the team's own rules are what needs checking.
             _google = new CheckBox { Text = "Include Google's rules (slow, ~$15)", AutoSize = true, Enabled = false, Margin = new Padding(3, 8, 12, 3) };
@@ -55,7 +55,7 @@ namespace FlareAI.Flare.UI
             Controls.Add(_progress);
             Controls.Add(_status);
             CancelButton = close;
-            A11y.Name(_text, "Style guide validation report", "Read-only report. Use the arrow keys or Page Down to read it.");
+            A11y.Name(_text, "Rule test report", "Read-only report. Use the arrow keys or Page Down to read it.");
             A11y.Name(bar, "Dialog buttons");
             A11y.Name(_progress, "Progress");
             A11y.Apply(this);
@@ -77,7 +77,7 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 _progress.Visible = false;
-                if (e.Error != null) { Diagnostics.Log("Validate guide", e.Error); _status.Text = "Could not validate: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Validate guide", e.Error); ErrorReporter.Background(this, "House Style couldn't test the rules.", e.Error); _status.Text = "Could not validate: " + e.Error.Message; return; }
                 var parts = (object[])e.Result;
                 var report = (GuideReport)parts[0];
                 _examples = (IList<GuideExample>)parts[1];
@@ -85,7 +85,7 @@ namespace FlareAI.Flare.UI
                 var keyed = (int)parts[2];
                 var own = ActionRunner.ExamplesToVerify(_examples, false).Count;
                 _status.Text = (keyed > 0 ? "Gave " + Plural.Of(keyed, "new rule") + " permanent ids.  " : "") + (report.Errors == 0 ? "Rule tables pass." : Plural.Of(report.Errors, "error") + " to fix.") +
-                               (own > 0 ? "  " + own + " of your own prose " + (own == 1 ? "rules has" : "rules have") + " Bad/Good examples you can check against the AI."
+                               (own > 0 ? "  " + own + " of your own prose " + (own == 1 ? "rules has" : "rules have") + " Bad/Good examples you can test with the AI."
                                 : _examples.Count > 0 ? "  Your team's guide has no prose rules with Bad/Good examples (Google's are checked when the guide is built)." : "");
                 _ai.Enabled = _examples.Count > 0;
                 _google.Enabled = _examples.Count > own;
@@ -95,7 +95,7 @@ namespace FlareAI.Flare.UI
 
         private void Write(GuideReport r)
         {
-            _report.AppendLine("Sources (later wins): " + string.Join(" → ", r.Layers.ToArray()));
+            _report.AppendLine("Sources, where a later one wins: " + string.Join(", ", r.Layers.ToArray()));
             _report.AppendLine(Plural.Of(r.TableRules, "table rule") + ", " + r.TestedByExample + " tested by their Example. " +
                                Plural.Of(r.ProseRules, "prose rule") + ", " + r.ProseRulesWithExamples + " with Bad/Good examples.");
             _report.AppendLine(Plural.Of(r.Errors, "error") + ", " + Plural.Of(r.Warnings, "warning") + ".").AppendLine();
@@ -103,7 +103,7 @@ namespace FlareAI.Flare.UI
             {
                 var list = r.Issues.FindAll(i => i.Level == level);
                 if (list.Count == 0) continue;
-                _report.AppendLine(level == "error" ? "ERRORS — these rules don't work as written:" : "WARNINGS:");
+                _report.AppendLine(level == "error" ? "ERRORS. These rules don't work as written." : "WARNINGS");
                 foreach (var i in list)
                     _report.AppendLine("  " + i.File + (string.IsNullOrEmpty(i.Location) ? "" : ", " + i.Location) + " [" + i.Layer + "]").AppendLine("    " + i.Message);
                 _report.AppendLine();
@@ -117,11 +117,11 @@ namespace FlareAI.Flare.UI
             var examples = ActionRunner.ExamplesToVerify(_examples, _google.Checked);
             if (examples.Count == 0)
             {
-                _status.Text = "Your team's guide has no prose rules with Bad/Good examples. Tick \"Include Google's rules\" to check Google's.";
+                _status.Text = "Your team's guide has no prose rules with Bad/Good examples. Select \"Include Google's rules\" to test Google's.";
                 return;
             }
             var calls = ActionRunner.VerifyCalls(examples);
-            if (!Notify.Confirm(this, "Check " + Plural.Of(examples.Count, "prose rule") + " against the AI reviewer?\n\nThis makes " + Plural.Of(calls, "model call") + ".", "Validate style guide")) return;
+            if (!Notify.Confirm(this, "Test " + Plural.Of(examples.Count, "prose rule") + " with the AI reviewer?\n\nThis makes " + Plural.Of(calls, "model call") + ".", Commands.TestRules.Label)) return;
             var runner = _runner();
             if (runner == null) return;
             _ai.Enabled = false; _google.Enabled = false;
@@ -133,10 +133,10 @@ namespace FlareAI.Flare.UI
             {
                 if (IsDisposed) return;
                 _progress.Visible = false;
-                if (e.Error != null) { Diagnostics.Log("Verify examples", e.Error); _status.Text = "AI check failed: " + e.Error.Message; return; }
+                if (e.Error != null) { Diagnostics.Log("Verify examples", e.Error); ErrorReporter.Background(this, "House Style couldn't check the examples with AI.", e.Error); _status.Text = "AI check failed: " + e.Error.Message; return; }
                 var results = (List<ExampleResult>)e.Result;
                 var passed = results.FindAll(x => x.Passed).Count;
-                _report.AppendLine("AI CHECK — does the reviewer apply the prose rules?");
+                _report.AppendLine("AI TEST. Does the reviewer apply the prose rules?");
                 foreach (var x in results)
                 {
                     var notes = new List<string>();
@@ -144,7 +144,7 @@ namespace FlareAI.Flare.UI
                     if (x.GoodClean.HasValue) notes.Add(x.GoodClean.Value ? "Good example clean" : "Good example wrongly flagged");
                     _report.AppendLine("  " + (x.Passed ? "✓ " : "✗ ") + x.Example.Id + "  " + Shorten(x.Example.Text, 70)).AppendLine("      " + string.Join("; ", notes.ToArray()));
                 }
-                _report.AppendLine().AppendLine(passed + " of " + Plural.Of(results.Count, "prose rule") + " applied as written. For a missed rule: sharpen its wording, add a clearer Bad example, or make it a table row (deterministic).");
+                _report.AppendLine().AppendLine(passed + " of " + Plural.Of(results.Count, "prose rule") + " applied as written. For a missed rule, sharpen its wording, add a clearer Bad example, or make it a table row.");
                 _text.Text = _report.ToString();
                 _status.Text = "AI applies " + passed + " of " + Plural.Of(results.Count, "prose rule") + " as written.";
             };

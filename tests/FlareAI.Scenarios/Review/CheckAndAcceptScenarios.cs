@@ -51,7 +51,7 @@ namespace FlareAI.Scenarios.Review
                 var users = Directory.GetFiles(fx.Ws.ContentDir, "*.htm", SearchOption.AllDirectories).Count(p => File.ReadAllText(p).Contains("LegacyApp.flsnp"));
                 Assert.True(users > 1, "the corpus snippet is shared");
                 Assert.Equal(users, fx.Session.SnippetUses(inSnippet.DocumentPath));
-                Assert.Contains("5 suggestions", fx.Session.Summary());
+                Assert.Contains("5 issues", fx.Session.Summary());
             }
         }
 
@@ -144,12 +144,12 @@ namespace FlareAI.Scenarios.Review
 
                 fx.Session.WriteAll();
 
-                Assert.Contains("Write 4 suggestions into the topic as tracked changes?", fx.Host.Confirms.Single());
+                Assert.Contains("Make 4 changes in the topic as tracked changes?", fx.Host.Confirms.Single());
                 Assert.All(todo, f => Assert.True(f.IsFixed));
                 Assert.Equal(1, fx.Doc.UndoCount);
                 Assert.True(TrackedChanges.HasPending(new List<XmlNode> { BlockSelector.FindBody(fx.Doc.Document) }));
                 Assert.Contains("is sometimes out of date", fx.AcceptedText);
-                Assert.Contains("Wrote 4 tracked changes", fx.Session.Status);
+                Assert.Contains("Made 4 tracked changes", fx.Session.Status);
                 Assert.DoesNotContain(needsRewrite, fx.Session.Open().Where(f => f.IsFixed));
                 Assert.Contains(needsRewrite, fx.Session.Open());                       // still listed
                 Assert.Contains(fx.Session.Open(), f => f.DocumentPath != null);           // the snippet finding is untouched
@@ -180,7 +180,7 @@ namespace FlareAI.Scenarios.Review
                 Assert.True(f.IsStale);
                 Assert.False(other.IsStale);
                 Assert.Equal(AcceptOutcome.Stale, fx.Session.Accept());
-                Assert.Equal("Text changed: check this paragraph again.", fx.Session.Status);
+                Assert.Equal("The text changed. Lint the paragraph again.", fx.Session.Status);
                 Assert.Equal(0, fx.Doc.UndoCount);
 
                 // Re-analyze checks that paragraph again: the stale card gives way to what is there now.

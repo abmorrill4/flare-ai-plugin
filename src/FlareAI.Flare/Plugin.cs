@@ -41,7 +41,7 @@ namespace FlareAI.Flare
             }
         }
         public string GetAuthor() { return "Arthur Morrill"; }
-        public string GetDescription() { return "AI editing assistant: check style, rewrite, ask. Edits arrive as tracked changes."; }
+        public string GetDescription() { return "Lint topics against your style guide and rewrite text with AI. Changes arrive as tracked changes."; }
         public string GetName() { return "House Style"; }
 
         public void Initialize(IHost host)
@@ -57,17 +57,22 @@ namespace FlareAI.Flare
                 Diagnostics.Log("House Style starting in " + _host.GetName() + " (" + _host.GetCompany() + "), plugin dir " + PluginDirectory);
                 _nav = _host.GetNavContext();
                 RefreshTeam();
+                _role = CurrentRole();
+                GettingStarted.Owner = () => _nav.GetParentForm();
+                GettingStarted.WatchTour();
                 CreateRibbon();
                 CreateToolStrip();
                 try { _host.GetEditorContext().DocumentSwitched += OnDocumentSwitched; } catch (Exception ex) { Diagnostics.Log("subscribe", ex); }
                 try { _host.GetCompilerContext().CompileComplete += OnCompileComplete; } catch (Exception ex) { Diagnostics.Log("subscribe compile", ex); }
-                _editor = new EditorIntegration(_host, LintRunner, () => _nav.GetParentForm(), WithSetup(OnCheckStyle), WithSetup(OnRewrite), WithSetup(OnAsk), WithSetup(OnCheckProject));
+                _editor = new EditorIntegration(_host, LintRunner, () => _nav.GetParentForm(), WithSetup(OnLintTopic), WithSetup(OnRewrite), WithSetup(OnAsk), WithSetup(OnLintProject));
                 try { _host.GetCompilerContext().CompileStart += OnCompileStart; } catch (Exception ex) { Diagnostics.Log("subscribe compile start", ex); }
                 _editor.AttachAll();
                 _activated = true;
                 // Last update's result / What's new, then the daily update check (background; per-user install only).
                 _updates = new UpdateFlow(() => _nav.GetParentForm(), PluginDirectory, Version);
                 try { _updates.Start(); } catch (Exception ex) { Diagnostics.Log("updates", ex); }
+                HookDispatcher();
+                Welcome();
             }
             catch (Exception ex)
             {
@@ -81,26 +86,125 @@ namespace FlareAI.Flare
             try { _host.GetEditorContext().DocumentSwitched -= OnDocumentSwitched; } catch (Exception) { }
             try { _host.GetCompilerContext().CompileComplete -= OnCompileComplete; } catch (Exception) { }
             try { _host.GetCompilerContext().CompileStart -= OnCompileStart; } catch (Exception) { }
+            try { if (_dispatcher != null) _dispatcher.UnhandledException -= OnDispatcherException; } catch (Exception) { }
             _style = null;
             try { _host.Dispose(); } catch (Exception ex) { Diagnostics.Log("Stop", ex); }
             _activated = false;
         }
 
+        // ---- unhandled errors on the UI thread (issue #124) -------------------------------------------------------
+
+        private System.Windows.Threading.Dispatcher _dispatcher;
+
+        /// <summary>
+        /// The one process-wide hook House Style adds: WPF's dispatcher (Flare's ribbon runs on it). Its event lets a
+        /// handler leave an exception unhandled, so House Style takes only exceptions thrown by its own code and leaves
+        /// Flare's (and other plugins') to Flare. WinForms' Application.ThreadException is not hooked: a handler there
+        /// handles every exception in the process, so it can't let Flare's pass. Our WinForms entry points are wrapped
+        /// by <see cref="Safe"/> instead.
+        /// </summary>
+        private void HookDispatcher()
+        {
+            try
+            {
+                _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+                _dispatcher.UnhandledException += OnDispatcherException;
+            }
+            catch (Exception ex) { Diagnostics.Log("dispatcher hook", ex); }
+        }
+
+        private void OnDispatcherException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                if (e.Handled || !FlareAI.Core.Feedback.ErrorKinds.ThrownByUs(e.Exception)) return;   // Flare's own: not ours to handle
+                e.Handled = true;
+                Diagnostics.Log("Unhandled (dispatcher)", e.Exception);
+                if (FlareAI.Core.Feedback.ErrorKinds.IsBug(e.Exception))
+                    ErrorReporter.Show(Owner, "House Style couldn't finish what it was doing.", e.Exception, null);
+                else
+                    Notify.PlainError(Owner, "House Style couldn't finish what it was doing.", e.Exception.Message, e.Exception);
+            }
+            catch (Exception ex) { Diagnostics.Log("dispatcher exception", ex); }
+        }
+
+        /// <summary>Flare's main window as a control, for reports from background work (null if it isn't available).</summary>
+        private Form OwnerForm
+        {
+            get { try { return _nav == null ? null : _nav.GetParentForm(); } catch (Exception) { return null; } }
+        }
+
+        /// <summary>Help &gt; Report a Problem, and the same button in Settings.</summary>
+        private void OnReportProblem(IWin32Window owner)
+        {
+            using (var f = new ReportProblemForm(FeedbackService.Context())) f.ShowDialog(owner);
+        }
+
         // ---- ribbon ------------------------------------------------------------------
 
+        private UserRole _role;
+
+        /// <summary>A team style guide is configured (read at Flare start, like the role): writers then get My Requests.</summary>
+        private static bool TeamGuide
+        {
+            get { try { return PluginSettings.Load().HasTeamGuide(PluginDirectory); } catch (Exception) { return false; } }
+        }
+
+        /// <summary>
+        /// Writer or owner: Owner for anyone the team guide's owners.txt lists; otherwise the writer's choice in setup or Settings.
+        /// </summary>
+        private static UserRole CurrentRole()
+        {
+            var team = Team.Current;
+            return Roles.Effective(PluginSettings.Load(), team != null && team.IsListedOwner);
+        }
+
+        /// <summary>
+        /// The ribbon for the writer's role, built once at Flare start. Flare's plugin API can add tabs, groups and buttons
+        /// but has no call to remove or hide them, so a role change in Settings applies when Flare restarts (Settings says so).
+        /// </summary>
         private void CreateRibbon()
         {
-            // Per the Ribbon Example: ribbon.AddNewRibbonTab(label, keyTip) → tab.AddNewRibbonGroup(label) → group.AddRibbonButton(RibbonControlData)
+            // Per the Ribbon Example: ribbon.AddNewRibbonTab(label, keyTip), then tab.AddNewRibbonGroup(label), then group.AddRibbonButton(RibbonControlData)
             IRibbon ribbon = _nav.GetRibbon();
             IRibbonTab tab = ribbon.AddNewRibbonTab(Notify.Product, "Q");
             var groups = new Dictionary<string, IRibbonGroup>();
-            foreach (var c in Commands.All)
+            Diagnostics.Log("Ribbon for role " + _role + (TeamGuide ? " with a team guide" : ""));
+            foreach (var c in Commands.Ribbon(_role, TeamGuide))
             {
                 IRibbonGroup group;
                 if (!groups.TryGetValue(c.Group, out group)) groups[c.Group] = group = tab.AddNewRibbonGroup(c.Group);
+                if (c == Commands.Help && AddHelpMenu(group)) continue;
                 var button = group.AddRibbonButton(Button(c));
                 try { if (button != null) button.ToolTip = c.Tooltip; } catch (Exception ex) { Diagnostics.Log("ribbon tooltip " + c.Id, ex); }
             }
+        }
+
+        /// <summary>
+        /// Help as a split button: the button opens the user guide; its menu has What's New and Start the Tour Again.
+        /// Called by reflection (IRibbonGroup.AddRibbonSplitMenuButton and IRibbonMenu.AddMenuItem are in Flare's API but
+        /// not in the compile-only stubs). False when Flare can't make it; then Help is a plain button.
+        /// </summary>
+        private bool AddHelpMenu(IRibbonGroup group)
+        {
+            try
+            {
+                var c = Commands.Help;
+                var add = typeof(IRibbonGroup).GetMethod("AddRibbonSplitMenuButton", new[] { typeof(string), typeof(System.Windows.Input.ICommand), typeof(object), typeof(string), typeof(RibbonIconSize), typeof(string), typeof(string), typeof(string) });
+                if (add == null) return false;
+                var menu = add.Invoke(group, new object[] { c.Label, new DelegateCommand(HandlerFor(c)), null, IconPath(c.Icon + ".png"), RibbonIconSize.Large, c.Label, c.Tooltip, c.KeyTip });
+                if (menu == null) return false;
+                System.Reflection.MethodInfo item = null;
+                foreach (var i in menu.GetType().GetInterfaces())
+                    if (i.Name == "IRibbonMenu") item = i.GetMethod("AddMenuItem", new[] { typeof(string), typeof(System.Windows.Input.ICommand), typeof(object), typeof(string) });
+                if (item == null) item = menu.GetType().GetMethod("AddMenuItem", new[] { typeof(string), typeof(System.Windows.Input.ICommand), typeof(object), typeof(string) });
+                if (item == null) { Diagnostics.Log("Help menu: no AddMenuItem"); return true; }
+                item.Invoke(menu, new object[] { "User Guide", new DelegateCommand(HandlerFor(c)), null, IconPath(c.Icon + "-16.png") });
+                foreach (var m in Commands.HelpMenu)
+                    item.Invoke(menu, new object[] { m.Label, new DelegateCommand(HandlerFor(m)), null, IconPath(m.Icon + "-16.png") });
+                return true;
+            }
+            catch (Exception ex) { Diagnostics.Log("Help menu", ex); return false; }
         }
 
         /// <summary>
@@ -112,7 +216,7 @@ namespace FlareAI.Flare
             try
             {
                 var menu = _nav.CreateToolStripMenu(Notify.Product, "Q");
-                foreach (var c in Commands.Menu)
+                foreach (var c in Commands.Menu(_role, TeamGuide))
                 {
                     if (c == null) { menu.AddSeparator(); continue; }
                     menu.AddMenuItem(c.Label, new DelegateCommand(HandlerFor(c)), null, IconPath(c.Icon + "-16.png"), c.Label, c.Tooltip, c.KeyTip);
@@ -138,26 +242,37 @@ namespace FlareAI.Flare
         private Action HandlerFor(CommandInfo c)
         {
             var raw = RawHandlerFor(c);
-            // Settings and Diagnostics open as they are; every other command offers first-run setup once.
-            return Safe.Wrap(c.Label, c == Commands.Settings || c == Commands.Diagnostics ? raw : WithSetup(raw));
+            // Settings, Help and the like open as they are; every other command offers first-run setup once.
+            var plain = c == Commands.Settings || c == Commands.Diagnostics || c == Commands.Help || c == Commands.WhatsNew || c == Commands.Tour || c == Commands.ReportProblem;
+            return Safe.Wrap(c.Label, plain ? raw : WithSetup(raw));
         }
 
         private Action RawHandlerFor(CommandInfo c)
         {
-            if (c == Commands.CheckStyle) return OnCheckStyle;
+            if (c == Commands.LintTopic) return OnLintTopic;
             if (c == Commands.Rewrite) return OnRewrite;
             if (c == Commands.Ask) return OnAsk;
-            if (c == Commands.CheckProject) return OnCheckProject;
-            if (c == Commands.TopicAssists) return OnAssist;
-            if (c == Commands.ValidateGuide) return OnValidateGuide;
-            if (c == Commands.StyleRules) return OnStyleRules;
-            if (c == Commands.TuneGuide) return OnTuneGuide;
-            if (c == Commands.BuildGuide) return OnBuildGuide;
-            if (c == Commands.ExportLlm) return OnExportLlm;
+            if (c == Commands.LintProject) return OnLintProject;
+            if (c == Commands.TopicMetadata) return OnAssist;
+            if (c == Commands.TestRules) return OnValidateGuide;
+            if (c == Commands.Rules) return OnStyleRules;
+            if (c == Commands.RuleDecisions) return () => OnTuneGuide(null);
+            if (c == Commands.MyRequests) return () => OnTuneGuide(Commands.MyRequests);
+            if (c == Commands.ImportRules) return OnBuildGuide;
+            if (c == Commands.ExportLlm) return () => OnExportLlm(Owner);
             if (c == Commands.Settings) return OnSettings;
-            if (c == Commands.Diagnostics) return OnDiagnostics;
+            if (c == Commands.Diagnostics) return () => OnDiagnostics(Owner);
             if (c == Commands.WhatsNew) return () => UpdateFlow.ShowAll(Owner, PluginDirectory, Version);
+            if (c == Commands.Help) return OpenUserGuide;
+            if (c == Commands.Tour) return StartTour;
+            if (c == Commands.ReportProblem) return () => OnReportProblem(Owner);
             throw new ArgumentException("No handler for command " + c.Id);
+        }
+
+        private void OpenUserGuide()
+        {
+            try { System.Diagnostics.Process.Start(Commands.UserGuideUrl); }
+            catch (Exception ex) { Diagnostics.Log("open user guide", ex); Notify.Info(Owner, "Open " + Commands.UserGuideUrl + " in your browser.", Commands.Help.Label); }
         }
 
         /// <summary>Owner for dialogs: Flare's main window (null if it isn't available).</summary>
@@ -183,7 +298,7 @@ namespace FlareAI.Flare
 
         // ---- actions -----------------------------------------------------------------
 
-        private void OnCheckStyle() { RunAction(Commands.CheckStyle.Label, ActionKind.CheckStyle, null); }
+        private void OnLintTopic() { RunAction(Commands.LintTopic.Label, ActionKind.CheckStyle, null); }
         private void OnRewrite() { RunAction(Commands.Rewrite.Label, ActionKind.Rewrite, null); }
 
         private void OnAsk()
@@ -191,12 +306,12 @@ namespace FlareAI.Flare
             using (var f = new AskForm())
             {
                 if (f.ShowDialog() != DialogResult.OK || string.IsNullOrEmpty(f.Instruction)) return;
-                RunAction("Ask", ActionKind.Ask, f.Instruction);   // title of the result window
+                RunAction(Commands.Ask.Label, ActionKind.Ask, f.Instruction);   // title of the result window
             }
         }
 
-        /// <summary>Lints every topic and snippet in the active topic's project (no AI cost) into the findings view.</summary>
-        private void OnCheckProject()
+        /// <summary>Lints every topic and snippet in the active topic's project (no AI cost) into the issues pane.</summary>
+        private void OnLintProject()
         {
             try
             {
@@ -204,7 +319,7 @@ namespace FlareAI.Flare
                 var files = ActionRunner.ProjectFiles(adapter == null ? null : adapter.SourcePath);
                 if (adapter == null || files.Count == 0)
                 {
-                    Notify.Info(Owner, "Open any topic of the project first. Check project looks at every topic and snippet in that project.", Commands.CheckProject.Label);
+                    Notify.Info(Owner, "Open a topic in the project first. Lint Project lints every topic and snippet in that project.", Commands.LintProject.Label);
                     return;
                 }
                 var runner = NewRunner(adapter, true, true);
@@ -218,27 +333,51 @@ namespace FlareAI.Flare
             }
             catch (Exception ex)
             {
-                Diagnostics.Log("Check project", ex);
-                Notify.Failed(Owner, "check the project", ex, Commands.CheckProject.Label);
+                Diagnostics.Log("Lint project", ex);
+                Notify.Failed(Owner, "lint the project", ex, Commands.LintProject.Label);
             }
         }
 
         private void OnSettings()
         {
-            bool runSetup;
-            using (var f = new SettingsForm(PluginDirectory, _updates == null ? null : (Func<string>)_updates.WhyOff))
+            bool runSetup, tour;
+            using (var f = new SettingsForm(PluginDirectory, _updates == null ? null : (Func<string>)_updates.WhyOff, _role,
+                                            owner => OnExportLlm(owner), owner => OnDiagnostics(owner), owner => OnReportProblem(owner)))
             {
                 if (f.ShowDialog(Owner) == DialogResult.OK) RefreshTeam();
                 runSetup = f.RunSetupRequested;
+                tour = f.TourRequested;
             }
             if (runSetup) RunSetup();
+            if (tour) StartTour();
         }
 
         private bool _setupOffered;
 
         /// <summary>
-        /// The command, preceded once by first-run setup when there is no settings file yet (the writer's first House Style
-        /// command). Never on Flare start, and never twice in a session even if the settings couldn't be saved.
+        /// Welcome on first start: with no settings file yet, setup opens by itself once Flare's window is up, before any
+        /// click. Also remembers when House Style first started (the checklist shows for the first week).
+        /// </summary>
+        private void Welcome()
+        {
+            try { var o = Onboarding.Load(); if (o.Started(DateTime.UtcNow)) o.Save(); }
+            catch (Exception ex) { Diagnostics.Log("onboarding start", ex); }
+            if (!FirstRun.IsNeeded()) return;
+            var form = _nav.GetParentForm();
+            if (form == null) return;
+            Action show = () =>
+            {
+                if (_setupOffered || !FirstRun.IsNeeded()) return;
+                _setupOffered = true;
+                Safe.Run("Welcome", RunSetup);
+            };
+            if (form.IsHandleCreated && form.Visible) form.BeginInvoke(show);
+            else form.Shown += (s, e) => form.BeginInvoke(show);
+        }
+
+        /// <summary>
+        /// The command, preceded once by first-run setup when there is no settings file yet (setup didn't open at start, or
+        /// the writer closed Flare's window before it did). Never twice in a session even if the settings couldn't be saved.
         /// </summary>
         private Action WithSetup(Action command)
         {
@@ -254,12 +393,56 @@ namespace FlareAI.Flare
             };
         }
 
-        /// <summary>The three setup steps; finishing or closing saves the settings, then the team and guide are reloaded.</summary>
+        /// <summary>
+        /// The four setup steps; finishing or closing saves the settings, then the team and guide are reloaded. The first
+        /// time setup is finished, the guided first lint follows.
+        /// </summary>
         private void RunSetup()
         {
-            using (var f = new SetupForm()) f.ShowDialog(Owner);
+            bool completed;
+            using (var f = new SetupForm()) { f.ShowDialog(Owner); completed = f.Completed; }
             Diagnostics.Enabled = PluginSettings.Load().WriteDiagnostics;
             RefreshTeam();
+            if (!completed) return;
+            var o = Onboarding.Load();
+            if (o.TourOffered) return;
+            StartTour();
+        }
+
+        /// <summary>
+        /// The guided first lint: the writer picks the sample project or the open topic (or Skip); then five steps in the
+        /// issues pane's hint strip. Started after the first setup, and from Help or Settings.
+        /// </summary>
+        private void StartTour()
+        {
+            var active = ActiveAdapter();
+            var topicOpen = active != null && active.IsEditableTopic;
+            TourChoice choice;
+            using (var f = new TourStartForm(topicOpen)) choice = f.ShowDialog(Owner) == DialogResult.OK ? f.Choice : TourChoice.Skip;
+            var o = Onboarding.Load();
+            o.TourOffered = true;
+            o.Save();
+            if (choice == TourChoice.Skip) return;
+            if (choice == TourChoice.Sample)
+            {
+                string topic;
+                try { topic = PracticeProject.Prepare(PluginDirectory, PracticeProject.DefaultFolder); }
+                catch (Exception ex)
+                {
+                    Diagnostics.Log("practice project", ex);
+                    Notify.Error(Owner, "House Style couldn't copy the practice project.", "Try again from Help, or practice on a topic of your own.", ex, Commands.Tour.Label);
+                    return;
+                }
+                // Flare's plugin API opens files, not projects: the practice topic opens on its own, and Lint Project
+                // still finds its project (the .flprj next to it).
+                if (OpenAdapter(topic) == null)
+                {
+                    Notify.Warn(Owner, "House Style couldn't open the practice topic. Open " + topic + " in Flare, then click Lint Topic.", Commands.Tour.Label);
+                }
+            }
+            var tour = GuidedTour.Start(choice == TourChoice.Sample);
+            var form = _nav.GetParentForm();
+            if (form != null) Toast.Show(form, tour.Hint, "Skip Tour", GettingStarted.EndTour);
         }
 
         /// <summary>
@@ -279,7 +462,7 @@ namespace FlareAI.Flare
                 settings.GuideRoots(PluginDirectory);   // upgrades a writer's guide in the old layout (a full copy) before first use
                 Team.Current = team;
                 PromptBuilder.DefaultOverrideFolder = team.GuideRoot == null ? null : Path.Combine(team.GuideRoot, Path.Combine("FlareAI", "prompts"));
-                Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
+                Diagnostics.Log("Team: writer " + (string.IsNullOrEmpty(team.Writer) ? "not set" : "set") + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
                 System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                 {
                     // Read-only detection on load: a create-and-delete probe (shares report attributes unreliably).
@@ -298,15 +481,15 @@ namespace FlareAI.Flare
             try
             {
                 var adapter = ActiveAdapter();
-                if (adapter == null || !adapter.IsEditableTopic) { Notify.Info(Owner, "Open a topic in the XML Editor first.", Commands.TopicAssists.Label); return; }
+                if (adapter == null || !adapter.IsEditableTopic) { Notify.Info(Owner, "Open a topic in the XML Editor first.", Commands.TopicMetadata.Label); return; }
                 var runner = NewRunner(adapter);
                 if (runner == null) return;
                 using (var f = new AssistForm(runner, adapter)) f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)
             {
-                Diagnostics.Log("Topic assists", ex);
-                Notify.Failed(Owner, "draft topic assists", ex, Commands.TopicAssists.Label);
+                Diagnostics.Log("Topic metadata", ex);
+                Notify.Failed(Owner, "suggest topic metadata", ex, Commands.TopicMetadata.Label);
             }
         }
 
@@ -324,31 +507,31 @@ namespace FlareAI.Flare
                 if (output == null) { Diagnostics.Log("LLM export: no fresh HTML output found after the build"); return; }
                 System.Threading.ThreadPool.QueueUserWorkItem(_ => { try { Diagnostics.Log("LLM export after build: " + RunLlmExport(settings, output)); } catch (Exception ex) { Diagnostics.Log("LLM export", ex); } });
             }
-            catch (Exception ex) { Diagnostics.Log("CompileComplete", ex); }
+            catch (Exception ex) { Diagnostics.Log("CompileComplete", ex); ErrorReporter.Background(OwnerForm, "House Style couldn't add the LLM-ready Markdown after the build.", ex); }
         }
 
         /// <summary>Exports the newest HTML output of the open project (or a folder the author picks) as Markdown + llms.txt.</summary>
-        private void OnExportLlm()
+        private void OnExportLlm(IWin32Window owner)
         {
             try
             {
                 var settings = PluginSettings.Load();
                 var adapter = ActiveAdapter();
                 var output = NewestOutput(adapter == null ? null : adapter.SourcePath, TimeSpan.MaxValue);
-                using (var dlg = new FolderBrowserDialog { Description = "Built HTML5 or Clean HTML output to export. Markdown for each topic, plus llms.txt, is added to it.", SelectedPath = output ?? "" })
+                using (var dlg = new FolderBrowserDialog { Description = "Choose a built HTML5 or Clean HTML output. House Style adds Markdown for each topic and llms.txt to it.", SelectedPath = output ?? "" })
                 {
-                    if (dlg.ShowDialog(_nav.GetParentForm()) != DialogResult.OK) return;
+                    if (dlg.ShowDialog(owner) != DialogResult.OK) return;
                     output = dlg.SelectedPath;
                 }
                 var summary = RunLlmExport(settings, output);
                 Diagnostics.Log("LLM export: " + summary);
-                if (Notify.AskYesNo(Owner, summary + "\n\nOpen the folder?", Commands.ExportLlm.Label))
+                if (Notify.AskYesNo(owner, summary + "\n\nOpen the folder?", Commands.ExportLlm.Label))
                     System.Diagnostics.Process.Start("explorer.exe", "\"" + output + "\"");
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Export for LLMs", ex);
-                Notify.Failed(Owner, "export for LLMs", ex, Commands.ExportLlm.Label);
+                Notify.Failed(owner, "export for LLMs", ex, Commands.ExportLlm.Label);
             }
         }
 
@@ -398,13 +581,13 @@ namespace FlareAI.Flare
             }
             catch (Exception ex)
             {
-                Diagnostics.Log("Build style guide", ex);
-                Notify.Failed(Owner, "build the style guide", ex, Commands.BuildGuide.Label);
+                Diagnostics.Log("Import rules", ex);
+                Notify.Failed(Owner, "import rules", ex, Commands.ImportRules.Label);
             }
         }
 
         /// <summary>The owner's report: what the team's review decisions say about each rule.</summary>
-        private void OnTuneGuide()
+        private void OnTuneGuide(CommandInfo asCommand)
         {
             try
             {
@@ -426,14 +609,18 @@ namespace FlareAI.Flare
                 };
                 Func<string, bool> isDefault = r => PluginSettings.IsUnder(r, pluginDir);
                 var openProject = adapter != null ? adapter.SourcePath : null;
+                // My Requests is the same window in its writer view; it also offers Import Rules, which sends add-rule requests.
+                var mine = asCommand == Commands.MyRequests;
                 using (var f = new TuneGuideForm(Team.Current, style, project, OpenAdapter, doc => NewRunner(doc as FlareDocumentAdapter, false), roots, openProject, isDefault,
-                                                 owner => ShowStyleRules(owner, style, project, openProject)))
+                                                 owner => ShowStyleRules(owner, style, project, openProject),
+                                                 mine ? Commands.MyRequests.Label : null, mine ? (Action)OnBuildGuide : null))
                     f.ShowDialog(_nav.GetParentForm());
             }
             catch (Exception ex)
             {
-                Diagnostics.Log("Tune style guide", ex);
-                Notify.Failed(Owner, "open the guide report", ex, Commands.TuneGuide.Label);
+                var label = (asCommand ?? Commands.RuleDecisions).Label;
+                Diagnostics.Log(label, ex);
+                Notify.Failed(Owner, "open " + label, ex, label);
             }
         }
 
@@ -450,8 +637,8 @@ namespace FlareAI.Flare
             }
             catch (Exception ex)
             {
-                Diagnostics.Log("Style rules", ex);
-                Notify.Failed(Owner, "show the style rules", ex, Commands.StyleRules.Label);
+                Diagnostics.Log("Rules", ex);
+                Notify.Failed(Owner, "show the rules", ex, Commands.Rules.Label);
             }
         }
 
@@ -476,8 +663,8 @@ namespace FlareAI.Flare
             }
             catch (Exception ex)
             {
-                Diagnostics.Log("Validate style guide", ex);
-                Notify.Failed(Owner, "validate the style guide", ex, Commands.ValidateGuide.Label);
+                Diagnostics.Log("Test rules", ex);
+                Notify.Failed(Owner, "test the rules", ex, Commands.TestRules.Label);
             }
         }
 
@@ -490,7 +677,7 @@ namespace FlareAI.Flare
             { Parallelism = settings.Parallelism > 0 ? settings.Parallelism : 6 };
         }
 
-        private void OnDiagnostics()
+        private void OnDiagnostics(IWin32Window owner)
         {
             try
             {
@@ -515,8 +702,8 @@ namespace FlareAI.Flare
                         var ns = new System.Xml.XmlNamespaceManager(adapter.Document.NameTable);
                         ns.AddNamespace("MadCap", Core.Editing.BlockSelector.MadCapNs);
                         var data = adapter.Document.SelectSingleNode("//MadCap:changeData", ns);
-                        Diagnostics.Log("DIAG changeData: " + (data == null ? "(none)" : Shorten(data.OuterXml, 1500)));
-                        if (picked.Count > 0) Diagnostics.Log("DIAG first block XML: " + Shorten(picked[0].OuterXml, 3000));
+                        Diagnostics.LogContent("DIAG changeData: " + (data == null ? "(none)" : Shorten(data.OuterXml, 1500)));
+                        if (picked.Count > 0) Diagnostics.LogContent("DIAG first block XML: " + Shorten(picked[0].OuterXml, 3000));
                     }
                 }
                 var settingsNow = PluginSettings.Load();
@@ -528,13 +715,13 @@ namespace FlareAI.Flare
                     foreach (var u in usage)
                         sb.AppendLine("  " + u.Task + " · " + u.Model + ": " + Plural.Of(u.Calls, "call") + ", " + u.Input + " in (" + u.CacheRead + " cached) / " + u.Output + " out, ~$" + u.Usd.ToString("0.000") + ", " + u.Seconds.ToString("0") + " s");
                 }
-                Diagnostics.Log("DIAG\n" + sb);
-                Notify.Report(Owner, Commands.Diagnostics.Label, sb + "\n(The same text is in the log: " + Diagnostics.LogPath + ")");
+                // The selection and blocks quote the topic: the content log only, never diag.log (which can go with a report).
+                Notify.Report(owner, Commands.Diagnostics.Label, sb + "\n(The same text is in the log at " + Diagnostics.ContentLogPath + ".)");
             }
             catch (Exception ex)
             {
                 Diagnostics.Log("Diagnostics", ex);
-                Notify.Failed(Owner, "collect diagnostics", ex, Commands.Diagnostics.Label);
+                Notify.Failed(owner, "collect diagnostics", ex, Commands.Diagnostics.Label);
             }
         }
 
@@ -557,7 +744,11 @@ namespace FlareAI.Flare
                     return;
                 }
                 using (var f = new ResultForm(title, runner, adapter, kind, instruction))
-                    f.ShowDialog();
+                {
+                    if (f.ShowDialog() != DialogResult.OK) return;
+                }
+                GettingStarted.Mark(ChecklistItem.AiRewrite);
+                GettingStarted.Note(_nav.GetParentForm(), FirstTimeNote.FirstAiRewrite);
             }
             catch (Exception ex)
             {
@@ -573,7 +764,7 @@ namespace FlareAI.Flare
         }
 
         /// <param name="projectLayer">False for style-guide topics: the guide project is already a layer.</param>
-        /// <param name="lintOnly">True for work that needs no AI (Check project): runs without a key; AI buttons then report why.</param>
+        /// <param name="lintOnly">True for work that needs no AI (Lint Project): runs without a key; AI buttons then report why.</param>
         private ActionRunner NewRunner(FlareDocumentAdapter adapter, bool projectLayer, bool lintOnly = false)
         {
             if (adapter == null) return null;
@@ -649,7 +840,7 @@ namespace FlareAI.Flare
                 var active = ActiveAdapter();
                 _editor.OnCompileStart(active != null ? active.SourcePath : _lastTopic);
             }
-            catch (Exception ex) { Diagnostics.Log("CompileStart", ex); }
+            catch (Exception ex) { Diagnostics.Log("CompileStart", ex); ErrorReporter.Background(OwnerForm, "House Style couldn't lint the project before the build.", ex); }
         }
 
         /// <summary>A runner for the linter only (live check, check on save, report before build): no API key needed.</summary>
@@ -679,7 +870,7 @@ namespace FlareAI.Flare
                 var runner = NewRunner(adapter, true, true);
                 if (runner != null) ShowFindings(adapter, runner, false);
             }
-            catch (Exception ex) { Diagnostics.Log("DocumentSwitched", ex); }
+            catch (Exception ex) { Diagnostics.Log("DocumentSwitched", ex); ErrorReporter.Background(OwnerForm, "House Style couldn't lint the topic you opened.", ex); }
         }
 
         /// <summary>Opens (or activates) a file in Flare's editor and wraps it; null if Flare can't open it.</summary>

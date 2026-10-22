@@ -1,10 +1,10 @@
 # House Style for MadCap Flare
 
-House Style is a free plugin for MadCap Flare Desktop. It checks your topics against the Google developer
-documentation style guide and your team's own rules, and suggests fixes. You apply or reject each one, and every change
-is a Flare tracked change.
+House Style is a free plugin for MadCap Flare Desktop. It lints your topics against the Google developer
+documentation style guide and your team's own rules, and lists the issues it finds. You change or ignore each one, and
+every change is a Flare tracked change.
 
-Style checks run on your computer at no cost. An AI review, rewrites and other AI features are optional. They use your
+Linting runs on your computer at no cost. An AI review, rewrites and other AI features are optional. They use your
 own Anthropic API key or your company's AI gateway.
 
 Website: <https://abmorrill4.github.io/flare-ai-plugin/>
@@ -14,8 +14,9 @@ Website: <https://abmorrill4.github.io/flare-ai-plugin/>
 1. Download `HouseStyle-<version>.zip` from [Releases](../../releases) and extract all of it.
 2. Close Flare.
 3. Double-click `Install.cmd` and approve the administrator prompt. You see the prompt only the first time.
-4. Start Flare and select **File > Options > Plugins > House Style > Enable**. The House Style tab appears.
-5. Select any **House Style** command. A three-step setup asks how you use AI and where your style rules are.
+4. Start Flare. The installer turns House Style on, so the House Style tab is on the ribbon.
+5. A four-step setup asks how you use House Style, how you use AI and where your style rules are. Then a short
+   practice shows you a first lint. To practice again, select **Help > Start the Tour Again**.
 
 House Style needs Flare 2026 in the Ribbon interface. Flare 2024 and 2025 aren't tested. Updates install themselves
 when you close Flare. If something goes wrong, see the [install page](https://abmorrill4.github.io/flare-ai-plugin/install.html)
@@ -29,15 +30,18 @@ or `docs/README-INSTALL.md`.
 | Pilot testers | `docs/TESTER-GUIDE.md` |
 | Style guide owners | User guide topics *Set up a team style guide*, *Maintain the style guide* and *Publish the style guide to Confluence* |
 | Gateway admins | `docs/bifrost-migration.md` |
-| What changed | `docs/release-notes/` and **House Style > What's new** |
+| What changed | `docs/release-notes/` and **House Style > Help > What's New** |
 | AI cost | `docs/testing/ai-cost.md` |
 
 ## Privacy
 
 Style checks run on your computer. When you use an AI feature, the text being checked (for alt text, the image) and the
 rules that apply go to Anthropic under your key, or to your company's gateway. Your key is encrypted with Windows DPAPI
-and never logged. House Style has no telemetry. Once a day it asks GitHub for the latest release, with no text, key or
-identifier. Details: [Privacy](https://abmorrill4.github.io/flare-ai-plugin/privacy.html).
+and never logged. House Style sends a report only when you choose Send, or by itself when **Send error reports
+automatically** is checked in Settings. Reports never include your topic text unless you type it in, and never your key
+or settings that could hold a secret. You can see exactly what a report holds before it goes. Once a day House Style
+asks GitHub for the latest release, with no text, key or identifier. Details:
+[Privacy](https://abmorrill4.github.io/flare-ai-plugin/privacy.html).
 
 ## For IT
 
@@ -64,8 +68,8 @@ Rule format, in short (the guide's *About this style guide* topic has the rest):
 - **Bullets** are rules for the AI. Nested `Bad:` and `Good:` items make them testable.
 - **Avoid / Use / Severity / Why / Example** tables become rules with exact fixes. `(delete)` in Use deletes the text;
   an empty Use only flags it. A **Pattern** column takes a regular expression.
-- **Rule / Setting / Reason** tables turn rules off or change their level. House Style writes these rows when someone
-  uses **Turn off rule…**.
+- **Rule / Setting / Reason** tables disable rules or change their level. House Style writes these rows when someone
+  uses **Disable Rule…**.
 - **Content** condition tags limit a rule to sections with that content (Steps, Code, UI and others). **Product** tags
   limit it to products in the guide's Product tag set.
 - Every rule has a permanent ID (`company:terminology/1`) that the AI cites and team feedback is keyed on. It's stored

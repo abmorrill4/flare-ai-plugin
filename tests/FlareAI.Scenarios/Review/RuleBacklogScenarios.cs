@@ -132,7 +132,7 @@ namespace FlareAI.Scenarios.Review
                 var files = open.Select(f => f.DocumentPath.ToLowerInvariant()).Distinct().Count();
                 var auto = open.Where(RuleBacklog.IsAutomatic).ToList();
                 var autoRules = auto.Select(RuleBacklog.KeyOf).Distinct().Count();
-                Assert.Equal(open.Count + " suggestions in " + files + " files. " + auto.Count + " can be fixed automatically across " + autoRules + " rules.", s.Summary());
+                Assert.Equal(open.Count + " issues in " + files + " files. " + auto.Count + " can be changed automatically across " + autoRules + " rules.", s.Summary());
                 Assert.Equal(auto.Count, s.AutomaticCandidates().Count);
             }
         }
@@ -232,7 +232,7 @@ namespace FlareAI.Scenarios.Review
                 Assert.Equal(autoFiles - 2, seen.Result.NotStarted.Count);
                 Assert.Equal(2, c.Host.Closed.Count);
                 Assert.Equal(2, c.Ws.OpenedByPlugin.Count);                                       // nothing past the stop was opened
-                Assert.Contains("Stopped: " + (autoFiles - 2) + " files were not changed.", s.Status);
+                Assert.Contains("Stopped. " + (autoFiles - 2) + " files were not changed.", s.Status);
                 Assert.True(s.AutomaticCandidates().Count < auto.Count);
                 Assert.True(s.AutomaticCandidates().Count > 0);                                   // the rest is still there to fix
             }
@@ -282,8 +282,8 @@ namespace FlareAI.Scenarios.Review
                 Assert.Null(s.FindBacklogRule(rule.Key));
                 Assert.DoesNotContain(s.Findings, f => RuleBacklog.KeyOf(f) == rule.Key);
                 Assert.Contains(rule.Findings[0].RuleId + "=off", c.ProjectRuleChanges);
-                Assert.Contains("Rule set to off for this project", s.Status);
-                Assert.StartsWith((s.Open().Count) + " suggestions in ", s.Summary());
+                Assert.Contains("Rule disabled for this project", s.Status);
+                Assert.StartsWith((s.Open().Count) + " issues in ", s.Summary());
             }
         }
 

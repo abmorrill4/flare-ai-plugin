@@ -20,7 +20,7 @@ namespace FlareAI.Flare.UI
     /// </summary>
     internal sealed class StyleRulesForm : Form
     {
-        private static string ActionName { get { return Commands.StyleRules.Label; } }
+        private static string ActionName { get { return Commands.Rules.Label; } }
         private readonly Team _team;
         private readonly StyleEngine _style;
         private readonly string _project, _openProject;
@@ -46,7 +46,7 @@ namespace FlareAI.Flare.UI
         public StyleRulesForm(Team team, StyleEngine style, string project, string openProject, Func<string, bool> isDefault)
         {
             _team = team; _style = style; _project = project; _openProject = openProject; _isDefault = isDefault;
-            Text = "House Style — Style rules";
+            Text = Notify.Caption(Commands.Rules.Label);
             StartPosition = FormStartPosition.CenterParent;
             Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;
@@ -73,7 +73,7 @@ namespace FlareAI.Flare.UI
             filters.Controls.Add(Caption("&Search:")); filters.Controls.Add(_search);
             filters.Controls.Add(Caption("S&ource:")); filters.Controls.Add(_source);
             filters.Controls.Add(Caption("St&ate:")); filters.Controls.Add(_state);
-            filters.Controls.Add(Caption("Fi&x:")); filters.Controls.Add(_fix);
+            filters.Controls.Add(Caption("Aut&omatic:")); filters.Controls.Add(_fix);
             filters.Controls.Add(Caption("A&pplies to:")); filters.Controls.Add(_content);
             filters.Controls.Add(_clear);
 
@@ -86,9 +86,9 @@ namespace FlareAI.Flare.UI
 
             var bar = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, Margin = new Padding(0) };
             var close = new Button { Text = "&Close", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, DialogResult = DialogResult.Cancel };
-            _restore = new Button { Text = "Turn &back on", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
-            _level = new Button { Text = "Change &level…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
-            _off = new Button { Text = "&Turn off…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
+            _restore = new Button { Text = "&Enable Rule", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
+            _level = new Button { Text = "Change &Level…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
+            _off = new Button { Text = "&Disable Rule…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
             bar.Controls.AddRange(new Control[] { close, _restore, _level, _off });
             _off.TabIndex = 0; _level.TabIndex = 1; _restore.TabIndex = 2; close.TabIndex = 3;   // Tab follows the buttons left to right
 
@@ -103,16 +103,16 @@ namespace FlareAI.Flare.UI
 
             var tips = new ToolTip();
             tips.SetToolTip(_search, "Words from the rule, its examples, its page or its reference (for example google:word-list/221). Every word must match.");
-            tips.SetToolTip(_off, "Turn the selected rule off for the team (or your own style guide) or for this project. On a read-only team guide, asks the owners.");
-            tips.SetToolTip(_level, "Make the selected rule an error, a warning or a tip. On a read-only team guide, asks the owners.");
-            tips.SetToolTip(_restore, "Undo the change in effect: turn the rule back on, or return it to its default.");
+            tips.SetToolTip(_off, "Stop linting for this rule.");
+            tips.SetToolTip(_level, "Make this rule an error, a warning or a suggestion.");
+            tips.SetToolTip(_restore, "Lint with this rule again.");
 
             A11y.Name(_search, "Search rules", "Words from the rule, its examples, its page or its reference. Every word must match.");
             A11y.Name(_source, "Source", "Show the rules from one source: Google, Company, your team's guide, your own guide or the project.");
-            A11y.Name(_state, "State", "Show rules that are on, off, or at a changed level.");
-            A11y.Name(_fix, "Fix", "Show rules whose suggestions carry a fix, or rules without one.");
+            A11y.Name(_state, "State", "Show rules that are enabled, disabled or at a changed level.");
+            A11y.Name(_fix, "Issue type", "Show rules whose issues are Auto-fix, or rules whose issues need you.");
             A11y.Name(_content, "Applies to", "Show rules limited to one kind of content, or rules that apply everywhere.");
-            A11y.Name(_list, "Style rules", "Grouped by source and page. Columns: rule, level, state, changed by.");
+            A11y.Name(_list, "Rules", "Grouped by source and page. Columns are rule, level, state and changed by.");
             A11y.Name(_detail, "Details for the selected rule");
             A11y.Name(filters, "Search and filters");
             A11y.Name(bar, "Rule actions");
@@ -257,7 +257,7 @@ namespace FlareAI.Flare.UI
                 if (IsDisposed) return;
                 if (e.Error != null)
                 {
-                    Diagnostics.Log("Style rules", e.Error);
+                    Diagnostics.Log("Style rules", e.Error); ErrorReporter.Background(this, "House Style couldn't read the style guide.", e.Error);
                     _head.Text = "House Style couldn't read the style guide: " + e.Error.Message;
                     return;
                 }
@@ -276,10 +276,10 @@ namespace FlareAI.Flare.UI
                 Refill(_source, new[] { new Choice { Text = "All sources" } }.Concat(_catalog.Sources.Select(x => new Choice { Text = x, Value = x })));
                 Refill(_state, new[]
                 {
-                    new Choice { Text = "Any state" }, new Choice { Text = "On", Value = RuleState.On },
-                    new Choice { Text = "Off", Value = RuleState.Off }, new Choice { Text = "Level changed", Value = RuleState.LevelChanged }
+                    new Choice { Text = "Any state" }, new Choice { Text = "Enabled", Value = RuleState.On },
+                    new Choice { Text = "Disabled", Value = RuleState.Off }, new Choice { Text = "Level changed", Value = RuleState.LevelChanged }
                 });
-                Refill(_fix, new[] { new Choice { Text = "With or without a fix" }, new Choice { Text = "Has a fix", Value = true }, new Choice { Text = "No fix", Value = false } });
+                Refill(_fix, new[] { new Choice { Text = "Any issue type" }, new Choice { Text = "Auto-fix", Value = true }, new Choice { Text = "Needs you", Value = false } });
                 Refill(_content, new[] { new Choice { Text = "Any content" }, new Choice { Text = "Everywhere", Value = RuleCatalog.Everywhere } }
                     .Concat(_catalog.ContentTags.Select(t => new Choice { Text = t, Value = t })));
             }
@@ -350,7 +350,7 @@ namespace FlareAI.Flare.UI
             var off = _catalog.Rules.Count(r => r.State == RuleState.Off);
             var notice = _team == null ? null : _team.AccessNotice;
             _head.Text = (done != null ? done + "  " : "") +
-                         (rules.Count == all ? Plural.Of(all, "rule") : rules.Count + " of " + Plural.Of(all, "rule")) + " (" + off + " off). Default: shipped with House Style." +
+                         (rules.Count == all ? Plural.Of(all, "rule") : rules.Count + " of " + Plural.Of(all, "rule")) + " (" + off + " disabled). Default means it ships with House Style." +
                          (notice != null ? "  " + notice : "");
             ShowSelected();
         }
@@ -394,7 +394,7 @@ namespace FlareAI.Flare.UI
                 var o = r.Change;
                 sb.Append(o.IsDefault ? "Shipped with House Style" : "Changed" + (string.IsNullOrEmpty(o.By) ? "" : " by " + o.By) + (string.IsNullOrEmpty(o.Date) ? "" : " on " + o.Date))
                   .Append(" in ").Append(o.IsDefault ? "the bundled style guide" : o.Scope)
-                  .Append(": ").Append(o.IsTurnOn ? "back on" : Severity.Label(o.Setting)).Append(nl);
+                  .Append(": ").Append(o.IsTurnOn ? "enabled" : o.Setting == "off" ? "disabled" : Severity.Label(o.Setting)).Append(nl);
                 if (!string.IsNullOrEmpty(o.Note)) sb.Append("Why: ").Append(o.Note).Append(nl);
                 if (o.RequestId != null) sb.Append("Approved by an owner (request ").Append(o.RequestId).Append(")").Append(nl);
             }
@@ -408,9 +408,9 @@ namespace FlareAI.Flare.UI
             {
                 if (r.IsPattern) sb.Append("Pattern: ").Append(r.Avoid.FirstOrDefault()).Append(nl);
                 else sb.Append("Avoid: ").Append(string.Join(", ", r.Avoid.Select(a => "'" + a + "'").ToArray())).Append(nl);
-                sb.Append(r.Action == "replace" ? "Use: '" + r.Use + "' (the suggestion carries the fix)"
-                        : r.Action == "remove" ? "Use: delete it (the suggestion carries the fix)"
-                        : "Use: rewrite it (no fix: the writer decides)").Append(nl);
+                sb.Append(r.Action == "replace" ? "Use: '" + r.Use + "' (changed automatically)"
+                        : r.Action == "remove" ? "Use: delete it (changed automatically)"
+                        : "Use: rewrite it (the writer decides)").Append(nl);
                 if (!string.IsNullOrEmpty(r.Example)) sb.Append("Example: ").Append(r.Example).Append(nl);
             }
             if (r.Terms.Count > 0) sb.Append("About the words: ").Append(string.Join(", ", r.Terms.ToArray())).Append(nl);
@@ -423,7 +423,7 @@ namespace FlareAI.Flare.UI
             var others = _catalog.OverlapsOf(r);
             if (others.Count > 0)
             {
-                sb.Append(nl).Append("Flags the same words as (turning this rule off can include them):").Append(nl);
+                sb.Append(nl).Append("These rules flag the same words. Disabling this rule can disable them too.").Append(nl);
                 foreach (var o in others) sb.Append("  • ").Append(o.Source).Append(" › ").Append(o.Page).Append(": ").Append(Row(o)).Append(" [").Append(o.StateLabel).Append("]").Append(nl);
             }
             sb.Append(nl).Append("Reference: ").Append(r.Key);
@@ -438,15 +438,15 @@ namespace FlareAI.Flare.UI
         private void SetButtons(CatalogRule r)
         {
             var asking = Requesting;
-            _off.Text = asking ? "&Request turning off…" : "&Turn off…";
-            _level.Text = asking ? "Request a &level…" : "Change &level…";
+            _off.Text = asking ? "&Request to Disable…" : "&Disable Rule…";
+            _level.Text = asking ? "Request a &Level…" : "Change &Level…";
             var canTeam = _team != null && _team.GuideRoot != null;
             var canProject = _openProject != null && ProjectRules.OverridesPath(_openProject) != null;
             _off.Enabled = r != null && r.State != RuleState.Off && (canTeam || canProject);
             _level.Enabled = r != null && r.IsTable && (canTeam || canProject);
             var restoreAsks = r != null && !r.ChangeIsProject && asking;
             var toDefault = r != null && r.State != RuleState.Off && r.Change != null && !r.IsDefault;
-            _restore.Text = toDefault ? (restoreAsks ? "Request the &default…" : "Use the &default") : (restoreAsks ? "Request turning it &back on…" : "Turn &back on");
+            _restore.Text = toDefault ? (restoreAsks ? "Request the &Default…" : "Use the &Default") : (restoreAsks ? "Request to &Enable…" : "&Enable Rule");
             _restore.Enabled = r != null && r.Change != null && !(r.IsDefault && r.State != RuleState.Off) && (r.ChangeIsProject || canTeam);
             foreach (var b in new[] { _off, _level, _restore }) b.AccessibleName = b.Text.Replace("&", "").Replace("…", "");
         }
@@ -468,7 +468,7 @@ namespace FlareAI.Flare.UI
                 choice = RequestForm.Ask(this, new RequestQuestion
                 {
                     RuleText = described,
-                    Notice = "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
+                    Notice = "This goes to the style guide owners (" + _team.OwnerNames + "). You see their answer the next time you lint." +
                              (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice),
                     CanAskTeam = true, CanAskProject = canProject,
                     Wording = !level && !r.IsTable && r.Origin != "google" ? r.Text : null,
@@ -479,14 +479,14 @@ namespace FlareAI.Flare.UI
             {
                 using (var form = new RuleSettingForm(described, canTeam, _team != null && _team.IsPersonal,
                                                       others.Select(o => new RuleRef { Id = o.Key, Layer = o.Origin, Name = o.Source + " · " + o.Page + ": " + o.Title }).ToList(),
-                                                      setting, canProject, level ? "Change level" : "Turn off this rule"))
+                                                      setting, canProject, level ? "Change Level" : "Disable Rule"))
                 {
                     if (form.ShowDialog(this) != DialogResult.OK) return;
                     choice = new RuleSettingChoice { ForTeam = form.ForTeam, Setting = form.Setting, Reason = form.Reason, AlsoOthers = form.AlsoOthers };
                 }
             }
             if (choice == null) return;
-            if (asking && string.IsNullOrWhiteSpace(choice.Reason)) { _head.Text = "Not sent: the owners need a reason to decide."; return; }
+            if (asking && string.IsNullOrWhiteSpace(choice.Reason)) { _head.Text = "Not sent. Add a reason for the owners."; return; }
             try
             {
                 var result = RuleChanges.Change(_team, r, choice, others, _openProject);
@@ -497,7 +497,7 @@ namespace FlareAI.Flare.UI
                 // The guide stopped being writable (share offline, permissions changed): the same change can go as a request.
                 Diagnostics.Log("Style rules: change", ex);
                 _team.ProbeGuide();
-                if (Notify.Confirm(this, "House Style couldn't write to " + ex.Target + ": " + ex.Message + "\n\nNothing was changed. Send this change to the style guide owners (" +
+                if (Notify.Confirm(this, "House Style couldn't write to " + ex.Target + ". " + ex.Message + "\n\nNothing was changed. Send this change to the style guide owners (" +
                                          _team.OwnerNames + ") as a request instead? Your reason is kept.", ActionName))
                 {
                     try { Reload(Describe(RuleChanges.Change(_team, r, choice, others, _openProject), choice.ForTeam, choice.Setting), r.Key); }
@@ -520,7 +520,7 @@ namespace FlareAI.Flare.UI
             {
                 var asks = RuleChanges.WillRequest(_team, r, true);
                 using (var f = new AlsoRestoreForm(r.Source + " · " + r.Page + ": " + r.Title, also.Select(o => o.Source + " · " + o.Page + ": " + o.Title).ToList(),
-                                                   asks ? "Request turning it back on" : "Turn back on"))
+                                                   asks ? "Request to Enable" : "Enable Rule"))
                 {
                     if (f.ShowDialog(this) != DialogResult.OK) return;
                     if (!f.AlsoOthers) also.Clear();
@@ -528,8 +528,8 @@ namespace FlareAI.Flare.UI
             }
             if (RuleChanges.WillRequest(_team, r, true))
             {
-                reason = RequestForm.AskReason(this, (toDefault ? "Return to the default: " : "Turn back on: ") + r.Title + (string.IsNullOrEmpty(r.Change.Note) ? "" : " (changed because: " + r.Change.Note + ")"),
-                    "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
+                reason = RequestForm.AskReason(this, (toDefault ? "Return to the default " : "Enable ") + r.Title + (string.IsNullOrEmpty(r.Change.Note) ? "" : " (changed because " + r.Change.Note + ")"),
+                    "This goes to the style guide owners (" + _team.OwnerNames + "). You see their answer the next time you lint." +
                     (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice));
                 if (reason == null) return;
             }
@@ -537,7 +537,7 @@ namespace FlareAI.Flare.UI
             {
                 var result = RuleChanges.Restore(_team, r, also, reason);
                 Reload(result.Requested ? Describe(result, true, null)
-                       : (toDefault ? "Back to the default" : "Turned back on") + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "") + " (in " + result.File + "). It applies from the next check." +
+                       : (toDefault ? "Back to the default" : "Enabled") + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "") + ". It applies the next time you lint." +
                          (result.Incomplete != null ? " " + result.Incomplete : ""), r.Key);
             }
             catch (GuideWriteException ex) when (!r.ChangeIsProject && _team != null && _team.IsStrict && !_team.IsPersonal)
@@ -547,26 +547,27 @@ namespace FlareAI.Flare.UI
                 Notify.Error(this, "House Style couldn't write to " + ex.Target + ".", ex.Message + "\n\nNothing was changed. Select the button again to ask the style guide owners instead.", ex, ActionName);
                 Reload(null, r.Key);
             }
-            catch (Exception ex) { Failed(ex, "turn the rule back on"); }
+            catch (Exception ex) { Failed(ex, "enable the rule"); }
         }
 
         private string Describe(RuleChangeResult result, bool forTeam, string setting)
         {
             if (result.Requested)
                 return result.Problem == null
-                    ? "Request sent to the style guide owners (" + _team.OwnerNames + "). The rule stays as it is until they decide; you see the answer on your next check."
-                    : "Request saved but not sent yet: " + result.Problem + ". House Style sends it on your next check.";
-            var what = (setting == "off" ? "Turned off" : "Set to " + Severity.Label(setting)) + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "");
-            var where = !forTeam ? " for this project (in " + result.File + ")."
-                      : _team != null && _team.IsPersonal ? " in your style guide (" + result.File + ")."
-                      : " for the team (in " + result.File + "; commit it so everyone gets it).";
-            return what + where + " It applies from the next check." + (result.Incomplete != null ? " " + result.Incomplete : "");
+                    ? "Request sent to the style guide owners (" + _team.OwnerNames + "). The rule stays as it is until they decide."
+                    : "Request saved but not sent yet (" + result.Problem + "). House Style sends it the next time you lint.";
+            var what = (setting == "off" ? "Disabled" : "Set to " + Severity.Label(setting)) + (result.Changed.Count > 1 ? " (" + result.Changed.Count + " rules)" : "");
+            FlareAI.Core.Diagnostics.Log("Rules: " + setting + " written to " + result.File);
+            var where = !forTeam ? " for this project."
+                      : _team != null && _team.IsPersonal ? "."
+                      : " for the team." + Team.CommitHint(_team == null ? null : _team.GuideRoot);
+            return what + where + " It applies the next time you lint." + (result.Incomplete != null ? " " + result.Incomplete : "");
         }
 
         private void Failed(Exception ex, string what)
         {
             Diagnostics.Log("Style rules: " + what, ex);
-            Notify.Error(this, "House Style couldn't " + what + ".", ex.Message + "\n\nNothing was changed: the rule still applies as before.", ex, ActionName);
+            Notify.Error(this, "House Style couldn't " + what + ".", ex.Message + "\n\nNothing was changed. The rule still applies.", ex, ActionName);
             Reload(null, Current() == null ? null : Current().Key);
         }
     }

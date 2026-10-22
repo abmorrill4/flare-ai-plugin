@@ -7,6 +7,17 @@ using FlareAI.Core.Style;
 
 namespace FlareAI.Core.Actions
 {
+    /// <summary>What the writer did in the pane, for the guided first lint and the checklist.</summary>
+    public enum ReviewEvent
+    {
+        /// <summary>An issue was changed in a document (one or many, by any Change command).</summary>
+        Changed,
+        /// <summary>A change was undone in the editor and its issue is live again.</summary>
+        Undone,
+        /// <summary>A rule was disabled, or a request to change it went to the owners.</summary>
+        RuleDisabled
+    }
+
     /// <summary>What <see cref="ReviewSession.Accept"/> did, so the view can run the flows that need its own dialogs.</summary>
     public enum AcceptOutcome
     {
@@ -117,6 +128,19 @@ namespace FlareAI.Core.Actions
         public event Action<string> StatusChanged;
         /// <summary>A batch finished: the per-file outcome, for the pane to show when it has more to say than the status line.</summary>
         public event Action<BatchResult> BatchReported;
+        /// <summary>Something the writer did that the guided first lint and the getting-started checklist follow.</summary>
+        public event Action<ReviewEvent> Happened;
+
+        /// <summary>The topic's empty state.</summary>
+        public const string NoIssuesInTopic = "No issues found in this topic.";
+        private const string TextChanged = "The text changed. Lint the paragraph again.";
+
+        private void Raise(ReviewEvent e)
+        {
+            var h = Happened;
+            if (h == null) return;
+            try { h(e); } catch (Exception ex) { Diagnostics.Log("review event " + e, ex); }
+        }
 
         // ---- the list ---------------------------------------------------------------------------
 
@@ -195,23 +219,26 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>
-        /// "5 suggestions in 2 sections: 2 Fix · 2 Reword · 1 Needs you." for a topic; for a project check, the backlog
+        /// "5 issues in 2 sections. 2 Auto-fix, 3 Needs you." for a topic (the card's issue types); for a project check, the backlog
         /// line ("117 suggestions in 42 files. 63 can be fixed automatically across 9 rules.").
         /// </summary>
         public string Summary()
         {
             if (_project) return BacklogSummary();
             var open = Open();
-            if (open.Count == 0) return "Nothing to fix: this text follows your style rules.";
-            int fixes = 0, rewords = 0, needsYou = 0;
+            if (open.Count == 0) return NoIssuesInTopic;
+            int fixes = 0, needsYou = 0;
             var sections = new HashSet<string>();
             foreach (var f in open)
             {
                 sections.Add(f.Section ?? "");
-                if (f.Kind == "mechanical") fixes++; else if (f.Kind == "manual" || f.Kind == "variable") needsYou++; else rewords++;
+                if (f.Kind == "mechanical") fixes++; else needsYou++;
             }
-            return Plural.Of(open.Count, "suggestion") + (sections.Count > 1 ? " in " + sections.Count + " sections" : "") + ": "
-                   + fixes + " Fix · " + rewords + " Reword" + (needsYou > 0 ? " · " + needsYou + " Needs you" : "") + ".";
+            var parts = new List<string>();
+            if (fixes > 0) parts.Add(fixes + " Auto-fix");
+            if (needsYou > 0) parts.Add(needsYou + " Needs you");
+            return Plural.Of(open.Count, "issue") + (sections.Count > 1 ? " in " + sections.Count + " sections" : "") + ". "
+                   + Cap(string.Join(", ", parts.ToArray())) + ".";
         }
 
         /// <summary>How many topics use a snippet (asked once per path).</summary>
@@ -263,7 +290,7 @@ namespace FlareAI.Core.Actions
                 if (cur != null && !cur.IsFixed && !cur.IsStale && RuleBacklog.KeyOf(cur) == FocusRule)
                 {
                     Select(cur);   // Skip for now on the rule's last one: it stays, nothing else to go to
-                    Status = "This is the last one for " + FocusTitle + ".";
+                    Status = "This is the last issue for " + FocusTitle + ".";
                     return;
                 }
                 var done = FocusTitle;
@@ -312,7 +339,8 @@ namespace FlareAI.Core.Actions
             }
             if (revived + stale == 0) return 0;
             Sort();
-            Status = stale > 0 ? "Text changed: check this paragraph again." : "That change was undone: the suggestion is back.";
+            Status = stale > 0 ? TextChanged : "The change was undone. The issue is back.";
+            if (revived > 0) Raise(ReviewEvent.Undone);
             return revived + stale;
         }
 
@@ -388,7 +416,7 @@ namespace FlareAI.Core.Actions
             if (doc == null) { if (report) Status = "Could not open " + f.DocumentPath; return; }
             var ok = false;
             try { ok = _runner.GoTo(doc, f); } catch (Exception ex) { Diagnostics.Log("GoTo", ex); }
-            if (!ok && report) Status = "That text is no longer in the topic (it was edited). Check this paragraph again.";
+            if (!ok && report) Status = "That text is no longer in the topic. Lint the paragraph again.";
         }
 
         // ---- decisions --------------------------------------------------------------------------
@@ -399,11 +427,11 @@ namespace FlareAI.Core.Actions
             var f = Current;
             if (f != null && f.IsFixed) RecheckApplied();   // Ctrl+Z since: it may be live again
             if (f == null || f.IsFixed) return AcceptOutcome.None;
-            if (f.IsStale) { Status = "Text changed: check this paragraph again."; return AcceptOutcome.Stale; }
+            if (f.IsStale) { Status = TextChanged; return AcceptOutcome.Stale; }
             if (f.Kind == "variable")
             {
                 GoTo(f, true);
-                Status = "The text is selected: use Insert ▸ Variable ▸ " + f.Variable + " (Flare replaces the selection).";
+                Status = "The text is selected. On the Insert tab, click Variable and choose " + f.Variable + ".";
                 return AcceptOutcome.WentTo;
             }
             if (f.Kind == "restructure") return AcceptOutcome.Rewrite;
@@ -411,7 +439,7 @@ namespace FlareAI.Core.Actions
             if (f.Kind == "manual")
             {
                 GoTo(f, true);
-                Status = "Fix it in the editor (" + f.Suggestion + "), then check this paragraph again.";
+                Status = "Change it in the topic, then lint the paragraph again.";
                 return AcceptOutcome.WentTo;
             }
             if (!ConfirmSnippet(f)) return AcceptOutcome.Declined;
@@ -431,10 +459,24 @@ namespace FlareAI.Core.Actions
             return _host.Confirm(BatchPlan.SnippetQuestion(f.DocumentPath, SnippetUses(f.DocumentPath)) + "\n\nThe change is tracked.", null);
         }
 
-        /// <summary>Apply all fixes: exact rule fixes as tracked changes; a batch that reaches another file is previewed first.</summary>
+        /// <summary>Fix All: exact rule fixes as tracked changes; a batch that reaches another file is previewed first.</summary>
         public void FixAll()
         {
             FixBatch(FixAllCandidates(), false);
+        }
+
+        /// <summary>What Change All writes for <paramref name="f"/>: every automatic change of the same rule (in this topic, or everywhere in a project report).</summary>
+        public List<StyleFinding> ChangeAllCandidates(StyleFinding f)
+        {
+            if (f == null || !RuleBacklog.IsAutomatic(f)) return new List<StyleFinding>();
+            var key = RuleBacklog.KeyOf(f);
+            return FixAllCandidates().FindAll(x => RuleBacklog.KeyOf(x) == key);
+        }
+
+        /// <summary>Change All: every instance of the selected issue's rule, as tracked changes in one undo step.</summary>
+        public void ChangeAll()
+        {
+            FixBatch(ChangeAllCandidates(Current), false);
         }
 
         /// <summary>
@@ -452,12 +494,12 @@ namespace FlareAI.Core.Actions
             }
             var chosen = plan.SelectedFindings;
             if (chosen.Count == 0 && plan.Skipped.Count == 0) return;
-            var run = BeginBatch(chosen, chosen.Count == 1 ? "House Style: " + chosen[0].Rule : "House Style: " + chosen.Count + " style fixes", plan);
+            var run = BeginBatch(chosen, chosen.Count == 1 ? "House Style: " + chosen[0].Rule : "House Style: " + chosen.Count + " changes", plan);
             run.Finished += result =>
             {
                 foreach (var f in chosen) if (f.IsFixed) RecordFeedback(f, _doc.SourcePath, "accepted", null);
                 var inSnippets = _findings.FindAll(f => f.CanFix && f.DocumentPath != null && !_project).Count;
-                if (inSnippets > 0) Status = Status + "  " + inSnippets + " more in snippets: select one to apply it there.";
+                if (inSnippets > 0) Status = Status + "  " + inSnippets + " more are in snippets. Select one to change it there.";
                 if (FocusRule != null && !_findings.Exists(f => !f.IsFixed && !f.IsStale && RuleBacklog.KeyOf(f) == FocusRule)) EndRuleReview();
                 else Next();
             };
@@ -505,7 +547,7 @@ namespace FlareAI.Core.Actions
         public void FixAllAutomatic()
         {
             var todo = AutomaticCandidates();
-            if (todo.Count == 0) { Status = Summary() + "  Nothing can be fixed automatically."; return; }
+            if (todo.Count == 0) { Status = Summary() + "  Nothing can be changed automatically."; return; }
             FixBatch(todo, true);
         }
 
@@ -514,7 +556,7 @@ namespace FlareAI.Core.Actions
         {
             if (rule == null) return;
             var todo = rule.Automatic;
-            if (todo.Count == 0) { Status = Summary() + "  This rule has no automatic fixes: use Review one by one."; return; }
+            if (todo.Count == 0) { Status = Summary() + "  This rule has no automatic changes. Click Review One by One."; return; }
             FixBatch(todo, true);
         }
 
@@ -526,7 +568,7 @@ namespace FlareAI.Core.Actions
             var h = ListChanged;
             if (h != null) h();
             Select(rule.Findings[0]);
-            Status = rule.Title + ": " + rule.Counts() + ". Apply, Go to, or Skip for now; the next suggestion is always this rule's.";
+            Status = rule.Title + " · " + rule.Counts() + ". Change or skip each issue for this rule.";
         }
 
         /// <summary>Back to all rules (Review one by one ends).</summary>
@@ -579,11 +621,11 @@ namespace FlareAI.Core.Actions
         {
             var todo = WriteAllCandidates();
             if (todo.Count == 0) return;
-            if (!_host.Confirm("Write " + Plural.Of(todo.Count, "suggestion") + " into the topic as tracked changes?\n\nReview them in Flare's Review tab (Accept / Reject change), " +
-                    "or send the topic out in a review package. One Ctrl+Z removes them all.", "Write all as tracked changes")) return;
-            var n = Apply(todo, "House Style: " + Plural.Of(todo.Count, "suggestion"));
+            if (!_host.Confirm("Make " + Plural.Of(todo.Count, "change") + " in the topic as tracked changes?\n\n" +
+                    "You can accept them on the Review tab. One Ctrl+Z undoes them all.", "Change All Issues")) return;
+            var n = Apply(todo, "House Style: " + Plural.Of(todo.Count, "change"));
             foreach (var f in todo) if (f.IsFixed) RecordFeedback(f, _doc.SourcePath, "proposed", "bulk");
-            Status = Summary() + "  Wrote " + Plural.Of(n, "tracked change") + " — review them in the Review tab. Suggestions that need a rewrite or your attention are still listed.";
+            Status = Summary() + "  Made " + Plural.Of(n, "tracked change") + ". Accept them on the Review tab. Issues that need you are still listed.";
             Next();
         }
 
@@ -634,7 +676,7 @@ namespace FlareAI.Core.Actions
                 }
                 // A file left open keeps its undo history: remember it, so a Ctrl+Z there brings the suggestion back.
                 if (doc != _doc) { if (saved) _writtenIn.Remove(path); else if (n > 0) _writtenIn[path] = doc; }
-                if (n > 0) result.AddChanged(path, n, saved);
+                if (n > 0) { result.AddChanged(path, n, saved); Raise(ReviewEvent.Changed); }
                 if (n < group.Count) result.AddSkipped(path, group.Count - n, "text changed");
             }
             catch (Exception ex)
@@ -661,7 +703,7 @@ namespace FlareAI.Core.Actions
             catch (Exception ex)
             {
                 Diagnostics.Log("Apply", ex);
-                Status = "Could not apply: " + ex.Message;
+                Status = "Couldn't make the change. " + ex.Message;
             }
         }
 
@@ -676,7 +718,7 @@ namespace FlareAI.Core.Actions
             _findings.Remove(f);
             Sort();
             Select(next);
-            Status = Summary() + "  Rejected (" + reason + "); it stays hidden for this text.";
+            Status = Summary() + "  Ignored. It stays hidden for this text.";
         }
 
         /// <summary>Skip for now: the next suggestion, nothing recorded.</summary>
@@ -687,7 +729,7 @@ namespace FlareAI.Core.Actions
         {
             var f = Current;
             if (f == null || f.IsFixed || f.IsStale) return;
-            var text = _host.AskText("Edit suggestion", "Replace \"" + Shorten(f.Excerpt, 80) + "\" with:", f.Replacement ?? f.Excerpt, false);
+            var text = _host.AskText("Edit", "Change \"" + Shorten(f.Excerpt, 80) + "\" to:", f.Replacement ?? f.Excerpt, false);
             if (text == null || text == f.Excerpt) return;
             var edited = Clone(f);
             edited.Replacement = text;
@@ -715,15 +757,15 @@ namespace FlareAI.Core.Actions
             _findings[_findings.IndexOf(f)] = refined;
             Sort();
             Select(refined);
-            Status = Summary() + "  Refined. Apply, edit, or refine again.";
+            Status = Summary() + "  The AI rewrote the suggestion. Change it, edit it, or rewrite it again.";
         }
 
         /// <summary>The paragraph "Check this paragraph again" would check, or null (the status says why).</summary>
         public XmlNode ReanalyzeTarget(StyleFinding f)
         {
-            if (f == null || f.DocumentPath != null) { Status = "Check this paragraph again works on the topic's paragraphs."; return null; }
+            if (f == null || f.DocumentPath != null) { Status = "Lint Paragraph works on the topic's paragraphs."; return null; }
             var block = _runner.LocateBlock(_doc, f) ?? f.Block;
-            if (block == null || block.ParentNode == null) { Status = "That paragraph is gone. Use Check again for the topic."; return null; }
+            if (block == null || block.ParentNode == null) { Status = "That paragraph is gone. Click Lint Again to lint the topic."; return null; }
             return block;
         }
 
@@ -733,16 +775,16 @@ namespace FlareAI.Core.Actions
             _findings.RemoveAll(x => !x.IsFixed && x.DocumentPath == null && (x.Block == block || (x.IsStale && x.Block == f.Block)));
             Add(fresh);
             Select(fresh.Count > 0 ? fresh[0] : null);
-            Status = Summary() + "  Paragraph checked again: " + Plural.Of(fresh.Count, "suggestion") + ".";
+            Status = Summary() + "  Paragraph linted again. " + Plural.Of(fresh.Count, "issue") + ".";
         }
 
         /// <summary>The paragraph a Rewrite… of <paramref name="f"/> changes, and every open suggestion in it; null when it can't (the status says why).</summary>
         public XmlNode RewriteTarget(StyleFinding f, out List<StyleFinding> related)
         {
             related = null;
-            if (f.DocumentPath != null) { Status = "Open the snippet and use Rewrite selection there."; return null; }
+            if (f.DocumentPath != null) { Status = "Open the snippet and use Rewrite there."; return null; }
             var block = _runner.LocateBlock(_doc, f);
-            if (block == null) { Status = "That text is no longer in the topic. Check this paragraph again, or use Check again."; return null; }
+            if (block == null) { Status = "That text is no longer in the topic. Click Lint Again."; return null; }
             related = _findings.FindAll(x => !x.IsFixed && x.DocumentPath == null && _runner.LocateBlock(_doc, x) == block);
             return block;
         }
@@ -789,7 +831,7 @@ namespace FlareAI.Core.Actions
         public string RuleChangeLabel()
         {
             var team = CurrentTeam();
-            return team != null && team.ChangesNeedRequest ? "Request a change…" : "Turn off this rule…";
+            return team != null && team.ChangesNeedRequest ? "Request Rule Change…" : "Disable Rule…";
         }
 
         /// <summary>
@@ -800,7 +842,7 @@ namespace FlareAI.Core.Actions
         public void TurnOffRule()
         {
             var f = Current;
-            if (f == null) { Status = "Select a suggestion whose rule you want to change."; return; }
+            if (f == null) { Status = "Select an issue whose rule you want to change."; return; }
             var team = CurrentTeam();
             if (team != null) team.Recheck();   // before any write: permissions or the owners list may have changed
             if (team != null && team.ChangesNeedRequest) { RequestChange(f, team, null); return; }
@@ -844,14 +886,14 @@ namespace FlareAI.Core.Actions
                     if (one == f && choice.ForTeam && team != null && team.IsStrict && !team.IsPersonal && ex is GuideWriteException)
                     {
                         team.ProbeGuide();
-                        if (_host.Confirm("House Style couldn't write to " + (target ?? guide) + ": " + ex.Message + "\n\nNothing was changed. Send this change to the style guide owners (" +
-                                          team.OwnerNames + ") as a request instead? Your reason is kept.", "Turn off this rule"))
+                        if (_host.Confirm("House Style couldn't write to " + (target ?? guide) + ". " + ex.Message + "\n\nNothing was changed. Send this change to the style guide owners (" +
+                                          team.OwnerNames + ") as a request instead? Your reason is kept.", "Disable Rule"))
                             RequestChange(f, team, choice);
                         else Status = Summary() + "  The rule was not changed.";
                         return;
                     }
                     _host.ShowError("House Style couldn't change " + (one == f ? "the rule" : "\"" + one.Rule + "\"") + (target == null ? "." : " in " + target + "."),
-                                    ex.Message + Environment.NewLine + Environment.NewLine + (one == f ? "Nothing was changed: the rule still applies." : "This rule and any after it were not changed: they still apply."), ex, "Turn off this rule");
+                                    ex.Message + Environment.NewLine + Environment.NewLine + (one == f ? "Nothing was changed. The rule still applies." : "This rule and the ones after it were not changed. They still apply."), ex, "Disable Rule");
                     if (one == f) { Status = Summary() + "  The rule was not changed."; return; }
                     break;
                 }
@@ -863,11 +905,14 @@ namespace FlareAI.Core.Actions
                 _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId || changed.Contains(x.RuleId) : x.Rule == f.Rule);
                 Sort();
             }
-            Status = Summary() + "  Rule" + (changed.Count > 1 ? "s" : "") + " set to " + choice.Setting +
-                     (!choice.ForTeam ? " for this project (in " + target + ")."
-                      : personal ? " in your style guide (" + target + ")."
-                      : " for the team (in " + target + "; commit it so everyone gets it).") +
+            // Where it was written goes to the log, not the status line.
+            Diagnostics.Log("Rule " + string.Join(", ", changed.ToArray()) + " set to " + choice.Setting + " in " + target);
+            Status = Summary() + "  Rule" + (changed.Count > 1 ? "s" : "") + (choice.Setting == "off" ? " disabled" : " set to " + Severity.Label(choice.Setting)) +
+                     (!choice.ForTeam ? " for this project."
+                      : personal ? "."
+                      : " for the team." + Team.CommitHint(guide)) +
                      (changed.Count < all.Count ? " " + (all.Count - changed.Count) + " could not be changed." : "");
+            if (choice.Setting == "off") Raise(ReviewEvent.RuleDisabled);
         }
 
         /// <summary>
@@ -885,7 +930,7 @@ namespace FlareAI.Core.Actions
             var choice = _host.ChooseRequest(new RequestQuestion
             {
                 RuleText = Describe(f, rule),
-                Notice = "This will be sent to the style guide owners (" + team.OwnerNames + "). They decide in Tune style guide; you see the answer on your next check." +
+                Notice = "This goes to the style guide owners (" + team.OwnerNames + "). You see their answer the next time you lint." +
                          (team.AccessNotice == null ? "" : Environment.NewLine + team.AccessNotice),
                 CanAskTeam = rule != null, CanAskProject = overrides != null,
                 Wording = editable ? rule.Text : null,
@@ -894,9 +939,9 @@ namespace FlareAI.Core.Actions
             });
             if (choice == null) return;
             var reason = (choice.Reason ?? "").Trim();
-            if (reason.Length == 0) { Status = Summary() + "  Not sent: the owners need a reason to decide."; return; }
+            if (reason.Length == 0) { Status = Summary() + "  Not sent. Add a reason for the owners."; return; }
             if (choice.ForTeam && rule == null) choice.ForTeam = false;
-            if (!choice.ForTeam && overrides == null) { Status = Summary() + "  Not sent: this topic is not inside a Flare project."; return; }
+            if (!choice.ForTeam && overrides == null) { Status = Summary() + "  Not sent. This topic isn't in a Flare project."; return; }
             var wording = choice.ForTeam && editable && !string.IsNullOrEmpty(choice.Wording) && choice.Wording.Trim() != rule.Text.Trim() ? choice.Wording.Trim() : null;
             choice.Reason = reason;
             var r = RuleChanges.RuleRequest(team, choice, f.RuleId, f.Rule, f.Layer, rule != null ? rule.Text : null, RuleFile(rule), path, wording);
@@ -907,22 +952,23 @@ namespace FlareAI.Core.Actions
             catch (Exception ex)
             {
                 Diagnostics.Log("Send request", ex);
-                _host.ShowError("House Style couldn't send your request.", ex.Message + Environment.NewLine + Environment.NewLine + "Your reason: " + reason, ex, "Request a change");
+                _host.ShowError("House Style couldn't send your request.", ex.Message + Environment.NewLine + Environment.NewLine + "Your reason: " + reason, ex, "Request Rule Change");
                 return;
             }
             RecordFeedback(f, _doc.SourcePath, "request", reason);
+            Raise(ReviewEvent.RuleDisabled);   // the writer's way to disable a rule in a team with owners
             var key = f.RuleId ?? f.Rule ?? "";
             _requested.Add(key);
             foreach (var x in _findings) if ((x.RuleId ?? x.Rule ?? "") == key) x.RequestSent = true;
             Sort();
             if (problem != null)
             {
-                _host.ShowError("Your request is saved but not sent yet: " + problem + ".",
-                                "House Style sends it on your next check once the requests folder is available. Check the team feedback folder in Settings.", null, "Request a change");
-                Status = Summary() + "  Request saved; it is sent on your next check.";
+                _host.ShowError("Your request is saved but not sent yet (" + problem + ").",
+                                "House Style sends it the next time you lint, once the requests folder is available. Check the team feedback folder in Settings.", null, "Request Rule Change");
+                Status = Summary() + "  Request saved. It's sent the next time you lint.";
                 return;
             }
-            Status = Summary() + "  Request sent to the style guide owners (" + team.OwnerNames + "). The suggestion stays here until they decide; skip it for now if you like.";
+            Status = Summary() + "  Request sent to the style guide owners (" + team.OwnerNames + "). The issue stays here until they decide.";
         }
 
         private static string Describe(StyleFinding f, GuideRule rule)

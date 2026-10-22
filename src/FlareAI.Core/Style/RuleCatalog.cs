@@ -80,7 +80,7 @@ namespace FlareAI.Core.Style
         {
             get
             {
-                var s = State == RuleState.Off ? "Off" : State == RuleState.LevelChanged ? "Level changed" : "On";
+                var s = State == RuleState.Off ? "Disabled" : State == RuleState.LevelChanged ? "Level changed" : "Enabled";
                 return IsDefault ? s + " (Default)" : s;
             }
         }
@@ -90,7 +90,7 @@ namespace FlareAI.Core.Style
         {
             get
             {
-                if (State == RuleState.Off) return "Off";
+                if (State == RuleState.Off) return "Disabled";
                 if (!IsTable) return "AI review";
                 return FlareAI.Core.Severity.Label(Level ?? DefaultLevel ?? "warning");
             }

@@ -133,7 +133,7 @@ namespace FlareAI.Scenarios.Review
 
             Assert.False(f.IsFixed);
             Assert.True(f.IsStale);
-            Assert.Equal("Text changed: check this paragraph again.", s.Status);
+            Assert.Equal("The text changed. Lint the paragraph again.", s.Status);
             s.Current = f;
             Assert.Equal(AcceptOutcome.Stale, s.Accept());
         }

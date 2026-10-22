@@ -71,10 +71,11 @@ namespace FlareAI.Flare.UI
             _diff.Visible = false;
             _showXml = new CheckBox { Text = "Show the markup", Left = 12, Top = 486, AutoSize = true, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Left };
             _showXml.CheckedChanged += (s, e) => { _output.Visible = _showXml.Checked; _diff.Visible = !_showXml.Checked; };
-            _apply = new Button { Text = "Apply as tracked changes", Left = 540, Top = 482, Width = 160, Enabled = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
+            _apply = new Button { Text = "Change", Left = 540, Top = 482, Width = 160, Enabled = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
+            new ToolTip().SetToolTip(_apply, "Make the change in the topic as a tracked change.");
             _close = new Button { Text = "Cancel", Left = 706, Top = 482, Width = 42, DialogResult = DialogResult.Cancel, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
             _close.Width = 60; _close.Left = 688;
-            _restructure = new Button { Text = "Restructure instead…", Left = 380, Top = 482, Width = 150, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
+            _restructure = new Button { Text = "Restructure Instead…", Left = 380, Top = 482, Width = 150, Visible = false, Anchor = AnchorStyles.Bottom | AnchorStyles.Right };
             _restructure.Click += (s, e) =>
             {
                 // The wording-only path said the task needs structural edits: ask for XHTML (validated) instead.
@@ -111,7 +112,7 @@ namespace FlareAI.Flare.UI
 
             if (e.Error != null)
             {
-                Diagnostics.Log(_title, e.Error);
+                Diagnostics.Log(_title, e.Error); ErrorReporter.Background(this, "House Style couldn't finish \"" + _title + "\".", e.Error);
                 _status.Text = "Failed.";
                 _output.Text = e.Error is LlmException || e.Error is InvalidOperationException ? e.Error.Message : e.Error.ToString();
                 _close.Text = "Close";
@@ -123,25 +124,25 @@ namespace FlareAI.Flare.UI
             {
                 var notes = new List<string>(_proposal.Validation.Warnings);
                 notes.AddRange(_proposal.Notes);
-                _status.Text = (_proposal.RemainingLint.Count == 0 ? "The suggested edit passes the style rules." : "The suggested edit still has " + Plural.Of(_proposal.RemainingLint.Count, "issue") + " (listed below).")
+                _status.Text = (_proposal.RemainingLint.Count == 0 ? "The suggested change passes the rules." : "The suggested change still has " + Plural.Of(_proposal.RemainingLint.Count, "issue") + " (listed below).")
                                + (notes.Count > 0 ? "  " + string.Join("  ", notes.ToArray()) : "")
-                               + (_proposal.WordPlan != null ? "  Applies as " + Plural.Of(_proposal.WordPlan.Count, "word-level tracked change") + "." : "  Applies as a paragraph-level tracked change (structure changes).");
+                               + (_proposal.WordPlan != null ? "  It's made as " + Plural.Of(_proposal.WordPlan.Count, "word-level tracked change") + "." : "  It's made as one tracked change to the paragraph, because the structure changes.");
                 // A paragraph-level change Flare can't take safely (a variable inside, a different element) is refused below (ApplyBlocked).
                 var sb = new StringBuilder(_proposal.ProposedXml);
                 if (_proposal.RemainingLint.Count > 0)
-                    sb.AppendLine().AppendLine().AppendLine("--- still flagged by the style rules ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));
+                    sb.AppendLine().AppendLine().AppendLine("--- issues the rules still find ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));
                 _output.Text = sb.ToString();
                 // What the author reads: the text with word changes marked; the XHTML is one click away.
                 var diff = ReadableDiff.Of(_proposal.View ?? _proposal.OriginalBlocks, _proposal.ProposedBlocks);
                 DiffView.Render(_diff, diff, true);
                 if (_proposal.RemainingLint.Count > 0)
-                    _diff.AppendText("\nStill flagged by the style rules:\n" + ActionRunner.Summarize(_proposal.RemainingLint));
+                    _diff.AppendText("\nIssues the rules still find:\n" + ActionRunner.Summarize(_proposal.RemainingLint));
                 _output.Visible = false; _diff.Visible = true; _showXml.Visible = true;
                 _apply.Enabled = true;
                 if (_proposal.NeedsRestructure)
                 {
                     _restructure.Visible = true;
-                    _status.Text += "  The AI says this also needs a structural change" + (string.IsNullOrEmpty(_proposal.RestructureNote) ? "" : ": " + _proposal.RestructureNote) + " — apply the wording now, or Restructure instead.";
+                    _status.Text += "  The AI says this also needs a structural change" + (string.IsNullOrEmpty(_proposal.RestructureNote) ? "." : " (" + _proposal.RestructureNote.TrimEnd('.') + ").") + " Change the wording now, or click Restructure Instead.";
                 }
                 else if (!string.IsNullOrEmpty(_proposal.RestructureNote))
                     _status.Text += "  Note from the AI: " + _proposal.RestructureNote;   // e.g. a fact only the author can supply
@@ -152,16 +153,16 @@ namespace FlareAI.Flare.UI
                 }
                 if (_proposal.WordPlan != null && _proposal.WordPlan.Count == 0)
                 {
-                    _status.Text = _proposal.NeedsRestructure ? "No wording changes; the AI says this needs a structural change" + (string.IsNullOrEmpty(_proposal.RestructureNote) ? "." : ": " + _proposal.RestructureNote)
+                    _status.Text = _proposal.NeedsRestructure ? "No wording changes. The AI says this needs a structural change" + (string.IsNullOrEmpty(_proposal.RestructureNote) ? "." : " (" + _proposal.RestructureNote.TrimEnd('.') + ").")
                                  : !string.IsNullOrEmpty(_proposal.RestructureNote) ? "No wording changes. Note from the AI: " + _proposal.RestructureNote
-                                 : "Already meets the style guide — nothing to change.";
+                                 : "This text already follows the style guide.";
                     _apply.Enabled = false;
                     _close.Text = "Close";
                 }
             }
             else
             {
-                _status.Text = "Rejected — the model's output would damage the topic structure. Nothing was changed.";
+                _status.Text = "The AI's answer would damage the topic's structure, so nothing was changed.";
                 _output.Text = _proposal.Validation + Environment.NewLine + Environment.NewLine + "--- raw response ---" + Environment.NewLine + (_proposal.Raw == null ? "" : _proposal.Raw.Text);
                 _close.Text = "Close";
             }
@@ -178,7 +179,7 @@ namespace FlareAI.Flare.UI
             catch (Exception ex)
             {
                 Diagnostics.Log("Apply", ex);
-                Notify.Failed(this, "apply the change", ex);
+                Notify.Failed(this, "make the change", ex);
             }
         }
     }
