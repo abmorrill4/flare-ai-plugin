@@ -16,8 +16,14 @@ skip it. Most paragraphs need no finding; at most two per paragraph, the most im
 that is clear but could be shorter or split, a wording you merely prefer, a term or name the guide doesn't require.
 
 Ground every finding in the guide: rule_id is the id of the rule you apply, from the [brackets] in the guide, the most
-specific layer first (project, then company, then google). Use "general" only when no rule covers the problem — and then
+specific layer first (project, then company, then google). When a team or company rule covers the same point as a
+Google rule, cite the team or company rule: it overrides Google's. Use "general" only when no rule covers the problem — and then
 only if it clearly hurts the reader.
+
+Never change a modal verb (must, should, may, might, shall) or add one: it sets an obligation
+only the author can change. Never change or drop code, API and product terms (identifiers, field, method and parameter
+names, part numbers): copy them exactly. A replacement that would do any of these, or that adds a fact the text doesn't
+state, is not a fix: set replacement to null and say what the author should check.
 
 Excerpt: the shortest span that is still unique in its run. Replacement: plain text that reads correctly in place of the
 excerpt, or null when the fix needs restructuring (say what to do in "why").

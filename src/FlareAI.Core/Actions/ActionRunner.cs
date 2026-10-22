@@ -34,6 +34,8 @@ namespace FlareAI.Core.Actions
         /// <summary>The model could only do part of the task by changing wording; the rest needs a structural edit.</summary>
         public bool NeedsRestructure { get; set; }
         public string RestructureNote { get; set; }
+        /// <summary>Changes the model proposed but that only the author may make (a modal verb, a code term): left out, with the reason.</summary>
+        public List<string> Held { get; set; } = new List<string>();
     }
 
     /// <summary>One unit of AI review: its blocks, their numbered runs, and the prompt.</summary>
@@ -409,6 +411,12 @@ namespace FlareAI.Core.Actions
                 if (f.RunId == null || !unit.Runs.Runs.TryGetValue(f.RunId, out run) || run.ParentNode == null) continue;
                 var at = run.Value.IndexOf(f.Excerpt, StringComparison.Ordinal);
                 if (at < 0) continue;
+                if (f.Replacement != null)
+                {
+                    // A replacement that changes a modal verb or drops a code term needs the author: keep the finding, not the fix.
+                    var held = MeaningGuard.Check(f.Excerpt, f.Replacement, MeaningGuard.InCode(run));
+                    if (held != null) { f.Replacement = null; f.Suggestion = ((f.Suggestion ?? "").Trim() + " " + held).Trim(); }
+                }
                 var anchor = FindingLocator.ForSpan(run, at, f.Excerpt.Length, f.Replacement, TextRuns.BlockOf(run));
                 f.Before = anchor.Before;
                 f.Block = anchor.Block;
@@ -779,7 +787,7 @@ namespace FlareAI.Core.Actions
             var found = lint ? SafeLint(blocks, notes) : new List<StyleFinding>();
             var proposal = RewriteRuns(blocks, instruction, found, task);
             proposal.Notes = notes;
-            if (!lint || _style == null || notes.Count > 0) return proposal;
+            if (!lint || _style == null || notes.Count > 0) return WithHeld(proposal);
 
             // Self-check: lint our own result and give the model one chance to fix what it left behind.
             var left = Significant(SafeLint(proposal.ProposedBlocks, notes));
@@ -790,7 +798,14 @@ namespace FlareAI.Core.Actions
                 if (leftAfter.Count < left.Count) { repaired.Notes = notes; proposal = repaired; left = leftAfter; }
             }
             proposal.RemainingLint = left;
-            return proposal;
+            return WithHeld(proposal);
+        }
+
+        /// <summary>The proposal's notes plus why any change was held back for the author.</summary>
+        private static RewriteProposal WithHeld(RewriteProposal p)
+        {
+            if (p.Held.Count > 0) p.Notes = (p.Notes ?? new List<string>()).Concat(p.Held).ToList();
+            return p;
         }
 
         private RewriteProposal RewriteRuns(IList<XmlNode> blocks, string instruction, List<StyleFinding> lint, string task)
@@ -824,6 +839,16 @@ namespace FlareAI.Core.Actions
                     if (retryErrors.Count > 0) Diagnostics.Log(task + ": still " + retryErrors.Count + " breach(es); kept the valid changes");
                 }
             });
+
+            // Changes only the author may make (a modal verb, a code term, text inside code) are held back, with the reason.
+            for (var i = 0; i < units.Count; i++)
+                foreach (var id in changes[i].Keys.ToList())
+                {
+                    var held = MeaningGuard.Check(units[i].Map.Texts[id], changes[i][id], MeaningGuard.InCode(units[i].Map.Runs[id]), "Kept a sentence as it was: the suggested wording");
+                    if (held == null) continue;
+                    changes[i].Remove(id);
+                    proposal.Held.Add(held);
+                }
 
             var proposed = new List<XmlNode>();
             for (var i = 0; i < units.Count; i++)
@@ -882,6 +907,8 @@ namespace FlareAI.Core.Actions
                 proposal.Validation = XhtmlValidator.Validate(view, proposal.ProposedBlocks);
                 if (proposal.Validation.IsValid)
                 {
+                    var held = MeaningGuard.Check(string.Join(" ", view.Select(b => b.InnerText).ToArray()), string.Join(" ", proposal.ProposedBlocks.Select(b => b.InnerText).ToArray()), false, "Check this edit: it");
+                    if (held != null) proposal.Validation.Warnings.Add(held.Replace(" Edit it yourself if that is meant.", ""));
                     proposal.WordPlan = WordDiff.Plan(view, proposal.ProposedBlocks, blocks);
                     if (proposal.WordPlan == null && TrackedChanges.HasPending(blocks))
                         proposal.Validation.Errors.Add("This edit restructures text that has pending tracked changes. Accept or reject those changes (Review tab) first, or ask for a wording-only edit.");

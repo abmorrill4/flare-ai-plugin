@@ -307,6 +307,60 @@ namespace FlareAI.Core.Tests
             Assert.Equal(2, llm.Requests.Count);
         }
 
+        // ---- 7. Quality ------------------------------------------------------------------------------------------------
+
+        [Theory]
+        [InlineData("should have reported", "must report", true)]
+        [InlineData("Clients should", "Clients must", true)]
+        [InlineData("you may", "you must", true)]
+        [InlineData("You should click Save", "Click Save", false)]
+        [InlineData("Call listMessages to page", "Call the method to page", true)]
+        [InlineData("set max_results", "set the maximum", true)]
+        [InlineData("Connect GP1 to the board", "Connect the pin to the board", true)]
+        [InlineData("utilize", "use", false)]
+        [InlineData("e.g. a PIN", "for example, a PIN", false)]
+        [InlineData("Please note that the fee", "The fee", false)]
+        [InlineData("The feature will be released", "The feature is released", false)]
+        public void MeaningGuard_HoldsModalAndCodeTermChanges(string before, string after, bool held)
+        {
+            Assert.Equal(held, MeaningGuard.Check(before, after) != null);
+        }
+
+        [Fact]
+        public void Review_AFindingThatChangesAnObligation_KeepsTheFindingButNotTheFix()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>Clients should retry the request after a short wait, and they should utilize the <code>retryAfter</code> value.</p>");
+            var llm = new FakeLlmClient(r => @"[
+                {""rule_id"":""general"",""rule"":""normative"",""severity"":""warning"",""excerpt"":""Clients should retry"",""replacement"":""Clients must retry"",""why"":""Be direct.""},
+                {""rule_id"":""general"",""rule"":""plain words"",""severity"":""warning"",""excerpt"":""utilize"",""replacement"":""use"",""why"":""Plain words.""},
+                {""rule_id"":""general"",""rule"":""code"",""severity"":""warning"",""excerpt"":""retryAfter"",""replacement"":""retry_after"",""why"":""x""}]");
+            var runner = new ActionRunner(llm, new PromptBuilder(null), 1024);
+            var blocks = new List<System.Xml.XmlNode> { p };
+            var found = runner.Review(blocks, new List<StyleFinding>());
+            var modal = found.Single(f => f.Rule == "normative");
+            Assert.Null(modal.Replacement);
+            Assert.Contains("\"should\" to \"must\"", modal.Suggestion);
+            Assert.DoesNotContain(found, f => f.Excerpt == "retryAfter" && f.Replacement != null);   // text inside <code> is never fixed
+            Assert.Equal("use", found.Single(f => f.Rule == "plain words").Replacement);
+        }
+
+        [Fact]
+        public void Rewrite_AChangeThatDropsACodeTerm_IsHeldBack_WithTheReason()
+        {
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = Paragraph(doc, "<p>Please note that you should utilize the pageToken field.</p><p>In order to sign in, open the app.</p>");
+            doc.Document.SelectSingleNode("//body").AppendChild(FlareAI.Core.Editing.XhtmlFragment.ParseInto("<p>In order to sign in, open the app.</p>", doc.Document)[0]);
+            var llm = new FakeLlmClient(r => FakeLlmClient.EditRuns(r, t => t.Replace("Please note that you should utilize the pageToken field.", "Use the page field.").Replace("In order to", "To")));
+            var runner = new ActionRunner(llm, new PromptBuilder(null), 1024);
+            var blocks = doc.Document.SelectNodes("//body/p").Cast<System.Xml.XmlNode>().ToList();
+            var proposal = runner.Rewrite(doc, blocks, null, false);
+            Assert.Contains(proposal.Notes, n => n.Contains("Kept a sentence as it was") && n.Contains("\"pageToken\""));
+            runner.Apply(doc, proposal, "x");
+            Assert.Equal("Please note that you should utilize the pageToken field.", blocks[0].InnerText);
+            Assert.Equal("To sign in, open the app.", blocks[1].InnerText);
+        }
+
         [Fact]
         public void TeamCanChangeACacheLifetime()
         {
