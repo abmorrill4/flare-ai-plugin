@@ -1,0 +1,170 @@
+# Default defect taxonomy for `corpuskit inject` (STUB until the shared corpus/schema/defects.yaml from #67 lands;
+# pass the shared file with --defects). Kinds follow the v1 taxonomy (scripts/make-corpus.py). `rules` are rule-family
+# hints, not final rule ids: the label schema owner maps them.
+#
+# Ops:
+#   replace   find (regex, ignore case) -> bad. `$1` etc. expand. `fix` defaults to the text that was replaced.
+#             The case of the match carries over (sentence start -> capitalised, ALL CAPS -> upper).
+#             variants (optional) choose how the defect sits in the DOM: plain, bold, link, across-inline, adjacent-variable.
+#   append    adds `texts` (one chosen by seed) as a new sentence at the end of a paragraph; `marks` give the exact
+#             defect span inside each text (same order). `link` wraps the mark in an <a>.
+#   prepend   puts `text` at the start of a paragraph and lowercases the next word.
+#   remove-alt  removes alt from an img (the label points at the img element, no quote).
+#   retag     renames a heading (`from` -> `to`), e.g. to skip a level.
+version: 1
+defects:
+  - kind: utilize
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: replace, find: '\buse\b', bad: 'utilize', fix: 'use', variants: [plain, bold, link, across-inline, adjacent-variable]}
+      - {op: replace, find: '\buses\b', bad: 'utilizes', fix: 'uses'}
+      - {op: replace, find: '\bused\b', bad: 'utilized', fix: 'used'}
+      - {op: replace, find: '\busing\b', bad: 'utilizing', fix: 'using'}
+  - kind: in_order_to
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: replace, find: '\bto(?= (?:change|add|remove|save|open|select|view|see|create|edit|find|check|confirm|set|turn|download|review|sign|send)\b)', bad: 'in order to', fix: 'to', variants: [plain, bold, across-inline, adjacent-variable]}
+  - kind: prior_to
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: replace, find: '\bbefore\b', bad: 'prior to', fix: 'before', variants: [plain, bold, across-inline, adjacent-variable]}
+  - kind: is_able_to
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: replace, find: '(?<=\b(?:member|user|administrator|admin|developer|customer|writer|reader|service|system) )can\b', bad: 'is able to', fix: 'can', variants: [plain, across-inline]}
+  - kind: please
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: prepend, text: 'Please ', starts: imperative}
+  - kind: simply
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: prepend, text: 'Simply ', starts: imperative}
+  - kind: please_note
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: prepend, text: 'Please note that ', starts: declarative}
+  - kind: whitelist
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: replace, find: '\ballowlist\b', bad: 'whitelist', fix: 'allowlist'}
+      - {op: append, texts: ['Add the address to the whitelist.', 'Only addresses on the whitelist can connect.'], marks: ['whitelist', 'whitelist']}
+  - kind: blacklist
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: replace, find: '\bblocklist\b', bad: 'blacklist', fix: 'blocklist'}
+      - {op: append, texts: ['Items on the blacklist cannot be selected.'], marks: ['blacklist']}
+  - kind: the_user
+    source: lint
+    rules: ['company:plain-language']
+    ops:
+      - {op: replace, find: '\byou(?= (?:can|must|need|should|may)\b)', bad: 'the user', fix: 'you', variants: [plain, bold, across-inline, adjacent-variable]}
+  - kind: latin
+    source: lint
+    rules: ['google:latin-abbreviations']
+    ops:
+      - {op: replace, find: '\bfor example\b', bad: 'e.g.', fix: 'for example', variants: [plain, bold, link, adjacent-variable]}
+      - {op: replace, find: '\bthat is\b', bad: 'i.e.', fix: 'that is', variants: [plain, bold]}
+      - {op: replace, find: '\band so on\b', bad: 'etc.', fix: 'and so on'}
+      - {op: append, texts: ['Add a short label, e.g. the purpose of the item.'], marks: ['e.g.']}
+  - kind: exclaim
+    source: lint
+    rules: ['google:exclamation-points']
+    ops:
+      - {op: replace, find: '(?<=[a-z]{3})\.(?=\s|$)', bad: '!', fix: '.'}
+  - kind: will
+    source: lint
+    rules: ['google:future-tense']
+    ops:
+      - {op: replace, find: '\bappears\b', bad: 'will appear', variants: [plain, bold, across-inline, adjacent-variable]}
+      - {op: replace, find: '\bshows\b', bad: 'will show'}
+      - {op: replace, find: '\bdisplays\b', bad: 'will display'}
+      - {op: replace, find: '\bopens\b', bad: 'will open'}
+      - {op: replace, find: '\bsaves\b', bad: 'will save'}
+      - {op: replace, find: '\bcreates\b', bad: 'will create'}
+      - {op: replace, find: '\bsends\b', bad: 'will send'}
+  - kind: we
+    source: lint
+    rules: ['google:first-person-plural']
+    ops:
+      - {op: replace, find: '\byou can\b', bad: 'we can', fix: 'you can', variants: [plain, bold, across-inline]}
+      - {op: append, texts: ['We recommend that you review this setting regularly.'], marks: ['We']}
+  - kind: claims_soon
+    source: lint
+    rules: ['company:claims']
+    ops:
+      - {op: append, texts: ['This feature is coming soon.', 'Support for more formats is coming soon.'], marks: ['coming soon', 'coming soon']}
+  - kind: claims_free
+    source: lint
+    rules: ['company:claims']
+    ops:
+      - {op: append, texts: ['Setup is free of charge.'], marks: ['free of charge']}
+  - kind: claims_guaranteed
+    source: lint
+    rules: ['company:claims']
+    ops:
+      - {op: append, texts: ['Delivery is guaranteed within one hour.'], marks: ['guaranteed']}
+  - kind: marketing
+    source: ai
+    rules: ['ai:marketing']
+    ops:
+      - {op: append, texts: ['You get a best-in-class experience.'], marks: ['best-in-class']}
+  - kind: passive
+    source: ai
+    rules: ['ai:passive']
+    ops:
+      - {op: append, texts: ['Each change is reviewed by the support team before it is applied.'], marks: ['is reviewed by the support team']}
+  - kind: wordy
+    source: ai
+    rules: ['ai:wordy']
+    ops:
+      - {op: append, texts: ['At this point in time, it is important to be aware of the fact that results can vary.'], marks: ['At this point in time']}
+  - kind: vague
+    source: ai
+    rules: ['ai:vague']
+    ops:
+      - {op: append, texts: ['Configure the remaining options as appropriate for your situation.'], marks: ['as appropriate for your situation']}
+  - kind: ui_not_bold
+    source: ai
+    rules: ['ai:ui-references']
+    ops:
+      - {op: append, texts: ['Click the save button to keep your changes.'], marks: ['the save button']}
+  - kind: undefined_abbr
+    source: ai
+    rules: ['ai:undefined-abbreviation']
+    ops:
+      - {op: append, texts: ['Members with MFA turned on get a code each time.'], marks: ['MFA']}
+  - kind: click_here
+    source: structure
+    rules: ['structure:link-text']
+    ops:
+      - {op: append, texts: ['For the full details, click here.'], marks: ['click here'], link: 'https://www.example.com/details'}
+  - kind: phone
+    source: structure
+    rules: ['structure:hard-coded-value']
+    ops:
+      - {op: append, texts: ['For help, call 1-800-555-0100.'], marks: ['1-800-555-0100']}
+  - kind: url
+    source: structure
+    rules: ['structure:hard-coded-value']
+    ops:
+      - {op: append, texts: ['The full terms are at https://www.example.com/terms.'], marks: ['https://www.example.com/terms']}
+  - kind: alt_missing
+    source: structure
+    rules: ['structure:alt-text']
+    ops:
+      - {op: remove-alt}
+  - kind: heading_skip
+    source: structure
+    rules: ['structure:heading-order']
+    ops:
+      - {op: retag, from: h2, to: h4}
