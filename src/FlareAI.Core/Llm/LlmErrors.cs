@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Net;
+using Newtonsoft.Json;
 
 namespace FlareAI.Core.Llm
 {
@@ -79,6 +81,20 @@ namespace FlareAI.Core.Llm
                 default: why = ex.Message; break;
             }
             return new LlmException("Can't reach " + where + (string.IsNullOrEmpty(baseUrl) ? "" : " at " + baseUrl) + ": " + why + ".", 0, ex, LlmFailure.Network);
+        }
+
+        /// <summary>A 200 answer whose body isn't the JSON the provider promised (a proxy's HTML page, a garbled reply).</summary>
+        public static LlmException FromMalformed(JsonException ex, bool gateway)
+        {
+            var who = gateway ? "The gateway" : "Anthropic";
+            return new LlmException(who + " sent back an answer that couldn't be read" + (gateway ? " (a proxy or firewall may be in the way; check the Base URL in Settings)" : "") + ". Try again.", 0, ex, LlmFailure.Contract);
+        }
+
+        /// <summary>The connection dropped while the answer was still arriving.</summary>
+        public static LlmException FromDropped(IOException ex, bool gateway, string baseUrl)
+        {
+            var where = gateway ? "the gateway" : "Anthropic";
+            return new LlmException("The connection to " + where + (string.IsNullOrEmpty(baseUrl) ? "" : " at " + baseUrl) + " dropped before the answer finished. Check your network or VPN and try again.", 0, ex, LlmFailure.Network);
         }
 
         public static string Scrub(string text, string key)

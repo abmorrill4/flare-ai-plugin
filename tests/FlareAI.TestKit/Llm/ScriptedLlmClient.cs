@@ -80,6 +80,12 @@ namespace FlareAI.TestKit.Llm
                     case LlmFailure.Http:
                         var code = statusCode == 0 ? 500 : statusCode;
                         return r => { throw new LlmException("HTTP " + code + ": " + HttpDetail(code, r), code, null, LlmFailure.Http); };
+                    case LlmFailure.Auth:
+                        return r => { throw LlmErrors.FromHttp(401, HttpDetail(401, r), false, null); };
+                    case LlmFailure.ModelDenied:
+                        return r => { throw LlmErrors.FromHttp(403, HttpDetail(403, r), false, null); };
+                    case LlmFailure.Budget:
+                        return r => { throw LlmErrors.FromHttp(statusCode == 0 ? 429 : statusCode, HttpDetail(429, r), false, null); };
                     case LlmFailure.Network:
                         return r => { throw new LlmException("Network error: Unable to connect to the remote server", 0, new WebException("Unable to connect to the remote server", WebExceptionStatus.ConnectFailure), LlmFailure.Network); };
                     case LlmFailure.Truncated:
@@ -97,9 +103,10 @@ namespace FlareAI.TestKit.Llm
                 }
             }
 
-            public static Func<LlmRequest, LlmResponse> Auth() { return Failure(LlmFailure.Http, 401); }
-            public static Func<LlmRequest, LlmResponse> ModelDenied() { return Failure(LlmFailure.Http, 403); }
-            public static Func<LlmRequest, LlmResponse> RateLimited() { return Failure(LlmFailure.Http, 429); }
+            public static Func<LlmRequest, LlmResponse> Auth() { return Failure(LlmFailure.Auth, 401); }
+            public static Func<LlmRequest, LlmResponse> ModelDenied() { return Failure(LlmFailure.ModelDenied, 403); }
+            public static Func<LlmRequest, LlmResponse> RateLimited() { return Failure(LlmFailure.Budget, 429); }
+            public static Func<LlmRequest, LlmResponse> Budget() { return Failure(LlmFailure.Budget, 402); }
             public static Func<LlmRequest, LlmResponse> ServerError() { return Failure(LlmFailure.Http, 500); }
 
             private static string HttpDetail(int code, LlmRequest r)

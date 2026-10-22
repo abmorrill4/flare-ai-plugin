@@ -123,9 +123,10 @@ namespace FlareAI.Scenarios.Smoke
         // ---- ScriptedLlmClient -----------------------------------------------------------------
 
         [Theory]
-        [InlineData(LlmFailure.Http, 401)]
-        [InlineData(LlmFailure.Http, 403)]
-        [InlineData(LlmFailure.Http, 429)]
+        [InlineData(LlmFailure.Auth, 401)]
+        [InlineData(LlmFailure.ModelDenied, 403)]
+        [InlineData(LlmFailure.Budget, 429)]
+        [InlineData(LlmFailure.Budget, 402)]
         [InlineData(LlmFailure.Http, 500)]
         [InlineData(LlmFailure.Network, 0)]
         [InlineData(LlmFailure.Truncated, 0)]
@@ -137,7 +138,7 @@ namespace FlareAI.Scenarios.Smoke
             var ex = Assert.Throws<LlmException>(() => client.Complete(Review()));
             Assert.Equal(failure, ex.Failure);
             Assert.Equal(status, ex.StatusCode);
-            if (status > 0) Assert.StartsWith("HTTP " + status + ":", ex.Message);
+            if (failure == LlmFailure.Http) Assert.StartsWith("HTTP " + status + ":", ex.Message);
         }
 
         [Fact]
@@ -150,7 +151,7 @@ namespace FlareAI.Scenarios.Smoke
         [Fact]
         public void Scripted_QueueFirst_ThenRules_ThenLoudFailure()
         {
-            var client = new ScriptedLlmClient().ThenFail(LlmFailure.Http, 429).WhenTask("review", "{\"findings\":[]}");
+            var client = new ScriptedLlmClient().ThenFail(LlmFailure.Budget, 429).WhenTask("review", "{\"findings\":[]}");
             Assert.Equal(429, Assert.Throws<LlmException>(() => client.Complete(Review())).StatusCode);
             Assert.NotNull(client.Complete(Review()).Json);
             Assert.Throws<InvalidOperationException>(() => client.Complete(new LlmRequest { Task = "rewrite" }));
@@ -193,9 +194,11 @@ namespace FlareAI.Scenarios.Smoke
         [InlineData(401, false)]
         [InlineData(403, false)]
         [InlineData(429, false)]
+        [InlineData(402, false)]
         [InlineData(500, false)]
         [InlineData(529, false)]
         [InlineData(401, true)]
+        [InlineData(402, true)]
         [InlineData(403, true)]
         [InlineData(429, true)]
         [InlineData(500, true)]
@@ -203,13 +206,14 @@ namespace FlareAI.Scenarios.Smoke
         {
             using (var s = new MockLlmServer())
             {
-                s.Enqueue(status == 401 ? MockReply.Unauthorized() : status == 403 ? MockReply.ModelDenied() : status == 429 ? MockReply.RateLimited() : MockReply.ServerError(status));
+                s.Enqueue(status == 401 ? MockReply.Unauthorized() : status == 403 ? MockReply.ModelDenied() : status == 429 ? MockReply.RateLimited() : status == 402 ? MockReply.Error(402, "billing_error", "Your credit balance is too low to access the API") : MockReply.ServerError(status));
                 ILlmClient client = gateway ? (ILlmClient)Gateway(s) : Anthropic(s);
                 var ex = Assert.Throws<LlmException>(() => client.Complete(Review()));
-                Assert.Equal(LlmFailure.Http, ex.Failure);
+                var expected = status == 401 ? LlmFailure.Auth : status == 403 ? LlmFailure.ModelDenied : status == 402 || status == 429 ? LlmFailure.Budget : LlmFailure.Http;
+                Assert.Equal(expected, ex.Failure);
                 Assert.Equal(status, ex.StatusCode);
-                Assert.StartsWith("HTTP " + status + ": ", ex.Message);
-                Assert.DoesNotContain("{", ex.Message);          // the error body's message, not raw JSON
+                if (expected == LlmFailure.Http) Assert.StartsWith("HTTP " + status + ": ", ex.Message);
+                Assert.DoesNotContain("{", ex.Message);          // plain language, not raw JSON
                 Assert.DoesNotContain(FakeKey, ex.ToString());
             }
         }
@@ -223,7 +227,7 @@ namespace FlareAI.Scenarios.Smoke
             {
                 s.Enqueue(MockReply.Malformed());
                 ILlmClient client = gateway ? (ILlmClient)Gateway(s) : Anthropic(s);
-                Assert.ThrowsAny<Exception>(() => client.Complete(Review()));
+                Assert.Equal(LlmFailure.Contract, Assert.Throws<LlmException>(() => client.Complete(Review())).Failure);
             }
         }
 
@@ -236,7 +240,7 @@ namespace FlareAI.Scenarios.Smoke
             {
                 s.Enqueue(MockReply.TruncatedBody("{\"findings\":[{\"run_id\":\"r1\",\"excerpt\":\"utilize\"}]}"));
                 ILlmClient client = gateway ? (ILlmClient)Gateway(s) : Anthropic(s);
-                Assert.ThrowsAny<Exception>(() => client.Complete(Review()));
+                Assert.Equal(LlmFailure.Network, Assert.Throws<LlmException>(() => client.Complete(Review())).Failure);
             }
         }
 

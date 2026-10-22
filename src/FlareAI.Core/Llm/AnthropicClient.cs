@@ -108,6 +108,8 @@ namespace FlareAI.Core.Llm
                 using (var r = (HttpWebResponse)http.GetResponse())
                     resp = Parse(ReadAll(r));
             }
+            catch (JsonException jex) { throw LlmErrors.FromMalformed(jex, false); }
+            catch (IOException ioex) { throw LlmErrors.FromDropped(ioex, false, _baseUrl); }
             catch (WebException wex)
             {
                 var r = wex.Response as HttpWebResponse;
