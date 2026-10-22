@@ -1,156 +1,90 @@
-# House Style — tester guide
+# House Style tester guide
 
-> Quickstart. The full user guide is a Flare project in `docs/user-guide` (open `FlareAI-Guide.flprj`); the test plan
-> with expected results, the test corpus and the bug template are in `docs/testing`.
+Thank you for testing House Style. This page gets you started. The full user guide is a Flare project in
+`docs/user-guide` (open `FlareAI-Guide.flprj`). For what changed since 0.1, see **House Style > What's new** or
+`docs/release-notes/0.2.0.md`.
 
-Thanks for trying this. It adds a **House Style** tab to Flare Desktop with three actions. Every edit it makes
-arrives as a **tracked change**, so you accept or reject it exactly like a reviewer's edit, and Ctrl+Z
-undoes it in one step.
+## Install or upgrade
 
-## Install (needs admin once, or ask IT)
-**Main path:** unzip the whole download, close Flare, double-click **`Install.cmd`** and accept the administrator
-prompt. It unblocks the files, copies the plugin to `%LOCALAPPDATA%\HouseStyle`, links Flare's `Plugins\FlareAI`
-folder to it (the only step that needs admin, and only the first time) and prints the next steps. Then start Flare →
-**File > Options > Plugins > House Style > Enable** → **restart Flare again** (two restarts in total).
+1. Extract the whole download.
+2. Close Flare.
+3. Double-click `Install.cmd` and approve the administrator prompt. It replaces a copy you installed by hand and keeps
+   your settings.
+4. Start Flare. If House Style isn't enabled, select **File > Options > Plugins > House Style > Enable**. The tab
+   appears right away.
 
-Several Flare versions? The installer picks the newest; run `.\Install.ps1 -Flare 21` to choose another.
+If you had an earlier test build that updated itself, run `Install.cmd` from this download once too.
 
-**Had an earlier test build with automatic updates?** Run **Install.cmd** from this download once (close Flare first).
-Earlier builds linked the plugin through two junctions, which makes Flare 2026 crash at startup; the installer
-replaces that with a real folder (`%LOCALAPPDATA%\HouseStyle\current`). Your settings are kept.
+From now on, House Style updates itself. When a new version is out, it downloads and checks it in the background, and
+a notice says it installs when you close Flare. Your next start shows what's new.
 
-**Updates are automatic.** Once a day House Style asks GitHub whether there's a newer release (no text, key or
-identifier is sent; offline, it stays quiet). A notice offers **Update now** or **Later**. Update now downloads it,
-checks it against the release's SHA-256 checksum, and installs it when you close Flare, with no admin prompt. The next
-start opens **What's new**; if the install failed you stay on your version and a notice says why. **House Style >
-What's new** shows the notes again; **Diagnostics** shows your version and the last check. IT options:
-`Install.ps1 -Silent`, `-NoAutoUpdate` (writes `update-policy.json` with `{"autoUpdate": false}`), or `-NoJunction`
-(the old all-users copy in Program Files, no self-update; use it on machines several people sign in to).
+If House Style isn't on the ribbon, see the [install page](https://abmorrill4.github.io/flare-ai-plugin/install.html).
 
-| Install folder | Flare version |
+## Set up
+
+New writers see a three-step setup the first time they select a House Style command. You already have settings, so
+open it yourself: **House Style > Settings > Run setup again**.
+
+1. **How will you use AI?** For your company's gateway, choose **My company's AI service (gateway)**. Enter the
+   **Base URL** and **Gateway key**, and select **Test connection**.
+2. **Whose style rules?** Choose **My team's shared style guide folder** and browse to the folder your style guide
+   owner gave you. Or keep **Google's guide plus my own changes**.
+3. Select **Finish**.
+
+## Try these
+
+| Do this | What to look for |
 |---|---|
-| `MadCap Flare 22` | Flare 2026 |
-| `MadCap Flare 21` | Flare 2025 (including 2025 R2) |
-| `MadCap Flare 20` | Flare 2024 |
+| Open a topic and select **Check style**. | Style rule suggestions at once, AI suggestions shortly after. |
+| Select a suggestion and select **Apply**. Then press Ctrl+Z. | The fix is a tracked change. After Ctrl+Z, the suggestion is back in the pane. |
+| Select **Check project**. | Suggestions grouped by rule. Try **Fix all**, **Review one by one**, **Go to** and **Open file**. Right-click a suggestion. |
+| Select **Style rules**. | Every rule, with search and filters. Turn one off, then turn it back on. |
+| Select **Turn off rule…** on a suggestion. | If you're an owner, the rule is off on the next check. If not, you see **Request a change…**. |
+| In Settings, choose **No AI**, and check a topic again. | The pane says "AI review is off" and shows no AI suggestions. |
+| Select **Build style guide > Add notes or an old guide…**, and load a Word file. | Suggested rules you can edit or remove before you add them. |
 
-**Fallback (manual):**
-1. Close Flare.
-2. **Unblock first:** right-click the zip → **Properties** → tick **Unblock** → OK, then unzip. (Otherwise Windows
-   blocks the DLLs and Flare silently won't list the plugin. Already unzipped? Run
-   `Get-ChildItem <folder> -Recurse | Unblock-File` in PowerShell.)
-3. Copy the `FlareAI` folder into `C:\Program Files\MadCap Software\MadCap Flare <folder number>\Flare.app\Plugins\`.
-4. **No wrapper folder:** `...\Plugins\FlareAI\FlareAI.Flare.dll` must exist. If your unzip tool made
-   `Plugins\HouseStyle-0.1.3\FlareAI\...`, move the inner `FlareAI` up into `Plugins`.
-5. Start Flare → **File > Options > Plugins** → House Style → **Enable** → **restart Flare**.
-6. Switch to Ribbon UI mode if you use the tool strip (View > Interface).
+## Changing the team's style guide
 
-Nothing else to install: the style guide, the linter and the LLM export run inside the plugin.
+Your team's guide has **owners**, listed in the guide's `FlareAI/owners.txt`. Only owners change the team's rules.
+The guide folder is read-only for everyone else.
 
-## First run
-Click any **House Style** command. The first time, a three-step setup opens: how you use AI (no AI, your Anthropic API key,
-or your company's gateway), whose style rules (Google's guide plus your own changes, or your team's guide folder), done.
-Skip any step; you can change everything later in **House Style > Settings** (tabs: AI, Style guide, Checking, Advanced),
-or run the steps again with **Settings > Run setup again**. The key is encrypted to your Windows account; nobody else on
-the machine can read it.
+**If you're a writer:**
 
-Given a Bifrost gateway virtual key instead of an Anthropic key? Choose *My company's AI service (gateway)*, enter the
-gateway address in **Base URL**, and paste the key in **Gateway key**. The models are set for you. If it fails, check the
-"Gateway key checklist" in `docs/bifrost-migration.md` and use **Test connection**.
+- Select **Request a change…** on a suggestion, or a **Request…** button in **Style rules**. Say what you want and why.
+- The rule stays as it is until an owner decides. Its suggestions show **Request sent**.
+- On your next check after the owner decides, a notice in the pane says **approved** or **declined**, with the owner's
+  note. An approved exception for your project is written into the project for you.
+- To see or withdraw your requests, select **Tune style guide**.
 
-## The actions
-| Button | What it does | Writes to the topic? |
-|---|---|---|
-| **Check style** | Opens a findings list for the selection (or whole topic): instant linter results, then AI review | Only when you click Fix |
-| **Rewrite selection** | Rewrites the selected paragraph(s) for clarity and style | Yes, word-level tracked changes |
-| **Check project** | Lints every topic and snippet in the project (no AI cost); results grouped by file | Only when you click Fix |
-| **Ask…** | Does what you type ("make this a numbered list", "shorten to two sentences") | Yes, tracked |
-| **Topic assists** | Drafts a meta description, index keywords, search synonyms, micro content and glossary terms for the topic, each with a Copy button | No — you paste what you keep |
-| **Export for LLMs** | Turns built HTML output into Markdown per topic + `llms.txt` (for AI assistants and chatbots) | No — writes into the output folder |
+**If you're an owner:**
 
-Selection rule: it works on whole paragraphs/lists/tables containing your selection. Caret only =
-whole topic.
+- Change rules directly from the pane or **Style rules**. Writers get the change on their next check.
+- Select **Tune style guide** to see requests under **Requests to the style guide owners**. Select **Approve or
+  decline…**. You can adjust a change before you approve it.
+- Requests arrive through the team feedback folder. Every writer sets it in **Settings > Advanced**. Without it, writers
+  can't send requests.
 
-## Working the review pane
-The pane lists every proposal in reading order, grouped under the topic's headings, with a summary on top
-("12 proposals in 3 sections: 7 mechanical · 3 wording · 2 need a rewrite"). Select one to see its card:
-- **What changes:** the words around it with the edit marked (removed text struck red, added text green).
-- **Why:** the reason, the style-guide rule it applies (with its Bad/Good example when the guide has one), and where
-  it comes from: **[Google]**, **[Company · section]**, or **[AI · Company: section]** for AI judgment calls.
-- **Impact:** for text inside a snippet, how many files use that snippet.
+**Limits:**
 
-Besides style, the pane flags things a style checker can't see: images without alt text, skipped heading levels, a
-second h1, tables without a header row, link text like "click here", and hard-coded phone numbers, email addresses
-and URLs (in white-label docs these belong in variables). These are "fix in the editor" items: **Go to**, fix it,
-**Re-analyze**. For a missing alt text, the button reads **Suggest alt text…**: the AI looks at the image and drafts
-the alt text; you edit it, and it's applied as a tracked change.
+- Changes made to the guide outside House Style aren't recorded.
+- If a writer can't reach the guide folder, for example offline, House Style checks with Google's guide only and says so.
+- Requests contain the rule, the words it flagged, the topic's filename and the reason. They contain a writer's name
+  only if the guide's `attribution.txt` says `names`.
 
-Decide on each one:
-- **Accept** (Enter, or double-click): applies it as a tracked change and moves to the next proposal. For "needs a
-  rewrite", the button reads **Rewrite…**: the AI rewrites that paragraph and shows you the result as marked-up text
-  first. **Accept all mechanical** applies every exact rule fix in the topic at once (one Ctrl+Z undoes them).
-  **Propose all as tracked changes** writes every proposal that has exact text (rule fixes and AI wording) into the
-  topic at once, so you can review them with Flare's own Accept/Reject (Review tab) or send them in a review package.
-- **Reject ▾** (Delete): pick why: *wrong*, *fine here*, or *rule doesn't apply*. It stays hidden for that text, and
-  the reason is recorded so the guide and the AI can be tuned. *Skip for now* just moves on.
-- **Edit…**: type the replacement yourself, then apply it. **Refine…**: tell the AI how to change this one proposal
-  ("keep the term SSO", "shorter").
-- **Re-analyze**: review that paragraph again after you edited it. Proposals whose text you already changed show
-  with ⚠ and can't be applied until you re-analyze.
-- **Guide ↗** opens the rule's page (company rules open in Flare). **Ignore rule…** turns a rule off for the whole
-  project — it writes to the project's `Content/Resources/StyleGuide/overrides.ini`, so your team gets the same decision.
+Setting up a guide for a team, step by step: user guide topic *Set up a team style guide*. Publishing it to
+Confluence: *Publish the style guide to Confluence*.
 
-Fixes inside a snippet are applied in the snippet (Flare opens it so the change is tracked there) and the topic comes
-back to the front. AI reviews are saved, so reopening a topic you already reviewed shows its proposals immediately;
-click **Re-check** for a fresh review.
+## Known issues
 
-## Editing the company style guide
-It's a Flare project (`CompanyStyle`). Its `About` topic explains the format. After editing, run
-**House Style > Validate style guide**: it checks every rule table against its examples, and **Check prose rules with AI…**
-shows which written rules the AI actually applies.
+- **Check again** doesn't ask the AI again for paragraphs you haven't changed. It shows the saved review.
+- After an AI edit of a paragraph that contains a variable, Ctrl+Y (redo) can make Flare show an error. Ctrl+Z works.
+  To fix a "use the variable" suggestion, select **Go to**, then use **Insert > Variable**.
+- **Rewrite…** can't restructure a paragraph with pending tracked changes. Accept or reject them first.
+- House Style refuses any AI change that would drop or change a variable, cross-reference, snippet or condition. You
+  see "Rejected", and nothing changes. Report it anyway.
 
-If your team has style guide owners (listed in the guide's `FlareAI/owners.txt`), only they change shared rules.
-For everyone else, **Ignore rule…** sends the owners a request with your reason instead of turning the rule off.
+## Report a problem
 
-For owners:
-- **Build style guide** proposes rules from evidence. **Mine this project** finds where your topics disagree with
-  each other (spelling variants, competing words like sign in / log in, capitalization, heading case) with counts and
-  real sentences; pick the preferred form. **Add notes or an old guide…** turns pasted or dictated notes (Win+H), an
-  old style guide, or another AI tool's prompt into rules that quote where they came from. Checked rules are added to
-  the guide's `From-our-content` topic; then run Validate style guide.
-- **Tune style guide** pools the team's review decisions (Settings → Team feedback folder): rules writers disagree
-  on, rules that are often rejected, hand edits several writers keep making, and requests to turn rules off — each
-  with the evidence. **Draft a change with AI** rewrites the rule from that evidence as tracked changes in the guide;
-  **Customize AI prompts** puts the AI's own instructions in the guide so you can tune them like rules.
-
-## Publish the style guide to Confluence (owners)
-The Flare guide is the source of truth; Confluence gets a read-only copy (Confluence Data Center 10). Edit the guide in
-Flare, never in Confluence: the next publish overwrites the pages.
-
-1. **Dry run.** In Windows PowerShell, from the plugin repo or install folder:
-   `$env:CONFLUENCE_BASE_URL="https://wiki.example.com/confluence"; $env:CONFLUENCE_PAT="<personal access token>"; $env:CONFLUENCE_PARENT_ID="<parent page id>"`
-   then `.\scripts\publish-guide-to-confluence.ps1 -WhatIf`. It lists the pages and writes the converted XHTML to
-   `confluence-preview`; nothing is sent.
-2. **Publish to a test space.** Add `-SpaceKey TEST` (with a parent page in that space) and run without `-WhatIf`.
-3. **Check one page.** It should show the "Edited in Flare" banner, tables and working links to other guide pages.
-   Run again: every page should say `unchanged`. Then publish to the real space.
-
-Run it again after each guide change; only changed pages are updated. Removed topics stay in Confluence, labelled
-`flare-orphaned`. Details and limits: `docs/plans/confluence-sync.md` (verified against a mock server, not yet a live one).
-
-## Known Flare limitation
-After a paragraph-level AI edit of text that contains a variable, Ctrl+Z works but Ctrl+Y (redo) can make Flare show
-an error dialog. Word-level fixes and rewrites are not affected. For "type the variable" findings, click the row (the
-text is selected) and use Insert ▸ Variable — Flare replaces the selection.
-
-## What it will refuse
-- Snippet blocks and variables selected on their own (it cannot edit snippet content inline).
-- Any result that would drop or change a variable, cross-reference, snippet, or condition — you'll see
-  "Rejected" and nothing changes. That is the safety net working; please report it anyway.
-
-## When something goes wrong
-- `%APPDATA%\FlareAI\diag.log` has timings and errors (no document text, no key). Attach it to your report.
-- **House Style > Diagnostics** shows what the plugin thinks is selected — useful if an action picked the wrong blocks.
-- Flare itself should never crash or freeze. If it does, that is bug #1 — tell us what you clicked.
-
-## Please note as you go
-What you asked, what you expected, what you got, and whether you kept the edit. A sentence each is plenty.
+- Attach `%APPDATA%\FlareAI\diag.log`. It has no document text and no key.
+- **House Style > Diagnostics** shows your version and what House Style sees in the open topic. Copy it into the report.
+- Use `docs/testing/BUG-TEMPLATE.md`. A sentence each is enough: what you did, what you expected, what happened.

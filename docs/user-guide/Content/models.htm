@@ -5,39 +5,28 @@
     </head>
     <body>
         <h1>Models and cost</h1>
-<p>The plugin splits AI work into small jobs, such as one topic section or one suggestion at a time, and sends each job to the smallest model that does it well. Every job has an output contract: the API returns structured data that the plugin checks before anything reaches your topic.</p>
+<p>Style checks, structure checks and Check project use no AI and cost nothing. AI costs money only when you use an AI feature: the AI review in Check style, Rewrite selection, Ask, Refine, Topic assists, Suggest alt text, and the AI steps in Build, Tune and Validate style guide.</p>
 <h2>Which model does what</h2>
 <table><thead><tr><th>Task</th><th>Tier</th><th>Default model and effort</th></tr></thead><tbody>
-<tr><td>Style review, a topic or section at a time</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
-<tr><td>Rewrite selection, Ask, Rewrite…</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
-<tr><td>Restructure</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
-<tr><td>Alt text from the image</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
-<tr><td>Rules from notes</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
-<tr><td>Refine one suggestion</td><td>Fast</td><td>Claude Haiku 5.5, medium</td></tr>
-<tr><td>Topic assists</td><td>Fast</td><td>Claude Haiku 5.5, medium</td></tr>
-<tr><td>Draft a style guide change, for owners</td><td>Deep</td><td>Claude Opus 5.5, high</td></tr>
+<tr><td>AI review, Rewrite selection, Ask, Rewrite…</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Alt text, rules from notes</td><td>Standard</td><td>Claude Sonnet 5.5, medium</td></tr>
+<tr><td>Refine, Topic assists</td><td>Fast</td><td>Claude Haiku 5.5, medium</td></tr>
+<tr><td>Draft a change with AI (owners)</td><td>Deep</td><td>Claude Opus 5.5, high</td></tr>
 </tbody></table>
-<h2>Why these defaults</h2>
-<p>The plugin's test bench ran the review and rewrites on a 45-topic sample of a synthetic banking help project, with 76 planted problems, on each model:</p>
-<table><thead><tr><th>Model, effort</th><th>Planted problems found</th><th>Suggestions nobody planted</th><th>Cost per topic</th><th>Seconds per topic</th><th>Rewrites</th></tr></thead><tbody>
-<tr><td>Haiku 5.5, low</td><td>100%</td><td>113</td><td>$0.001</td><td>14</td><td>Dropped words next to bold labels</td></tr>
-<tr><td>Haiku 5.5, medium</td><td>100%</td><td>59</td><td>$0.001</td><td>17</td><td>Dropped words next to bold labels</td></tr>
-<tr><td>Sonnet 5.5, low</td><td>100%</td><td>94</td><td>$0.014</td><td>12</td><td>Faithful</td></tr>
-<tr><td>Sonnet 5.5, medium</td><td>100%</td><td>107</td><td>$0.013</td><td>14</td><td>Faithful</td></tr>
-<tr><td>Sonnet 5.5, medium, per section</td><td>100%</td><td>75</td><td>$0.008</td><td>5</td><td>Faithful</td></tr>
-<tr><td>Opus 5.5, medium</td><td>100%</td><td>58</td><td>$0.030</td><td>20</td><td>Added details the text didn't have</td></tr>
-</tbody></table>
-<p>Every model found every planted problem, so the choice rests on the rest. Suggestions nobody planted are partly real problems in the sample text and partly noise. Rewrites are where models differ most. Sonnet changed only what the task called for. After that run, a stricter review prompt kept every planted problem and cut the findings nobody planted on Sonnet from 107 to 71. The plugin also rejects a rewrite that drops the words after a bold label or link, whatever the model, and asks again.</p>
-<h2>Change the models for your team</h2>
-<p>A style guide owner can set models for the whole team in the guide project's <code>FlareAI/models.json</code>:</p>
+<p>Leave the models on <b>Default</b> unless your style guide owner says otherwise. In tests, Sonnet changed only what each task called for. Haiku sometimes dropped words in rewrites, and Opus added details the text didn't have.</p>
+<h2>What it costs</h2>
+<p>An AI review costs a few cents per topic, more for long topics. Saved reviews are reused at no cost. For measured and estimated costs per action, per writer and per team, see <code>docs/testing/ai-cost.md</code> in the House Style repository.</p>
+<p><b>House Style &gt; Diagnostics</b> shows the models in use and, for this session, the AI calls and estimated cost per task.</p>
+<h2>Set models for the team</h2>
+<p>A style guide owner can set models for every writer in the guide's <code>FlareAI/models.json</code>. The team file wins over each writer's Settings.</p>
 <pre>{
   "tiers": { "fast": { "model": "claude-haiku-5-5", "effort": "medium" } },
   "tasks": { "review": "standard" },
   "review_unit": "section"
 }</pre>
-<p><code>review_unit</code> is <code>section</code>, the default, or <code>block</code>. A section is a whole short topic, or a heading's worth of a long one. A block is one paragraph, list item or table row. In the bench sample, sections cost 40% less, ran 2.5 times faster, and gave less noise with the same results. One writer can choose models in <b>Settings</b>, but the team file wins.</p>
-<h2>See what you spend</h2>
-<p><b>House Style &gt; Diagnostics</b> lists the routing in effect and, for this session, the calls, tokens and estimated cost per task and model.</p>
-<p>A style check costs about two cents per topic. The rules every topic needs are cached for an hour, so after the first check of a session each check reads them at a tenth of the price. Rules for less common content, such as code or tables, are sent only to topics that contain it. To change which rule packs every check carries, set <code>"always_packs"</code> in <code>FlareAI/models.json</code>; the default is Headings, UI, Lists and Steps.</p>
+<ul>
+<li><code>review_unit</code>: <code>section</code> (the default) reviews a short topic, or one heading's worth of a long one, at a time. <code>block</code> reviews one paragraph, list item or table row at a time. Sections cost less and run faster.</li>
+<li><code>always_packs</code>: the groups of rules every review includes. The default is Headings, UI, Lists and Steps. Other groups, such as the Code rules, are sent only for sections that need them.</li>
+</ul>
     </body>
 </html>

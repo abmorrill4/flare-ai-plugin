@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-        <title>What the plugin does</title>
+        <title>What House Style does</title>
     </head>
     <body>
-        <h1>What the plugin does</h1>
-<p><MadCap:variable name="General.PluginName" /> adds an <b>House Style</b> tab to MadCap Flare Desktop. It checks topics against your style guide, makes suggestions you apply or reject one by one, rewrites text on request, and keeps the company style guide itself in a Flare project your team owns.</p>
-<p>Every change it makes is a Flare tracked change. You review it like an edit from a colleague: accept it, reject it, or undo it with Ctrl+Z.</p>
+        <h1>What House Style does</h1>
+<p><MadCap:variable name="General.PluginName" /> adds a <b>House Style</b> tab to MadCap Flare Desktop. It checks your topics against a style guide and suggests fixes. You apply or reject each one.</p>
+<p>Every change is a Flare tracked change. Accept it, reject it, or undo it with Ctrl+Z, like an edit from a colleague.</p>
 <h2>Three kinds of checks</h2>
 <table><thead><tr><th>Check</th><th>What it finds</th><th>Cost</th></tr></thead><tbody>
-<tr><td>Style rules</td><td>Exact rule matches from the style guide's rule tables: banned words, spellings, product names, claims. Each comes with an exact fix.</td><td>Free, instant</td></tr>
-<tr><td>Structure</td><td>Images without alt text, skipped heading levels, a second h1, tables without a header row, vague link text, hard-coded phone numbers, email addresses, and URLs.</td><td>Free, instant</td></tr>
-<tr><td>AI review</td><td>What a rule table can't express: passive voice, wordiness, vague instructions, unexplained abbreviations, promises about timelines. Each suggestion quotes the text and cites the rule it applies.</td><td>A few cents per topic</td></tr>
+<tr><td>Style rules</td><td>Words to avoid, spellings, product names and other rules from the style guide's tables. Each comes with an exact fix.</td><td>Free</td></tr>
+<tr><td>Structure</td><td>Images without alt text, skipped heading levels, tables without a header row, vague link text, and phone numbers, email addresses and URLs typed instead of a variable.</td><td>Free</td></tr>
+<tr><td>AI review</td><td>What a table can't express, such as passive voice, wordiness or unclear steps. Each suggestion names the rule it applies.</td><td>A few cents per topic</td></tr>
 </tbody></table>
+<p>Style rules and structure checks run on your computer. The AI review is optional. You can use House Style with no AI at all.</p>
 <h2>Where the rules come from</h2>
-<p>The rules live in one style guide, a Flare project your team owns. It holds the whole Google developer documentation style guide, compiled into rules, and your own rules (Our rules), which win where the two disagree. The project you're editing adds its own variables and glossary terms, which win over both. That's the order Google's own guide recommends: project style first, then the Google guide.</p>
-<p>For each section it reviews, the AI gets the rules that always apply plus the rules for what the section contains, such as the rules for procedures when the section has numbered steps. It cites the rule behind every suggestion.</p>
+<p>The rules come from these sources. A later source wins over an earlier one.</p>
+<ol>
+<li><b>Google</b>: the Google developer documentation style guide, built in.</li>
+<li><b>Our rules</b>: your team's style guide, or your own changes if you don't have a team guide.</li>
+<li><b>This project</b>: the open project's variables, glossary and its own rules.</li>
+</ol>
+<p>To see every rule, select <b>House Style &gt; Style rules</b>. See <MadCap:xref href="style-rules.htm">Browse and change style rules</MadCap:xref>.</p>
     </body>
 </html>

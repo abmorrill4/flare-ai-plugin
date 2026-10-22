@@ -1,6 +1,9 @@
 # Manual test script (run inside Flare)
 
-Record result per row: ✅ / ❌ + note. Run after every deploy to `Plugins\FlareAI`.
+Developer smoke script from the first builds (0.1), kept with its results. It still names the old **AI** tab and an
+external linter command. For current testing, use `docs/testing/TEST-PLAN.md`.
+
+Record result per row: ✅ / ❌ + note.
 
 | # | Scenario | Steps | Expected |
 |---|---|---|---|

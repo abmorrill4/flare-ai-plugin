@@ -5,24 +5,24 @@
     </head>
     <body>
         <h1>Publish the style guide to Confluence</h1>
-        <p>The Flare style guide project is the source of truth. Confluence holds a published copy so other teams can read the guide there. Edit the guide in Flare; never edit the Confluence pages, because the next publish overwrites them.</p>
+        <p>This topic is for style guide owners. A PowerShell script publishes your team's guide to Confluence Data Center 10, one page per topic, so people who don't use Flare can read it. The Flare guide stays the source. Don't edit the Confluence pages: the next publish overwrites them.</p>
         <h2>Before you start</h2>
         <ol>
-            <li>Create a personal access token in Confluence (profile, Personal Access Tokens). The token's user needs permission to view the parent page and to add and edit pages in the space.</li>
-            <li>Create an empty parent page for the guide and note its page ID (page menu, Page Information, or the number in the page URL).</li>
-            <li>In Windows PowerShell, set the connection. Don't put the token in a file that is shared or committed.<pre>$env:CONFLUENCE_BASE_URL = "https://wiki.example.com/confluence"
+            <li>Download <code>publish-guide-to-confluence.ps1</code> from the <code>scripts</code> folder of the House Style repository on GitHub. Right-click it, select <b>Properties</b>, select <b>Unblock</b>, and then select <b>OK</b>.</li>
+            <li>In Confluence, create a personal access token: select your profile picture, and then <b>Settings &gt; Personal Access Tokens</b>. The token's user must be able to view the parent page and add and edit pages in the space.</li>
+            <li>Create an empty parent page for the guide. Note its page ID: it's the number in the page's address, or in <b>Page Information</b>.</li>
+            <li>Open Windows PowerShell in the folder that has the script, and set the connection. Don't save the token in a shared file.<pre>$env:CONFLUENCE_BASE_URL = "https://wiki.example.com/confluence"
 $env:CONFLUENCE_PAT = "&lt;your token&gt;"
 $env:CONFLUENCE_PARENT_ID = "123456"</pre></li>
         </ol>
         <h2>Publish</h2>
         <ol>
-            <li>Dry run: <code>.\scripts\publish-guide-to-confluence.ps1 -WhatIf</code>. This lists the pages and writes the converted XHTML to <code>confluence-preview</code>. It doesn't contact Confluence.</li>
-            <li>Publish to a test space first: add <code>-SpaceKey TEST</code> and a parent page ID in that space.</li>
-            <li>Open one page. It starts with an "Edited in Flare" banner and links between guide pages work.</li>
-            <li>Publish for real: <code>.\scripts\publish-guide-to-confluence.ps1</code>. Run it again after each guide change: only changed pages are updated.</li>
+            <li>Try it without sending anything. Replace the path with your team's guide folder:<pre>powershell -ExecutionPolicy Bypass -File .\publish-guide-to-confluence.ps1 -GuideProject "C:\path\to\team guide" -Folders Company -WhatIf</pre><p>The script lists the pages and saves the converted pages to a <code>confluence-preview</code> folder.</p></li>
+            <li>Publish to a test space first: run the same command without <code>-WhatIf</code>, with a parent page ID from a test space.</li>
+            <li>Open a page. It starts with an "Edited in Flare" note, and links between guide pages work.</li>
+            <li>Set <code>CONFLUENCE_PARENT_ID</code> to the real parent page, and run the command again.</li>
         </ol>
-        <p>Add <code>-Folders Company</code> to publish only your company rules. Topics you remove from the guide stay in Confluence, labelled <code>flare-orphaned</code>; delete them there when you are ready.</p>
-        <h2>Publish the guide as HTML5 too</h2>
-        <p>The guide project has an HTML5 target. In Flare, choose Build, select HTML5, then Publish if you also want a standalone copy on your intranet. After the Google guide is refreshed, run <code>scripts\update-guide-toc.ps1</code> so the table of contents lists every page.</p>
+        <p>Run it after each change to the guide. Only changed pages are updated. A topic you remove from the guide stays in Confluence with the label <code>flare-orphaned</code>. Delete it there when you're ready.</p>
+        <p>To publish Google's rules too, leave out <code>-Folders Company</code> and point <code>-GuideProject</code> at a guide that includes the Google folder.</p>
     </body>
 </html>
