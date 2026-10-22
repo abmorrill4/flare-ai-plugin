@@ -5,15 +5,13 @@
     </head>
     <body>
         <h1>Set up the plugin</h1>
-<p>Select <b>House Style &gt; Settings</b>.</p>
-<table><thead><tr><th>Setting</th><th>What to enter</th></tr></thead><tbody>
-<tr><td>API key</td><td>The key your team gave you. It's encrypted for your Windows account and never written to logs.</td></tr>
-<tr><td>Model</td><td>Leave empty for the default. See <MadCap:xref href="models.htm">Models and cost</MadCap:xref>.</td></tr>
-<tr><td>Fast / deep models</td><td>Leave empty for the defaults. A team can set all models in the style guide instead.</td></tr>
-<tr><td>Style guide project</td><td>The folder of your team's style guide, a Flare project. Your team lead gives you this path. Empty uses the guide that comes with the plugin.</td></tr>
-<tr><td>Team feedback folder</td><td>A shared folder that collects each writer's review decisions, so the style guide owners can tune the rules.</td></tr>
-<tr><td>Markers, checking as you type, checking on save, reports when you build</td><td>On by default. See <MadCap:xref href="editor.htm">Work in the editor</MadCap:xref>.</td></tr>
-<tr><td>Export for LLMs after build</td><td>Turns built HTML into Markdown after each build. See <MadCap:xref href="llm-export.htm">Export for AI assistants</MadCap:xref>.</td></tr>
+<p>The first time you click a House Style command, a short setup opens: how you use AI, whose style rules, and you're done. You can skip any step. To run it again, select <b>House Style &gt; Settings</b> and click <b>Run setup again</b>.</p>
+<p>To change one setting, select <b>House Style &gt; Settings</b>. Settings has four tabs.</p>
+<table><thead><tr><th>Tab</th><th>What's on it</th></tr></thead><tbody>
+<tr><td>AI</td><td>Choose <b>No AI (style rules only)</b>, <b>My Anthropic API key</b>, or <b>My company's AI service (gateway)</b>. Enter the API key, or the gateway's Base URL and Gateway key, and click <b>Test connection</b>. The key is encrypted for your Windows account and never written to logs. With No AI, no key is stored and every style check still works.</td></tr>
+<tr><td>Style guide</td><td>Your team's style guide folder, a Flare project. Your style guide owner gives you this path. Settings shows whether you can change its rules or it's read-only for you. Empty uses Google's guide plus your own changes. Also choose whether to use the open project's variables, glossary and StyleGuide folder.</td></tr>
+<tr><td>Checking</td><td>Check as you type, after saving, when a build starts, and markers in the editor. On by default. See <MadCap:xref href="editor.htm">Work in the editor</MadCap:xref>.</td></tr>
+<tr><td>Advanced</td><td>Models (leave them on Default; see <MadCap:xref href="models.htm">Models and cost</MadCap:xref>), timeout, the team feedback folder that collects each writer's review decisions for the style guide owners, the diagnostics log, and Markdown export after each HTML build (see <MadCap:xref href="llm-export.htm">Export for AI assistants</MadCap:xref>).</td></tr>
 </tbody></table>
     </body>
 </html>
