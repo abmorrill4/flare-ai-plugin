@@ -5,12 +5,28 @@
     </head>
     <body>
         <h1>Troubleshoot</h1>
-<h2>Something went wrong</h2>
-<p>The log at <code>%APPDATA%\FlareAI\diag.log</code> has timings and errors. It never has document text or the key. Attach it to your report.</p>
-<p><b>House Style &gt; Diagnostics</b> shows what the plugin takes as the selection, the models in use, and the AI cost of this session.</p>
-<h2>The plugin rejected a change</h2>
-<p>The plugin refuses any result that would drop or change a variable, cross-reference, snippet, or condition. Nothing changes in the topic. That's the safety net working, but report it.</p>
+<h2>Report a problem</h2>
+<p>Attach <code>%APPDATA%\FlareAI\diag.log</code> to your report. It has timings and errors, never document text or your key.</p>
+<p><b>House Style &gt; Diagnostics</b> shows your version, whether updates are on, what House Style takes as the selection, and the AI use of this session.</p>
+<h2>House Style isn't on the ribbon</h2>
+<ul>
+<li>Select <b>File &gt; Options &gt; Plugins</b>, check that House Style is enabled, and restart Flare.</li>
+<li>Switch to the Ribbon interface: <b>View &gt; Interface</b>.</li>
+<li>Run <b>Install.cmd</b> again from the download, with Flare closed.</li>
+</ul>
+<h2>The AI doesn't work</h2>
+<ul>
+<li>Select <b>House Style &gt; Settings</b>, and on the <b>AI</b> tab select <b>Test connection</b>. The result says what to check.</li>
+<li>For a gateway, paste the whole <b>Gateway key</b>, with no spaces. If the test says the model isn't allowed, ask your gateway admin to allow the Claude models for your key.</li>
+<li>If the pane says "AI review is off", <b>No AI</b> is chosen on the <b>AI</b> tab.</li>
+</ul>
+<h2>"Your team's style guide couldn't be read"</h2>
+<p>House Style can't reach the team's guide folder, for example because you're offline. It checks with Google's guide only until the folder is back. Check the folder in <b>Settings &gt; Style guide</b>.</p>
+<h2>An update didn't install</h2>
+<p>You stay on your version, and it works as before. The notice says why. House Style tries again later. To install it yourself, download it and run <b>Install.cmd</b>.</p>
+<h2>House Style rejected a change</h2>
+<p>House Style refuses any AI result that would drop or change a variable, cross-reference, snippet or condition. Nothing in the topic changes. Please report it.</p>
 <h2>Known Flare limitation</h2>
-<p>After a paragraph-level edit of text that contains a variable, Ctrl+Z works but Ctrl+Y can show an error dialog. Word-level fixes aren't affected.</p>
+<p>After an AI edit of a paragraph that contains a variable, Ctrl+Z works, but Ctrl+Y (redo) can show an error. Word-level fixes aren't affected.</p>
     </body>
 </html>

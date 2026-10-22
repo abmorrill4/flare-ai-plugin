@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-        <title>Install the plugin</title>
+        <title>Install and update</title>
     </head>
     <body>
-        <h1>Install the plugin</h1>
-<p>You need Flare 2026, version 22, on Windows, administrator rights for the install, and an Anthropic API key from your team.</p>
+        <h1>Install and update</h1>
+<p>You need Windows and MadCap Flare 2026. The first install asks for administrator rights once.</p>
+<h2>Install</h2>
 <ol>
+<li>Download <code>HouseStyle-&lt;version&gt;.zip</code> from the project's GitHub releases page, and extract all of it.</li>
 <li>Close Flare.</li>
-<li>If you downloaded a zip file, right-click it, select <b>Properties</b>, select <b>Unblock</b>, and then select <b>OK</b>. Windows otherwise blocks the plugin, and Flare doesn't list it.</li>
-<li>Copy the plugin folder, <code>FlareAI</code>, into the <b>Plugins</b> folder of your Flare installation, for example <code>C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins</code>.</li>
-<li>Start Flare, select <b>File &gt; Options &gt; Plugins</b>, select <MadCap:variable name="General.PluginName" />, select <b>Enable</b>, and then restart Flare.</li>
+<li>Double-click <b>Install.cmd</b>, and approve the administrator prompt.</li>
+<li>Start Flare, select <b>File &gt; Options &gt; Plugins</b>, select <MadCap:variable name="General.PluginName" />, and then select <b>Enable</b>.</li>
+<li>Restart Flare. The <b>House Style</b> tab appears on the ribbon.</li>
 </ol>
-<p>The <b>House Style</b> tab appears on the ribbon. Nothing else to install: the style guide and the checker are inside the plugin folder.</p>
+<p>If you have more than one version of Flare, the installer uses the newest. House Style needs Flare's Ribbon interface (<b>View &gt; Interface</b>).</p>
+<p>To upgrade a copy you installed by hand, run <b>Install.cmd</b> from the new download. Your settings and rule changes are kept.</p>
 <h2>Updates</h2>
-<p>When you install with <b>Install.cmd</b>, the plugin keeps itself up to date. Once a day it asks GitHub whether a newer version exists. If one does, a notice offers <b>Update now</b> or <b>Later</b>. <b>Update now</b> downloads the update, checks that it's the published file, and installs it when you close Flare. No administrator rights are needed. The next time you start Flare, <b>What's new</b> shows what changed. If an update can't install, you stay on the version you have and a notice says why.</p>
-<p>To see the notes again, select <b>House Style &gt; What's new</b>. <b>House Style &gt; Diagnostics</b> shows your version, whether updates are on, and when the plugin last checked. Your IT department can turn updates off with an <code>update-policy.json</code> file in the plugin folder.</p>
-<p>If you used the plugin when it was called FlareAI, enable it once more after you update: Flare lists it under its new name. Your settings and history carry over.</p>
+<p>Once a day, House Style checks GitHub for a new version. When there is one, a notice appears. Updates work only for a copy installed with <b>Install.cmd</b>.</p>
+<ol>
+<li>Select <b>Update now</b>. House Style downloads the update and checks it.</li>
+<li>Select <b>Install when Flare closes</b>.</li>
+<li>Close Flare. The update installs without an administrator prompt.</li>
+</ol>
+<p>The next time you start Flare, <b>What's new</b> lists the changes. To open it again, select <b>House Style &gt; What's new</b>. If an update can't install, you stay on your version, and a notice says why.</p>
+<p>To turn updates off, select <b>House Style &gt; Settings</b>, and on the <b>Advanced</b> tab clear <b>Keep House Style up to date</b>. If the box says "Set by your IT department", your IT department controls updates.</p>
+<p><b>House Style &gt; Diagnostics</b> shows your version and when House Style last checked for updates.</p>
     </body>
 </html>
