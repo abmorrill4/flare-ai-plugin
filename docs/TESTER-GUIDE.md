@@ -15,6 +15,10 @@ folder to it (the only step that needs admin, and only the first time) and print
 
 Several Flare versions? The installer picks the newest; run `.\Install.ps1 -Flare 21` to choose another.
 
+**Had an earlier test build with automatic updates?** Run **Install.cmd** from this download once (close Flare first).
+Earlier builds linked the plugin through two junctions, which makes Flare 2026 crash at startup; the installer
+replaces that with a real folder (`%LOCALAPPDATA%\HouseStyle\current`). Your settings are kept.
+
 **Updates are automatic.** Once a day House Style asks GitHub whether there's a newer release (no text, key or
 identifier is sent; offline, it stays quiet). A notice offers **Update now** or **Later**. Update now downloads it,
 checks it against the release's SHA-256 checksum, and installs it when you close Flare, with no admin prompt. The next

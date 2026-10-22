@@ -18,6 +18,29 @@ House Style adds a **House Style** tab to MadCap Flare Desktop. Every edit it ma
 If you have several Flare versions, the installer picks the newest. To pick another, open PowerShell in the unzipped
 folder and run `.\Install.ps1 -Flare 21` (use the folder number from the table below).
 
+**Upgrading from an earlier test build?** Run **Install.cmd** from the new download once. Earlier release candidates
+used a folder layout that makes Flare 2026 crash at startup; the installer repairs it, and your settings stay.
+
+### Where the files go
+
+```
+%LOCALAPPDATA%\HouseStyle\
+  current\            the plugin files Flare loads (a real folder)
+  versions\<ver>\     the version before the last update, kept for rollback
+  staged\<ver>\       a downloaded, verified update waiting for Flare to close
+...\Flare.app\Plugins\FlareAI  ->  %LOCALAPPDATA%\HouseStyle\current   (a junction, made once as administrator)
+```
+
+When Flare closes, the updater copies the new version to `current.new`, renames `current` to `current.old` and
+`current.new` to `current`, and checks the result. If the check fails it renames them back. Then `current.old` becomes
+`versions\<previous version>`. Renaming needs no administrator rights, because Flare's junction points at the path
+`...\HouseStyle\current`. If Flare still holds the files, nothing changes and the update is offered again.
+
+> **Keep it to one junction.** Flare 2026 crashes while opening its main window (before any plugin code runs) when
+> `Plugins\FlareAI` is a junction to another junction. `current` must stay a real folder. Earlier release candidates
+> made `current` a junction to `versions\<ver>`; the installer and the updater replace that with a real folder, and
+> House Style pauses automatic updates (and says to run Install.cmd) while it finds that layout.
+
 ## Which Flare is which
 
 | Install folder | Flare version |

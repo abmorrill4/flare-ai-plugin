@@ -102,6 +102,7 @@ namespace FlareAI.Flare
             if (!_layout.Manages(_pluginDir, out reason))
             {
                 Diagnostics.Log("Updates: install not managed: " + reason);
+                if (_layout.NeedsRepair) return "paused: your install uses an older folder layout. Run Install.cmd from the latest download once to repair it";
                 return "not available: this copy was installed by hand. Run Install.cmd from the download once to turn them on";
             }
             var policy = UpdatePolicy.Resolve(PluginSettings.Load().AutoUpdate, _pluginDir);
