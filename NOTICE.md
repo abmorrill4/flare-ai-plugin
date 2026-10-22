@@ -18,3 +18,14 @@ releases (Flare already has it). Claude and Anthropic are trademarks of Anthropi
 ## Third-party components
 - Newtonsoft.Json © James Newton-King, MIT License (https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md),
   shipped as `Newtonsoft.Json.dll`.
+
+## Test corpus (`corpus/v2/`)
+These projects are test data, not part of the plugin. Each folder's `SOURCES.md` and `NOTICE.md` give the exact source,
+version and changes.
+- `api-docs`: adapted from the Zulip documentation, (c) Kandra Labs and contributors, Apache License 2.0.
+- `end-user-help`: adapted from the Nextcloud user manual, (c) Nextcloud contributors, CC BY 3.0.
+- `hardware-install`: adapted from the Raspberry Pi documentation, (c) Raspberry Pi Ltd, CC BY-SA 4.0. That folder stays under CC BY-SA 4.0.
+- `policy`: adapted from 45 CFR Parts 160 and 164 (US government work, public domain) and NIST SP 800-53 Rev 5 (public domain / CC0).
+- `release-notes`: adapted from the Kong changelog, (c) Kong Inc., Apache License 2.0.
+- `localized-style`, `legacy`: original synthetic text written for this repository.
+Product and company names in these projects are replaced with fictional ones. The upstream projects do not endorse this one.
