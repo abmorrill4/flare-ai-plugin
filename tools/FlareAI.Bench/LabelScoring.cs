@@ -201,10 +201,11 @@ namespace FlareAI.Bench
             foreach (var x in bFps.Where(x => !cFps.Contains(x)).OrderBy(x => x, StringComparer.Ordinal))
                 g.Improvements.Add("false positive on a clean/exempt label gone: " + x);
 
-            // 2. total lint TP
+            // 2. errors caught. Not raw TP: two rules on one error count twice, so removing a duplicate isn't a regression.
             T bo = T.Of(b["overall"]), co = T.Of(c["overall"]);
-            if (co.Tp < bo.Tp) g.Failures.Add("total true positives down: " + bo.Tp + " -> " + co.Tp);
-            else if (co.Tp > bo.Tp) g.Improvements.Add("total true positives up: " + bo.Tp + " -> " + co.Tp);
+            if (co.Detected < bo.Detected) g.Failures.Add("errors caught down: " + bo.Detected + " -> " + co.Detected);
+            else if (co.Detected > bo.Detected) g.Improvements.Add("errors caught up: " + bo.Detected + " -> " + co.Detected);
+            if (co.Tp != bo.Tp) g.Improvements.Add("true positive findings: " + bo.Tp + " -> " + co.Tp + " (duplicates on the same error count separately)");
 
             // 3. per layer, precision or recall down more than 0.5 point
             foreach (var key in Keys(b[ScoreReport.Layer], c[ScoreReport.Layer]))
