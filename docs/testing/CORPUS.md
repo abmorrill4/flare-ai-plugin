@@ -138,6 +138,71 @@ Scoring the lint-only bench findings (`dist/audit/bench/findings.jsonl`, copied 
 The one extra detection is the image without alt text that v1 could not tell from its siblings: a v1 finding has no block, so a whole-element label is matched to
 it by rule. With block and offsets in the findings (Bench v2) that difference disappears.
 
+## Status, sources and rule ids (conventions for every project)
+
+### Which status a label gets
+
+Only `verified` labels are scored, so the status says whether anyone but the author stands behind the label.
+
+| Label | Made by | Status | Why |
+|---|---|---|---|
+| Seeded `violation` | an exact generator (`generator`: CorpusKit `inject`, the project authors' scripts) | `verified` | The generator knows what it changed and where; its quote, prefix and suffix are computed from the final DOM. This settles #98 ("injected labels come out `proposed`"): `FlareAI.Labeler normalize` promotes them, once the quote anchors. What the generator cannot know ("the sentence still reads naturally", "nothing else is wrong in the block") is carried by `block-complete`, not by this label. |
+| Natural `violation`, `clean`, `exempt` that are facts of the markup (`dom-check`, `source-markup`) | a DOM or markup rule: an image without alt, code, a key name, bold in a procedure | `verified` | No judgment is involved. |
+| Natural `clean`, `exempt` read by a pattern or a rule of thumb (`pattern`, a generator's reading) | the corpus tools | `proposed` | A heuristic, not a reading. They count once both labellers agree or a person has looked (`hand-read`, `human`). |
+| Natural `violation` from the blind pass | `llm-a` and `llm-b` agree | `verified` | Design 1.4: agreement. |
+| | one labeller only | `proposed` | Goes to the adjudication queue. |
+| | the labellers disagree on the kind | `disputed` | Goes to the adjudication queue. |
+| `block-complete` | a generator's claim | `proposed` | A verified `block-complete` needs `llm-a` and `llm-b` or `human` in `by` (a QA error otherwise). |
+
+`by` names who stands behind a label; QA warns about any other value: `generator`, `source-markup`, `pattern`, `dom-check`, `hand-read`, `llm-a`, `llm-b`, `human`
+(a decision taken by an agent other than the two labellers is recorded as `agent:<name>`; it never counts on the `test` split).
+
+### Rule ids in `rules`
+
+A rule entry is one of the forms in the table under "A label". Generators sometimes write hints instead (`structure:alt-text`, `company:plain-language`, `ai:ui-references`, `google:exclamation-points`);
+those match no finding, so `FlareAI.Labeler normalize` maps them and QA rejects what is left:
+
+| Layer | Valid | Notes |
+|---|---|---|
+| `google` | `google:*`, `google:<page>/*`, `google:<page>/<row>` | `<page>` is a page of the compiled Google guide (`dates-times`, `word-list`, `units-of-measure`, ...); a hint naming no page becomes `google:*` because the page that carries a rule moves when the guide is recompiled (#65). A bare `google:<page>` matches nothing. |
+| `company` | `company:*`, `company:<page>/*`, `company:<page>/<row>` | Pages of the Company guide: `claims`, `plain-language`, `terminology`, `ui-references`, `google-overrides`. A project that overrides the Company guide (localized-style) is still the `company` layer. |
+| `structure` | `structure:AltText`, `OneH1`, `HeadingOrder`, `TableHeader`, `LinkText`, `HardCoded` | The engine's `Structure.*` checks. |
+| `project` | `project:variables`, `project:variables/*` | |
+| `ai` | `ai:<kind>` with a kind from `defects.yaml` (`ai:undefined_abbr`, `ai:ui_not_bold`) | Not the kebab-case names (`undefined-abbreviation`). |
+| any | `*`, `lint`, `ai` | |
+
+## Labeller: normalising, QA and the blind pass (`tools/FlareAI.Labeler`, #78)
+
+```powershell
+$l = .\tools\FlareAI.Labeler\bin\Release\net48\FlareAI.Labeler.exe
+& $l normalize --all corpus\v2 --write          # rule hints -> scorer ids; exact-generator violations -> verified (idempotent)
+& $l qa --all corpus\v2 [--fix] [--update-labels-md]  # deterministic label QA; exit 1 on errors
+& $l label --all corpus\v2                      # DRY RUN: prices the blind two-labeller pass, sends nothing (the default)
+& $l label --project corpus\v2\legacy --execute --max-cost 5 [--split dev] [--max-blocks 500]   # sends it (needs ANTHROPIC_API_KEY)
+& $l agree --project corpus\v2\legacy [--findings <bench findings.jsonl>]   # agreement, kappa per kind, adjudication queue with decoys
+& $l merge --project corpus\v2\legacy [--write]  # fold agreement and adjudication/decisions.jsonl into labels.jsonl
+```
+
+**QA** (`qa`) checks, per project, with no model and no linter: schema and anchors (every quote still resolves to exactly one place), rule vocabulary, exact duplicates, overlapping violations (same kind: warning;
+different kinds: note), a violation that overlaps a clean/exempt label for the same rules (error when both are verified), a violation inside code, a key name or a code block, kind/rule fit (the rule layers of a kind must
+overlap those DigitalBanking uses for it; `ai:<kind>` names the label's own kind), `split` against `project.json`, unknown `by` sources, and coverage (blocks with a label, `block-complete` share, verified violations per split,
+kinds with fewer than 3 verified violations in `test`). `--fix` applies only the mechanical repairs: an exact duplicate loses its copy; a natural violation that duplicates a seeded one on the same span (a `dom-check` fact read after
+the seed was inserted) is dropped; a heuristic `clean`/`exempt` label (`source-markup`, `pattern`, `dom-check`) on exactly the span of a verified seeded violation is dropped. `--update-labels-md` writes the counts into the
+project's `LABELS.md` between `labeler:qa` markers. Rule of thumb for what to do with the rest: an error is a label bug, fix it in a labels-only change; a warning needs a look; a note is information.
+
+**The blind pass** (`label`, `agree`, `merge`) follows design 1.4:
+
+- Two labellers on different models (default `claude-sonnet-5-5` and `claude-opus-5-5`) get the same blocks in batches. They see the block's plain text, the kind of element (paragraph, step, heading) and the defect kinds with their summary and example
+  from `defects.yaml`, and nothing else: no rule ids, no lint patterns, no plugin findings, no file names, no existing labels. Kinds only the DOM can decide (`alt_missing`, `table_header`, `second_h1`, `heading_skip`, `link_text_url`) are not offered. Code blocks are not sent.
+- `label` is a **dry run unless `--execute` is given**, and `--execute` needs `--max-cost <usd>`. The cap holds: each call is priced at its worst case (the batch's input and the full output ceiling, which also bounds reasoning tokens) before it is sent, and the run stops between batches when
+  spend plus that price would pass the cap. Both labellers go batch by batch, so a stopped run leaves them level. Answers are stored under `<project>/adjudication/runs/<a|b>/` and reused, so a rerun spends nothing on finished batches and a stopped run resumes.
+- Agreement (`agree`): spans of the same kind that overlap agree (the shorter quote is kept); overlapping spans of different kinds contradict; the rest are single-source. Cohen's kappa is per kind over the blocks both labellers saw (does each report the kind in the block).
+  Agreed spans that match an existing violation only add `llm-a`/`llm-b` to its `by`; agreed spans inside exempt text, or of another kind than the label there, are conflicts for a person.
+- Adjudication queue (`adjudication/queue.jsonl`): the single-source spans, contradictions, conflicts and, with `--findings`, the plugin findings that no label speaks about in blocks that carry a `block-complete` label, shown without provenance (the type of each item is in
+  `queue.key.jsonl`, which the adjudicator does not read), mixed with decoys so that 20% of the items are spans nobody reported. Decisions go in `decisions.jsonl` (`{"qid":"Q0003","decision":"accept|reject|ambiguous","by":"human","kind":"..."}`).
+  `merge` applies them in code: `accept` is `verified`, `reject` adds nothing, `ambiguous` writes an `ambiguous` label. **A decision on a `test`-split file counts only with `"by":"human"`.** Decoy acceptance (decoys accepted of decoys judged) is reported next to kappa.
+- `merge` also writes kinds with kappa below 0.6 as `ambiguous` instead of `verified`; the agreement table, decoy acceptance and the cost per labeller are written into `LABELS.md` between `labeler:agreement` markers. Label ids it creates are `<project>/M####`.
+
 ## Rules for changing labels
 
 - Labels never come from the linter. Do not add or move a label to make a run pass.

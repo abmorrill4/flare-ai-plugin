@@ -33,3 +33,26 @@ Not produced here, and needed before the shared acceptance is met: the blind two
 - Units in table cells and quoted text are the only "gray" contexts covered by pattern; boilerplate exemptions are not labelled because a repeated block's exemption depends on the rule (see the print boilerplate in `docs/testing/CORPUS.md`).
 - Seeded labels inside a snippet file (3) apply to every topic that includes it; the scorer sees the snippet file once.
 - Variables are expanded in label quotes (`General.ProductName` = Acme Relay).
+
+<!-- labeler:qa -->
+## Label QA
+
+Written by `FlareAI.Labeler qa --update-labels-md`; deterministic (no model, no linter). Rerun after any label change.
+
+| | |
+|---|---|
+| Result | 0 errors, 0 warnings, 0 notes |
+| Topics, snippets | 153, 17 |
+| Blocks with text, with at least one label | 6857, 1378 (20.1%) |
+| `block-complete` blocks, verified | 0, 0 |
+| Violations, verified (scored) | 123, 123 |
+| Verified violations in `test` | 40 |
+| Violations per topic | 0.80 |
+| Scored labels (verified, not ambiguous or block-complete) | 1868 |
+| Share of files in `test` | 32.4% |
+
+Labels by type and status: clean verified 33, exempt proposed 23, exempt verified 1712, violation verified 123.
+
+Kinds with fewer than 3 verified violations in `test` (their per-kind recall there is noise): blacklist (0 in test), claims_free (2 in test), claims_guaranteed (0 in test), claims_soon (1 in test), exclaim (2 in test), heading_skip (1 in test), in_order_to (1 in test), is_able_to (0 in test), latin (2 in test), marketing (0 in test), passive (2 in test), phone (1 in test), please_note (0 in test), the_user (1 in test), ui_not_bold (0 in test), undefined_abbr (1 in test), vague (1 in test), we (0 in test), whitelist (1 in test), will (0 in test), wordy (2 in test).
+
+<!-- /labeler:qa -->

@@ -9,14 +9,14 @@ Labels for this project are in `labels.jsonl` (schema: `corpus/schema/labels.sch
 | clean | natural | proposed | generator | 29 |
 | exempt | natural | proposed | generator | 8 |
 | exempt | natural | verified | dom-check | 331 |
-| violation | seeded | proposed | generator | 151 |
+| violation | seeded | verified | generator | 151 |
 
 519 labels over 84 topics and 7 snippets (12959 blocks in all).
 Split of labels: 331 dev, 188 test. Split of files: 29 of 91 files (32%) are in `test`.
 
 ## How each group was made
 
-**Seeded violations (origin `seeded`, status `proposed`, by `generator`).** `corpuskit inject` inserted each defect and wrote an exact span label from the final DOM. The catalog is the CorpusKit default with the appended sentences rewritten for a policy set and a `date_format` kind added (`_prep/pol-defects.yaml`); the shared `corpus/schema/defects.yaml` has no operations, so it cannot be passed to `inject --defects`. Rule hints were mapped to the rule ids the engine and `corpus/DigitalBanking` use, and `heading_skip` labels cover the whole heading with no quote (see the hardware-install project for the reason). They stay `proposed` until the two-labeller pass runs.
+**Seeded violations (origin `seeded`, status `verified`, by `generator`).** `corpuskit inject` inserted each defect and wrote an exact span label from the final DOM. The catalog is the CorpusKit default with the appended sentences rewritten for a policy set and a `date_format` kind added (`_prep/pol-defects.yaml`); the shared `corpus/schema/defects.yaml` has no operations, so it cannot be passed to `inject --defects`. Rule hints were mapped to the rule ids the engine and `corpus/DigitalBanking` use, and `heading_skip` labels cover the whole heading with no quote (see the hardware-install project for the reason). They are `verified` by the generator, which knows exactly what it changed (status conventions: `docs/testing/CORPUS.md`). `google:dates-and-times/*` hints were normalised to `google:dates-times/*`.
 
 **Natural exempt labels (verified, by `dom-check`).** Every block inside a `blockquote` (the NIST control text, quoted verbatim) is `exempt` for `lint`: the standard's own wording, including `[Assignment: organization-defined ...]` placeholders, must not be rewritten.
 
@@ -72,8 +72,8 @@ The text is a regulation and a standard, so replace-type defects only land where
 
 ## Not done yet
 
-- The blind two-labeller pass over every block (design 1.4 steps 2-3) has not run: `tools/FlareAI.Labeler` does not exist yet (work package 12). Natural violations in the prose are not labelled, no block is marked `block-complete`, and none of the 70% `block-complete` target is met. Do not read a missing label as proof that the text is clean.
-- Seeded labels are `proposed`, not `verified`, for the same reason.
+- The blind two-labeller pass over every block (design 1.4 steps 2-3) has not run: `tools/FlareAI.Labeler` exists (#78) but the pass costs money and has not been executed (`FlareAI.Labeler label` prices it first). Natural violations in the prose are not labelled, no block is marked `block-complete`, and none of the 70% `block-complete` target is met. Do not read a missing label as proof that the text is clean.
+- Seeded labels are `verified` (the generator is exact); that each seeded sentence still reads naturally is for the two-labeller pass.
 - The project has not been opened in Flare 22 or built to HTML5 and PDF by hand; `corpuskit check` passes.
 - The project has no images (the sources have none) and no UI labels. Source names such as the Department of Health and Human Services and NIST are public bodies named in the regulation itself and were kept; the fictional organization is `General.CompanyName`.
 
@@ -87,3 +87,26 @@ python -I _prep/policy_build.py <out>   # eCFR XML and OSCAL JSON to HTML topics
 .\tools\FlareAI.Scoring\bin\Release\net48\FlareAI.Scoring.exe validate --labels corpus\v2\policy\labels.jsonl --kinds corpus\schema\defects.yaml --root corpus\v2\policy
 ```
 `_prep/build-pol.ps1` runs the whole chain in order.
+
+<!-- labeler:qa -->
+## Label QA
+
+Written by `FlareAI.Labeler qa --update-labels-md`; deterministic (no model, no linter). Rerun after any label change.
+
+| | |
+|---|---|
+| Result | 0 errors, 0 warnings, 0 notes |
+| Topics, snippets | 84, 7 |
+| Blocks with text, with at least one label | 12955, 332 (2.6%) |
+| `block-complete` blocks, verified | 0, 0 |
+| Violations, verified (scored) | 151, 151 |
+| Verified violations in `test` | 46 |
+| Violations per topic | 1.80 |
+| Scored labels (verified, not ambiguous or block-complete) | 482 |
+| Share of files in `test` | 31.9% |
+
+Labels by type and status: clean proposed 29, exempt proposed 8, exempt verified 331, violation verified 151.
+
+Kinds with fewer than 3 verified violations in `test` (their per-kind recall there is noise): blacklist (0 in test), claims_free (1 in test), claims_guaranteed (1 in test), claims_soon (1 in test), click_here (2 in test), date_format (2 in test), heading_skip (1 in test), in_order_to (1 in test), is_able_to (1 in test), passive (1 in test), prior_to (0 in test), simply (0 in test), ui_not_bold (1 in test), undefined_abbr (2 in test), utilize (2 in test), vague (2 in test), we (2 in test), whitelist (1 in test), will (1 in test), wordy (1 in test).
+
+<!-- /labeler:qa -->
