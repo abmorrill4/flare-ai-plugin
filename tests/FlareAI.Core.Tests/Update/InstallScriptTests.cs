@@ -8,10 +8,39 @@ namespace FlareAI.Core.Tests.Update
 {
     /// <summary>
     /// scripts\release\Install.ps1 under Windows PowerShell 5.1 (what testers have): it parses, and the per-user install
-    /// runs end to end against a fake Flare (FLARE_ROOT) and a fake %LOCALAPPDATA%, so no admin rights are needed.
+    /// runs end to end against a fake Flare (FLARE_ROOT) and a fake %LOCALAPPDATA%, so no admin rights are needed. The
+    /// plugin is turned on under a throwaway registry key (HOUSESTYLE_PLUGINS_KEY), never Flare's real one.
     /// </summary>
-    public class InstallScriptTests
+    public class InstallScriptTests : IDisposable
     {
+        /// <summary>This test class's stand-in for HKCU\Software\MadCap Software\Flare\Plugins\House Style.</summary>
+        private readonly string _testKey = @"Software\HouseStyleInstallTests\" + Guid.NewGuid().ToString("N") + @"\House Style";
+
+        public void Dispose()
+        {
+            try { Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(_testKey.Substring(0, _testKey.LastIndexOf('\\')), false); } catch (Exception) { }
+            try
+            {
+                using (var parent = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\HouseStyleInstallTests", true))
+                    if (parent != null && parent.SubKeyCount == 0) Microsoft.Win32.Registry.CurrentUser.DeleteSubKey(@"Software\HouseStyleInstallTests", false);
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>Activated under the test key, or null when the key or value is missing.</summary>
+        private string Activated()
+        {
+            using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(_testKey))
+                return k == null ? null : k.GetValue("Activated") as string;
+        }
+
+        private Microsoft.Win32.RegistryValueKind ActivatedKind()
+        {
+            using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(_testKey))
+                return k.GetValueKind("Activated");
+        }
+
+        private void ForgetActivation() { Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(_testKey, false); }
         private static string Script { get { return Path.Combine(WhatsNewTests.RepoRoot(), "scripts", "release", "Install.ps1"); } }
 
         private static string PowerShell51
@@ -53,8 +82,15 @@ namespace FlareAI.Core.Tests.Update
                 var local = t["Local"];
                 Directory.CreateDirectory(local);
 
+                Assert.Null(Activated());
                 var first = Install(kit, flare, local);
                 Assert.True(first.Code == 0, first.Output);
+                // Flare shows the House Style tab on first start: Activated = "True" (REG_SZ) for the installing user.
+                Assert.Equal("True", Activated());
+                Assert.Equal(Microsoft.Win32.RegistryValueKind.String, ActivatedKind());
+                Assert.Contains("The House Style tab appears and a short setup opens.", first.Output);
+                Assert.Contains("If the House Style tab doesn't appear", first.Output);
+                Assert.DoesNotContain("(first install only)", first.Output);
                 var layout = new UpdateLayout(Path.Combine(local, "HouseStyle"));
                 Assert.True(Junction.IsLink(plugins), "Plugins\\FlareAI should be a link now");
                 AssertOneHop(plugins, layout);
@@ -82,9 +118,11 @@ namespace FlareAI.Core.Tests.Update
                 AssertOneHop(plugins, layout);
                 Assert.Equal("0.9.0", UpdateLayout.VersionIn(plugins));
 
-                // -NoJunction over the per-user install: unlinks, never empties the per-user folder.
+                // -NoJunction over the per-user install: unlinks, never empties the per-user folder, and turns the plugin on too.
+                ForgetActivation();
                 var copy = Install(kit, flare, local, "-NoJunction");
                 Assert.True(copy.Code == 0, copy.Output);
+                Assert.Equal("True", Activated());
                 Assert.False(Junction.IsLink(plugins));
                 Assert.Equal("0.8.0", UpdateLayout.VersionIn(plugins));
                 Assert.True(File.Exists(Path.Combine(layout.Current, "FlareAI.Flare.dll")));
@@ -175,10 +213,14 @@ namespace FlareAI.Core.Tests.Update
             return flare;
         }
 
-        private static Result Install(string kit, string flare, string local, string extra = "")
+        private Result Install(string kit, string flare, string local, string extra = "")
         {
             return Run("-NoProfile -ExecutionPolicy Bypass -File \"" + Path.Combine(kit, "Install.ps1") + "\" -Silent -Flare 99 " + extra,
-                       psi => { psi.EnvironmentVariables["FLARE_ROOT"] = flare; psi.EnvironmentVariables["LOCALAPPDATA"] = local; psi.EnvironmentVariables["HOUSESTYLE_INSTALL_TEST"] = "1"; });
+                       psi =>
+                       {
+                           psi.EnvironmentVariables["FLARE_ROOT"] = flare; psi.EnvironmentVariables["LOCALAPPDATA"] = local; psi.EnvironmentVariables["HOUSESTYLE_INSTALL_TEST"] = "1";
+                           psi.EnvironmentVariables["HOUSESTYLE_PLUGINS_KEY"] = @"HKCU:\" + _testKey;
+                       });
         }
 
         private struct Result { public int Code; public string Output; }

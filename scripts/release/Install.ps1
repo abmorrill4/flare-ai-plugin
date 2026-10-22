@@ -17,6 +17,10 @@
 #   -NoJunction      the old layout: copy into Program Files\...\Plugins\FlareAI for all users. No automatic updates.
 #                    Used automatically when installing as SYSTEM (a per-user install would go to the SYSTEM profile).
 #   -NoAutoUpdate    write update-policy.json ({"autoUpdate": false}) so the plugin never updates itself
+#
+# Every install also enables the plugin in Flare for the installing user (HKCU\Software\MadCap Software\Flare\Plugins\
+# House Style, Activated = "True"), so the House Style tab appears the first time Flare starts. Tests point this at
+# another key with the HOUSESTYLE_PLUGINS_KEY environment variable.
 param(
     [int]$Flare = 0,
     [switch]$NoPause,
@@ -38,6 +42,25 @@ function Fail([string]$msg) {
     Write-Host "ERROR: $msg" -ForegroundColor Red
     Wait-Exit 1
 }
+# Turns the plugin on in Flare for the installing user: Flare reads Activated under its Plugins key at start, so the
+# House Style tab appears without File > Options > Plugins > Enable. Returns $false (and says so) when it can't.
+function Enable-Plugin {
+    $key = $env:HOUSESTYLE_PLUGINS_KEY
+    if (-not $key) { $key = "HKCU:\Software\MadCap Software\Flare\Plugins\House Style" }
+    if ($identity.IsSystem -and -not $env:HOUSESTYLE_PLUGINS_KEY) {
+        Write-Host "Installing as SYSTEM: each writer turns House Style on once in Flare (File > Options > Plugins)."
+        return $false
+    }
+    try {
+        if (-not (Test-Path -LiteralPath $key)) { New-Item -Path $key -Force | Out-Null }
+        New-ItemProperty -LiteralPath $key -Name "Activated" -Value "True" -PropertyType String -Force | Out-Null
+        return $true
+    } catch {
+        Write-Host "Could not turn House Style on in Flare's settings: $($_.Exception.Message)" -ForegroundColor Yellow
+        return $false
+    }
+}
+
 function Get-FlareName([int]$n) {
     # MadCap folder number -> marketing name. 22 = 2026, 21 = 2025, 20 = 2024, 19 = 2023 ...
     if ($n -ge 17) { return "Flare " + (2004 + $n) }
@@ -182,6 +205,8 @@ try {
             if ($Silent) { $argList += " -Silent" }
             if ($NoAutoUpdate) { $argList += " -NoAutoUpdate" }
             try { $p = Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs -Wait -PassThru } catch { Fail "Elevation was cancelled or failed: $($_.Exception.Message)" }
+            # The elevated copy may run as another (admin) account: turn the plugin on for the signed-in user here.
+            if ($p.ExitCode -eq 0) { [void](Enable-Plugin) }
             Wait-Exit $p.ExitCode
         }
         $keepPolicy = $null
@@ -197,6 +222,7 @@ try {
         elseif ($keepPolicy) { Set-Content -LiteralPath (Join-Path $dest "update-policy.json") -Value $keepPolicy -Encoding UTF8 }
         Get-ChildItem $dest -Recurse -File | ForEach-Object { try { Unblock-File -LiteralPath $_.FullName } catch { } }
         if (-not (Test-Path (Join-Path $dest "FlareAI.Flare.dll"))) { Fail "Copy finished but FlareAI.Flare.dll is missing from $dest." }
+        $enabled = Enable-Plugin
         Write-Host ""
         Write-Host "Installed to: $dest (all users; no automatic updates)" -ForegroundColor Green
     } else {
@@ -259,6 +285,7 @@ try {
             Set-PluginsLink $dest $current
         }
         if (-not (Test-Path (Join-Path $dest "FlareAI.Flare.dll"))) { Fail "Install finished but Flare can't see FlareAI.Flare.dll at $dest." }
+        $enabled = Enable-Plugin
         Write-Host ""
         Write-Host "Installed House Style $version to: $current" -ForegroundColor Green
         Write-Host "Flare loads it through: $dest"
@@ -268,10 +295,16 @@ try {
 
     Write-Host ""
     Write-Host "Next steps:"
-    Write-Host "  1. Start $($target.Name)."
-    Write-Host "  2. File > Options > Plugins > House Style > Enable (first install only)."
-    Write-Host "  3. Restart Flare. The House Style tab appears after the restart."
-    Write-Host "  4. Click any House Style button: a short setup asks how to use AI and which style guide to follow."
+    if ($enabled) {
+        Write-Host "  1. Start $($target.Name). The House Style tab appears and a short setup opens."
+        Write-Host "  2. Answer the setup questions, then practice on the sample project or your own topic."
+        Write-Host ""
+        Write-Host "If the House Style tab doesn't appear, choose File > Options > Plugins, select House Style, click Enable, and restart Flare."
+    } else {
+        Write-Host "  1. Start $($target.Name)."
+        Write-Host "  2. Choose File > Options > Plugins, select House Style, click Enable, and restart Flare."
+        Write-Host "  3. The House Style tab appears and a short setup opens."
+    }
     Wait-Exit 0
 } catch {
     Fail $_.Exception.Message

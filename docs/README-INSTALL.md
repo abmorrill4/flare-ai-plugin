@@ -8,14 +8,16 @@ House Style adds a **House Style** tab to MadCap Flare Desktop. Every edit it ma
    anything from inside the zip.
 2. Close Flare.
 3. Double-click **Install.cmd**. Say yes to the administrator prompt.
-4. It unblocks the files, copies the plugin to `%LOCALAPPDATA%\HouseStyle`, links your Flare to it and prints what to
-   do next. The administrator prompt is needed only this first time: updates install by themselves when you close
-   Flare (House Style checks GitHub once a day; see the privacy page).
-5. Start Flare > **File > Options > Plugins > House Style > Enable**. The **House Style** tab appears. If it
-   doesn't, restart Flare.
-6. Click any **House Style** button. A short setup asks how to use AI (none, your Anthropic API key, or your
-   company's gateway key and address) and which style guide to follow. Upgrading from 0.1? Open
-   **House Style > Settings > Run setup again** to see it.
+4. It unblocks the files, copies the plugin to `%LOCALAPPDATA%\HouseStyle`, links your Flare to it, turns the plugin
+   on in Flare for you and prints what to do next. The administrator prompt is needed only this first time: updates
+   install by themselves when you close Flare (House Style checks GitHub once a day; see the privacy page).
+5. Start Flare. The **House Style** tab appears and a short setup opens. It asks how you'll use House Style, how to
+   use AI (none, your Anthropic API key, or your company's gateway key and address) and which style guide to follow.
+6. Practice your first lint on the sample project or on a topic of your own, or click **Skip**. Upgrading from an
+   earlier version? Open **House Style > Settings > Run setup again** to see the new setup.
+
+If the **House Style** tab doesn't appear, choose **File > Options > Plugins**, select **House Style**, click
+**Enable**, and restart Flare.
 
 If you have several Flare versions, the installer picks the newest. To pick another, open PowerShell in the unzipped
 folder and run `.\Install.ps1 -Flare 21` (use the folder number from the table below).
@@ -66,7 +68,8 @@ A manual copy doesn't update itself: install each new version the same way.
 4. **Check there is no wrapper folder.** The DLL must be at
    `...\Flare.app\Plugins\FlareAI\FlareAI.Flare.dll`. If you see `Plugins\HouseStyle-0.1.3\FlareAI\...`, your unzip
    tool added an extra folder: move the inner `FlareAI` folder up into `Plugins` and delete the wrapper.
-5. Start Flare > **File > Options > Plugins > House Style > Enable**.
+5. Start Flare > **File > Options > Plugins > House Style > Enable**. (Install.cmd does this step for you; a manual
+   copy doesn't.)
 6. **Restart Flare.** Two restarts in total: one so Flare finds the plugin, one after enabling it.
 
 ## If House Style is not in the Plugins list
@@ -75,5 +78,5 @@ A manual copy doesn't update itself: install each new version the same way.
 - Confirm you installed into the Flare version you are running (table above).
 - Flare must be fully closed when you copy, and restarted afterwards.
 
-Nothing else to install: the style guide, the linter and the LLM export run inside the plugin. More in
+Nothing else to install: the style guide, linting and the LLM export run inside the plugin. More in
 `TESTER-GUIDE.md` in the repository.
