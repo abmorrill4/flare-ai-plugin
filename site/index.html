@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Style for MadCap Flare</title>
+<meta name="description" content="A free, open-source MadCap Flare Desktop plugin that checks topics against the Google developer documentation style guide and your team's own rules. Every edit arrives as a tracked change.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="2" y="2" width="28" height="28" rx="6" fill="#0b5e6b"/><path d="M9 11h14M9 16h10M9 21h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M19 22l2.5 2.5L26 19" stroke="#ffd27a" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      House Style
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="code-signing.html">Code signing</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div>
+        <h1 id="hero-title">Style checks and AI edits inside MadCap Flare, as tracked changes.</h1>
+        <p class="lead">House Style adds a ribbon tab to Flare Desktop. It checks your topics against the Google
+          developer documentation style guide and your team's own rules. You accept or reject each edit with
+          Flare's normal review tools.</p>
+        <div class="cta-row">
+          <a class="button primary" href="https://github.com/abmorrill4/flare-ai-plugin/releases/latest">Download the latest release</a>
+          <a class="button secondary" href="install.html">How to install</a>
+        </div>
+        <p class="fine">Free and open source (MIT). For Windows and MadCap Flare Desktop. Tested on Flare 2026.</p>
+      </div>
+
+      <!-- screenshot: House Style ribbon tab in Flare 2026 with a topic open and the review pane docked. Replace this drawn illustration with a real screenshot when one exists. -->
+      <figure class="illustration">
+        <div class="mock-ribbon" aria-hidden="true">
+          <div class="mock-tabs"><span>Home</span><span>Insert</span><span>Review</span><span class="active">House Style</span></div>
+          <div class="mock-buttons">
+            <span>Check style</span><span>Rewrite selection</span><span>Ask…</span>
+            <span>Check project</span><span>Topic assists</span><span>Export for LLMs</span>
+          </div>
+        </div>
+        <div class="mock-page" aria-hidden="true">
+          <p>To save your changes, <del>click on</del> <ins>click</ins> <strong>Save</strong>.</p>
+          <div class="mock-line"></div>
+          <div class="mock-line short"></div>
+        </div>
+        <figcaption>Illustration only, not a screenshot. It shows the House Style tab and a suggested edit marked as a tracked change.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section alt" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title">How it works</h2>
+      <ol class="steps">
+        <li>
+          <h3>Install the plugin</h3>
+          <p>Download the zip, unzip it, and double-click <code>Install.cmd</code>. Enable House Style in Flare.
+            Nothing else to install.</p>
+        </li>
+        <li>
+          <h3>Check a topic</h3>
+          <p>Click <strong>Check style</strong>. Rule checks appear right away. If you set up AI, a review of the
+            wording follows.</p>
+        </li>
+        <li>
+          <h3>Accept or reject</h3>
+          <p>Each fix arrives as a Flare tracked change. Accept it, reject it, or undo it with Ctrl+Z.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="features-title">
+    <div class="wrap">
+      <h2 id="features-title">What you get</h2>
+      <p class="lead">Everything happens in Flare. You don't copy text into a chat window and paste it back.</p>
+
+      <div class="cards">
+        <article class="card">
+          <span class="tag">Free, runs locally</span>
+          <h3>Style checks</h3>
+          <p>Checks topics against the Google developer documentation style guide, compiled into rules, plus your
+            team's rules. Each finding names the rule and shows a bad and good example when the guide has one.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Free, runs locally</span>
+          <h3>Check project</h3>
+          <p>Checks every topic and snippet in the project at once. Results are grouped by file, and you open each
+            one to fix it.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Free, runs locally</span>
+          <h3>Accessibility and structure</h3>
+          <p>Flags images without alt text, skipped heading levels, tables without a header row, link text like
+            "click here", and typed-in phone numbers, email addresses and URLs. With AI set up, it can draft
+            alt text from the image for you to edit.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Optional AI</span>
+          <h3>AI review and rewrite</h3>
+          <p>An AI review catches what rules can't, such as unclear or wordy sentences. <strong>Rewrite
+            selection</strong> rewrites the paragraphs you select. You see every change before it lands.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Optional AI</span>
+          <h3>Ask</h3>
+          <p>Type what you want, like "make this a numbered list" or "shorten to two sentences". The result comes
+            back as tracked changes.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Optional AI</span>
+          <h3>Topic assists</h3>
+          <p>Drafts a meta description, index keywords, search synonyms, micro content and glossary terms for the
+            topic. Copy the ones you want to keep.</p>
+        </article>
+        <article class="card">
+          <span class="tag">For guide owners</span>
+          <h3>Build, tune and validate your style guide</h3>
+          <p>Your team's rules live in a Flare project you keep in git. <strong>Build</strong> suggests rules from
+            your own content. <strong>Tune</strong> shows which rules writers keep rejecting.
+            <strong>Validate</strong> tests every rule against its examples.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Free, runs locally</span>
+          <h3>Export for LLMs</h3>
+          <p>Turns your built HTML output into one Markdown file per topic, plus <code>llms.txt</code> and
+            <code>llms-full.txt</code>, so AI assistants and chatbots can read your docs.</p>
+        </article>
+        <article class="card">
+          <span class="tag">Safety net</span>
+          <h3>Your markup stays intact</h3>
+          <p>House Style refuses any AI result that would drop or change a variable, cross-reference, snippet or
+            condition. Nothing changes, and you see why.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt" aria-labelledby="cost-title">
+    <div class="wrap two-col">
+      <div>
+        <h2 id="cost-title">What it costs</h2>
+        <p>The plugin is free. Style checks, Check project and Export for LLMs run on your computer and cost
+          nothing.</p>
+        <p>AI features are optional. They run on your own Anthropic API key, or on your company's Bifrost gateway
+          if your team uses one. You pay Anthropic, or your gateway's budget covers it. An AI review costs about
+          2 cents per topic.</p>
+        <p>Without a key, every rule check still works.</p>
+      </div>
+      <div>
+        <h2 id="privacy-title">Privacy in short</h2>
+        <ul>
+          <li>Style checks never leave your computer.</li>
+          <li>Text goes out only when you ask for an AI action. It goes to Anthropic under your key, or to the
+            gateway you set up.</li>
+          <li>No telemetry. Nothing is sent to the authors.</li>
+          <li>Your key is encrypted with Windows DPAPI and never logged.</li>
+        </ul>
+        <p><a href="privacy.html">Read the privacy details</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="wrap narrow faq">
+      <h2 id="faq-title">Questions</h2>
+
+      <details>
+        <summary>Which versions of Flare does it work with?</summary>
+        <div>
+          <p>House Style is tested on MadCap Flare 2026, which installs into the <code>MadCap Flare 22</code>
+            folder. It needs Flare Desktop on Windows, in Ribbon UI mode. See the
+            <a href="install.html#versions">version table</a>.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Do I need to install anything else?</summary>
+        <div>
+          <p>No. The style guide, the checker and the LLM export all ship inside the plugin folder. You don't need
+            Python or any other tool.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Can it change my topics without me knowing?</summary>
+        <div>
+          <p>No. Every edit is a Flare tracked change, so you review it like any reviewer's edit. Ctrl+Z undoes it
+            in one step. Rule checks change nothing until you click Fix.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Do I need an AI key?</summary>
+        <div>
+          <p>Only for AI review, Rewrite selection, Ask and Topic assists. Style checks, Check project and Export
+            for LLMs work without one.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Can we use our own style rules?</summary>
+        <div>
+          <p>Yes. Your team's rules live in a Flare project with simple tables and bullet lists. Your rules win
+            over Google's, and a project can add its own variables and glossary on top. Rule owners can turn a
+            rule off for the whole team or for one project.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Our company routes AI through a gateway. Does that work?</summary>
+        <div>
+          <p>Yes. In <strong>House Style &gt; Settings</strong>, set Provider to <em>Bifrost gateway</em>, enter the
+            gateway address and paste the virtual key you were given. See
+            <a href="install.html#gateway">gateway setup</a>.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Windows warns me about the download. Is it safe?</summary>
+        <div>
+          <p>Releases are built from this public repository by GitHub Actions. They aren't code signed yet, so
+            Windows marks the files as blocked. The <a href="install.html">installer</a> unblocks them for you.
+            See <a href="code-signing.html">code signing</a> for the plan.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Is this made by MadCap or Google?</summary>
+        <div>
+          <p>No. House Style is an independent open-source project. It isn't affiliated with MadCap Software or
+            Google. The Google rules come from the Google developer documentation style guide, used under
+            CC BY 4.0.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <ul>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+    </ul>
+    <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by
+      <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
+    <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
+      <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Style Code Signing</title>
+<meta name="description" content="Code signing policy for House Style releases: free code signing provided by SignPath.io, certificate by SignPath Foundation.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="2" y="2" width="28" height="28" rx="6" fill="#0b5e6b"/><path d="M9 11h14M9 16h10M9 21h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M19 22l2.5 2.5L26 19" stroke="#ffd27a" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      House Style
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="code-signing.html" aria-current="page">Code signing</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <div class="wrap narrow">
+    <h1>Code signing policy</h1>
+    <p class="lead">Free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by
+      <a href="https://signpath.org">SignPath Foundation</a>.</p>
+
+    <div class="note">
+      <p><strong>Current status:</strong> releases are unsigned until the SignPath Foundation application is
+        approved. Windows marks downloaded files as blocked, so unblock them before you install:</p>
+      <ul>
+        <li>Easiest: unzip the whole download and run <code>Install.cmd</code>. It unblocks the files for you.</li>
+        <li>By hand: right-click the zip &gt; <strong>Properties</strong> &gt; tick <strong>Unblock</strong> &gt;
+          <strong>OK</strong>, then unzip.</li>
+        <li>Already unzipped? In PowerShell, run
+          <code>Get-ChildItem "C:\path\to\unzipped folder" -Recurse | Unblock-File</code>.</li>
+      </ul>
+      <p>More in the <a href="install.html#manual">install guide</a>.</p>
+    </div>
+
+    <h2 id="what">What is signed</h2>
+    <p>Releases on GitHub (<code>HouseStyle-&lt;version&gt;.zip</code>) contain three signed files:</p>
+    <ul>
+      <li><code>FlareAI.Core.dll</code></li>
+      <li><code>FlareAI.Flare.dll</code></li>
+      <li><code>FlareAI.Mcp.exe</code></li>
+    </ul>
+    <p>GitHub Actions builds them from the tagged commit in this repository, and they're signed only through that
+      workflow (<code>.github/workflows/build.yml</code>). Third-party files in the zip, such as
+      <code>Newtonsoft.Json.dll</code>, are already signed by their authors and aren't signed again. MadCap's files
+      are never included.</p>
+
+    <h2 id="roles">Roles</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Role</th><th scope="col">Who</th></tr></thead>
+        <tbody>
+          <tr><td>Committers and reviewers</td><td><a href="https://github.com/abmorrill4">Arthur Morrill</a></td></tr>
+          <tr><td>Approvers</td><td><a href="https://github.com/abmorrill4">Arthur Morrill</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Every signing request is approved by hand. Maintainers use multi-factor authentication on GitHub and
+      SignPath.</p>
+
+    <h2 id="privacy">Privacy</h2>
+    <p>This program sends data to other networked systems only when the user asks for an AI action. The text being
+      checked (and, for alt text, the image) and the relevant style rules go to the Anthropic API under the user's
+      own API key, or to a Bifrost gateway the user sets up. It sends no telemetry. See
+      <a href="privacy.html">Privacy</a>.</p>
+
+    <h2 id="verify">Check a signed file</h2>
+    <p>Once releases are signed, right-click <code>FlareAI.Flare.dll</code> &gt; <strong>Properties</strong> &gt;
+      <strong>Digital Signatures</strong> to see the signer and the certificate.</p>
+
+    <p class="muted">The source of this policy is
+      <a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/docs/code-signing.md">docs/code-signing.md</a>
+      in the repository.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <ul>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+    </ul>
+    <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by
+      <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
+    <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
+      <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Style Privacy</title>
+<meta name="description" content="What the House Style plugin for MadCap Flare sends over the network, when, and to whom. No telemetry; keys stored with Windows DPAPI.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="2" y="2" width="28" height="28" rx="6" fill="#0b5e6b"/><path d="M9 11h14M9 16h10M9 21h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M19 22l2.5 2.5L26 19" stroke="#ffd27a" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      House Style
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="install.html">Install</a></li>
+        <li><a href="privacy.html" aria-current="page">Privacy</a></li>
+        <li><a href="code-signing.html">Code signing</a></li>
+        <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <div class="wrap narrow">
+    <h1>Privacy</h1>
+    <p class="lead">House Style sends nothing unless you ask for an AI action. It has no telemetry, and nothing goes
+      to the authors.</p>
+
+    <h2 id="local">What stays on your computer</h2>
+    <p>These features run entirely inside the plugin and never send your text anywhere:</p>
+    <ul>
+      <li>Style checks against the Google guide and your team's rules</li>
+      <li>Check project</li>
+      <li>Accessibility and structure checks</li>
+      <li>Validate style guide (except the optional AI check of prose rules)</li>
+      <li>Export for LLMs</li>
+    </ul>
+
+    <h2 id="sent">What leaves your computer, and when</h2>
+    <p>Only when you ask for an AI action: AI review, Rewrite selection, Ask, Topic assists, Suggest alt text, or an
+      AI step in Build, Tune or Validate style guide. Each request carries:</p>
+    <ul>
+      <li>the text of the sections being checked,</li>
+      <li>for alt text, the image,</li>
+      <li>the style rules that apply to those sections.</li>
+    </ul>
+    <p>Nothing else is sent.</p>
+
+    <h2 id="where">Where it goes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Provider in Settings</th><th scope="col">Where requests go</th><th scope="col">Under which key</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Anthropic (default)</td><td>The Anthropic API</td><td>Your own Anthropic API key</td></tr>
+          <tr><td>Bifrost gateway</td><td>The gateway address you enter</td><td>The virtual key you were given</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>How the provider handles your data is set by your agreement with Anthropic, or by your company's gateway
+      policy.</p>
+
+    <h2 id="telemetry">No telemetry</h2>
+    <p>The plugin doesn't collect usage data, crash reports or analytics. Nothing is sent to the authors of House
+      Style.</p>
+
+    <h2 id="key">How your key is stored</h2>
+    <ul>
+      <li>Your key is encrypted with Windows DPAPI and saved in <code>%APPDATA%\FlareAI\settings.json</code>. Only
+        your Windows account can decrypt it.</li>
+      <li>The key is never written to a log.</li>
+    </ul>
+
+    <h2 id="files">Files the plugin writes on your computer</h2>
+    <ul>
+      <li><code>%APPDATA%\FlareAI\diag.log</code>: timings and errors, to help with bug reports. It contains no
+        document text and no key.</li>
+      <li>Review decisions, so a rejected suggestion stays hidden and the team can tune its rules. If your team sets
+        a shared feedback folder in Settings, your decisions are added to your own file there.</li>
+      <li>Saved AI reviews, so reopening a topic shows its suggestions without a new request.</li>
+    </ul>
+
+    <h2 id="source">Check it yourself</h2>
+    <p>House Style is open source. You can read every line that sends a request in the
+      <a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a>.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <ul>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a></li>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/releases">Releases</a></li>
+      <li><a href="https://github.com/abmorrill4/flare-ai-plugin/blob/main/LICENSE">License: MIT</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+    </ul>
+    <p>Code signing: free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by
+      <a href="https://signpath.org">SignPath Foundation</a>. <a href="code-signing.html">Code signing policy</a>.</p>
+    <p>Not affiliated with MadCap Software or Google. Google style rules derived from the
+      <a href="https://developers.google.com/style">Google developer documentation style guide</a> under CC BY 4.0.</p>
+  </div>
+</footer>
+</body>
+</html>
