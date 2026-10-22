@@ -1,3 +1,5 @@
+warning | table row 3 (company:broken/2) | Matches markup, but topics are checked as text ('<b>'): the row is skipped. Write it as a rule bullet for the reviewer instead.
 error | table row 6 (company:broken/5) | The Example doesn't trigger this rule: 'Now we begin.'.
 error | table row 2 (company:broken/1) | Applying the fix doesn't resolve the rule: 'We utilise it the tool.'.
 error | table row 2 (company:broken/1) | The 'Use' wording 'utilise it' is itself flagged by this same rule: Use 'Utilise it' instead of 'utilise'. Plain words.
+error | table row 5 (company:broken/4) | Conflicts with company:broken/3 for 'colour': this row says 'hue', that one says 'color'. Keep one fix.

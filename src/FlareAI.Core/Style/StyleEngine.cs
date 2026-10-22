@@ -98,17 +98,21 @@ namespace FlareAI.Core.Style
         {
             long n = 0, latest = 0;
             foreach (var r in roots.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                // A guide that is a plain folder of topics (no .flprj) is read from the root itself, recursively.
+                var plain = Directory.Exists(r) && Directory.GetFiles(r, "*.flprj").Length == 0;
                 foreach (var dir in new[] { @"Content\Resources\StyleGuide", @"Project\VariableSets", @"Project\Glossaries", "" })
                 {
                     var d = dir.Length == 0 ? r : Path.Combine(r, dir);
                     if (!Directory.Exists(d)) continue;
-                    foreach (var f in dir.Length == 0 ? Directory.GetFiles(d) : Directory.GetFiles(d, "*", SearchOption.AllDirectories))
+                    foreach (var f in dir.Length == 0 && !plain ? Directory.GetFiles(d) : Directory.GetFiles(d, "*", SearchOption.AllDirectories))
                     {
                         var fi = new FileInfo(f);
                         n += fi.Length + f.Length;
                         latest = Math.Max(latest, fi.LastWriteTimeUtc.Ticks);
                     }
                 }
+            }
             return n + ":" + latest;
         }
 

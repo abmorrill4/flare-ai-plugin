@@ -61,7 +61,7 @@ namespace FlareAI.Scenarios.Guide
             Assert.True(report.Errors >= 3);
         }
 
-        [Fact(Skip = "Bug #113: Validate does not report a row whose Avoid pattern is markup only (\"<b>\"); it can never fire, because lint reads text, but its Example contains the tag literally, so the check passes.")]
+        [Fact]
         public void Story26b_ARowWhosePatternIsMarkupOnly_IsReportedWithItsRow()
         {
             List<GuideIssue> mine;
@@ -70,7 +70,7 @@ namespace FlareAI.Scenarios.Guide
             Assert.Contains(mine, i => i.Location.Contains("(company:broken/2)"));
         }
 
-        [Fact(Skip = "Bug #114: Validate does not report two rows of the same guide that flag the same words with different fixes (colour to color, colour to hue); only the first one ever applies.")]
+        [Fact]
         public void Story26c_TwoRowsForTheSameWordsInOneTopic_AreReportedWithTheirRows()
         {
             List<GuideIssue> mine;

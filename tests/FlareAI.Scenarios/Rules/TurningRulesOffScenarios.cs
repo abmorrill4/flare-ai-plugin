@@ -404,7 +404,7 @@ namespace FlareAI.Scenarios.Rules
             }
         }
 
-        [Fact(Skip = "Bug #112: StyleEngine only watches guide folders laid out as a Flare project, so a rule turned off in a plain guide folder (Company\\*.htm) is still flagged until the plugin restarts.")]
+        [Fact]
         public void Story16b_OwnerTurnsARuleOffInAGuideFolderThatIsNotAFlareProject_ItTakesEffectWithoutARestart()
         {
             using (var ws = FakeWorkspace.Empty())
