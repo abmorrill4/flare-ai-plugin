@@ -86,7 +86,7 @@ namespace FlareAI.Flare.UI
                 var own = ActionRunner.ExamplesToVerify(_examples, false).Count;
                 _status.Text = (keyed > 0 ? "Gave " + keyed + " new rule(s) permanent ids.  " : "") + (report.Errors == 0 ? "Rule tables pass." : report.Errors + " error(s) to fix.") +
                                (own > 0 ? "  " + own + " of your own prose rule(s) have Bad/Good examples you can check against the AI."
-                                : _examples.Count > 0 ? "  Your own layers have no prose rules with Bad/Good examples (Google's are checked when the guide is built)." : "");
+                                : _examples.Count > 0 ? "  Your team's guide has no prose rules with Bad/Good examples (Google's are checked when the guide is built)." : "");
                 _ai.Enabled = _examples.Count > 0;
                 _google.Enabled = _examples.Count > own;
             };
@@ -117,7 +117,7 @@ namespace FlareAI.Flare.UI
             var examples = ActionRunner.ExamplesToVerify(_examples, _google.Checked);
             if (examples.Count == 0)
             {
-                _status.Text = "Your own layers have no prose rules with Bad/Good examples. Tick \"Include Google's rules\" to check Google's.";
+                _status.Text = "Your team's guide has no prose rules with Bad/Good examples. Tick \"Include Google's rules\" to check Google's.";
                 return;
             }
             var calls = ActionRunner.VerifyCalls(examples);
