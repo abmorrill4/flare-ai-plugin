@@ -186,12 +186,12 @@ namespace FlareAI.Flare
                     Notify.Info(Owner, "Open any topic of the project first. Check project looks at every topic and snippet in that project.", Commands.CheckProject.Label);
                     return;
                 }
-                var runner = NewRunner(adapter);
+                var runner = NewRunner(adapter, true, true);
                 if (runner == null) return;
                 var root = Path.GetDirectoryName(files[0]);
                 while (root != null && Directory.GetFiles(root, "*.flprj").Length == 0) root = Path.GetDirectoryName(root);
                 var name = root == null ? "" : Path.GetFileName(root);
-                PanelHost.Show(FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter), OpenAdapter, files, name), _nav.GetParentForm());
+                PanelHost.Show(FindingsPanel.ForProject(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, files, name), _nav.GetParentForm());
             }
             catch (Exception ex)
             {
@@ -449,7 +449,7 @@ namespace FlareAI.Flare
                     Notify.Info(Owner, "Open a topic in the XML Editor first.", title);
                     return;
                 }
-                var runner = NewRunner(adapter);
+                var runner = NewRunner(adapter, true, kind == ActionKind.CheckStyle);
                 if (runner == null) return;
                 if (kind == ActionKind.CheckStyle)
                 {
@@ -474,7 +474,8 @@ namespace FlareAI.Flare
         }
 
         /// <param name="projectLayer">False for style-guide topics: the guide project is already a layer.</param>
-        private ActionRunner NewRunner(FlareDocumentAdapter adapter, bool projectLayer)
+        /// <param name="lintOnly">True for work that needs no AI (Check project): runs without a key; AI buttons then report why.</param>
+        private ActionRunner NewRunner(FlareDocumentAdapter adapter, bool projectLayer, bool lintOnly = false)
         {
             if (adapter == null) return null;
             var topicPath = adapter.SourcePath;
@@ -483,9 +484,13 @@ namespace FlareAI.Flare
             try { llm = LlmClientFactory.Create(settings); }
             catch (LlmException lex)
             {
-                Notify.Warn(Owner, lex.Message);
-                OnSettings();
-                return null;
+                if (lintOnly) llm = new UnavailableClient(lex.Message);
+                else
+                {
+                    Notify.Warn(Owner, lex.Message);
+                    OnSettings();
+                    return null;
+                }
             }
             var style = StyleService(settings);
             var project = settings.UseProjectLayer && projectLayer ? topicPath : null;
@@ -524,7 +529,7 @@ namespace FlareAI.Flare
 
         private void ShowFindings(FlareDocumentAdapter adapter, ActionRunner runner, bool aiOnStart)
         {
-            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter), OpenAdapter, Reviews, aiOnStart), _nav.GetParentForm());
+            PanelHost.Show(new FindingsPanel(runner, adapter, () => NewRunner(adapter, true, true), OpenAdapter, Reviews, aiOnStart), _nav.GetParentForm());
         }
 
         /// <summary>
@@ -568,7 +573,7 @@ namespace FlareAI.Flare
                 if (path.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)) return;
                 // Style-guide topics list the very words they ban; following into one (e.g. via Guide ↗) would flood the panel.
                 if (path.IndexOf(@"\Resources\StyleGuide\", StringComparison.OrdinalIgnoreCase) >= 0) return;
-                var runner = NewRunner(adapter);
+                var runner = NewRunner(adapter, true, true);
                 if (runner != null) ShowFindings(adapter, runner, false);
             }
             catch (Exception ex) { Diagnostics.Log("DocumentSwitched", ex); }

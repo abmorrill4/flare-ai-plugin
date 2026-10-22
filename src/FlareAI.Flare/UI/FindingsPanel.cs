@@ -534,7 +534,10 @@ namespace FlareAI.Flare.UI
                 UpdateButtons();
                 return;
             }
-            var where = f.DocumentPath == null ? "" : "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(SnippetUses(f.DocumentPath)) + "; applying changes all of them";
+            var where = f.DocumentPath == null ? ""
+                : f.DocumentPath.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)
+                    ? "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(SnippetUses(f.DocumentPath)) + "; applying changes all of them"
+                    : "In " + System.IO.Path.GetFileName(f.DocumentPath);
             _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  applied" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
             // Grow to fit: the snippet line ("used in N topics") must never be cut off.
