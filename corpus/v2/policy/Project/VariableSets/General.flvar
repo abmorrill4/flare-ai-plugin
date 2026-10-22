@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultVariableSet>
+    <Variable Name="CompanyName" EvaluatedDefinition="Alderbrook Care Network">Alderbrook Care Network</Variable>
+    <Variable Name="ProductName" EvaluatedDefinition="Acme Product">Acme Product</Variable>
+</CatapultVariableSet>

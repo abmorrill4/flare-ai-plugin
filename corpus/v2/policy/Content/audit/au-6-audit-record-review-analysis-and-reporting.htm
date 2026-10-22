@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>AU-6 Audit Record Review, Analysis, and Reporting</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>AU-6 Audit Record Review, Analysis, and Reporting</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/document-control.flsnp" />
+        <h2>Control text</h2>
+        <blockquote><ol><li><p>Review and analyze system audit records [Assignment: organization-defined frequency] for indications of [Assignment: organization-defined inappropriate or unusual activity] and the potential impact of the inappropriate or unusual activity;</p></li><li><p>Report findings to [Assignment: organization-defined personnel or roles] ; and</p></li><li><p>Adjust the level of audit record review, analysis, and reporting within the system when there is a change in risk based on law enforcement information, intelligence information, or other credible sources of information.</p></li></ol></blockquote>
+        <h2>Discussion</h2>
+        <p class="note">Audit record review, analysis, and reporting covers information security- and privacy-related logging performed by organizations, including logging that results from the monitoring of account usage, remote access, wireless connectivity, mobile device connection, configuration settings, system component inventory, use of maintenance tools and non-local maintenance, physical access, temperature and humidity, equipment delivery and removal, communications at system interfaces, and utilize of mobile code or Voice over Internet Protocol (VoIP). Findings can be reported to organizational entities that include the incident response team, help desk, and security or privacy offices. If organizations are prohibited from reviewing and analyzing audit records or unable to conduct such activities, the review or analysis may be carried out by other organizations granted such authority. The frequency, scope, and/or depth of the audit record review, analysis, and reporting may be adjusted to meet organizational needs based on new information received.</p>
+        <h2>Parameters</h2>
+        <dl>
+            <dt>AU-06_ODP[01]</dt>
+            <dd><p>frequency at which system audit records are reviewed and analyzed is defined;</p></dd>
+            <dt>AU-06_ODP[02]</dt>
+            <dd><p>inappropriate or unusual activity is defined;</p></dd>
+            <dt>AU-06_ODP[03]</dt>
+            <dd><p>personnel or roles to receive findings from reviews and analyses of system records is/are defined;</p></dd>
+        </dl>
+        <h2>Related controls</h2>
+        <ul>
+            <li><MadCap:xref href="../security/ac-2-account-management.htm">AC-2 Account Management</MadCap:xref></li>
+            <li><MadCap:xref href="../security/ac-3-access-enforcement.htm">AC-3 Access Enforcement</MadCap:xref></li>
+            <li>AC-5 Separation of Duties</li>
+            <li>AC-6 Least Privilege</li>
+            <li>AC-7 Unsuccessful Logon Attempts</li>
+            <li>AC-17 Remote Access</li>
+            <li>AU-7 Audit Record Reduction and Report Generation</li>
+            <li>AU-16 Cross-organizational Audit Logging</li>
+            <li><MadCap:xref href="ca-2-control-assessments.htm">CA-2 Control Assessments</MadCap:xref></li>
+            <li><MadCap:xref href="ca-7-continuous-monitoring.htm">CA-7 Continuous Monitoring</MadCap:xref></li>
+            <li>CM-2 Baseline Configuration</li>
+            <li>CM-5 Access Restrictions for Change</li>
+            <li><MadCap:xref href="../security/cm-6-configuration-settings.htm">CM-6 Configuration Settings</MadCap:xref></li>
+            <li>CM-10 Software Usage Restrictions</li>
+            <li>CM-11 User-installed Software</li>
+            <li><MadCap:xref href="../security/ia-2-identification-and-authentication-organizational-users.htm">IA-2 Identification and Authentication (Organizational Users)</MadCap:xref></li>
+            <li>IA-3 Device Identification and Authentication</li>
+            <li><MadCap:xref href="../security/ia-5-authenticator-management.htm">IA-5 Authenticator Management</MadCap:xref></li>
+            <li>IA-8 Identification and Authentication (Non-organizational Users)</li>
+            <li>IR-5 Incident Monitoring</li>
+            <li>MA-4 Nonlocal Maintenance</li>
+            <li>MP-4 Media Storage</li>
+            <li>PE-3 Physical Access Control</li>
+            <li>PE-6 Monitoring Physical Access</li>
+            <li>RA-5 Vulnerability Monitoring and Scanning</li>
+            <li>SA-8 Security and Privacy Engineering Principles</li>
+            <li>SC-7 Boundary Protection</li>
+            <li>SI-3 Malicious Code Protection</li>
+            <li>SI-4 System Monitoring</li>
+            <li>SI-7 Software, Firmware, and Information Integrity</li>
+        </ul>
+        <h2>Assessment objectives</h2>
+        <dl>
+            <dt>AU-06</dt>
+            <dd><dl><dt>AU-06a.</dt><dd><p>system audit records are reviewed and analyzed [Assignment: organization-defined frequency] for indications of [Assignment: organization-defined inappropriate or unusual activity] and the potential impact of the inappropriate or unusual activity;</p></dd><dt>AU-06b.</dt><dd><p>findings are reported to [Assignment: organization-defined personnel or roles];</p></dd><dt>AU-06c.</dt><dd><p>the level of audit record review, analysis, and reporting within the system is adjusted when there is a change in risk based on law enforcement information, intelligence information, or other credible sources of information.</p></dd></dl></dd>
+        </dl>
+        <h2>Assessment methods</h2>
+        <h3>Examine</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>reports of audit findings</li>
+            <li>records of actions taken in response to reviews/analyses of audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h3>Interview</h3>
+        <h4>Assessment objects</h4>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h2>References</h2>
+        <ul>
+            <li>SP 800-86</li>
+            <li>SP 800-101</li>
+        </ul>
+        <h2>Control enhancements</h2>
+        <h3>AU-6(1) Automated Process Integration</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Integrate audit record review, analysis, and reporting processes using [Assignment: organization-defined automated mechanisms].</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organizational processes that benefit from integrated audit record review, analysis, and reporting include incident response, continuous monitoring, contingency planning, investigation and response to suspicious activities, and Inspector General audits.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AU-06(01)_ODP</dt>
+            <dd><p>automated mechanisms utilized for integrating audit record review, analysis, and reporting processes are defined;</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li>PM-7 Enterprise Architecture</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(01)</dt>
+            <dd><p>audit record review, analysis, and reporting processes are integrated using [Assignment: organization-defined automated mechanisms]. We recommend that you review this policy each year.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>procedures addressing investigation and response to suspicious activities</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Automated mechanisms integrating audit review, analysis, and reporting processes</li>
+        </ul>
+        <h3>AU-6(3) Correlate Audit Record Repositories</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Analyze and correlate audit records across different repositories to gain organization-wide situational awareness.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organization-wide situational awareness includes awareness across all three levels of risk management (i.e., organizational level, mission/business process level, and information system level) and supports cross-organization awareness.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="au-12-audit-record-generation.htm">AU-12 Audit Record Generation</MadCap:xref></li>
+            <li><MadCap:xref href="../security/ir-4-incident-handling.htm">IR-4 Incident Handling</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(03)</dt>
+            <dd><p>audit records across different repositories are analyzed and correlated to gain organization-wide situational awareness.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system audit records across different repositories</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting the analysis and correlation of audit records</li>
+        </ul>
+        <h3>AU-6(4) Central Review and Analysis</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Provide and implement the capability to centrally review and analyze audit records from multiple components within the system.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Automated mechanisms for centralized reviews and analyses include Security Information and Event Management products.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="au-2-event-logging.htm">AU-2 Event Logging</MadCap:xref></li>
+            <li><MadCap:xref href="au-12-audit-record-generation.htm">AU-12 Audit Record Generation</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(04)</dt>
+            <dd><dl><dt>AU-06(04)[01]</dt><dd><p>the capability to centrally review and analyze audit records from multiple components within the system is provided;</p></dd><dt>AU-06(04)[02]</dt><dd><p>the capability to centrally review and analyze audit records from multiple components within the system is implemented.</p></dd></dl></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>system audit records</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+            <li>system developers</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>System capability to centralize review and analysis of audit records</li>
+        </ul>
+        <h3>AU-6(5) Integrated Analysis of Audit Records</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Integrate analysis of audit records with analysis of [Selection (one or more): vulnerability scanning information; performance data; system monitoring information; [Assignment: organization-defined data/information collected from other sources] ] to further enhance the ability to identify inappropriate or unusual activity.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Integrated analysis of audit records does not require vulnerability scanning, the generation of performance data, or system monitoring. Rather, integrated analysis requires that the analysis of information generated by scanning, monitoring, or other data collection activities is integrated with the analysis of audit record information. Security Information and Event Management tools can facilitate audit record aggregation or consolidation from multiple system components as well as audit record correlation and analysis. The use of standardized audit record analysis scripts developed by organizations (with localized script adjustments, as necessary) provides more cost-effective approaches for analyzing audit record information collected. The correlation of audit record information with vulnerability scanning information is important in determining the veracity of vulnerability scans of the system and in correlating attack detection events with scanning results. Correlation with performance data can uncover denial-of-service attacks or other types of attacks that result in the unauthorized use of resources. Correlation with system monitoring information can assist in uncovering attacks and in better relating audit information to operational situations.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AU-06(05)_ODP[01]</dt>
+            <dd><p>choose from: vulnerability scanning information; performance data; system monitoring information; [Assignment: organization-defined data/information collected from other sources]</p></dd>
+            <dt>AU-06(05)_ODP[02]</dt>
+            <dd><p>data/information collected from other sources to be analyzed is defined (if selected);</p></dd>
+        </dl>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="au-12-audit-record-generation.htm">AU-12 Audit Record Generation</MadCap:xref></li>
+            <li><MadCap:xref href="../security/ir-4-incident-handling.htm">IR-4 Incident Handling</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(05)</dt>
+            <dd><p>analysis of audit records is integrated with analysis of [Selection (one or more): vulnerability scanning information; performance data; system monitoring information; [Assignment: organization-defined data/information collected from other sources] ] to further enhance the ability to identify inappropriate or unusual activity.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>integrated analysis of audit records, vulnerability scanning information, performance data, network monitoring information, and associated documentation</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing the capability to integrate analysis of audit records with analysis of data/information sources</li>
+        </ul>
+        <h3>AU-6(6) Correlation with Physical Monitoring</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Correlate information from audit records with information obtained from monitoring physical access to further enhance the ability to identify suspicious, inappropriate, unusual, or malevolent activity.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">The correlation of physical audit record information and the audit records from systems may assist organizations in identifying suspicious behavior or supporting evidence of such behavior. <b>E.g.</b>, the correlation of an individual’s identity for logical access to certain systems with the additional physical security information that the individual was present at the facility when the logical access occurred may be useful in investigations.</p>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(06)</dt>
+            <dd><p>information from audit records is correlated with information obtained from monitoring physical access to further enhance the ability to identify suspicious, inappropriate, unusual, or malevolent activity.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>procedures addressing physical access monitoring</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>documentation providing evidence of correlated information obtained from audit records and physical access monitoring records</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with physical access monitoring responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing the capability to correlate information from audit records with information from monitoring physical access</li>
+        </ul>
+        <h3>AU-6(7) Permitted Actions</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Specify the permitted actions for each [Selection (one or more): system process; role; user] associated with the review, analysis, and reporting of audit record information.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Organizations specify permitted actions for system processes, roles, and users associated with the review, analysis, and reporting of audit records through system account management activities. Specifying permitted actions on audit record information is a way to enforce the principle of least privilege. Permitted actions are enforced by the system and include read, write, execute, append, and delete.</p>
+        <h4>Parameters</h4>
+        <dl>
+            <dt>AU-06(07)_ODP</dt>
+            <dd><p>choose from: system process; role; user</p></dd>
+        </dl>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(07)</dt>
+            <dd><p>the permitted actions for each [Selection (one or more): system process; role; user] associated with the review, analysis, and reporting of audit record information are specified. A revised template is coming soon.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>procedures addressing process, role and/or user permitted actions from audit review, analysis, and reporting</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms supporting permitted actions for the review, analysis, and reporting of audit information</li>
+        </ul>
+        <h3>AU-6(8) Full Text Analysis of Privileged Commands</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Perform a full text analysis of logged privileged commands in a physically distinct component or subsystem of the system, or other system that is dedicated to that analysis.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Full text analysis of privileged commands requires a distinct environment for the analysis of audit record information related to privileged users without compromising such information on the system where the users have elevated privileges, including the capability to execute privileged commands. Full text analysis refers to analysis that considers the full text of privileged commands (i.e., commands and parameters) as opposed to analysis that considers only the name of the command. Full text analysis includes the use of pattern matching and heuristics.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li><MadCap:xref href="au-3-content-of-audit-records.htm">AU-3 Content of Audit Records</MadCap:xref></li>
+            <li><MadCap:xref href="au-9-protection-of-audit-information.htm">AU-9 Protection of Audit Information</MadCap:xref></li>
+            <li><MadCap:xref href="../retention/au-11-audit-record-retention.htm">AU-11 Audit Record Retention</MadCap:xref></li>
+            <li><MadCap:xref href="au-12-audit-record-generation.htm">AU-12 Audit Record Generation</MadCap:xref></li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(08)</dt>
+            <dd><p>a full text analysis of logged privileged commands in a physically distinct component or subsystem of the system or other system i.e. dedicated to that analysis is performed.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>text analysis tools and techniques</li>
+            <li>text analysis documentation of audited privileged commands</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing the capability to perform a full text analysis of audited privilege commands</li>
+        </ul>
+        <h3>AU-6(9) Correlation with Information from Nontechnical Sources</h3>
+        <h4>Control text</h4>
+        <blockquote><p>Correlate information from nontechnical sources with audit record information to enhance organization-wide situational awareness.</p></blockquote>
+        <h4>Discussion</h4>
+        <p class="note">Nontechnical sources include records that document organizational policy violations related to harassment incidents and the improper use of information assets. Such information can lead to a directed analytical effort to detect potential malicious insider activity. Organizations limit access to information that is available from nontechnical sources due to its sensitive nature. Limited access minimizes the potential for inadvertent release of privacy-related information to individuals who do not have a need to know. The correlation of information from nontechnical sources with audit record information generally occurs only when individuals are suspected of being involved in an incident. Organizations obtain legal advice prior to initiating such actions.</p>
+        <h4>Related controls</h4>
+        <ul>
+            <li>PM-12 Insider Threat Program</li>
+        </ul>
+        <h4>Assessment objectives</h4>
+        <dl>
+            <dt>AU-06(09)</dt>
+            <dd><p>information from non-technical sources is correlated with audit record information to enhance organization-wide situational awareness.</p></dd>
+        </dl>
+        <h4>Assessment methods</h4>
+        <h5>Examine</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Audit and accountability policy</li>
+            <li>system security plan</li>
+            <li>privacy plan</li>
+            <li>procedures addressing audit review, analysis, and reporting</li>
+            <li>system design documentation</li>
+            <li>system configuration settings and associated documentation</li>
+            <li>documentation providing evidence of correlated information obtained from audit records and organization-defined non-technical sources</li>
+            <li>list of information types from non-technical sources for correlation with audit information</li>
+            <li>other relevant documents or records</li>
+        </ul>
+        <h5>Interview</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Organizational personnel with audit review, analysis, and reporting responsibilities</li>
+            <li>organizational personnel with information security and privacy responsibilities</li>
+        </ul>
+        <h5>Test</h5>
+        <h6>Assessment objects</h6>
+        <ul>
+            <li>Mechanisms implementing capability to correlate information from non-technical sources</li>
+        </ul>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../catalogue/audit-and-accountability-controls-index.htm">Audit and accountability controls: index</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

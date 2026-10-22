@@ -1,0 +1,36 @@
+{
+ "name": "policy",
+ "title": "Policy and compliance set",
+ "domain": "Privacy, security, acceptable use, retention and audit requirements in a formal register: regulation text and a control catalogue with its assessment procedures.",
+ "targets": [
+  {"file": "Project/Targets/PDF.fltar", "type": "PDF", "toc": "Project/TOCs/Print.fltoc", "excludes": "Default.ScreenOnly"},
+  {"file": "Project/Targets/HTML5.fltar", "type": "WebHelp2", "toc": "Project/TOCs/Main.fltoc", "excludes": "Default.Print"}
+ ],
+ "seed": 20261022,
+ "seedNotes": "corpuskit import --seed 20261022; inject passes in this order: heading_skip only (seed 20261024, density 0.03), utilize only (seed 20261025, density 0.01), every other kind except exclaim (seed 20261022, density 0.10), exclaim only (seed 20261023, density 0.01). One kind per pass keeps a kind that matches almost every sentence from crowding out the rest. The same seeds on the same sources give the same project.",
+ "licence": {"spdx": "CC0-1.0 / US federal public domain", "file": null, "shareAlike": false, "note": "All source text is a work of the United States government (17 U.S.C. 105) or dedicated to the public domain; no share-alike LICENSE file is needed. The synthetic framing text and snippets added by the corpus build are released under CC0-1.0."},
+ "sources": [
+  {"name": "Electronic Code of Federal Regulations, Title 45, Parts 160 and 164", "url": "https://www.ecfr.gov/", "api": "https://www.ecfr.gov/api/versioner/v1/full/2026-10-06/title-45.xml?part=164 (and part=160)", "version": "in force on 2026-10-06 (issue date), up to date as of 2026-10-20", "retrieved": "2026-10-21", "licence": "US federal government work, public domain", "sourcePrefix": "45 CFR"},
+  {"name": "NIST SP 800-53 Rev. 5.2.0 controls and SP 800-53A Rev. 5.2.0 assessment procedures (OSCAL catalog)", "url": "https://github.com/usnistgov/oscal-content", "commit": "78650f02ad9321bb7b817846f8fbd4f2bcd620de", "commitDate": "2026-05-13T05:13:20Z", "path": "nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json", "retrieved": "2026-10-21", "licence": "Public domain in the United States, waived worldwide under CC0 1.0 (LICENSE.md at that commit)", "sourcePrefix": "NIST"}
+ ],
+ "authors": ["Source text: US Office of the Federal Register; National Institute of Standards and Technology (see NOTICE.md)", "Adaptation: FlareAI corpus build, CorpusKit"],
+ "topicsTsv": "C:/Users/arthu/AppData/Local/Temp/corpus-src/pol-md/topics.tsv",
+ "blocks": 12959,
+ "howMade": [
+  "**Seeded violations (origin `seeded`, status `proposed`, by `generator`).** `corpuskit inject` inserted each defect and wrote an exact span label from the final DOM. The catalog is the CorpusKit default with the appended sentences rewritten for a policy set and a `date_format` kind added (`_prep/pol-defects.yaml`); the shared `corpus/schema/defects.yaml` has no operations, so it cannot be passed to `inject --defects`. Rule hints were mapped to the rule ids the engine and `corpus/DigitalBanking` use, and `heading_skip` labels cover the whole heading with no quote (see the hardware-install project for the reason). They stay `proposed` until the two-labeller pass runs.",
+  "**Natural exempt labels (verified, by `dom-check`).** Every block inside a `blockquote` (the NIST control text, quoted verbatim) is `exempt` for `lint`: the standard's own wording, including `[Assignment: organization-defined ...]` placeholders, must not be rewritten.",
+  "**Natural clean and exempt labels (status `proposed`, by `generator`).** Periods and dates in the time-limits table (`6 years`, `60 calendar days`, `April 20, 2005`) are `clean` for the number, unit and date rules; the `Related topic:` label and the print-notice sentence, repeated in many topics, are `exempt` for `lint`.",
+  "**Structure that makes the project realistic and is not a label:** a document-control snippet at the top of 76 topics that reads the `Policy.*` variables and `General.CompanyName`, a Print-only notice snippet, ScreenOnly `Related topic` paragraphs, a glossary, and `p.note` paragraphs for the NIST discussion text."
+ ],
+ "density": [
+  "Seeded violations are well under 2% of the 12,959 blocks that carry text, because the design sets a low density for the formal policy register and most of the text is long regulation and control wording.",
+  "The text is a regulation and a standard, so replace-type defects only land where the wording they replace occurs (for example `use`, `for example`, `before`, month names); the appended-sentence kinds (claims, wordy, vague and so on) land in any paragraph. The kind counts above show the resulting mix."
+ ],
+ "pending": [
+  "The blind two-labeller pass over every block (design 1.4 steps 2-3) has not run: `tools/FlareAI.Labeler` does not exist yet (work package 12). Natural violations in the prose are not labelled, no block is marked `block-complete`, and none of the 70% `block-complete` target is met. Do not read a missing label as proof that the text is clean.",
+  "Seeded labels are `proposed`, not `verified`, for the same reason.",
+  "The project has not been opened in Flare 22 or built to HTML5 and PDF by hand; `corpuskit check` passes.",
+  "The project has no images (the sources have none) and no UI labels. Source names such as the Department of Health and Human Services and NIST are public bodies named in the regulation itself and were kept; the fictional organization is `General.CompanyName`."
+ ],
+ "rebuild": "```powershell\n# sources: eCFR API (URLs in project.json) and git clone --depth 1 https://github.com/usnistgov/oscal-content (commit in project.json)\n# _prep holds the converter and the steps; paths inside are the ones used on the build machine\npython -I _prep/policy_build.py <out>   # eCFR XML and OSCAL JSON to HTML topics\n# then: corpuskit import, scaffold, _prep/enrich_pol.py, inject x2, contexts, _prep/natural_labels.py, contexts --update, check\n.\\tools\\FlareAI.Scoring\\bin\\Release\\net48\\FlareAI.Scoring.exe validate --labels corpus\\v2\\policy\\labels.jsonl --kinds corpus\\schema\\defects.yaml --root corpus\\v2\\policy\n```\n`_prep/build-pol.ps1` runs the whole chain in order."
+}

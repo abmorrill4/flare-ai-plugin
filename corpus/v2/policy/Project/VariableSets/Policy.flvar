@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultVariableSet>
+  <Variable Name="Owner" EvaluatedDefinition="Office of Compliance and Privacy">Office of Compliance and Privacy</Variable>
+  <Variable Name="ApprovedBy" EvaluatedDefinition="Governance Board">Governance Board</Variable>
+  <Variable Name="EffectiveDate" EvaluatedDefinition="1 July 2026">1 July 2026</Variable>
+  <Variable Name="NextReview" EvaluatedDefinition="1 July 2027">1 July 2027</Variable>
+  <Variable Name="RetentionYears" EvaluatedDefinition="6">6</Variable>
+</CatapultVariableSet>

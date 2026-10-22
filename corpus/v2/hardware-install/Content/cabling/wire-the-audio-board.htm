@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Wire the audio board</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Wire the audio board</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>For this project, any small passive speaker is probably sufficient. We're using one available <a href="https://www.example.com/here">here</a>, which handles 5 W of power at 4 Ω. We have also used an illuminated momentary push button, and a laser-cut box to house all the components; but both are entirely optional. This example will work just using the Codec Zero's on-board button, which is pre-wired to GPIO 27. (Alternatively, you can use any momentary push button, such as those available <a href="https://www.example.com/here">here</a>.)</p>
+        <p><img src="../Resources/Images/chatterbox-labels.png" /></p>
+        <p>Use a small flat-head screwdriver to attach your speaker to the screw terminals. For the additional push button, solder the button wires directly to the Codec Zero pads as indicated, using GPIO pin 27 and Ground for the switch, and +3.3V and Ground for the LED, if necessary.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

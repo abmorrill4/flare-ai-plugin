@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Seat a Compute Module 5 in the jig</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Seat a Compute Module 5 in the jig</h1>
+        <MadCap:snippetBlock src="../Resources/Snippets/disconnect-power.flsnp" />
+        <MadCap:snippetBlock src="../Resources/Snippets/static-discharge.flsnp" />
+        <p>Use the Compute Module 5 Programming Jig to provision a Compute Module 5 (CM5) with an operating system image.</p>
+        <p>Before you begin, ensure that the jig is:</p>
+        <ul>
+            <li>Powered on, with the <b>JIG</b> and <b>STATUS</b> LEDs showing green.</li>
+            <li>Connected to the provisioning network. For more information, see <MadCap:xref href="../cabling/connect-the-jig-to-the-provisioning-network.htm">Connect the jig to the provisioning network</MadCap:xref> in the <b>Set up the jig</b> instructions.</li>
+            <li>Configured with an operating system image and provisioning options. For more information, see <MadCap:xref href="set-up-the-jig.htm">Set up the jig</MadCap:xref> in the <b>Set up the jig</b> instructions.</li>
+        </ul>
+        <h4>Step 1: Insert the CM5 into the jig</h4>
+        <ol>
+            <li><p>Press the top of the latch backwards to release the clamping mechanism, allow the lid to slide up, and then pivot the lid back until it stops.</p><p><img src="../Resources/Images/latch-open.jpg" /></p></li>
+            <li><p>Place the Compute Module 5 into the module bay with the <MadCap:variable name="General.ProductName" /> logo on the CM5 facing up and in the same orientation as the <MadCap:variable name="General.ProductName" /> logo on the jig. Align the holes on the corners of the Compute Module 5 with the through-hole studs on the corners of the module recess. The studs thread through the holes on the CM5.</p><p><img src="../Resources/Images/open-tray-cm.jpg" /></p></li>
+            <li>Close the clamping mechanism by pivoting the lid forwards until it is parallel with the CM5 and pressing the lid so it slides down. When it reaches the bottom, the latch engages and secures the CM5 in place.</li>
+        </ol>
+        <p class="warning">Ensure that the through-hole studs pass through all four corner holes on the CM5 before closing the lid. Incorrect alignment can result in a failed provisioning attempt or damage to the pogo pins.</p>
+        <h2>Step 2: Monitor provisioning progress</h2>
+        <p>After the CM5 is clamped in place, the jig begins provisioning automatically. If provisioning doesn't start automatically, see <MadCap:xref href="../maintenance/programming-jig-troubleshooting.htm">Programming jig troubleshooting</MadCap:xref>.</p>
+        <p>Typical provisioning time is approximately 1.5 minutes for each CM5 with a 2.6GB OS image installed using the <code>naked</code> provisioning style. Actual time varies depending on OS image size, storage type, level of security, and network speed.</p>
+        <p class="warning">Don't remove the CM5 from the jig while provisioning is in progress. Don't press the unmarked button on the jig. Either of these actions can render the CM5 unusable.</p>
+        <p>Monitor the <b>STATUS</b> LED on the jig to track progress through the provisioning phases:</p>
+        <table>
+            <caption>Status indications during provisioning</caption>
+            <thead>
+                <tr>
+                    <th>Status LED</th>
+                    <th>Phase</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Flashing blue</td>
+                    <td>Provisioning</td>
+                    <td>The jig detects the CM5 and loads a temporary Linux environment. In <code>secure-boot</code> mode, the signing key hash is programmed into the device OTP memory (this is a permanent operation). The jig selects the appropriate provisioning service based on the level of security you chose in <MadCap:xref href="set-up-the-jig.htm">Set up the jig</MadCap:xref>. The jig creates encryption keys (if applicable), formats storage, and installs the operating system.</td>
+                </tr>
+                <tr>
+                    <td>Green</td>
+                    <td>Success</td>
+                    <td>Provisioning is complete. The CM5 can be removed.</td>
+                </tr>
+                <tr>
+                    <td>Flashing red</td>
+                    <td>Provisioning failed</td>
+                    <td>The provisioning process failed. For more information, see troubleshooting.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>For more detailed progress information, you can also use the Secure Boot Provisioner web interface. Access <a href="https://www.example.com/related-information">Related information</a> as described in <MadCap:xref href="set-up-the-jig.htm">Set up the jig</MadCap:xref>, then:</p>
+        <ol>
+            <li>Select the <b>Devices</b> tab to see provisioning progress!</li>
+            <li>Select a device to view detailed logs about it.</li>
+        </ol>
+        <h2>Step 3: Remove the CM5</h2>
+        <p>When the <b>STATUS</b> LED turns green, provisioning is complete. You can remove the CM5.</p>
+        <ol>
+            <li>Open the clamping mechanism. Press the top of the latch backwards to release it, allow the lid to slide up, and then pivot the lid back until it stops.</li>
+            <li>Simply remove the CM5 from the module bay.</li>
+        </ol>
+        <p>The CM5 is now ready for deployment.</p>
+        <p MadCap:conditions="Default.ScreenOnly">Related topic: <MadCap:xref href="../specifications/programming-jig-specifications.htm">Programming jig specifications</MadCap:xref></p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>

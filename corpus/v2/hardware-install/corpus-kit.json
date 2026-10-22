@@ -1,0 +1,519 @@
+{
+  "name": "hardware-install",
+  "topics": [
+    {
+      "path": "Content/cabling/connect-one-camera-to-the-io-board.htm",
+      "title": "Connect one camera to the IO board",
+      "source": "cabling/connect-one-camera-to-the-io-board.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-camera-cable-to-the-board.htm",
+      "title": "Connect the camera cable to the board",
+      "source": "cabling/connect-the-camera-cable-to-the-board.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-camera-cable-to-the-camera.htm",
+      "title": "Connect the camera cable to the camera",
+      "source": "cabling/connect-the-camera-cable-to-the-camera.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-dut-eth-port.htm",
+      "title": "Connect the DUT ETH port",
+      "source": "cabling/connect-the-dut-eth-port.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-jig-to-the-provisioning-network.htm",
+      "title": "Connect the jig to the provisioning network",
+      "source": "cabling/connect-the-jig-to-the-provisioning-network.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-touch-display-2-10-inch-to-a-compute-module.htm",
+      "title": "Connect the Touch Display 2 (10-inch) to a Compute Module",
+      "source": "cabling/connect-the-touch-display-2-10-inch-to-a-compute-module.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-touch-display-2-5-inch-or-7-inch-to-a-compute-mo.htm",
+      "title": "Connect the Touch Display 2 (5-inch or 7-inch) to a Compute Module",
+      "source": "cabling/connect-the-touch-display-2-5-inch-or-7-inch-to-a-compute-mo.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-touch-display-2-to-a-lumora-5-board.htm",
+      "title": "Connect the Touch Display 2 to a Lumora 5 board",
+      "source": "cabling/connect-the-touch-display-2-to-a-lumora-5-board.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-touch-display-2-to-an-earlier-board.htm",
+      "title": "Connect the Touch Display 2 to an earlier board",
+      "source": "cabling/connect-the-touch-display-2-to-an-earlier-board.html"
+    },
+    {
+      "path": "Content/cabling/connect-the-touch-display-to-a-board.htm",
+      "title": "Connect the Touch Display to a board",
+      "source": "cabling/connect-the-touch-display-to-a-board.html"
+    },
+    {
+      "path": "Content/cabling/connect-two-cameras-to-the-io-board.htm",
+      "title": "Connect two cameras to the IO board",
+      "source": "cabling/connect-two-cameras-to-the-io-board.html"
+    },
+    {
+      "path": "Content/cabling/pcie-connector.htm",
+      "title": "PCIe connector",
+      "source": "cabling/pcie-connector.html"
+    },
+    {
+      "path": "Content/cabling/power-over-ethernet-connector.htm",
+      "title": "Power over Ethernet connector",
+      "source": "cabling/power-over-ethernet-connector.html"
+    },
+    {
+      "path": "Content/cabling/wire-an-external-trigger.htm",
+      "title": "Wire an external trigger",
+      "source": "cabling/wire-an-external-trigger.html"
+    },
+    {
+      "path": "Content/cabling/wire-the-audio-board.htm",
+      "title": "Wire the audio board",
+      "source": "cabling/wire-the-audio-board.html"
+    },
+    {
+      "path": "Content/indicators/monitor-controls.htm",
+      "title": "Monitor controls",
+      "source": "indicators/monitor-controls.html"
+    },
+    {
+      "path": "Content/indicators/monitor-on-screen-messages.htm",
+      "title": "Monitor on-screen messages",
+      "source": "indicators/monitor-on-screen-messages.html"
+    },
+    {
+      "path": "Content/indicators/programming-jig-led-behaviour.htm",
+      "title": "Programming jig LED behaviour",
+      "source": "indicators/programming-jig-led-behaviour.html"
+    },
+    {
+      "path": "Content/maintenance/programming-jig-troubleshooting.htm",
+      "title": "Programming jig troubleshooting",
+      "source": "maintenance/programming-jig-troubleshooting.html"
+    },
+    {
+      "path": "Content/maintenance/remove-the-ir-filter.htm",
+      "title": "Remove the IR filter",
+      "source": "maintenance/remove-the-ir-filter.html"
+    },
+    {
+      "path": "Content/maintenance/remove-the-smart-display-module.htm",
+      "title": "Remove the Smart Display Module",
+      "source": "maintenance/remove-the-smart-display-module.html"
+    },
+    {
+      "path": "Content/maintenance/replace-the-pogo-pins.htm",
+      "title": "Replace the pogo pins",
+      "source": "maintenance/replace-the-pogo-pins.html"
+    },
+    {
+      "path": "Content/maintenance/touch-display-2-troubleshooting.htm",
+      "title": "Touch Display 2 troubleshooting",
+      "source": "maintenance/touch-display-2-troubleshooting.html"
+    },
+    {
+      "path": "Content/mounting/assemble-the-ai-hat.htm",
+      "title": "Assemble the AI HAT",
+      "source": "mounting/assemble-the-ai-hat.html"
+    },
+    {
+      "path": "Content/mounting/assemble-the-bumper.htm",
+      "title": "Assemble the bumper",
+      "source": "mounting/assemble-the-bumper.html"
+    },
+    {
+      "path": "Content/mounting/assemble-the-cm5io-case.htm",
+      "title": "Assemble the CM5IO case",
+      "source": "mounting/assemble-the-cm5io-case.html"
+    },
+    {
+      "path": "Content/mounting/install-a-camera.htm",
+      "title": "Install a camera",
+      "source": "mounting/install-a-camera.html"
+    },
+    {
+      "path": "Content/mounting/install-an-m-2-drive.htm",
+      "title": "Install an M.2 drive",
+      "source": "mounting/install-an-m-2-drive.html"
+    },
+    {
+      "path": "Content/mounting/install-the-antenna.htm",
+      "title": "Install the antenna",
+      "source": "mounting/install-the-antenna.html"
+    },
+    {
+      "path": "Content/mounting/install-the-cm5-cooler.htm",
+      "title": "Install the CM5 cooler",
+      "source": "mounting/install-the-cm5-cooler.html"
+    },
+    {
+      "path": "Content/mounting/install-the-m-2-hat-board.htm",
+      "title": "Install the M.2 HAT board",
+      "source": "mounting/install-the-m-2-hat-board.html"
+    },
+    {
+      "path": "Content/mounting/install-the-m-2-hat-compact.htm",
+      "title": "Install the M.2 HAT Compact",
+      "source": "mounting/install-the-m-2-hat-compact.html"
+    },
+    {
+      "path": "Content/mounting/install-the-m-2-hat-mounting-hardware.htm",
+      "title": "Install the M.2 HAT mounting hardware",
+      "source": "mounting/install-the-m-2-hat-mounting-hardware.html"
+    },
+    {
+      "path": "Content/mounting/install-the-ssd-kit.htm",
+      "title": "Install the SSD Kit",
+      "source": "mounting/install-the-ssd-kit.html"
+    },
+    {
+      "path": "Content/mounting/install-the-tv-hat.htm",
+      "title": "Install the TV HAT",
+      "source": "mounting/install-the-tv-hat.html"
+    },
+    {
+      "path": "Content/mounting/mount-the-active-cooler-for-the-ai-kit.htm",
+      "title": "Mount the Active Cooler for the AI Kit",
+      "source": "mounting/mount-the-active-cooler-for-the-ai-kit.html"
+    },
+    {
+      "path": "Content/mounting/mount-the-active-cooler.htm",
+      "title": "Mount the Active Cooler",
+      "source": "mounting/mount-the-active-cooler.html"
+    },
+    {
+      "path": "Content/mounting/mount-the-ai-hat-heatsink.htm",
+      "title": "Mount the AI HAT heatsink",
+      "source": "mounting/mount-the-ai-hat-heatsink.html"
+    },
+    {
+      "path": "Content/mounting/mount-the-ai-hat-on-the-board.htm",
+      "title": "Mount the AI HAT on the board",
+      "source": "mounting/mount-the-ai-hat-on-the-board.html"
+    },
+    {
+      "path": "Content/mounting/mount-the-ai-kit-m-2-hat.htm",
+      "title": "Mount the AI Kit M.2 HAT",
+      "source": "mounting/mount-the-ai-kit-m-2-hat.html"
+    },
+    {
+      "path": "Content/mounting/position-the-monitor.htm",
+      "title": "Position the monitor",
+      "source": "mounting/position-the-monitor.html"
+    },
+    {
+      "path": "Content/mounting/seat-a-compute-module-5-in-the-jig.htm",
+      "title": "Seat a Compute Module 5 in the jig",
+      "source": "mounting/seat-a-compute-module-5-in-the-jig.html"
+    },
+    {
+      "path": "Content/mounting/set-up-the-jig.htm",
+      "title": "Set up the jig",
+      "source": "mounting/set-up-the-jig.html"
+    },
+    {
+      "path": "Content/mounting/set-up-the-smart-display-module.htm",
+      "title": "Set up the Smart Display Module",
+      "source": "mounting/set-up-the-smart-display-module.html"
+    },
+    {
+      "path": "Content/overview/ai-hat-overview.htm",
+      "title": "AI HAT overview",
+      "source": "overview/ai-hat-overview.html"
+    },
+    {
+      "path": "Content/overview/compute-module-4-io-board.htm",
+      "title": "Compute Module 4 IO board",
+      "source": "overview/compute-module-4-io-board.html"
+    },
+    {
+      "path": "Content/overview/compute-module-introduction.htm",
+      "title": "Compute Module introduction",
+      "source": "overview/compute-module-introduction.html"
+    },
+    {
+      "path": "Content/overview/global-shutter-camera-overview.htm",
+      "title": "Global shutter camera overview",
+      "source": "overview/global-shutter-camera-overview.html"
+    },
+    {
+      "path": "Content/overview/how-the-ai-hat-works.htm",
+      "title": "How the AI HAT works",
+      "source": "overview/how-the-ai-hat-works.html"
+    },
+    {
+      "path": "Content/overview/m-2-hat-overview.htm",
+      "title": "M.2 HAT overview",
+      "source": "overview/m-2-hat-overview.html"
+    },
+    {
+      "path": "Content/overview/monitor-overview.htm",
+      "title": "Monitor overview",
+      "source": "overview/monitor-overview.html"
+    },
+    {
+      "path": "Content/overview/programming-jig-overview.htm",
+      "title": "Programming jig overview",
+      "source": "overview/programming-jig-overview.html"
+    },
+    {
+      "path": "Content/overview/smart-display-module-overview.htm",
+      "title": "Smart Display Module overview",
+      "source": "overview/smart-display-module-overview.html"
+    },
+    {
+      "path": "Content/overview/touch-display-2-overview.htm",
+      "title": "Touch Display 2 overview",
+      "source": "overview/touch-display-2-overview.html"
+    },
+    {
+      "path": "Content/overview/touch-display-overview.htm",
+      "title": "Touch Display overview",
+      "source": "overview/touch-display-overview.html"
+    },
+    {
+      "path": "Content/overview/tv-hat-overview.htm",
+      "title": "TV HAT overview",
+      "source": "overview/tv-hat-overview.html"
+    },
+    {
+      "path": "Content/power-on/back-powering.htm",
+      "title": "Back-powering",
+      "source": "power-on/back-powering.html"
+    },
+    {
+      "path": "Content/power-on/power-button.htm",
+      "title": "Power button",
+      "source": "power-on/power-button.html"
+    },
+    {
+      "path": "Content/power-on/power-supply-requirements.htm",
+      "title": "Power supply requirements",
+      "source": "power-on/power-supply-requirements.html"
+    },
+    {
+      "path": "Content/power-on/power-the-monitor.htm",
+      "title": "Power the monitor",
+      "source": "power-on/power-the-monitor.html"
+    },
+    {
+      "path": "Content/power-on/real-time-clock-and-backup-battery.htm",
+      "title": "Real-time clock and backup battery",
+      "source": "power-on/real-time-clock-and-backup-battery.html"
+    },
+    {
+      "path": "Content/power-on/recommended-power-supplies.htm",
+      "title": "Recommended power supplies",
+      "source": "power-on/recommended-power-supplies.html"
+    },
+    {
+      "path": "Content/power-on/start-the-board-with-the-m-2-hat.htm",
+      "title": "Start the board with the M.2 HAT",
+      "source": "power-on/start-the-board-with-the-m-2-hat.html"
+    },
+    {
+      "path": "Content/safety/power-supply-warnings.htm",
+      "title": "Power supply warnings",
+      "source": "safety/power-supply-warnings.html"
+    },
+    {
+      "path": "Content/safety/product-compliance-and-safety.htm",
+      "title": "Product compliance and safety",
+      "source": "safety/product-compliance-and-safety.html"
+    },
+    {
+      "path": "Content/safety/programming-jig-safety-warnings.htm",
+      "title": "Programming jig safety warnings",
+      "source": "safety/programming-jig-safety-warnings.html"
+    },
+    {
+      "path": "Content/specifications/ai-hat-models-compared.htm",
+      "title": "AI HAT models compared",
+      "source": "specifications/ai-hat-models-compared.html"
+    },
+    {
+      "path": "Content/specifications/ai-hat-performance-variants.htm",
+      "title": "AI HAT performance variants",
+      "source": "specifications/ai-hat-performance-variants.html"
+    },
+    {
+      "path": "Content/specifications/ai-hat-physical-dimensions.htm",
+      "title": "AI HAT physical dimensions",
+      "source": "specifications/ai-hat-physical-dimensions.html"
+    },
+    {
+      "path": "Content/specifications/build-hat-device-compatibility.htm",
+      "title": "Build HAT device compatibility",
+      "source": "specifications/build-hat-device-compatibility.html"
+    },
+    {
+      "path": "Content/specifications/camera-hardware-specifications.htm",
+      "title": "Camera hardware specifications",
+      "source": "specifications/camera-hardware-specifications.html"
+    },
+    {
+      "path": "Content/specifications/camera-i2c-and-gpio-pin-mapping.htm",
+      "title": "Camera I2C and GPIO pin mapping",
+      "source": "specifications/camera-i2c-and-gpio-pin-mapping.html"
+    },
+    {
+      "path": "Content/specifications/compute-module-4-datasheet.htm",
+      "title": "Compute Module 4 datasheet",
+      "source": "specifications/compute-module-4-datasheet.html"
+    },
+    {
+      "path": "Content/specifications/compute-module-memory-storage-and-wireless-variants.htm",
+      "title": "Compute Module memory, storage and wireless variants",
+      "source": "specifications/compute-module-memory-storage-and-wireless-variants.html"
+    },
+    {
+      "path": "Content/specifications/compute-module-models.htm",
+      "title": "Compute Module models",
+      "source": "specifications/compute-module-models.html"
+    },
+    {
+      "path": "Content/specifications/flash-drive-dimensions.htm",
+      "title": "Flash drive dimensions",
+      "source": "specifications/flash-drive-dimensions.html"
+    },
+    {
+      "path": "Content/specifications/io-board-compatibility.htm",
+      "title": "IO board compatibility",
+      "source": "specifications/io-board-compatibility.html"
+    },
+    {
+      "path": "Content/specifications/monitor-specifications.htm",
+      "title": "Monitor specifications",
+      "source": "specifications/monitor-specifications.html"
+    },
+    {
+      "path": "Content/specifications/programming-jig-specifications.htm",
+      "title": "Programming jig specifications",
+      "source": "specifications/programming-jig-specifications.html"
+    },
+    {
+      "path": "Content/specifications/recommended-camera-lenses.htm",
+      "title": "Recommended camera lenses",
+      "source": "specifications/recommended-camera-lenses.html"
+    },
+    {
+      "path": "Content/specifications/sd-card-specifications.htm",
+      "title": "SD card specifications",
+      "source": "specifications/sd-card-specifications.html"
+    },
+    {
+      "path": "Content/specifications/smart-display-module-specifications.htm",
+      "title": "Smart Display Module specifications",
+      "source": "specifications/smart-display-module-specifications.html"
+    },
+    {
+      "path": "Content/specifications/ssd-specifications.htm",
+      "title": "SSD specifications",
+      "source": "specifications/ssd-specifications.html"
+    },
+    {
+      "path": "Content/specifications/touch-display-2-specifications.htm",
+      "title": "Touch Display 2 specifications",
+      "source": "specifications/touch-display-2-specifications.html"
+    },
+    {
+      "path": "Content/specifications/touch-display-specifications.htm",
+      "title": "Touch Display specifications",
+      "source": "specifications/touch-display-specifications.html"
+    },
+    {
+      "path": "Content/specifications/typical-power-requirements.htm",
+      "title": "Typical power requirements",
+      "source": "specifications/typical-power-requirements.html"
+    },
+    {
+      "path": "Content/unpacking/ai-hat-hardware-checklist.htm",
+      "title": "AI HAT hardware checklist",
+      "source": "unpacking/ai-hat-hardware-checklist.html"
+    },
+    {
+      "path": "Content/unpacking/ai-kit-contents.htm",
+      "title": "AI Kit contents",
+      "source": "unpacking/ai-kit-contents.html"
+    },
+    {
+      "path": "Content/unpacking/prepare-the-board-for-the-m-2-hat.htm",
+      "title": "Prepare the board for the M.2 HAT",
+      "source": "unpacking/prepare-the-board-for-the-m-2-hat.html"
+    },
+    {
+      "path": "Content/unpacking/prepare-the-build-hat.htm",
+      "title": "Prepare the Build HAT",
+      "source": "unpacking/prepare-the-build-hat.html"
+    },
+    {
+      "path": "Content/unpacking/prepare-to-install-a-camera.htm",
+      "title": "Prepare to install a camera",
+      "source": "unpacking/prepare-to-install-a-camera.html"
+    }
+  ],
+  "variables": {
+    "General.CompanyName": "Lumora Devices",
+    "General.ProductName": "Lumora"
+  },
+  "snippets": [
+    "Content/Resources/Snippets/connecting-the-power-cable.flsnp"
+  ],
+  "altDropped": [
+    "Content/cabling/connect-one-camera-to-the-io-board.htm|Content/Resources/Images/cmio-cam-adapter.jpg",
+    "Content/cabling/connect-one-camera-to-the-io-board.htm|Content/Resources/Images/cm5io-j6-cam1.png",
+    "Content/cabling/connect-one-camera-to-the-io-board.htm|Content/Resources/Images/cmio-cam-gpio.jpg",
+    "Content/cabling/connect-two-cameras-to-the-io-board.htm|Content/Resources/Images/cmio-cam-adapter.jpg",
+    "Content/cabling/connect-two-cameras-to-the-io-board.htm|Content/Resources/Images/cmio-cam-gpio2.jpg",
+    "Content/cabling/connect-two-cameras-to-the-io-board.htm|Content/Resources/Images/j6-vertical.jpg",
+    "Content/cabling/wire-an-external-trigger.htm|Content/Resources/Images/external-trigger.jpg",
+    "Content/cabling/wire-an-external-trigger.htm|Content/Resources/Images/resistor.jpg",
+    "Content/cabling/wire-an-external-trigger.htm|Content/Resources/Images/pico-wiring.jpg",
+    "Content/cabling/wire-the-audio-board.htm|Content/Resources/Images/chatterbox-labels.png",
+    "Content/maintenance/remove-the-ir-filter.htm|Content/Resources/Images/filter-on-small.jpg",
+    "Content/maintenance/remove-the-ir-filter.htm|Content/Resources/Images/screw-removed-small.jpg",
+    "Content/maintenance/remove-the-ir-filter.htm|Content/Resources/Images/flatlay-small.jpg",
+    "Content/maintenance/remove-the-ir-filter.htm|Content/Resources/Images/solvent-small.jpg",
+    "Content/maintenance/remove-the-ir-filter.htm|Content/Resources/Images/remove-filter-small.jpg",
+    "Content/maintenance/remove-the-ir-filter.htm|Content/Resources/Images/filter-off-small.jpg",
+    "Content/mounting/install-an-m-2-drive.htm|Content/Resources/Images/m2-hat-plus-installation-05.png",
+    "Content/mounting/install-an-m-2-drive.htm|Content/Resources/Images/m2-hat-plus-installation-06.png",
+    "Content/mounting/install-the-m-2-hat-board.htm|Content/Resources/Images/m2-hat-plus-installation-03.png",
+    "Content/mounting/install-the-m-2-hat-board.htm|Content/Resources/Images/m2-hat-plus-installation-04.png",
+    "Content/mounting/install-the-m-2-hat-compact.htm|Content/Resources/Images/m2-hat-plus-compact-installation-02.png",
+    "Content/mounting/install-the-m-2-hat-compact.htm|Content/Resources/Images/m2-hat-plus-compact-installation-03.png",
+    "Content/mounting/install-the-m-2-hat-compact.htm|Content/Resources/Images/m2-hat-plus-compact-installation-04.png",
+    "Content/mounting/install-the-m-2-hat-compact.htm|Content/Resources/Images/m2-hat-plus-compact-installation-05.png",
+    "Content/mounting/install-the-m-2-hat-compact.htm|Content/Resources/Images/m2-hat-plus-compact-installation-06.png",
+    "Content/mounting/install-the-m-2-hat-mounting-hardware.htm|Content/Resources/Images/m2-hat-plus-installation-02.png",
+    "Content/mounting/mount-the-active-cooler-for-the-ai-kit.htm|Content/Resources/Images/ai-kit-installation-01.png",
+    "Content/mounting/mount-the-active-cooler.htm|Content/Resources/Images/ai-hat-plus-installation-01.png",
+    "Content/mounting/mount-the-ai-kit-m-2-hat.htm|Content/Resources/Images/ai-kit-installation-02.png",
+    "Content/mounting/mount-the-ai-kit-m-2-hat.htm|Content/Resources/Images/ai-kit-installation-03.png",
+    "Content/mounting/mount-the-ai-kit-m-2-hat.htm|Content/Resources/Images/ai-kit-installation-04.png",
+    "Content/mounting/seat-a-compute-module-5-in-the-jig.htm|Content/Resources/Images/latch-open.jpg",
+    "Content/mounting/seat-a-compute-module-5-in-the-jig.htm|Content/Resources/Images/open-tray-cm.jpg",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-2.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-3.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-5.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-7.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-11.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-13.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-15.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-16.png",
+    "Content/mounting/set-up-the-smart-display-module.htm|Content/Resources/Images/sdm-assembly-w-antenna-step-17.png",
+    "Content/specifications/recommended-camera-lenses.htm|Content/Resources/Images/m12-lens.jpg",
+    "Content/unpacking/prepare-the-build-hat.htm|Content/Resources/Images/tall-headers.jpg",
+    "Content/unpacking/prepare-the-build-hat.htm|Content/Resources/Images/lumora-config-1.png",
+    "Content/unpacking/prepare-the-build-hat.htm|Content/Resources/Images/lumora-config-2.png",
+    "Content/unpacking/prepare-the-build-hat.htm|Content/Resources/Images/lumora-config-3.png",
+    "Content/unpacking/prepare-the-build-hat.htm|Content/Resources/Images/lumora-config-4.png",
+    "Content/unpacking/prepare-the-build-hat.htm|Content/Resources/Images/lumora-config-5.png"
+  ],
+  "warnings": []
+}

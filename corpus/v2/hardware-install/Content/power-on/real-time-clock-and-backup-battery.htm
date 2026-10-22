@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Real-time clock and backup battery</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Real-time clock and backup battery</h1>
+        <p>The <MadCap:variable name="General.ProductName" /> 5 includes an RTC module. This can be battery powered through the J5 (BAT) connector on the board. When the components are facing up and the logo is in the correct orientation, the J5 connector is located towards the near left corner of the board and to the right of the USB-C power connector.</p>
+        <p><img src="../Resources/Images/j5.png" alt="The J5 battery connector" /></p>
+        <p class="caption">Figure 1. The J5 battery connector</p>
+        <p>You can set a wake alarm, which switches the board to a very low-power state (approximately 3 mA). When the alarm time is reached, the board powers back on. This can be useful for periodic jobs like time-lapse imagery.</p>
+        <p>To support the low-power mode for wake alarms:</p>
+        <ol>
+            <li><p>Edit the bootloader configuration.</p><pre>$ sudo lum-eeprom-config --edit</pre></li>
+            <li><p>Add the following two lines. Press the reset button to restart the board.</p><pre>POWER_OFF_ON_HALT=1
+WAKE_ON_GPIO=0</pre></li>
+        </ol>
+        <p>You can test the functionality with:</p>
+        <pre>$ echo +600 | sudo tee /sys/class/rtc/rtc0/wakealarm
+$ sudo halt</pre>
+        <p>This command halts the board into a very low-power state, then wakes and restarts after 10 minutes.</p>
+        <p>The RTC also provides the time on boot, for example, in <code>dmesg</code>, for use cases that lack access to NTP:</p>
+        <pre>[    1.295799] lum-rtc soc:lum_rtc: setting system clock to 2023-08-16T15:58:50 UTC (1692201530)</pre>
+        <p class="note">The RTC is still usable even when there's no backup battery attached to the J5 connector.</p>
+        <h2>Add a backup battery</h2>
+        <p><img src="../Resources/Images/rtc-battery.jpg" /></p>
+        <p class="caption">Figure 2. Lithium-manganese rechargeable RTC battery</p>
+        <p>The official battery part is a rechargeable lithium manganese coin cell, with a pre-fitted two-pin JST-SH plug and an adhesive mounting pad. This is suitable for powering the RTC when the main power supply for the board is disconnected. Since the current draw when powered down measures in single-digit µA, the retention time measures in months.</p>
+        <p class="note">We don't recommend using a primary (non-rechargeable) lithium cell for the RTC. The RTC backup current consumption is higher than most dedicated RTC modules and results in a short service life.</p>
+        <p class="warning">Don't use a Lithium Ion cell for the RTC.</p>
+        <h2>Enable battery charging</h2>
+        <p>The RTC is equipped with a constant-current (3 mA) constant-voltage charger.</p>
+        <p>Charging of the battery is disabled by default. There are <code>sysfs</code> files that show the charging voltage and limits:</p>
+        <pre>$ grep . /sys/class/rtc/rtc0/charging_voltage*
+
+/sys/class/rtc/rtc0/charging_voltage:0
+/sys/class/rtc/rtc0/charging_voltage_max:4400000
+/sys/class/rtc/rtc0/charging_voltage_min:1300000</pre>
+        <p>To charge the battery at a set voltage, add <a href="https://www.example.com/21"><code>rtc_bbat_vchg</code></a> to <code>/boot/firmware/config.txt</code>:</p>
+        <pre>dtparam=rtc_bbat_vchg=3000000</pre>
+        <p>Reboot with <code>sudo reboot</code> to use the new voltage setting. Check the <code>sysfs</code> files to ensure that the charging voltage was correctly set.</p>
+        <h2>Disable battery charging</h2>
+        <p>To stop charging, remove any lines that contain <a href="https://www.example.com/29"><code>rtc_bbat_vchg</code></a> from <code>config.txt</code>.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/print-notice.flsnp" MadCap:conditions="Default.Print" />
+    </body>
+</html>
