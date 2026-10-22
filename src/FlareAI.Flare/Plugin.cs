@@ -226,7 +226,7 @@ namespace FlareAI.Flare
         private void OnSettings()
         {
             bool runSetup;
-            using (var f = new SettingsForm())
+            using (var f = new SettingsForm(PluginDirectory, _updates == null ? null : (Func<string>)_updates.WhyOff))
             {
                 if (f.ShowDialog(Owner) == DialogResult.OK) RefreshTeam();
                 runSetup = f.RunSetupRequested;

@@ -179,9 +179,13 @@
         release. Before installing it, House Style checks it against the release's published SHA-256 checksum and,
         for signed releases, its digital signature.</li>
       <li>Offline or behind a firewall, the check fails silently and House Style works as before.</li>
+      <li>You can turn the check off yourself: in <b>Settings</b>, on the <b>Advanced</b> tab, clear
+        <b>Keep House Style up to date (checks GitHub once a day)</b>. With the box cleared, House Style makes no
+        request to GitHub.</li>
       <li>IT departments can turn the check off for everyone with an <code>update-policy.json</code> file containing
         <code>{"autoUpdate": false}</code> in the plugin folder, or by installing with
-        <code>Install.ps1 -NoAutoUpdate</code> or <code>-NoJunction</code>.</li>
+        <code>Install.ps1 -NoAutoUpdate</code> or <code>-NoJunction</code>. The file wins over the Settings box, which
+        then shows "Set by your IT department" and can't be changed.</li>
     </ul>
 
     <h2 id="telemetry">No telemetry</h2>
