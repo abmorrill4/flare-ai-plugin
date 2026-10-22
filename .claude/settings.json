@@ -1,0 +1,46 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/session-start.ps1",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet list:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git fetch:*)",
+      "Bash(git branch:*)",
+      "Bash(git worktree list:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh release view:*)",
+      "Bash(gh release list:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm test:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./tools/feedback-worker/.dev.vars*)"
+    ]
+  }
+}
