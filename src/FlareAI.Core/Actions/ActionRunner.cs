@@ -416,6 +416,19 @@ namespace FlareAI.Core.Actions
             return kept;
         }
 
+        /// <summary>
+        /// The rules a run-level (wording-only) edit can act on. Word rules come only for words the text uses, as for review;
+        /// content packs about formatting (code font, command syntax, placeholders, images, tables, footnotes, emphasis) are
+        /// left out, because a run-level edit changes text, never markup. Measured: a one-paragraph rewrite in API docs
+        /// carried ~25k characters of rules, 23k of them the Code pack; review and restructure still get every pack.
+        /// </summary>
+        internal static GuideScope WordingScope(IList<XmlNode> blocks)
+        {
+            var scope = ScopeOf(blocks);
+            scope.Content.ExceptWith(ContentTags.Formatting);
+            return scope;
+        }
+
         /// <summary>The unit's content tags and its visible text (reads the DOM: call on the thread that owns it).</summary>
         private static GuideScope ScopeOf(IList<XmlNode> blocks)
         {
@@ -785,7 +798,7 @@ namespace FlareAI.Core.Actions
                 OriginalBlocks = blocks, View = AcceptedView.Of(blocks), Validation = new ValidationResult(), Notes = new List<string>(),
                 RemainingLint = new List<StyleFinding>(), WordPlan = new List<StyleFinding>()
             };
-            var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }), Scope = ScopeOf(new List<XmlNode> { b }) }).ToList();
+            var units = blocks.Select(b => new { Block = b, Map = RunMap.Of(new List<XmlNode> { b }), Scope = WordingScope(new List<XmlNode> { b }) }).ToList();
             ShareScope(units.Select(u => u.Scope).ToList());
             var prompts = units.Select(u => _prompts.BuildRunRewrite(instruction, u.Map.Marked, Summarize(lint.Where(f => f.DocumentPath == null && Contains(u.Block, f)).ToList()))).ToList();
             var changes = new Dictionary<string, string>[units.Count];

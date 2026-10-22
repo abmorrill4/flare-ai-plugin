@@ -21,6 +21,12 @@ namespace FlareAI.Core.Style
         /// </summary>
         public const string WebMarkup = "WebMarkup";
 
+        /// <summary>
+        /// Tags whose packs are about how text is formatted (code font, command syntax, placeholders, image and table markup,
+        /// footnote marks, emphasis), not what it says: left out of wording-only edits, which can't change markup.
+        /// </summary>
+        public static readonly string[] Formatting = { "Code", "Images", "Tables", "Math", "Footnotes", "Emphasis", WebMarkup };
+
         // What the text itself shows: punctuation rules matter only where the punctuation is.
         private static readonly KeyValuePair<string, Regex>[] TextTags =
         {

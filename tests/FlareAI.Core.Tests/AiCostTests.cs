@@ -196,6 +196,32 @@ namespace FlareAI.Core.Tests
             Assert.Contains("members", llm.Requests.Single(r => r.Task == "refine").System);   // refine still applies the rule
         }
 
+        // ---- 4. A one-paragraph rewrite carries the rules wording can act on --------------------------------------------
+
+        [Fact]
+        public void Rewrite_SendsTriggeredWordRules_NotFormattingPacks()
+        {
+            var engine = Bundled();
+            var doc = new FakeDocumentAdapter("sample-topic.htm");
+            var p = FlareAI.Core.Editing.XhtmlFragment.ParseInto("<p>The <code>listMessages</code> method will return every message in the mailbox, and the client should page through the results with the <code>pageToken</code> field.</p>", doc.Document)[0];
+            doc.Document.SelectSingleNode("//body").AppendChild(p);
+            var llm = Quiet();
+            var runner = new ActionRunner(llm, PromptBuilder.For(engine, null), 1024, engine);
+            var blocks = new List<System.Xml.XmlNode> { p };
+            runner.Review(blocks, runner.Lint(blocks));
+            runner.Rewrite(doc, blocks, null);
+
+            var review = llm.Requests.First(r => r.Task == "review").SystemTerms;
+            var rewrite = llm.Requests.First(r => r.Task == "rewrite").SystemTerms;
+            Assert.Contains("In ordinary text sentences, use code font", review);   // review still judges formatting
+            Assert.DoesNotContain("In ordinary text sentences, use code font", rewrite);   // a run-level rewrite can't change it
+            Assert.DoesNotContain("series of x", rewrite);
+            Assert.Contains("(will)", rewrite);                   // the text says "will": its word rule comes along
+            Assert.DoesNotContain("(click)", rewrite);            // words the text doesn't use: their rules stay home
+            Assert.True(rewrite.Length * 3 < review.Length, "rewrite " + rewrite.Length + " vs review " + review.Length);
+            Assert.Equal(llm.Requests.First(r => r.Task == "review").System, llm.Requests.First(r => r.Task == "rewrite").System);
+        }
+
         [Fact]
         public void TeamCanChangeACacheLifetime()
         {
