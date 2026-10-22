@@ -29,7 +29,71 @@ namespace FlareAI.Core.Actions
         public bool IsStrict { get { return Owners.Count > 0; } }
         /// <summary>The guide's git state, filled in by a background check (null until then, or when not in git).</summary>
         public GuideStatus Status { get; set; }
-        public bool IsOwner { get { return !IsStrict || Contains(Owners, Writer) || Contains(Owners, Environment.UserName); } }
+        public bool IsOwner { get { return !IsStrict || IsListedOwner; } }
+        /// <summary>True when owners.txt names this writer (by email or Windows user name).</summary>
+        public bool IsListedOwner { get { return Contains(Owners, Writer) || Contains(Owners, Environment.UserName); } }
+
+        /// <summary>
+        /// Whether the last probe could write to the guide's FlareAI folder (null until probed). Folder permissions are what
+        /// protect a shared guide: owners read-write, writers read-only.
+        /// </summary>
+        public bool? GuideWritable { get; private set; }
+        /// <summary>Why the last probe could not write to the guide, or null.</summary>
+        public string GuideProblem { get; private set; }
+
+        /// <summary>
+        /// Tests write access now (a create-and-delete probe in the guide's FlareAI folder; file attributes are not trusted).
+        /// Called on load and before every guide write. Returns why the guide can't be written, or null.
+        /// </summary>
+        public string ProbeGuide()
+        {
+            string why;
+            GuideWritable = GuideAccess.CanWrite(GuideRoot, out why);
+            GuideProblem = why;
+            return why;
+        }
+
+        /// <summary>The cached probe result (probes once when not yet known).</summary>
+        public bool CanWriteGuide
+        {
+            get
+            {
+                if (GuideWritable == null) ProbeGuide();
+                return GuideWritable == true;
+            }
+        }
+
+        /// <summary>
+        /// True when a rule change must go to the owners as a request instead of being written: the guide has an owners file,
+        /// it is a team guide, and either this writer isn't an owner or the guide folder is read-only for them. Teams without
+        /// owners.txt, and personal guides, never need requests.
+        /// </summary>
+        public bool ChangesNeedRequest
+        {
+            get { return IsStrict && !IsPersonal && GuideRoot != null && (!IsListedOwner || !CanWriteGuide); }
+        }
+
+        /// <summary>The owners, for messages ("a@x.com, b@x.com").</summary>
+        public string OwnerNames { get { return string.Join(", ", new List<string>(Owners).ToArray()); } }
+
+        /// <summary>
+        /// What the writer should know about how their changes reach the guide (null when changes apply directly): read-only,
+        /// an owner who can't write (what to fix), or a writer the folder lets write although owners.txt doesn't list them.
+        /// </summary>
+        public string AccessNotice
+        {
+            get
+            {
+                if (!ChangesNeedRequest) return null;
+                if (IsListedOwner)
+                    return "You're a style guide owner, but House Style can't write to " + GuideRoot + (GuideProblem == null ? "" : " (" + GuideProblem + ")") +
+                           ". Ask whoever manages that folder for write access. Until then, changes go to the owners as requests.";
+                if (CanWriteGuide)
+                    return "The guide folder lets you write, but owners.txt doesn't list you, so your changes go to the owners (" + OwnerNames +
+                           ") as requests. Tell them the folder is more open than the owners list says.";
+                return "You can read this guide; changes go to the owners (" + OwnerNames + ") as requests.";
+            }
+        }
 
         /// <summary>
         /// The read-only guide (bundled with the plugin) that <see cref="GuideRoot"/> is layered after, when GuideRoot is the
@@ -174,6 +238,33 @@ namespace FlareAI.Core.Actions
             var behind = Git.Run(guideRoot, "rev-list --count HEAD..@{upstream}", 5000);
             int n;
             return new GuideStatus { Name = Path.GetFileName(guideRoot), Commit = head.Trim(), Behind = int.TryParse((behind ?? "").Trim(), out n) ? n : 0 };
+        }
+    }
+
+    /// <summary>Whether a guide folder can be written: a real create-and-delete probe, because shares report attributes unreliably.</summary>
+    public static class GuideAccess
+    {
+        /// <summary>True when a file can be created and deleted in the guide's FlareAI folder; otherwise false and why.</summary>
+        public static bool CanWrite(string guideRoot, out string why)
+        {
+            why = null;
+            if (string.IsNullOrEmpty(guideRoot)) { why = "no style guide is set up"; return false; }
+            try
+            {
+                if (!Directory.Exists(guideRoot)) { why = "the folder can't be reached"; return false; }
+                var dir = Path.Combine(guideRoot, "FlareAI");
+                var created = false;
+                if (!Directory.Exists(dir)) { Directory.CreateDirectory(dir); created = true; }
+                var probe = Path.Combine(dir, ".write-test-" + Guid.NewGuid().ToString("N").Substring(0, 8) + ".tmp");
+                // DeleteOnClose asks for delete access up front: the probe both creates and deletes, and leaves nothing behind.
+                using (new FileStream(probe, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1, FileOptions.DeleteOnClose)) { }
+                if (File.Exists(probe)) File.Delete(probe);
+                if (created) try { Directory.Delete(dir); } catch (Exception) { }
+                return true;
+            }
+            catch (UnauthorizedAccessException) { why = "you have read-only access"; return false; }
+            catch (IOException ex) { why = ex.Message.TrimEnd('.', ' '); return false; }
+            catch (Exception ex) { Diagnostics.Log("guide write probe", ex); why = ex.Message.TrimEnd('.', ' '); return false; }
         }
     }
 

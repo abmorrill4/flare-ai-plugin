@@ -238,6 +238,9 @@ namespace FlareAI.Flare
                 Diagnostics.Log("Team: writer=" + team.Writer + " guide=" + team.GuideRoot + " strict=" + team.IsStrict + " owner=" + team.IsOwner + " feedback=" + (team.FeedbackFolder ?? "(personal)"));
                 System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                 {
+                    // Read-only detection on load: a create-and-delete probe (shares report attributes unreliably).
+                    try { if (team.IsStrict && !team.IsPersonal) Diagnostics.Log("Guide access: " + (team.ProbeGuide() ?? "writable") + (team.AccessNotice == null ? "" : " — " + team.AccessNotice)); }
+                    catch (Exception ex) { Diagnostics.Log("guide access", ex); }
                     try { team.Status = Team.ReadStatus(team.GuideRoot, true); if (team.Status != null) Diagnostics.Log(team.Status.ToString()); }
                     catch (Exception ex) { Diagnostics.Log("guide status", ex); }
                 });

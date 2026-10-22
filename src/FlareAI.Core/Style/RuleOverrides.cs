@@ -25,6 +25,8 @@ namespace FlareAI.Core.Style
         public string Scope { get; set; }
         /// <summary>True for "# ai-ignore: name" lines: an AI judgment without a rule id.</summary>
         public bool IsAiName { get; set; }
+        /// <summary>The request an owner approved for this exception ("[approved request r-…]" in its note), or null.</summary>
+        public string RequestId { get; set; }
         /// <summary>
         /// A default of a read-only guide (the one bundled with the plugin): it can't be removed, so turning it back on writes
         /// an "on" row into the writer's own guide.
@@ -42,6 +44,13 @@ namespace FlareAI.Core.Style
     {
         private static readonly Regex Meta = new Regex(@"^#\s*by\s+(.+?)\s+on\s+(\d{4}-\d{2}-\d{2})(?::\s*(.*))?$", RegexOptions.IgnoreCase);
         private const string AiPrefix = "# ai-ignore:";
+        private static readonly Regex Approved = new Regex(@"\s*\[approved request ([^\]\s]+)\]\s*$", RegexOptions.IgnoreCase);
+
+        /// <summary>A note marked as an owner-approved request, so Turned-off rules can flag it.</summary>
+        public static string WithRequest(string note, string requestId)
+        {
+            return ((note ?? "").Trim() + " [approved request " + requestId + "]").Trim();
+        }
 
         /// <summary>Every override in a guide or Flare project (its tables and overrides.ini), labelled with <paramref name="scope"/>.</summary>
         public static List<RuleOverride> Read(string root, string scope)
@@ -107,6 +116,8 @@ namespace FlareAI.Core.Style
                     o.By = meta == null ? "" : meta.Groups[1].Value.Trim();
                     o.Date = meta == null ? "" : meta.Groups[2].Value;
                     o.Note = meta == null ? "" : meta.Groups[3].Value.Trim();
+                    var approved = Approved.Match(o.Note);
+                    if (approved.Success) { o.RequestId = approved.Groups[1].Value; o.Note = o.Note.Substring(0, approved.Index).Trim(); }
                     list.Add(o);
                 }
                 meta = null;   // a note belongs to the line right below it

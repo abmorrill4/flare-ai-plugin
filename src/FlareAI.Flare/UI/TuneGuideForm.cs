@@ -15,7 +15,8 @@ namespace FlareAI.Flare.UI
     /// "Tune style guide": what the team's review decisions say about each rule, for the style guide owner. Pools every
     /// writer's feedback file, then lists disputed rules (writers split), often-rejected rules, repeated hand edits
     /// (candidate Avoid/Use rows), requests to turn rules off, and rules that work. Each item shows its evidence;
-    /// Open rule takes the owner to the rule in the guide, where changes are made as tracked changes.
+    /// Open rule takes the owner to the rule in the guide, where changes are made as tracked changes. Requests to the
+    /// owners come first: owners approve or decline them here; writers see their own, with the outcome, and can withdraw.
     /// </summary>
     public sealed class TuneGuideForm : Form
     {
@@ -31,11 +32,13 @@ namespace FlareAI.Flare.UI
         private readonly Label _head;
         private readonly ListView _list;
         private readonly RichTextBox _detail;
-        private readonly Button _openRule;
+        private readonly Button _openRule, _decide, _withdraw;
+        private List<Decision> _decisions = new List<Decision>();
         private Dictionary<string, GuideRule> _rules = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
 
         private static readonly Dictionary<string, string> Groups = new Dictionary<string, string>
         {
+            { "requests", "Requests to the style guide owners" },
             { "disputed", "Writers disagree — decide, reword, or scope the rule" },
             { "review", "Often rejected — reword, demote to prose, or drop" },
             { "edit", "Repeated hand edits — the replacement is probably wrong" },
@@ -72,15 +75,22 @@ namespace FlareAI.Flare.UI
             _draft = new Button { Text = "Draft a change with AI…", AutoSize = true, Enabled = false };
             _prompts = new Button { Text = "Customize AI prompts…", AutoSize = true, Enabled = IsOwner };
             _turnedOff = new Button { Text = "Turned-off rules…", AutoSize = true };
+            _decide = new Button { Text = "Approve or decline…", AutoSize = true, Enabled = false, Visible = CanDecide };
+            _withdraw = new Button { Text = "Withdraw request", AutoSize = true, Enabled = false, Visible = false };
+            _decide.Click += (s, e) => DecideCurrent();
+            _withdraw.Click += (s, e) => WithdrawCurrent();
             refresh.Click += (s, e) => Load();
             _openRule.Click += (s, e) => OpenRule();
-            _draft.Click += (s, e) => DraftChange();
+            _draft.Click += (s, e) => { if (Requesting) RequestRuleChange(); else DraftChange(); };
             _prompts.Click += (s, e) => CustomizePrompts();
             _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject, _isDefault)) f.ShowDialog(this); };
-            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff });
+            bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff, _withdraw, _decide });
+            if (Requesting) _draft.Text = "Request a change…";
             var tips = new ToolTip();
             tips.SetToolTip(_turnedOff, "Every rule turned off or changed in the style guide and this project: who, when and why. Turn rules back on here.");
-            tips.SetToolTip(_draft, "The AI rewrites this rule in the guide from the team's evidence; you review the change and apply it as tracked changes (owners only).");
+            tips.SetToolTip(_decide, "Approve the selected request (you can adjust it first) or decline it with a note. The writer sees the outcome on their next check.");
+            tips.SetToolTip(_withdraw, "Take back your open request; the owners no longer see it as open.");
+            tips.SetToolTip(_draft, Requesting ? "Ask the style guide owners to change the selected rule's level or wording, with your reason." : "The AI rewrites this rule in the guide from the team's evidence; you review the change and apply it as tracked changes (owners only).");
             tips.SetToolTip(_prompts, @"Copy the AI's instructions into the guide (FlareAI\prompts) so the team can tune them, versioned with the rules (owners only).");
             Controls.Add(_list);
             Controls.Add(_detail);
@@ -90,6 +100,8 @@ namespace FlareAI.Flare.UI
             A11y.Name(_list, "Rules and the team's review decisions", "Columns: item, accepted, rejected, writers.");
             A11y.Name(_detail, "Details for the selected item");
             A11y.Name(bar, "Dialog buttons");
+            A11y.Name(_decide, "Approve or decline", "Decide the selected request.");
+            A11y.Name(_withdraw, "Withdraw request", "Take back your selected open request.");
             A11y.Apply(this);
             Shown += (s, e) => Load();
         }
@@ -106,7 +118,14 @@ namespace FlareAI.Flare.UI
                 if (!ShowNames) decisions = FeedbackStats.Anonymize(decisions); // counts: never show names, even from older records
                 var rules = new Dictionary<string, GuideRule>(StringComparer.OrdinalIgnoreCase);
                 if (_style != null) try { foreach (var r in _style.Rules(_project)) rules[r.Id] = r; } catch (Exception ex) { Diagnostics.Log("tune: rules", ex); }
-                e.Result = new object[] { decisions, FeedbackStats.Analyze(decisions), rules };
+                var requests = new List<GuideRequest>();
+                if (_team != null && _team.IsStrict)
+                {
+                    if (!_team.IsPersonal) _team.ProbeGuide();
+                    try { requests = GuideRequests.Load(_team).FindAll(r => CanDecide ? r.Status != RequestStatus.Withdrawn : GuideRequests.IsMine(_team, r)); }
+                    catch (Exception ex) { Diagnostics.Log("tune: requests", ex); }
+                }
+                e.Result = new object[] { decisions, FeedbackStats.Analyze(decisions), rules, requests };
             };
             worker.RunWorkerCompleted += (s, e) =>
             {
@@ -116,7 +135,17 @@ namespace FlareAI.Flare.UI
                 var decisions = (List<Decision>)parts[0];
                 var items = (List<TuneItem>)parts[1];
                 _rules = (Dictionary<string, GuideRule>)parts[2];
-                Header(decisions, items);
+                _decisions = decisions;
+                var requests = (List<GuideRequest>)parts[3];
+                items.RemoveAll(i => i.Kind == "ignore");   // older turn-off proposals are listed as requests now
+                Header(decisions, items, requests);
+                foreach (var r in requests)
+                {
+                    int acc, rej;
+                    Counts(r, out acc, out rej);
+                    _list.Items.Add(new ListViewItem(new[] { "[" + StatusLabel(r) + "] " + r.Title, acc.ToString(), rej.ToString(), ShowNames ? r.Writer ?? "" : FeedbackStats.WriterCount(1) })
+                    { Tag = r, Group = _list.Groups["requests"] });
+                }
                 foreach (var it in items)
                 {
                     var row = new ListViewItem(new[] { it.Title, it.Accepted.ToString(), it.Rejected.ToString(), ShowNames ? string.Join(", ", it.Writers.ToArray()) : FeedbackStats.WriterCount(it.Writers.Count) })
@@ -128,15 +157,16 @@ namespace FlareAI.Flare.UI
             worker.RunWorkerAsync();
         }
 
-        private void Header(List<Decision> decisions, List<TuneItem> items)
+        private void Header(List<Decision> decisions, List<TuneItem> items, List<GuideRequest> requests)
         {
             var writers = decisions.Select(d => d.Writer).Distinct(StringComparer.OrdinalIgnoreCase).Count();
             var dated = decisions.Where(d => d.At > DateTime.MinValue).ToList();
             var range = dated.Count == 0 ? "" : " (" + dated.Min(d => d.At).ToLocalTime().ToString("d") + " – " + dated.Max(d => d.At).ToLocalTime().ToString("d") + ")";
             var source = _team == null || _team.FeedbackFolder == null ? "your own decisions only — set a team feedback folder in Settings to pool everyone's" : _team.FeedbackFolder;
             var role = _team == null || !_team.IsStrict ? "No owners file: anyone can change the guide."
-                     : _team.IsOwner ? "You are a style guide owner." : "Read-only: the owners are " + string.Join(", ", _team.Owners.ToArray()) + ".";
-            var actionable = items.Count(i => i.Kind != "working");
+                     : _team.AccessNotice ?? (_team.IsListedOwner ? "You are a style guide owner." : "The owners are " + _team.OwnerNames + ".");
+            var open = requests.Count(r => r.IsOpen);
+            var actionable = items.Count(i => i.Kind != "working") + (CanDecide ? open : 0);
             _head.Text = decisions.Count + " decision(s) from " + FeedbackStats.WriterCount(writers) + range + ". Source: " + source + ".\n"
                          + (actionable == 0 ? "Nothing needs attention yet. " : actionable + " item(s) to look at. ") + role
                          + (_team != null && _team.Status != null ? "  " + _team.Status : "");
@@ -144,10 +174,92 @@ namespace FlareAI.Flare.UI
 
         private bool ShowNames { get { return _team != null && _team.ShareNames; } }
 
-        private TuneItem Current() { return _list.SelectedItems.Count == 1 ? (TuneItem)_list.SelectedItems[0].Tag : null; }
+        private TuneItem Current() { return _list.SelectedItems.Count == 1 ? _list.SelectedItems[0].Tag as TuneItem : null; }
+
+        private GuideRequest CurrentRequest() { return _list.SelectedItems.Count == 1 ? _list.SelectedItems[0].Tag as GuideRequest : null; }
+
+        /// <summary>The selected rule, from a report item or a request.</summary>
+        private string CurrentRuleId()
+        {
+            var it = Current();
+            if (it != null) return it.Rule;
+            var r = CurrentRequest();
+            return r == null ? null : r.RuleId;
+        }
+
+        /// <summary>Owners (and teams without an owners file) decide requests.</summary>
+        private bool CanDecide { get { return _team == null || !_team.IsStrict || _team.IsListedOwner; } }
+
+        /// <summary>Rule changes from this form go to the owners as requests.</summary>
+        private bool Requesting { get { return _team != null && _team.ChangesNeedRequest; } }
+
+        private static string StatusLabel(GuideRequest r)
+        {
+            if (r.Unsent) return "Not sent yet";
+            switch (r.Status)
+            {
+                case RequestStatus.Approved: return "Approved";
+                case RequestStatus.Declined: return "Declined";
+                case RequestStatus.Withdrawn: return "Withdrawn";
+                default: return "Open";
+            }
+        }
+
+        /// <summary>The team's accepted and rejected decisions on the request's rule.</summary>
+        private void Counts(GuideRequest r, out int accepted, out int rejected)
+        {
+            var key = r.RuleId ?? r.Rule;
+            var about = _decisions.Where(d => key != null && (string.Equals(d.RuleId, key, StringComparison.OrdinalIgnoreCase) || string.Equals(d.Rule, key, StringComparison.OrdinalIgnoreCase))).ToList();
+            accepted = about.Count(d => d.IsAccept);
+            rejected = about.Count(d => d.IsReject);
+        }
+
+        /// <summary>What the request asks, why, and the evidence, one line each.</summary>
+        private List<string> RequestDetails(GuideRequest r)
+        {
+            var lines = new List<string>();
+            lines.Add("From " + (ShowNames ? r.Writer : "a writer") + " on " + (r.Created > DateTime.MinValue ? r.Created.ToLocalTime().ToString("yyyy-MM-dd") : "an earlier date") + (r.IsLegacy ? " (sent before requests were tracked)" : "") + ".");
+            lines.Add("Reason: " + (string.IsNullOrEmpty(r.Reason) ? "(none given)" : r.Reason));
+            GuideRule rule;
+            if (r.RuleId != null && _rules.TryGetValue(r.RuleId, out rule)) lines.Add("Rule " + rule.Id + " (" + rule.Layer + " · " + rule.Section + "): " + rule.Text);
+            else if (!string.IsNullOrEmpty(r.RuleText)) lines.Add("Rule: " + r.RuleText);
+            if (r.Kind == RequestKinds.Wording) lines.Add("New wording asked for: " + r.Wording);
+            if (r.Kind == RequestKinds.ProjectException)
+                lines.Add("For project " + (r.Project ?? "(unnamed)") + " only: the team rule stays on. When approved, the writer's plugin writes the exception into that project on their next check.");
+            if (r.Kind == RequestKinds.AddRule && r.Candidate != null)
+            {
+                var c = r.Candidate;
+                lines.Add(c.IsRow ? "Adds a row · Avoid: " + c.Avoid + " · Use: " + (string.IsNullOrEmpty(c.Use) ? "(flag only)" : c.Use) + " · " + c.Severity + " · Why: " + c.Why
+                                  : "Adds a prose rule: " + c.Text);
+                foreach (var f in c.Forms) lines.Add("“" + f.Text + "” " + f.Count + "×");
+                foreach (var ex in c.Examples.Take(3)) lines.Add("• " + ex.Text + (string.IsNullOrEmpty(ex.File) ? "" : "  (" + ex.File + ")"));
+            }
+            int acc, rej;
+            Counts(r, out acc, out rej);
+            if (acc + rej > 0) lines.Add("The team's decisions on this rule: " + acc + " accepted, " + rej + " rejected.");
+            foreach (var e in r.Evidence ?? new List<string>()) lines.Add("• " + e);
+            return lines;
+        }
 
         private void ShowDetail()
         {
+            var r = CurrentRequest();
+            _decide.Enabled = r != null && r.IsOpen && !r.Unsent && CanDecide;
+            var mine = r != null && _team != null && GuideRequests.IsMine(_team, r);
+            _withdraw.Visible = mine;
+            _withdraw.Enabled = mine && r.IsOpen;
+            if (r != null)
+            {
+                _detail.Clear();
+                Write(r.Title, FontStyle.Bold);
+                Write(r.Outcome + ".", FontStyle.Italic);
+                foreach (var line in RequestDetails(r)) Write(line, FontStyle.Regular);
+                _detail.Select(0, 0);
+                GuideRule cited;
+                _openRule.Enabled = r.RuleId != null && _rules.TryGetValue(r.RuleId, out cited) && !string.IsNullOrEmpty(cited.Link);
+                _draft.Enabled = false;
+                return;
+            }
             var it = Current();
             _detail.Clear();
             if (it == null) { _openRule.Enabled = false; return; }
@@ -160,10 +272,103 @@ namespace FlareAI.Flare.UI
             _detail.Select(0, 0);
             _openRule.Enabled = known && !string.IsNullOrEmpty(rule.Link);
             // Google rules are generated (and ship read-only with the plugin): change them with an override, not an edit.
-            _draft.Enabled = _openRule.Enabled && IsOwner && it.Kind != "working" && rule.Link.StartsWith("file:", StringComparison.OrdinalIgnoreCase) && rule.Layer != "google";
+            _draft.Enabled = Requesting ? known
+                : _openRule.Enabled && IsOwner && it.Kind != "working" && rule.Link.StartsWith("file:", StringComparison.OrdinalIgnoreCase) && rule.Layer != "google";
         }
 
-        private bool IsOwner { get { return _team == null || _team.IsOwner; } }
+        private bool IsOwner { get { return _team == null || (_team.IsOwner && !_team.ChangesNeedRequest); } }
+
+        /// <summary>Approve (optionally adjusted) or decline the selected request. The first owner to decide wins.</summary>
+        private void DecideCurrent()
+        {
+            var r = CurrentRequest();
+            if (r == null || !r.IsOpen) return;
+            string decision; RequestDecision edits;
+            using (var form = new RequestDecisionForm(r, RequestDetails(r)))
+            {
+                if (form.ShowDialog(this) != DialogResult.OK) return;
+                decision = form.Decision; edits = form.Edits;
+            }
+            try
+            {
+                RequestDecision earlier;
+                if (decision == RequestStatus.Declined) earlier = GuideRequests.Decline(_team, r, edits.Note);
+                else
+                {
+                    if (r.Kind != RequestKinds.ProjectException && _team != null && _team.ProbeGuide() != null)
+                    {
+                        Notify.Error(this, "House Style can't write to the style guide at " + _team.GuideRoot + " (" + _team.GuideProblem + ").",
+                                     "Ask whoever manages that folder to give you write access, then approve again. The request stays open.", null, "Approve request");
+                        return;
+                    }
+                    earlier = GuideRequests.Approve(_team, r, edits, (req, d) => GuideRequests.ApplyToGuide(_team, req, d));
+                }
+                if (earlier != null)
+                    Notify.Info(this, "This request was already " + earlier.Status + " by " + earlier.By + " on " + earlier.At.ToLocalTime().ToString("yyyy-MM-dd HH:mm") +
+                                      (string.IsNullOrEmpty(earlier.Note) ? "." : ": " + earlier.Note), "Decide a request");
+                Load();
+                _head.Text = earlier != null ? "Already decided by " + earlier.By + "." :
+                             decision == RequestStatus.Declined ? "Declined. The writer sees your note on their next check." :
+                             r.Kind == RequestKinds.ProjectException ? "Approved. The writer's plugin writes the exception into their project on their next check."
+                             : "Approved and applied to the style guide. Writers get it on their next check.";
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("tune: decide " + r.Id, ex);
+                Notify.Error(this, "House Style couldn't " + (decision == RequestStatus.Declined ? "decline" : "apply") + " this request.", ex.Message + "\n\nNothing was changed; the request stays open.", ex, "Decide a request");
+            }
+        }
+
+        /// <summary>The writer takes back an open request of theirs.</summary>
+        private void WithdrawCurrent()
+        {
+            var r = CurrentRequest();
+            if (r == null || !r.IsOpen) return;
+            try
+            {
+                var earlier = GuideRequests.Withdraw(_team, r);
+                Load();
+                _head.Text = earlier != null ? "An owner already decided it: " + earlier.Status + " by " + earlier.By + "." : "Withdrawn: " + r.Title + ".";
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("tune: withdraw " + r.Id, ex);
+                Notify.Error(this, "House Style couldn't withdraw this request.", ex.Message, ex, "Withdraw request");
+            }
+        }
+
+        /// <summary>A writer (or an owner who can't write to the guide) asks the owners to change the selected rule.</summary>
+        private void RequestRuleChange()
+        {
+            GuideRule rule;
+            var id = CurrentRuleId();
+            if (id == null || !_rules.TryGetValue(id, out rule)) return;
+            var choice = RequestForm.Ask(this, new RequestQuestion
+            {
+                RuleText = ReviewSession.SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text,
+                Notice = "This will be sent to the style guide owners (" + _team.OwnerNames + "). They decide here in Tune style guide; you see the answer on your next check." +
+                         (_team.AccessNotice == null ? "" : Environment.NewLine + _team.AccessNotice),
+                CanAskTeam = true, CanAskProject = false, Wording = rule.Layer != "google" ? rule.Text : null
+            });
+            if (choice == null) return;
+            var kind = choice.Wording != null ? RequestKinds.Wording : choice.Setting == "off" ? RequestKinds.TurnOff : RequestKinds.Severity;
+            var r = GuideRequests.New(_team, kind, choice.Reason);
+            r.RuleId = rule.Id; r.Rule = rule.Id; r.Layer = rule.Layer; r.RuleText = rule.Text; r.RuleFile = ReviewSession.RuleFile(rule);
+            r.Setting = choice.Setting; r.Wording = choice.Wording;
+            var it = Current();
+            if (it != null) r.Evidence.AddRange(it.Evidence.Take(5));
+            Send(r);
+        }
+
+        private void Send(GuideRequest r)
+        {
+            string problem;
+            try { GuideRequests.Send(_team, r, out problem); }
+            catch (Exception ex) { Diagnostics.Log("tune: send request", ex); Notify.Error(this, "House Style couldn't send your request.", ex.Message + "\n\nYour reason: " + r.Reason, ex, "Request a change"); return; }
+            Load();
+            _head.Text = problem == null ? "Request sent to the style guide owners (" + _team.OwnerNames + "). You see their answer on your next check."
+                                         : "Request saved but not sent yet: " + problem + ". House Style sends it on your next check.";
+        }
 
         /// <summary>Opens the rule's topic, finds the rule's bullet or row, and has the AI draft the change from the evidence.</summary>
         private void DraftChange()
@@ -251,9 +456,8 @@ namespace FlareAI.Flare.UI
 
         private void OpenRule()
         {
-            var it = Current();
             GuideRule rule;
-            if (it == null || !_rules.TryGetValue(it.Rule ?? "", out rule) || string.IsNullOrEmpty(rule.Link)) return;
+            if (!_rules.TryGetValue(CurrentRuleId() ?? "", out rule) || string.IsNullOrEmpty(rule.Link)) return;
             try
             {
                 if (rule.Link.StartsWith("file:", StringComparison.OrdinalIgnoreCase))

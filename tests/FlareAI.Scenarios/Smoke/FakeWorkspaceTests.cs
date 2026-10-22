@@ -9,6 +9,7 @@ using Xunit;
 namespace FlareAI.Scenarios.Smoke
 {
     /// <summary>The scenario sandbox: corpus copy, open documents, read-only folders, AppData redirect, statics reset.</summary>
+    [Collection("Core statics")]   // TeamCurrent_… sets Team.Current outside a workspace: keep other workspace-heavy classes from running alongside
     public class FakeWorkspaceTests
     {
         [Fact]
