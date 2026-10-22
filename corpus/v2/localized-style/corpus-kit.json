@@ -1,0 +1,164 @@
+{
+  "name": "localized-style",
+  "topics": [
+    {
+      "path": "Content/admin/brand-the-login-page.htm",
+      "title": "Brand the login page",
+      "source": "admin/brand-the-login-page.md"
+    },
+    {
+      "path": "Content/admin/export-reports.htm",
+      "title": "Export reports",
+      "source": "admin/export-reports.md"
+    },
+    {
+      "path": "Content/admin/languages-and-localization.htm",
+      "title": "Languages and localization",
+      "source": "admin/languages-and-localization.md"
+    },
+    {
+      "path": "Content/admin/notifications.htm",
+      "title": "Notifications",
+      "source": "admin/notifications.md"
+    },
+    {
+      "path": "Content/admin/webhooks.htm",
+      "title": "Webhooks",
+      "source": "admin/webhooks.md"
+    },
+    {
+      "path": "Content/apps/add-an-application.htm",
+      "title": "Add an application",
+      "source": "apps/add-an-application.md"
+    },
+    {
+      "path": "Content/apps/assign-users-to-an-application.htm",
+      "title": "Assign users to an application",
+      "source": "apps/assign-users-to-an-application.md"
+    },
+    {
+      "path": "Content/apps/configure-sign-on-settings.htm",
+      "title": "Configure the login settings of an application",
+      "source": "apps/configure-sign-on-settings.md"
+    },
+    {
+      "path": "Content/apps/set-up-openid-connect.htm",
+      "title": "Set up OpenID Connect",
+      "source": "apps/set-up-openid-connect.md"
+    },
+    {
+      "path": "Content/apps/set-up-saml.htm",
+      "title": "Set up SAML 2.0",
+      "source": "apps/set-up-saml.md"
+    },
+    {
+      "path": "Content/apps/single-sign-on-overview.htm",
+      "title": "Single sign-on overview",
+      "source": "apps/single-sign-on-overview.md"
+    },
+    {
+      "path": "Content/getting-started/about-acme-sign-on.htm",
+      "title": "About VAR_PRODUCT",
+      "source": "getting-started/about-acme-sign-on.md"
+    },
+    {
+      "path": "Content/getting-started/console-tour.htm",
+      "title": "Tour of the console",
+      "source": "getting-started/console-tour.md"
+    },
+    {
+      "path": "Content/getting-started/log-in-to-the-console.htm",
+      "title": "Log in to the console",
+      "source": "getting-started/log-in-to-the-console.md"
+    },
+    {
+      "path": "Content/getting-started/log-out-and-session-timeouts.htm",
+      "title": "Log out and session timeouts",
+      "source": "getting-started/log-out-and-session-timeouts.md"
+    },
+    {
+      "path": "Content/reference/keyboard-shortcuts.htm",
+      "title": "Keyboard shortcuts",
+      "source": "reference/keyboard-shortcuts.md"
+    },
+    {
+      "path": "Content/reference/ui-label-reference.htm",
+      "title": "UI label reference",
+      "source": "reference/ui-label-reference.md"
+    },
+    {
+      "path": "Content/security/api-tokens.htm",
+      "title": "API tokens",
+      "source": "security/api-tokens.md"
+    },
+    {
+      "path": "Content/security/audit-log.htm",
+      "title": "Audit log",
+      "source": "security/audit-log.md"
+    },
+    {
+      "path": "Content/security/end-sessions.htm",
+      "title": "End sessions",
+      "source": "security/end-sessions.md"
+    },
+    {
+      "path": "Content/security/manage-the-ip-allowlist.htm",
+      "title": "Manage the IP allowlist",
+      "source": "security/manage-the-ip-allowlist.md"
+    },
+    {
+      "path": "Content/security/multi-factor-authentication.htm",
+      "title": "Multi-factor authentication",
+      "source": "security/multi-factor-authentication.md"
+    },
+    {
+      "path": "Content/security/rotate-the-master-key.htm",
+      "title": "Rotate the master key",
+      "source": "security/rotate-the-master-key.md"
+    },
+    {
+      "path": "Content/troubleshooting/troubleshoot-directory-sync.htm",
+      "title": "Troubleshoot directory sync",
+      "source": "troubleshooting/troubleshoot-directory-sync.md"
+    },
+    {
+      "path": "Content/troubleshooting/troubleshoot-log-in-problems.htm",
+      "title": "Troubleshoot login problems",
+      "source": "troubleshooting/troubleshoot-log-in-problems.md"
+    },
+    {
+      "path": "Content/users/add-a-user.htm",
+      "title": "Add a user",
+      "source": "users/add-a-user.md"
+    },
+    {
+      "path": "Content/users/directory-sync.htm",
+      "title": "Synchronize users from a directory",
+      "source": "users/directory-sync.md"
+    },
+    {
+      "path": "Content/users/disable-a-user.htm",
+      "title": "Disable a user",
+      "source": "users/disable-a-user.md"
+    },
+    {
+      "path": "Content/users/reset-a-password.htm",
+      "title": "Reset a password",
+      "source": "users/reset-a-password.md"
+    },
+    {
+      "path": "Content/users/roles-and-permissions.htm",
+      "title": "Roles and permissions",
+      "source": "users/roles-and-permissions.md"
+    }
+  ],
+  "variables": {
+    "General.CompanyName": "Acme Software",
+    "General.ProductName": "Acme Sign-On"
+  },
+  "snippets": [
+    "Content/Resources/Snippets/if-you-cannot-log.flsnp"
+  ],
+  "altDropped": [],
+  "warnings": []
+}

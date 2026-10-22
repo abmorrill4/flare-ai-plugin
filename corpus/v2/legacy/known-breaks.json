@@ -1,0 +1,44 @@
+{
+ "broken_xrefs": [
+  {
+   "from": "Content/Customers/search-for-a-customer-record.htm",
+   "to": "Content/Archive/Old Dispatch Board.htm"
+  },
+  {
+   "from": "Content/Technicians/deactivate-a-technician-profile.htm",
+   "to": "Content/Archive/Old Work Order Entry.htm"
+  },
+  {
+   "from": "Content/Admin/set-a-role.htm",
+   "to": "Content/Archive/Old Setup Guide.htm"
+  },
+  {
+   "from": "Content/Integrations/view-the-synchronization-log.htm",
+   "to": "Content/Archive/Old Invoice Wizard.htm"
+  }
+ ],
+ "orphan_toc": [
+  "Content/Archive/Old Setup Guide.htm",
+  "Content/Archive/Old Work Order Entry.htm",
+  "Content/Workflow/Dispatch Board.htm",
+  "Content/Archive/Price Import.htm",
+  "Content/Workflow/Invoice Wizard.htm",
+  "Content/Reports/Weekly Summary.htm"
+ ],
+ "toc_missing_topics": [],
+ "topics_not_in_toc": [
+  "Content/Customers/Add_A_Contact_Person.htm",
+  "Content/Customers/topic_215.htm",
+  "Content/Getting Started/Welcome.doc.htm",
+  "Content/Integrations/DisconnectAConnector.htm",
+  "Content/Invoices/edit-an-invoice.htm",
+  "Content/Mobile/accept-a-job.htm",
+  "Content/Scheduling/MoveAnAppointment.htm",
+  "Content/Scheduling/cancel-an-appointment.htm",
+  "Content/Sites/WO_SearchForASite.htm",
+  "Content/WordImport/AddEquipmentToASitev2.htm",
+  "Content/WordImport/AttachAFileToAWorkOrderv2.htm",
+  "Content/WorkOrders/WO_ReopenAClosedWorkOrder.htm",
+  "Content/WorkOrders/topic_907.htm"
+ ]
+}

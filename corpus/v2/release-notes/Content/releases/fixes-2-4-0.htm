@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Fixes in 2.4.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Fixes in 2.4.0</h1>
+        <p>This release fixes the following problems.</p>
+        <h2>Fixes</h2>
+        <h3>Core</h3>
+        <ul>
+            <li>Changed default values and validation rules for plugins that were not well-adjusted for dbless or hybrid modes.</li>
+            <li><MadCap:variable name="General.ProductName" /> 2.4 ensures that all the Core entities are loaded before loading any plugins. This fixes an error in which Plugins to could not link to or modify Core entities because they would not be loaded yet.</li>
+            <li>If needed, <code>Host</code> header is now updated between balancer retries, using the value configured in the correct upstream entity.</li>
+            <li>Schema validations now log more descriptive error messages when types are invalid.</li>
+            <li><code>Upgrade</code> header is not cleared anymore when response <code>Connection</code> header contains <code>Upgrade</code>.</li>
+            <li>Accept fully-qualified domain names ending in dots.</li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>Now <MadCap:variable name="General.ProductName" /> does not leave plugin servers alive after exiting and does not try to start them in the unsupported stream subsystem.</li>
+            <li>Go does not cache <code>orbit.log</code> methods.</li>
+            <li>The <code>response</code> phase is included on the list of public phases.</li>
+            <li>Config file style and options case are now consistent all around.</li>
+            <li>Auto-escape upstream path to avoid proxying errors.</li>
+        </ul>
+        <h3>Plugins</h3>
+        <ul>
+            <li>oauth2: better handling more cases of client invalid token generation.</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-2-4-0.htm">Release 2.4.0</MadCap:xref>.</p>
+    </body>
+</html>

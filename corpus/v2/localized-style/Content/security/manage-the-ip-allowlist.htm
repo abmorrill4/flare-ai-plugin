@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Manage the IP allowlist</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Manage the IP allowlist</h1>
+        <p>An IP allowlist limits where users can log in from. Requests from other addresses are refused, even with a correct password.</p>
+        <p class="note">In the console, this feature is named <b>Whitelist</b>. This guide uses allowlist in running text and the console's name for buttons and tabs.</p>
+        <h2>Add an address range</h2>
+        <ol>
+            <li>Select <b>Security</b> &gt; <b>Whitelist</b>.</li>
+            <li>Click <b>Add range</b>.</li>
+            <li>Enter the range in CIDR notation, for example, <code>203.0.113.0/24</code>.</li>
+            <li>Click <b>Save</b>.</li>
+        </ol>
+        <h2>Test a range</h2>
+        <p>Select a range and click <b>Test</b>. Enter an address, and the console tells you whether the address is allowed.</p>
+        <h2>Turn the allowlist off</h2>
+        <p>Click the switch labeled <b>Enforce whitelist</b>. The console keeps the ranges, but all addresses can log in.</p>
+    </body>
+</html>

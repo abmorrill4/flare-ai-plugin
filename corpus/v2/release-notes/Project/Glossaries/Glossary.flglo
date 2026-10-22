@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultGlossary Version="1">
+    <GlossaryEntry>
+        <Terms>
+            <Term>Control plane</Term>
+        </Terms>
+        <Definition>The part of a deployment that manages configuration.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Data plane</Term>
+        </Terms>
+        <Definition>The part of a deployment that proxies traffic.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>Plugin</Term>
+        </Terms>
+        <Definition>An extension that adds behavior to a route or service.</Definition>
+    </GlossaryEntry>
+</CatapultGlossary>

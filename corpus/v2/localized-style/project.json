@@ -1,0 +1,76 @@
+{
+  "id": "localized-style",
+  "schema": "corpus/schema/labels.schema.json",
+  "topics": 30,
+  "files": 32,
+  "blocks": 425,
+  "split": {
+    "rule": "FNV-1a bucket of the file path (CorpusKit Rng.Bucket, seed 0): below 70 is dev; topped up to at least 30% of files",
+    "testFiles": 10,
+    "testShare": 0.312,
+    "test": [
+      "Content/Resources/Snippets/console-address.flsnp",
+      "Content/admin/brand-the-login-page.htm",
+      "Content/admin/webhooks.htm",
+      "Content/getting-started/about-acme-sign-on.htm",
+      "Content/getting-started/log-in-to-the-console.htm",
+      "Content/reference/keyboard-shortcuts.htm",
+      "Content/reference/ui-label-reference.htm",
+      "Content/security/api-tokens.htm",
+      "Content/troubleshooting/troubleshoot-log-in-problems.htm",
+      "Content/users/reset-a-password.htm"
+    ]
+  },
+  "labels": {
+    "total": 681,
+    "byLabel": {
+      "violation": 29,
+      "block-complete": 425,
+      "clean": 169,
+      "exempt": 58
+    },
+    "violationKinds": {
+      "bank": 2,
+      "customer": 1,
+      "exclaim": 11,
+      "idp": 1,
+      "oidc": 1,
+      "please": 4,
+      "saml2": 1,
+      "simply": 2,
+      "sso_spelling": 1,
+      "utilize": 1,
+      "we": 1,
+      "whitelist": 1,
+      "will": 2
+    },
+    "blockCompleteShare": 1.0,
+    "blockCompleteStatus": "proposed",
+    "proposed": 425
+  },
+  "name": "Localized style",
+  "kind": "synthetic",
+  "description": "Admin guide for Acme Sign-On with its own Company style guide that overrides the Google guide; used as the team-guide fixture for scenario tests.",
+  "guide": {
+    "folder": "Content/Resources/StyleGuide/Company",
+    "pages": [
+      "About",
+      "Google-overrides",
+      "Terminology",
+      "UI-references"
+    ],
+    "overrides": {
+      "google:word-list/443": "off (log in allowed)",
+      "google:word-list/637": "off (sign in preferred)",
+      "google:word-list/638": "off (log in / log out flagged)",
+      "google:word-list/53": "off (application, not app)",
+      "google:word-list/211": "suggestion (Disable is a UI label)"
+    }
+  },
+  "variables": {
+    "General.ProductName": "Acme Sign-On",
+    "General.CompanyName": "Acme Software"
+  },
+  "license": "Original text; no third-party content",
+  "seed": 20261022
+}

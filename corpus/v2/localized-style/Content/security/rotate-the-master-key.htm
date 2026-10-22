@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Rotate the master key</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Rotate the master key</h1>
+        <p>The master key encrypts the signing keys that the console uses for SAML and OpenID Connect responses. Rotate it once a year, or at once if you suspect exposure.</p>
+        <h2>Before you rotate</h2>
+        <ul>
+            <li>Confirm that no one else is changing security settings.</li>
+            <li>Export the current configuration.</li>
+        </ul>
+        <h2>Rotate the key</h2>
+        <ol>
+            <li>Select <b>Security</b> &gt; <b>Keys</b>.</li>
+            <li>Under <b>Master key</b>, click <b>Rotate</b>.</li>
+            <li>Type the word ROTATE to confirm, and then click <b>Rotate key</b>.</li>
+        </ol>
+        <p>The rotation takes about 2 minutes. Logins continue during the rotation.</p>
+        <p class="warning">Do not rotate the master key during a directory sync. A sync that is running can fail and leave users half updated.</p>
+        <p>After the rotation, the console keeps the previous key for 24 hr so that applications can refresh their metadata.</p>
+    </body>
+</html>

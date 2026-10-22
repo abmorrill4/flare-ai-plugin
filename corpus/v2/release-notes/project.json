@@ -1,0 +1,82 @@
+{
+  "id": "release-notes",
+  "schema": "corpus/schema/labels.schema.json",
+  "topics": 60,
+  "files": 64,
+  "blocks": 1299,
+  "split": {
+    "rule": "FNV-1a bucket of the file path (CorpusKit Rng.Bucket, seed 0): below 70 is dev; topped up to at least 30% of files",
+    "testFiles": 20,
+    "testShare": 0.312,
+    "test": [
+      "Content/Resources/Snippets/issue-ids-such-as.flsnp",
+      "Content/index/change-types.htm",
+      "Content/index/release-history.htm",
+      "Content/index/roll-back.htm",
+      "Content/index/upgrade-guide.htm",
+      "Content/releases/fixes-2-5-0.htm",
+      "Content/releases/fixes-3-0-0.htm",
+      "Content/releases/fixes-3-7-0.htm",
+      "Content/releases/new-1-3-0.htm",
+      "Content/releases/new-2-3-0.htm",
+      "Content/releases/new-3-1-0.htm",
+      "Content/releases/new-3-6-0.htm",
+      "Content/releases/new-3-8-0.htm",
+      "Content/releases/release-1-0-0.htm",
+      "Content/releases/release-2-5-0.htm",
+      "Content/releases/release-3-0-0.htm",
+      "Content/releases/release-3-2-0.htm",
+      "Content/releases/release-3-3-0.htm",
+      "Content/upgrade/breaking-3-1-0.htm",
+      "Content/upgrade/breaking-3-5-0.htm"
+    ]
+  },
+  "labels": {
+    "total": 2215,
+    "byLabel": {
+      "violation": 49,
+      "block-complete": 1299,
+      "clean": 20,
+      "exempt": 843,
+      "ambiguous": 4
+    },
+    "violationKinds": {
+      "blacklist": 1,
+      "claims_guaranteed": 1,
+      "exclaim": 27,
+      "latin": 1,
+      "phone": 1,
+      "please": 1,
+      "prior_to": 3,
+      "simply": 2,
+      "url": 2,
+      "utilize": 6,
+      "whitelist": 3,
+      "will": 1
+    },
+    "blockCompleteShare": 1.0,
+    "blockCompleteStatus": "proposed",
+    "proposed": 1299
+  },
+  "name": "Release notes",
+  "kind": "imported-real-text + synthetic hubs",
+  "description": "Release notes for the Acme Orbit API product: 24 releases, 60 topics, list-heavy, with issue ids, breaking-change notes and time words. A project override turns the Timeless documentation rows of the Google guide off.",
+  "releases": 24,
+  "license": {
+    "content": "Apache-2.0",
+    "file": "LICENSE",
+    "attribution": "NOTICE.md",
+    "sources": "SOURCES.md"
+  },
+  "override": "Content/Resources/StyleGuide/overrides.ini: google:timeless-documentation/1 to 20 = off",
+  "variables": {
+    "General.ProductName": "Acme Orbit",
+    "General.CompanyName": "Acme Software",
+    "Versions.CurrentRelease": "3.9.1",
+    "Versions.OldestSupported": "3.6.0"
+  },
+  "sharedWith": {
+    "api-docs": "Use the same General.ProductName and General.CompanyName values; Versions.* are defined here and can be reused by api-docs."
+  },
+  "seed": 20261021
+}

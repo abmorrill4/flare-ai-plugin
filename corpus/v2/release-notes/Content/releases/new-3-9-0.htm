@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>New in 3.9.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>New in 3.9.0</h1>
+        <p>These features and improvements arrived with <MadCap:variable name="General.ProductName" /> 3.9.0 on December 13, 2024.</p>
+        <h2>Features</h2>
+        <h3>CLI Command</h3>
+        <ul>
+            <li>Added the <code>orbit drain</code> CLI command to make the <code>/status/ready</code> endpoint return a <code>503 Service Unavailable</code> response (ORB-13838).</li>
+        </ul>
+        <h3>Core</h3>
+        <ul>
+            <li>Added a new feature for <MadCap:variable name="General.ProductName" /> Manager that supports multiple domains, enabling dynamic cross-origin access for Admin API requests (ORB-13664).</li>
+            <li>Increased the priority order of the correlation id to 100001 from 1 so that the plugin can be used with other plugins especially custom auth plugins (ORB-13581).</li>
+            <li>Added a <code>tls.disable_http2_alpn()</code> function patch for disabling HTTP/2 ALPN when performing a TLS handshake (ORB-13709).</li>
+            <li>Improved the output of the request debugger: (ORB-13460). <ul><li>The resolution of field <code>total_time</code> is now in microseconds.</li><li>A new field, <code>total_time_without_upstream</code>, shows the latency only introduced by <MadCap:variable name="General.ProductName" />.</li></ul></li>
+        </ul>
+        <h3>PDK</h3>
+        <ul>
+            <li>Added <code>orbit.service.request.clear_query_arg(name)</code> to PDK (ORB-13619).</li>
+            <li>Array and Map type span attributes are now supported by the tracing PDK (ORB-13818).</li>
+        </ul>
+        <h3>Plugin</h3>
+        <ul>
+            <li><b>ai-proxy</b>: Disabled HTTP/2 ALPN handshake for connections on routes configured with AI-proxy (ORB-13735).</li>
+            <li><b>Redirect</b>: Added a new plugin to redirect requests to another location (ORB-13900).</li>
+        </ul>
+        <h3>Admin API</h3>
+        <ul>
+            <li><b>Admin API</b>: Added support for official YAML media-type (<code>application/yaml</code>) to the <code>/config</code> endpoint (ORB-13713).</li>
+        </ul>
+        <h3>Clustering</h3>
+        <ul>
+            <li>Added a remote procedure call (RPC) framework for Hybrid mode deployments (ORB-12320).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/issue-ids-such-as.flsnp" />
+        <p>Back to <MadCap:xref href="release-3-9-0.htm">Release 3.9.0</MadCap:xref>.</p>
+    </body>
+</html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultGlossary Version="1">
+    <GlossaryEntry>
+        <Terms>
+            <Term>OpenID Connect</Term>
+        </Terms>
+        <Definition>A standard for logging in with a client ID and a client secret.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>SAML 2.0</Term>
+        </Terms>
+        <Definition>A standard for exchanging login information between systems.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>allowlist</Term>
+        </Terms>
+        <Definition>A list of addresses that are allowed to log in.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>identity provider</Term>
+        </Terms>
+        <Definition>The system that proves who a user is.</Definition>
+    </GlossaryEntry>
+    <GlossaryEntry>
+        <Terms>
+            <Term>single sign-on</Term>
+        </Terms>
+        <Definition>A way to log in once and reach every assigned application.</Definition>
+    </GlossaryEntry>
+</CatapultGlossary>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Release 2.3.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Release 2.3.0</h1>
+        <p><MadCap:variable name="General.ProductName" /> 2.3.0 was released on January 8, 2021.</p>
+        <p>This is a new release of <MadCap:variable name="General.ProductName" />, with no breaking changes with respect to the 2.x series, with <b>Control Plane/Data Plane version checks</b>, <b>UTF-8 names for Routes and Services</b>, and <b>a Plugin Servers</b>.</p>
+        <p>This release adds new options for operators and recent fixes for the proxy.</p>
+        <h2>What is in this release</h2>
+        <ul>
+            <li>14 new features</li>
+            <li>9 fixes</li>
+        </ul>
+        <p>For the full list, see:</p>
+        <ul>
+            <li><MadCap:xref href="new-2-3-0.htm">New in 2.3.0</MadCap:xref></li>
+        </ul>
+        <h2>Fixes</h2>
+        <ul>
+            <li>Properly trigger <code>daopost</code> hook (ORB-6567).</li>
+            <li>Fix issue where a route that supports both http and https (and has a hosts and snis match criteria) would fail to proxy http requests, as it does not contain an SNI (ORB-6517).</li>
+            <li>Fix issue where a <code>nil</code> request context would lead to errors <code>attempt to index local 'ctx'</code> being shown in the logs.</li>
+            <li>Reduced the number of needed timers to active health check upstreams and to resolve hosts.</li>
+            <li>Schemas for full-schema validations are correctly cached now, avoiding memory leaks when reloading declarative configurations (ORB-6713).</li>
+            <li>Fix issue where <code>orbit reload -c &lt;config&gt;</code> would fail (ORB-6664).</li>
+            <li>Fix issue where the <MadCap:variable name="General.ProductName" /> configuration cache would get corrupted (ORB-6664).</li>
+            <li>Ensure the log serializer encodes the <code>tries</code> field as an array when empty, rather than an object (ORB-6632).</li>
+            <li>request-transformer plugin does not allow <code>null</code> in config anymore as they can lead to runtime errors (ORB-6710).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+        <p><MadCap:xref href="../index/release-history.htm">Release history</MadCap:xref> · <MadCap:xref href="../index/upgrade-guide.htm">Upgrade guide</MadCap:xref></p>
+    </body>
+</html>

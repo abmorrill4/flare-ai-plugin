@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Add a user</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Add a user</h1>
+        <p>An administrator adds each user before that person can log in. You can add users one at a time or import many users from a file.</p>
+        <h2>Add one user</h2>
+        <ol>
+            <li>Select <b>Users</b> &gt; <b>Add user</b>.</li>
+            <li>Enter the user's name and email address.</li>
+            <li>In the <b>Role</b> list, select a role.</li>
+            <li>Click <b>Save</b>.</li>
+        </ol>
+        <p>The user receives a welcome message with a link to set a password. The link expires after 7 days!</p>
+        <h2>Import users from a file</h2>
+        <ol>
+            <li>Select <b>Users</b> &gt; <b>Import</b>.</li>
+            <li>Click <b>Choose file</b>, and then select a CSV file.</li>
+            <li>Click <b>Import</b>.</li>
+        </ol>
+        <p>The CSV file needs the columns <code>name</code>, <code>email</code>, and <code>role</code>. The import skips rows that have an email address that already exists.</p>
+        <p class="important">A file can have at most 5,000 rows! Split a larger file into several files.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/if-you-cannot-log.flsnp" />
+    </body>
+</html>

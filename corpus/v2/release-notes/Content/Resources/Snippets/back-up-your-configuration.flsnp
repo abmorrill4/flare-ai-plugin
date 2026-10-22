@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head />
+    <body>
+        <ol>
+            <li>Back up your configuration and your data store.</li>
+            <li>Read each change in this topic and note the settings that you use.</li>
+            <li>Upgrade a test environment first, and then check the logs for warnings!</li>
+            <li>Follow the steps in the <MadCap:xref href="../../index/upgrade-guide.htm">upgrade guide</MadCap:xref>.</li>
+        </ol>
+    </body>
+</html>

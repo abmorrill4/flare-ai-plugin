@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Roll back an upgrade</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Roll back an upgrade</h1>
+        <p>If an upgrade causes a problem that you cannot resolve quickly, you can return to the previous release. Roll back before you change any data, because newer migrations can alter the data store.</p>
+        <ol>
+            <li>Stop the node.</li>
+            <li>Restore the backup that you made before the upgrade.</li>
+            <li>Install the previous release!</li>
+            <li>Start the node, and then check the status page.</li>
+        </ol>
+        <p class="important">A roll back after a major upgrade can lose data that was written after the migration. Contact <MadCap:snippetText src="../Resources/Snippets/support-contact.flsnp" /> before you roll back a major version.</p>
+        <p>After you roll back, report the problem so that it can be fixed in the next patch release. Include the version numbers and the log output from the failed upgrade.</p>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+    </body>
+</html>

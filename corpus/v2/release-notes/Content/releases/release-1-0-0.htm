@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>Release 1.0.0</title>
+        <link href="../Resources/Stylesheets/Default.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <h1>Release 1.0.0</h1>
+        <p><MadCap:variable name="General.ProductName" /> 1.0.0 was released on December 18, 2018.</p>
+        <p>It contains a large number of other features and fixes, listed below. Also, all plugins included with <MadCap:variable name="General.ProductName" /> 1.0 are updated to use version 1.0 of the PDK. Being a major version, all entities and concepts that were marked as deprecated in <MadCap:variable name="General.ProductName" /> 0.x are now removed in <MadCap:variable name="General.ProductName" /> 1.0.</p>
+        <p>This release adds new options for operators and recent fixes for the proxy.</p>
+        <h2>What is in this release</h2>
+        <ul>
+            <li>14 new features</li>
+            <li>9 fixes</li>
+        </ul>
+        <h2>Changes</h2>
+        <ul>
+            <li><b>Support for TCP &amp; TLS Stream Routes</b> via the new <code>stream_listen</code> config option (ORB-4009).</li>
+            <li>A new <code>origins</code> config property allows overriding hosts from <MadCap:variable name="General.ProductName" /> (ORB-3679).</li>
+            <li>There is a new phase called <code>preread</code>. This is where stream traffic routing is done.</li>
+            <li>A new <code>dns_valid_ttl</code> property can be set to forcefully override the TTL value of all resolved DNS records (ORB-3730).</li>
+            <li>The new <code>transparent</code> suffix also applies to the <code>proxy_listen</code> directive.</li>
+            <li><b>New migrations framework</b>. This new implementation supports no-downtime, Blue/Green migrations paths that will help sustain <MadCap:variable name="General.ProductName" /> 1.0's stability. It brings a considerable number of other improvements, such as new commands, better support for automation, improved CLI logging, and many more. Additionally, this new framework alleviates the old limitation around multiple nodes running concurrent migrations. See the related PR for a complete list of improvements (ORB-3802).</li>
+            <li><b>Support for HTTPS in active healthchecks</b> (ORB-3815).</li>
+            <li>Improved router rebuilds resiliency by reducing database accesses in high concurrency scenarios (ORB-3782).</li>
+            <li>Significant performance improvements in the core's plugins runloop (ORB-3794).</li>
+            <li>Schema improvements: (ORB-3756). <ul><li>New field validators: <code>distinct</code>, <code>ne</code>, <code>is_regex</code>, <code>contains</code>, <code>gt</code>.</li><li>Adding a new field which has a default value to a schema no longer requires a migration.</li></ul></li>
+            <li><b>Routes now have a <code>name</code> field (like Services)</b> (ORB-3764).</li>
+            <li>Multipart parsing support (ORB-3776).</li>
+            <li>Admin API errors expose the name of the current strategy (ORB-3612).</li>
+            <li>http-log: Support for buffering logging messages in a configurable logging queue (ORB-3604).</li>
+        </ul>
+        <h2>Fixes</h2>
+        <ul>
+            <li>Fix an issue which would insert an extra <code>/</code> in the upstream URL when the request path was longer than the configured Route's <code>path</code> attribute!</li>
+            <li>Ensure better backwards-compatibility between the new DAO and existing core runloop code regarding null values (ORB-3772, ORB-3710).</li>
+            <li>Various issues related to the new schema library bundled with the new DAO were addressed.</li>
+            <li>PDK improvements: (ORB-3842). <ul><li><code>orbit.request.get_path()</code> and other functions now properly handle cases when <code>$request_uri</code> is nil.</li></ul></li>
+            <li>Ensure the <code>/certificates</code> endpoints properly returns all SNIs configured on a given certificate (ORB-3722).</li>
+            <li>Ensure the <code>upstreams/:upstream/targets/...</code> endpoints returns an empty JSON array (<code>[]</code>) instead of an empty object (<code>{}</code>) when no targets exist (ORB-4058).</li>
+            <li>Improved inferring of arguments with <code>application/x-www-form-urlencoded</code> (ORB-3770).</li>
+            <li>Fix the handling of defaults values in some cases when using <code>PATCH</code> (ORB-3910).</li>
+            <li>acl: Minor performance improvements by ensuring proper caching of computed values (ORB-4040).</li>
+        </ul>
+        <MadCap:snippetBlock src="../Resources/Snippets/release-dates-use-utc.flsnp" />
+        <p><MadCap:xref href="../index/release-history.htm">Release history</MadCap:xref> · <MadCap:xref href="../index/upgrade-guide.htm">Upgrade guide</MadCap:xref></p>
+    </body>
+</html>

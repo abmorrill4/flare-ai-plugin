@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultToc Version="1">
+    <TocEntry Title="Admin">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/admin/brand-the-login-page.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/admin/export-reports.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/admin/languages-and-localization.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/admin/notifications.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/admin/webhooks.htm" />
+    </TocEntry>
+    <TocEntry Title="Apps">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/apps/add-an-application.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/apps/assign-users-to-an-application.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/apps/configure-sign-on-settings.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/apps/set-up-openid-connect.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/apps/set-up-saml.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/apps/single-sign-on-overview.htm" />
+    </TocEntry>
+    <TocEntry Title="Getting started">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/getting-started/about-acme-sign-on.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/getting-started/console-tour.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/getting-started/log-in-to-the-console.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/getting-started/log-out-and-session-timeouts.htm" />
+    </TocEntry>
+    <TocEntry Title="Reference">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/reference/keyboard-shortcuts.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/reference/ui-label-reference.htm" />
+    </TocEntry>
+    <TocEntry Title="Security">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/security/api-tokens.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/security/audit-log.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/security/end-sessions.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/security/manage-the-ip-allowlist.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/security/multi-factor-authentication.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/security/rotate-the-master-key.htm" />
+    </TocEntry>
+    <TocEntry Title="Troubleshooting">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/troubleshooting/troubleshoot-directory-sync.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/troubleshooting/troubleshoot-log-in-problems.htm" />
+    </TocEntry>
+    <TocEntry Title="Users">
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/users/add-a-user.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/users/directory-sync.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/users/disable-a-user.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/users/reset-a-password.htm" />
+        <TocEntry Title="[%=System.LinkedTitle%]" Link="/Content/users/roles-and-permissions.htm" />
+    </TocEntry>
+</CatapultToc>
