@@ -39,16 +39,16 @@
       "Dashes"
     ],
     "Avoid": [
-      "\\u2013"
+      "(?<!\\d)\\u2013|\\u2013(?!\\d)"
     ],
     "Use": "",
-    "Example": "Choose a value from 1–10.",
+    "Example": "Install the app – then restart it.",
     "IgnoreCase": false,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Choose a value from 1–10.",
+        "Text": "Install the app – then restart it.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"

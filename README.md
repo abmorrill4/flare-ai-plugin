@@ -162,6 +162,7 @@ HTML build…" does it automatically when you build in Flare. For `madbuild` / C
 |---|---|
 | User settings (DPAPI-protected key, model) | `%APPDATA%\FlareAI\settings.json` |
 | Diagnostics log | `%APPDATA%\FlareAI\diag.log` |
+| Your own style guide (no team guide): only your rule changes, applied after the bundled guide | `%APPDATA%\FlareAI\StyleGuide` (a copy made by an older version is backed up to `StyleGuide.backup-<date>` when it is reduced) |
 | Installed plugin | `C:\Program Files\MadCap Software\MadCap Flare <ver>\Flare.app\Plugins\FlareAI\` |
 | API dump from the real DLL | `docs\api-dump.txt` (generated) |
 

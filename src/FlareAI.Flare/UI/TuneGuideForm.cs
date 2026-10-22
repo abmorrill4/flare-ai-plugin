@@ -25,6 +25,7 @@ namespace FlareAI.Flare.UI
         private readonly Func<string, IDocumentAdapter> _open;
         private readonly Func<IDocumentAdapter, ActionRunner> _runnerFor;
         private readonly Func<IList<string>> _guideRoots;
+        private readonly Func<string, bool> _isDefault;
         private readonly string _openProject;
         private readonly Button _draft, _prompts, _turnedOff;
         private readonly Label _head;
@@ -43,12 +44,13 @@ namespace FlareAI.Flare.UI
         };
 
         /// <param name="runnerFor">An action runner for a style-guide topic opened in Flare (drafts guide edits).</param>
-        /// <param name="guideRoots">The guides whose turned-off rules can be reviewed (writable ones only).</param>
+        /// <param name="guideRoots">The guides in effect, whose turned-off rules can be reviewed.</param>
+        /// <param name="isDefault">True for a read-only guide (bundled with the plugin): its rows are listed as defaults.</param>
         /// <param name="openProject">A path in the open Flare project, for its own turned-off rules.</param>
         public TuneGuideForm(Team team, IStyleService style, string project, Func<string, IDocumentAdapter> open, Func<IDocumentAdapter, ActionRunner> runnerFor,
-                             Func<IList<string>> guideRoots = null, string openProject = null)
+                             Func<IList<string>> guideRoots = null, string openProject = null, Func<string, bool> isDefault = null)
         {
-            _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor; _guideRoots = guideRoots; _openProject = openProject;
+            _team = team; _style = style; _project = project; _open = open; _runnerFor = runnerFor; _guideRoots = guideRoots; _openProject = openProject; _isDefault = isDefault;
             Text = "House Style — Tune style guide";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 600);
@@ -74,7 +76,7 @@ namespace FlareAI.Flare.UI
             _openRule.Click += (s, e) => OpenRule();
             _draft.Click += (s, e) => DraftChange();
             _prompts.Click += (s, e) => CustomizePrompts();
-            _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject)) f.ShowDialog(this); };
+            _turnedOff.Click += (s, e) => { using (var f = new TurnedOffRulesForm(_team, _style, _project, _guideRoots, _openProject, _isDefault)) f.ShowDialog(this); };
             bar.Controls.AddRange(new Control[] { close, refresh, _openRule, _draft, _prompts, _turnedOff });
             var tips = new ToolTip();
             tips.SetToolTip(_turnedOff, "Every rule turned off or changed in the style guide and this project: who, when and why. Turn rules back on here.");

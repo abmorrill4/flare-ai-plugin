@@ -57,11 +57,29 @@ namespace FlareAI.Core.Style
                 if (_cache.TryGetValue(key, out c) && c.Key == stamp) return c.Value;
             }
             var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(guides), "google", "Google") };
-            foreach (var g in guides) layers.Add(GuideLayer.Load(g, null, null, "Google"));
+            for (var i = 0; i < guides.Count; i++) layers.Add(GuideLayer.Load(guides[i], null, null, "Google", Shadowed(guides[i], guides.Skip(i + 1))));
             if (root != null) layers.Add(GuideLayer.Load(root, "project"));
             var comp = new Composition(layers);
             lock (_gate) _cache[key] = new KeyValuePair<string, Composition>(stamp, comp);
             return comp;
+        }
+
+        /// <summary>
+        /// The files of <paramref name="guide"/> that a later writer's own guide (<see cref="GuideSeed.IsPersonal"/>) has its
+        /// own version of, by path inside the project: a topic the writer edited stands in for the bundled topic.
+        /// </summary>
+        private static Func<string, bool> Shadowed(string guide, IEnumerable<string> later)
+        {
+            var mine = later.Where(GuideSeed.IsPersonal).ToList();
+            if (mine.Count == 0) return null;
+            var root = Path.GetFullPath(guide).TrimEnd('\\') + "\\";
+            return f =>
+            {
+                var full = Path.GetFullPath(f);
+                if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase)) return false;
+                var rel = full.Substring(root.Length);
+                return mine.Any(m => File.Exists(Path.Combine(m, rel)));
+            };
         }
 
         /// <summary>Forgets every composition: the next use reads the guides again.</summary>
@@ -116,6 +134,11 @@ namespace FlareAI.Core.Style
         public IList<LintHit> Lint(IList<string> texts, IList<int> headings, string project)
         {
             return Compose(project).Lint(texts, headings);
+        }
+
+        public IList<LintHit> Lint(IList<LintLine> lines, string project)
+        {
+            return Compose(project).Lint(lines);
         }
 
         public string Guide(string project) { return Compose(project).Guide(); }
@@ -261,64 +284,105 @@ namespace FlareAI.Core.Style
             return ruleId != null && _overrides.TryGetValue(ruleId, out v) && v == "off";
         }
 
-        /// <summary>"off", a severity, or null: what the layers above say about this rule.</summary>
+        /// <summary>"off", a severity, or null (the rule's own level, also when a later layer turned it back "on"): what the layers say about this rule.</summary>
         private string Override(LintRule r)
         {
             string v;
-            if (r.Id != null && _overrides.TryGetValue(r.Id, out v)) return v;
-            return _overrides.TryGetValue(r.Name, out v) ? v : null;
+            if (!(r.Id != null && _overrides.TryGetValue(r.Id, out v)) && !_overrides.TryGetValue(r.Name, out v)) return null;
+            return v == "on" ? null : v;
         }
 
         // ---- lint --------------------------------------------------------------------------------------------------
 
-        /// <summary>Exact findings in plain-text runs. Rules scoped to headings (Content.Headings) run on heading runs only.</summary>
+        /// <summary>
+        /// Exact findings in plain-text lines whose context isn't known beyond "heading or not" (MCP, tests, the miner).
+        /// Rules scoped to headings (Content.Headings) run on heading lines only; other Content scopes aren't enforced.
+        /// </summary>
         /// <param name="all">Every rule's hits, overlapping ones included (validation tests each rule on its own).</param>
         public List<LintHit> Lint(IList<string> texts, IList<int> headings, bool all = false)
         {
             var heads = new HashSet<int>(headings ?? new int[0]);
+            var lines = new List<LintLine>(texts.Count);
+            for (var i = 0; i < texts.Count; i++) lines.Add(LintLine.Plain(texts[i], heads.Contains(i)));
+            return Lint(lines, all);
+        }
+
+        /// <summary>
+        /// Exact findings in lines that carry their context (from <see cref="TextLine.ToLint"/>): each rule fires only where its
+        /// Content scope allows (<see cref="LintScope"/>), and only rules about UI wording fire inside UI labels.
+        /// Several rules on the same words make one finding: the owner (later layer, citable, fixable, severity, canonical
+        /// owner, then guide order) with every other rule on those words in <see cref="LintHit.AlsoRules"/>.
+        /// </summary>
+        /// <param name="all">Every rule's hits, overlapping ones included (validation tests each rule on its own).</param>
+        public List<LintHit> Lint(IList<LintLine> lines, bool all = false)
+        {
             var rank = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             for (var i = 0; i < Layers.Count; i++) rank[Layers[i].Name] = i;
             var hits = new List<LintHit>();
-            var active = Rules.Where(r => ForOurProducts(r.Products)).Select(r => new { r, o = Override(r) }).Where(x => x.o != "off").ToList();
-            for (var i = 0; i < texts.Count; i++)
+            var order = new Dictionary<LintHit, int>();
+            var active = Rules.Select((r, n) => new { r, n }).Where(x => ForOurProducts(x.r.Products))
+                              .Select(x => new { x.r, o = Override(x.r), scope = LintScope.For(x.r), x.n }).Where(x => x.o != "off").ToList();
+            for (var i = 0; i < lines.Count; i++)
             {
-                var text = (texts[i] ?? "").Replace('\r', ' ').Replace('\n', ' ');
+                var line = lines[i] ?? LintLine.Plain("");
+                var text = (line.Text ?? "").Replace('\r', ' ').Replace('\n', ' ');
                 foreach (var x in active)
                 {
                     var r = x.r;
-                    if (r.Applies.Contains("Headings") && !heads.Contains(i)) continue;
                     foreach (var swap in r.Swaps)
                         foreach (Match m in swap.Key.Matches(text))
                         {
                             if (m.Length == 0) continue;
+                            if (!x.scope.Allows(line, m.Index, m.Index + m.Length)) continue;
                             var hit = Hit(r, swap.Value, text, m.Index, m.Index + m.Length, x.o);
                             if (hit == null) continue;
                             hit.Index = i;
                             hits.Add(hit);
+                            order[hit] = x.n;
                         }
                 }
             }
             if (all) return hits;
-            // Same span flagged by several layers: keep the latest layer (it overrides), then a citable rule, then a fixable one.
+            // Same span flagged by several rules: one finding. The owner is the latest layer (it overrides), then a citable
+            // rule, a fixable one, the most severe, the layer's canonical owner (rule-owners.txt), then guide order: the
+            // same input always names the same rule.
             var kept = new List<LintHit>();
             var byKey = new Dictionary<string, LintHit>();
             foreach (var h in hits.OrderBy(h => h.Index).ThenBy(h => h.Start).ThenBy(h => h.Length)
                          .ThenBy(h => -(rank.ContainsKey(h.Layer) ? rank[h.Layer] : 0)).ThenBy(h => h.RuleId == null).ThenBy(h => h.Replacement == null)
-                         .ThenBy(h => Rank.ContainsKey(h.Severity) ? Rank[h.Severity] : 3))
+                         .ThenBy(h => Rank.ContainsKey(h.Severity) ? Rank[h.Severity] : 3)
+                         .ThenBy(h => OwnerRank(h.RuleId)).ThenBy(h => order[h]))
             {
                 LintHit first;
                 if (byKey.TryGetValue(h.Index + ":" + h.Start + ":" + h.Length, out first)) first.AlsoFlaggedBy(h);   // turning off the shown rule would otherwise expose this one
                 else { byKey[h.Index + ":" + h.Start + ":" + h.Length] = h; kept.Add(h); }
             }
-            // A hit inside a longer one ("Please" inside "Please note that") is the same problem: show the longer only.
+            // A hit inside a longer one ("Please" inside "Please note that") is the same problem: show the longer only, and
+            // list the inner hit's rules (with the rules it already stood for) on it.
             var shown = new List<LintHit>();
             foreach (var h in kept)
             {
-                var outer = kept.FirstOrDefault(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length);
+                var outer = kept.Where(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length)
+                                .OrderByDescending(o => o.Length).ThenBy(o => o.Start).FirstOrDefault();
                 if (outer == null) shown.Add(h);
                 else outer.AlsoFlaggedBy(h);
             }
             return shown;
+        }
+
+        private Dictionary<string, int> _owners;
+
+        /// <summary>Position of the rule in its layer's canonical owner list (rule-owners.txt); unlisted rules come after listed ones.</summary>
+        private int OwnerRank(string ruleId)
+        {
+            if (_owners == null)
+            {
+                var d = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var l in Layers) foreach (var id in l.Owners) if (!d.ContainsKey(id)) d[id] = d.Count;
+                _owners = d;
+            }
+            int n;
+            return ruleId != null && _owners.TryGetValue(ruleId, out n) ? n : int.MaxValue;
         }
 
         private static LintHit Hit(LintRule r, string use, string text, int start, int end, string severity)
@@ -372,7 +436,7 @@ namespace FlareAI.Core.Style
         {
             var report = new GuideReport { Layers = Layers.Select(l => l.Name).ToList() };
             report.Issues.AddRange(Layers.SelectMany(l => l.Problems));
-            var rows = Rules.Where(r => r.Id != null).ToList();
+            var rows = Rules.Where(r => r.Id != null && Override(r) != "off").ToList();   // a rule the team turned off is not tested: it never fires
             Action<string, LintRule, string> issue = (level, r, msg) => report.Issues.Add(new GuideIssue { Level = level, Layer = r.Layer, File = r.File, Location = "table row " + r.Row + " (" + r.Id + ")", Message = msg });
 
             foreach (var r in rows.Where(r => r.Action == "replace" && r.Avoid.Any(a => string.Equals(a, r.Use, r.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))))
@@ -388,7 +452,8 @@ namespace FlareAI.Core.Style
                 {
                     var r = withEx[i];
                     var mine = hits.Where(h => h.Index == i && h.RuleId == r.Id).ToList();
-                    if (mine.Count == 0) { issue("error", r, "The Example doesn't trigger this rule: '" + r.Example + "'."); continue; }
+                    // A row for products this guide doesn't cover never lints here, so its Example can't be checked against it.
+                    if (mine.Count == 0) { if (ForOurProducts(r.Products)) issue("error", r, "The Example doesn't trigger this rule: '" + r.Example + "'."); continue; }
                     if (mine.All(h => h.Replacement != null))
                     {
                         var t = r.Example;

@@ -3,9 +3,43 @@
     <head><title>Changes to the Google guide</title></head>
     <body>
         <h1>Changes to the Google guide</h1>
-        <p>Rows in this table turn rules from the Google developer documentation style guide off, or change their level, for the whole company. Example: Will, off, because release notes describe future behavior.</p>
+        <p>Rows in this table turn rules from the Google developer documentation style guide off, or change their level, for the whole company. These are the defaults that ship for teams writing Flare help. Each row says why, you see them in Turned-off rules, and you can turn any of them back on there. Timeless-Documentation rules ("currently", "in the future") stay on: turn them off per project for release notes, where Google allows time words.</p>
         <table>
             <tr><th>Rule</th><th>Setting</th><th>Reason</th></tr>
+            <tr><td>google:word-list/221</td><td>off</td><td>A topic is a page in the output. Help sites call themselves "this page", and footer boilerplate repeats it on every topic. Simulated authors rejected this rule 72% of the time.</td></tr>
+            <tr><td>google:word-list/640</td><td>suggestion</td><td>Google's term advice is right for prose, but UI labels such as the bold "Sign-On Settings" must match the product verbatim. Back to warning once lint can skip UI labels (#53).</td></tr>
+            <tr><td>google:quotation-marks/2</td><td>suggestion</td><td>Google's reason is code samples. The Flare editor and pasted Word text produce curly marks, and outputs render them correctly. An error on every apostrophe hides real findings.</td></tr>
+            <tr><td>google:units-of-measure/1</td><td>off</td><td>Typographic advice about a nonbreaking space. An author can't act on it without typing an entity.</td></tr>
+            <tr><td>google:units-of-measure/3</td><td>off</td><td>Typographic advice about a nonbreaking space before the degree symbol. An author can't act on it without typing an entity.</td></tr>
+            <tr><td>google:units-of-measure/5</td><td>off</td><td>Asks for a nonbreaking space in place of a regular one. An author can't act on it without typing an entity, and the output wraps acceptably.</td></tr>
+            <tr><td>google:units-of-measure/10</td><td>off</td><td>Typographic advice about a nonbreaking space before K. An author can't act on it without typing an entity.</td></tr>
+            <tr><td>google:numbers/3</td><td>off</td><td>Typographic advice about a nonbreaking space between a number and a noun. An author can't act on it without typing an entity.</td></tr>
+            <tr><td>google:phone-numbers/3</td><td>off</td><td>Rendering instruction for hand-written HTML or Markdown (nonbreaking hyphen entity).</td></tr>
+            <tr><td>google:phone-numbers/4</td><td>off</td><td>Rendering instruction for hand-written HTML. It fires on the same numbers as the company rule that asks for a variable, with the wrong rationale.</td></tr>
+            <tr><td>google:phone-numbers/5</td><td>off</td><td>Rendering instruction for hand-written HTML (nonbreaking hyphen). Flare manages characters and entities.</td></tr>
+            <tr><td>google:headings-targets/1</td><td>off</td><td>HTML authoring rule. Flare manages heading anchors.</td></tr>
+            <tr><td>google:headings-targets/2</td><td>off</td><td>HTML authoring rule. Flare manages heading anchors.</td></tr>
+            <tr><td>google:headings-targets/3</td><td>off</td><td>HTML authoring rule. Flare manages heading anchors.</td></tr>
+            <tr><td>google:headings-targets/4</td><td>off</td><td>HTML authoring rule. Flare manages heading anchors.</td></tr>
+            <tr><td>google:headings-targets/5</td><td>off</td><td>HTML authoring rule. Flare manages heading anchors.</td></tr>
+            <tr><td>google:semantic-tagging/1</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/2</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/3</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/4</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/5</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/6</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/7</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/8</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/9</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:semantic-tagging/10</td><td>off</td><td>HTML authoring rule. Flare manages tags and styles, so authors don't choose elements.</td></tr>
+            <tr><td>google:mathematical-notation/2</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
+            <tr><td>google:mathematical-notation/3</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
+            <tr><td>google:mathematical-notation/6</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
+            <tr><td>google:mathematical-notation/7</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
+            <tr><td>google:mathematical-notation/11</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
+            <tr><td>google:mathematical-notation/16</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
+            <tr><td>google:mathematical-notation/17</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
+            <tr><td>google:mathematical-notation/18</td><td>off</td><td>HTML entity or tag rule for hand-written HTML. Flare manages entities and markup.</td></tr>
         </table>
     </body>
 </html>

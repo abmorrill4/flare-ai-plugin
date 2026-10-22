@@ -1,0 +1,37 @@
+{
+  "about": "Product tags for compiled Google rules (#57), read by the compiler's product pass. 'names' are what the source calls each product (regex). A rule gets Product.<tag> when its text is scoped to the product ('In Android documentation, ...', 'For Google Cloud ...'), when it sits under a section named for it (pages other than the Word-List), when its fix writes the product name into text that didn't have it, when its Word-List entry's definition starts 'In/For <product> ...', when its entry is listed under 'entries' (Google product vocabulary the source doesn't mark), or when its id is listed under 'rules'. Tags are only ever added. A guide that defines no Product condition tags skips every tagged rule, lint rows included.",
+  "names": {
+    "Android": "Android",
+    "GoogleCloud": "Google Cloud|gcloud|gsutil|Compute Engine",
+    "GoogleWorkspace": "Google Workspace"
+  },
+  "entries": {
+    "GoogleCloud": [
+      "auto mode VPC network",
+      "Cloud",
+      "Cloud console",
+      "Cloud SDK",
+      "custom mode VPC network",
+      "DNS server policy",
+      "edge availability domain",
+      "external VPN gateway",
+      "Google Cloud",
+      "Google Cloud project ID",
+      "instance group",
+      "Interconnect connection",
+      "interconnect type",
+      "network IP address",
+      "peering zone",
+      "persistent disk",
+      "resource record set",
+      "VLAN attachment"
+    ],
+    "Android": [
+      "touch & hold"
+    ]
+  },
+  "rules": {
+    "google:code-syntax/32": [ "GoogleCloud" ],
+    "google:code-syntax/36": [ "GoogleCloud" ]
+  }
+}

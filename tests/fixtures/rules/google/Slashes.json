@@ -1,34 +1,5 @@
 [
   {
-    "Id": "google:slashes/3",
-    "Layer": "google",
-    "Page": "Slashes",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [
-      "Slashes"
-    ],
-    "Avoid": [
-      "(?<![\\w/.])\\d{1,2}/\\d{1,2}/(?:\\d{4}|\\d{2})(?![\\w/])"
-    ],
-    "Use": "",
-    "Example": "The release is scheduled for 03/15/2024.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "The release is scheduled for 03/15/2024.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      }
-    ],
-    "Good": []
-  },
-  {
     "Id": "google:slashes/8",
     "Layer": "google",
     "Page": "Slashes",

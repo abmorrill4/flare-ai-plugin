@@ -58,6 +58,11 @@ namespace FlareAI.Core.Style
         public List<GuideIssue> Problems = new List<GuideIssue>();
         /// <summary>The products this guide covers: the tags of its Product condition tag set (Project\ConditionTagSets\Product.flcts).</summary>
         public List<string> ProductTags = new List<string>();
+        /// <summary>
+        /// Canonical owners (rule-owners.txt in the layer folder, one rule id per line, first = strongest): when several rules
+        /// of one layer flag the same words, the finding names the listed rule. Written by the guide compiler (#56).
+        /// </summary>
+        public List<string> Owners = new List<string>();
         private readonly List<Section> _sections = new List<Section>();
 
         private sealed class Section { public string Title, Source; public List<string> Lines = new List<string>(); }
@@ -66,7 +71,8 @@ namespace FlareAI.Core.Style
         public static bool IsFlagOnly(string use) { return FlagOnly.Contains((use ?? "").Trim()); }
 
         /// <summary>Loads a folder or a Flare project (the folder containing a .flprj). A guide names itself in FlareAI\layer.txt.</summary>
-        public static GuideLayer Load(string path, string name = null, string onlySubfolder = null, string exceptSubfolder = null)
+        /// <param name="skip">Files of this layer not to load (full paths): a later layer has its own version of them.</param>
+        public static GuideLayer Load(string path, string name = null, string onlySubfolder = null, string exceptSubfolder = null, Func<string, bool> skip = null)
         {
             var isProject = Directory.Exists(path) && Directory.GetFiles(path, "*.flprj").Length > 0;
             if (name == null)
@@ -75,7 +81,7 @@ namespace FlareAI.Core.Style
                 if (File.Exists(declared))
                     name = File.ReadAllLines(declared).Select(l => l.Split('#')[0].Trim()).FirstOrDefault(l => l.Length > 0);
             }
-            var layer = new GuideLayer { Name = name ?? new DirectoryInfo(path).Name, Path = path };
+            var layer = new GuideLayer { Name = name ?? new DirectoryInfo(path).Name, Path = path, _skip = skip ?? (f => false) };
             var folder = isProject ? System.IO.Path.Combine(path, @"Content\Resources\StyleGuide") : path;
             if (onlySubfolder != null) folder = System.IO.Path.Combine(folder, onlySubfolder);
             if (Directory.Exists(folder)) layer.LoadFolder(folder, exceptSubfolder == null ? null : System.IO.Path.Combine(folder, exceptSubfolder));
@@ -85,19 +91,27 @@ namespace FlareAI.Core.Style
 
         // ---- loading ---------------------------------------------------------------------------------------
 
+        private Func<string, bool> _skip = f => false;
+
+        private bool Has(string file) { return File.Exists(file) && !_skip(file); }
+
         private void LoadFolder(string folder, string except)
         {
             var glossary = System.IO.Path.Combine(folder, "glossary.json");
-            if (File.Exists(glossary))
+            if (Has(glossary))
                 foreach (var t in JObject.Parse(Read(glossary))["terms"] ?? new JArray())
                     Glossary.Add(new GlossaryEntry { Term = (string)t["term"], Note = (string)t["note"], Abbr = (string)t["abbr"], Variants = (t["variants"] ?? new JArray()).Select(v => (string)v).ToList(), Layer = Name });
             var ini = System.IO.Path.Combine(folder, "overrides.ini");
-            if (File.Exists(ini))
+            if (Has(ini))
                 foreach (var o in RuleOverrides.ReadIni(ini)) if (!o.IsAiName) Overrides.Add(new KeyValuePair<string, string>(o.RuleId, o.Setting));
+            var owners = System.IO.Path.Combine(folder, "rule-owners.txt");
+            if (Has(owners))
+                Owners.AddRange(File.ReadAllLines(owners).Select(l => l.Split('#')[0].Trim()).Where(l => l.Length > 0));
             var md = System.IO.Path.Combine(folder, "guide.md");
-            if (File.Exists(md)) LoadMarkdown(md);
+            if (Has(md)) LoadMarkdown(md);
             var topics = Directory.GetFiles(folder, "*.htm", SearchOption.AllDirectories).Concat(Directory.GetFiles(folder, "*.html", SearchOption.AllDirectories))
                 .Where(f => except == null || !f.StartsWith(except + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                .Where(f => !_skip(f))
                 .OrderBy(f => f, StringComparer.OrdinalIgnoreCase);
             foreach (var t in topics) LoadTopic(t);
         }
@@ -274,25 +288,26 @@ namespace FlareAI.Core.Style
                     var setting = settingC < row.Count ? row[settingC].Trim().ToLowerInvariant() : "";
                     if (rule.Length == 0) continue;
                     var value = Setting(setting);
-                    if (value == null) { Problem("error", file, "table row " + (r + 1), "Setting '" + setting + "' should be off, error, warning, or suggestion."); continue; }
+                    if (value == null) { Problem("error", file, "table row " + (r + 1), "Setting '" + setting + "' should be off, on, error, warning, or suggestion."); continue; }
                     Overrides.Add(new KeyValuePair<string, string>(rule, value));
                     s.Section.Lines.Add("- " + rule + ": " + value + " in this guide");
                 }
             }
         }
 
-        /// <summary>"off" or a severity; null when it's neither.</summary>
+        /// <summary>"off", "on" (back on at the rule's own level, over an earlier layer's off or level), or a severity; null when it's none.</summary>
         internal static string Setting(string s)
         {
             s = Severity.Normalize(s);
             if (s == "off" || s == "no" || s == "disabled" || s == "disable" || s == "false") return "off";
+            if (s == "on" || s == "yes" || s == "enabled" || s == "enable" || s == "true" || s == "default") return "on";
             return Severities.Contains(s) ? s : null;
         }
 
         private void LoadFlareProject(string root)
         {
             var products = System.IO.Path.Combine(root, @"Project\ConditionTagSets\Product.flcts");
-            if (File.Exists(products))
+            if (Has(products))
                 try
                 {
                     var x = new XmlDocument(); x.Load(products);
@@ -452,8 +467,12 @@ namespace FlareAI.Core.Style
         /// <summary>Saves a topic as it was read: same declaration, same byte-order mark, whitespace untouched.</summary>
         internal static void Save(XmlDocument doc, string path)
         {
-            var bytes = File.ReadAllBytes(path);
-            var bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+            var bom = true;   // a new topic gets a BOM, as Flare writes them
+            if (File.Exists(path))
+            {
+                var bytes = File.ReadAllBytes(path);
+                bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+            }
             var settings = new XmlWriterSettings { Encoding = new UTF8Encoding(bom), OmitXmlDeclaration = !(doc.FirstChild is XmlDeclaration) };
             using (var w = XmlWriter.Create(path, settings)) doc.Save(w);
         }
@@ -579,7 +598,7 @@ namespace FlareAI.Core.Style
         private static string UpperFirst(string s) { return s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s.Substring(1); }
         private static string TitleCase(string s) { return Regex.Replace(s.ToLowerInvariant(), @"\b[a-z]", m => m.Value.ToUpperInvariant()); }
         private static string Read(string path) { return File.ReadAllText(path, Encoding.UTF8); }
-        private static IEnumerable<string> Files(string dir, string pattern) { return Directory.Exists(dir) ? Directory.GetFiles(dir, pattern).OrderBy(f => f, StringComparer.OrdinalIgnoreCase) : Enumerable.Empty<string>(); }
+        private IEnumerable<string> Files(string dir, string pattern) { return Directory.Exists(dir) ? Directory.GetFiles(dir, pattern).Where(f => !_skip(f)).OrderBy(f => f, StringComparer.OrdinalIgnoreCase) : Enumerable.Empty<string>(); }
     }
 
     public sealed class GlossaryEntry

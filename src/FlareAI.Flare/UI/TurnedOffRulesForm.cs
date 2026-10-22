@@ -12,8 +12,9 @@ namespace FlareAI.Flare.UI
 {
     /// <summary>
     /// "Turned-off rules" (from Tune style guide): every rule the style guide or the open project turns off or changes,
-    /// with who, when and why, and Turn back on. Only style guide owners can turn rules back on when the guide has an
-    /// owners file.
+    /// with who, when and why, and Turn back on. The bundled guide's own changes are listed as "Default": turning one back
+    /// on writes an "on" row into the writer's own guide (removing that row returns to the default). Only style guide
+    /// owners can turn rules back on when the guide has an owners file.
     /// </summary>
     internal sealed class TurnedOffRulesForm : Form
     {
@@ -21,14 +22,15 @@ namespace FlareAI.Flare.UI
         private readonly IStyleService _style;
         private readonly string _project;
         private readonly Func<IList<string>> _guideRoots;
+        private readonly Func<string, bool> _isDefault;
         private readonly string _openProject;
         private readonly Label _head;
         private readonly ListView _list;
         private readonly Button _turnOn;
 
-        public TurnedOffRulesForm(Team team, IStyleService style, string project, Func<IList<string>> guideRoots, string openProject)
+        public TurnedOffRulesForm(Team team, IStyleService style, string project, Func<IList<string>> guideRoots, string openProject, Func<string, bool> isDefault = null)
         {
-            _team = team; _style = style; _project = project; _guideRoots = guideRoots; _openProject = openProject;
+            _team = team; _style = style; _project = project; _guideRoots = guideRoots; _openProject = openProject; _isDefault = isDefault;
             Text = "House Style — Turned-off rules";
             StartPosition = FormStartPosition.CenterParent;
             ClientSize = new Size(900, 440);
@@ -41,7 +43,7 @@ namespace FlareAI.Flare.UI
             foreach (var c in new[] { "Rule", "Source", "Applies to", "Setting", "Changed by", "Date", "Note" }) _list.Columns.Add(c);
             _list.Columns[0].Width = 280; _list.Columns[1].Width = 70; _list.Columns[2].Width = 140; _list.Columns[3].Width = 60;
             _list.Columns[4].Width = 120; _list.Columns[5].Width = 80; _list.Columns[6].Width = 200;
-            _list.SelectedIndexChanged += (s, e) => _turnOn.Enabled = CanChange && Current() != null;
+            _list.SelectedIndexChanged += (s, e) => UpdateButton();
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
             _turnOn = new Button { Text = "Turn back on", AutoSize = true, Enabled = false };
@@ -52,13 +54,20 @@ namespace FlareAI.Flare.UI
             Controls.Add(_head);
             CancelButton = close;
             A11y.Name(_list, "Turned-off rules", "Columns: rule, source, applies to, setting, changed by, date, note.");
-            A11y.Name(_turnOn, "Turn back on", "Removes the selected change, so the rule applies again from the next check.");
+            A11y.Name(_turnOn, "Turn back on", "Turns the selected rule back on (or, for a rule you turned back on, returns it to the default) from the next check.");
             A11y.Name(bar, "Dialog buttons");
             A11y.Apply(this);
             Shown += (s, e) => Reload(null);
         }
 
         private bool CanChange { get { return _team == null || _team.IsOwner; } }
+
+        private void UpdateButton()
+        {
+            var o = Current();
+            _turnOn.Text = o != null && o.IsTurnOn ? "Use the default" : "Turn back on";
+            _turnOn.Enabled = CanChange && o != null && (!o.IsDefault || _team != null);
+        }
 
         private RuleOverride Current() { return _list.SelectedItems.Count == 1 ? (RuleOverride)_list.SelectedItems[0].Tag : null; }
 
@@ -70,8 +79,7 @@ namespace FlareAI.Flare.UI
             try
             {
                 var roots = _guideRoots == null ? new List<string>() : new List<string>(_guideRoots());
-                foreach (var root in roots)
-                    entries.AddRange(RuleOverrides.Read(root, _team != null && _team.IsPersonal ? "My style guide" : "Team style guide (" + Path.GetFileName(root.TrimEnd('\\')) + ")"));
+                entries.AddRange(RuleOverrides.InEffect(roots, _isDefault, root => _team != null && _team.IsPersonal ? "My style guide" : "Team style guide (" + Path.GetFileName(root.TrimEnd('\\')) + ")"));
                 var project = StyleEngine.FlareProjectRoot(_openProject);
                 if (project != null && !roots.Any(r => string.Equals(Path.GetFullPath(r).TrimEnd('\\'), project.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)))
                     entries.AddRange(RuleOverrides.Read(project, "Project " + Path.GetFileName(project)));
@@ -89,9 +97,9 @@ namespace FlareAI.Flare.UI
             _list.ShowItemToolTips = true;
             var role = CanChange ? "" : "  Read-only: only the style guide owners (" + string.Join(", ", _team.Owners.ToArray()) + ") can turn rules back on.";
             _head.Text = (done != null ? done + "  " : "") +
-                         (entries.Count == 0 ? "No rules are turned off or changed." : Plural.Of(entries.Count, "rule") + " turned off or changed. Select one and choose Turn back on to apply it again.") + role;
+                         (entries.Count == 0 ? "No rules are turned off or changed." : Plural.Of(entries.Count, "rule") + " turned off or changed (Default: shipped with House Style). Select one and choose Turn back on to apply it again.") + role;
             if (_list.Items.Count > 0) _list.Items[0].Selected = true;
-            _turnOn.Enabled = CanChange && Current() != null;
+            UpdateButton();
         }
 
         private void TurnBackOn()
@@ -100,8 +108,8 @@ namespace FlareAI.Flare.UI
             if (o == null) return;
             try
             {
-                RuleOverrides.TurnBackOn(o, _team);
-                Reload("Turned back on: " + o.RuleId + " (in " + o.File + "). It applies from the next check.");
+                var file = RuleOverrides.TurnBackOn(o, _team);
+                Reload((o.IsTurnOn ? "Back to the default: " : "Turned back on: ") + o.RuleId + " (in " + file + "). It applies from the next check.");
             }
             catch (Exception ex)
             {
