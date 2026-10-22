@@ -560,7 +560,7 @@ namespace FlareAI.Flare.UI
             FlareAI.Core.Diagnostics.Log("Rules: " + setting + " written to " + result.File);
             var where = !forTeam ? " for this project."
                       : _team != null && _team.IsPersonal ? "."
-                      : " for the team. Commit the style guide so everyone gets it.";
+                      : " for the team." + Team.CommitHint(_team == null ? null : _team.GuideRoot);
             return what + where + " It applies the next time you lint." + (result.Incomplete != null ? " " + result.Incomplete : "");
         }
 

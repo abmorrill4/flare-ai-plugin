@@ -10,26 +10,20 @@ namespace FlareAI.Core.Editing
     public static class ChangeText
     {
         /// <summary>
-        /// The words a change deletes when it only deletes (the replacement is empty, or is the start or the end of the
-        /// excerpt with at most a change of case), else null.
+        /// The words a change deletes when it only deletes, else null: the replacement is empty, or it is one capital
+        /// letter carried over from the excerpt's last letter ("Please note that y" to "Y": the next word now starts the
+        /// sentence). A whole-word replacement ("In order to" to "To") is a change, not a deletion.
         /// </summary>
         public static string Deleted(string excerpt, string replacement)
         {
             excerpt = excerpt ?? "";
             if (replacement == null) return null;
-            if (replacement.Trim().Length == 0) return excerpt.Trim().Length == 0 ? null : excerpt.Trim();
-            if (replacement.Length >= excerpt.Length) return null;
-            if (excerpt.EndsWith(replacement, StringComparison.OrdinalIgnoreCase))
-            {
-                var cut = excerpt.Substring(0, excerpt.Length - replacement.Length).Trim();
-                return cut.Length == 0 ? null : cut;
-            }
-            if (excerpt.StartsWith(replacement, StringComparison.OrdinalIgnoreCase))
-            {
-                var cut = excerpt.Substring(replacement.Length).Trim();
-                return cut.Length == 0 ? null : cut;
-            }
-            return null;
+            if (replacement.Length == 0) return excerpt.Trim().Length == 0 ? null : excerpt.Trim();
+            if (replacement.Length != 1 || !char.IsUpper(replacement[0]) || excerpt.Length < 3) return null;
+            var last = excerpt[excerpt.Length - 1];
+            if (!char.IsLower(last) || char.ToUpperInvariant(last) != replacement[0] || excerpt[excerpt.Length - 2] != ' ') return null;
+            var cut = excerpt.Substring(0, excerpt.Length - 1).Trim();
+            return cut.Length == 0 ? null : cut;
         }
 
         /// <summary>A row's text: Delete "x", or Change "x" to "y" (each side cut to <paramref name="max"/> characters).</summary>

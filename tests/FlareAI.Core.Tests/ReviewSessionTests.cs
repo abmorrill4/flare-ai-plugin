@@ -785,7 +785,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "google:words/2=off" }, _guideWrites);
             Assert.Equal(new[] { other }, s.Findings);
             Assert.Equal("rule ignored|We say it.|Google.WordList", _feedback.Single());
-            Assert.EndsWith("Rule disabled for the team. Commit the style guide so everyone gets it.", s.Status);
+            Assert.EndsWith("Rule disabled for the team.", s.Status);   // a shared folder: nothing to commit
         }
 
         [Fact]
@@ -922,7 +922,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { "google:words/2" }, _guideWrites);
             Assert.Equal("House Style couldn't change \"Our rules · Audience: Say members.\" in guide.htm.", _host.Errors.Single());
             Assert.Empty(s.Findings);
-            Assert.EndsWith("Rule disabled for the team. Commit the style guide so everyone gets it. 2 could not be changed.", s.Status);
+            Assert.EndsWith("Rule disabled for the team. 2 could not be changed.", s.Status);
         }
 
         [Fact]

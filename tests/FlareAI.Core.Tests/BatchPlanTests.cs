@@ -42,8 +42,8 @@ namespace FlareAI.Core.Tests
             Assert.Equal("Please", please.Label);
             Assert.Equal(4, please.Findings.Count);
             Assert.Equal(3, please.Files.Count);
-            // Every one deletes "please": a deletion reads as one, and the same example isn't listed twice.
-            Assert.Equal(new[] { "delete \"please\"" }, please.Examples.ToArray());
+            Assert.Equal(BatchPlan.MaxExamples, please.Examples.Count);
+            Assert.Equal("change \"please click\" to \"click\"", please.Examples[0]);
             Assert.Equal("change \"e-mail\" to \"email\"", plan.Groups[1].Examples[0]);
             Assert.Equal("5 changes in 3 files", BatchPlan.Counts(plan.SelectedCount, plan.SelectedFileCount));
         }

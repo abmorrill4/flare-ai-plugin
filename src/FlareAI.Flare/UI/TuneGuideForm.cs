@@ -418,7 +418,7 @@ namespace FlareAI.Flare.UI
                 using (var form = new ResultForm("Draft style guide change", runner, doc, ActionKind.Ask, instruction, new List<System.Xml.XmlNode> { block }) { Lint = false, Task = "draft" })
                 {
                     if (form.ShowDialog(this) != DialogResult.OK) return;
-                    _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + ". Review, save and commit the guide, then run Test Rules.";
+                    _head.Text = form.AppliedSummary + " In " + System.IO.Path.GetFileName(doc.SourcePath) + (Team.IsUnderSourceControl(_team == null ? null : _team.GuideRoot) ? ". Review, save and commit the guide, then run Test Rules." : ". Review and save it, then run Test Rules.");
                 }
             }
             catch (GuideWriteException ex) { Diagnostics.Log("tune: draft", ex); Notify.Error(this, "House Style couldn't set up your style guide for the change.", ex.Message + "\n\nNothing was changed.", ex, "Draft change"); }
@@ -446,8 +446,8 @@ namespace FlareAI.Flare.UI
                 if (!System.IO.File.Exists(readme))
                     System.IO.File.WriteAllText(readme, "The AI's instructions. A file here replaces the built-in template of the same name for every writer\r\n" +
                         "who uses this style guide. Keep the {{PLACEHOLDERS}}. Delete a file to go back to the built-in version.\r\n" +
-                        "Commit changes like any rule change. Afterwards, run Test Rules and test the prose rules with AI.\r\n", new System.Text.UTF8Encoding(false));
-                _head.Text = (added > 0 ? "Copied " + Plural.Of(added, "prompt template") + " to " : "Prompt templates are in ") + dir + ". Edit, then commit with the guide.";
+                        (Team.IsUnderSourceControl(_team == null ? null : _team.GuideRoot) ? "Commit changes like any rule change. " : "") + "Afterwards, run Test Rules and test the prose rules with AI.\r\n", new System.Text.UTF8Encoding(false));
+                _head.Text = (added > 0 ? "Copied " + Plural.Of(added, "prompt template") + " to " : "Prompt templates are in ") + dir + (Team.IsUnderSourceControl(_team == null ? null : _team.GuideRoot) ? ". Edit, then commit with the guide." : ". Edit them there.");
                 System.Diagnostics.Process.Start("explorer.exe", "\"" + dir + "\"");
             }
             catch (Exception ex)

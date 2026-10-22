@@ -911,7 +911,7 @@ namespace FlareAI.Core.Actions
             Status = Summary() + "  Rule" + (changed.Count > 1 ? "s" : "") + (choice.Setting == "off" ? " disabled" : " set to " + Severity.Label(choice.Setting)) +
                      (!choice.ForTeam ? " for this project."
                       : personal ? "."
-                      : " for the team. Commit the style guide so everyone gets it.") +
+                      : " for the team." + Team.CommitHint(guide)) +
                      (changed.Count < all.Count ? " " + (all.Count - changed.Count) + " could not be changed." : "");
             if (choice.Setting == "off") Raise(ReviewEvent.RuleDisabled);
         }

@@ -276,7 +276,7 @@ namespace FlareAI.Flare.UI
                 topic = GuideBuilder.AddToGuide(_team, accepted, out n);
                 foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
                 _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare and run Test Rules" +
-                             (_team.IsPersonal ? "." : ", then commit the guide.");
+                             (!_team.IsPersonal && Team.IsUnderSourceControl(_team.GuideRoot) ? ", then commit the guide." : ".");
                 if (_open != null) _open(topic);
             }
             catch (Exception ex) when ((ex is IOException || ex is UnauthorizedAccessException) && _team.IsStrict && !_team.IsPersonal)
