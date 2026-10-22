@@ -38,7 +38,13 @@ namespace FlareAI.Flare.UI
         private readonly RichTextBox _cardDiff, _cardWhy;
         private readonly Button _accept, _changeAll, _goTo, _openFile, _reject, _edit, _refine, _reanalyze, _rule, _legend;
         // getting started: the guided first lint's hint strip, the checklist in the empty state, and the focused first Lint Project
-        private readonly LinkLabel _tourStrip, _checklist;
+        private readonly LinkLabel _checklist;
+        // The tour's hint strip: the step's sentence, then real buttons (a link label's links can't be trusted to hit-test
+        // right once its text wraps in a narrow pane).
+        private readonly Panel _tourStrip;
+        private readonly Label _tourText;
+        private readonly FlowLayoutPanel _tourBar;
+        private readonly Button _tourNext, _tourSkip, _tourDone;
         private readonly Button _showAllRules;
         private bool _focusTop;
         private string _focusLine;
@@ -298,7 +304,9 @@ namespace FlareAI.Flare.UI
             _notice.TextChanged += (s, e) => FitLabel(_notice, 0);
             _notice.VisibleChanged += (s, e) => FitLabel(_notice, 0);
             _notice.LinkClicked += (s, e) => { var n = Toast.Last; if (n != null && n.Action != null) n.Action(); };
-            Toast.LastChanged += OnNoticeChanged;
+            // Static events: subscribed while the pane has a window. Flare can destroy and recreate the handle when it
+            // moves or re-docks the pane, so a subscription made once in the constructor would be lost.
+            HandleCreated += (s, e) => { Toast.LastChanged -= OnNoticeChanged; Toast.LastChanged += OnNoticeChanged; OnNoticeChanged(); };
             HandleDestroyed += (s, e) => Toast.LastChanged -= OnNoticeChanged;
             OnNoticeChanged();
 
@@ -321,16 +329,28 @@ namespace FlareAI.Flare.UI
             _widthTip.LinkClicked += (s, e) => Safe.Run("Hide tip", HideWidthTip);
             Controls.Add(_widthTip);
             // The guided first lint: one step at a time, at the very top.
-            _tourStrip = new LinkLabel { Dock = DockStyle.Top, AutoSize = false, Height = 20, Visible = false, BackColor = SystemColors.Info, ForeColor = SystemColors.InfoText,
-                                         Padding = new Padding(4, 4, 4, 4), AccessibleRole = AccessibleRole.Link, AccessibleName = "Practice" };
-            _tourStrip.LinkClicked += (s, e) => Safe.Run("Tour", () => OnTourLink(e.Link.LinkData as string));
+            _tourStrip = new Panel { Dock = DockStyle.Top, Height = 20, Visible = false, BackColor = SystemColors.Info, ForeColor = SystemColors.InfoText,
+                                     Padding = new Padding(0, 4, 0, 2), AccessibleRole = AccessibleRole.Grouping, AccessibleName = "Practice" };
+            _tourBar = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = false, WrapContents = true, Padding = new Padding(4, 2, 4, 0), BackColor = SystemColors.Info };
+            _tourText = new Label { Dock = DockStyle.Top, AutoSize = false, UseMnemonic = false, Padding = new Padding(4, 0, 4, 0), BackColor = SystemColors.Info, ForeColor = SystemColors.InfoText };
+            _tourStrip.Controls.Add(_tourBar);    // docked under the text (the last added docks topmost)
+            _tourStrip.Controls.Add(_tourText);
+            // Run after the click returns: the strip's own buttons change under it.
+            _tourNext = Btn(_tourBar, "Next", (s, e) => BeginInvoke((Action)(() => Safe.Run("Tour next", () => OnTourButton("next")))));
+            _tourSkip = Btn(_tourBar, "Skip Tour", (s, e) => BeginInvoke((Action)(() => Safe.Run("Tour skip", () => OnTourButton("skip")))));
+            _tourDone = Btn(_tourBar, "Done", (s, e) => BeginInvoke((Action)(() => Safe.Run("Tour done", () => OnTourButton("done")))));
+            foreach (var b in new[] { _tourNext, _tourSkip, _tourDone }) b.BackColor = SystemColors.Control;
             Controls.Add(_tourStrip);   // added last: the topmost line
-            GuidedTour.Changed += OnGettingStartedChanged;
-            GettingStarted.Changed += OnGettingStartedChanged;
+            HandleCreated += (s, e) =>
+            {
+                GuidedTour.Changed -= OnGettingStartedChanged; GettingStarted.Changed -= OnGettingStartedChanged;
+                GuidedTour.Changed += OnGettingStartedChanged; GettingStarted.Changed += OnGettingStartedChanged;
+                OnGettingStartedChanged();
+            };
             HandleDestroyed += (s, e) => { GuidedTour.Changed -= OnGettingStartedChanged; GettingStarted.Changed -= OnGettingStartedChanged; };
             _status.TextChanged += (s, e) => { FitLabel(_status, 2); _ignoreTip.SetToolTip(_status, _status.Text); };
             _aiOffNote.VisibleChanged += (s, e) => FitLabel(_aiOffNote, 0);
-            _tourStrip.VisibleChanged += (s, e) => FitLabel(_tourStrip, 0);
+            _tourStrip.VisibleChanged += (s, e) => LayoutTourStrip();
             _checklist.VisibleChanged += (s, e) => FitLabel(_checklist, 0);
             _cost.TextChanged += (s, e) => FitLabel(_cost, 0);
             SizeChanged += (s, e) => FitToWidth();
@@ -349,6 +369,9 @@ namespace FlareAI.Flare.UI
             if (InvokeRequired) { BeginInvoke((Action)OnGettingStartedChanged); return; }
             UpdateTourStrip();
             UpdateChecklist();
+            var n = Toast.Last;
+            var tour = GuidedTour.Current;
+            _notice.Visible = n != null && !(tour != null && n.Text == tour.Hint);
         }
 
         /// <summary>What the writer did in the session: the tour and the checklist follow; the first Change gets its note.</summary>
@@ -366,44 +389,49 @@ namespace FlareAI.Flare.UI
             }
         }
 
-        /// <summary>The hint strip: "Step 2 of 5. Select an issue and click Change." with Next (when House Style can't see the step) and Skip tour.</summary>
+        /// <summary>
+        /// The hint strip: "Step 2 of 5. Select an issue and click Change." with Next (only on the step House Style can't
+        /// see) and Skip Tour; after the last step, "You're ready. Lint Project lints every topic." with Done, until Done.
+        /// </summary>
         private void UpdateTourStrip()
         {
             var tour = GuidedTour.Current;
             var show = tour != null;
             if (show)
             {
-                var text = tour.Step == TourStep.Finished ? tour.Hint : tour.Progress + ". " + tour.Hint;
-                var links = new List<KeyValuePair<string, string>>();
-                if (tour.Step == TourStep.Finished) links.Add(new KeyValuePair<string, string>("Done", "done"));
-                else
-                {
-                    if (tour.NeedsNext) links.Add(new KeyValuePair<string, string>("Next", "next"));
-                    links.Add(new KeyValuePair<string, string>("Skip tour", "skip"));
-                }
-                SetLinks(_tourStrip, text, links);
+                var finished = tour.Step == TourStep.Finished;
+                var text = finished ? tour.Hint : tour.Progress + ". " + tour.Hint;
+                if (_tourText.Text != text) _tourText.Text = text;
+                _tourNext.Visible = !finished && tour.NeedsNext;
+                _tourSkip.Visible = !finished;
+                _tourDone.Visible = finished;
                 _tourStrip.AccessibleDescription = text;
             }
             if (_tourStrip.Visible != show) _tourStrip.Visible = show;
-            if (show) { FitLabel(_tourStrip, 0); }
+            LayoutTourStrip();
         }
 
-        private void OnTourLink(string what)
+        /// <summary>The strip as tall as its wrapped sentence plus its buttons, at the pane's width.</summary>
+        private void LayoutTourStrip()
         {
+            if (_tourStrip == null || !_tourStrip.Visible) return;
+            var w = Math.Max(20, ClientSize.Width - Padding.Horizontal - _tourText.Padding.Horizontal);
+            foreach (var b in new[] { _tourNext, _tourSkip, _tourDone }) FitButton(b);
+            var text = TextRenderer.MeasureText(string.IsNullOrEmpty(_tourText.Text) ? " " : _tourText.Text, _tourText.Font, new Size(w, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix).Height + S(2);
+            text += _tourText.Padding.Vertical;
+            if (_tourText.Height != text) _tourText.Height = text;
+            var bar = _tourBar.GetPreferredSize(new Size(w, 0)).Height;
+            if (_tourBar.Height != bar) _tourBar.Height = bar;
+            var h = text + bar + _tourStrip.Padding.Vertical;
+            if (_tourStrip.Height != h) _tourStrip.Height = h;
+        }
+
+        private void OnTourButton(string what)
+        {
+            var tour = GuidedTour.Current;
+            Diagnostics.Log("Tour: " + what + " clicked at " + (tour == null ? "no tour" : tour.Step.ToString()));
             if (what == "next") GettingStarted.Did(TourEvent.Next);
-            else GettingStarted.EndTour();   // Skip tour, or Done after the last line
-        }
-
-        /// <summary>A link label's text: the text, then each link on the same line after two spaces.</summary>
-        private static void SetLinks(LinkLabel label, string text, IList<KeyValuePair<string, string>> links)
-        {
-            var sb = new System.Text.StringBuilder(text);
-            var spans = new List<int[]>();
-            foreach (var l in links) { sb.Append("  "); spans.Add(new[] { sb.Length, l.Key.Length }); sb.Append(l.Key); }
-            label.Links.Clear();
-            label.Text = sb.ToString();
-            label.Links.Clear();
-            for (var i = 0; i < links.Count; i++) label.Links.Add(spans[i][0], spans[i][1], links[i].Value);
+            else if (what == "skip" || what == "done") GettingStarted.EndTour();
         }
 
         /// <summary>
@@ -468,7 +496,9 @@ namespace FlareAI.Flare.UI
             if (IsDisposed) return;
             if (InvokeRequired) { BeginInvoke((Action)OnNoticeChanged); return; }
             var n = Toast.Last;
-            _notice.Visible = n != null;
+            // A tour notice the hint strip already shows isn't repeated here.
+            var tour = GuidedTour.Current;
+            _notice.Visible = n != null && !(tour != null && n.Text == tour.Hint);
             if (n == null) return;
             _notice.Links.Clear();
             _notice.Text = n.Action == null ? n.Text : n.Text + "  " + n.ActionLabel;
@@ -509,6 +539,9 @@ namespace FlareAI.Flare.UI
             A11y.Name(_backToRules, "All Rules", "List every rule again (Escape).");
             A11y.Name(_showAllRules, "Show All Rules");
             A11y.Name(_batchStop, "Stop after this file");
+            A11y.Name(_tourNext, "Next", "Go to the last step.");
+            A11y.Name(_tourSkip, "Skip Tour", "End the practice.");
+            A11y.Name(_tourDone, "Done", "End the practice.");
             var order = new Control[] { _tourStrip, _widthTip, _notice, _acceptAll, _bulk, _stop, _batchStop, _legend, _byRule, _byFile, _backToRules, _showSkipped, _showAllRules, _checklist, _list, _result,
                                         _accept, _changeAll, _reject, _edit, _refine, _reanalyze, _rule, _fixRule, _reviewRule, _turnOffRule, _skipRule, _cardDiff, _cardWhy, _recheck, _ignore };
             for (var i = 0; i < order.Length; i++) order[i].TabIndex = i;
@@ -551,7 +584,7 @@ namespace FlareAI.Flare.UI
         {
             if (Width <= 0) return;
             foreach (var b in _buttons) FitButton(b);
-            FitLabel(_status, 2); FitLabel(_notice, 0); FitLabel(_aiOffNote, 0); FitLabel(_cost, 0); FitLabel(_tourStrip, 0); FitLabel(_checklist, 0);
+            FitLabel(_status, 2); FitLabel(_notice, 0); FitLabel(_aiOffNote, 0); FitLabel(_cost, 0); LayoutTourStrip(); FitLabel(_checklist, 0);
             UpdateWidthTip();
             LayoutCard();
         }
@@ -1158,7 +1191,7 @@ namespace FlareAI.Flare.UI
                 if (shown == 3) break;
                 if (shown++ > 0) _cardDiff.AppendText("\n");
                 DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = BatchPlan.ProjectPath(f.DocumentPath ?? "") + ":  …" + Tail(f.Before, 30) } }, true);
-                if (f.Replacement != null) DiffView.Segments(_cardDiff, ReadableDiff.OfText(f.Excerpt, f.Replacement), false);
+                if (f.Replacement != null) DiffView.Segments(_cardDiff, ChangeText.Diff(f.Excerpt, f.Replacement), false);
                 else DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = f.Excerpt } }, false);
             }
             Line(_cardWhy, r.Reason, FontStyle.Regular);
@@ -1276,7 +1309,7 @@ namespace FlareAI.Flare.UI
                 case "variable": return mark + "Use variable " + f.Variable + " for \"" + f.Excerpt + "\"";
                 case "restructure": return mark + "Rewrite \"" + Shorten(f.Excerpt, 48) + "\"";
                 case "manual": return mark + FlareAI.Core.Style.RuleWording.FromName(f.Rule) + " in \"" + Shorten(f.Excerpt, 36) + "\"";
-                default: return mark + (f.Replacement.Length == 0 ? "Delete \"" + f.Excerpt + "\"" : "Change \"" + Shorten(f.Excerpt, 30) + "\" to \"" + Shorten(f.Replacement, 30) + "\"");
+                default: return mark + ChangeText.Row(f.Excerpt, f.Replacement);
             }
         }
 
@@ -1351,7 +1384,7 @@ namespace FlareAI.Flare.UI
 
             // What: the words around it, and the change marked.
             if (!string.IsNullOrEmpty(f.Before)) DiffView.Segments(_cardDiff, new List<DiffSegment> { new DiffSegment { Kind = DiffKind.Same, Text = "…" + f.Before } }, true);
-            if (f.Replacement != null) DiffView.Segments(_cardDiff, ReadableDiff.OfText(f.Excerpt, f.Replacement), false);
+            if (f.Replacement != null) DiffView.Segments(_cardDiff, ChangeText.Diff(f.Excerpt, f.Replacement), false);
             else
             {
                 _cardDiff.SelectionStart = _cardDiff.TextLength;
@@ -1372,7 +1405,6 @@ namespace FlareAI.Flare.UI
                 if (!string.IsNullOrEmpty(ex.Good)) Line(_cardWhy, "✓ " + ex.Good, FontStyle.Regular);
             }
             if (rule == null && f.Source == "ai") Line(_cardWhy, "General editing judgment (not tied to a guide rule).", FontStyle.Italic);
-            if (rule != null && Team.Current != null && Team.Current.IsOwner) Ref(_cardWhy, "Reference: " + rule.Id);   // for the guide owner (Test Rules, Rule Decisions); writers don't need it
             _cardDiff.Select(0, 0); _cardWhy.Select(0, 0);
             UpdateButtons();
         }
@@ -1388,14 +1420,6 @@ namespace FlareAI.Flare.UI
             box.AppendText((box.TextLength > 0 ? "\n" : "") + text);
         }
 
-        /// <summary>A small grey reference line (the rule's reference: for owners, not something writers need to read).</summary>
-        private static void Ref(RichTextBox box, string text)
-        {
-            box.SelectionStart = box.TextLength;
-            box.SelectionFont = new Font(box.Font.FontFamily, box.Font.Size - 1.5f, FontStyle.Regular);
-            box.SelectionColor = SystemColors.GrayText;
-            box.AppendText((box.TextLength > 0 ? "\n" : "") + text);
-        }
 
         private static string KindLabel(StyleFinding f)
         {

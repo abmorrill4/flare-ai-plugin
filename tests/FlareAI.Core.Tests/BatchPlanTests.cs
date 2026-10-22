@@ -44,6 +44,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(3, please.Files.Count);
             Assert.Equal(BatchPlan.MaxExamples, please.Examples.Count);
             Assert.Equal("change \"please click\" to \"click\"", please.Examples[0]);
+            Assert.Equal("change \"e-mail\" to \"email\"", plan.Groups[1].Examples[0]);
             Assert.Equal("5 changes in 3 files", BatchPlan.Counts(plan.SelectedCount, plan.SelectedFileCount));
         }
 

@@ -906,10 +906,12 @@ namespace FlareAI.Core.Actions
                 _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId || changed.Contains(x.RuleId) : x.Rule == f.Rule);
                 Sort();
             }
+            // Where it was written goes to the log, not the status line.
+            Diagnostics.Log("Rule " + string.Join(", ", changed.ToArray()) + " set to " + choice.Setting + " in " + target);
             Status = Summary() + "  Rule" + (changed.Count > 1 ? "s" : "") + (choice.Setting == "off" ? " disabled" : " set to " + Severity.Label(choice.Setting)) +
-                     (!choice.ForTeam ? " for this project (in " + target + ")."
-                      : personal ? " in your style guide (" + target + ")."
-                      : " for the team (in " + target + "). Commit it so everyone gets it.") +
+                     (!choice.ForTeam ? " for this project."
+                      : personal ? "."
+                      : " for the team." + Team.CommitHint(guide)) +
                      (changed.Count < all.Count ? " " + (all.Count - changed.Count) + " could not be changed." : "");
             if (choice.Setting == "off") Raise(ReviewEvent.RuleDisabled);
         }

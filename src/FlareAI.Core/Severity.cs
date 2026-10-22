@@ -12,10 +12,10 @@ namespace FlareAI.Core
         public static string Normalize(string s)
         {
             s = (s ?? "").Trim().ToLowerInvariant();
-            return s == "tip" ? Tip : s;
+            return s == "tip" ? Tip : s == "disabled" ? "off" : s;
         }
 
-        /// <summary>"Error" / "Warning" / "Suggestion" for the UI ("off" shows as "Off").</summary>
+        /// <summary>"Error" / "Warning" / "Suggestion" for the UI ("off" shows as "Disabled").</summary>
         public static string Label(string token)
         {
             switch (Normalize(token))
@@ -23,7 +23,7 @@ namespace FlareAI.Core
                 case Error: return "Error";
                 case Warning: return "Warning";
                 case Tip: return "Suggestion";
-                case "off": return "Off";
+                case "off": return "Disabled";
                 case "on": return "On";
                 default: return token ?? "";
             }

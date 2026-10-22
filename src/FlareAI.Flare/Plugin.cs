@@ -58,6 +58,8 @@ namespace FlareAI.Flare
                 _nav = _host.GetNavContext();
                 RefreshTeam();
                 _role = CurrentRole();
+                GettingStarted.Owner = () => _nav.GetParentForm();
+                GettingStarted.WatchTour();
                 CreateRibbon();
                 CreateToolStrip();
                 try { _host.GetEditorContext().DocumentSwitched += OnDocumentSwitched; } catch (Exception ex) { Diagnostics.Log("subscribe", ex); }
@@ -434,7 +436,7 @@ namespace FlareAI.Flare
             }
             var tour = GuidedTour.Start(choice == TourChoice.Sample);
             var form = _nav.GetParentForm();
-            if (form != null) Toast.Show(form, tour.Hint, "Skip tour", GettingStarted.EndTour);
+            if (form != null) Toast.Show(form, tour.Hint, "Skip Tour", GettingStarted.EndTour);
         }
 
         /// <summary>

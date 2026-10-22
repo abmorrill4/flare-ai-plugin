@@ -84,6 +84,24 @@ namespace FlareAI.Flare.UI
             c.MouseLeave += (s, e) => { if (!IsDisposed && !ClientRectangle.Contains(PointToClient(Cursor.Position))) { _timer.Stop(); _timer.Start(); } };
         }
 
+        /// <summary>
+        /// Takes back a notice that no longer applies (a tour hint after its step): closes it if it is still showing and
+        /// clears it from the pane. Does nothing when a newer notice has replaced it.
+        /// </summary>
+        public static void Withdraw(string text)
+        {
+            try
+            {
+                var last = Last;
+                if (last == null || last.Text != text) return;
+                Last = null;
+                if (_open != null && !_open.IsDisposed) _open.Close();
+                var changed = LastChanged;
+                if (changed != null) changed();
+            }
+            catch (Exception ex) { FlareAI.Core.Diagnostics.Log("toast withdraw", ex); }
+        }
+
         /// <summary>Shows the notice over the owner's bottom-right corner, replacing any notice still showing.</summary>
         public static void Show(Form owner, string text, string actionLabel = null, Action action = null, string secondLabel = null, Action second = null)
         {

@@ -26,7 +26,7 @@ namespace FlareAI.Flare.UI
         /// <param name="personalGuide">True when there is no team guide: the change goes to the writer's own style guide.</param>
         /// <param name="setting">The level to preselect (default Off).</param>
         /// <param name="canChangeProject">False when no project is open (Style rules without a topic).</param>
-        /// <param name="title">The dialog's action, for its caption (default "Turn off this rule").</param>
+        /// <param name="title">The dialog's action, for its caption (default "Disable Rule").</param>
         public RuleSettingForm(string ruleText, bool canChangeTeamGuide, bool personalGuide = false, IList<FlareAI.Core.Style.RuleRef> otherRules = null,
                                string setting = null, bool canChangeProject = true, string title = null)
         {
@@ -35,17 +35,17 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(520, 270); Font = SystemFonts.MessageBoxFont;
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(new Label { Text = ruleText, Left = 12, Top = 12, Width = 496, Height = 48, AutoEllipsis = true });
-            _team = new RadioButton { Text = personalGuide ? "For all my projects (writes it into my style guide)" : "For the whole team (writes it into the style guide)",
+            _team = new RadioButton { Text = personalGuide ? "For all my projects" : "For the whole team",
                                       Left = 12, Top = 66, Width = 496, Checked = canChangeTeamGuide, Enabled = canChangeTeamGuide };
             _project = new RadioButton { Text = "For this project only", Left = 12, Top = 90, Width = 496, Checked = !canChangeTeamGuide, Enabled = canChangeProject };
             Controls.Add(_team); Controls.Add(_project);
             Controls.Add(new Label { Text = "Set the rule to:", Left = 12, Top = 124, Width = 110 });
             _setting = new ComboBox { Left = 124, Top = 120, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
-            _setting.Items.AddRange(new object[] { "Off", "Suggestion", "Warning", "Error" });
+            _setting.Items.AddRange(new object[] { "Disabled", "Suggestion", "Warning", "Error" });
             _setting.SelectedItem = FlareAI.Core.Severity.Label(setting ?? "off");
             if (_setting.SelectedIndex < 0) _setting.SelectedIndex = 0;
             Controls.Add(_setting);
-            Controls.Add(new Label { Text = "Reason (the team sees it in the guide):", Left = 12, Top = 156, Width = 496 });
+            Controls.Add(new Label { Text = personalGuide ? "Reason (optional):" : "Reason (the team sees it in the guide):", Left = 12, Top = 156, Width = 496 });
             _reason = new TextBox { Left = 12, Top = 176, Width = 496 };
             Controls.Add(_reason);
             var extra = 0;
@@ -53,7 +53,7 @@ namespace FlareAI.Flare.UI
             {
                 var names = new List<string>();
                 foreach (var r in otherRules) names.Add("•  " + (r.Name.Length > 80 ? r.Name.Substring(0, 79) + "…" : r.Name));   // one line each
-                _others = new CheckBox { Text = (setting == null || setting == "off" ? "Also disable " : "Also change ") + otherRules.Count + (otherRules.Count == 1 ? " other rule" : " other rules") + " that flag the same words", Left = 12, Top = 208, Width = 496, Checked = true };
+                _others = new CheckBox { Text = (setting == null || setting == "off" ? "Also disable " : "Also change ") + otherRules.Count + (otherRules.Count == 1 ? " other rule that flags" : " other rules that flag") + " the same words", Left = 12, Top = 208, Width = 496, Checked = true };
                 var list = new Label { Text = string.Join(Environment.NewLine, names.ToArray()), Left = 32, Top = 232, Width = 476, Height = 16 * names.Count + 4, AutoEllipsis = true };
                 Controls.Add(_others); Controls.Add(list);
                 extra = 28 + 16 * names.Count;
@@ -67,7 +67,7 @@ namespace FlareAI.Flare.UI
             A11y.Name(_team, _team.Text);
             A11y.Name(_project, "For this project only");
             A11y.Name(_setting, "Set the rule to");
-            A11y.Name(_reason, "Why", "The team sees this reason in the guide.");
+            A11y.Name(_reason, "Reason", personalGuide ? "Optional." : "The team sees this reason in the guide.");
             A11y.Apply(this);
         }
     }

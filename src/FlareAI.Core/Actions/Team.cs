@@ -276,6 +276,32 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>
+        /// True when the guide folder is in a source control working copy (a .git or .svn folder, or a .git file, in it
+        /// or a folder above it; Flare's own Git binding is a .git repository too). Only then is "commit" worth saying:
+        /// a shared folder on OneDrive or a network drive has nothing to commit. Files only, no git process.
+        /// </summary>
+        public static bool IsUnderSourceControl(string guideRoot)
+        {
+            try
+            {
+                for (var d = string.IsNullOrEmpty(guideRoot) ? null : new DirectoryInfo(guideRoot); d != null; d = d.Parent)
+                {
+                    if (!d.Exists) continue;
+                    if (Directory.Exists(Path.Combine(d.FullName, ".git")) || File.Exists(Path.Combine(d.FullName, ".git")) ||
+                        Directory.Exists(Path.Combine(d.FullName, ".svn"))) return true;
+                }
+            }
+            catch (Exception) { }
+            return false;
+        }
+
+        /// <summary>" Commit the style guide so everyone gets it." when the guide is under source control, else "".</summary>
+        public static string CommitHint(string guideRoot)
+        {
+            return IsUnderSourceControl(guideRoot) ? " Commit the style guide so everyone gets it." : "";
+        }
+
+        /// <summary>
         /// "CompanyStyle @ a1b2c3d" plus "· 3 change(s) behind — pull it" when the guide is a git checkout that is behind
         /// its upstream. Fetches first when asked (no prompts; short timeout). Null when the guide is not in git.
         /// </summary>

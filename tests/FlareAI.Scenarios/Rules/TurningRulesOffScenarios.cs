@@ -339,7 +339,7 @@ namespace FlareAI.Scenarios.Rules
                     fx.Session.TurnOffRule();
 
                     Assert.Empty(fx.Host.Errors);
-                    Assert.Contains("in your style guide", fx.Session.Status);
+                    Assert.EndsWith("Rule disabled.", fx.Session.Status);   // where it went is in the log, not the status
                     Assert.True(GuideSeed.IsPersonal(mine));
                     Assert.Equal("company:plain-language/1", GuideOverrides.Read(mine).Single().RuleId);   // in the writer's own guide under AppData
                     Assert.Equal(installed, Files.Snapshot(pluginDir));                                    // the installed guide is untouched
