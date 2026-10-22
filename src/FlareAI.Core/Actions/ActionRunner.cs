@@ -599,23 +599,52 @@ namespace FlareAI.Core.Actions
             else f.RuleId = null; // "general", or a made-up id
         }
 
+        /// <summary>The layer of the generated Google guide: its examples are compiled and validated by the maintainers.</summary>
+        public const string GoogleLayer = "google";
+
+        /// <summary>
+        /// The examples Validate's AI check runs: the team's own layers (company, team, personal, project) by default.
+        /// Google's ~620 examples are validated offline when the guide is compiled; checking them again costs about $15
+        /// and half an hour, so they are included only when the owner asks.
+        /// </summary>
+        public static List<GuideExample> ExamplesToVerify(IEnumerable<GuideExample> examples, bool includeGoogle)
+        {
+            return (examples ?? new GuideExample[0])
+                .Where(e => includeGoogle || !string.Equals(e.Layer, GoogleLayer, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        /// <summary>Model calls <see cref="VerifyExamples"/> makes for these examples (one per Bad, one per Good).</summary>
+        public static int VerifyCalls(IEnumerable<GuideExample> examples)
+        {
+            return (examples ?? new GuideExample[0]).Sum(e => (string.IsNullOrEmpty(e.Bad) ? 0 : 1) + (string.IsNullOrEmpty(e.Good) ? 0 : 1));
+        }
+
         /// <summary>
         /// Checks that the AI applies prose rules: each Bad example must produce a finding citing that rule, each
-        /// Good example must not. Two model calls per example.
+        /// Good example must not. One model call per example sentence, <see cref="Parallelism"/> at a time (the first
+        /// alone, to write the prompt cache the rest read). Results come back in the examples' order.
         /// </summary>
+        /// <param name="progress">(calls done, calls in all); called from worker threads.</param>
         public List<ExampleResult> VerifyExamples(IList<GuideExample> examples, Action<int, int> progress = null)
         {
-            var results = new List<ExampleResult>();
             var rules = GuideRules();
+            var results = examples.Select(ex => new ExampleResult { Example = ex }).ToList();
+            var jobs = new List<KeyValuePair<int, bool>>();   // (example, bad?)
             for (var i = 0; i < examples.Count; i++)
             {
-                var ex = examples[i];
-                var result = new ExampleResult { Example = ex };
-                if (!string.IsNullOrEmpty(ex.Bad)) result.BadCaught = Cites(ex.Bad, ex.Id, rules);
-                if (!string.IsNullOrEmpty(ex.Good)) result.GoodClean = !Cites(ex.Good, ex.Id, rules);
-                results.Add(result);
-                if (progress != null) progress(i + 1, examples.Count);
+                if (!string.IsNullOrEmpty(examples[i].Bad)) jobs.Add(new KeyValuePair<int, bool>(i, true));
+                if (!string.IsNullOrEmpty(examples[i].Good)) jobs.Add(new KeyValuePair<int, bool>(i, false));
             }
+            var done = 0;
+            Each(jobs.Count, j =>
+            {
+                var ex = examples[jobs[j].Key];
+                if (jobs[j].Value) results[jobs[j].Key].BadCaught = Cites(ex.Bad, ex.Id, rules);
+                else results[jobs[j].Key].GoodClean = !Cites(ex.Good, ex.Id, rules);
+                var n = System.Threading.Interlocked.Increment(ref done);
+                if (progress != null) progress(n, jobs.Count);
+            });
             return results;
         }
 

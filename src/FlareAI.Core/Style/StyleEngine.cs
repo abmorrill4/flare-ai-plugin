@@ -190,7 +190,7 @@ namespace FlareAI.Core.Style
         public IList<GuideExample> Examples(string project)
         {
             return Compose(project).Items.Where(i => i.Bad.Length > 0 || i.Good.Length > 0)
-                .Select(i => new GuideExample { Id = i.Id, Text = i.Text, Bad = i.Bad, Good = i.Good }).ToList();
+                .Select(i => new GuideExample { Id = i.Id, Layer = i.Layer, Text = i.Text, Bad = i.Bad, Good = i.Good }).ToList();
         }
 
         public GuideReport Validate(string project) { return Compose(project).Validate(); }
