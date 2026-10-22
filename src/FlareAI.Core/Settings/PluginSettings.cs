@@ -76,6 +76,56 @@ namespace FlareAI.Core.Settings
         /// </summary>
         public UserRole? Role { get; set; }
 
+        // ---- feedback (issue #124) ------------------------------------------------------------------------------
+
+        /// <summary>The House Style feedback service that receives reports.</summary>
+        public const string DefaultFeedbackUrl = "https://house-style-feedback.house-style-feedback-worker.workers.dev";
+        /// <summary>Points reports at another service (a local test server). Developers and testers only.</summary>
+        public const string FeedbackUrlEnvVar = "HOUSESTYLE_FEEDBACK_URL";
+
+        /// <summary>
+        /// A random id for this install, sent with reports so the service can rate limit and count repeats. It says nothing
+        /// about the writer. Created on first use (<see cref="EnsureClientId"/>).
+        /// </summary>
+        public string ClientId { get; set; }
+        /// <summary>The feedback service's base URL; empty means <see cref="DefaultFeedbackUrl"/>.</summary>
+        public string FeedbackUrl { get; set; }
+        /// <summary>When House Style hits an error, send the report in the background instead of asking. Off by default.</summary>
+        public bool SendErrorReportsAutomatically { get; set; }
+        /// <summary>Where a saved report is emailed when the service can't be reached; empty opens the folder instead.</summary>
+        public string ReportEmail { get; set; }
+
+        /// <summary>The service in effect: the environment variable, then <see cref="FeedbackUrl"/>, then the default.</summary>
+        public string EffectiveFeedbackUrl
+        {
+            get
+            {
+                var env = Environment.GetEnvironmentVariable(FeedbackUrlEnvVar);
+                if (!string.IsNullOrEmpty(env)) return env.TrimEnd('/');
+                return (string.IsNullOrEmpty(FeedbackUrl) ? DefaultFeedbackUrl : FeedbackUrl).TrimEnd('/');
+            }
+        }
+
+        private static string _sessionClientId;
+
+        /// <summary>
+        /// This install's id, created when missing. It is saved only when a settings file exists already (saving one would
+        /// count as finishing first-run setup); until then the same id is used for the rest of the session.
+        /// </summary>
+        public static string EnsureClientId()
+        {
+            var s = Load();
+            Guid g;
+            if (!string.IsNullOrEmpty(s.ClientId) && Guid.TryParse(s.ClientId, out g)) return g.ToString("D");
+            if (_sessionClientId == null) _sessionClientId = Guid.NewGuid().ToString("D");
+            if (File.Exists(SettingsPath))
+            {
+                s.ClientId = _sessionClientId;
+                try { s.Save(); } catch (Exception ex) { Diagnostics.Log("client id", ex); }
+            }
+            return _sessionClientId;
+        }
+
         /// <summary>The routing in effect: these settings, then the team's FlareAI\models.json in the style guide.</summary>
         public FlareAI.Core.Llm.Routing Routing(string guideRoot)
         {
