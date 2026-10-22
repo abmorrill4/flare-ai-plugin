@@ -1,0 +1,153 @@
+{
+  "about": "One canonical rule per span across Google pages (#56), read and updated by the compiler's canonical pass. When rules on several pages flag the same words, the owner keeps them and the others lose them (a row left with no terms, or a pattern whose every probe is owned elsewhere, is dropped; its source units move to the owner). Owner order: 'decisions' for those words, then the owner recorded in 'resolved' (written by the pass, so recompiles stay stable), then page rank: 'topical' pages in order (optionally only some kinds of rule), the Word-List (words and fixed phrases), then the rest; unscoped before scoped, a fix before flag-only, the rule whose entry is those words, the older key. An owner must fire wherever the other rule does (same products, scope at least as broad) unless a decision names it. 'drop' lists nested overlaps that no probe shows as the same span.",
+  "topical": [
+    {
+      "page": "timeless-documentation",
+      "why": "time words"
+    },
+    {
+      "page": "pronouns",
+      "why": "he/she family, broader than the Word-List entries"
+    },
+    {
+      "page": "images",
+      "why": "image above/below"
+    },
+    {
+      "page": "units-of-measure",
+      "why": "number/unit spacing, %, rate units"
+    },
+    {
+      "page": "dates-times",
+      "why": "date and time formats"
+    },
+    {
+      "page": "phone-numbers",
+      "why": "phone number formats"
+    },
+    {
+      "page": "slashes",
+      "why": "and/or, dates"
+    },
+    {
+      "page": "hyphens",
+      "kinds": [
+        "pattern"
+      ],
+      "why": "en dash in ranges"
+    },
+    {
+      "page": "abbreviations",
+      "kinds": [
+        "pattern"
+      ],
+      "why": "periods in acronyms"
+    }
+  ],
+  "decisions": [
+    {
+      "term": "hover over",
+      "owner": "google:inclusive-documentation/15",
+      "why": "Google: point to, not hold the pointer over (word-list/368 dropped)"
+    },
+    {
+      "term": "man-hours",
+      "owner": "google:word-list/450",
+      "why": "one fix, person-hours (fixes.json sets word-list/450 to it)"
+    }
+  ],
+  "drop": [
+    {
+      "rule": "google:word-list/42",
+      "owner": "google:dates-times/8",
+      "why": "Dates-Times owns time formats (dates-times/8 and /9 cover every form; word-list/42 differs only by a trailing period)"
+    },
+    {
+      "rule": "google:examples/18",
+      "owner": "google:phone-numbers/4",
+      "why": "Phone-Numbers owns phone formats; the Examples page's 555 advice stays prose"
+    },
+    {
+      "rule": "google:parentheses/4",
+      "owner": "google:pluralization/18",
+      "why": "pluralization/18 is the broader (s)/(es)/(ren) rule"
+    },
+    {
+      "rule": "google:word-list/512",
+      "owner": "google:word-list/511",
+      "why": "same entry (NoOps); 511 has the fix"
+    },
+    {
+      "rule": "google:numbers/32",
+      "owner": "google:units-of-measure/6",
+      "why": "Units-Of-Measure owns the space before %"
+    },
+    {
+      "rule": "google:numbers/35",
+      "owner": "google:hyphens/30",
+      "why": "Hyphens owns en dashes in number ranges"
+    }
+  ],
+  "resolved": {
+    "i.e.": "google:word-list/377",
+    "e.g.": "google:word-list/244",
+    "tl": "google:word-list/694",
+    "dr": "google:word-list/694",
+    "ymmv": "google:word-list/765",
+    "rtfm": "google:word-list/606",
+    "u.s.": "google:word-list/719",
+    "an sql": "google:word-list/653",
+    "an fhir": "google:word-list/283",
+    "a sap": "google:word-list/613",
+    "click here": "google:word-list/136",
+    "foo": "google:word-list/294",
+    "host name": "google:word-list/362",
+    "man-hours": "google:word-list/450",
+    "crazy": "google:word-list/169",
+    "insane": "google:word-list/169",
+    "cripple": "google:word-list/172",
+    "cripples": "google:word-list/172",
+    "crippled": "google:word-list/172",
+    "blind to": "google:word-list/100",
+    "sanity check": "google:word-list/612",
+    "blacklist": "google:word-list/95",
+    "first-class citizen": "google:word-list/292",
+    "blast radius": "google:word-list/98",
+    "off-the-shelf": "google:word-list/519",
+    "a.p.i.": "google:abbreviations/25",
+    "64gb": "google:units-of-measure/4",
+    "please": "google:tone/28",
+    "03/15/2024": "google:dates-times/33",
+    "let's": "google:word-list/432",
+    "simply": "google:inclusive-documentation/20",
+    "hamburger icon": "google:word-list/340",
+    "zippy": "google:word-list/273",
+    "expando": "google:word-list/273",
+    "omnibox": "google:word-list/523",
+    "as of this writing": "google:timeless-documentation/15",
+    "whitelist": "google:word-list/752",
+    "graylist": "google:word-list/333",
+    "greylist": "google:word-list/333",
+    "uncheck": "google:word-list/711",
+    "does not yet": "google:timeless-documentation/17",
+    "allows you to": "google:word-list/39",
+    "unarchive": "google:word-list/709",
+    "in the future": "google:timeless-documentation/19",
+    "gb/s": "google:units-of-measure/23",
+    "he/she": "google:pronouns/6",
+    "(s)he": "google:pronouns/6",
+    "s/he": "google:pronouns/6",
+    "him/her": "google:pronouns/6",
+    "his/her": "google:pronouns/6",
+    "hover over": "google:inclusive-documentation/15",
+    "cellular data": "google:word-list/121",
+    "cellular network": "google:word-list/122",
+    "presently": "google:timeless-documentation/20",
+    "at present": "google:timeless-documentation/20",
+    "uncompress": "google:word-list/277",
+    "untar": "google:word-list/277",
+    "unzip": "google:word-list/277",
+    "whitelisted": "google:word-list/96",
+    "whitelisting": "google:word-list/97"
+  }
+}

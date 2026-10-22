@@ -116,6 +116,13 @@ namespace FlareAI.Core.Tests
             return hits;
         }
 
+        public IList<FlareAI.Core.Style.LintHit> Lint(IList<FlareAI.Core.Style.LintLine> lines, string project)
+        {
+            var texts = new List<string>(); var heads = new List<int>();
+            for (var i = 0; i < lines.Count; i++) { texts.Add(lines[i].Text); if ((lines[i].Context & FlareAI.Core.Style.TextContext.Heading) != 0) heads.Add(i); }
+            return Lint(texts, heads, project);
+        }
+
         public string Guide(string project) { return GuideText; }
         public string[] GuideFor(string project, FlareAI.Core.Style.GuideScope scope) { return new[] { GuideText, "" }; }
         public IList<string> RuleIdsFor(string project, FlareAI.Core.Style.GuideScope scope) { return GuideRules.ConvertAll(r => r.Id); }

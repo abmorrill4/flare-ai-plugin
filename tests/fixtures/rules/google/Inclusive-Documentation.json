@@ -8,17 +8,16 @@
     "Action": "replace",
     "Tags": [],
     "Avoid": [
-      "man-hours",
       "mankind"
     ],
-    "Use": "person-hours, humanity",
-    "Example": "Equipment installation takes around 16 man-hours to complete.",
+    "Use": "humanity",
+    "Example": "Build AI that benefits mankind.",
     "IgnoreCase": true,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Equipment installation takes around 16 man-hours to complete.",
+        "Text": "Build AI that benefits mankind.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -26,31 +25,10 @@
       },
       {
         "Source": "avoid",
-        "Text": "man-hours",
+        "Text": "mankind",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Man-hours",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "MAN-HOURS",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "mankind",
-        "Expect": {
-          "fires": "paragraph"
         }
       },
       {
@@ -71,7 +49,7 @@
     "Good": [
       {
         "Source": "use",
-        "Text": "Person-hours, humanity",
+        "Text": "Humanity",
         "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
       }
     ]
@@ -85,15 +63,8 @@
     "Action": "flag",
     "Tags": [],
     "Avoid": [
-      "crazy",
-      "insane",
-      "cripple",
-      "cripples",
-      "crippled",
       "dumb",
       "blind eye",
-      "blind to",
-      "sanity check",
       "sanity-check",
       "dummy"
     ],
@@ -112,7 +83,7 @@
       },
       {
         "Source": "avoid",
-        "Text": "crazy",
+        "Text": "dumb",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -120,56 +91,56 @@
       },
       {
         "Source": "avoid-variant",
-        "Text": "Crazy",
+        "Text": "Dumb",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "CRAZY",
+        "Text": "DUMB",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "insane",
+        "Text": "blind eye",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "Insane",
+        "Text": "Blind eye",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "INSANE",
+        "Text": "BLIND EYE",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "cripple",
+        "Text": "sanity-check",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "Cripple",
+        "Text": "Sanity-check",
         "Expect": {
           "fires": "paragraph"
         }
       },
       {
         "Source": "avoid-variant",
-        "Text": "CRIPPLE",
+        "Text": "SANITY-CHECK",
         "Expect": {
           "fires": "paragraph"
         }
@@ -435,18 +406,16 @@
     "Action": "flag",
     "Tags": [],
     "Avoid": [
-      "blacklist",
-      "first-class citizen",
       "native feature"
     ],
     "Use": "",
-    "Example": "Add the address to the blacklist.",
+    "Example": "For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.",
     "IgnoreCase": true,
     "MarkupOnly": false,
     "Bad": [
       {
         "Source": "example",
-        "Text": "Add the address to the blacklist.",
+        "Text": "For example, avoid terms such as blacklist and native feature, and don't use terms like first-class citizen, even though such terms might still be widely used.",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
@@ -454,52 +423,10 @@
       },
       {
         "Source": "avoid",
-        "Text": "blacklist",
+        "Text": "native feature",
         "Expect": {
           "clean": "ui-b, ui-span, code-inline, pre, kbd",
           "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "Blacklist",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "BLACKLIST",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "first-class citizen",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "First-class citizen",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "FIRST-CLASS CITIZEN",
-        "Expect": {
-          "fires": "paragraph"
-        }
-      },
-      {
-        "Source": "avoid-variant",
-        "Text": "native feature",
-        "Expect": {
-          "fires": "paragraph"
         }
       },
       {

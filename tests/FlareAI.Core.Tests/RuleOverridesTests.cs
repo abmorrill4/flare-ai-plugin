@@ -78,9 +78,10 @@ namespace FlareAI.Core.Tests
             Assert.StartsWith(_userGuide, file);
             Assert.False(PluginSettings.IsUnder(file, _pluginDir));
             Assert.False(Directory.Exists(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Google")));   // never copied
-            Assert.True(File.Exists(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Terminology.htm")));
+            Assert.False(File.Exists(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Terminology.htm")));   // nor the Company layer
+            Assert.Equal(Path.Combine(_userGuide, @"Content\Resources\StyleGuide\" + GuideSeed.PersonalTopic), file);
             Assert.Equal("company", File.ReadAllLines(Path.Combine(_userGuide, @"FlareAI\layer.txt")).Last(l => !l.StartsWith("#")).Trim());
-            Assert.Equal(new[] { _userGuide }, s.GuideRoots(_pluginDir, _userGuide).ToArray());   // my guide replaces the bundled one
+            Assert.Equal(new[] { PluginSettings.BundledGuide(_pluginDir), _userGuide }, s.GuideRoots(_pluginDir, _userGuide).ToArray());   // my changes after the bundled guide
             // Same engine (the findings panel keeps its runner): the next check reads the change.
             Assert.False(Flags(engine, QuotesRule));
             Assert.True(engine.IsOff(null, QuotesRule));
@@ -182,21 +183,24 @@ namespace FlareAI.Core.Tests
         [Fact]
         public void ASpanFlaggedByTwoRules_ListsTheOtherOnTheKeptHit_AndTurningOffBothClearsIt()
         {
-            const string text = "Use a fruit, e.g. a pear.";
+            // Two Google rules on different pages still flag these words (procedures/42 and ui-elements/69: different scopes, so
+            // the compiler's canonical pass keeps both). "e.g." no longer works here: the Word-List owns it alone (#56).
+            const string text = "To save, press Control+s now.";
+            const string span = "Control+s";
             var s = new PluginSettings();
             var engine = Engine(s);
             var team = TeamFor(s);
-            var hit = engine.Lint(new[] { text }, null, null).Single(h => h.Match == "e.g.");
+            var hit = engine.Lint(new[] { text }, null, null).Single(h => h.Match == span);
             Assert.NotEmpty(hit.AlsoRules);
             Assert.DoesNotContain(hit.AlsoRules, r => r.Id == hit.RuleId);
             Assert.All(hit.AlsoRules, r => Assert.False(string.IsNullOrEmpty(r.Name)));
 
             // Turning off only the shown rule exposes the next one on the same words (the bug).
             GuideOverrides.Set(team, hit.RuleId, "off", "Fine in our docs.");
-            Assert.Contains(engine.Lint(new[] { text }, null, null), h => h.Match == "e.g.");
+            Assert.Contains(engine.Lint(new[] { text }, null, null), h => h.Match == span);
 
             foreach (var r in hit.AlsoRules) GuideOverrides.Set(team, r.Id, "off", "Fine in our docs.");
-            Assert.DoesNotContain(engine.Lint(new[] { text }, null, null), h => h.Match == "e.g.");
+            Assert.DoesNotContain(engine.Lint(new[] { text }, null, null), h => h.Match == span);
             Assert.Equal(1 + hit.AlsoRules.Count, RuleOverrides.Read(_userGuide, "My style guide").Count(o => o.By == "pat@example.com" && o.Note == "Fine in our docs."));
         }
 
@@ -222,8 +226,7 @@ namespace FlareAI.Core.Tests
         {
             var s = new PluginSettings();
             var team = TeamFor(s);
-            team.WritableGuide();
-            var topic = Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Google-overrides.htm");
+            var topic = GuideOverrides.Set(team, "google:word-list/5", "off", "first change");   // creates my rule-changes topic
             File.SetAttributes(topic, FileAttributes.ReadOnly);
             var ex = Assert.Throws<GuideWriteException>(() => GuideOverrides.Set(team, QuotesRule, "off", "x"));
             Assert.Equal(topic, ex.Target);

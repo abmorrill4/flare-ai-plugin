@@ -96,16 +96,17 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>
-        /// The read-only guide (bundled with the plugin) that <see cref="GuideRoot"/> is copied from on its first write, when
-        /// GuideRoot is the writer's own guide; null when GuideRoot is a team guide.
+        /// The read-only guide (bundled with the plugin) that <see cref="GuideRoot"/> is layered after, when GuideRoot is the
+        /// writer's own guide (it is created empty on its first write, named like this guide's layer); null when GuideRoot is
+        /// a team guide.
         /// </summary>
         public string SeedFrom { get; set; }
         /// <summary>True when rule changes go to the writer's own guide (no team guide is configured).</summary>
         public bool IsPersonal { get { return SeedFrom != null; } }
 
         /// <summary>
-        /// The guide to write rule changes into, ready to write: the writer's own guide is created from <see cref="SeedFrom"/>
-        /// on first need. Throws <see cref="FlareAI.Core.Style.GuideWriteException"/> naming the folder when that fails.
+        /// The guide to write rule changes into, ready to write: the writer's own guide is created (empty, layered after
+        /// <see cref="SeedFrom"/>) on first need. Throws <see cref="FlareAI.Core.Style.GuideWriteException"/> naming the folder when that fails.
         /// </summary>
         public string WritableGuide()
         {

@@ -46,16 +46,42 @@ namespace FlareAI.Core.Style
                 catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { throw new GuideWriteException(file, ex); }
                 return file;
             }
-            var path = Path.Combine(Path.Combine(folder, "Company"), DefaultTopic);
+            // The writer's own guide gets its own topic: a Company\Google-overrides.htm there would stand in for the bundled one.
+            var personal = GuideSeed.IsPersonal(guideRoot);
+            var path = personal ? Path.Combine(folder, GuideSeed.PersonalTopic) : Path.Combine(Path.Combine(folder, "Company"), DefaultTopic);
+            CreateTopic(path, personal);
+            return Set(guideRoot, ruleId, setting, reason, by, when);
+        }
+
+        /// <summary>
+        /// Writes one row (rule, setting, reason, who, when as recorded) into <paramref name="topic"/>'s first override table,
+        /// creating the writer's own rule-changes topic when missing. Used to carry rows over when a guide is upgraded.
+        /// </summary>
+        internal static void Put(string topic, string ruleId, string setting, string reason, string by, string date)
+        {
+            if (!File.Exists(topic)) CreateTopic(topic, true);
+            var doc = new XmlDocument { PreserveWhitespace = true };
+            doc.Load(topic);
+            var table = doc.SelectNodes("//*[local-name()='table']").Cast<XmlElement>().First(IsOverrideTable);
+            Upsert(table, ruleId, setting, reason ?? "", by ?? "", date ?? "");
+            try { GuideLayer.Save(doc, topic); }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { throw new GuideWriteException(topic, ex); }
+        }
+
+        private static void CreateTopic(string path, bool personal)
+        {
+            var title = personal ? "My changes to the style guide" : "Changes to the Google guide";
+            var intro = personal
+                ? "Rows in this table turn rules off, change their level, or turn a default back on (Setting: on), for you only. They apply after the guide bundled with House Style, so its updates still reach you."
+                : "Rows in this table turn rules off, or change their level, for the whole team.";
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
-                File.WriteAllText(path, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\">\n    <head><title>Changes to the Google guide</title></head>\n    <body>\n" +
-                    "        <h1>Changes to the Google guide</h1>\n        <p>Rows in this table turn rules off, or change their level, for the whole team.</p>\n" +
+                File.WriteAllText(path, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\">\n    <head><title>" + title + "</title></head>\n    <body>\n" +
+                    "        <h1>" + title + "</h1>\n        <p>" + intro + "</p>\n" +
                     "        <table>\n            <tr><th>Rule</th><th>Setting</th><th>Reason</th><th>Changed by</th><th>Date</th></tr>\n        </table>\n    </body>\n</html>\n", new System.Text.UTF8Encoding(false));
             }
             catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { throw new GuideWriteException(path, ex); }
-            return Set(guideRoot, ruleId, setting, reason, by, when);
         }
 
         /// <summary>Removes the rule's rows from the override tables in <paramref name="file"/>. Returns how many were removed.</summary>
@@ -91,6 +117,16 @@ namespace FlareAI.Core.Style
             {
                 var doc = new XmlDocument { PreserveWhitespace = true };
                 try { doc.Load(file); } catch (XmlException) { continue; } catch (IOException) { continue; }
+                list.AddRange(Read(file, doc));
+            }
+            return list;
+        }
+
+        /// <summary>The rows of the override tables in one loaded topic.</summary>
+        internal static List<RuleOverride> Read(string file, XmlDocument doc)
+        {
+            var list = new List<RuleOverride>();
+            {
                 foreach (var table in doc.SelectNodes("//*[local-name()='table']").Cast<XmlElement>().Where(IsOverrideTable))
                 {
                     var rows = Rows(table);
@@ -131,7 +167,7 @@ namespace FlareAI.Core.Style
         private static bool IsBy(string h) { return h.StartsWith("changed by") || h == "by" || h.StartsWith("who"); }
         private static bool IsDate(string h) { return h.StartsWith("date") || h.StartsWith("changed on"); }
 
-        private static bool IsOverrideTable(XmlElement table)
+        internal static bool IsOverrideTable(XmlElement table)
         {
             var rows = Rows(table);
             if (rows.Count == 0) return false;

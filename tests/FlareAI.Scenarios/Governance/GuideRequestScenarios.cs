@@ -196,6 +196,28 @@ namespace FlareAI.Scenarios.Governance
         // ---- #85: the lifecycle --------------------------------------------------------------------------------
 
         [Fact]
+        public void TurningOnABundledDefault_OnAReadOnlyGuide_IsARequest_ThatWritesAnOnRowWhenApproved()
+        {
+            using (var fx = new Fixture())
+            {
+                fx.Ws.MakeReadOnly(fx.Guide);
+                var writer = fx.As(Pat);
+                Assert.True(writer.ChangesNeedRequest);            // the Turned-off rules view sends a request, not a write
+                var r = GuideRequests.New(writer, RequestKinds.TurnOn, "We want this rule.");
+                r.RuleId = "Google.Bundled-default"; r.Rule = r.RuleId; r.Setting = "off";   // a bundled default: no row in the team guide
+                string problem;
+                GuideRequests.Send(writer, r, out problem);
+                Assert.Null(problem);
+
+                fx.Ws.ClearReadOnly();
+                var owner = fx.As(Lead);
+                Assert.Null(GuideRequests.Approve(owner, GuideRequests.Load(owner).Single(), null, (x, d) => GuideRequests.ApplyToGuide(owner, x, d)));
+                var row = RuleOverrides.Read(fx.Guide, "Team style guide").Single(o => o.RuleId == "Google.Bundled-default");
+                Assert.True(row.IsTurnOn);                           // an "on" row overrides the bundled default
+            }
+        }
+
+        [Fact]
         public void OwnerApproves_TheGuideChanges_AndTheWriterSeesItOnTheirNextCheck_Once()
         {
             using (var fx = new Fixture())

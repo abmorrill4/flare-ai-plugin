@@ -79,7 +79,9 @@ One style guide project, used by the plugin, Claude Code (through the optional M
 - The open documentation project adds its own layer: variable values ("insert the variable instead of typing it"),
   glossary terms, and its own `Content/Resources/StyleGuide/` if it has one. It wins over both.
 
-A team copies the starter project, keeps it in git, and points Settings → Style guide project at their clone.
+A team copies the starter project into a shared folder (OneDrive or SharePoint, Google Drive, or a network drive) and
+every writer points Settings → Style guide project at it. Teams that already use source control can keep it in git
+instead.
 
 ### Writing rules (same format in both folders)
 - **Bullets** are prose rules for the AI. Nest `Bad: …` / `Good: …` items under a bullet so the rule can be tested.
@@ -118,10 +120,12 @@ into `Google/` topics: every source unit must be covered by a rule or marked not
 lint row must pass the validator. `tools/google-style/coverage.md` is the report.
 
 ### Teams: one guide, strict ownership
-- Keep the guide in git; every writer clones it and points Settings → Style guide project at the clone. The pane warns
-  when a writer's clone is behind ("Style guide … 2 change(s) behind: pull it").
-- `FlareAI/owners.txt` in the guide lists the owners (git `user.email`, one per line). With owners listed, only they
-  change shared rules (enforce it with branch protection); other writers' "Ignore rule…" becomes a request to them.
+- Keep the guide in a shared folder; every writer points Settings → Style guide project at it and gets changes on
+  their next check. Give owners write access and everyone else read-only access: that is what enforces ownership.
+- Or keep it in git: every writer clones it, and the pane warns when a clone is behind ("Style guide … 2 change(s)
+  behind: pull it"). Enforce ownership with branch protection.
+- `FlareAI/owners.txt` in the guide lists the owners (git `user.email` or Windows user name, one per line). With
+  owners listed, only they change shared rules; other writers' changes become requests to them. See #83.
 - `FlareAI/layer.txt` names the company layer (`company`): rule ids stay the same in every clone.
 - `FlareAI/models.json` sets models, effort and the review unit for the team.
 - Settings → Team feedback folder: a shared folder where each writer's review decisions append to their own file.
@@ -158,6 +162,7 @@ HTML build…" does it automatically when you build in Flare. For `madbuild` / C
 |---|---|
 | User settings (DPAPI-protected key, model) | `%APPDATA%\FlareAI\settings.json` |
 | Diagnostics log | `%APPDATA%\FlareAI\diag.log` |
+| Your own style guide (no team guide): only your rule changes, applied after the bundled guide | `%APPDATA%\FlareAI\StyleGuide` (a copy made by an older version is backed up to `StyleGuide.backup-<date>` when it is reduced) |
 | Installed plugin | `C:\Program Files\MadCap Software\MadCap Flare <ver>\Flare.app\Plugins\FlareAI\` |
 | API dump from the real DLL | `docs\api-dump.txt` (generated) |
 

@@ -144,6 +144,24 @@ namespace FlareAI.Core.Style
 
         private static string Empty(string s) { return string.IsNullOrEmpty(s) ? null : s; }
 
+        /// <summary>The topic Build style guide adds rules to.</summary>
+        public const string ContentTopic = "From-our-content.htm";
+
+        /// <summary>
+        /// Adds accepted candidates to the guide rule changes go to (the team's, or the writer's own, created on first use;
+        /// never the read-only guide in the plugin folder): <see cref="ContentTopic"/> in its StyleGuide folder.
+        /// Returns the topic written; <paramref name="added"/> is how many rules were added.
+        /// </summary>
+        public static string AddToGuide(FlareAI.Core.Actions.Team team, IList<RuleCandidate> accepted, out int added)
+        {
+            if (team == null) throw new ArgumentNullException("team");
+            var root = team.WritableGuide();
+            var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
+            var topic = Path.Combine(folder, ContentTopic);
+            added = Write(topic, accepted, "From our content");
+            return topic;
+        }
+
         /// <summary>
         /// Writes accepted candidates into the guide: rows go into the Avoid/Use table and bullets into the list of the
         /// topic <paramref name="topicPath"/> (created with both when missing). Returns how many were added.

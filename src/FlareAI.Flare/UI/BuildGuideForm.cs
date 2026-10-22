@@ -272,10 +272,8 @@ namespace FlareAI.Flare.UI
             try
             {
                 // The team guide, or the writer's own guide (created on first use): never the read-only guide in the plugin folder.
-                root = _team.WritableGuide();
-                var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
-                topic = Path.Combine(folder, "From-our-content.htm");
-                var n = GuideBuilder.Write(topic, accepted, "From our content");
+                int n;
+                topic = GuideBuilder.AddToGuide(_team, accepted, out n);
                 foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
                 _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example)" +
                              (_team.IsPersonal ? "." : ", then commit the guide.");

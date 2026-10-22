@@ -1,0 +1,28 @@
+{
+  "about": "Row fixes settled by hand (#59), applied by the compiler's fix-decision pass before the canonical and fix-check passes. 'use' replaces the Use cell (\"\" = flag only), 'remove' drops Avoid terms (with their own Use values), 'pattern'/'example'/'severity'/'why' replace those cells. Ids are permanent keys.",
+  "rules": [
+    {
+      "rule": "google:dashes/4",
+      "pattern": "(?<!\\d)\\u2013|\\u2013(?!\\d)",
+      "example": "Install the app – then restart it.",
+      "reason": "the Dashes page sends number ranges to Hyphens (hyphens/30 owns 8–20 with the '-' fix); dashes/4 keeps every other en dash"
+    },
+    {
+      "rule": "google:ellipses/10",
+      "use": "",
+      "severity": "suggestion",
+      "why": "Don't use ellipses; leave them out of UI labels.",
+      "reason": "three periods are still an ellipsis; Google says not to use ellipses in text or UI references"
+    },
+    {
+      "rule": "google:hyphens/19",
+      "remove": [ "web page", "trade-off", "work-around" ],
+      "reason": "inferred by the model, not in the source (Google itself writes web page)"
+    },
+    {
+      "rule": "google:word-list/450",
+      "use": "person-hours",
+      "reason": "one fix for man-hours: Inclusive-Documentation and Hyphens write person-hours"
+    }
+  ]
+}

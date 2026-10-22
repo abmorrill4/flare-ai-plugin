@@ -4,15 +4,15 @@
     "Layer": "google",
     "Page": "Ellipses",
     "Row": 2,
-    "Severity": "warning",
-    "Action": "replace",
+    "Severity": "suggestion",
+    "Action": "flag",
     "Tags": [
       "Ellipses"
     ],
     "Avoid": [
       "…"
     ],
-    "Use": "...",
+    "Use": "",
     "Example": "Click Save… to continue.",
     "IgnoreCase": true,
     "MarkupOnly": false,
@@ -34,13 +34,7 @@
         }
       }
     ],
-    "Good": [
-      {
-        "Source": "use",
-        "Text": "...",
-        "Contexts": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span, ui-b, ui-span"
-      }
-    ]
+    "Good": []
   },
   {
     "Id": "google:ellipses/11",

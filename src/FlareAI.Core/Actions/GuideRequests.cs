@@ -413,8 +413,11 @@ namespace FlareAI.Core.Actions
                     break;
                 case RequestKinds.TurnOn:
                     team.EnsureOwner();
-                    foreach (var o in RuleOverrides.Read(team.WritableGuide(), "Team style guide").Where(o => string.Equals(o.RuleId, r.RuleId, StringComparison.OrdinalIgnoreCase)))
-                        RuleOverrides.TurnBackOn(o, team);
+                    var rows = RuleOverrides.Read(team.WritableGuide(), "Team style guide").Where(o => string.Equals(o.RuleId, r.RuleId, StringComparison.OrdinalIgnoreCase)).ToList();
+                    foreach (var o in rows) RuleOverrides.TurnBackOn(o, team);
+                    // No row of its own: the rule is off by a default of the bundled guide, which only an "on" row overrides.
+                    if (rows.Count == 0 && !string.Equals(r.Setting, "on", StringComparison.OrdinalIgnoreCase))
+                        GuideOverrides.Set(team, r.RuleId, "on", reason);
                     break;
                 case RequestKinds.Wording:
                     team.EnsureOwner();

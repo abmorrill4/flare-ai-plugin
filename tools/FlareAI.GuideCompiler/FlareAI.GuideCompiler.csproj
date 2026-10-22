@@ -13,4 +13,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="FlareAI.GuideCompiler.Tests" />
+  </ItemGroup>
+
 </Project>

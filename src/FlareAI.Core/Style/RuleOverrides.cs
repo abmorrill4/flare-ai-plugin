@@ -27,6 +27,13 @@ namespace FlareAI.Core.Style
         public bool IsAiName { get; set; }
         /// <summary>The request an owner approved for this exception ("[approved request r-…]" in its note), or null.</summary>
         public string RequestId { get; set; }
+        /// <summary>
+        /// A default of a read-only guide (the one bundled with the plugin): it can't be removed, so turning it back on writes
+        /// an "on" row into the writer's own guide.
+        /// </summary>
+        public bool IsDefault { get; set; }
+        /// <summary>True when this row turns a rule back on over an earlier layer's setting ("on").</summary>
+        public bool IsTurnOn { get { return string.Equals(Setting, "on", StringComparison.OrdinalIgnoreCase); } }
     }
 
     /// <summary>
@@ -56,6 +63,36 @@ namespace FlareAI.Core.Style
             foreach (var o in list) o.Scope = scope;
             // The same rule twice in one file: the later line is the one in effect.
             return list.GroupBy(o => o.File + "|" + o.RuleId.ToLowerInvariant()).Select(g => g.Last()).ToList();
+        }
+
+        /// <summary>The scope shown for a read-only guide's defaults.</summary>
+        public const string DefaultScope = "Default";
+
+        /// <summary>
+        /// The overrides in effect across guides, for the Turned-off rules view: every row of the guides the writer can
+        /// change (labelled by <paramref name="scopeOf"/>), then each read-only guide's defaults (<paramref name="isDefault"/>:
+        /// the bundled guide), marked <see cref="RuleOverride.IsDefault"/> and labelled "Default", unless a later guide
+        /// already has its own row for that rule (that row is listed instead).
+        /// </summary>
+        public static List<RuleOverride> InEffect(IList<string> guideRoots, Func<string, bool> isDefault, Func<string, string> scopeOf)
+        {
+            var mine = new List<RuleOverride>();
+            var defaults = new List<KeyValuePair<int, RuleOverride>>();
+            var later = new List<KeyValuePair<int, RuleOverride>>();
+            for (var i = 0; i < guideRoots.Count; i++)
+            {
+                var root = guideRoots[i];
+                if (isDefault != null && isDefault(root))
+                    foreach (var o in Read(root, DefaultScope)) { o.IsDefault = true; defaults.Add(new KeyValuePair<int, RuleOverride>(i, o)); }
+                else
+                    foreach (var o in Read(root, scopeOf == null ? root : scopeOf(root))) { mine.Add(o); later.Add(new KeyValuePair<int, RuleOverride>(i, o)); }
+            }
+            var list = new List<RuleOverride>(mine);
+            foreach (var d in defaults)
+                if (!later.Any(l => l.Key > d.Key && string.Equals(l.Value.RuleId, d.Value.RuleId, StringComparison.OrdinalIgnoreCase)) &&
+                    !d.Value.IsTurnOn)
+                    list.Add(d.Value);
+            return list;
         }
 
         /// <summary>The lines of an overrides.ini ("rule = off"; "# ai-ignore: name"), with who/when/why when recorded.</summary>
@@ -96,15 +133,24 @@ namespace FlareAI.Core.Style
         }
 
         /// <summary>
-        /// Turns the rule back on: removes its row or line (and the who/when note above it). Only owners may change a guide
-        /// that has an owners file. Throws <see cref="GuideWriteException"/> naming the file when it can't be written.
+        /// Turns the rule back on: removes its row or line (and the who/when note above it). A default of the bundled guide
+        /// can't be removed: an "on" row in <paramref name="team"/>'s guide (the writer's own) turns it back on instead.
+        /// Removing an "on" row returns the rule to its default. Only owners may change a guide that has an owners file.
+        /// Throws <see cref="GuideWriteException"/> naming the file when it can't be written.
         /// </summary>
-        public static void TurnBackOn(RuleOverride o, Team team)
+        /// <returns>The file changed.</returns>
+        public static string TurnBackOn(RuleOverride o, Team team)
         {
-            if (o == null) return;
+            if (o == null) return null;
             if (team != null) team.EnsureOwner();
+            if (o.IsDefault)
+            {
+                if (team == null) throw new InvalidOperationException("No style guide is set up to record the change. Choose one in Settings.");
+                return GuideOverrides.Set(team, o.RuleId, "on", "Turned back on (the default was " + Severity.Label(o.Setting).ToLowerInvariant() + ").");
+            }
             if (o.File.EndsWith(".ini", StringComparison.OrdinalIgnoreCase)) RemoveFromIni(o.File, o.RuleId, o.IsAiName);
             else GuideOverrides.Remove(o.File, o.RuleId);
+            return o.File;
         }
 
         private static void RemoveFromIni(string path, string ruleId, bool aiName)

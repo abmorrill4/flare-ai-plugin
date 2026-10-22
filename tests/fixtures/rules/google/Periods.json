@@ -54,32 +54,5 @@
       }
     ],
     "Good": []
-  },
-  {
-    "Id": "google:periods/14",
-    "Layer": "google",
-    "Page": "Periods",
-    "Row": 2,
-    "Severity": "warning",
-    "Action": "flag",
-    "Tags": [],
-    "Avoid": [
-      "\\b(?:[A-Z]\\.){2,}"
-    ],
-    "Use": "",
-    "Example": "Send the request to the A.P.I. endpoint.",
-    "IgnoreCase": false,
-    "MarkupOnly": false,
-    "Bad": [
-      {
-        "Source": "example",
-        "Text": "Send the request to the A.P.I. endpoint.",
-        "Expect": {
-          "clean": "ui-b, ui-span, code-inline, pre, kbd",
-          "fires": "paragraph, step, step-p, list, heading-h2, heading-h4, table-header, table-cell, note, caption, dropdown-head, link-a, link-xref, variable-adjacent, conditional-span"
-        }
-      }
-    ],
-    "Good": []
   }
 ]
