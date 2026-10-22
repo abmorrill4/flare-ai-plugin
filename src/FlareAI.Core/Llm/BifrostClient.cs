@@ -29,7 +29,9 @@ namespace FlareAI.Core.Llm
         {
             if (string.IsNullOrEmpty(gatewayBaseUrl)) throw new LlmException("No gateway URL configured. Open House Style > Settings.");
             if (string.IsNullOrEmpty(virtualKey)) throw new LlmException("No virtual key configured. Open House Style > Settings.");
-            _baseUrl = gatewayBaseUrl.TrimEnd('/');
+            string url, err;
+            if (!LlmErrors.TryNormalizeBaseUrl(gatewayBaseUrl, out url, out err)) throw new LlmException(err);
+            _baseUrl = url;
             _virtualKey = virtualKey;
             _model = model;
             _timeoutMs = Math.Max(10, timeoutSeconds) * 1000;
@@ -91,11 +93,11 @@ namespace FlareAI.Core.Llm
             catch (WebException wex)
             {
                 var resp = wex.Response as HttpWebResponse;
-                if (resp == null) throw new LlmException("Network error: " + wex.Message, 0, wex, LlmFailure.Network);
+                if (resp == null) throw LlmErrors.FromNetwork(wex, true, _baseUrl);
                 var text = ReadAll(resp);
                 var detail = text;
                 try { detail = JObject.Parse(text)["error"]["message"].ToString(); } catch (Exception) { }
-                throw new LlmException("HTTP " + (int)resp.StatusCode + ": " + detail, (int)resp.StatusCode, wex);
+                throw LlmErrors.FromHttp((int)resp.StatusCode, detail, true, _virtualKey);
             }
             // OpenAI finish reasons: "length" = cut off, "content_filter" = refused.
             if (result.StopReason == "length") result.StopReason = "max_tokens";

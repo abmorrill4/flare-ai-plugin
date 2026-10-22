@@ -34,7 +34,7 @@ namespace FlareAI.Flare.UI
         // card
         private readonly Label _cardHead;
         private readonly RichTextBox _cardDiff, _cardWhy;
-        private readonly Button _accept, _reject, _edit, _refine, _reanalyze, _rule;
+        private readonly Button _accept, _goTo, _reject, _edit, _refine, _reanalyze, _rule;
         private readonly ContextMenuStrip _rejectMenu;
         private readonly ToolTip _ignoreTip;
 
@@ -102,9 +102,9 @@ namespace FlareAI.Flare.UI
             _list.Columns.Add("Suggestion");
             _list.Columns.Add("Source");
             _list.Resize += (s, e) => FitColumns();
-            _list.SelectedIndexChanged += (s, e) => { ShowCard(); var f = Current(); if (f != null && f.DocumentPath == null) GoTo(f, false); };
-            _list.DoubleClick += (s, e) => Accept();
-            _list.KeyDown += OnListKey;
+            _list.SelectedIndexChanged += (s, e) => Safe.Run("Select finding", () => { ShowCard(); var f = Current(); if (f != null && f.DocumentPath == null) GoTo(f, false); });
+            _list.DoubleClick += (s, e) => Safe.Run("Apply", Accept);
+            _list.KeyDown += (s, e) => Safe.Run("List key", () => OnListKey(s, e));
 
             // The card: what, why, impact, and the decision.
             var card = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 6, 0, 0) };
@@ -115,17 +115,18 @@ namespace FlareAI.Flare.UI
             _cardWhy.Dock = DockStyle.Fill; _cardWhy.BackColor = SystemColors.Control;
             var actions = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(0, 4, 0, 0) };
             _accept = Btn(actions, "Apply", (s, e) => Accept());
+            _goTo = Btn(actions, "Go to", (s, e) => GoToCurrent());
             _reject = Btn(actions, "Reject ▾", (s, e) => _rejectMenu.Show(_reject, new Point(0, _reject.Height)));
             _edit = Btn(actions, "Edit…", (s, e) => EditAndAccept());
             _refine = Btn(actions, "Refine…", (s, e) => Refine());
             _reanalyze = Btn(actions, "Check this paragraph again", (s, e) => Reanalyze());
             _rule = Btn(actions, "Guide ↗", (s, e) => { var f = Current(); if (f != null && !string.IsNullOrEmpty(f.Link)) OpenLink(f.Link); });
             _rejectMenu = new ContextMenuStrip();
-            _rejectMenu.Items.Add("Wrong — this suggestion is incorrect", null, (s, e) => Reject("wrong"));
-            _rejectMenu.Items.Add("Fine here — correct in this context", null, (s, e) => Reject("fine here"));
-            _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Reject("rule doesn't apply"));
+            _rejectMenu.Items.Add("Wrong — this suggestion is incorrect", null, (s, e) => Safe.Run("Reject", () => Reject("wrong")));
+            _rejectMenu.Items.Add("Fine here — correct in this context", null, (s, e) => Safe.Run("Reject", () => Reject("fine here")));
+            _rejectMenu.Items.Add("Rule doesn't apply to this text", null, (s, e) => Safe.Run("Reject", () => Reject("rule doesn't apply")));
             _rejectMenu.Items.Add(new ToolStripSeparator());
-            _rejectMenu.Items.Add("Skip for now", null, (s, e) => Next());
+            _rejectMenu.Items.Add("Skip for now", null, (s, e) => Safe.Run("Skip", Next));
             card.Controls.Add(_cardWhy);
             card.Controls.Add(_cardDiff);
             card.Controls.Add(_cardHead);
@@ -232,7 +233,7 @@ namespace FlareAI.Flare.UI
         private static Button Btn(FlowLayoutPanel bar, string text, EventHandler click)
         {
             var b = new Button { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Height = 26, Margin = new Padding(0, 0, 4, 4) };
-            b.Click += click;
+            b.Click += (s, e) => Safe.Run(text, () => click(s, e));
             bar.Controls.Add(b);
             return b;
         }
@@ -246,7 +247,8 @@ namespace FlareAI.Flare.UI
 
         private void OnListKey(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) { Accept(); e.Handled = true; }
+            if (e.KeyCode == Keys.Enter && e.Control) { GoToCurrent(); e.Handled = true; e.SuppressKeyPress = true; }
+            else if (e.KeyCode == Keys.Enter) { Accept(); e.Handled = true; }
             else if (e.KeyCode == Keys.Delete) { _rejectMenu.Show(_reject, new Point(0, _reject.Height)); e.Handled = true; }
         }
 
@@ -532,7 +534,10 @@ namespace FlareAI.Flare.UI
                 UpdateButtons();
                 return;
             }
-            var where = f.DocumentPath == null ? "" : "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(SnippetUses(f.DocumentPath)) + "; applying changes all of them";
+            var where = f.DocumentPath == null ? ""
+                : f.DocumentPath.EndsWith(".flsnp", StringComparison.OrdinalIgnoreCase)
+                    ? "In snippet " + System.IO.Path.GetFileName(f.DocumentPath) + " \u2014 used in " + UsesLabel(SnippetUses(f.DocumentPath)) + "; applying changes all of them"
+                    : "In " + System.IO.Path.GetFileName(f.DocumentPath);
             _cardHead.Text = A11y.SeverityLabel(f.Severity) + "  ·  " + LayerLabel(f) + "  ·  " + KindLabel(f) + (f.IsFixed ? "  ·  applied" : f.IsStale ? "  ·  Text changed: check again" : "")
                              + (where.Length > 0 ? "\n" + where : "");
             // Grow to fit: the snippet line ("used in N topics") must never be cut off.
@@ -920,32 +925,70 @@ namespace FlareAI.Flare.UI
                 // Strict ownership: writers suggest, the style-guide owner decides (Tune style guide shows the requests).
                 var why = TextPrompt.Ask(this, "Suggest changing this rule", "Ask the style guide owner (" + string.Join(", ", new List<string>(team.Owners).ToArray()) + ") to change or turn off \"" + f.Rule + "\". Why?", "", true);
                 if (why == null) return;
-                FeedbackLog.Record(f, _doc.SourcePath, "propose-ignore", why.Trim());
+                var unsent = FeedbackLog.Record(f, _doc.SourcePath, "propose-ignore", why.Trim());
+                if (unsent != null)
+                {
+                    Notify.Error(this, "House Style couldn't send your request: it couldn't write to " + unsent + ".",
+                                 "Check that the team feedback folder (Settings) is available, then try again.", null, "Suggest changing this rule");
+                    return;
+                }
                 _status.Text = Summary() + "  Sent to the style guide owner" + (team.FeedbackFolder == null ? " (set a team feedback folder in Settings so they receive it)." : ".");
                 return;
             }
             // Owners (or a writer with no team): turn the rule off or change its level, for the team or this project.
             var rule = _runner.RuleFor(f.RuleId);
             var guide = team != null ? team.GuideRoot : null;
+            var personal = team != null && team.IsPersonal;
             var described = rule != null ? SourceName(rule.Layer) + " · " + rule.Section + ": " + rule.Text : "\"" + f.Rule + "\" (" + (f.Layer == "ai" ? "AI judgment" : SourceName(f.Layer)) + ")";
-            using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null))
+            var others = rule != null ? f.AlsoRules : null;   // other rules on the same words: turning off this one would expose them
+            if (others != null)
+            {
+                var readable = new List<FlareAI.Core.Style.RuleRef>();   // the rule's text, not its id
+                foreach (var o in others)
+                {
+                    var r = _runner.RuleFor(o.Id);
+                    readable.Add(new FlareAI.Core.Style.RuleRef { Id = o.Id, Layer = o.Layer, Name = r != null ? SourceName(r.Layer) + " · " + r.Section + ": " + r.Text : o.Name });
+                }
+                others = readable;
+            }
+            using (var form = new FlareAI.Flare.UI.RuleSettingForm(described, rule != null && guide != null, personal, others))
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;
-                try
+                var path = f.DocumentPath ?? _doc.SourcePath;
+                var target = form.ForTeam ? guide : ProjectRules.OverridesPath(path);
+                var changed = new List<string>();
+                var all = new List<StyleFinding> { f };
+                if (form.AlsoOthers) foreach (var o in others) all.Add(new StyleFinding { RuleId = o.Id, Rule = o.Name, Layer = o.Layer, Source = "lint" });
+                foreach (var one in all)
                 {
-                    string where;
-                    if (form.ForTeam) where = FlareAI.Core.Style.GuideOverrides.Set(guide, rule.Id, form.Setting, form.Reason);
-                    else { ProjectRules.Ignore(f.DocumentPath ?? _doc.SourcePath, f, form.Setting); where = ProjectRules.OverridesPath(f.DocumentPath ?? _doc.SourcePath); }
-                    FeedbackLog.Record(f, _doc.SourcePath, form.Setting == "off" ? "rule ignored" : "rule changed", form.Reason);
-                    if (form.Setting == "off")
+                    try
                     {
-                        if (f.Layer == "ai" && f.RuleId == null) _ignoredAi.Add(f.Rule);
-                        _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId : x.Rule == f.Rule);
-                        Rebuild();
+                        // Owners only; records who and when; the writer's own guide is created on first use (never the plugin folder).
+                        if (form.ForTeam) target = FlareAI.Core.Style.GuideOverrides.Set(team, one.RuleId, form.Setting, form.Reason);
+                        else ProjectRules.Ignore(path, one, form.Setting, form.Reason, team != null ? team.Writer : null);
+                        changed.Add(one.RuleId);
                     }
-                    _status.Text = Summary() + "  Rule set to " + form.Setting + (form.ForTeam ? " for the team (in " + System.IO.Path.GetFileName(where) + "; commit it so everyone gets it)." : " for this project.");
+                    catch (Exception ex)
+                    {
+                        Diagnostics.Log("Change rule", ex);
+                        Notify.Error(this, "House Style couldn't change " + (one == f ? "the rule" : "\"" + one.Rule + "\"") + (target == null ? "." : " in " + target + "."),
+                                     ex.Message + Environment.NewLine + Environment.NewLine + (one == f ? "Nothing was changed: the rule still applies." : "This rule and any after it were not changed: they still apply."), ex, "Turn off this rule");
+                        if (one == f) { _status.Text = Summary() + "  The rule was not changed."; return; }
+                        break;
+                    }
                 }
-                catch (Exception ex) { Diagnostics.Log("Change rule", ex); _status.Text = "Could not change the rule: " + ex.Message; }
+                FeedbackLog.Record(f, _doc.SourcePath, form.Setting == "off" ? "rule ignored" : "rule changed", form.Reason);
+                if (form.Setting == "off")
+                {
+                    if (f.Layer == "ai" && f.RuleId == null) _ignoredAi.Add(f.Rule);
+                    _findings.RemoveAll(x => f.RuleId != null ? x.RuleId == f.RuleId || changed.Contains(x.RuleId) : x.Rule == f.Rule);
+                    Rebuild();
+                }
+                _status.Text = Summary() + "  Rule" + (changed.Count > 1 ? "s" : "") + " set to " + form.Setting +
+                               (!form.ForTeam ? " for this project (in " + target + ")."
+                                : personal ? " in your style guide (" + target + ")."
+                                : " for the team (in " + target + "; commit it so everyone gets it).") +
+                               (changed.Count < all.Count ? " " + (all.Count - changed.Count) + " could not be changed." : "");
             }
         }
 
@@ -1003,6 +1046,13 @@ namespace FlareAI.Flare.UI
             return f.DocumentPath == null ? _doc : null;
         }
 
+        /// <summary>Go to button and Ctrl+Enter: open the topic or snippet in Flare's editor and select the flagged text.</summary>
+        private void GoToCurrent()
+        {
+            var f = Current();
+            if (f != null) GoTo(f, true);
+        }
+
         private void GoTo(StyleFinding f, bool report)
         {
             if (f.IsFixed) return;
@@ -1031,7 +1081,7 @@ namespace FlareAI.Flare.UI
             return new StyleFinding
             {
                 Source = f.Source, Rule = f.Rule, Severity = f.Severity, Excerpt = f.Excerpt, Suggestion = f.Suggestion, Replacement = f.Replacement,
-                Before = f.Before, Block = f.Block, Layer = f.Layer, Link = f.Link, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, RuleText = f.RuleText,
+                Before = f.Before, Block = f.Block, Layer = f.Layer, Link = f.Link, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, RuleText = f.RuleText, AlsoRules = f.AlsoRules,
                 DocumentPath = f.DocumentPath, Variable = f.Variable, Section = f.Section, Order = f.Order
             };
         }
@@ -1067,6 +1117,7 @@ namespace FlareAI.Flare.UI
             var f = Current();
             var open = f != null && !f.IsFixed && !f.IsStale;
             _accept.Enabled = open;
+            _goTo.Enabled = f != null && !f.IsFixed;
             _accept.Text = f == null ? "Apply" : f.Rule == "Structure.AltText" && f.DocumentPath == null ? "Suggest alt text…" : f.Kind == "restructure" ? "Rewrite…" : f.Kind == "variable" || f.Kind == "manual" ? "Go to" : "Apply";
             _reject.Enabled = f != null && !f.IsFixed;
             _edit.Enabled = open && f.Kind != "variable" && f.Kind != "manual";

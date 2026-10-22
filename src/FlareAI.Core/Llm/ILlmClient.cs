@@ -52,7 +52,7 @@ namespace FlareAI.Core.Llm
     }
 
     /// <summary>Why a request failed, so callers can react (retry with more room, tell the author, fall back).</summary>
-    public enum LlmFailure { Http, Network, Truncated, Refusal, Contract }
+    public enum LlmFailure { Http, Network, Truncated, Refusal, Contract, Auth, ModelDenied, Budget }
 
     public sealed class LlmException : Exception
     {
@@ -69,5 +69,13 @@ namespace FlareAI.Core.Llm
     public interface ILlmClient
     {
         LlmResponse Complete(LlmRequest request);
+    }
+
+    /// <summary>Stands in when no client can be made (no key): lint-only work runs, and any AI call fails with the reason.</summary>
+    public sealed class UnavailableClient : ILlmClient
+    {
+        private readonly string _reason;
+        public UnavailableClient(string reason) { _reason = reason; }
+        public LlmResponse Complete(LlmRequest request) { throw new LlmException(_reason, 0, null, LlmFailure.Auth); }
     }
 }

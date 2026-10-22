@@ -47,6 +47,24 @@ namespace FlareAI.Flare.UI
             _provider.SelectedIndexChanged += (s, e) => OnProviderChanged();
 
             _baseUrl = AddRow("Base URL", new TextBox { Text = _settings.BaseUrl });
+            _urlHint = new Label { AutoSize = false, Left = FieldLeft, Top = _y, Width = FieldWidth, ForeColor = SystemColors.GrayText, Text = GatewayHint };
+            _urlHint.Height = TextRenderer.MeasureText(GatewayHint, Font, new Size(FieldWidth, 0), TextFormatFlags.WordBreak).Height + 4;
+            Controls.Add(_urlHint); _y += _urlHint.Height + 4;
+            _key = AddRow("API / virtual key", new TextBox { UseSystemPasswordChar = true });
+            _key.Leave += (s, e) => { if (_key.Text.Trim().Length > 0 && _key.Text.Trim() != _loadedKey) LoadModels(); };
+            _keyStatus = new LiveLabel { Text = "No key configured.", AutoSize = true, MaximumSize = new Size(FieldWidth, 0), Left = FieldLeft, Top = _y, ForeColor = SystemColors.GrayText };
+            Controls.Add(_keyStatus); _y += _keyStatus.PreferredHeight + 2;
+            var clearKey = new LinkLabel { Text = "Clear stored key", AutoSize = true, Left = FieldLeft, Top = _y };
+            clearKey.LinkClicked += (s, e) => { _settings.SetApiKey(null); _key.Text = ""; RefreshKeyStatus(); };
+            Controls.Add(clearKey); _y += clearKey.PreferredHeight + 8;
+            _test = new Button { Text = "Test connection", AutoSize = true, Left = FieldLeft, Top = _y };
+            _test.Click += (s, e) => TestConnection();
+            _testResult = new LiveLabel { AutoSize = false, Text = "", Left = FieldLeft + _test.PreferredSize.Width + 10, Top = _y + 4, Width = FieldWidth - _test.PreferredSize.Width - 10, Height = Font.Height * 3 + 6, ForeColor = SystemColors.GrayText };
+            Controls.Add(_test); Controls.Add(_testResult);
+            _y += Math.Max(_test.PreferredSize.Height + 4, _testResult.Height) + 6;
+            Note("The key is used only when you ask for AI: Check style's wording review, Rewrite, Ask, Topic assists, and Validate style guide's AI check. " +
+                 "Checking as you type, on save, before a build, and Check project never use AI and cost nothing. Without a key, every style check still works and the AI buttons ask you to add one.");
+            _modelBlockStart = Controls.Count; _modelBlockTop = _y;
             _model = AddRow("Model (standard)", NewModelCombo());
             _fastModel = AddRow("Fast model", NewModelCombo());
             _deepModel = AddRow("Deep model", NewModelCombo());
@@ -56,17 +74,9 @@ namespace FlareAI.Flare.UI
             Controls.Add(_refreshModels); Controls.Add(_modelStatus);
             _y += Math.Max(_refreshModels.PreferredSize.Height, _modelStatus.PreferredHeight + 4) + 4;
             _modelsNote = Note("The lists come from your key. Default means the plugin's built-in model. A style guide's FlareAI\\models.json overrides these for the team.");
+            _modelBlockEnd = Controls.Count; _modelBlockHeight = _y - _modelBlockTop;
             _models = new ModelInfo[0];
             SetModel(_model, _settings.Model); SetModel(_fastModel, _settings.FastModel); SetModel(_deepModel, _settings.DeepModel);
-            _key = AddRow("API / virtual key", new TextBox { UseSystemPasswordChar = true });
-            _key.Leave += (s, e) => { if (_key.Text.Trim().Length > 0 && _key.Text.Trim() != _loadedKey) LoadModels(); };
-            _keyStatus = new LiveLabel { Text = "No key configured.", AutoSize = true, MaximumSize = new Size(FieldWidth, 0), Left = FieldLeft, Top = _y, ForeColor = SystemColors.GrayText };
-            Controls.Add(_keyStatus); _y += _keyStatus.PreferredHeight + 2;
-            var clearKey = new LinkLabel { Text = "Clear stored key", AutoSize = true, Left = FieldLeft, Top = _y };
-            clearKey.LinkClicked += (s, e) => { _settings.SetApiKey(null); _key.Text = ""; RefreshKeyStatus(); };
-            Controls.Add(clearKey); _y += clearKey.PreferredHeight + 8;
-            Note("The key is used only when you ask for AI: Check style's wording review, Rewrite, Ask, Topic assists, and Validate style guide's AI check. " +
-                 "Checking as you type, on save, before a build, and Check project never use AI and cost nothing.");
             _layers = AddRow("Style guide project", new ListBox { Height = 54, Width = FieldWidth - 90, IntegralHeight = false, HorizontalScrollbar = true });
             foreach (var line in (_settings.StyleLayers ?? "").Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
                 if (line.Trim().Length > 0) _layers.Items.Add(line.Trim());
@@ -123,6 +133,8 @@ namespace FlareAI.Flare.UI
             A11y.Name(_feedbackStatus, "Team feedback folder status");
             A11y.Name(_key, "API or virtual key", "Write only: a stored key is never shown back. Leave blank to keep the stored key.");
             A11y.Name(clearKey, "Clear stored key");
+            A11y.Name(_test, "Test connection", "Makes one small request with the address and key as shown, and reports whether it worked.");
+            A11y.Name(_testResult, "Connection test result");
             A11y.Name(_layers, "Style guide project folders", "Folders of your team's style guide. None uses the guide bundled with the plugin.");
             A11y.Name(_timeout, "Timeout in seconds");
             RefreshKeyStatus();
@@ -169,7 +181,66 @@ namespace FlareAI.Flare.UI
             return c;
         }
 
-        private Label _modelsNote;
+        private Label _modelsNote, _urlHint, _testResult;
+        private Button _test;
+        private const string GatewayHint = "The address your admin gave you, e.g. https://gateway.example.com";
+        private const string DirectHint = "Leave as is to use Anthropic directly.";
+        private int _modelBlockStart, _modelBlockEnd, _modelBlockTop, _modelBlockHeight;
+        private bool _modelBlockHidden;
+
+        /// <summary>The gateway uses fixed models: hide the model rows and close the gap, so setup is URL, key, Test connection.</summary>
+        private void ArrangeForProvider(bool gateway)
+        {
+            if (gateway == _modelBlockHidden) return;
+            AutoScrollPosition = new Point(0, 0);
+            var delta = gateway ? -_modelBlockHeight : _modelBlockHeight;
+            for (var i = 0; i < Controls.Count; i++)
+            {
+                var c = Controls[i];
+                if (i >= _modelBlockStart && i < _modelBlockEnd) { c.Visible = !gateway; continue; }
+                if (c.Top >= _modelBlockTop) c.Top += delta;
+            }
+            _modelBlockHidden = gateway;
+            if (!AutoScroll) ClientSize = new Size(ClientSize.Width, ClientSize.Height + delta);
+        }
+
+        private int _testSeq;
+
+        private void TestConnection()
+        {
+            var provider = Gateway ? LlmProvider.Bifrost : LlmProvider.AnthropicDirect;
+            string url, err;
+            var typed = _baseUrl.Text.Trim();
+            if (!Gateway && typed.Length == 0) typed = PluginSettings.DefaultAnthropicBaseUrl;
+            if (!LlmErrors.TryNormalizeBaseUrl(typed, out url, out err)) { ShowTestResult(false, err); return; }
+            _baseUrl.Text = url;   // show what will be used
+            var key = KeyForLoading();
+            var model = GetModel(_model);
+            int timeout;
+            if (!int.TryParse(_timeout.Text, out timeout)) timeout = 30;
+            var seq = ++_testSeq;
+            _test.Enabled = false;
+            _testResult.ForeColor = SystemColors.GrayText;
+            _testResult.Text = "Testing…";
+            var w = new BackgroundWorker();
+            w.DoWork += (s, e) => e.Result = ConnectionTest.Run(provider, url, key, model, timeout);
+            w.RunWorkerCompleted += (s, e) =>
+            {
+                if (_closed) return;
+                _test.Enabled = true;
+                if (seq != _testSeq) return;
+                if (e.Error != null) { ShowTestResult(false, "The test couldn't run."); return; }
+                var r = (ConnectionResult)e.Result;
+                ShowTestResult(r.Ok, r.Message);
+            };
+            w.RunWorkerAsync();
+        }
+
+        private void ShowTestResult(bool ok, string message)
+        {
+            _testResult.ForeColor = ok ? SystemColors.ControlText : Color.FromArgb(160, 0, 0);
+            _testResult.Text = (ok ? "\u2713 " : "") + message;
+        }
         private int _shownProvider = -1;
         private string _otherBaseUrl;   // the other provider's URL, so switching back and forth restores it
 
@@ -184,7 +255,10 @@ namespace FlareAI.Flare.UI
             }
             _shownProvider = _provider.SelectedIndex;
             _modelsNote.Visible = !bifrost;
+            _urlHint.Text = bifrost ? GatewayHint : DirectHint;
+            _testResult.Text = "";
             ShowGatewayModels(bifrost);
+            ArrangeForProvider(bifrost);
             if (bifrost && _baseUrl.Text.Trim() == PluginSettings.DefaultAnthropicBaseUrl) _baseUrl.Text = "";   // the gateway's URL goes here
             if (!bifrost && string.IsNullOrEmpty(_baseUrl.Text)) _baseUrl.Text = PluginSettings.DefaultAnthropicBaseUrl;
             if (!bifrost && _baseUrl.Text.Contains("/v1")) _baseUrl.Text = PluginSettings.DefaultAnthropicBaseUrl;
@@ -366,7 +440,15 @@ namespace FlareAI.Flare.UI
             int timeout;
             if (!int.TryParse(_timeout.Text, out timeout) || timeout < 10) { Notify.Warn(this, "Timeout must be a number of seconds, 10 or more.", "Settings"); _timeout.Focus(); return; }
             _settings.Provider = (LlmProvider)_provider.SelectedIndex;
-            _settings.BaseUrl = _baseUrl.Text.Trim();
+            var typedUrl = _baseUrl.Text.Trim();
+            if (!Gateway && typedUrl.Length == 0) typedUrl = PluginSettings.DefaultAnthropicBaseUrl;
+            string cleanUrl = "", urlError;
+            if ((typedUrl.Length > 0 || !Gateway) && !LlmErrors.TryNormalizeBaseUrl(typedUrl, out cleanUrl, out urlError))
+            {
+                Notify.Warn(this, urlError, "Settings"); _baseUrl.Focus(); return;
+            }
+            _baseUrl.Text = cleanUrl;
+            _settings.BaseUrl = cleanUrl;
             if (!Gateway)   // the gateway's fixed models would overwrite the direct-key choices
             {
                 _settings.Model = GetModel(_model);

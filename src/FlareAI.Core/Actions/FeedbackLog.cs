@@ -18,9 +18,10 @@ namespace FlareAI.Core.Actions
         /// <summary>The personal log; set by the host.</summary>
         public static string PersonalPath { get; set; }
 
-        public static void Record(StyleFinding f, string topicPath, string decision, string reason = null)
+        /// <summary>Records the decision. Returns the file that couldn't be written (logged), or null when every write worked.</summary>
+        public static string Record(StyleFinding f, string topicPath, string decision, string reason = null)
         {
-            if (f == null) return;
+            if (f == null) return null;
             var team = Team.Current;
             var line = JsonConvert.SerializeObject(new
             {
@@ -28,8 +29,9 @@ namespace FlareAI.Core.Actions
                 kind = f.Kind, source = f.Source, layer = f.Layer, rule = f.Rule, rule_id = f.RuleId, rule_hash = WordingHash(f.RuleText),
                 excerpt = f.Excerpt, replacement = f.Replacement, file = f.DocumentPath ?? topicPath
             }, Formatting.None);
-            Append(PersonalPath, line);
-            if (team != null) Append(team.SharedFeedbackFile, line);
+            var personal = Append(PersonalPath, line);
+            var shared = team == null ? null : Append(team.SharedFeedbackFile, line);
+            return shared ?? personal;
         }
 
         /// <summary>A short fingerprint of a rule's wording: decisions about an earlier wording can be told apart.</summary>
@@ -41,17 +43,19 @@ namespace FlareAI.Core.Actions
                 return BitConverter.ToString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(norm)), 0, 4).Replace("-", "").ToLowerInvariant();
         }
 
-        private static void Append(string path, string line)
+        /// <summary>Null when written (or there is nowhere to write), else the path.</summary>
+        private static string Append(string path, string line)
         {
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(path)) return null;
             lock (Gate)
             {
                 try
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
                     File.AppendAllText(path, line + Environment.NewLine, ProjectRules.NoBom);
+                    return null;
                 }
-                catch (Exception ex) { Diagnostics.Log("feedback " + path, ex); }
+                catch (Exception ex) { Diagnostics.Log("feedback " + path, ex); return path; }
             }
         }
     }

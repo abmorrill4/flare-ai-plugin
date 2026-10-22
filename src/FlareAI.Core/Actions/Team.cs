@@ -31,6 +31,32 @@ namespace FlareAI.Core.Actions
         public GuideStatus Status { get; set; }
         public bool IsOwner { get { return !IsStrict || Contains(Owners, Writer) || Contains(Owners, Environment.UserName); } }
 
+        /// <summary>
+        /// The read-only guide (bundled with the plugin) that <see cref="GuideRoot"/> is copied from on its first write, when
+        /// GuideRoot is the writer's own guide; null when GuideRoot is a team guide.
+        /// </summary>
+        public string SeedFrom { get; set; }
+        /// <summary>True when rule changes go to the writer's own guide (no team guide is configured).</summary>
+        public bool IsPersonal { get { return SeedFrom != null; } }
+
+        /// <summary>
+        /// The guide to write rule changes into, ready to write: the writer's own guide is created from <see cref="SeedFrom"/>
+        /// on first need. Throws <see cref="FlareAI.Core.Style.GuideWriteException"/> naming the folder when that fails.
+        /// </summary>
+        public string WritableGuide()
+        {
+            if (GuideRoot == null) throw new InvalidOperationException("No style guide is set up. Choose one in Settings.");
+            if (SeedFrom != null) FlareAI.Core.Style.GuideSeed.Ensure(SeedFrom, GuideRoot);
+            return GuideRoot;
+        }
+
+        /// <summary>Throws unless this writer may change the shared guide's rules (an owner, or the guide has no owners file).</summary>
+        public void EnsureOwner()
+        {
+            if (!IsOwner)
+                throw new UnauthorizedAccessException("Only the style guide owners (" + string.Join(", ", new List<string>(Owners).ToArray()) + ") can change the team's rules. Use Suggest a change instead.");
+        }
+
         /// <summary>The team context in effect (set at startup and when Settings change).</summary>
         public static Team Current { get; set; }
 

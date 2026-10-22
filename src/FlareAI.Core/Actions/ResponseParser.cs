@@ -27,6 +27,8 @@ namespace FlareAI.Core.Actions
         public string Link { get; set; }
         /// <summary>The guide rule this finding applies ("company:terminology/3"); null = not tied to a guide rule.</summary>
         public string RuleId { get; set; }
+        /// <summary>Other rules that flagged the same words (lint only): "Turn off this rule" offers to turn them off too.</summary>
+        public System.Collections.Generic.List<FlareAI.Core.Style.RuleRef> AlsoRules = new System.Collections.Generic.List<FlareAI.Core.Style.RuleRef>();
         /// <summary>The run (r1, r2, …) of the reviewed unit the finding quotes, when it came from a run-addressed review.</summary>
         public string RunId { get; set; }
         /// <summary>Layer and section of <see cref="RuleId"/>, for display ("Company: Terminology").</summary>

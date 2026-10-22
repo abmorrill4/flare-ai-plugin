@@ -5,14 +5,26 @@ Adds a **House Style** ribbon tab to Flare Desktop with *Check style*, *Rewrite 
 with the normal review tools.
 
 Checks every topic against the full Google developer documentation style guide plus your team's own rules, kept in
-one Flare project. Bring your own Anthropic API key. Architecture: `PLAN.md`.
+one Flare project. Bring your own Anthropic API key, or a Bifrost gateway virtual key. Architecture: `PLAN.md`.
 
 ## Install (writers)
 
-1. Download `HouseStyle-<version>.zip` from [Releases](../../releases), right-click it > **Properties** > **Unblock**.
-2. Close Flare. Copy the `FlareAI` folder from the zip into `C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Plugins`.
-3. Start Flare > **File > Options > Plugins > House Style > Enable**, restart Flare.
-4. **House Style > Settings**: paste your [Anthropic API key](https://console.anthropic.com/settings/keys).
+1. Download `HouseStyle-<version>.zip` from [Releases](../../releases) and unzip the whole thing.
+2. Close Flare, then double-click **`Install.cmd`** (accept the administrator prompt). It unblocks the files, picks the
+   newest installed Flare (or `.\Install.ps1 -Flare 21` for another) and copies the plugin.
+3. Start Flare > **File > Options > Plugins > House Style > Enable**, then restart Flare again.
+4. **House Style > Settings**: paste your [Anthropic API key](https://console.anthropic.com/settings/keys), or a
+   gateway virtual key (Provider: *Bifrost gateway*, see `docs/bifrost-migration.md`).
+
+| Install folder | Flare version |
+|---|---|
+| `MadCap Flare 22` | Flare 2026 |
+| `MadCap Flare 21` | Flare 2025 (including 2025 R2) |
+
+Manual fallback: **unblock** the zip first (right-click > Properties > Unblock, or `Unblock-File`), copy the `FlareAI`
+folder into `...\MadCap Flare <n>\Flare.app\Plugins\`, and check there is no wrapper folder (the DLL must be at
+`Plugins\FlareAI\FlareAI.Flare.dll`). Restart Flare after copying and again after enabling. Details:
+`docs/README-INSTALL.md`.
 
 Tested with MadCap Flare 2026 (22). The style checker is free; AI review costs about 2¢ per topic on your key.
 

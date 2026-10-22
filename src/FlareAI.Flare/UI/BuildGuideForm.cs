@@ -31,7 +31,7 @@ namespace FlareAI.Flare.UI
         private readonly RichTextBox _detail;
         private readonly ComboBox _prefer;
         private readonly Label _preferLabel;
-        private readonly Button _mine, _notes, _add;
+        private readonly Button _mine, _notes, _add, _edit, _remove;
         private readonly ProgressBar _progress;
 
         public BuildGuideForm(Team team, StyleEngine style, string project, Func<ActionRunner> runner, Func<string, IDocumentAdapter> open)
@@ -75,7 +75,17 @@ namespace FlareAI.Flare.UI
             var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
             _add = new Button { Text = "Add checked rules to the guide", AutoSize = true, Enabled = false };
             _add.Click += (s, e) => AddToGuide();
-            bar.Controls.AddRange(new Control[] { close, _add });
+            _edit = new Button { Text = "Edit rule…", AutoSize = true, Enabled = false };
+            _edit.Click += (s, e) => EditCurrent();
+            _remove = new Button { Text = "Remove", AutoSize = true, Enabled = false };
+            _remove.Click += (s, e) => RemoveCurrent();
+            bar.Controls.AddRange(new Control[] { close, _add, _remove, _edit });
+            _list.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.F2 && _edit.Enabled) { e.Handled = e.SuppressKeyPress = true; EditCurrent(); }
+                else if (e.KeyCode == Keys.Delete && _remove.Enabled) { e.Handled = e.SuppressKeyPress = true; RemoveCurrent(); }
+            };
+            _list.DoubleClick += (s, e) => { if (_edit.Enabled) EditCurrent(); };
 
             Controls.Add(_list);
             Controls.Add(detail);
@@ -86,6 +96,8 @@ namespace FlareAI.Flare.UI
             CancelButton = close;
             A11y.Name(_list, "Suggested rules", "Tick the rules to add to the guide. Columns: suggested rule, becomes, evidence.");
             A11y.Name(_detail, "Details for the selected rule");
+            A11y.Name(_edit, "Edit rule", "Change the selected rule's text, Avoid, Use, severity or reason before adding it. Shortcut F2.");
+            A11y.Name(_remove, "Remove rule", "Drop the selected rule from this list. Shortcut Delete.");
             A11y.Name(_prefer, "Preferred form", "Pick which form the guide should prefer where the team was split.");
             A11y.Name(detail, "Rule details"); A11y.Name(bar, "Dialog buttons");
             A11y.Apply(this);
@@ -181,6 +193,7 @@ namespace FlareAI.Flare.UI
         private void ShowDetail()
         {
             var c = Current();
+            _edit.Enabled = _remove.Enabled = c != null;
             var terms = c != null && c.Forms.Count > 1 && c.Kind != "heading";
             _prefer.Visible = _preferLabel.Visible = terms;
             if (terms)
@@ -209,6 +222,27 @@ namespace FlareAI.Flare.UI
             foreach (ListViewItem item in _list.Items) if (item.Tag == c) item.SubItems[2].Text = Evidence(c);
         }
 
+        private void EditCurrent()
+        {
+            var c = Current();
+            if (c == null) return;
+            using (var dlg = new CandidateEditDialog(c))
+                if (dlg.ShowDialog(this) != DialogResult.OK) return;
+            foreach (ListViewItem item in _list.Items)
+                if (item.Tag == c) { item.SubItems[0].Text = c.Title; item.SubItems[1].Text = Becomes(c); }
+            ShowDetail();
+        }
+
+        private void RemoveCurrent()
+        {
+            if (_list.SelectedItems.Count != 1) return;
+            var item = _list.SelectedItems[0];
+            var at = item.Index;
+            _list.Items.Remove(item);
+            if (_list.Items.Count > 0) _list.Items[Math.Min(at, _list.Items.Count - 1)].Selected = true; else ShowDetail();
+            UpdateAdd();
+        }
+
         private void Write(string text, FontStyle style)
         {
             _detail.SelectionStart = _detail.TextLength;
@@ -226,16 +260,25 @@ namespace FlareAI.Flare.UI
         {
             var accepted = _list.CheckedItems.Cast<ListViewItem>().Select(i => (RuleCandidate)i.Tag).ToList();
             var root = _team.GuideRoot;
-            var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
-            var topic = Path.Combine(folder, "From-our-content.htm");
+            var topic = Path.Combine(root, @"Content\Resources\StyleGuide\From-our-content.htm");
             try
             {
+                // The team guide, or the writer's own guide (created on first use): never the read-only guide in the plugin folder.
+                root = _team.WritableGuide();
+                var folder = Directory.GetFiles(root, "*.flprj").Length > 0 ? Path.Combine(root, @"Content\Resources\StyleGuide") : root;
+                topic = Path.Combine(folder, "From-our-content.htm");
                 var n = GuideBuilder.Write(topic, accepted, "From our content");
                 foreach (var i in _list.CheckedItems.Cast<ListViewItem>().ToList()) _list.Items.Remove(i);
-                _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example), then commit the guide.";
+                _head.Text = "Added " + Plural.Of(n, "rule") + " to " + topic + ". Review the topic in Flare, run Validate style guide (it tests every new row against its example)" +
+                             (_team.IsPersonal ? "." : ", then commit the guide.");
                 if (_open != null) _open(topic);
             }
-            catch (Exception ex) { Diagnostics.Log("Build guide: write", ex); Notify.Error(this, "House Style couldn't write to " + System.IO.Path.GetFileName(topic) + ".", "Check that the file isn't read-only, then try again.", ex, "Build style guide"); }
+            catch (Exception ex)
+            {
+                Diagnostics.Log("Build guide: write", ex);
+                Notify.Error(this, "House Style couldn't add the rules: it couldn't write to " + topic + ".",
+                             ex.Message + "\n\nNothing was added. Check that you can write to that folder and the file isn't read-only, then try again.", ex, "Build style guide");
+            }
             UpdateAdd();
         }
 
@@ -256,30 +299,48 @@ namespace FlareAI.Flare.UI
             using (var form = new Form { Text = "House Style — Notes for the style guide", StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(680, 460), MinimumSize = new Size(480, 300), Font = SystemFonts.MessageBoxFont, AutoScaleMode = AutoScaleMode.Font })
             {
                 var label = new Label { Dock = DockStyle.Top, Height = 44, Padding = new Padding(8, 8, 8, 0),
-                    Text = "Paste or dictate (Win+H) anything: how the team writes, words you never use, an old style guide, or the prompt you used with another AI tool. Or load a .txt, .md or .htm file." };
+                    Text = "Paste or dictate (Win+H) anything: how the team writes, words you never use, an old style guide, or the prompt you used with another AI tool. Or load a Word (.docx), Word Web Page (.htm), .txt or .md file." };
                 var box = new TextBox { Dock = DockStyle.Fill, Multiline = true, AcceptsReturn = true, ScrollBars = ScrollBars.Vertical, WordWrap = true };
                 var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
-                var ok = new Button { Text = "Find rules", AutoSize = true, DialogResult = DialogResult.OK };
+                var ok = new Button { Text = "Extract rules", AutoSize = true, DialogResult = DialogResult.OK, Enabled = false, Font = new Font(form.Font, FontStyle.Bold) };
                 var cancel = new Button { Text = "Cancel", AutoSize = true, DialogResult = DialogResult.Cancel };
                 var load = new Button { Text = "Load file…", AutoSize = true };
+                var hint = new Label { Text = "Ctrl+Enter extracts", AutoSize = true, Padding = new Padding(0, 6, 8, 0), ForeColor = SystemColors.GrayText };
+                box.TextChanged += (s, e) => ok.Enabled = box.Text.Trim().Length > 0;
+                // Enter stays a newline in the box (AcceptsReturn); the default button only fires from the other controls.
+                box.KeyDown += (s, e) => { if (e.Control && e.KeyCode == Keys.Return && ok.Enabled) { e.Handled = e.SuppressKeyPress = true; ok.PerformClick(); } };
                 load.Click += (s, e) =>
                 {
-                    using (var dlg = new OpenFileDialog { Filter = "Text, Markdown, HTML|*.txt;*.md;*.htm;*.html|All files|*.*" })
-                        if (dlg.ShowDialog(form) == DialogResult.OK)
-                        {
-                            var text = File.ReadAllText(dlg.FileName);
-                            if (dlg.FileName.EndsWith("htm", StringComparison.OrdinalIgnoreCase) || dlg.FileName.EndsWith("html", StringComparison.OrdinalIgnoreCase))
-                                text = System.Text.RegularExpressions.Regex.Replace(System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", " "), @"[ \t]+", " ");
-                            box.Text = text;
-                        }
+                    try
+                    {
+                        using (var dlg = new OpenFileDialog { Filter = "Notes, Word, HTML|*.docx;*.txt;*.md;*.htm;*.html|All files|*.*" })
+                            if (dlg.ShowDialog(form) == DialogResult.OK) box.Text = NoteText.ReadFile(dlg.FileName).Replace("\r\n", "\n").Replace("\n", "\r\n");   // a TextBox shows only CRLF as a line break
+                    }
+                    catch (Exception ex)
+                    {
+                        Diagnostics.Log("Build guide: load notes file", ex);
+                        Notify.Warn(form, LoadProblem(ex), "Notes");
+                    }
                 };
-                bar.Controls.AddRange(new Control[] { cancel, ok, load });
-                A11y.Name(box, "Notes", "Paste or type notes about how the team writes, or load a file.");
+                bar.Controls.AddRange(new Control[] { cancel, ok, load, hint });
+                A11y.Name(box, "Notes", "Paste or type notes about how the team writes, or load a file. Control+Enter extracts rules.");
+                A11y.Name(ok, "Extract rules", "Find style rules in these notes.");
                 A11y.Name(bar, "Dialog buttons");
                 form.Controls.Add(box); form.Controls.Add(bar); form.Controls.Add(label);
-                form.AcceptButton = null; form.CancelButton = cancel;
+                form.AcceptButton = ok; form.CancelButton = cancel;
                 return form.ShowDialog(owner) == DialogResult.OK ? box.Text.Trim() : null;
             }
+        }
+
+        private static string LoadProblem(Exception ex)
+        {
+            if (ex is IOException && !(ex is FileNotFoundException) && !(ex is DirectoryNotFoundException) && !(ex is InvalidDataException))
+            {
+                var code = System.Runtime.InteropServices.Marshal.GetHRForException(ex) & 0xFFFF;
+                if (code == 32 || code == 33) return "This file is open in another program (Word, for example) and can't be read. Close it there, or save a copy and load that.";
+            }
+            if (ex is UnauthorizedAccessException) return "House Style isn't allowed to read that file. Pick another file, or check its permissions.";
+            return "House Style couldn't read that file: " + ex.Message;
         }
     }
 }

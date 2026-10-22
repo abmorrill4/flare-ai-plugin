@@ -24,6 +24,23 @@ namespace FlareAI.Core.Style
         public string Variable { get; set; }
         /// <summary>Citable guide id when the rule comes from a guide table (for example "company:terminology/3").</summary>
         public string RuleId { get; set; }
+        /// <summary>Other rules that flagged these same words (dropped as duplicates): turning off the shown rule would expose them.</summary>
+        public List<RuleRef> AlsoRules = new List<RuleRef>();
+
+        /// <summary>Records the rule of <paramref name="other"/>, which this hit replaces, unless it has no id, is this rule or is listed.</summary>
+        internal void AlsoFlaggedBy(LintHit other)
+        {
+            if (other.RuleId == null || other.RuleId == RuleId || AlsoRules.Any(r => r.Id == other.RuleId)) return;
+            AlsoRules.Add(new RuleRef { Id = other.RuleId, Name = other.Rule, Layer = other.Layer });
+        }
+    }
+
+    /// <summary>A guide rule named by id, for lists of related rules.</summary>
+    public sealed class RuleRef
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Layer { get; set; }
     }
 
     /// <summary>What a unit of text is, for choosing its rules: its content (Content tags) and its words (Term/Rule rows).</summary>
@@ -124,6 +141,8 @@ namespace FlareAI.Core.Style
         IList<string> RuleIdsFor(string project, GuideScope scope);
         /// <summary>Every citable rule of the layered guide (same call as <see cref="Guide"/>, cached with it).</summary>
         IList<GuideRule> Rules(string project);
+        /// <summary>True when the guide (or the project) turns this rule off: its findings, cached ones included, are not shown.</summary>
+        bool IsOff(string project, string ruleId);
         /// <summary>Tests the guide itself (table rows against their examples, contradictions, unreadable topics).</summary>
         GuideReport Validate(string project);
         /// <summary>Prose rules that carry Bad/Good examples.</summary>

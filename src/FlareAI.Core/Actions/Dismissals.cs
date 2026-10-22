@@ -78,18 +78,24 @@ namespace FlareAI.Core.Actions
         public static bool IsLinterRule(StyleFinding f) { return f.Layer != "ai" && f.Rule != null && f.Rule.Contains("."); }
 
         /// <param name="setting">off, suggestion, warning or error.</param>
-        public static void Ignore(string anyProjectPath, StyleFinding f, string setting = "off")
+        /// <param name="reason">Why (recorded with <paramref name="by"/> and today's date above the line, for the turned-off rules list).</param>
+        public static void Ignore(string anyProjectPath, StyleFinding f, string setting = "off", string reason = null, string by = null)
         {
             var path = OverridesPath(anyProjectPath);
             if (path == null) throw new InvalidOperationException("This topic is not inside a Flare project.");
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
             // A guide rule by its permanent id (lint and AI alike); an uncited AI judgment by its name.
             var line = f.RuleId != null ? f.RuleId + " = " + setting
                      : IsLinterRule(f) ? f.Rule + " = " + (setting == "off" ? "NO" : setting)
                      : "# ai-ignore: " + f.Rule;
-            var existing = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8).TrimStart('﻿') : "# Rules turned off for this project (House Style, \"Turn off this rule\"). Vale syntax: Style.Rule = NO\r\n";
-            if (existing.IndexOf(line, StringComparison.OrdinalIgnoreCase) >= 0) return;
-            File.WriteAllText(path, existing.TrimEnd() + "\r\n" + line + "\r\n", NoBom); // ini readers choke on a BOM
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                var existing = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8).TrimStart('﻿') : "# Rules turned off for this project (House Style, \"Turn off this rule\"). Vale syntax: Style.Rule = NO\r\n";
+                if (existing.IndexOf(line, StringComparison.OrdinalIgnoreCase) >= 0) return;
+                var meta = by == null && string.IsNullOrEmpty(reason) ? "" : FlareAI.Core.Style.RuleOverrides.MetaLine(by, DateTime.Now, reason) + "\r\n";
+                File.WriteAllText(path, existing.TrimEnd() + "\r\n" + meta + line + "\r\n", NoBom); // ini readers choke on a BOM
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { throw new FlareAI.Core.Style.GuideWriteException(path, ex); }
         }
 
         /// <summary>AI rule names this project ignores (lower case).</summary>

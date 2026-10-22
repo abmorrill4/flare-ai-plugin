@@ -13,7 +13,7 @@ namespace FlareAI.Core.Style
     /// </summary>
     public sealed class StyleEngine : IStyleService
     {
-        private readonly List<string> _guides;
+        private readonly Func<IEnumerable<string>> _roots;
         private readonly string _bundled;
         private readonly object _gate = new object();
         private readonly Dictionary<string, KeyValuePair<string, Composition>> _cache = new Dictionary<string, KeyValuePair<string, Composition>>(StringComparer.OrdinalIgnoreCase);
@@ -21,36 +21,56 @@ namespace FlareAI.Core.Style
         /// <param name="guideRoots">The team's style guide projects (usually one), in order.</param>
         /// <param name="bundledGuide">The style guide project shipped with the plugin: its Google/ folder is the baseline when a guide has none.</param>
         public StyleEngine(IEnumerable<string> guideRoots, string bundledGuide)
+            : this(() => guideRoots, bundledGuide)
         {
-            _guides = (guideRoots ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g)).ToList();
+        }
+
+        /// <param name="guideRoots">
+        /// The guide projects in effect, asked again before each use: a guide created after the engine (the writer's own,
+        /// made on their first rule change) becomes a layer without a restart.
+        /// </param>
+        public StyleEngine(Func<IEnumerable<string>> guideRoots, string bundledGuide)
+        {
+            _roots = guideRoots ?? (() => new string[0]);
             _bundled = bundledGuide;
+        }
+
+        /// <summary>The guide projects that exist now, in order.</summary>
+        private List<string> Guides()
+        {
+            return (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g)).ToList();
         }
 
         // ---- composition ---------------------------------------------------------------------------------------
 
         public Composition Compose(string project)
         {
+            var guides = Guides();
             var root = FlareProjectRoot(project);
-            if (root != null && _guides.Any(g => SamePath(g, root))) root = null;   // the guide is already a layer
-            var key = (root ?? "") + "|" + string.Join("|", _guides.ToArray());
-            var stamp = Stamp(_guides.Concat(new[] { GoogleRoot(), root }).Where(p => p != null));
+            if (root != null && guides.Any(g => SamePath(g, root))) root = null;   // the guide is already a layer
+            var key = (root ?? "") + "|" + string.Join("|", guides.ToArray());
+            // Any change to a guide or project file (a rule turned off, a row added) changes the stamp: the next use reloads.
+            var stamp = Stamp(guides.Concat(new[] { GoogleRoot(guides), root }).Where(p => p != null));
             lock (_gate)
             {
                 KeyValuePair<string, Composition> c;
                 if (_cache.TryGetValue(key, out c) && c.Key == stamp) return c.Value;
             }
-            var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(), "google", "Google") };
-            foreach (var g in _guides) layers.Add(GuideLayer.Load(g, null, null, "Google"));
+            var layers = new List<GuideLayer> { GuideLayer.Load(GoogleRoot(guides), "google", "Google") };
+            foreach (var g in guides) layers.Add(GuideLayer.Load(g, null, null, "Google"));
             if (root != null) layers.Add(GuideLayer.Load(root, "project"));
             var comp = new Composition(layers);
             lock (_gate) _cache[key] = new KeyValuePair<string, Composition>(stamp, comp);
             return comp;
         }
 
+        /// <summary>Forgets every composition: the next use reads the guides again.</summary>
+        public void Invalidate() { lock (_gate) _cache.Clear(); }
+
         /// <summary>The project whose Google/ folder is the baseline: the first team guide that has one, else the bundled guide.</summary>
-        private string GoogleRoot()
+        private string GoogleRoot(List<string> guides)
         {
-            foreach (var g in _guides)
+            foreach (var g in guides)
                 if (Directory.Exists(Path.Combine(g, @"Content\Resources\StyleGuide\Google"))) return g;
             return _bundled;
         }
@@ -139,6 +159,8 @@ namespace FlareAI.Core.Style
 
         public IList<GuideRule> Rules(string project) { return Compose(project).Items; }
 
+        public bool IsOff(string project, string ruleId) { return Compose(project).IsOff(ruleId); }
+
         public IList<GuideExample> Examples(string project)
         {
             return Compose(project).Items.Where(i => i.Bad.Length > 0 || i.Good.Length > 0)
@@ -154,7 +176,8 @@ namespace FlareAI.Core.Style
         public int AssignKeys()
         {
             var n = 0;
-            foreach (var g in _guides) n += GuideLayer.Load(g, null, null, "Google").AssignKeys();
+            // Never the guide bundled with the plugin: it is read-only, and plugin updates replace it.
+            foreach (var g in Guides().Where(g => _bundled == null || !SamePath(g, _bundled))) n += GuideLayer.Load(g, null, null, "Google").AssignKeys();
             lock (_gate) _cache.Clear();
             return n;
         }
@@ -278,13 +301,24 @@ namespace FlareAI.Core.Style
             if (all) return hits;
             // Same span flagged by several layers: keep the latest layer (it overrides), then a citable rule, then a fixable one.
             var kept = new List<LintHit>();
-            var seen = new HashSet<string>();
+            var byKey = new Dictionary<string, LintHit>();
             foreach (var h in hits.OrderBy(h => h.Index).ThenBy(h => h.Start).ThenBy(h => h.Length)
                          .ThenBy(h => -(rank.ContainsKey(h.Layer) ? rank[h.Layer] : 0)).ThenBy(h => h.RuleId == null).ThenBy(h => h.Replacement == null)
                          .ThenBy(h => Rank.ContainsKey(h.Severity) ? Rank[h.Severity] : 3))
-                if (seen.Add(h.Index + ":" + h.Start + ":" + h.Length)) kept.Add(h);
+            {
+                LintHit first;
+                if (byKey.TryGetValue(h.Index + ":" + h.Start + ":" + h.Length, out first)) first.AlsoFlaggedBy(h);   // turning off the shown rule would otherwise expose this one
+                else { byKey[h.Index + ":" + h.Start + ":" + h.Length] = h; kept.Add(h); }
+            }
             // A hit inside a longer one ("Please" inside "Please note that") is the same problem: show the longer only.
-            return kept.Where(h => !kept.Any(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length)).ToList();
+            var shown = new List<LintHit>();
+            foreach (var h in kept)
+            {
+                var outer = kept.FirstOrDefault(o => o != h && o.Index == h.Index && o.Length > h.Length && o.Start <= h.Start && h.Start + h.Length <= o.Start + o.Length);
+                if (outer == null) shown.Add(h);
+                else outer.AlsoFlaggedBy(h);
+            }
+            return shown;
         }
 
         private static LintHit Hit(LintRule r, string use, string text, int start, int end, string severity)
