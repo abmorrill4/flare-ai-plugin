@@ -543,6 +543,21 @@ namespace FlareAI.Core.Actions
             var replacement = r == null || r.Type == JTokenType.Null ? null : (string)r;
             if (replacement != null && replacement.IndexOf('<') >= 0) replacement = null;
             var why = (string)json["why"];
+            // The earlier proposal stands when the instruction doesn't apply ("Use select instead of click" on text without
+            // "click"), when the answer lost the fix, or when it changes a modal verb or a code term. Measured: 3 of 4
+            // non-applying instructions returned the original text or nothing, discarding a better proposal.
+            if (f.Replacement != null)
+            {
+                var held = replacement == null ? null : MeaningGuard.Check(f.Excerpt, replacement, false, "The refined wording");
+                string because = (bool?)json["applies"] == false ? "The instruction doesn't apply to this text"
+                               : replacement == null || replacement == f.Excerpt && (bool?)json["applies"] != true ? "The refined answer dropped the fix"
+                               : held != null ? held.Replace(" Edit it yourself if that is meant.", "") : null;
+                if (because != null)
+                {
+                    replacement = f.Replacement;
+                    why = because.TrimEnd('.') + ", so the earlier suggestion stands. " + f.Suggestion;
+                }
+            }
             return new StyleFinding
             {
                 Source = "ai", Layer = "ai", Rule = f.Rule, RuleId = f.RuleId, RuleLayer = f.RuleLayer, RuleSection = f.RuleSection, Link = f.Link,

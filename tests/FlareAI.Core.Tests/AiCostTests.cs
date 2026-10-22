@@ -478,6 +478,20 @@ namespace FlareAI.Core.Tests
             Assert.Equal(found.Count, found.Select(r => r.Id).Distinct().Count());
         }
 
+        [Theory]
+        [InlineData("{\"applies\":false,\"replacement\":\"Click Save to keep the payee\",\"why\":\"x\"}", "Select Save to keep the payee", "doesn't apply")]
+        [InlineData("{\"applies\":true,\"replacement\":null,\"why\":\"Needs a rewrite.\"}", "Select Save to keep the payee", "dropped the fix")]
+        [InlineData("{\"applies\":true,\"replacement\":\"You must select Save to keep the payee\",\"why\":\"Firmer.\"}", "Select Save to keep the payee", "\"must\"")]
+        [InlineData("{\"applies\":true,\"replacement\":\"Select Save\",\"why\":\"Shorter.\"}", "Select Save", "Shorter.")]
+        public void Refine_KeepsTheEarlierProposal_WhenTheInstructionDoesntApply(string answer, string expected, string because)
+        {
+            var llm = new FakeLlmClient(r => answer);
+            var earlier = new StyleFinding { Excerpt = "Click Save to keep the payee", Replacement = "Select Save to keep the payee", Suggestion = "Use select.", Rule = "click" };
+            var refined = Runner(llm).Refine(earlier, "Click Save to keep the payee.", "Use tap instead of press");
+            Assert.Equal(expected, refined.Replacement);
+            Assert.Contains(because, refined.Suggestion);
+        }
+
         [Fact]
         public void TeamCanChangeACacheLifetime()
         {

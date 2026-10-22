@@ -17,5 +17,6 @@ in for exactly the text to change, with the same tense and grammar as the rest o
 only the author can change. Never change or drop code, API and product terms (identifiers, field, method and parameter
 names, part numbers): copy them exactly. Never add a fact the text doesn't state.
 
-If the instruction means
+If the instruction doesn't apply to this text (for example it names words the text doesn't contain), set applies to
+false and return the reviewer's proposal unchanged. If the instruction means
 the text should stay as it is, return the text to change unchanged.

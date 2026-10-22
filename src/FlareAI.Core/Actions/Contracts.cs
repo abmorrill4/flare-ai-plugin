@@ -237,7 +237,8 @@ namespace FlareAI.Core.Actions
 
         public static JObject Refine()
         {
-            return Obj(P("replacement", NullableStr("Exact plain text to put in place of the text to change; the text itself if it should stay.")),
+            return Obj(P("applies", Bool("False when the author's instruction doesn't apply to this text (for example it names words the text doesn't contain).")),
+                       P("replacement", NullableStr("Exact plain text to put in place of the text to change; the text itself if it should stay.")),
                        P("why", Str("At most 15 words.")));
         }
 
