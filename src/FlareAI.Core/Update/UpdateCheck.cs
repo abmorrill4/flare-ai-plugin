@@ -96,7 +96,7 @@ namespace FlareAI.Core.Update
     /// </summary>
     public sealed class UpdateCheck
     {
-        public const string DefaultUrl = "https://api.github.com/repos/abmorrill4/flare-ai-plugin/releases/latest";
+        public const string DefaultUrl = "https://api.github.com/repos/abmorrill4/house-style/releases/latest";
         /// <summary>Points the check at another releases/latest URL (a local test server). Developers and testers only.</summary>
         public const string UrlEnvVar = "HOUSESTYLE_UPDATE_URL";
         public static readonly TimeSpan Interval = TimeSpan.FromDays(1);

@@ -16,7 +16,7 @@ namespace FlareAI.Flare
         public const string FolderName = "House Style Reports";
 
         /// <summary>Where a saved report goes when there is no email address for it: a new issue on the project.</summary>
-        public const string IssuesUrl = "https://github.com/abmorrill4/flare-ai-plugin/issues/new";
+        public const string IssuesUrl = "https://github.com/abmorrill4/house-style/issues/new";
 
         public const string SavedForGitHub = "House Style couldn't send the report. It's saved in Documents\\House Style Reports. Attach it to a new issue on GitHub.";
         public const string SavedForEmail = "House Style couldn't send the report. It's saved in Documents\\House Style Reports. Attach it to the email.";

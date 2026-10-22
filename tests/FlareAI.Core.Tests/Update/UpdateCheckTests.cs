@@ -180,9 +180,9 @@ namespace FlareAI.Core.Tests.Update
         {
             using (var server = new MockReleaseServer())
             {
-                server.Route("/repos/abmorrill4/flare-ai-plugin/releases/latest", MockReleaseServer.Bytes(403, "application/json", Encoding.UTF8.GetBytes("{\"message\":\"API rate limit exceeded\"}")));
+                server.Route("/repos/abmorrill4/house-style/releases/latest", MockReleaseServer.Bytes(403, "application/json", Encoding.UTF8.GetBytes("{\"message\":\"API rate limit exceeded\"}")));
                 Assert.Null(new UpdateCheck("0.1.0", server.LatestUrl).CheckIfDue(new UpdateState(), Now));
-                server.Route("/repos/abmorrill4/flare-ai-plugin/releases/latest", MockReleaseServer.Bytes(200, "text/html", Encoding.UTF8.GetBytes("<html>captive portal</html>")));
+                server.Route("/repos/abmorrill4/house-style/releases/latest", MockReleaseServer.Bytes(200, "text/html", Encoding.UTF8.GetBytes("<html>captive portal</html>")));
                 var state = new UpdateState();
                 Assert.Null(new UpdateCheck("0.1.0", server.LatestUrl).CheckIfDue(state, Now));
                 Assert.NotEqual("ok", state.LastCheckResult);
