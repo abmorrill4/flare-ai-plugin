@@ -33,22 +33,21 @@
   <section class="doc-hero">
     <div class="wrap">
       <h1>Privacy</h1>
-      <p>House Style sends none of your text unless you ask for an AI action. Apart from that, it only asks GitHub once a day for a newer version. It sends a report to the authors only when you choose to.</p>
-      <div class="privacy-map" style="margin-top: clamp(40px, 5vw, 72px)" role="img" aria-label="Your topics, style guides, linter, encrypted key and diagnostic log stay on your computer. Only an AI action sends text, to Anthropic or your company's gateway. Once a day a version check goes to GitHub with no text, key or identifier.">
+      <p>Linting runs on your computer. Your text leaves it only when you use an AI action.</p>
+      <div class="privacy-map" style="margin-top: clamp(40px, 5vw, 72px)" role="img" aria-label="Your topics, style guides, linter, encrypted key and log stay on your computer. An AI action sends the selected text to your AI provider. A daily version check goes to GitHub. Problem reports go to the authors only when you send one.">
         <div class="zone">
           <h2 class="visually-hidden">Summary</h2>
           <h4>Stays on your computer</h4>
-          <p>Everything you need to lint</p>
           <ul class="chips">
-            <li>Your topics</li><li>Style guides</li><li>The linter</li><li>Your key, encrypted</li><li>Diagnostic log</li><li>Your decisions</li>
+            <li>Your topics</li><li>Style guides</li><li>The linter</li><li>Your key, encrypted</li><li>Logs</li><li>Your decisions</li>
           </ul>
         </div>
         <div class="zone">
           <h4>Leaves it</h4>
-          <p>Only in these cases</p>
           <ul class="outbound">
-            <li class="focal"><span class="when">When you use an AI action</span><b>Selected text and its rules</b>To Anthropic under your key, or your company's gateway</li>
-            <li><span class="when">Once a day</span><b>A version check</b>To GitHub, with no text, key or identifier</li>
+            <li class="focal"><span class="when">When you use AI</span><b>Selected text and its rules</b>To Anthropic or your company's gateway</li>
+            <li><span class="when">Once a day</span><b>A version check</b>To GitHub, with no text or key</li>
+            <li><span class="when">When you send one</span><b>A problem report</b>To the authors, with no topic text</li>
           </ul>
         </div>
       </div>
@@ -56,77 +55,43 @@
   </section>
 
   <div class="wrap">
-    <section class="doc-section" data-reveal aria-labelledby="stays">
-      <h2 id="stays">What never leaves your computer</h2>
-      <div class="body">
-        <p>These features never send your text anywhere.</p>
-        <ul>
-          <li>Lint Topic and Lint Project, against Google's rules and your team's</li>
-          <li>Accessibility and structure checks</li>
-          <li>Test Rules, except its optional AI check</li>
-          <li>Export for LLMs</li>
-        </ul>
-      </div>
-    </section>
-
     <section class="doc-section" data-reveal aria-labelledby="leaves">
-      <h2 id="leaves">What leaves, and when</h2>
+      <h2 id="leaves">AI actions</h2>
       <div class="body">
-        <p>Text leaves only when you use an AI feature. These are AI review, Rewrite, Ask AI, Topic Metadata, Suggest alt text, and the AI steps in Import Rules, Rule Decisions and Test Rules.</p>
-        <p>Each request carries the text of the sections being checked and the style rules that apply to them. For alt text, it carries the image. Nothing else is sent.</p>
+        <p>Rewrite, Ask AI, AI review, Topic Metadata, alt text and the AI steps for style guide owners send the selected text and the rules that apply. Alt text sends the image. Linting never uses AI.</p>
         <table>
-          <thead><tr><th>AI choice in Settings</th><th>Where requests go</th><th>Under which key</th></tr></thead>
+          <thead><tr><th>AI setting</th><th>Requests go to</th></tr></thead>
           <tbody>
-            <tr><td>No AI</td><td>Nowhere. Linting runs on your computer.</td><td>No key is stored</td></tr>
-            <tr><td>My Anthropic API key</td><td>The Anthropic API</td><td>Your own Anthropic API key</td></tr>
-            <tr><td>My company's AI service (gateway)</td><td>The gateway address you enter</td><td>The gateway key your company gave you</td></tr>
+            <tr><td>No AI</td><td>Nowhere</td></tr>
+            <tr><td>My Anthropic API key</td><td>The Anthropic API, under your key</td></tr>
+            <tr><td>My company's AI service</td><td>Your company's gateway, under its key</td></tr>
           </tbody>
         </table>
-        <p>Your agreement with Anthropic, or your company's policy, sets how that provider handles your data.</p>
+        <p>Your agreement with Anthropic, or your company's policy, covers how the provider handles your text.</p>
       </div>
     </section>
 
-    <section class="doc-section with-aside" id="updates" aria-labelledby="updates-title" data-reveal>
+    <section class="doc-section" id="updates" aria-labelledby="updates-title" data-reveal>
       <h2 id="updates-title">Update check</h2>
       <div class="body">
-        <p>If you installed with Install.cmd, House Style asks GitHub once a day whether a newer version exists.</p>
-        <ul>
-          <li>The check is one request to <code>api.github.com</code> for the project's latest release. It carries no document text, no key and no identifier. GitHub sees your IP address and a generic <code>HouseStyle-Updater</code> program name, as it would for any download.</li>
-          <li>When a newer release exists, House Style downloads it from the project's GitHub release and checks it against the release's published SHA-256 checksum before it installs.</li>
-          <li>Offline or behind a firewall, the check fails silently and House Style works as before.</li>
-          <li>To turn the check off, open <b>Settings</b>, select the <b>Advanced</b> tab and clear <b>Keep House Style up to date (checks GitHub once a day)</b>. With the box cleared, House Style makes no request to GitHub.</li>
-          <li>IT can turn it off for everyone with an <code>update-policy.json</code> file containing <code>{"autoUpdate": false}</code> in the plugin folder, or by installing with <code>Install.ps1 -NoAutoUpdate</code>. The file wins over the Settings box, which then shows "Set by your IT department".</li>
-        </ul>
+        <p>Once a day House Style asks <code>api.github.com</code> for the latest release. The request has no text, key or ID. GitHub sees your IP address.</p>
+        <p>A new version is checked against its published SHA-256 checksum before it installs. Offline, the check is skipped.</p>
+        <p>To turn it off, open <b>Settings</b>, select <b>Advanced</b> and clear <b>Keep House Style up to date</b>. IT can turn it off for everyone with <code>update-policy.json</code> or <code>Install.ps1 -NoAutoUpdate</code>.</p>
       </div>
-          <div class="aside upd" data-ui>
-        <div class="toast" hidden>
-          <svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 10.3l2.6 2.6L14 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><b>House Style</b>House Style 0.2.0 installs when you close Flare. Your next start shows what's new.</div>
-          <span class="x" aria-hidden="true">×</span>
-        </div>
-        <div class="settings">
-          <div class="tabs-ui" aria-hidden="true"><span>AI</span><span>Style guide</span><span>Checking</span><span class="on">Advanced</span></div>
-          <div class="body-ui">
-            <label><input type="checkbox" checked> Keep House Style up to date (checks GitHub once a day)</label>
-            <p class="hint">An <code>update-policy.json</code> file in the plugin folder can turn this off for everyone.</p>
-          </div>
-        </div>
-      </div>
-</section>
+    </section>
 
     <section class="doc-section" data-reveal aria-labelledby="telemetry">
       <h2 id="telemetry">Problem reports</h2>
       <div class="body">
-        <p>House Style collects no usage data or analytics. When something goes wrong, it asks before it sends a problem report, and shows you exactly what the report contains. To send reports without being asked, turn on Send error reports automatically in Settings. You can also choose Report a Problem or Report False Positive yourself.</p>
-        <p>A report contains the House Style and Flare versions, Windows version, the error details, recent lines from the House Style log and your settings without your key or folder paths. Reports never include your topic text unless you type it in. They go to a private issue list that only the authors can read.</p>
-        <p>The update check reports nothing about you or how you use the plugin.</p>
+        <p>House Style collects no usage data. When an error happens, it asks before it sends a report and shows what the report contains. You can also turn on <b>Send error reports automatically</b> in Settings.</p>
+        <p>A report has version numbers, the error, recent log lines and your settings without your key or folder paths. It never includes topic text unless you type it in. Reports go to a private issue list.</p>
       </div>
     </section>
 
     <section class="doc-section" data-reveal aria-labelledby="key">
       <h2 id="key">Your key</h2>
       <div class="body">
-        <p>Your key is encrypted with Windows Data Protection (DPAPI) and saved in <code>%APPDATA%\FlareAI\settings.json</code>. Only your Windows account can decrypt it. The key is never written to a log.</p>
+        <p>Your key is encrypted with Windows Data Protection and only your Windows account can read it. It's never written to a log.</p>
       </div>
     </section>
 
@@ -134,10 +99,9 @@
       <h2 id="files">Files on your computer</h2>
       <div class="body">
         <ul>
-          <li><code>%APPDATA%\FlareAI\diag.log</code> holds timings and errors for bug reports, with no document text and no key.</li>
-          <li>Your Change and Ignore decisions, so an issue you ignored stays hidden.</li>
-          <li>Saved AI reviews, so a topic you reopen shows its issues without a new request.</li>
-          <li>The plugin itself, the previous version for rollback, a downloaded update waiting to install, and the date of the last update check.</li>
+          <li>Settings, your key and logs in <code>%APPDATA%\FlareAI</code></li>
+          <li>Your Change and Ignore decisions, and saved AI reviews</li>
+          <li>The plugin, the previous version and any downloaded update in <code>%LOCALAPPDATA%\HouseStyle</code></li>
         </ul>
       </div>
     </section>
@@ -145,19 +109,15 @@
     <section class="doc-section" data-reveal aria-labelledby="team">
       <h2 id="team">Shared with your team</h2>
       <div class="body">
-        <p>House Style writes to a shared folder only if your team sets a feedback folder in Settings. It writes these.</p>
-        <ul>
-          <li>Your decisions on issues. The rule, the words it flagged, your reason if you gave one, and the topic's filename.</li>
-          <li>Your requests to the style guide owners. The rule, the change you asked for, your reason, the flagged words and the topic's filename. Owners' decisions are stored next to them, with the owner's name and note.</li>
-        </ul>
-        <p>Your name is recorded only if the style guide's <code>attribution.txt</code> says names. Otherwise each computer has a random ID. This folder is your team's own storage. None of it goes to the authors.</p>
+        <p>If your team sets a feedback folder, House Style saves your decisions and rule change requests there. Each one has the rule, the flagged words, your reason and the topic's filename.</p>
+        <p>Your name is saved only if the style guide's <code>attribution.txt</code> asks for names. The folder belongs to your team. None of it goes to the authors.</p>
       </div>
     </section>
 
     <section class="doc-section" data-reveal aria-labelledby="check">
       <h2 id="check">Check it yourself</h2>
       <div class="body">
-        <p>House Style is open source. Every line that sends a request is in the <a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a>.</p>
+        <p>House Style is open source. See the <a href="https://github.com/abmorrill4/flare-ai-plugin">GitHub repository</a>.</p>
       </div>
     </section>
   </div>
