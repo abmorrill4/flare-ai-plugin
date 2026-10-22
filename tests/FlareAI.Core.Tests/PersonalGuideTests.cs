@@ -279,6 +279,25 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void AnOverridesTopicWithMyOwnRules_IsKeptAsMine_NotLost()
+        {
+            // Seen on a real old copy: Google-overrides.htm had rules the bundled topic lacks, so the upgrade saves the
+            // rest as Google-overrides-mine.htm, a file that doesn't exist yet (saving it used to throw).
+            OldFullCopy();
+            var file = Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Google-overrides.htm");
+            File.WriteAllText(file, File.ReadAllText(file).Replace("</body>", "<ul><li>Spell out em dashes in UI text.</li></ul></body>"));
+
+            Assert.True(GuideSeed.Upgrade(_bundled, _userGuide));
+
+            var mine = Path.Combine(_userGuide, @"Content\Resources\StyleGuide\Company\Google-overrides-mine.htm");
+            Assert.True(File.Exists(mine));
+            Assert.Contains("Spell out em dashes", File.ReadAllText(mine));
+            Assert.False(File.Exists(file));
+            Assert.True(GuideSeed.IsPersonal(_userGuide));
+            Assert.Contains(Engine(new PluginSettings()).Rules(null), r => r.Text.Contains("Spell out em dashes"));
+        }
+
+        [Fact]
         public void TheUpgrade_IsIdempotent()
         {
             OldFullCopy();

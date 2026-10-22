@@ -467,8 +467,12 @@ namespace FlareAI.Core.Style
         /// <summary>Saves a topic as it was read: same declaration, same byte-order mark, whitespace untouched.</summary>
         internal static void Save(XmlDocument doc, string path)
         {
-            var bytes = File.ReadAllBytes(path);
-            var bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+            var bom = true;   // a new topic gets a BOM, as Flare writes them
+            if (File.Exists(path))
+            {
+                var bytes = File.ReadAllBytes(path);
+                bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+            }
             var settings = new XmlWriterSettings { Encoding = new UTF8Encoding(bom), OmitXmlDeclaration = !(doc.FirstChild is XmlDeclaration) };
             using (var w = XmlWriter.Create(path, settings)) doc.Save(w);
         }
