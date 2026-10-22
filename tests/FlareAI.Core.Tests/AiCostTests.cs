@@ -437,6 +437,27 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void DocxNotes_AreChunkedLikeTheTxtCopy()
+        {
+            var dir = Path.Combine(Repo, @"tests\fixtures\notes");
+            var txt = GuideBuilder.Chunks(NoteText.ReadFile(Path.Combine(dir, "team-guide.txt")));
+            var docx = GuideBuilder.Chunks(NoteText.ReadFile(Path.Combine(dir, "team-guide.docx")));
+            Assert.All(docx, c => Assert.True(c.Length <= 3000, c.Length + " characters"));
+            Assert.True(docx.Count >= txt.Count * 2 / 3, "docx " + docx.Count + " chunks vs txt " + txt.Count);   // was 3 vs 18
+            Assert.True(docx.Max(c => c.Length) < 1500, "largest docx chunk " + docx.Max(c => c.Length));
+        }
+
+        [Fact]
+        public void Chunks_StartANewPieceAtAHeading()
+        {
+            var notes = "Voice and tone\n" + string.Join("\n", Enumerable.Range(1, 3).Select(i => "Rule " + i + ": write plainly, in the second person, for the reader in front of you.")) +
+                        "\nWord list\n" + string.Join("\n", Enumerable.Range(1, 6).Select(i => "Term " + i + ": use sign in, not log in, when you mean the action of signing in."));
+            var chunks = GuideBuilder.Chunks(notes);
+            Assert.Contains(chunks, c => c.StartsWith("Word list"));
+            Assert.All(chunks, c => Assert.False(c.Contains("Rule ") && c.Contains("Term "), c));
+        }
+
+        [Fact]
         public void TeamCanChangeACacheLifetime()
         {
             var dir = Path.Combine(Path.GetTempPath(), "flareai-cache-" + Guid.NewGuid().ToString("N"));

@@ -95,21 +95,43 @@ namespace FlareAI.Core.Style
             return list;
         }
 
-        /// <summary>Notes split into paragraph-sized pieces (blank lines; small paragraphs merged), each read on its own.</summary>
+        /// <summary>
+        /// Notes split into paragraph-sized pieces, each read on its own: paragraphs (blank lines), small ones merged, and a
+        /// new piece at a heading once the current one has some text. Text with one line per paragraph and no blank lines
+        /// (a Word document, see <see cref="NoteText.FromDocx"/>) is split by line the same way: before, a .docx guide came
+        /// out as 3 pieces of up to 4,900 characters where its .txt copy gave 18, and lost rules.
+        /// </summary>
         public static List<string> Chunks(string notes, int min = 400, int max = 3000)
         {
-            var chunks = new List<string>();
-            var cur = new StringBuilder();
+            var units = new List<string>();
             foreach (var para in System.Text.RegularExpressions.Regex.Split((notes ?? "").Replace("\r\n", "\n"), @"\n\s*\n"))
             {
                 var p = para.Trim();
                 if (p.Length == 0) continue;
-                if (cur.Length > 0 && (cur.Length >= min || cur.Length + p.Length > max)) { chunks.Add(cur.ToString()); cur.Clear(); }
+                // A long paragraph of many lines is many paragraphs written one per line.
+                if (p.Length > min && p.IndexOf('\n') >= 0) units.AddRange(p.Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+                else units.Add(p);
+            }
+            var chunks = new List<string>();
+            var cur = new StringBuilder();
+            for (var i = 0; i < units.Count; i++)
+            {
+                var p = units[i];
+                var heading = i + 1 < units.Count && IsHeading(p);
+                if (cur.Length > 0 && (cur.Length >= min || cur.Length + p.Length > max || (heading && cur.Length >= min / 2))) { chunks.Add(cur.ToString()); cur.Clear(); }
                 if (cur.Length > 0) cur.Append("\n\n");
-                cur.Append(p);
+                cur.Append(p.Length > max ? p.Substring(0, max) : p);
+                for (var at = max; at < p.Length; at += max) { chunks.Add(cur.ToString()); cur.Clear(); cur.Append(p.Substring(at, Math.Min(max, p.Length - at))); }
             }
             if (cur.Length > 0) chunks.Add(cur.ToString());
             return chunks;
+        }
+
+        /// <summary>A line that reads like a heading: short, no sentence punctuation at the end, not a list item.</summary>
+        private static bool IsHeading(string line)
+        {
+            return line.Length > 0 && line.Length <= 60 && line.IndexOf('\n') < 0 && ".:;,!?".IndexOf(line[line.Length - 1]) < 0 &&
+                   !System.Text.RegularExpressions.Regex.IsMatch(line, @"^(?:[-*•]|\d+[.)])\s") && char.IsUpper(line[0]);
         }
 
         /// <summary>Candidates from the extract contract's rules (or a bare JSON array of them, from older answers).</summary>
