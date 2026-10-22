@@ -91,6 +91,8 @@ IRibbonComboBox combo = group.AddRibbonCombobox(new RibbonMenuData { ... });
 - Any tracked *node* operation whose content includes a `MadCap:variable` (InsertDocumentNode of a variable, or a
   ReplaceDocumentNode of an element containing one) undoes fine but **crashes Flare on Redo** ("specified node cannot
   be inserted… wrong type"). The same replacement without a variable redoes fine.
+  The plugin never takes this path: `NodeWrites.Refusal` (Core) refuses any `ReplaceBlocks` whose old or new blocks hold a
+  variable (restructure, alt text), and `FlareDocumentAdapter.ReplaceBlocks` refuses it again (#110).
 - `ISelection.ReplaceText("<MadCap:variable …/>")` inserts the markup as literal text. There is no public, redo-safe way
   to insert a variable; the plugin guides the author to Insert ▸ Variable on the selected text instead.
   (Flare's own command is `B3.XmlTextApi.TextVariableInsertCommand`, internal.)
@@ -101,6 +103,11 @@ IRibbonComboBox combo = group.AddRibbonCombobox(new RibbonMenuData { ... });
 ## Verified write behavior (Flare 22, tested live 2026-10-08)
 - `ReplaceDocumentNode(target, new, …)` keeps `target` (same object) and copies `new`'s content and
   attributes into it. Node references survive; `new` is never attached.
+  So a replacement by a **different element** (`ul` → `table`, `p` → `ul`) would keep the old tag around the new
+  content. Replacing it as tracked insert-new + remove-old in one operation is **unverified; refused**: `NodeWrites.Refusal`
+  refuses any `ReplaceBlocks` whose first new block isn't the same element as the block it replaces, and the writer is
+  told to make that change by hand or ask for an edit that keeps the element (#111). Additional new blocks are inserted
+  after it (`p` → `p` + `ul` is applied). Verify insert + remove in the adapter self-test before lifting this.
 - `ReplaceDocumentNode` on a **text node** throws ("Cannot set the 'InnerXml'…"). Element targets only.
 - Untracked replacement **strips** `MadCap:change` markup and `MadCap:changeData`: you cannot write tracked
   changes as markup yourself (the text of both sides stays inline — corrupts the topic).

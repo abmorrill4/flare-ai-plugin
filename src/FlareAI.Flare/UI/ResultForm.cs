@@ -125,9 +125,8 @@ namespace FlareAI.Flare.UI
                 notes.AddRange(_proposal.Notes);
                 _status.Text = (_proposal.RemainingLint.Count == 0 ? "The suggested edit passes the style rules." : "The suggested edit still has " + Plural.Of(_proposal.RemainingLint.Count, "issue") + " (listed below).")
                                + (notes.Count > 0 ? "  " + string.Join("  ", notes.ToArray()) : "")
-                               + (_proposal.WordPlan != null ? "  Applies as " + Plural.Of(_proposal.WordPlan.Count, "word-level tracked change") + "." : "  Applies as a paragraph-level tracked change (structure changes).")
-                               + (_proposal.WordPlan == null && _proposal.ProposedXml != null && _proposal.ProposedXml.Contains("MadCap:variable")
-                                   ? "  Note: Flare 22 can undo this edit but not redo it (Ctrl+Y) because the text contains a variable." : "");
+                               + (_proposal.WordPlan != null ? "  Applies as " + Plural.Of(_proposal.WordPlan.Count, "word-level tracked change") + "." : "  Applies as a paragraph-level tracked change (structure changes).");
+                // A paragraph-level change Flare can't take safely (a variable inside, a different element) is refused below (ApplyBlocked).
                 var sb = new StringBuilder(_proposal.ProposedXml);
                 if (_proposal.RemainingLint.Count > 0)
                     sb.AppendLine().AppendLine().AppendLine("--- still flagged by the style rules ---").Append(ActionRunner.Summarize(_proposal.RemainingLint));

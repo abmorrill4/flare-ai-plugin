@@ -43,7 +43,7 @@ header row, "click here", typed phone numbers and URLs). One shared snippet (`Le
 | A7 | On the "Customers who still use the legacy app" suggestion (from the snippet): **Apply**. | The snippet opens, gets the tracked change, and the topic comes back to the front. The card said how many files use the snippet. |
 | A8 | **Apply all fixes**. | All exact fixes applied; one Ctrl+Z undoes them. |
 | A9 | **Write all as tracked changes**, then Flare's **Review** tab. | Every suggestion with exact text is a tracked change you can accept or reject. |
-| A10 | Close and reopen the topic, **Check style**. | Saved suggestions appear at once, with no AI cost. (Known issue: **Check again** doesn't ask the AI again for unchanged paragraphs.) |
+| A10 | Close and reopen the topic, **Check style**. | Saved suggestions appear at once, with no AI cost. Then **Check again**: the AI reviews each paragraph again (a fresh review, with AI cost). |
 | A11 | Select a missing alt text suggestion. | The button reads **Suggest alt text…**; the draft is 125 characters or fewer; applying it adds `alt` as a tracked change. |
 | A12 | In Settings, choose **No AI**, and check the topic again. | The pane says "AI review is off" and shows no AI suggestions, including saved ones. |
 
@@ -54,7 +54,7 @@ header row, "click here", typed phone numbers and URLs). One shared snippet (`Le
 | B1 | Select a paragraph with `In order to` and `prior to`, **Rewrite selection**. | Result window with the changes marked; **Apply** gives word-level tracked changes; both phrases gone. |
 | B2 | Select a paragraph that contains a variable and a bold UI label, **Rewrite selection**. | The variable and the bold label are untouched. |
 | B3 | Select one step, **Ask…** "split this into two steps". | The result offers **Restructure instead…**; the restructured result is validated before you can apply it. |
-| B4 | Select a step list, **Ask…** "make this a table". | Either a valid restructure or a clear refusal; never a broken topic. |
+| B4 | Select a step list, **Ask…** "make this a table". | A clear refusal (Flare can't turn a list into a table as a tracked change; Apply is off and the window says why); never a broken topic. An answer that moves a condition to another item is "Rejected". |
 | B5 | Select a sentence with "should", **Ask…** "make this stronger". | A change from "should" to "must" isn't applied for you. |
 
 ## E. In the editor

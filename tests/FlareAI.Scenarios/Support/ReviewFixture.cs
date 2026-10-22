@@ -99,7 +99,7 @@ namespace FlareAI.Scenarios.Support
         /// once, then the AI review unit by unit, each answered from <paramref name="cache"/> when the same text was reviewed
         /// before. <paramref name="calls"/> counts the units that went to the model.
         /// </summary>
-        public List<StyleFinding> PaneCheck(ReviewCache cache, out int calls, ReviewSession session = null)
+        public List<StyleFinding> PaneCheck(ReviewCache cache, out int calls, ReviewSession session = null, bool checkAgain = false)
         {
             var s = session ?? Session;
             s.Clear();
@@ -111,8 +111,8 @@ namespace FlareAI.Scenarios.Support
             var fresh = 0;
             foreach (var unit in Runner.PrepareReview(blocks, lint))
             {
-                var raw = cache.Get(unit.Prompt);
-                if (raw == null) { raw = Runner.CallReview(unit); cache.Put(unit.Prompt, raw); fresh++; }
+                var raw = cache.Get(unit, checkAgain);   // as the pane: Check again reviews unchanged text afresh
+                if (raw == null) { raw = Runner.CallReview(unit); cache.Put(unit, raw); fresh++; }
                 all.AddRange(Runner.AnchorReview(raw, unit, lint));
             }
             calls = fresh;

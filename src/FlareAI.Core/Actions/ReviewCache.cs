@@ -126,9 +126,34 @@ namespace FlareAI.Core.Actions
         /// <summary><see cref="Shown(string, bool, out bool)"/> for a unit, with <see cref="Get(ReviewUnit)"/>'s re-anchoring.</summary>
         public List<StyleFinding> Shown(ReviewUnit unit, bool aiOff, out bool hidden)
         {
-            var raw = Get(unit);
-            hidden = aiOff && raw != null;
-            return aiOff ? null : raw;
+            return Shown(unit, aiOff, false, out hidden);
+        }
+
+        /// <summary>
+        /// <see cref="Shown(ReviewUnit, bool, out bool)"/>; with <paramref name="fresh"/> (the writer pressed Check again) a unit
+        /// whose current text was already reviewed is not served from the cache, so it gets a new review. A unit changed only
+        /// by applied fixes is still re-anchored (<see cref="Get(ReviewUnit, bool)"/>).
+        /// </summary>
+        public List<StyleFinding> Shown(ReviewUnit unit, bool aiOff, bool fresh, out bool hidden)
+        {
+            if (aiOff) { var had = Get(unit); hidden = had != null; return null; }
+            hidden = false;
+            return Get(unit, fresh);
+        }
+
+        /// <summary>
+        /// <see cref="Get(ReviewUnit)"/>, or with <paramref name="fresh"/> null for a unit whose exact text is in the cache (the
+        /// writer asked for a new review of unchanged text; <see cref="Put(ReviewUnit, List{StyleFinding})"/> of the new review
+        /// replaces the entry, and a failed call keeps the old one). A unit whose text changed only through applied fixes is
+        /// still re-anchored without a call: its review is current.
+        /// </summary>
+        public List<StyleFinding> Get(ReviewUnit unit, bool fresh)
+        {
+            if (unit == null) return null;
+            if (fresh)
+                lock (_gate)
+                    if (_items.ContainsKey(Key(unit.Prompt))) return null;
+            return Get(unit);
         }
 
         /// <summary>Copies of the cached raw findings, or null.</summary>

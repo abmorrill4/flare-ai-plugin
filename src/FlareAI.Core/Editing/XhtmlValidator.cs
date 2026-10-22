@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace FlareAI.Core.Editing
@@ -53,6 +56,10 @@ namespace FlareAI.Core.Editing
                 if (had == 0 && kv.Key.StartsWith("MadCap:", StringComparison.Ordinal))
                     r.Errors.Add("Introduced a MadCap element that was not in the original: " + kv.Key);
             }
+
+            // 2b. every condition still marks the text it marked: it may move to another tag (p → li, li → tr), never to
+            //     other text (a print-only item must not become a different item).
+            CheckConditionPlacement(original, proposed, r);
 
             // 3. sanity: wildly different size suggests the model answered in prose instead of editing
             var lenBefore = TextLength(original);
@@ -135,6 +142,89 @@ namespace FlareAI.Core.Editing
             }
             parts.Sort(StringComparer.Ordinal);
             return parts.Count == 0 ? "" : "[" + string.Join(" ", parts.ToArray()) + "]";
+        }
+
+        private static readonly Regex Word = new Regex(@"[\p{L}\p{N}']{2,}", RegexOptions.Compiled);
+
+        /// <summary>
+        /// Refuses a proposal in which a condition now marks other text than before. Per condition value, compares the words
+        /// only it marked (and only the unmarked text had) before and after: rewording is fine, but when at least half of the
+        /// marked words are now unmarked, or half of the words it marks now come from unmarked text, the condition has moved.
+        /// </summary>
+        private static void CheckConditionPlacement(IList<XmlNode> original, IList<XmlNode> proposed, ValidationResult r)
+        {
+            var before = ConditionTexts(original);
+            var after = ConditionTexts(proposed);
+            foreach (var cond in before.Keys)
+            {
+                if (cond.Length == 0) continue;
+                Words now;
+                if (!after.TryGetValue(cond, out now) || now.In.Count == 0) continue;   // dropped altogether: the inventory reports it
+                var was = before[cond];
+                var markedOnly = new HashSet<string>(was.In.Where(w => !was.Out.Contains(w)));
+                var unmarkedOnly = new HashSet<string>(was.Out.Where(w => !was.In.Contains(w)));
+                var leaked = markedOnly.Count(w => now.Out.Contains(w) && !now.In.Contains(w));
+                var captured = unmarkedOnly.Count(w => now.In.Contains(w) && !now.Out.Contains(w));
+                var moved = (markedOnly.Count > 0 && leaked > 0 && leaked * 2 >= markedOnly.Count)
+                            || (captured > 0 && captured * 2 >= now.In.Count);
+                if (!moved) continue;
+                r.Errors.Add("Moved a condition: MadCap:conditions=\"" + cond + "\" marked \"" + Clip(was.Text) + "\", but in the suggestion it marks \"" +
+                             Clip(now.Text) + "\". A condition decides which output shows the text, so this would change what readers see. " +
+                             "Ask again, or make this change yourself.");
+            }
+        }
+
+        private sealed class Words
+        {
+            public readonly HashSet<string> In = new HashSet<string>(StringComparer.Ordinal);
+            public readonly HashSet<string> Out = new HashSet<string>(StringComparer.Ordinal);
+            public string Text = "";
+        }
+
+        /// <summary>Per condition value: the words inside elements carrying it, the words outside them, and the marked text.</summary>
+        private static Dictionary<string, Words> ConditionTexts(IList<XmlNode> nodes)
+        {
+            var runs = new List<KeyValuePair<string, HashSet<string>>>();
+            foreach (var n in nodes) CollectRuns(n, new HashSet<string>(StringComparer.Ordinal), runs);
+            var all = new HashSet<string>(runs.SelectMany(x => x.Value), StringComparer.Ordinal);
+            var d = new Dictionary<string, Words>(StringComparer.Ordinal);
+            foreach (var cond in all)
+            {
+                var w = new Words();
+                var text = new StringBuilder();
+                foreach (var run in runs)
+                {
+                    var inside = run.Value.Contains(cond);
+                    foreach (Match m in Word.Matches(run.Key)) (inside ? w.In : w.Out).Add(m.Value.ToLowerInvariant());
+                    if (inside) text.Append(run.Key);
+                }
+                w.Text = Regex.Replace(text.ToString(), @"\s+", " ").Trim();
+                d[cond] = w;
+            }
+            return d;
+        }
+
+        private static void CollectRuns(XmlNode n, HashSet<string> conds, List<KeyValuePair<string, HashSet<string>>> runs)
+        {
+            if (n.NodeType == XmlNodeType.Text || n.NodeType == XmlNodeType.CDATA || n.NodeType == XmlNodeType.SignificantWhitespace || n.NodeType == XmlNodeType.Whitespace)
+            {
+                runs.Add(new KeyValuePair<string, HashSet<string>>(n.Value ?? "", conds));
+                return;
+            }
+            if (n.NodeType != XmlNodeType.Element) return;
+            var here = conds;
+            var attr = n.Attributes == null ? null : n.Attributes["conditions", BlockSelector.MadCapNs];
+            if (attr != null && attr.Value.Trim().Length > 0)
+            {
+                here = new HashSet<string>(conds, StringComparer.Ordinal);
+                here.Add(attr.Value);
+            }
+            foreach (XmlNode c in n.ChildNodes) CollectRuns(c, here, runs);
+        }
+
+        private static string Clip(string s)
+        {
+            return s.Length > 60 ? s.Substring(0, 57) + "…" : s;
         }
 
         private static int TextLength(IList<XmlNode> nodes)

@@ -99,13 +99,47 @@ namespace FlareAI.Scenarios.Review
             }
         }
 
-        [Fact(Skip = "Bug #108: Check again serves an unchanged topic from the review cache, so it never makes the fresh review TEST-PLAN A10 and the tester guide promise.")]
+        [Fact]
         public void Story10b_WriterPressesCheckAgainOnAnUnchangedTopic_AFreshReviewIsMade()
         {
-            // A10: "Re-check runs a fresh review." The pane asks the cache first for every unit, on Check again too, and the cache
-            // has no way to forget a result, so the only way to a new answer is to change the text.
-            var invalidate = typeof(ReviewCache).GetMethods().FirstOrDefault(m => m.Name == "Remove" || m.Name == "Clear" || m.Name == "Invalidate" || m.Name == "Forget" || m.Name == "Bypass");
-            Assert.NotNull(invalidate);
+            // A10 (#108): reopening serves the saved review; Check again on unchanged text asks the AI again, once per paragraph.
+            var ai = ScriptedReview.Review(new ScriptedReview.Flag { Excerpt = "can be out of date", Rule = "Timeless wording", Replacement = "may be out of date" });
+            using (var fx = new ReviewFixture("DigitalBanking", "Content/deposit/about.htm", ai))
+            {
+                var cache = new ReviewCache(300, Paths.Reviews);
+                int first, reopened, again;
+                fx.PaneCheck(cache, out first);
+                Assert.True(first > 0);
+                fx.PaneCheck(cache, out reopened, fx.NewSession());
+                Assert.Equal(0, reopened);                                                    // opening the pane: the saved review
+
+                var fresh = fx.PaneCheck(cache, out again, fx.NewSession(), checkAgain: true);
+                Assert.Equal(first, again);                                                   // Check again: every paragraph reviewed afresh
+                Assert.Equal(first * 2, ai.Calls);
+                Assert.Contains(fresh, f => f.Source == "ai" && f.Excerpt == "can be out of date");
+
+                fx.PaneCheck(cache, out reopened, fx.NewSession());
+                Assert.Equal(0, reopened);                                                    // the fresh review is what is saved now
+            }
+        }
+
+        [Fact]
+        public void Story10c_WriterAppliesAFixThenPressesCheckAgain_TheFixedParagraphIsReanchored_NotReviewedAgain()
+        {
+            // #108 keeps the re-anchoring: a paragraph changed only by an applied fix keeps the rest of its review without a call.
+            var ai = ScriptedReview.Review(new ScriptedReview.Flag { Excerpt = "can be out of date", Rule = "Timeless wording", Replacement = "is sometimes out of date" });
+            using (var fx = new ReviewFixture("DigitalBanking", "Content/deposit/about.htm", ai))
+            {
+                var cache = new ReviewCache(300, Paths.Reviews);
+                int first, again;
+                var found = fx.PaneCheck(cache, out first);
+                var fix = found.First(f => f.Source == "ai" && f.Excerpt == "can be out of date");
+                fx.Session.Select(fix);
+                Assert.Equal(AcceptOutcome.Applied, fx.Session.Accept());
+
+                fx.PaneCheck(cache, out again, fx.NewSession(), checkAgain: true);
+                Assert.Equal(first - 1, again);                                               // every paragraph but the fixed one
+            }
         }
 
         private static XmlNamespaceManager Ns(XmlDocument doc)
