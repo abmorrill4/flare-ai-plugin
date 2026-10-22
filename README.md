@@ -36,8 +36,10 @@ or `docs/README-INSTALL.md`.
 
 Style checks run on your computer. When you use an AI feature, the text being checked (for alt text, the image) and the
 rules that apply go to Anthropic under your key, or to your company's gateway. Your key is encrypted with Windows DPAPI
-and never logged. House Style has no telemetry. Once a day it asks GitHub for the latest release, with no text, key or
-identifier. Details: [Privacy](https://abmorrill4.github.io/flare-ai-plugin/privacy.html).
+and never logged. House Style has no telemetry. It sends a problem report to its authors only when you choose Send, or
+by itself if you check **Send error reports automatically** in Settings. A report never includes your key or settings that
+could hold a secret, and you can see exactly what it holds before it goes. Once a day House Style asks GitHub for the latest
+release, with no text, key or identifier. Details: [Privacy](https://abmorrill4.github.io/flare-ai-plugin/privacy.html).
 
 ## For IT
 
