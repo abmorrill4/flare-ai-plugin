@@ -34,10 +34,19 @@ Invoke-Command -VMName $Name -Credential $cred -ScriptBlock {
     Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
 
     # Each step skips what is already there, so a rerun only finishes what's missing.
-    if (-not (Test-Path "C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Flare.exe")) {
+    # The MSI installs to Program Files (x86) when run directly.
+    $flareExe = "C:\Program Files (x86)\MadCap Software\MadCap Flare 22\Flare.app\Flare.exe"
+    if (-not (Test-Path $flareExe)) {
+        # Flare's bundle installs nothing with /quiet (it selects no features), so its prerequisites and MSI go in directly.
+        Write-Host "Visual C++ runtimes..."
+        foreach ($vc in @{ u = "https://aka.ms/highdpimfc2013x64enu"; f = "vc120.exe" }, @{ u = "https://aka.ms/vs/17/release/vc_redist.x64.exe"; f = "vc140.exe" }) {
+            $p = Start-Process (Fetch $vc.u $vc.f) -ArgumentList "/install /quiet /norestart" -Wait -PassThru
+            if ($p.ExitCode -notin 0, 1638, 3010) { throw "$($vc.f) exit code $($p.ExitCode)" }
+        }
         Write-Host "Flare..."
-        $p = Start-Process "C:\Setup\SetupMadCapFlare.exe" -ArgumentList "/quiet /norestart" -Wait -PassThru
-        if ($p.ExitCode -notin 0, 3010) { throw "Flare setup exit code $($p.ExitCode)" }
+        $p = Start-Process msiexec.exe -ArgumentList '/i "C:\Setup\SetupMadCapFlare.msi" ADDLOCAL=ProductFeature /qn /norestart /l*v C:\Setup\flare-msi.log' -Wait -PassThru
+        if ($p.ExitCode -notin 0, 3010) { throw "Flare MSI exit code $($p.ExitCode) (C:\Setup\flare-msi.log in the VM)" }
+        if (-not (Test-Path $flareExe)) { throw "Flare MSI finished but $flareExe isn't there." }
     }
     if (-not (Test-Path "C:\Program Files\Git\cmd\git.exe")) {
         Write-Host "Git..."

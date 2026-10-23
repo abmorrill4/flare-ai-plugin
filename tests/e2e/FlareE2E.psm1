@@ -44,7 +44,9 @@ function Start-FlareE2E {
         if (-not $Force) { throw "Flare is running. Close it, or pass -Force to close it (unsaved work is lost)." }
         $running | Stop-Process -Force -PassThru | Wait-Process -Timeout 30
     }
-    $flare = "C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Flare.exe"
+    # Program Files on the dev PC; Program Files (x86) where Flare's MSI was installed directly (the factory VM).
+    $flare = @("$env:ProgramFiles", "${env:ProgramFiles(x86)}") | ForEach-Object { Join-Path $_ "MadCap Software\MadCap Flare 22\Flare.app\Flare.exe" } | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $flare) { throw "Flare 22 isn't installed." }
     $dir = Join-Path $RunRoot (Get-Date -Format "yyyyMMdd-HHmmss")
     $hook = Join-Path $dir "hook"
     $appdata = Join-Path $hook "appdata"
