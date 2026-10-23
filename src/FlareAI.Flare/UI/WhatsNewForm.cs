@@ -14,9 +14,10 @@ namespace FlareAI.Flare.UI
     /// opened by itself, "Don't show again for this version" (ticked) decides whether it comes back next start.
     /// Layout is flow-based and wraps to the window width, so nothing clips at 125 % or 150 % scaling.
     /// </summary>
-    internal sealed class WhatsNewForm : Form
+    public sealed class WhatsNewForm : Form
     {
         private readonly FlowLayoutPanel _body;
+        private readonly Panel _scroll;
         private readonly CheckBox _dontShow;
 
         /// <param name="sections">What to show, newest first.</param>
@@ -34,11 +35,15 @@ namespace FlareAI.Flare.UI
             ClientSize = new Size(560, 460);
             MinimumSize = new Size(360, 260);
 
+            // A scrolling FlowLayoutPanel undercounts its own height and cut off the last line, so a plain Panel scrolls
+            // a FlowLayoutPanel that grows to fit the notes.
+            _scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = SystemColors.Window, TabStop = false };
             _body = new FlowLayoutPanel
             {
-                Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true,
+                Location = Point.Empty, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.TopDown, WrapContents = false,
                 Padding = new Padding(16, 12, 16, 12), BackColor = SystemColors.Window, AccessibleName = "Release notes", TabStop = false
             };
+            _scroll.Controls.Add(_body);
 
             if (!string.IsNullOrEmpty(banner)) Add(new Label { Text = banner, Font = new Font(Font, FontStyle.Bold), Margin = new Padding(0, 0, 0, 10) });
             if (sections.Count == 0)
@@ -55,7 +60,7 @@ namespace FlareAI.Flare.UI
             _dontShow = new CheckBox { Text = "Don't show again for this version", Checked = true, AutoSize = true, Visible = offerDontShow, Margin = new Padding(3, 6, 12, 3) };
             bar.Controls.Add(close);
             bar.Controls.Add(_dontShow);
-            Controls.Add(_body);
+            Controls.Add(_scroll);
             Controls.Add(bar);
             AcceptButton = close; CancelButton = close;
             Resize += (s, e) => Rewrap();
@@ -101,7 +106,7 @@ namespace FlareAI.Flare.UI
         /// <summary>Wraps every line to the visible width (scrollbar included), at any DPI.</summary>
         private void Rewrap()
         {
-            var width = Math.Max(120, _body.ClientSize.Width - _body.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 4);
+            var width = Math.Max(120, _scroll.ClientSize.Width - _body.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 4);
             _body.SuspendLayout();
             foreach (Control c in _body.Controls) c.MaximumSize = new Size(Math.Max(60, width - c.Margin.Horizontal), 0);
             _body.ResumeLayout(true);

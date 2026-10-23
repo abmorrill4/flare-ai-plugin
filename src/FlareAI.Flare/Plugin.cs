@@ -199,7 +199,6 @@ namespace FlareAI.Flare
                     if (i.Name == "IRibbonMenu") item = i.GetMethod("AddMenuItem", new[] { typeof(string), typeof(System.Windows.Input.ICommand), typeof(object), typeof(string) });
                 if (item == null) item = menu.GetType().GetMethod("AddMenuItem", new[] { typeof(string), typeof(System.Windows.Input.ICommand), typeof(object), typeof(string) });
                 if (item == null) { Diagnostics.Log("Help menu: no AddMenuItem"); return true; }
-                item.Invoke(menu, new object[] { "User Guide", new DelegateCommand(HandlerFor(c)), null, IconPath(c.Icon + "-16.png") });
                 foreach (var m in Commands.HelpMenu)
                     item.Invoke(menu, new object[] { m.Label, new DelegateCommand(HandlerFor(m)), null, IconPath(m.Icon + "-16.png") });
                 return true;

@@ -144,10 +144,10 @@ namespace FlareAI.Flare.Tests
                     f.Show();
                     Pump(null, 150);
                     var labels = All(f).OfType<Label>().Select(l => l.Text).ToList();
-                    Assert.Contains("What happened?", labels);
-                    Assert.Contains("What did you expect?", labels);
+                    Assert.Contains(ReportProblemForm.Prompt, labels);
+                    Assert.DoesNotContain("What did you expect?", labels);
                     Assert.True(All(f).OfType<CheckBox>().Single(c => c.Text == "Include diagnostic details").Checked);
-                    Assert.Equal(new[] { "Preview", "Send", "Cancel" }, VisibleButtonsLeftToRight(f).ToArray());
+                    Assert.Equal(new[] { "Send", "Cancel" }, VisibleButtonsLeftToRight(f).ToArray());
                     Assert.False(Button(f, "Send").Enabled);
                     f.WhatHappened.Text = "The pane went blank.";
                     Assert.True(Button(f, "Send").Enabled);
@@ -247,6 +247,30 @@ namespace FlareAI.Flare.Tests
                 second.Close();
                 panel.Dispose();
                 Assert.False(PanelHost.Reopen(null));   // nothing left to show: the command lints instead
+            });
+        }
+
+        /// <summary>Tester report: scrolled to the bottom, the last line of What's New (the release notes link) was cut off.</summary>
+        [Fact]
+        public void WhatsNew_ScrolledToTheBottom_ShowsTheLastLineWhole()
+        {
+            Sta(() =>
+            {
+                var md = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "whats-new.md"));
+                var sections = FlareAI.Core.Update.WhatsNew.Parse(md).UpTo(null);
+                using (var f = Offscreen(new WhatsNewForm(sections, null, false)))
+                {
+                    f.Show();
+                    Pump(null, 150);
+                    var view = All(f).OfType<ScrollableControl>().First(p => p.AutoScroll);
+                    var notes = All(f).OfType<FlowLayoutPanel>().First(p => p.AccessibleName == "Release notes");
+                    var last = notes.Controls.Cast<Control>().Last();
+                    view.AutoScrollPosition = new Point(0, 100000);   // scrolled all the way down
+                    Pump(null, 50);
+                    var bottom = view.PointToClient(last.PointToScreen(new Point(0, last.Height))).Y;
+                    Assert.True(bottom <= view.ClientSize.Height, "last line ends at " + bottom + ", view is " + view.ClientSize.Height + " high");
+                    Assert.True(last.PreferredSize.Height <= last.Height + 1, "last line needs " + last.PreferredSize.Height + " px, has " + last.Height);
+                }
             });
         }
 
