@@ -74,6 +74,9 @@ Invoke-Command -VMName $Name -Credential $cred -ScriptBlock {
         & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $cc
     }
 
+    # Tests and the runner run un-elevated (an elevated Flare relaunches itself and drops its arguments and environment),
+    # so the factory account gets write access to the Plugins folder for install-plugin.ps1.
+    icacls "C:\Program Files (x86)\MadCap Software\MadCap Flare 22\Flare.app\Plugins" /grant "factory:(OI)(CI)M" /T /Q | Out-Null
     # Flare loads House Style only when it is turned on for the user.
     $key = "HKCU:\Software\MadCap Software\Flare\Plugins\House Style"
     New-Item $key -Force | Out-Null
