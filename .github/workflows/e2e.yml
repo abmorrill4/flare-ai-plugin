@@ -1,12 +1,11 @@
-# Installs the plugin into real Flare on the self-hosted "flare" runner (the owner's PC) and runs tests/e2e.
-# Only this repository's own branches reach that runner: a pull request from a fork never runs here, because the repo
-# is public and the runner is the owner's machine.
+# Installs the plugin into real Flare on the self-hosted "flare" runner (the owner's factory VM) and runs tests/e2e.
+# Triggered by pushes to this repository's branches and by hand, never by pull_request: for a pull_request event GitHub
+# runs the workflow file from the PR itself, so a fork could rewrite any guard here. Pushing a branch needs write
+# access (the owner, and the factory acting for the owner). A branch with an open PR shows this run on the PR too.
 name: e2e
 
 on:
-  pull_request:
   push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -18,7 +17,7 @@ concurrency:
 
 jobs:
   e2e:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.repository == 'abmorrill4/house-style'
     runs-on: [self-hosted, windows, flare]
     timeout-minutes: 30
     steps:
@@ -31,7 +30,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          $ai = if ($env:ANTHROPIC_API_KEY) { @() } else { @('-NoAi') }
+          $ai = if ($env:ANTHROPIC_API_KEY) { @() } else { Write-Host "No ANTHROPIC_API_KEY: skipping the ai-* scenarios."; @('-NoAi') }
           & .\tests\e2e\Run-FlareE2E.ps1 -Install -OutDir "$env:RUNNER_TEMP\e2e-results" @ai
           exit $LASTEXITCODE
 

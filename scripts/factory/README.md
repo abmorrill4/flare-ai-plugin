@@ -34,8 +34,19 @@ It takes one open report per run. Guards against report text steering the agent:
 
 - Only reports the feedback service filed (author `abmorrill4`, label `problem`).
 - The report reaches the agent as a file, framed as untrusted data, never inside the prompt.
-- The agents have no GitHub token and no web tools, and only a short list of commands.
-- The agent can't push, open PRs or comment. The script does that, after checking the changed paths and diff size.
+- No GitHub token while an agent runs or while agent-written code runs (the unit tests and e2e run with no secrets at
+  all). The token is used only to push, open the PR and merge. The checkout keeps no credential.
+- The agents get no web tools and only a short list of commands. That's a speed bump, so the real checks happen
+  outside the agent:
+  - the working tree must be clean afterwards;
+  - prompts are read from `main` before the agent starts;
+  - paths are checked without rename detection, so a move can't hide a deletion;
+  - no mode changes or symlinks, and the diff has a size cap;
+  - the e2e harness itself is off limits.
 - The script reruns the unit tests and the e2e checks itself, rather than taking the agent's word.
-- A second agent reviews the diff only, never the report. A fix merges only on its MERGE and green required checks.
+- A second agent reviews the diff only, never the report.
+- A fix merges only after every required check on that exact commit has passed.
+- The public PR says only "Fix tester report n". What the tester wrote stays in the private reports repo.
+- The e2e workflow runs on pushes to this repo's branches, never on `pull_request`. For a PR, GitHub runs the
+  workflow file from the PR itself, so a fork could rewrite any guard in it.
 - Features and questions go back to the owner as a comment and a `factory:needs-decision` label.
