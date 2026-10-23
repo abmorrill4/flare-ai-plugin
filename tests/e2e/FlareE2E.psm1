@@ -61,6 +61,8 @@ function Start-FlareE2E {
     $key = "HKCU:\Software\MadCap Software\Flare\Plugins\House Style"
     New-Item $key -Force | Out-Null
     New-ItemProperty $key -Name Activated -Value True -PropertyType String -Force | Out-Null
+    # A fresh install asks for its UI language at start until this is set (its OK button can't be automated).
+    New-ItemProperty "HKCU:\Software\MadCap Software\Flare" -Name RunSelectLanguageUIOnStartup -Value False -PropertyType String -Force | Out-Null
 
     if ($Ai -and -not $env:ANTHROPIC_API_KEY) {
         # The repo's .env: this checkout's, else the main checkout's (worktrees don't have one).
@@ -78,14 +80,8 @@ function Start-FlareE2E {
     finally { Remove-Item Env:HOUSESTYLE_E2E_DIR }
     $script:Run = [pscustomobject]@{ Dir = $dir; Hook = $hook; Project = (Join-Path $dir "project"); Process = $proc; Next = 1 }
 
-    # A fresh install asks for its UI language once: keep the default.
-    $readyFile = Join-Path $hook "ready.json"
-    $first = Wait-Until { foreach ($n in "Select UI Language", "Licensing Wizard") { $w = Get-FlareWindow $n; if ($w) { return $w } }; if (Test-Path $readyFile) { "licensed" } } 120 "Flare's first window"
-    if ($first -ne "licensed" -and $first.Current.Name -eq "Select UI Language") {
-        $ok = $first.FindFirst($Scope::Descendants, (New-And (New-Cond $A::NameProperty "OK") (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))))
-        $ok.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
-    }
     # Trial copies show the licensing wizard at every start: continue in trial mode.
+    $readyFile = Join-Path $hook "ready.json"
     $wiz = Wait-Until { $w = Get-FlareWindow "Licensing Wizard"; if ($w) { $w } elseif (Test-Path $readyFile) { "licensed" } } 120 "the licensing wizard or House Style to start"
     if ($wiz -ne "licensed") {
         $finish = $wiz.FindFirst($Scope::Descendants, (New-Cond $A::AutomationIdProperty "mFinish"))
