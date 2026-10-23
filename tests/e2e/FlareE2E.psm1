@@ -25,10 +25,12 @@ function Wait-Until([scriptblock]$Test, [int]$Seconds = 60, [string]$What = "con
 }
 
 function Get-FlareWindow([string]$Name) {
-    $byPid = New-Cond $A::ProcessIdProperty $script:Run.Process.Id
-    if ($Name) { return $A::RootElement.FindFirst($Scope::Children, (New-And $byPid (New-Cond $A::NameProperty $Name))) }
+    # Any Flare process: on a fresh install the licensing wizard runs in a child Flare.exe, and Start-FlareE2E closes
+    # every other Flare before it starts, so they are all this run's.
+    $wins = foreach ($p in @(Get-Process Flare -ErrorAction SilentlyContinue)) { @($A::RootElement.FindAll($Scope::Children, (New-Cond $A::ProcessIdProperty $p.Id))) }
+    if ($Name) { return @($wins | Where-Object { $_.Current.Name -eq $Name })[0] }
     # Flare has several top-level windows (floating editors, toasts): the main one is "<project> - MadCap Flare …".
-    return @($A::RootElement.FindAll($Scope::Children, $byPid) | Where-Object { $_.Current.Name -like "* - MadCap Flare*" })[0]
+    return @($wins | Where-Object { $_.Current.Name -like "* - MadCap Flare*" })[0]
 }
 
 <#
