@@ -32,6 +32,8 @@ Invoke-Command -VMName $Name -Credential $cred -ScriptBlock {
 
     # The runner and the e2e suite run PowerShell scripts; Windows blocks them by default.
     Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
+    # The evaluation needs online activation for its 90 days; its automatic attempt at first sign-in can fail.
+    cscript //nologo C:\Windows\System32\slmgr.vbs /ato | Out-Host
 
     # Each step skips what is already there, so a rerun only finishes what's missing.
     # The MSI installs to Program Files (x86) when run directly.
