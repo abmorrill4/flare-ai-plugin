@@ -146,7 +146,8 @@ try {
     $pr = ($url -split '/')[-1]
 
     # Required checks: wait until they exist and none is pending; every one must pass.
-    $required = @((Gh api "repos/$repo/branches/main/protection/required_status_checks" | ConvertFrom-Json).contexts)
+    $required = @((Gh api "repos/$repo/branches/main/protection/required_status_checks" | ConvertFrom-Json).contexts | Where-Object { $_ })
+    if (-not $required.Count) { throw "main has no required checks configured; the factory won't merge without CI." }
     $deadline = (Get-Date).AddMinutes(60)
     do {
         Start-Sleep 30
