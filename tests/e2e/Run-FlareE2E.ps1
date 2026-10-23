@@ -11,11 +11,12 @@ param(
     [switch]$Install,                         # build Release and install into Flare first
     [switch]$NoAi,                            # skip scenarios that call the AI (no key, or to save cost)
     [string]$Fixture = (Join-Path $PSScriptRoot "..\..\corpus\DigitalBanking"),
-    [string]$OutDir = (Join-Path "E:\HouseStyle\e2e" ("results-" + (Get-Date -Format "yyyyMMdd-HHmmss")))
+    [string]$OutDir
 )
 $ErrorActionPreference = "Stop"
 if ($PSVersionTable.PSEdition -ne "Desktop") { throw "Run with Windows PowerShell 5.1 (powershell.exe): UI Automation needs .NET Framework." }
 Import-Module (Join-Path $PSScriptRoot "FlareE2E.psm1") -Force
+if (-not $OutDir) { $OutDir = Join-Path (Get-E2ERoot) ("results-" + (Get-Date -Format "yyyyMMdd-HHmmss")) }
 $repo = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 $Fixture = Resolve-Path $Fixture
 

@@ -11,6 +11,9 @@ $script:Run = $null
 function New-Cond($prop, $value) { New-Object System.Windows.Automation.PropertyCondition($prop, $value) }
 function New-And($a, $b) { New-Object System.Windows.Automation.AndCondition($a, $b) }
 
+<# Where runs go: E:\HouseStyle\e2e on the dev PC, C:\HouseStyle\e2e in the factory VM (no E: there). #>
+function Get-E2ERoot { if (Test-Path "E:\") { "E:\HouseStyle\e2e" } else { "$env:SystemDrive\HouseStyle\e2e" } }
+
 function Wait-Until([scriptblock]$Test, [int]$Seconds = 60, [string]$What = "condition") {
     $deadline = (Get-Date).AddSeconds($Seconds)
     while ((Get-Date) -lt $deadline) {
@@ -22,10 +25,12 @@ function Wait-Until([scriptblock]$Test, [int]$Seconds = 60, [string]$What = "con
 }
 
 function Get-FlareWindow([string]$Name) {
-    $byPid = New-Cond $A::ProcessIdProperty $script:Run.Process.Id
-    if ($Name) { return $A::RootElement.FindFirst($Scope::Children, (New-And $byPid (New-Cond $A::NameProperty $Name))) }
+    # Any Flare process: on a fresh install the licensing wizard runs in a child Flare.exe, and Start-FlareE2E closes
+    # every other Flare before it starts, so they are all this run's.
+    $wins = foreach ($p in @(Get-Process Flare -ErrorAction SilentlyContinue)) { @($A::RootElement.FindAll($Scope::Children, (New-Cond $A::ProcessIdProperty $p.Id))) }
+    if ($Name) { return @($wins | Where-Object { $_.Current.Name -eq $Name })[0] }
     # Flare has several top-level windows (floating editors, toasts): the main one is "<project> - MadCap Flare …".
-    return @($A::RootElement.FindAll($Scope::Children, $byPid) | Where-Object { $_.Current.Name -like "* - MadCap Flare*" })[0]
+    return @($wins | Where-Object { $_.Current.Name -like "* - MadCap Flare*" })[0]
 }
 
 <#
@@ -35,13 +40,15 @@ function Get-FlareWindow([string]$Name) {
 .PARAMETER Force    Close a Flare that is already running (its unsaved work is lost).
 #>
 function Start-FlareE2E {
-    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = "E:\HouseStyle\e2e")
+    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = (Get-E2ERoot))
     $running = Get-Process Flare -ErrorAction SilentlyContinue
     if ($running) {
         if (-not $Force) { throw "Flare is running. Close it, or pass -Force to close it (unsaved work is lost)." }
         $running | Stop-Process -Force -PassThru | Wait-Process -Timeout 30
     }
-    $flare = "C:\Program Files\MadCap Software\MadCap Flare 22\Flare.app\Flare.exe"
+    # Program Files on the dev PC; Program Files (x86) where Flare's MSI was installed directly (the factory VM).
+    $flare = @("$env:ProgramFiles", "${env:ProgramFiles(x86)}") | ForEach-Object { Join-Path $_ "MadCap Software\MadCap Flare 22\Flare.app\Flare.exe" } | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $flare) { throw "Flare 22 isn't installed." }
     $dir = Join-Path $RunRoot (Get-Date -Format "yyyyMMdd-HHmmss")
     $hook = Join-Path $dir "hook"
     $appdata = Join-Path $hook "appdata"
@@ -56,6 +63,8 @@ function Start-FlareE2E {
     $key = "HKCU:\Software\MadCap Software\Flare\Plugins\House Style"
     New-Item $key -Force | Out-Null
     New-ItemProperty $key -Name Activated -Value True -PropertyType String -Force | Out-Null
+    # A fresh install asks for its UI language at start until this is set (its OK button can't be automated).
+    New-ItemProperty "HKCU:\Software\MadCap Software\Flare" -Name RunSelectLanguageUIOnStartup -Value False -PropertyType String -Force | Out-Null
 
     if ($Ai -and -not $env:ANTHROPIC_API_KEY) {
         # The repo's .env: this checkout's, else the main checkout's (worktrees don't have one).
@@ -87,7 +96,7 @@ function Start-FlareE2E {
 }
 
 function Stop-FlareE2E {
-    if ($script:Run -and -not $script:Run.Process.HasExited) { $script:Run.Process | Stop-Process -Force -PassThru | Wait-Process -Timeout 30 }
+    if ($script:Run) { Get-Process Flare -ErrorAction SilentlyContinue | Stop-Process -Force -PassThru | Wait-Process -Timeout 30 }   # and its child processes
 }
 
 <#
@@ -137,4 +146,4 @@ function Test-PaneOnScreen {
 
 function Assert-E2E([bool]$Condition, [string]$Message) { if (-not $Condition) { throw "FAIL: $Message" } }
 
-Export-ModuleMember -Function Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until
+Export-ModuleMember -Function Get-E2ERoot, Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until
