@@ -123,6 +123,7 @@ namespace FlareAI.Core.Tests
             {
                 { "Lint Topic", "Lint this topic against your style guide." },
                 { "Lint Project", "Lint every topic and snippet in this project." },
+                { "Reopen Issues", "Reopen the issues from your last lint." },
                 { "Rewrite", "Rewrite the selected text with AI." },
                 { "Ask AI", "Tell the AI what to change in the selected text." },
                 { "Rules", "View the style guide rules and enable or disable them." },
@@ -144,7 +145,7 @@ namespace FlareAI.Core.Tests
         public void TheRibbonFollowsTheRole()
         {
             var writer = FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Writer).Select(c => c.Label).ToArray();
-            Assert.Equal(new[] { "Lint Topic", "Lint Project", "Rules", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, writer);
+            Assert.Equal(new[] { "Lint Topic", "Lint Project", "Reopen Issues", "Rules", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, writer);
             var owner = FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Owner);
             Assert.Equal(writer.Length + 3, owner.Count);
             var guide = owner.Where(c => c.Group == FlareAI.Flare.Commands.GroupGuide).Select(c => c.Label).ToArray();
@@ -159,7 +160,7 @@ namespace FlareAI.Core.Tests
             Assert.Equal(new[] { FlareAI.Flare.Commands.WhatsNew, FlareAI.Flare.Commands.Tour, FlareAI.Flare.Commands.ReportProblem }, FlareAI.Flare.Commands.HelpMenu.ToArray());
             // A writer on a team guide gets My Requests after Rules, with the approved tooltip; an owner doesn't need it.
             var teamWriter = FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Writer, true).Select(c => c.Label).ToArray();
-            Assert.Equal(new[] { "Lint Topic", "Lint Project", "Rules", "My Requests", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, teamWriter);
+            Assert.Equal(new[] { "Lint Topic", "Lint Project", "Reopen Issues", "Rules", "My Requests", "Rewrite", "Ask AI", "Topic Metadata", "Settings", "Help" }, teamWriter);
             Assert.Equal("See your rule change requests and the owners' answers.", FlareAI.Flare.Commands.MyRequests.Tooltip);
             Assert.DoesNotContain(FlareAI.Flare.Commands.MyRequests, FlareAI.Flare.Commands.Ribbon(FlareAI.Core.Settings.UserRole.Owner, true));
             Assert.StartsWith("https://gethousestyle.com", FlareAI.Flare.Commands.UserGuideUrl);

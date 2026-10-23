@@ -31,6 +31,21 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void ProjectFiles_LeavesOutExcludedFilesAndFolders_UntilIncludedAgain()
+        {
+            var b = Path.Combine(_root, @"Content\Sub\B.htm");
+            Assert.Equal(@"Sub\", LintExclusions.EntryFor(b, true));
+            LintExclusions.Add(b, LintExclusions.EntryFor(b, true));
+            Assert.Equal(new[] { "A.htm" }, ActionRunner.ProjectFiles(b).Select(Path.GetFileName).ToArray());
+            Assert.Equal(2, ActionRunner.ProjectFiles(b, true).Count);   // snippet usage still counts excluded topics
+            LintExclusions.Add(b, "A.htm");
+            Assert.Empty(ActionRunner.ProjectFiles(b));
+            LintExclusions.Remove(b, @"Sub\");
+            Assert.Equal(new[] { "B.htm" }, ActionRunner.ProjectFiles(b).Select(Path.GetFileName).ToArray());
+            Assert.True(File.Exists(Path.Combine(_root, @"Project\HouseStyle\LintExclusions.txt")));
+        }
+
+        [Fact]
         public void LintFiles_OneBatch_FindingsCarryTheirFile_AndFixInThatFile()
         {
             var runner = new ActionRunner(new FakeLlmClient(r => "[]"), new PromptBuilder(null), 1024, new FakeStyleService());

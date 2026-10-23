@@ -189,6 +189,14 @@ namespace FlareAI.Core.Actions
             Add(lint);
         }
 
+        /// <summary>Lint Project: drops the suggestions in files the project now leaves out (<see cref="LintExclusions"/>).</summary>
+        public void RemoveFiles(Func<string, bool> excluded)
+        {
+            _findings.RemoveAll(f => f.DocumentPath != null && excluded(f.DocumentPath));
+            if (Current != null && !_findings.Contains(Current)) Current = null;
+            Sort();
+        }
+
         /// <summary>Re-sorts into reading order (which also marks suggestions whose text is gone as stale) and tells the view.</summary>
         public void Sort()
         {

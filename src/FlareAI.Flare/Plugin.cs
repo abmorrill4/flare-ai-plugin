@@ -253,6 +253,7 @@ namespace FlareAI.Flare
             if (c == Commands.Rewrite) return OnRewrite;
             if (c == Commands.Ask) return OnAsk;
             if (c == Commands.LintProject) return OnLintProject;
+            if (c == Commands.ShowIssues) return () => { if (!PanelHost.Reopen(_nav.GetParentForm())) OnLintTopic(); };
             if (c == Commands.TopicMetadata) return OnAssist;
             if (c == Commands.TestRules) return OnValidateGuide;
             if (c == Commands.Rules) return OnStyleRules;

@@ -215,11 +215,38 @@ namespace FlareAI.Flare.Tests
                 {
                     var list = All(panel).OfType<ListView>().Single();
                     var rowMenu = list.ContextMenuStrip.Items.Cast<ToolStripItem>().Select(i => i.Text).ToList();
-                    Assert.Equal(new[] { "Go To", "Open File", "Copy File Path", "", FindingsPanel.ReportFalsePositiveLabel }, rowMenu.ToArray());
+                    Assert.Equal(new[] { "Go To", "Open File", "Copy File Path", "", "Exclude File from Lint Project", "Exclude Folder from Lint Project", "", FindingsPanel.ReportFalsePositiveLabel }, rowMenu.ToArray());
                     var ignore = (ContextMenuStrip)typeof(FindingsPanel).GetField("_rejectMenu", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(panel);
                     Assert.Equal(FindingsPanel.ReportFalsePositiveLabel, ignore.Items.Cast<ToolStripItem>().Last().Text);
                     Assert.Equal("Report False Positive…", FindingsPanel.ReportFalsePositiveLabel);
                 }
+            });
+        }
+
+        /// <summary>Tester report: the issues window closed by mistake comes back with its results (Reopen Issues).</summary>
+        [Fact]
+        public void AClosedIssuesWindow_Reopens_WithTheSamePanel()
+        {
+            Sta(() =>
+            {
+                var doc = FlareAI.TestKit.Editor.FlareSimDocument.FromXml("<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\"><body><p>Open the Transfers page.</p></body></html>");
+                var runner = new FlareAI.Core.Actions.ActionRunner(new FlareAI.TestKit.Llm.ScriptedLlmClient().When(r => true, r => FlareAI.TestKit.Llm.ScriptedLlmClient.Reply.Text("{\"findings\":[]}")(r)), new FlareAI.Core.Actions.PromptBuilder(null), 1024);
+                var panel = new FindingsPanel(runner, doc, () => runner, p => null, null, false);
+                PanelHost.Show(panel, null);   // no Flare main form: the floating window
+                var first = panel.FindForm();
+                Assert.NotNull(first);
+                first.Close();
+                Assert.True(first.IsDisposed);
+                Assert.False(panel.IsDisposed);
+                Assert.Null(PanelHost.Current);
+                Assert.True(PanelHost.Reopen(null));
+                Assert.Same(panel, PanelHost.Current);
+                var second = panel.FindForm();
+                Assert.NotSame(first, second);
+                Assert.True(second.Visible);
+                second.Close();
+                panel.Dispose();
+                Assert.False(PanelHost.Reopen(null));   // nothing left to show: the command lints instead
             });
         }
 

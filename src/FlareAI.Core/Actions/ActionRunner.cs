@@ -254,7 +254,7 @@ namespace FlareAI.Core.Actions
         }
 
         /// <summary>Topics and snippets of the Flare project containing <paramref name="anyPath"/> (Content folder), or empty.</summary>
-        public static List<string> ProjectFiles(string anyPath)
+        public static List<string> ProjectFiles(string anyPath, bool includeExcluded = false)
         {
             var files = new List<string>();
             if (string.IsNullOrEmpty(anyPath)) return files;
@@ -264,9 +264,10 @@ namespace FlareAI.Core.Actions
             var content = System.IO.Path.Combine(dir.FullName, "Content");
             if (!System.IO.Directory.Exists(content)) return files;
             var guide = System.IO.Path.Combine(content, @"Resources\StyleGuide") + System.IO.Path.DirectorySeparatorChar;
+            var excluded = includeExcluded ? null : LintExclusions.Load(dir.FullName);
             foreach (var pattern in new[] { "*.htm", "*.html", "*.flsnp" })
                 foreach (var f in System.IO.Directory.GetFiles(content, pattern, System.IO.SearchOption.AllDirectories))
-                    if (!f.StartsWith(guide, StringComparison.OrdinalIgnoreCase) && new System.IO.FileInfo(f).Length < 2000000) files.Add(f);
+                    if (!f.StartsWith(guide, StringComparison.OrdinalIgnoreCase) && new System.IO.FileInfo(f).Length < 2000000 && !LintExclusions.IsExcluded(f, excluded)) files.Add(f);
             files.Sort(StringComparer.OrdinalIgnoreCase);
             return files;
         }
@@ -655,7 +656,7 @@ namespace FlareAI.Core.Actions
                 int n;
                 if (SnippetUses.TryGetValue(snippetPath, out n)) return n;
                 var name = System.IO.Path.GetFileName(snippetPath);
-                foreach (var file in ProjectFiles(snippetPath))
+                foreach (var file in ProjectFiles(snippetPath, true))   // an excluded topic still uses the snippet
                 {
                     if (string.Equals(file, snippetPath, StringComparison.OrdinalIgnoreCase)) continue;
                     try { if (System.IO.File.ReadAllText(file).IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0) n++; }
@@ -1126,9 +1127,16 @@ namespace FlareAI.Core.Actions
         private static bool Duplicates(StyleFinding ai, IList<StyleFinding> lint)
         {
             foreach (var l in lint)
-                // Same or narrower text than a lint hit = a repeat. A broader AI finding (a whole passive sentence) stays.
-                if (l.Excerpt.IndexOf(ai.Excerpt, StringComparison.Ordinal) >= 0 && (l.Block == ai.Block || l.Before == ai.Before))
+            {
+                if (l.Block != ai.Block && l.Before != ai.Before) continue;
+                // Same or narrower text than a lint hit = a repeat.
+                if (l.Excerpt.IndexOf(ai.Excerpt, StringComparison.Ordinal) >= 0) return true;
+                // Wider text whose fix rewrites the lint hit's words = the same problem quoted with its sentence (tester
+                // report: one issue listed twice). A broader AI finding that leaves those words alone (a passive sentence) stays.
+                if (ai.Replacement != null && l.Excerpt.Length > 0 && ai.Excerpt.IndexOf(l.Excerpt, StringComparison.Ordinal) >= 0
+                    && ai.Replacement.IndexOf(l.Excerpt, StringComparison.Ordinal) < 0)
                     return true;
+            }
             return false;
         }
     }
