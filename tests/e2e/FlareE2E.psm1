@@ -11,6 +11,9 @@ $script:Run = $null
 function New-Cond($prop, $value) { New-Object System.Windows.Automation.PropertyCondition($prop, $value) }
 function New-And($a, $b) { New-Object System.Windows.Automation.AndCondition($a, $b) }
 
+<# Where runs go: E:\HouseStyle\e2e on the dev PC, C:\HouseStyle\e2e in the factory VM (no E: there). #>
+function Get-E2ERoot { if (Test-Path "E:\") { "E:\HouseStyle\e2e" } else { "$env:SystemDrive\HouseStyle\e2e" } }
+
 function Wait-Until([scriptblock]$Test, [int]$Seconds = 60, [string]$What = "condition") {
     $deadline = (Get-Date).AddSeconds($Seconds)
     while ((Get-Date) -lt $deadline) {
@@ -35,7 +38,7 @@ function Get-FlareWindow([string]$Name) {
 .PARAMETER Force    Close a Flare that is already running (its unsaved work is lost).
 #>
 function Start-FlareE2E {
-    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = "E:\HouseStyle\e2e")
+    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = (Get-E2ERoot))
     $running = Get-Process Flare -ErrorAction SilentlyContinue
     if ($running) {
         if (-not $Force) { throw "Flare is running. Close it, or pass -Force to close it (unsaved work is lost)." }
@@ -137,4 +140,4 @@ function Test-PaneOnScreen {
 
 function Assert-E2E([bool]$Condition, [string]$Message) { if (-not $Condition) { throw "FAIL: $Message" } }
 
-Export-ModuleMember -Function Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until
+Export-ModuleMember -Function Get-E2ERoot, Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until
