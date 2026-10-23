@@ -114,7 +114,7 @@ function Get-E2EState { (Send-E2E state).state }
 function Wait-PaneDone([int]$Seconds = 180) {
     Wait-Until {
         $s = Get-E2EState
-        if ($s.pane -and -not $s.pane.panel.reviewing -and $s.pane.panel.status -notmatch '^(Linting|Reviewing)') { $s }
+        if ($s.pane -and -not $s.pane.panel.reviewing -and $s.pane.panel.status -and $s.pane.panel.status -notmatch '^(Linting|Reviewing)') { $s }
     } $Seconds "the issues pane to finish"
 }
 

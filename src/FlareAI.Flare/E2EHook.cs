@@ -61,7 +61,8 @@ namespace FlareAI.Flare
             JObject c;
             try { c = JObject.Parse(File.ReadAllText(cmd)); }
             catch (IOException) { _next--; return; }   // the runner is still writing it
-            var verb = (string)c["verb"];
+            catch (Exception ex) { Answer(id, () => { throw new ArgumentException("Bad command file: " + ex.Message); }); return; }
+            var verb = (string)c["verb"] ?? "";
             // Reads and dialog commands answer now (they run inside a dialog's message loop too); the rest are posted so a
             // dialog they open doesn't block the hook, and answer when they return.
             if (verb == "state" || verb.StartsWith("dialog", StringComparison.Ordinal)) Answer(id, () => Run(verb, c));

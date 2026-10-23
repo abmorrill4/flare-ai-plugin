@@ -10,7 +10,8 @@ param(
     [string[]]$Scenario,                      # names without .ps1; default all
     [switch]$Install,                         # build Release and install into Flare first
     [switch]$NoAi,                            # skip scenarios that call the AI (no key, or to save cost)
-    [string]$Fixture = (Join-Path $PSScriptRoot "..\..\corpus\DigitalBanking")
+    [string]$Fixture = (Join-Path $PSScriptRoot "..\..\corpus\DigitalBanking"),
+    [string]$OutDir = (Join-Path "E:\HouseStyle\e2e" ("results-" + (Get-Date -Format "yyyyMMdd-HHmmss")))
 )
 $ErrorActionPreference = "Stop"
 if ($PSVersionTable.PSEdition -ne "Desktop") { throw "Run with Windows PowerShell 5.1 (powershell.exe): UI Automation needs .NET Framework." }
@@ -26,7 +27,8 @@ if ($Install) {
 
 $files = Get-ChildItem (Join-Path $PSScriptRoot "scenarios") -Filter *.ps1 | Where-Object { -not $Scenario -or $Scenario -contains $_.BaseName }
 if ($NoAi) { $files = $files | Where-Object { $_.BaseName -notlike "ai-*" } }
-$out = Join-Path "E:\HouseStyle\e2e" ("results-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
+if (-not @($files).Count) { throw "No scenarios to run (check -Scenario names)." }   # an empty run must not look like a pass
+$out = $OutDir
 New-Item -ItemType Directory -Force $out | Out-Null
 $results = @()
 foreach ($f in $files) {
