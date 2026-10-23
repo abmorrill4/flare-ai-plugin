@@ -45,7 +45,8 @@ namespace FlareAI.Core.Tests
               {""rule"":""passive"",""severity"":""warning"",""excerpt"":""they have been granted the appropriate permissions by their administrator"",""replacement"":""your administrator has granted you the required permissions"",""why"":""Active voice.""},
               {""rule"":""made up"",""severity"":""error"",""excerpt"":""text that is not in the topic"",""replacement"":null,""why"":""x""},
               {""rule"":""repeat"",""severity"":""warning"",""excerpt"":""utilize"",""replacement"":""use"",""why"":""x""},
-              {""rule"":""markup"",""severity"":""warning"",""excerpt"":""SSO"",""replacement"":""<b>SSO</b>"",""why"":""x""}
+              {""rule"":""markup"",""severity"":""warning"",""excerpt"":""SSO"",""replacement"":""<b>SSO</b>"",""why"":""x""},
+              {""rule"":""wider repeat"",""severity"":""warning"",""excerpt"":""able to utilize SSO"",""replacement"":""able to use SSO"",""why"":""x""}
             ]");
             var findings = Runner(llm, new FakeStyleService()).CheckStyle(doc);
 

@@ -13,6 +13,7 @@ lib/*.pdb
 
 # generated
 docs/api-dump.txt
+site/guide/
 
 # secrets — never
 .env

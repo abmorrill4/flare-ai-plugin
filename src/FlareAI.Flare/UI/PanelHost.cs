@@ -15,14 +15,22 @@ namespace FlareAI.Flare.UI
     public static class PanelHost
     {
         private static bool _paneBroken;
-        private static FindingsPanel _current;
+        private static FindingsPanel _current, _last;
 
         /// <summary>The findings panel currently shown (docked or floating), or null once closed.</summary>
         public static FindingsPanel Current { get { return _current != null && !_current.IsDisposed && _current.Parent != null ? _current : null; } }
 
+        /// <summary>Shows the last panel again, with its results, after the writer closed it; false if there is none.</summary>
+        public static bool Reopen(Form flareMainForm)
+        {
+            if (_last == null || _last.IsDisposed) return false;
+            Show(_last, flareMainForm);
+            return true;
+        }
+
         public static void Show(FindingsPanel panel, Form flareMainForm)
         {
-            _current = panel;
+            _current = _last = panel;
             panel.CloseRequested += (s, e) => { if (_current == panel) _current = null; };
             if (!_paneBroken)
             {
@@ -50,7 +58,8 @@ namespace FlareAI.Flare.UI
             form.Location = new Point(area.Right - form.Width - 24, area.Bottom - form.Height - 24);
             panel.Dock = DockStyle.Fill;
             form.Controls.Add(panel);
-            panel.CloseRequested += (s, e) => form.Close();
+            panel.CloseRequested += (s, e) => { if (!form.IsDisposed) form.Close(); };
+            form.FormClosing += (s, e) => form.Controls.Remove(panel);   // keep the panel alive for Reopen
             form.KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) form.Close(); };
             form.Show(owner);
             panel.Begin();
@@ -107,6 +116,7 @@ namespace FlareAI.Flare.UI
         {
             public void SetContent(Control content)
             {
+                if (Controls.Contains(content)) return;   // Reopen while the pane is still open
                 foreach (Control old in Controls) old.Dispose();
                 Controls.Clear();
                 content.Dock = DockStyle.Fill;

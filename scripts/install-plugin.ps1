@@ -1,12 +1,14 @@
-# Builds Release and copies the plugin into Flare.app\Plugins\FlareAI. Run from an elevated shell.
+# Builds Release and copies the plugin into Flare.app\Plugins\FlareAI. Needs write access to the Plugins folder (admin, or Modify granted once).
 # -NoBuild to copy what is already in bin\Release.
 param([switch]$NoBuild, [string]$Configuration = "Release")
 $ErrorActionPreference = "Stop"
 $repo = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot\Find-Flare.ps1"
 
-$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-if (-not $isAdmin -and (Get-FlareInstall).Root -like "$env:ProgramFiles*") { throw "Plugins folder lives under Program Files: re-run as Administrator, or set FLARE_ROOT to a writable copy." }
+# No admin needed when the Plugins folder is writable (grant your account Modify on it once); otherwise say so.
+$probe = Join-Path (Get-FlareInstall).PluginsDir "FlareAI\.write-test"
+try { New-Item -ItemType Directory -Force -Path (Split-Path $probe) | Out-Null; [IO.File]::WriteAllText($probe, ""); Remove-Item $probe }
+catch { throw "Can't write to $((Get-FlareInstall).PluginsDir). Re-run as Administrator, or give your account Modify on that folder." }
 
 if (Get-Process -Name "Flare" -ErrorAction SilentlyContinue) { throw "Flare is running. Close it first (Flare only scans Plugins at startup)." }
 

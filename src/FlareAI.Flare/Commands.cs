@@ -31,6 +31,11 @@ namespace FlareAI.Flare
             Id = "project", Label = "Lint Project", KeyTip = "P", Icon = "project", Group = GroupLint,
             Tooltip = "Lint every topic and snippet in this project."
         };
+        public static readonly CommandInfo ShowIssues = new CommandInfo
+        {
+            Id = "issues", Label = "Reopen Issues", KeyTip = "E", Icon = "check", Group = GroupLint,
+            Tooltip = "Reopen the issues from your last lint."
+        };
         public static readonly CommandInfo Rewrite = new CommandInfo
         {
             Id = "rewrite", Label = "Rewrite", KeyTip = "R", Icon = "rewrite", Group = GroupAi,
@@ -109,12 +114,12 @@ namespace FlareAI.Flare
         };
 
         /// <summary>The user guide on the project site, opened by Help.</summary>
-        public const string UserGuideUrl = "https://gethousestyle.com/";
+        public const string UserGuideUrl = "https://gethousestyle.com/guide/";
 
         /// <summary>Every command, in ribbon order.</summary>
         public static readonly IList<CommandInfo> All = new List<CommandInfo>
         {
-            LintTopic, LintProject, Rules,
+            LintTopic, LintProject, ShowIssues, Rules,
             Rewrite, Ask, TopicMetadata,
             RuleDecisions, ImportRules, TestRules,
             Settings, Help,
@@ -135,7 +140,7 @@ namespace FlareAI.Flare
         /// <param name="teamGuide">A team style guide is configured: writers send it requests, so they get My Requests.</param>
         public static IList<CommandInfo> Ribbon(UserRole role, bool teamGuide = false)
         {
-            var list = new List<CommandInfo> { LintTopic, LintProject, Rules };
+            var list = new List<CommandInfo> { LintTopic, LintProject, ShowIssues, Rules };
             if (role != UserRole.Owner && teamGuide) list.Add(MyRequests);
             list.AddRange(new[] { Rewrite, Ask, TopicMetadata });
             if (role == UserRole.Owner) list.AddRange(OwnerOnly);
@@ -150,7 +155,7 @@ namespace FlareAI.Flare
         /// <summary>The Tool Strip menu for a role, in order; null is a separator.</summary>
         public static IList<CommandInfo> Menu(UserRole role, bool teamGuide = false)
         {
-            var list = new List<CommandInfo> { LintTopic, LintProject, Rules };
+            var list = new List<CommandInfo> { LintTopic, LintProject, ShowIssues, Rules };
             if (role != UserRole.Owner && teamGuide) list.Add(MyRequests);
             list.AddRange(new CommandInfo[] { Rewrite, Ask, TopicMetadata, null });
             if (role == UserRole.Owner) { list.AddRange(OwnerOnly); list.Add(null); }

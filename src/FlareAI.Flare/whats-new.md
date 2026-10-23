@@ -7,6 +7,16 @@ One "## <version>" section per release (optionally "## 0.2.0 — October 2026"),
 Write each entry from the writer's side, in short plain sentences. No arrows, colon joins or taglines.
 -->
 
+## 0.3.4
+
+- Closed the issues pane by mistake? Select Reopen Issues to bring back your last results without linting again.
+- Lint Project can leave files out. Right-click an issue and select Exclude File from Lint Project or Exclude Folder
+  from Lint Project. Excluded Files at the top of the pane lists them, and Include Again lints them again.
+- An issue that the AI review and your style rules both find is listed once, not twice.
+- Help opens the House Style user guide, now online at gethousestyle.com/guide.
+- Report a Problem has one box. Describe the problem or the change you'd like, and select Send.
+- The last line of What's New is no longer cut off.
+
 ## 0.3.3
 
 - House Style's GitHub project is now called house-style. Updates, Report a Problem and the release notes use the new

@@ -144,10 +144,10 @@ namespace FlareAI.Flare.Tests
                     f.Show();
                     Pump(null, 150);
                     var labels = All(f).OfType<Label>().Select(l => l.Text).ToList();
-                    Assert.Contains("What happened?", labels);
-                    Assert.Contains("What did you expect?", labels);
+                    Assert.Contains(ReportProblemForm.Prompt, labels);
+                    Assert.DoesNotContain("What did you expect?", labels);
                     Assert.True(All(f).OfType<CheckBox>().Single(c => c.Text == "Include diagnostic details").Checked);
-                    Assert.Equal(new[] { "Preview", "Send", "Cancel" }, VisibleButtonsLeftToRight(f).ToArray());
+                    Assert.Equal(new[] { "Send", "Cancel" }, VisibleButtonsLeftToRight(f).ToArray());
                     Assert.False(Button(f, "Send").Enabled);
                     f.WhatHappened.Text = "The pane went blank.";
                     Assert.True(Button(f, "Send").Enabled);
@@ -215,10 +215,61 @@ namespace FlareAI.Flare.Tests
                 {
                     var list = All(panel).OfType<ListView>().Single();
                     var rowMenu = list.ContextMenuStrip.Items.Cast<ToolStripItem>().Select(i => i.Text).ToList();
-                    Assert.Equal(new[] { "Go To", "Open File", "Copy File Path", "", FindingsPanel.ReportFalsePositiveLabel }, rowMenu.ToArray());
+                    Assert.Equal(new[] { "Go To", "Open File", "Copy File Path", "", "Exclude File from Lint Project", "Exclude Folder from Lint Project", "", FindingsPanel.ReportFalsePositiveLabel }, rowMenu.ToArray());
                     var ignore = (ContextMenuStrip)typeof(FindingsPanel).GetField("_rejectMenu", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(panel);
                     Assert.Equal(FindingsPanel.ReportFalsePositiveLabel, ignore.Items.Cast<ToolStripItem>().Last().Text);
                     Assert.Equal("Report False Positive…", FindingsPanel.ReportFalsePositiveLabel);
+                }
+            });
+        }
+
+        /// <summary>Tester report: the issues window closed by mistake comes back with its results (Reopen Issues).</summary>
+        [Fact]
+        public void AClosedIssuesWindow_Reopens_WithTheSamePanel()
+        {
+            Sta(() =>
+            {
+                var doc = FlareAI.TestKit.Editor.FlareSimDocument.FromXml("<html xmlns:MadCap=\"http://www.madcapsoftware.com/Schemas/MadCap.xsd\"><body><p>Open the Transfers page.</p></body></html>");
+                var runner = new FlareAI.Core.Actions.ActionRunner(new FlareAI.TestKit.Llm.ScriptedLlmClient().When(r => true, r => FlareAI.TestKit.Llm.ScriptedLlmClient.Reply.Text("{\"findings\":[]}")(r)), new FlareAI.Core.Actions.PromptBuilder(null), 1024);
+                var panel = new FindingsPanel(runner, doc, () => runner, p => null, null, false);
+                PanelHost.Show(panel, null);   // no Flare main form: the floating window
+                var first = panel.FindForm();
+                Assert.NotNull(first);
+                first.Close();
+                Assert.True(first.IsDisposed);
+                Assert.False(panel.IsDisposed);
+                Assert.Null(PanelHost.Current);
+                Assert.True(PanelHost.Reopen(null));
+                Assert.Same(panel, PanelHost.Current);
+                var second = panel.FindForm();
+                Assert.NotSame(first, second);
+                Assert.True(second.Visible);
+                second.Close();
+                panel.Dispose();
+                Assert.False(PanelHost.Reopen(null));   // nothing left to show: the command lints instead
+            });
+        }
+
+        /// <summary>Tester report: scrolled to the bottom, the last line of What's New (the release notes link) was cut off.</summary>
+        [Fact]
+        public void WhatsNew_ScrolledToTheBottom_ShowsTheLastLineWhole()
+        {
+            Sta(() =>
+            {
+                var md = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "whats-new.md"));
+                var sections = FlareAI.Core.Update.WhatsNew.Parse(md).UpTo(null);
+                using (var f = Offscreen(new WhatsNewForm(sections, null, false)))
+                {
+                    f.Show();
+                    Pump(null, 150);
+                    var view = All(f).OfType<ScrollableControl>().First(p => p.AutoScroll);
+                    var notes = All(f).OfType<FlowLayoutPanel>().First(p => p.AccessibleName == "Release notes");
+                    var last = notes.Controls.Cast<Control>().Last();
+                    view.AutoScrollPosition = new Point(0, 100000);   // scrolled all the way down
+                    Pump(null, 50);
+                    var bottom = view.PointToClient(last.PointToScreen(new Point(0, last.Height))).Y;
+                    Assert.True(bottom <= view.ClientSize.Height, "last line ends at " + bottom + ", view is " + view.ClientSize.Height + " high");
+                    Assert.True(last.PreferredSize.Height <= last.Height + 1, "last line needs " + last.PreferredSize.Height + " px, has " + last.Height);
                 }
             });
         }

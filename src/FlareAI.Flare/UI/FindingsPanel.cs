@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
 using FlareAI.Core;
@@ -53,6 +54,7 @@ namespace FlareAI.Flare.UI
         // project check: by rule / by file, the rule card's actions, and batches with progress
         private readonly FlowLayoutPanel _viewBar, _actions, _ruleActions;
         private readonly RadioButton _byRule, _byFile;
+        private readonly Button _excluded;
         private readonly Button _backToRules, _showSkipped, _fixRule, _reviewRule, _turnOffRule, _skipRule, _batchStop;
         private BatchRun _batch;
         private string _lastRule;   // the rule row to come back to after Review one by one
@@ -184,7 +186,8 @@ namespace FlareAI.Flare.UI
             _backToRules = Btn(_viewBar, "All Rules", (s, e) => _session.EndRuleReview());
             _showSkipped = Btn(_viewBar, "Show Skipped Rules", (s, e) => _session.ShowSkippedRules());
             _showAllRules = Btn(_viewBar, "Show All Rules", (s, e) => ShowAllRules());
-            _backToRules.Visible = _showSkipped.Visible = _showAllRules.Visible = false;
+            _excluded = Btn(_viewBar, "Excluded Files", (s, e) => ShowExcluded());
+            _backToRules.Visible = _showSkipped.Visible = _showAllRules.Visible = _excluded.Visible = false;
 
             // Owner-drawn so a row can wrap: the suggestion on up to 3 lines, then a smaller grey line (source or counts).
             // Items, groups, selection, keys, menu and tooltips are the ListView's own; only the painting is ours.
@@ -852,6 +855,10 @@ namespace FlareAI.Flare.UI
                 try { Clipboard.SetText(path); _status.Text = "Copied " + path; }
                 catch (Exception ex) { Diagnostics.Log("copy path", ex); _status.Text = "Could not copy the path: " + ex.Message; }
             }));
+            var exSep = new ToolStripSeparator();
+            menu.Items.Add(exSep);
+            var exFile = menu.Items.Add("Exclude File from Lint Project", null, (s, e) => Safe.Run("Exclude file", () => Exclude(false)));
+            var exFolder = menu.Items.Add("Exclude Folder from Lint Project", null, (s, e) => Safe.Run("Exclude folder", () => Exclude(true)));
             menu.Items.Add(new ToolStripSeparator());
             var report = menu.Items.Add(ReportFalsePositiveLabel, null, (s, e) => Safe.Run("Report False Positive", ReportFalsePositive));
             menu.Opening += (s, e) =>
@@ -865,8 +872,42 @@ namespace FlareAI.Flare.UI
                 goTo.Enabled = !f.IsFixed;
                 open.Enabled = _session.FilePathOf(f) != null;
                 report.Enabled = !string.IsNullOrEmpty(f.Excerpt);
+                var folder = _files != null && f.DocumentPath != null ? LintExclusions.EntryFor(f.DocumentPath, true) : null;
+                exSep.Visible = exFile.Visible = _files != null && f.DocumentPath != null;
+                exFolder.Visible = folder != null;
+                if (folder != null) exFolder.Text = "Exclude Folder " + folder.TrimEnd('\\') + " from Lint Project";
             };
             return menu;
+        }
+
+        /// <summary>Lint Project leaves the selected issue's file (or its folder) out from now on, for everyone on the project.</summary>
+        private void Exclude(bool folder)
+        {
+            var path = Current() == null ? null : Current().DocumentPath;
+            var entry = path == null ? null : LintExclusions.EntryFor(path, folder);
+            if (entry == null) return;
+            try { LintExclusions.Add(path, entry); }
+            catch (Exception ex) { Diagnostics.Log("exclude from lint project", ex); Notify.Failed(FindForm(), "exclude " + entry, ex, "Lint Project"); return; }
+            var entries = LintExclusions.Load(path);
+            _files = _files.Where(f => !LintExclusions.IsExcluded(f, entries)).ToList();
+            _session.RemoveFiles(f => LintExclusions.IsExcluded(f, entries));
+            _status.Text = "Excluded " + entry + " from Lint Project.";
+            UpdateExcluded();
+        }
+
+        /// <summary>The project's excluded files and folders, to lint again.</summary>
+        private void ShowExcluded()
+        {
+            var anyPath = _files.Count > 0 ? _files[0] : _doc.SourcePath;
+            using (var f = new ExcludedFilesForm(anyPath)) f.ShowDialog(FindForm());
+            UpdateExcluded();
+        }
+
+        private void UpdateExcluded()
+        {
+            var n = _files == null ? 0 : LintExclusions.Load(_files.Count > 0 ? _files[0] : _doc.SourcePath).Count;
+            _excluded.Visible = n > 0;
+            _excluded.Text = "Excluded Files (" + n + ")";
         }
 
         public const string ReportFalsePositiveLabel = "Report False Positive…";
@@ -1052,6 +1093,7 @@ namespace FlareAI.Flare.UI
                     ShowRequestNote();
                     if (RuleRows && _list.Items.Count > 0) { _list.Items[0].Selected = true; _list.Items[0].Focused = true; }
                     GettingStarted.Mark(ChecklistItem.LintProject);
+                    UpdateExcluded();
                 }
                 UpdateButtons();
                 UpdateChecklist();
