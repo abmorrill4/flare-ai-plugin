@@ -54,6 +54,7 @@ namespace B3.AppKit
         public Pane() { }
         public void BringPaneToFront(global::B3.AppKit.Pane @pane, bool @focus) { throw null; }
         public void BringPaneToFront(bool @focus = true) { throw null; }
+        public bool PerformClose() { throw null; }
         public string Title { get { throw null; } set { } }
         public global::B3.AppKit.IPaneView View { get { throw null; } set { } }
     }

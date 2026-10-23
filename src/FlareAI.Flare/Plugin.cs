@@ -53,6 +53,7 @@ namespace FlareAI.Flare
         {
             try
             {
+                E2EHook.IsolateIfRequested();
                 Diagnostics.Enabled = PluginSettings.Load().WriteDiagnostics;
                 Diagnostics.Log("House Style starting in " + _host.GetName() + " (" + _host.GetCompany() + "), plugin dir " + PluginDirectory);
                 _nav = _host.GetNavContext();
@@ -72,6 +73,7 @@ namespace FlareAI.Flare
                 _updates = new UpdateFlow(() => _nav.GetParentForm(), PluginDirectory, Version);
                 try { _updates.Start(); } catch (Exception ex) { Diagnostics.Log("updates", ex); }
                 HookDispatcher();
+                E2EHook.StartIfRequested(id => HandlerFor(CommandById(id)), path => OpenAdapter(path) != null, () => _nav.GetParentForm());
                 Welcome();
             }
             catch (Exception ex)
@@ -267,6 +269,12 @@ namespace FlareAI.Flare
             if (c == Commands.Tour) return StartTour;
             if (c == Commands.ReportProblem) return () => OnReportProblem(Owner);
             throw new ArgumentException("No handler for command " + c.Id);
+        }
+
+        private static CommandInfo CommandById(string id)
+        {
+            foreach (var c in Commands.All) if (c.Id == id) return c;
+            throw new ArgumentException("No command " + id);
         }
 
         private void OpenUserGuide()

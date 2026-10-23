@@ -104,7 +104,8 @@ namespace FlareAI.Flare.UI
         {
             try
             {
-                if (_pane != null && !_pane.IsDisposed) dock.UninstallPane(_pane);
+                // As Flare's own ✕ does: UninstallPane alone leaves the pane showing when it is a tab in a pane group.
+                if (_pane != null && !_pane.IsDisposed && !_pane.PerformClose() && dock.Panes.Contains(_pane)) dock.UninstallPane(_pane);
             }
             catch (Exception ex) { Diagnostics.Log("Docked pane close", ex); }
             _pane = null;

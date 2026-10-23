@@ -74,7 +74,9 @@ dotnet test FlareAI.sln -c Release                                           # w
 .\tools\FlareAI.Bench\bin\Debug\net48\FlareAI.Bench.exe --no-ai              # lint the corpus against ground truth (CI bench gate)
 powershell.exe -File .\scripts\bootstrap.ps1   # first run on a machine (Windows PowerShell 5.1)
 .\scripts\install-plugin.ps1                   # no admin needed if the Plugins folder is writable. Then .\scripts\run-flare.ps1 starts Flare with the dev key
+powershell.exe -File tests\e2e\Run-FlareE2E.ps1 -Install   # build, install and check in real Flare, no clicking (tests/e2e/README.md)
 ```
+- **Prove a UI change in real Flare with `tests/e2e`,** not by hand. Add a scenario for the behavior you changed.
 - **Which tests to run.** Run the narrowest project and filter that covers your change while you iterate. Run the
   full Release suite before you push.
 - **Rule and guide changes** also need `RuleFixtures` and the bench gate. If a change is meant to move bench
