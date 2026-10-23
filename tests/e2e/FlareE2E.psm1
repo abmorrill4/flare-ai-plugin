@@ -96,7 +96,7 @@ function Start-FlareE2E {
 }
 
 function Stop-FlareE2E {
-    if ($script:Run -and -not $script:Run.Process.HasExited) { $script:Run.Process | Stop-Process -Force -PassThru | Wait-Process -Timeout 30 }
+    if ($script:Run) { Get-Process Flare -ErrorAction SilentlyContinue | Stop-Process -Force -PassThru | Wait-Process -Timeout 30 }   # and its child processes
 }
 
 <#
