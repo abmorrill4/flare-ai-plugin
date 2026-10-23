@@ -10,6 +10,7 @@ Write each entry from the writer's side, in short plain sentences. No arrows, co
 ## 0.3.4
 
 - Closed the issues pane by mistake? Select Reopen Issues to bring back your last results without linting again.
+- Close in the issues pane now closes it, also when the pane sits next to Content Explorer.
 - Lint Project can leave files out. Right-click an issue and select Exclude File from Lint Project or Exclude Folder
   from Lint Project. Excluded Files at the top of the pane lists them, and Include Again lints them again.
 - An issue that the AI review and your style rules both find is listed once, not twice.

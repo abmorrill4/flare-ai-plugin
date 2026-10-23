@@ -910,6 +910,47 @@ namespace FlareAI.Flare.UI
             _excluded.Text = "Excluded Files (" + n + ")";
         }
 
+        // ---- end-to-end runner (E2EHook) ---------------------------------------------------------------
+
+        /// <summary>The status line and the rows as the writer sees them.</summary>
+        internal object E2EState()
+        {
+            var rows = new List<object>();
+            foreach (ListViewItem i in _list.Items)
+            {
+                var f = i.Tag as StyleFinding;
+                rows.Add(new { text = i.Text, source = i.SubItems.Count > 1 ? i.SubItems[1].Text : "", file = f == null ? null : f.DocumentPath, rule = f == null ? null : f.Rule, excerpt = f == null ? null : f.Excerpt, layer = f == null ? null : f.Layer });
+            }
+            // id: every lint makes a new panel, so the same id means the same results, not a new lint.
+            return new { id = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this), title = Title, status = _status.Text, reviewing = _reviewing, rows };
+        }
+
+        /// <summary>
+        /// Right-clicks row <paramref name="index"/> (the real menu, so its Opening handler runs) and clicks the first item
+        /// whose text starts with <paramref name="prefix"/>; returns the items the menu showed.
+        /// </summary>
+        internal List<string> E2ERowMenu(int index, string prefix)
+        {
+            var item = _list.Items[index];
+            _list.SelectedItems.Clear();
+            item.Selected = true;
+            var at = new Point(item.Bounds.Left + 8, item.Bounds.Top + item.Bounds.Height / 2);
+            Cursor.Position = _list.PointToScreen(at);   // Opening hit-tests the cursor
+            var menu = _list.ContextMenuStrip;
+            menu.Show(_list, at);
+            var shown = new List<string>();
+            ToolStripItem hit = null;
+            foreach (ToolStripItem m in menu.Items)
+            {
+                if (m is ToolStripSeparator || !m.Available) continue;
+                shown.Add(m.Text);
+                if (hit == null && prefix != null && m.Text.StartsWith(prefix, StringComparison.Ordinal)) hit = m;
+            }
+            menu.Close();
+            if (hit != null) hit.PerformClick();
+            return shown;
+        }
+
         public const string ReportFalsePositiveLabel = "Report False Positive…";
 
         /// <summary>

@@ -447,6 +447,7 @@ namespace FlareAI.Core.Actions
                 Ground(f, rules);
                 PreferOwnLayer(f, unit.Allowed);
                 if (!Duplicates(f, lint ?? new List<StyleFinding>())) kept.Add(f);
+                else Diagnostics.Log("AI finding dropped: it repeats a lint row");   // no document text: diag.log goes with reports
             }
             return kept;
         }
