@@ -49,9 +49,23 @@ scripts\factory\Watch-Factory.ps1 -Install   # host task, every 5 minutes
 
 ## The factory (`Invoke-Factory.ps1`)
 
-It takes one open report per run. Guards against report text steering the agent:
+It takes one open report per run, in two steps. **Nothing is built from a report until the owner decides.**
 
-- Only reports the feedback service filed (author `abmorrill4`, label `problem`).
+1. **Triage** (any new report, `problem` or automatic `error`). An agent reads the report, tries to reproduce a bug
+   with a scratch test, compares it with the open issues and themes, and writes a brief: what happened, the kind
+   (bug, friction, feature, question, duplicate, noise), whether it reproduces, what it lines up with, 2 to 4 options
+   with effort and risk, a recommendation and its impact on writers. The brief goes on the private report as a
+   comment, labeled `triage:ready` or `triage:noise`. No branch, commit, PR or public issue. A failed triage gets
+   `triage:failed` and is retried, three times at most.
+2. **Fix** (only `decision:fix`, alone and added last). The owner decides with `decision:fix`, `decision:plan`,
+   `decision:park` or `decision:decline`, by hand or through the `triage` skill. The fix agent gets the brief and the
+   decision as its work order and carries it out; if it can't, the report goes back to the owner
+   (`factory:needs-decision`), never `factory:done`. The factory refuses to set any `decision:*` label itself, and the
+   feedback service only sets its fixed labels, so only the owner can approve a fix.
+
+Guards against report text steering the agent:
+
+- Only reports the feedback service filed (author `abmorrill4`, label `problem` or `error`).
 - The report reaches the agent as a file, framed as untrusted data, never inside the prompt.
 - No GitHub token while an agent runs or while agent-written code runs (the unit tests and e2e run with no secrets at
   all). The token is used only to push, open the PR and merge. The checkout keeps no credential.
@@ -72,8 +86,7 @@ It takes one open report per run. Guards against report text steering the agent:
 - The public PR says only "Fix tester report n". What the tester wrote stays in the private reports repo.
 - The e2e workflow runs on pushes to this repo's branches, never on `pull_request`. For a PR, GitHub runs the
   workflow file from the PR itself, so a fork could rewrite any guard in it.
-- Features and questions go back to the owner as a comment and a `factory:needs-decision` label.
-- So does a fix that touches `src/FlareAI.Core/Update/`, `Settings/`, `Llm/` or `src/FlareAI.Flare/E2EHook.cs`.
+- A fix that touches owner-reviewed code goes back to the owner (`factory:needs-decision`): `src/FlareAI.Core/Update/`, `Settings/`, `Llm/` or `src/FlareAI.Flare/E2EHook.cs`.
   Nothing is pushed.
 - The agents' output, the rerun tests' output and dry-run comments go to `C:\HouseStyle\factory-logs` on the VM, never
   the job log. This repo is public, so its job logs are too. A failed run logs only "report n is stuck", and the

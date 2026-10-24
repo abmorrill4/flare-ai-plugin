@@ -1,5 +1,6 @@
-# The code factory: every 30 minutes, take one new tester report from the private reports repo and either fix it
-# (test, fix, retest in Flare, second-agent review, PR, merge) or hand it to the owner (feature or question).
+# The code factory: every 30 minutes, take one tester report from the private reports repo. A new report is triaged
+# (a brief for the owner, no code). A report the owner marked decision:fix is fixed (test, fix, retest in Flare,
+# second-agent review, PR, merge). Nothing is built from a report until the owner decides.
 # Scheduled and manual runs only, on the factory VM's runner. Guards: scripts/factory/README.md.
 name: factory
 on:

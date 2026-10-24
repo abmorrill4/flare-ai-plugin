@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS The code factory: takes one open tester report, and either fixes it (bug) or hands it to the owner (anything else).
+.SYNOPSIS The code factory: takes one open tester report. A new one is triaged into a brief for the owner; one the owner
+marked decision:fix is fixed. Nothing is built from a report until the owner decides.
 .DESCRIPTION Runs on the factory VM's runner. Safeguards against a report, or code an agent wrote, doing more than the fix:
-- Only reports filed by the owner's feedback service (author abmorrill4, label "problem") in the private reports repo.
+- Only reports filed by the owner's feedback service (author abmorrill4, label "problem" or "error") in the private reports repo.
+- Triage never commits, pushes or opens anything; its scratch tests are thrown away. Only the owner sets decision:*.
 - The report reaches the agent as a file, framed as untrusted data, never inside the prompt.
 - No GitHub token while an agent runs or while agent-written code (tests, e2e) runs; it comes back only to push,
   open the PR and merge. The checkout keeps no credential (persist-credentials: false); the push uses the token once.
@@ -45,9 +47,11 @@ function Say($n, $text) {
     if (-not $DryRun) { Gh issue comment $n -R $reports --body "**Factory:** $text" | Out-Null; return }
     $text | Add-Content (Join-Path $logs "report-$n-comments.log"); Write-Host "[comment #$n] $($text.Length) chars, in factory-logs"
 }
+Import-Module (Join-Path $PSScriptRoot "Triage.psm1") -Force
 function Label($n, $add, $remove) {
+    Assert-FactoryLabel $add   # never decision:*: only the owner approves a fix
     if ($DryRun) { Write-Host "[label #$n] +$add -$remove"; return }
-    $a = @("issue", "edit", $n, "-R", $reports, "--add-label", $add); if ($remove) { $a += @("--remove-label", $remove) }
+    $a = @("issue", "edit", $n, "-R", $reports, "--add-label", $add); foreach ($x in @($remove | Where-Object { $_ })) { $a += @("--remove-label", $x) }
     Gh @a | Out-Null
 }
 
@@ -79,9 +83,9 @@ function Agent([string]$prompt, $map, $tools, [string]$log) {
 }
 
 function Assert-CleanTree($who) {
+    Assert-GitConfig $who   # first: git status could run a program an agent configured (core.fsmonitor)
     $dirty = git status --porcelain
     if ($dirty) { throw "$who left changes outside its commits: $(@($dirty) -join '; ')" }
-    Assert-GitConfig $who
 }
 
 # The checkout's own git config may hold only harmless keys. Code an agent wrote could add ones that run programs
@@ -93,21 +97,31 @@ function Assert-GitConfig($who) {
     if ($bad) { throw "$who left git settings the factory doesn't allow: $(($bad | ForEach-Object { ($_ -split '=')[0] }) -join ', ')" }
 }
 
-foreach ($l in "factory:working", "factory:done", "factory:needs-decision", "factory:stuck") {
+foreach ($l in "factory:working", "factory:done", "factory:needs-decision", "factory:stuck", "triage:ready", "triage:noise",
+               "triage:failed", "decision:fix", "decision:plan", "decision:park", "decision:decline") {
     if (-not $DryRun) { & gh.exe label create $l -R $reports --force | Out-Null }
 }
 
-# ---- pick one report ------------------------------------------------------------------------------------------------
-$all = Gh issue list -R $reports --label problem --state open --limit 100 --json "number,title,body,author,labels" | ConvertFrom-Json
-$candidates = $all | Where-Object {
-    $_.author.login -eq $owner -and -not ($_.labels.name | Where-Object { $_ -like "factory:*" })
-} | Sort-Object number
-if ($Issue) { $candidates = $all | Where-Object number -eq $Issue }
-$r = @($candidates)[0]
-if (-not $r) { Write-Host "No new reports."; exit 0 }
-if ($r.author.login -ne $owner) { throw "Report #$($r.number) wasn't filed by the feedback service; not touching it." }
-$n = $r.number
-Write-Host "Report #$n"
+# ---- pick one report: triage what's new first, then fix what the owner approved ------------------------------------
+# Nothing is fixed until the owner decides. Triage reads and reports. Only decision:fix leads to code, and only the
+# owner can set it: the feedback service sets fixed labels only, and Label refuses decision:* here.
+$all = Gh issue list -R $reports --state open --limit 200 --json "number,title,body,author,labels" | ConvertFrom-Json
+$pick = Select-Report $all $owner $Issue
+if (-not $pick) { Write-Host "Nothing to triage and no fix approved."; exit 0 }
+$r = $pick.Report; $mode = $pick.Mode; $n = $r.number
+$comments = @((Gh issue view $n -R $reports --json comments | ConvertFrom-Json).comments)
+if ($mode -eq "triage") {
+    $failures = Get-TriageFailures $comments
+    if ($failures -ge 3) { Say $n "Triage failed three times. Over to the owner."; Label $n "factory:stuck" "triage:failed"; exit 0 }
+}
+if ($mode -eq "fix") {
+    # One event per line, so more than 100 events still parse.
+    $events = @(Gh api "repos/$reports/issues/$n/events?per_page=100" --paginate --jq '.[]' | ForEach-Object { $_ | ConvertFrom-Json })
+    $why = Test-FixGate (Get-Labels $r) $events
+    if ($why) { Say $n "Not fixing this yet: $why. Over to the owner."; Label $n "factory:needs-decision" $null; exit 0 }
+    "decision:fix added by $(Get-LabelActor $events 'decision:fix')" | Add-Content (Join-Path $logs "report-$n-gate.log")
+}
+Write-Host "Report #$n ($mode)"
 Label $n "factory:working" $null
 
 try {
@@ -122,27 +136,67 @@ try {
     Push-Location $here
     git fetch -q origin main
     $branch = "factory/report-$n"
-    git switch -q -C $branch origin/main
+    if ($mode -eq "triage") { git switch -q --detach origin/main } else { git switch -q -C $branch origin/main }   # triage makes no branch
     git clean -xfdq
     Assert-GitConfig "An earlier run"
     $base = git rev-parse HEAD
     # Prompts from main, read before any agent runs, so an agent can't rewrite the reviewer's instructions.
     $fixPrompt = (git show "${base}:.github/factory/fix-prompt.md") -join "`n"
     $reviewPrompt = (git show "${base}:.github/factory/review-prompt.md") -join "`n"
+    $triagePrompt = (git show "${base}:.github/factory/triage-prompt.md") -join "`n"
+
+    if ($mode -eq "triage") {
+        # ---- triage: read, try to reproduce, compare with the roadmap, write a brief. Never a branch, PR or issue. --
+        # Context for matching, gathered now while the script has the token (the agent gets none).
+        $contextPath = Join-Path $tmp "context-$n.md"
+        $open = Gh issue list -R $repo --state open --limit 300 --json "number,title,labels" | ConvertFrom-Json
+        $ctx = @("# Open issues and themes in $repo", "")
+        foreach ($i in $open) { $ctx += "- #$($i.number) $($i.title) [$(($i.labels.name) -join ', ')]" }
+        $ctx += "", "# Other reports' triage state", ""
+        foreach ($o in $all | Where-Object number -ne $n) { $ctx += "- report #$($o.number): $((@($o.labels.name | Where-Object { $_ -like 'triage:*' -or $_ -like 'decision:*' })) -join ', ')" }
+        Set-Content $contextPath ($ctx -join "`n") -Encoding UTF8
+        $briefPath = Join-Path $tmp "triage-$n.json"; Remove-Item $briefPath -ErrorAction SilentlyContinue
+        $triageTools = "Read,Grep,Glob,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(dotnet build:*),Bash(dotnet test:*)"
+        Agent $triagePrompt @{ REPORT_PATH = $reportPath; CONTEXT_PATH = $contextPath; RESULT_PATH = $briefPath } $triageTools "report-$n-triage.log"
+        # Scratch tests are thrown away: triage never leaves code behind, and may not commit. The git config is checked
+        # before any git call, and the reset runs without secrets, since the agent could have set keys that run programs.
+        Assert-GitConfig "The triage agent"
+        Without $secrets {
+            if (@(git rev-list "$base..HEAD").Count) { throw "The triage agent made a commit; triage may not change code." }
+            git reset -q --hard $base
+            git clean -xfdq -e bin -e obj
+        }
+        Assert-CleanTree "The triage agent"
+        Remove-Item $reportPath, $contextPath -ErrorAction SilentlyContinue
+        if (-not (Test-Path $briefPath)) { throw "The triage agent wrote no brief." }
+        $brief = Get-Content $briefPath -Raw | ConvertFrom-Json
+        $problems = @(Test-TriageBrief $brief)
+        if ($problems.Count) { throw "The triage brief isn't usable: $($problems -join ' ')" }
+        Say $n (Format-TriageComment $brief)
+        Label $n $(if ($brief.kind -eq "noise") { "triage:noise" } else { "triage:ready" }) @("factory:working", "triage:failed")
+        return
+    }
 
     $tools = "Read,Grep,Glob,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git add:*),Bash(git commit:*)," +
              "Bash(dotnet build:*),Bash(dotnet test:*),Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/e2e/Run-FlareE2E.ps1:*)"
-    Agent $fixPrompt @{ REPORT_PATH = $reportPath; RESULT_PATH = $resultPath } $tools "report-$n-fix.log"
+    # The work order: the triage brief the owner decided on, and the owner's decision comment. Both quote nothing from the
+    # report, but they came from an agent that read it, so they go in as data too.
+    $brief = @($comments | Where-Object { $_.body.StartsWith("**Factory:** **Triage:**") }) | Select-Object -Last 1
+    $decision = @($comments | Where-Object { $_.body.StartsWith("**Decision:**") }) | Select-Object -Last 1
+    $orderPath = Join-Path $tmp "order-$n.md"
+    Set-Content $orderPath ("<workorder>`n" + $(if ($brief) { $brief.body } else { "(no triage brief)" }) + "`n`n" + $(if ($decision) { $decision.body } else { "(no decision comment)" }) + "`n</workorder>") -Encoding UTF8
+    Agent $fixPrompt @{ REPORT_PATH = $reportPath; ORDER_PATH = $orderPath; RESULT_PATH = $resultPath } $tools "report-$n-fix.log"
+    Remove-Item $orderPath -ErrorAction SilentlyContinue
     Assert-CleanTree "The fixing agent"
     $result = Get-Content $resultPath -Raw | ConvertFrom-Json
     $summary = ("" + $result.summary).Trim()
     if ($summary.Length -gt 1500) { $summary = $summary.Substring(0, 1500) }
     $commits = @(git rev-list "$base..HEAD")
 
-    if ($result.kind -ne "bug" -or -not $commits.Count) {
-        $decide = $result.kind -in "feature", "question"
-        Say $n ("This looks like a **$($result.kind)**. $summary" + $(if ($decide) { "`n`nWaiting for the owner to decide." } else { "" }))
-        Label $n $(if ($decide) { "factory:needs-decision" } else { "factory:done" }) "factory:working"
+    if ($result.kind -ne "fixed" -or -not $commits.Count) {
+        # The owner approved a fix and it didn't happen: back to the owner with the reason, never "done".
+        Say $n "I couldn't fix this as approved. $summary`n`nOver to the owner."
+        Label $n "factory:needs-decision" "factory:working"
         return
     }
 
@@ -226,6 +280,12 @@ try {
     Gh issue close $n -R $reports | Out-Null
 }
 catch {
+    if ($mode -eq "triage") {
+        # A failed triage stays visible and is retried; the third failure goes to the owner (see the pick step).
+        try { Say $n "Triage failed (attempt $($failures + 1) of 3): $($_.Exception.Message)"; Label $n "triage:failed" "factory:working" }
+        catch { Write-Host "Couldn't mark report #$n as failed on GitHub." }
+        throw "Triage of report #$n failed. The reason is on the report, in the private reports repo."
+    }
     try { Say $n "I couldn't finish this one: $($_.Exception.Message)"; Label $n "factory:stuck" "factory:working" }
     catch { Write-Host "Couldn't mark report #$n as stuck on GitHub." }
     throw "Report #$n is stuck. The reason is on the report, in the private reports repo."   # not the message: it can quote the report
