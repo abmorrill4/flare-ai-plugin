@@ -5,15 +5,15 @@ description: Write a handoff note so a fresh chat can continue this work without
 
 # /handoff: save where this work stands for the next chat
 
-The note goes in the **main checkout's** `.claude/handoff/`. It's git-ignored and shared by every worktree, so a
-session started anywhere in this repo sees it. Resolve the folder with:
+The note goes in the project folder's `planning/handoff/`, outside the repo and not git tracked. The main checkout is
+`<project>/repos/house-style`, so every worktree resolves the same folder:
 
 ```bash
-echo "$(cd "$(git rev-parse --path-format=absolute --git-common-dir)/.." && pwd)/.claude/handoff"
+echo "$(cd "$(git rev-parse --path-format=absolute --git-common-dir)/../../.." && pwd)/planning/handoff"
 ```
 
 Name the file `YYYY-MM-DD-HHMM-<topic-slug>.md`, using local time and a 2–4 word slug such as `signed-updates`.
-If an earlier note on the same topic exists, move it into `.claude/handoff/done/`, so only the newest note per topic
+If an earlier note on the same topic exists, move it into `planning/handoff/done/`, so only the newest note per topic
 stays at the top level.
 
 ## Note template

@@ -27,7 +27,8 @@ gethousestyle.com. This file is for development sessions. Area notes load on the
 | `corpus/` | About 1,740 generated test topics for Bench and Scenarios. This is data. Don't read it wholesale. |
 | `scripts/` | Bootstrap, install, run Flare, package, release `Install.ps1`/`.cmd`, Confluence publisher. |
 | `site/` | gethousestyle.com: static GitHub Pages, deployed by `pages.yml` on pushes to `main`. |
-| `docs/` | `PLAN.md` (architecture), `flare-api-notes.md` (verified Flare behavior), `api-dump.txt` (the real API, authoritative), `plans/ROADMAP.md`, `testing/`, `release-notes/`, `user-guide/`. |
+| `docs/` | `PLAN.md` (architecture), `flare-api-notes.md` (verified Flare behavior), `api-dump.txt` (the real API, authoritative), `testing/`, `release-notes/`, `user-guide/`. |
+| `../../planning/` | Outside the repo and not git tracked: the roadmap, plans, research and handoff notes. The main checkout lives at `<project>/repos/house-style`. |
 
 ## Hard constraints
 - **Runtimes and idioms.**
