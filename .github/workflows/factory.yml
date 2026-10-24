@@ -1,0 +1,45 @@
+# The code factory: every 30 minutes, take one new tester report from the private reports repo and either fix it
+# (test, fix, retest in Flare, second-agent review, PR, merge) or hand it to the owner (feature or question).
+# Scheduled and manual runs only, on the factory VM's runner. Guards: scripts/factory/README.md.
+name: factory
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 'A report number to work on now (optional)'
+        required: false
+      dry_run:
+        description: 'Do everything except push, PR, merge, label and comment'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: flare-e2e
+  cancel-in-progress: false
+jobs:
+  factory:
+    if: github.repository == 'abmorrill4/house-style'
+    runs-on: [self-hosted, windows, flare]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Work on one report
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_GH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ISSUE: ${{ inputs.issue }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          git config user.name "House Style factory"
+          git config user.email "factory@gethousestyle.com"
+          $a = @{}
+          if ($env:ISSUE) { $a.Issue = [int]$env:ISSUE }
+          if ($env:DRY_RUN -eq 'true') { $a.DryRun = $true }
+          & .\scripts\factory\Invoke-Factory.ps1 @a
