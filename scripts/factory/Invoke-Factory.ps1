@@ -51,7 +51,7 @@ Import-Module (Join-Path $PSScriptRoot "Triage.psm1") -Force
 function Label($n, $add, $remove) {
     Assert-FactoryLabel $add   # never decision:*: only the owner approves a fix
     if ($DryRun) { Write-Host "[label #$n] +$add -$remove"; return }
-    $a = @("issue", "edit", $n, "-R", $reports, "--add-label", $add); if ($remove) { $a += @("--remove-label", $remove) }
+    $a = @("issue", "edit", $n, "-R", $reports, "--add-label", $add); foreach ($x in @($remove | Where-Object { $_ })) { $a += @("--remove-label", $x) }
     Gh @a | Out-Null
 }
 
@@ -83,9 +83,9 @@ function Agent([string]$prompt, $map, $tools, [string]$log) {
 }
 
 function Assert-CleanTree($who) {
+    Assert-GitConfig $who   # first: git status could run a program an agent configured (core.fsmonitor)
     $dirty = git status --porcelain
     if ($dirty) { throw "$who left changes outside its commits: $(@($dirty) -join '; ')" }
-    Assert-GitConfig $who
 }
 
 # The checkout's own git config may hold only harmless keys. Code an agent wrote could add ones that run programs
@@ -111,14 +111,15 @@ if (-not $pick) { Write-Host "Nothing to triage and no fix approved."; exit 0 }
 $r = $pick.Report; $mode = $pick.Mode; $n = $r.number
 $comments = @((Gh issue view $n -R $reports --json comments | ConvertFrom-Json).comments)
 if ($mode -eq "triage") {
-    $failures = @($comments | Where-Object { $_.body.StartsWith("**Factory:** Triage failed") }).Count
+    $failures = Get-TriageFailures $comments
     if ($failures -ge 3) { Say $n "Triage failed three times. Over to the owner."; Label $n "factory:stuck" "triage:failed"; exit 0 }
 }
 if ($mode -eq "fix") {
-    $events = Gh api "repos/$reports/issues/$n/events?per_page=100" --paginate | ConvertFrom-Json
+    # One event per line, so more than 100 events still parse.
+    $events = @(Gh api "repos/$reports/issues/$n/events?per_page=100" --paginate --jq '.[]' | ForEach-Object { $_ | ConvertFrom-Json })
     $why = Test-FixGate (Get-Labels $r) $events
-    if ($why) { throw "Report #$n isn't cleared for a fix: $why." }
-    Write-Host "decision:fix on #$n was added by $(Get-LabelActor $events 'decision:fix')"
+    if ($why) { Say $n "Not fixing this yet: $why. Over to the owner."; Label $n "factory:needs-decision" $null; exit 0 }
+    "decision:fix added by $(Get-LabelActor $events 'decision:fix')" | Add-Content (Join-Path $logs "report-$n-gate.log")
 }
 Write-Host "Report #$n ($mode)"
 Label $n "factory:working" $null
@@ -135,7 +136,7 @@ try {
     Push-Location $here
     git fetch -q origin main
     $branch = "factory/report-$n"
-    git switch -q -C $branch origin/main
+    if ($mode -eq "triage") { git switch -q --detach origin/main } else { git switch -q -C $branch origin/main }   # triage makes no branch
     git clean -xfdq
     Assert-GitConfig "An earlier run"
     $base = git rev-parse HEAD
@@ -157,17 +158,22 @@ try {
         $briefPath = Join-Path $tmp "triage-$n.json"; Remove-Item $briefPath -ErrorAction SilentlyContinue
         $triageTools = "Read,Grep,Glob,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(dotnet build:*),Bash(dotnet test:*)"
         Agent $triagePrompt @{ REPORT_PATH = $reportPath; CONTEXT_PATH = $contextPath; RESULT_PATH = $briefPath } $triageTools "report-$n-triage.log"
-        # Scratch tests are thrown away: triage never leaves code behind, and may not commit.
-        if (@(git rev-list "$base..HEAD").Count) { throw "The triage agent made a commit; triage may not change code." }
-        git reset -q --hard $base
-        git clean -xfdq -e bin -e obj
+        # Scratch tests are thrown away: triage never leaves code behind, and may not commit. The git config is checked
+        # before any git call, and the reset runs without secrets, since the agent could have set keys that run programs.
+        Assert-GitConfig "The triage agent"
+        Without $secrets {
+            if (@(git rev-list "$base..HEAD").Count) { throw "The triage agent made a commit; triage may not change code." }
+            git reset -q --hard $base
+            git clean -xfdq -e bin -e obj
+        }
         Assert-CleanTree "The triage agent"
         Remove-Item $reportPath, $contextPath -ErrorAction SilentlyContinue
-        $brief = Get-Content $briefPath -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json
+        if (-not (Test-Path $briefPath)) { throw "The triage agent wrote no brief." }
+        $brief = Get-Content $briefPath -Raw | ConvertFrom-Json
         $problems = @(Test-TriageBrief $brief)
         if ($problems.Count) { throw "The triage brief isn't usable: $($problems -join ' ')" }
         Say $n (Format-TriageComment $brief)
-        Label $n $(if ($brief.kind -eq "noise") { "triage:noise" } else { "triage:ready" }) "factory:working"
+        Label $n $(if ($brief.kind -eq "noise") { "triage:noise" } else { "triage:ready" }) @("factory:working", "triage:failed")
         return
     }
 

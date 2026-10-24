@@ -65,7 +65,7 @@ It takes one open report per run, in two steps. **Nothing is built from a report
 
 Guards against report text steering the agent:
 
-- Only reports the feedback service filed (author `abmorrill4`, label `problem`).
+- Only reports the feedback service filed (author `abmorrill4`, label `problem` or `error`).
 - The report reaches the agent as a file, framed as untrusted data, never inside the prompt.
 - No GitHub token while an agent runs or while agent-written code runs (the unit tests and e2e run with no secrets at
   all). The token is used only to push, open the PR and merge. The checkout keeps no credential.
@@ -86,7 +86,7 @@ Guards against report text steering the agent:
 - The public PR says only "Fix tester report n". What the tester wrote stays in the private reports repo.
 - The e2e workflow runs on pushes to this repo's branches, never on `pull_request`. For a PR, GitHub runs the
   workflow file from the PR itself, so a fork could rewrite any guard in it.
-- A fix that touches `src/FlareAI.Core/Update/`, `Settings/`, `Llm/` or `src/FlareAI.Flare/E2EHook.cs`.
+- A fix that touches owner-reviewed code goes back to the owner (`factory:needs-decision`): `src/FlareAI.Core/Update/`, `Settings/`, `Llm/` or `src/FlareAI.Flare/E2EHook.cs`.
   Nothing is pushed.
 - The agents' output, the rerun tests' output and dry-run comments go to `C:\HouseStyle\factory-logs` on the VM, never
   the job log. This repo is public, so its job logs are too. A failed run logs only "report n is stuck", and the

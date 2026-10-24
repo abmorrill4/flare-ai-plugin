@@ -7,18 +7,21 @@ $Kinds = "bug", "friction", "feature", "question", "duplicate", "noise"
 function Test-TriageBrief($b) {
     $problems = @()
     if (-not $b) { return @("The brief is empty.") }
-    if ($Kinds -notcontains $b.kind) { $problems += "kind '$($b.kind)' isn't one of $($Kinds -join ', ')." }
-    foreach ($f in "summary", "goal") { if (-not ("" + $b.$f).Trim()) { $problems += "$f is missing." } }
+    if ($Kinds -notcontains $b.kind) { $problems += "kind '$(Format-Field $b.kind 30)' isn't one of $($Kinds -join ', ')." }
+    foreach ($f in "summary", "goal", "impact") { if (-not ("" + $b.$f).Trim()) { $problems += "$f is missing." } }
     if (-not $b.reproduced -or @("yes", "no", "not-tried") -notcontains $b.reproduced.result) { $problems += "reproduced.result must be yes, no or not-tried." }
-    if (-not @($b.options).Count) { $problems += "There are no options." }
+    if (@($b.options | Where-Object { $_ }).Count -lt 2) { $problems += "There are fewer than two options." }
     if (-not $b.recommendation -or -not ("" + $b.recommendation.option).Trim()) { $problems += "There is no recommendation." }
     if (@("high", "medium", "low") -notcontains $b.confidence) { $problems += "confidence must be high, medium or low." }
     $problems
 }
 
-# Agent text for a comment: one line or a short paragraph, capped, with @mentions defused so nobody gets pinged.
+# Agent text for a comment: one line or a short paragraph, capped, with @mentions defused so nobody gets pinged, and
+# no links, images or HTML, so a brief can't put a clickable or auto-loading URL in front of the owner.
 function Format-Field($text, [int]$max = 600) {
-    $t = (("" + $text) -replace '[\r\n]+', ' ').Trim()
+    $t = ("" + $text) -replace '[\r\n]+', ' '
+    $t = $t -replace '!\[[^\]]*\]\([^)]*\)', '' -replace '\[([^\]]*)\]\([^)]*\)', '$1' -replace '<[^>]*>', '' -replace '(?i)\b(https?|ftp|file)://\S+', '[link removed]'
+    $t = $t.Trim()
     if ($t.Length -gt $max) { $t = $t.Substring(0, $max - 1) + "…" }
     $t -replace '@', ('@' + [char]0x200B)   # a zero-width space after @ stops the mention
 }
@@ -29,6 +32,7 @@ function Format-TriageComment($b) {
         "",
         "**What happened:** $(Format-Field $b.summary)",
         "**What they were trying to do:** $(Format-Field $b.goal 300)",
+        "**Impact on writers:** $(Format-Field $b.impact 400)",
         "**Reproduced:** $(Format-Field $b.reproduced.result 10). $(Format-Field $b.reproduced.how 400)"
     )
     $hits = @($b.matches | Select-Object -First 6)
@@ -37,7 +41,7 @@ function Format-TriageComment($b) {
         foreach ($m in $hits) { $lines += "- $(Format-Field $m.ref 30) $(Format-Field $m.title 120) ($(Format-Field $m.relation 12)): $(Format-Field $m.why 200)" }
     }
     $lines += "", "**Options:**"
-    foreach ($o in @($b.options | Select-Object -First 4)) {
+    foreach ($o in @($b.options | Where-Object { $_ } | Select-Object -First 4)) {
         $lines += "- $(Format-Field $o.option 200) · effort $(Format-Field $o.effort 4) · risk: $(Format-Field $o.risk 200) · for writers: $(Format-Field $o.for_writers 200)"
     }
     $lines += "", "**Recommendation:** $(Format-Field $b.recommendation.option 200). $(Format-Field $b.recommendation.why 400)"
@@ -75,7 +79,9 @@ function Select-Report($all, [string]$owner, [int]$issue = 0) {
     }
     foreach ($r in $ours) {
         $l = Get-Labels $r
-        if ($l -contains "decision:fix" -and -not ($l | Where-Object { $_ -like "factory:*" })) { return @{ Report = $r; Mode = "fix" } }
+        $decisions = @($l | Where-Object { $_ -like "decision:*" })
+        # decision:fix alone: a report with a second decision label waits for the owner and never blocks the queue.
+        if ($decisions.Count -eq 1 -and $decisions[0] -eq "decision:fix" -and -not ($l | Where-Object { $_ -like "factory:*" })) { return @{ Report = $r; Mode = "fix" } }
     }
     $null
 }
@@ -90,9 +96,16 @@ function Test-FixGate($labels, $events) {
     $null
 }
 
+# Failed triage attempts since the owner last asked for a retry (a comment starting "**Retry triage**").
+function Get-TriageFailures($comments) {
+    $since = 0; $i = 0; $all = @($comments)
+    foreach ($c in $all) { $i++; if (("" + $c.body).StartsWith("**Retry triage**")) { $since = $i } }
+    @($all | Select-Object -Skip $since | Where-Object { ("" + $_.body).StartsWith("**Factory:** Triage failed") }).Count
+}
+
 # The factory writes only its own labels. decision:* is the owner's alone, so the factory can never approve a fix.
 function Assert-FactoryLabel([string]$label) {
     if ($label -and $label -notlike "triage:*" -and $label -notlike "factory:*") { throw "The factory may not set the label '$label'." }
 }
 
-Export-ModuleMember -Function Test-TriageBrief, Format-TriageComment, Get-LabelActor, Format-Field, Select-Report, Test-FixGate, Assert-FactoryLabel
+Export-ModuleMember -Function Test-TriageBrief, Format-TriageComment, Get-LabelActor, Format-Field, Select-Report, Test-FixGate, Assert-FactoryLabel, Get-TriageFailures, Get-Labels
