@@ -26,7 +26,7 @@ $denied = '\.csproj$|Directory\.Build\.|nuget\.config$|packages\.lock\.json$|^te
 $token = $env:GH_TOKEN
 $secrets = "GH_TOKEN", "GITHUB_TOKEN", "ANTHROPIC_API_KEY"
 
-function Gh { $o = & gh @args; if ($LASTEXITCODE) { throw "gh $($args -join ' ') failed" }; $o }
+function Gh { $o = & gh.exe @args; if ($LASTEXITCODE) { throw "gh $($args -join ' ') failed" }; $o }
 function Say($n, $text) { if (-not $DryRun) { Gh issue comment $n -R $reports --body "**Factory:** $text" | Out-Null } else { Write-Host "[comment #$n] $text" } }
 function Label($n, $add, $remove) {
     if ($DryRun) { Write-Host "[label #$n] +$add -$remove"; return }
@@ -56,7 +56,7 @@ function Assert-CleanTree($who) {
 }
 
 foreach ($l in "factory:working", "factory:done", "factory:needs-decision", "factory:stuck") {
-    if (-not $DryRun) { & gh label create $l -R $reports --force | Out-Null }
+    if (-not $DryRun) { & gh.exe label create $l -R $reports --force | Out-Null }
 }
 
 # ---- pick one report ------------------------------------------------------------------------------------------------
