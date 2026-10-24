@@ -65,6 +65,16 @@ function Agent([string]$prompt, $map, $tools) {
 function Assert-CleanTree($who) {
     $dirty = git status --porcelain
     if ($dirty) { throw "$who left changes outside its commits: $(@($dirty) -join '; ')" }
+    Assert-GitConfig $who
+}
+
+# The checkout's own git config may hold only harmless keys. Code an agent wrote could add ones that run programs
+# (core.fsmonitor, core.sshCommand, credential.helper, url.*.insteadOf, ...), and the script's git calls run with the
+# token. The checkout persists between runs, so this is checked at the start too.
+function Assert-GitConfig($who) {
+    $ok = '^(core\.(repositoryformatversion|filemode|bare|logallrefupdates|symlinks|ignorecase|autocrlf|longpaths)|remote\.origin\.(url|fetch)|branch\..+\.(remote|merge)|user\.(name|email)|gc\.auto|extensions\.worktreeconfig|maintenance\.auto)='
+    $bad = @(git config --local --list | Where-Object { $_ -notmatch $ok })
+    if ($bad) { throw "$who left git settings the factory doesn't allow: $(($bad | ForEach-Object { ($_ -split '=')[0] }) -join ', ')" }
 }
 
 foreach ($l in "factory:working", "factory:done", "factory:needs-decision", "factory:stuck") {
@@ -98,6 +108,7 @@ try {
     $branch = "factory/report-$n"
     git switch -q -C $branch origin/main
     git clean -xfdq
+    Assert-GitConfig "An earlier run"
     $base = git rev-parse HEAD
     # Prompts from main, read before any agent runs, so an agent can't rewrite the reviewer's instructions.
     $fixPrompt = (git show "${base}:.github/factory/fix-prompt.md") -join "`n"
