@@ -30,8 +30,9 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          $ai = if ($env:ANTHROPIC_API_KEY) { @() } else { Write-Host "No ANTHROPIC_API_KEY: skipping the ai-* scenarios."; @('-NoAi') }
-          & .\tests\e2e\Run-FlareE2E.ps1 -Install -OutDir "$env:RUNNER_TEMP\e2e-results" @ai
+          $noAi = -not $env:ANTHROPIC_API_KEY
+          if ($noAi) { Write-Host "No ANTHROPIC_API_KEY: skipping the ai-* scenarios." }
+          & .\tests\e2e\Run-FlareE2E.ps1 -Install -OutDir "$env:RUNNER_TEMP\e2e-results" -NoAi:$noAi
           exit $LASTEXITCODE
 
       - name: Upload results
