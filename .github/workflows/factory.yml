@@ -29,6 +29,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Check the factory VM is ready
+        shell: powershell
+        run: .\scripts\factory\Test-FactoryReady.ps1   # exits 1 with the reason when the VM can't drive Flare
+
       - name: Work on one report
         shell: powershell
         env:
