@@ -14,7 +14,7 @@ param(
     [switch]$NoAi,                            # skip scenarios that call the AI (no key, or to save cost)
     [string]$Fixture = (Join-Path $PSScriptRoot "..\..\corpus\DigitalBanking"),
     [string]$OutDir,
-    [int]$ScenarioMinutes = 8                 # a scenario still running after this is treated as hung
+    [int]$ScenarioMinutes = 12                # a scenario still running after this is hung (its own waits add up to ~11)
 )
 $ErrorActionPreference = "Stop"
 if ($PSVersionTable.PSEdition -ne "Desktop") { throw "Run with Windows PowerShell 5.1 (powershell.exe): UI Automation needs .NET Framework." }
@@ -38,8 +38,10 @@ $results = @()
 # Runs in its own process, so it fires even while this one is blocked inside a UI Automation call. It uses no UI
 # Automation for the same reason: process window titles only.
 $watchdog = {
-    param($seconds, $png, $txt)
-    Start-Sleep $seconds
+    param($parent, $seconds, $png, $txt)
+    # Waits on this run, not just the clock: if the run dies without its finally, the watchdog leaves a later Flare alone.
+    Wait-Process -Id $parent -Timeout $seconds -ErrorAction SilentlyContinue
+    if (-not (Get-Process -Id $parent -ErrorAction SilentlyContinue)) { return }
     Get-Process | Where-Object MainWindowTitle | ForEach-Object { "$($_.ProcessName) $($_.Id) responding=$($_.Responding) '$($_.MainWindowTitle)'" } | Set-Content $txt
     try {
         Add-Type -AssemblyName System.Windows.Forms, System.Drawing
@@ -54,7 +56,8 @@ foreach ($f in $files) {
     $start = Get-Date
     Write-Host "== $($f.BaseName)"
     $hung = Join-Path $out "$($f.BaseName)-hung.txt"
-    $cmd = "& {$watchdog} $($ScenarioMinutes * 60) '$(Join-Path $out "$($f.BaseName)-hung.png")' '$hung'"
+    $q = { param($p) "'" + ($p -replace "'", "''") + "'" }
+    $cmd = "& {$watchdog} $PID $($ScenarioMinutes * 60) $(& $q (Join-Path $out "$($f.BaseName)-hung.png")) $(& $q $hung)"
     $dog = Start-Process powershell.exe -WindowStyle Hidden -PassThru -ArgumentList "-NoProfile", "-EncodedCommand", ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd)))
     $r = [ordered]@{ scenario = $f.BaseName; passed = $false; seconds = 0; error = $null; version = $null; artifacts = @() }
     try {

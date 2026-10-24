@@ -39,8 +39,12 @@ if (-not ($env:CLAUDE_CODE_OAUTH_TOKEN -or $env:ANTHROPIC_API_KEY)) { throw "No 
 $noHooks = Join-Path $tmp "factory-no-hooks"; New-Item -ItemType Directory -Force $noHooks | Out-Null
 $env:GIT_CONFIG_COUNT = "1"; $env:GIT_CONFIG_KEY_0 = "core.hooksPath"; $env:GIT_CONFIG_VALUE_0 = $noHooks
 
-function Gh { $o = & gh.exe @args; if ($LASTEXITCODE) { throw "gh $($args -join ' ') failed" }; $o }
-function Say($n, $text) { if (-not $DryRun) { Gh issue comment $n -R $reports --body "**Factory:** $text" | Out-Null } else { Write-Host "[comment #$n] $text" } }
+# Errors name the gh command only: its arguments can hold a comment body, and job logs are public.
+function Gh { $o = & gh.exe @args; if ($LASTEXITCODE) { throw "gh $($args[0]) $($args[1]) failed" }; $o }
+function Say($n, $text) {
+    if (-not $DryRun) { Gh issue comment $n -R $reports --body "**Factory:** $text" | Out-Null; return }
+    $text | Add-Content (Join-Path $logs "report-$n-comments.log"); Write-Host "[comment #$n] $($text.Length) chars, in factory-logs"
+}
 function Label($n, $add, $remove) {
     if ($DryRun) { Write-Host "[label #$n] +$add -$remove"; return }
     $a = @("issue", "edit", $n, "-R", $reports, "--add-label", $add); if ($remove) { $a += @("--remove-label", $remove) }
@@ -158,10 +162,13 @@ try {
     if ($lines -gt 800) { throw "The fix is $lines lines; too big for the factory to merge on its own." }
 
     # ---- test it again here, not on the agent's word; agent-written code runs with no secrets ----------------------
+    # The agent's tests could print the report or anything else readable: no report on disk, output to factory-logs.
+    Remove-Item $reportPath
     Without $secrets {
-        dotnet test FlareAI.sln -c Release | Out-Host
+        $ErrorActionPreference = "Continue"   # with Stop, redirected stderr from a native command throws; exit codes decide
+        dotnet test FlareAI.sln -c Release *> (Join-Path $logs "report-$n-unit.log")
         if ($LASTEXITCODE) { throw "Unit tests fail on the fix." }
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\e2e\Run-FlareE2E.ps1 -Install -NoAi | Out-Host
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\e2e\Run-FlareE2E.ps1 -Install -NoAi *> (Join-Path $logs "report-$n-e2e.log")
         if ($LASTEXITCODE) { throw "End-to-end checks fail on the fix." }
     }
     git clean -xfdq -e bin -e obj   # build output is ignored; anything else the tests left is dropped
@@ -207,8 +214,8 @@ try {
     Gh issue close $n -R $reports | Out-Null
 }
 catch {
-    Say $n "I couldn't finish this one: $($_.Exception.Message)"
-    Label $n "factory:stuck" "factory:working"
+    try { Say $n "I couldn't finish this one: $($_.Exception.Message)"; Label $n "factory:stuck" "factory:working" }
+    catch { Write-Host "Couldn't mark report #$n as stuck on GitHub." }
     throw "Report #$n is stuck. The reason is on the report, in the private reports repo."   # not the message: it can quote the report
 }
 finally { Pop-Location -ErrorAction SilentlyContinue }
