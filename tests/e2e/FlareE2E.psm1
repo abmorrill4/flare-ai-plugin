@@ -41,6 +41,7 @@ function Get-FlareWindow([string]$Name) {
 #>
 function Start-FlareE2E {
     param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = (Get-E2ERoot))
+    $script:Run = $null   # a failure before Started below is a start-up (VM) failure, not this scenario's
     $running = Get-Process Flare -ErrorAction SilentlyContinue
     if ($running) {
         if (-not $Force) { throw "Flare is running. Close it, or pass -Force to close it (unsaved work is lost)." }
@@ -92,6 +93,7 @@ function Start-FlareE2E {
     $ready = Wait-Until { Test-Path (Join-Path $hook "ready.json") } 120 "House Style to start in Flare (is the plugin installed and turned on?)"
     $script:Run | Add-Member Version ((Get-Content (Join-Path $hook "ready.json") | ConvertFrom-Json).version)
     Wait-Until { $w = Get-FlareWindow; $w -and $w.Current.Name -like "$($flprj.Name)*" } 120 "the project to open" | Out-Null
+    $script:Run | Add-Member Started (Get-Date)
     return $script:Run
 }
 

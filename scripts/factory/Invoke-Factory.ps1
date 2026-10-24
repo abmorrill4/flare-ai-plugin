@@ -168,8 +168,14 @@ try {
         $ErrorActionPreference = "Continue"   # with Stop, redirected stderr from a native command throws; exit codes decide
         dotnet test FlareAI.sln -c Release *> (Join-Path $logs "report-$n-unit.log")
         if ($LASTEXITCODE) { throw "Unit tests fail on the fix." }
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\e2e\Run-FlareE2E.ps1 -Install -NoAi *> (Join-Path $logs "report-$n-e2e.log")
-        if ($LASTEXITCODE) { throw "End-to-end checks fail on the fix." }
+        $e2eOut = Join-Path $tmp "e2e-$n"
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\e2e\Run-FlareE2E.ps1 -Install -NoAi -OutDir $e2eOut *> (Join-Path $logs "report-$n-e2e.log")
+        if ($LASTEXITCODE) {
+            # In parentheses: Windows PowerShell's ConvertFrom-Json sends a whole array down the pipeline as one object.
+            $failed = @((Get-Content (Join-Path $e2eOut "results.json") -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json) | Where-Object { -not $_.passed })
+            if ($failed.Count -and -not ($failed | Where-Object kind -ne "vm")) { throw "Flare failed to start or stopped responding during the end-to-end checks, twice. That points at the factory VM rather than the fix; rerun the report once the VM is healthy." }
+            throw "End-to-end checks fail on the fix."
+        }
     }
     git clean -xfdq -e bin -e obj   # build output is ignored; anything else the tests left is dropped
     Assert-CleanTree "The tests"

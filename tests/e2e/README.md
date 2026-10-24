@@ -4,6 +4,16 @@
 it, and writes `results.json` (plus Flare's state and a screenshot for each failure) under `E:\HouseStyle\e2e`.
 The exit code is the number of failures.
 
+Each failure is a **VM failure** or a **test failure**:
+- **VM failure:** Flare never finished starting (licensing wizard, plugin load or project open timed out), or the
+  watchdog had to kill it. It's retried once. A pass on the retry shows as a warning, and both tries stay in
+  `results.json` (`firstTry`).
+- **Test failure:** anything after Flare has started, such as an assertion or a timeout waiting on the plugin. It's
+  never retried.
+
+The summary line counts both kinds. The factory reports a fix whose only failures are VM failures as a VM problem,
+not as a bad fix.
+
 ```powershell
 powershell.exe -File tests\e2e\Run-FlareE2E.ps1 -Install          # build, install, run everything
 powershell.exe -File tests\e2e\Run-FlareE2E.ps1 -Scenario reopen-issues
