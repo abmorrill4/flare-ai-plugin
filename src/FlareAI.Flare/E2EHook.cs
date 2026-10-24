@@ -27,11 +27,28 @@ namespace FlareAI.Flare
         private readonly Func<Form> _main;
         private readonly Timer _timer = new Timer { Interval = 250 };
         private int _next = 1;
+        private DateTime _beat;
 
         private E2EHook(string dir, Func<string, Action> command, Func<string, bool> open, Func<Form> main)
         {
             _dir = dir; _command = command; _open = open; _main = main;
-            _timer.Tick += (s, e) => Safe.Run("E2E", Poll);
+            _timer.Tick += (s, e) => { Safe.Run("E2E", Poll); Safe.Run("E2E heartbeat", Beat); };
+        }
+
+        /// <summary>
+        /// Written from the UI thread every second, so a stale heartbeat.json tells the runner Flare's UI thread is
+        /// blocked, and names the windows that were open (a modal one is the usual culprit).
+        /// </summary>
+        private void Beat()
+        {
+            if ((DateTime.UtcNow - _beat).TotalSeconds < 1) return;
+            _beat = DateTime.UtcNow;
+            var forms = Application.OpenForms.Cast<Form>().Where(f => f.Visible).Select(f => f.Text + (f.Modal ? " (modal)" : ""));
+            var wpf = System.Windows.Application.Current == null ? Enumerable.Empty<string>()
+                : System.Windows.Application.Current.Windows.Cast<System.Windows.Window>().Where(w => w.IsVisible).Select(w => w.Title);
+            var path = Path.Combine(_dir, "heartbeat.json");
+            File.WriteAllText(path + ".tmp", JsonConvert.SerializeObject(new { at = _beat, windows = forms.Concat(wpf).Where(t => !string.IsNullOrEmpty(t)).ToList() }));
+            File.Copy(path + ".tmp", path, true);
         }
 
         /// <summary>A test run keeps its settings, guide and logs in its own folder (the runner seeds it), never the writer's.</summary>
