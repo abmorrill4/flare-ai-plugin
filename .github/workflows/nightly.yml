@@ -41,7 +41,7 @@ jobs:
         run: |
           set -euo pipefail
           last=$(git tag -l 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-          changed_since() { [ -n "$(git diff --name-only "$1" HEAD -- src styleguide)" ]; }
+          changed_since() { [ -n "$(git diff --name-only "$1" HEAD -- src styleguide ':(exclude)*.md')" ]; }
           release=""
           if ! gh release view "$last" -R "$REPO" --json isDraft --jq 'select(.isDraft == false)' | grep -q .; then
             # The newest tag never got a published release (a failed night). Tags can't be moved or deleted, so a tag

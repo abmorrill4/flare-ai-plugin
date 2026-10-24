@@ -68,7 +68,7 @@ jobs:
         run: |
           # A change writers can see needs a changes/<name>.md note (or the no-notes label). See changes/README.md.
           $files = @(git diff --name-only --no-renames --diff-filter=ACMRD $env:BASE HEAD)
-          $shipping = @($files | Where-Object { $_ -like 'src/*' -or $_ -like 'styleguide/*' })
+          $shipping = @($files | Where-Object { ($_ -like 'src/*' -or $_ -like 'styleguide/*') -and $_ -notlike '*.md' })   # CLAUDE.md and comments in Markdown don't ship
           $notes = @(git diff --name-only --diff-filter=A $env:BASE HEAD -- changes/ | Where-Object { $_ -like 'changes/*.md' -and $_ -ne 'changes/README.md' })
           foreach ($n in $notes) { if (-not (Select-String -Path $n -Pattern '^- ' -Quiet)) { throw "$n has no '- ' bullet, so it would add nothing to the release notes." } }
           if ($shipping.Count -and -not $notes.Count -and ($env:PR_LABELS -split ',') -notcontains 'no-notes') {
