@@ -15,7 +15,30 @@ permissions:
   contents: read   # only the release job writes
 
 jobs:
+  changes:
+    # A PR that only touches Markdown under docs/ or at the root skips build and feedback-worker.
+    # Skipped jobs still satisfy the required checks.
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # Fail safe: if the diff can't be read or is empty, run everything.
+          files=$(git diff --name-only --no-renames "$BASE" HEAD) || { echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; }
+          if [ -z "$files" ] || echo "$files" | grep -qvE '^(docs/.*|[^/]*)[.]md$'; then code=true; else code=false; fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}   # runs if changes failed
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -140,6 +163,8 @@ jobs:
 
   feedback-worker:
     # The Cloudflare Worker that receives in-app reports (#124). Tests only; the owner deploys it by hand (see its README).
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}   # runs if changes failed
     runs-on: ubuntu-latest
     defaults:
       run:

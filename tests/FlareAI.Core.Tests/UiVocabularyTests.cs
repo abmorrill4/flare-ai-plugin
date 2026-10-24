@@ -11,7 +11,7 @@ namespace FlareAI.Core.Tests
     /// <summary>
     /// The UI consistency check (issues #6, #9 and #123). The Flare project can't be referenced from tests, so this scans
     /// the source text: every string literal in src/FlareAI.Flare and src/FlareAI.Core (comments, Diagnostics.Log calls and
-    /// identifiers excluded) must be free of the terms the glossary retired (docs/plans/ux/review-deliberate.md 5.1).
+    /// identifiers excluded) must be free of the terms the glossary retired (issue #6).
     /// A legitimate non-UI use (AI prompt text, internal keys, file names) goes in <see cref="Allowed"/> with a reason.
     /// "Lint" was retired once and is the word again since #123 (Flare and docs-linting vocabulary).
     /// </summary>
@@ -59,7 +59,7 @@ namespace FlareAI.Core.Tests
                                 violations.Add(rel + ":" + lit.Line + "  [" + b[0] + "]  " + Shorten(lit.Text));
                     }
                 }
-            Assert.True(violations.Count == 0, "Banned UI terms (use the glossary, docs/plans/ux/review-deliberate.md 5.1):\n" + string.Join("\n", violations.ToArray()));
+            Assert.True(violations.Count == 0, "Banned UI terms (use the glossary, issue #6):\n" + string.Join("\n", violations.ToArray()));
         }
 
         // ---- the #123 vocabulary: Flare and docs-linting words, no "Claude-speak" ------------------------------
