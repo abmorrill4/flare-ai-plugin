@@ -169,6 +169,7 @@ try {
         dotnet test FlareAI.sln -c Release *> (Join-Path $logs "report-$n-unit.log")
         if ($LASTEXITCODE) { throw "Unit tests fail on the fix." }
         $e2eOut = Join-Path $tmp "e2e-$n"
+        Remove-Item $e2eOut -Recurse -Force -ErrorAction SilentlyContinue   # never read an earlier run's results
         powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\e2e\Run-FlareE2E.ps1 -Install -NoAi -OutDir $e2eOut *> (Join-Path $logs "report-$n-e2e.log")
         if ($LASTEXITCODE) {
             # In parentheses: Windows PowerShell's ConvertFrom-Json sends a whole array down the pipeline as one object.
@@ -176,6 +177,7 @@ try {
             if ($failed.Count -and -not ($failed | Where-Object kind -ne "vm")) { throw "Flare failed to start or stopped responding during the end-to-end checks, twice. That points at the factory VM rather than the fix; rerun the report once the VM is healthy." }
             throw "End-to-end checks fail on the fix."
         }
+        $retried = @((Get-Content (Join-Path $e2eOut "results.json") -Raw | ConvertFrom-Json) | Where-Object { $_.passed -and $_.firstTry } | ForEach-Object scenario)
     }
     git clean -xfdq -e bin -e obj   # build output is ignored; anything else the tests left is dropped
     Assert-CleanTree "The tests"
@@ -195,7 +197,7 @@ try {
     $head = git rev-parse HEAD
     git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$token")))" push -q -f origin $branch
     if ($LASTEXITCODE) { throw "Push failed." }
-    $prBody = "Fixes tester report $n (private reports repo).`n`nThe factory's second agent reviewed the diff: MERGE. Unit tests and the end-to-end checks in Flare passed on the factory VM.`n`n🤖 Generated with [Claude Code](https://claude.com/claude-code)"
+    $prBody = "Fixes tester report $n (private reports repo).`n`nThe factory's second agent reviewed the diff: MERGE. Unit tests and the end-to-end checks in Flare passed on the factory VM.$(if ($retried) { " These passed only on a retry after a VM failure, so look for a flaky start-up: $($retried -join ', ')." })`n`n🤖 Generated with [Claude Code](https://claude.com/claude-code)"
     $url = Gh pr create -R $repo --base main --head $branch --title "Fix tester report $n" --body $prBody
     $pr = ($url -split '/')[-1]
 

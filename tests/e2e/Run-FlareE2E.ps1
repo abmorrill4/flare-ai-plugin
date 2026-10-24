@@ -53,22 +53,26 @@ $watchdog = {
     Get-Process Flare -ErrorAction SilentlyContinue | Stop-Process -Force
 }
 $q = { param($p) "'" + ($p -replace "'", "''") + "'" }
-# One try of one scenario. A failure is "vm" when Flare never finished starting or stopped responding: the machine,
-# not the plugin, is the likely cause, so it earns one retry. Anything after start-up (an assertion, a timeout on the
-# plugin's answer) is "test" and is never retried.
+# One try of one scenario. A failure is "vm" only when Flare itself never came up (no main window, or the licensing
+# wizard stuck) or hung before the plugin reported ready: the machine is the likely cause, so it earns one retry.
+# Everything else is "test" and is never retried: Flare up but the plugin never ready, a scenario that fails before
+# starting Flare, and anything after the plugin is ready, hangs included (a fix can deadlock Flare).
 function Invoke-Once($f, $tag) {
     $start = Get-Date
     $hung = Join-Path $out "$tag-hung.txt"
     $cmd = "& {$watchdog} $PID $($ScenarioMinutes * 60) $(& $q (Join-Path $out "$tag-hung.png")) $(& $q $hung)"
     $dog = Start-Process powershell.exe -WindowStyle Hidden -PassThru -ArgumentList "-NoProfile", "-EncodedCommand", ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd)))
     $r = [ordered]@{ passed = $false; kind = $null; seconds = 0; error = $null; version = $null; artifacts = @() }
+    (Get-Module FlareE2E).Invoke({ $script:Run = $null })   # no state from the scenario before
     try {
         & $f.FullName -Fixture $Fixture | Out-Host   # to the console, not into this function's result
         $r.passed = $true
     } catch {
         $r.error = $_.Exception.Message
-        $started = (Get-Module FlareE2E).Invoke({ [bool]($script:Run -and $script:Run.PSObject.Properties["Started"]) })
-        $r.kind = if ((Test-Path $hung) -or -not $started) { "vm" } else { "test" }
+        # Where Flare got to: never launched by this scenario, launched, or the plugin ready.
+        $stage = (Get-Module FlareE2E).Invoke({ if (-not $script:Run) { "none" } elseif ($script:Run.PSObject.Properties["PluginReady"]) { "ready" } else { "launched" } })
+        $flareUp = $stage -eq "launched" -and -not (Test-Path $hung) -and [bool](Get-Process Flare -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -and $_.MainWindowTitle -ne "Licensing Wizard" })
+        $r.kind = if ($stage -eq "launched" -and -not $flareUp) { "vm" } else { "test" }
         if (Test-Path $hung) { $r.error = "Hung for $ScenarioMinutes min, so the watchdog killed Flare: $($r.error)"; $r.artifacts += "$tag-hung.txt", "$tag-hung.png" }
         try { Get-E2EState | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out "$tag-state.json"); $r.artifacts += "$tag-state.json" } catch { }
         try {
