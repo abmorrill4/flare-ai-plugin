@@ -31,7 +31,7 @@ def favicon_svg(rx=14):
             f'<path fill="#fff" fill-rule="evenodd" transform="translate(9.6 9.6) scale(.7)" d="{MARK_D}"/></svg>\n')
 
 def wordmark_paths(text, size):
-    """Outlines `text` in Switzer 500 at font size `size`, baseline at y=0. Returns (path d, width, cap height)."""
+    """Outlines `text` in Switzer 500 at font size `size`, baseline at y=0. Returns (path d, width, cap height, descent below the baseline)."""
     font = TTFont(REPO / "site" / "fonts" / "switzer-500.woff2")
     gs, cmap, upm = font.getGlyphSet(), font.getBestCmap(), font["head"].unitsPerEm
     s = size / upm
@@ -43,18 +43,19 @@ def wordmark_paths(text, size):
         gs[name].draw(TransformPen(pen, (s, 0, 0, -s, x * s, 0)))
         x += gs[name].width + tracking
     cap = font["OS/2"].sCapHeight * s
-    return pen.getCommands(), (x - tracking) * s, cap
+    return pen.getCommands(), (x - tracking) * s, cap, -font["hhea"].descent * s
 
 def lockup_svg(mark_fill, text_fill):
-    d, w, cap = wordmark_paths("House Style", 100)
+    d, w, cap, desc = wordmark_paths("House Style", 100)
     mh = cap * 1.4                       # mark drawn height is 1.4x the cap height
     k = mh / (MARK_BOTTOM - MARK_TOP)
     gap = cap * 0.45
     mark_w = 54 * k                      # mark spans x 5..59
     total = mark_w + gap + w
     top = -cap - (mh - cap) / 2          # centre the mark on the caps
+    height = max(mh, desc - top)         # room for the descender of the "y"
     return ('<svg xmlns="http://www.w3.org/2000/svg" '
-            f'viewBox="0 {top:.1f} {total:.1f} {mh:.1f}">'
+            f'viewBox="0 {top:.1f} {total:.1f} {height:.1f}">'
             f'<path fill="{mark_fill}" fill-rule="evenodd" transform="translate({-5*k:.2f} {top - MARK_TOP*k:.2f}) scale({k:.4f})" d="{MARK_D}"/>'
             f'<path fill="{text_fill}" transform="translate({mark_w + gap:.2f} 0)" d="{d}"/></svg>\n')
 

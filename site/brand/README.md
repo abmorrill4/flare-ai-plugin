@@ -5,8 +5,8 @@ the files.
 
 | File | Use it for |
 |---|---|
-| `lockup.svg` | The logo on light backgrounds: the teal mark and the wordmark |
-| `lockup-white.svg` | The logo on teal or dark backgrounds |
+| `lockup.svg` | The teal mark and dark wordmark, for light backgrounds |
+| `lockup-white.svg` | The all-white logo, for teal or dark backgrounds |
 | `mark.svg`, `mark-ink.svg`, `mark-white.svg` | The mark alone, in small spaces |
 | `../favicon.svg`, `../favicon.ico`, `../apple-touch-icon.png` | Browser and home-screen icons |
 | `../og.png` | The image shown when someone shares a link to the site |

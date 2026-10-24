@@ -36,7 +36,7 @@ PAGE = """<!doctype html>
   <div class="wrap">
     <a class="wordmark" href="../" aria-label="House Style home"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M32 5 59 28v31H5V28zM19 35a3 3 0 0 0 0 6h26a3 3 0 0 0 0-6zM19 45a3 3 0 0 0 0 6h14a3 3 0 0 0 0-6z"/></svg>House Style</a>
     <nav class="site-nav" aria-label="Main">
-      <a href="./" aria-current="page">User guide</a>
+      <a class="hide-sm" href="./" aria-current="page">User guide</a>
       <a href="../install.html">Install</a>
       <a class="hide-sm" href="../privacy.html">Privacy</a>
       <a class="hide-sm" href="https://github.com/abmorrill4/house-style">GitHub</a>
