@@ -1,36 +1,71 @@
-# Drives real Flare for end-to-end checks. Flare's own UI (trial dialog, ribbon) through UI Automation; the issues pane
-# and House Style's dialogs through the plugin's E2E hook (src/FlareAI.Flare/E2EHook.cs), which Flare turns on when it
-# starts with HOUSESTYLE_E2E_DIR set. Windows PowerShell 5.1 (UIAutomationClient ships with .NET Framework).
+# Drives real Flare for end-to-end checks. Flare's own UI (trial dialog, ribbon) through UI Automation (FlaUI); the
+# issues pane and House Style's dialogs through the plugin's E2E hook (src/FlareAI.Flare/E2EHook.cs), which Flare turns
+# on when it starts with HOUSESTYLE_E2E_DIR set. Windows PowerShell 5.1.
 Set-StrictMode -Version 2
 $ErrorActionPreference = "Stop"
-Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
-$script:A = [System.Windows.Automation.AutomationElement]
-$script:Scope = [System.Windows.Automation.TreeScope]
+
+# FlaUI, restored from NuGet by flaui\FlaUI.Deps.csproj on first use. Unlike the UI Automation client in .NET
+# Framework, its calls time out, so an unresponsive Flare fails a call instead of blocking the run.
+$flaui = Join-Path $PSScriptRoot "flaui\bin"
+$deps = Join-Path $PSScriptRoot "flaui\FlaUI.Deps.csproj"
+$dll = Join-Path $flaui "FlaUI.UIA3.dll"
+if (-not (Test-Path $dll) -or (Get-Item $deps).LastWriteTime -gt (Get-Item $dll).LastWriteTime) {   # missing, or the version changed
+    dotnet build $deps -c Release -o $flaui -nologo -v q | Out-Host
+    if ($LASTEXITCODE) { throw "Couldn't restore FlaUI (dotnet build tests\e2e\flaui\FlaUI.Deps.csproj)." }
+}
+foreach ($d in "Interop.UIAutomationClient", "FlaUI.Core", "FlaUI.UIA3") { Add-Type -Path (Join-Path $flaui "$d.dll") }
+$script:Auto = New-Object FlaUI.UIA3.UIA3Automation
+$script:Auto.ConnectionTimeout = [TimeSpan]::FromSeconds(5)
+$script:Auto.TransactionTimeout = [TimeSpan]::FromSeconds(10)
+$script:Cf = $script:Auto.ConditionFactory
+$script:CT = [FlaUI.Core.Definitions.ControlType]
 $script:Run = $null
 
-function New-Cond($prop, $value) { New-Object System.Windows.Automation.PropertyCondition($prop, $value) }
-function New-And($a, $b) { New-Object System.Windows.Automation.AndCondition($a, $b) }
+# A Flare UI thread blocked this long counts as hung (the plugin's E2E hook writes heartbeat.json from it every second).
+$script:HeartbeatSeconds = 60
 
 <# Where runs go: E:\HouseStyle\e2e on the dev PC, C:\HouseStyle\e2e in the factory VM (no E: there). #>
 function Get-E2ERoot { if (Test-Path "E:\") { "E:\HouseStyle\e2e" } else { "$env:SystemDrive\HouseStyle\e2e" } }
 
+<# Throws when the plugin is up but Flare's UI thread has stopped answering, naming the windows it had open. #>
+function Assert-Heartbeat {
+    if (-not ($script:Run -and $script:Run.PSObject.Properties["ProjectOpen"])) { return }
+    if (-not (Get-Process Flare -ErrorAction SilentlyContinue)) { throw "Flare exited (crashed or closed) during the scenario." }
+    $f = Join-Path $script:Run.Hook "heartbeat.json"
+    if (-not (Test-Path $f)) { return }   # a plugin build without the heartbeat
+    $age = ((Get-Date) - (Get-Item $f).LastWriteTime).TotalSeconds
+    if ($age -lt $script:HeartbeatSeconds) { return }
+    $open = try { ((Get-Content $f -Raw | ConvertFrom-Json).windows) -join "; " } catch { "unknown" }
+    throw "Flare's UI thread stopped responding: no heartbeat for $([int]$age)s (open windows: $open)"
+}
+
 function Wait-Until([scriptblock]$Test, [int]$Seconds = 60, [string]$What = "condition") {
     $deadline = (Get-Date).AddSeconds($Seconds)
+    $last = $null
     while ((Get-Date) -lt $deadline) {
-        $r = & $Test
+        Assert-Heartbeat
+        # A UI Automation call that times out or finds its element gone is "not yet", not a failure.
+        try { $r = & $Test; $last = $null }
+        catch {
+            # PowerShell wraps a .NET method's exception: look at the inner one too.
+            $types = "$($_.Exception.GetType().FullName) $(if ($_.Exception.InnerException) { $_.Exception.InnerException.GetType().FullName })"
+            if ($types -notmatch 'COMException|Timeout|ElementNotAvailable|FlaUI\.') { throw }
+            $r = $null; $last = $_.Exception.Message
+        }
         if ($r) { return $r }
         Start-Sleep -Milliseconds 300
     }
-    throw "Timed out after ${Seconds}s waiting for $What"
+    throw "Timed out after ${Seconds}s waiting for $What$(if ($last) { " (last UI Automation error: $last)" })"
 }
 
 function Get-FlareWindow([string]$Name) {
     # Any Flare process: on a fresh install the licensing wizard runs in a child Flare.exe, and Start-FlareE2E closes
     # every other Flare before it starts, so they are all this run's.
-    $wins = foreach ($p in @(Get-Process Flare -ErrorAction SilentlyContinue)) { @($A::RootElement.FindAll($Scope::Children, (New-Cond $A::ProcessIdProperty $p.Id))) }
-    if ($Name) { return @($wins | Where-Object { $_.Current.Name -eq $Name })[0] }
+    $desktop = $script:Auto.GetDesktop()
+    $wins = foreach ($p in @(Get-Process Flare -ErrorAction SilentlyContinue)) { @($desktop.FindAllChildren($script:Cf.ByProcessId($p.Id))) }
+    if ($Name) { return @($wins | Where-Object { $_.Name -eq $Name })[0] }
     # Flare has several top-level windows (floating editors, toasts): the main one is "<project> - MadCap Flare …".
-    return @($wins | Where-Object { $_.Current.Name -like "* - MadCap Flare*" })[0]
+    return @($wins | Where-Object { $_.Name -like "* - MadCap Flare*" })[0]
 }
 
 <#
@@ -87,13 +122,16 @@ function Start-FlareE2E {
     $readyFile = Join-Path $hook "ready.json"
     $wiz = Wait-Until { $w = Get-FlareWindow "Licensing Wizard"; if ($w) { $w } elseif (Test-Path $readyFile) { "licensed" } } 120 "the licensing wizard or House Style to start"
     if ($wiz -ne "licensed") {
-        $finish = $wiz.FindFirst($Scope::Descendants, (New-Cond $A::AutomationIdProperty "mFinish"))
-        $finish.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
+        $finish = Wait-Until { $wiz.FindFirstDescendant($script:Cf.ByAutomationId("mFinish")) } 15 "the licensing wizard's Finish button"
+        # Under UIA3 a WinForms click runs inside the call, so a slow licence check can time it out after the click
+        # happened, or the wizard's process exits under it. The ready.json wait below decides either way.
+        try { $finish.Patterns.Invoke.Pattern.Invoke() } catch { Write-Host "   (licensing wizard Finish: $($_.Exception.Message))" }
     }
     $ready = Wait-Until { Test-Path (Join-Path $hook "ready.json") } 120 "House Style to start in Flare (is the plugin installed and turned on?)"
     $script:Run | Add-Member PluginReady (Get-Date)   # Run-FlareE2E: after this, every failure is the plugin's (a test failure)
     $script:Run | Add-Member Version ((Get-Content (Join-Path $hook "ready.json") | ConvertFrom-Json).version)
-    Wait-Until { $w = Get-FlareWindow; $w -and $w.Current.Name -like "$($flprj.Name)*" } 120 "the project to open" | Out-Null
+    Wait-Until { $w = Get-FlareWindow; $w -and $w.Name -like "$($flprj.Name)*" } 120 "the project to open" | Out-Null
+    $script:Run | Add-Member ProjectOpen (Get-Date)   # the heartbeat is checked from here: opening a project may block the UI thread
     return $script:Run
 }
 
@@ -132,18 +170,18 @@ function Wait-PaneDone([int]$Seconds = 180) {
 <# Clicks a House Style ribbon button by its label, through UI Automation (the writer's path). #>
 function Invoke-Ribbon([Parameter(Mandatory)][string]$Label) {
     # UI Automation can miss the tab for a moment (a tooltip opening, the ribbon relaying out): look again until it shows.
-    $tabCond = New-And (New-Cond $A::NameProperty "House Style") (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::TabItem))
-    $tab = Wait-Until { $w = Get-FlareWindow; if ($w) { $w.FindFirst($Scope::Descendants, $tabCond) } } 15 "the House Style ribbon tab"
-    $tab.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
-    $b = Wait-Until { $tab.FindFirst($Scope::Descendants, (New-And (New-Cond $A::NameProperty $Label) (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Button)))) } 10 "ribbon button $Label"
-    $b.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
+    $tabCond = $script:Cf.ByName("House Style").And($script:Cf.ByControlType($script:CT::TabItem))
+    $tab = Wait-Until { $w = Get-FlareWindow; if ($w) { $w.FindFirstDescendant($tabCond) } } 15 "the House Style ribbon tab"
+    $tab.Patterns.SelectionItem.Pattern.Select()
+    $b = Wait-Until { $tab.FindFirstDescendant($script:Cf.ByName($Label).And($script:Cf.ByControlType($script:CT::Button))) } 10 "ribbon button $Label"
+    $b.Patterns.Invoke.Pattern.Invoke()
 }
 
 <# True while the issues pane is on screen (its title, through UI Automation): what the writer sees, not the plugin's state. #>
 function Test-PaneOnScreen {
     $w = Get-FlareWindow
-    $titles = $w.FindAll($Scope::Descendants, (New-And (New-Cond $A::FrameworkIdProperty "WPF") (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Text))))
-    return [bool]@($titles | Where-Object { $_.Current.Name -like "House Style Issues*" -and -not $_.Current.IsOffscreen }).Count
+    $titles = $w.FindAllDescendants($script:Cf.ByFrameworkId("WPF").And($script:Cf.ByControlType($script:CT::Text)))
+    return [bool]@($titles | Where-Object { $_.Name -like "House Style Issues*" -and -not $_.Properties.IsOffscreen.ValueOrDefault }).Count
 }
 
 function Assert-E2E([bool]$Condition, [string]$Message) { if (-not $Condition) { throw "FAIL: $Message" } }

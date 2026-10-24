@@ -25,7 +25,13 @@ It closes any running Flare. Don't run it while you have unsaved work in Flare.
 
 ## How it drives Flare
 
-- **Flare's own UI** (trial dialog, ribbon) through Windows UI Automation, as a writer clicks it.
+- **Flare's own UI** (trial dialog, ribbon) through UI Automation, as a writer clicks it. It uses
+  [FlaUI](https://github.com/FlaUI/FlaUI) (UIA3, MIT), restored from NuGet by `flaui\FlaUI.Deps.csproj` on first
+  use. Every call times out (5 s to connect, 10 s per call), so an unresponsive Flare fails a call instead of
+  blocking the run. Inside a wait, a timed-out call counts as "not yet".
+- **A heartbeat.** Once the project is open, the hook writes `heartbeat.json` from Flare's UI thread every second,
+  listing the open windows. If it's more than 60 s old, or Flare has exited, the run fails at once with "Flare's UI thread stopped
+  responding" and names those windows (a modal dialog is the usual cause). It doesn't wait out the full timeout.
 - **The issues pane and House Style's dialogs** through `src/FlareAI.Flare/E2EHook.cs`. Their WinForms controls lose
   their roles inside Flare's WPF dock, so UI Automation can't reach them. The hook is off unless Flare starts with
   `HOUSESTYLE_E2E_DIR` set. It then reads `cmd-N.json` files from that folder, clicks the same buttons and menus a

@@ -23,7 +23,7 @@ $owner = "abmorrill4"
 $tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath() }
 $here = Split-Path (Split-Path $PSScriptRoot)   # repo root
 $allowed = '^(src|tests|styleguide/Company|docs/user-guide)/'
-$denied = '\.csproj$|Directory\.Build\.|nuget\.config$|packages\.lock\.json$|^tests/e2e/(Run-FlareE2E\.ps1|FlareE2E\.psm1)$'
+$denied = '\.csproj$|\.csproj\.user$|Directory\.Build\.|Directory\.Packages\.props$|nuget\.config$|packages\.lock\.json$|^tests/e2e/(Run-FlareE2E\.ps1|FlareE2E\.psm1)$|^tests/e2e/flaui/'
 # Code that updates the plugin, holds settings and keys, or talks to AI providers: a fix here goes to the owner.
 $ownerOnly = '^src/FlareAI\.Core/(Update|Settings|Llm)/|^src/FlareAI\.Flare/E2EHook\.cs$'
 # The agents' output stays on the VM: this repository is public, so its job logs are too, and the agents read the report.
@@ -158,6 +158,9 @@ try {
     }
     $modes = @(git diff --no-renames --summary "$base..HEAD" | Where-Object { $_ -match 'mode change|create mode 120000|delete mode 120000' })
     if ($modes) { throw "The fix changes file modes or adds symlinks: $($modes -join '; ')" }
+    # Binary files count as no lines, so they'd get past the cap; a fix has no reason to add one (the harness loads DLLs).
+    $binary = @(git diff --no-renames --numstat "$base..HEAD" | Where-Object { $_ -match '^-\t-\t' } | ForEach-Object { ($_ -split "`t")[-1] })
+    if ($binary) { throw "The fix adds or changes binary files: $($binary -join ', ')" }
     $lines = (git diff --no-renames --numstat "$base..HEAD" | ForEach-Object { $p = $_ -split "`t"; [int]($p[0] -replace '-', '0') + [int]($p[1] -replace '-', '0') } | Measure-Object -Sum).Sum
     if ($lines -gt 800) { throw "The fix is $lines lines; too big for the factory to merge on its own." }
 
@@ -175,6 +178,7 @@ try {
             # In parentheses: Windows PowerShell's ConvertFrom-Json sends a whole array down the pipeline as one object.
             $failed = @((Get-Content (Join-Path $e2eOut "results.json") -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json) | Where-Object { -not $_.passed })
             if ($failed.Count -and -not ($failed | Where-Object kind -ne "vm")) { throw "Flare failed to start or stopped responding during the end-to-end checks, twice. That points at the factory VM rather than the fix; rerun the report once the VM is healthy." }
+            if (-not (Test-Path (Join-Path $e2eOut "results.json"))) { throw "The end-to-end run stopped before any scenario ran (setup, install or the FlaUI restore). See report-$n-e2e.log on the factory VM." }
             throw "End-to-end checks fail on the fix."
         }
         $retried = @((Get-Content (Join-Path $e2eOut "results.json") -Raw | ConvertFrom-Json) | Where-Object { $_.passed -and $_.firstTry } | ForEach-Object scenario)
