@@ -17,6 +17,23 @@ scripts\factory\Install-FactoryTools.ps1                                      # 
 - Checkpoints: `windows-ready`, then `tools-ready`, then `e2e-ready` (suite verified). To reset, apply one:
   `Restore-VMSnapshot -VMName HSFACTORY -Name e2e-ready -Confirm:$false`.
 
+## Keeping it running
+
+```powershell
+scripts\factory\Install-Runner.ps1 -Token (gh api -X POST repos/abmorrill4/house-style/actions/runners/registration-token --jq .token)
+scripts\factory\Watch-Factory.ps1 -Install   # host task, every 5 minutes
+```
+
+- **Install-Runner** (elevated, on the host) installs the runner and registers it with `-Token`. It starts the runner
+  at sign-in in the factory account's desktop, un-elevated, and restarts it within 30 seconds if it exits. It also
+  turns off the screensaver and sleep. Without `-Token` it only refreshes those settings.
+- **Test-FactoryReady** is the first step of every e2e and factory job. It fails in seconds, with the reason, if the
+  runner has no desktop, the desktop is locked or C: is nearly full. It also closes any Flare left by an earlier run.
+- **Watch-Factory** runs on the host while the owner is signed in. It starts the VM if it's off and restarts it if the
+  runner has been offline for 10 minutes, for example a VM stuck at the sign-in screen after a reboot (seen
+  2026-10-23). Create `E:\HouseStyle\vm\maintenance` to keep it away during checkpoint merges or rebuilds, and
+  delete it afterwards. Its log is `E:\HouseStyle\vm\watch-factory.log`.
+
 ## Things learned the hard way
 
 - Flare's setup bundle installs nothing with `/quiet`, so the Visual C++ runtimes and Flare's MSI go in directly.
