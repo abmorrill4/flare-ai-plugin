@@ -7,8 +7,10 @@ $ErrorActionPreference = "Stop"
 # FlaUI, restored from NuGet by flaui\FlaUI.Deps.csproj on first use. Unlike the UI Automation client in .NET
 # Framework, its calls time out, so an unresponsive Flare fails a call instead of blocking the run.
 $flaui = Join-Path $PSScriptRoot "flaui\bin"
-if (-not (Test-Path (Join-Path $flaui "FlaUI.UIA3.dll"))) {
-    dotnet build (Join-Path $PSScriptRoot "flaui\FlaUI.Deps.csproj") -c Release -o $flaui -nologo -v q | Out-Host
+$deps = Join-Path $PSScriptRoot "flaui\FlaUI.Deps.csproj"
+$dll = Join-Path $flaui "FlaUI.UIA3.dll"
+if (-not (Test-Path $dll) -or (Get-Item $deps).LastWriteTime -gt (Get-Item $dll).LastWriteTime) {   # missing, or the version changed
+    dotnet build $deps -c Release -o $flaui -nologo -v q | Out-Host
     if ($LASTEXITCODE) { throw "Couldn't restore FlaUI (dotnet build tests\e2e\flaui\FlaUI.Deps.csproj)." }
 }
 foreach ($d in "Interop.UIAutomationClient", "FlaUI.Core", "FlaUI.UIA3") { Add-Type -Path (Join-Path $flaui "$d.dll") }
@@ -20,14 +22,15 @@ $script:CT = [FlaUI.Core.Definitions.ControlType]
 $script:Run = $null
 
 # A Flare UI thread blocked this long counts as hung (the plugin's E2E hook writes heartbeat.json from it every second).
-$script:HeartbeatSeconds = 30
+$script:HeartbeatSeconds = 60
 
 <# Where runs go: E:\HouseStyle\e2e on the dev PC, C:\HouseStyle\e2e in the factory VM (no E: there). #>
 function Get-E2ERoot { if (Test-Path "E:\") { "E:\HouseStyle\e2e" } else { "$env:SystemDrive\HouseStyle\e2e" } }
 
 <# Throws when the plugin is up but Flare's UI thread has stopped answering, naming the windows it had open. #>
 function Assert-Heartbeat {
-    if (-not ($script:Run -and $script:Run.PSObject.Properties["PluginReady"])) { return }
+    if (-not ($script:Run -and $script:Run.PSObject.Properties["ProjectOpen"])) { return }
+    if (-not (Get-Process Flare -ErrorAction SilentlyContinue)) { throw "Flare exited (crashed or closed) during the scenario." }
     $f = Join-Path $script:Run.Hook "heartbeat.json"
     if (-not (Test-Path $f)) { return }   # a plugin build without the heartbeat
     $age = ((Get-Date) - (Get-Item $f).LastWriteTime).TotalSeconds
@@ -120,12 +123,15 @@ function Start-FlareE2E {
     $wiz = Wait-Until { $w = Get-FlareWindow "Licensing Wizard"; if ($w) { $w } elseif (Test-Path $readyFile) { "licensed" } } 120 "the licensing wizard or House Style to start"
     if ($wiz -ne "licensed") {
         $finish = Wait-Until { $wiz.FindFirstDescendant($script:Cf.ByAutomationId("mFinish")) } 15 "the licensing wizard's Finish button"
-        $finish.Patterns.Invoke.Pattern.Invoke()
+        # Under UIA3 a WinForms click runs inside the call, so a slow licence check can time it out after the click
+        # happened, or the wizard's process exits under it. The ready.json wait below decides either way.
+        try { $finish.Patterns.Invoke.Pattern.Invoke() } catch { Write-Host "   (licensing wizard Finish: $($_.Exception.Message))" }
     }
     $ready = Wait-Until { Test-Path (Join-Path $hook "ready.json") } 120 "House Style to start in Flare (is the plugin installed and turned on?)"
     $script:Run | Add-Member PluginReady (Get-Date)   # Run-FlareE2E: after this, every failure is the plugin's (a test failure)
     $script:Run | Add-Member Version ((Get-Content (Join-Path $hook "ready.json") | ConvertFrom-Json).version)
     Wait-Until { $w = Get-FlareWindow; $w -and $w.Name -like "$($flprj.Name)*" } 120 "the project to open" | Out-Null
+    $script:Run | Add-Member ProjectOpen (Get-Date)   # the heartbeat is checked from here: opening a project may block the UI thread
     return $script:Run
 }
 

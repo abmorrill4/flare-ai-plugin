@@ -4,6 +4,7 @@
     <TargetFramework>net48</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>CS2008</NoWarn> <!-- no source files: it only restores packages -->
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FlaUI.UIA3" Version="5.0.0" />
