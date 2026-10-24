@@ -24,6 +24,10 @@ $tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath(
 $here = Split-Path (Split-Path $PSScriptRoot)   # repo root
 $allowed = '^(src|tests|styleguide/Company|docs/user-guide)/'
 $denied = '\.csproj$|Directory\.Build\.|nuget\.config$|packages\.lock\.json$|^tests/e2e/(Run-FlareE2E\.ps1|FlareE2E\.psm1)$'
+# Code that updates the plugin, holds settings and keys, or talks to AI providers: a fix here goes to the owner.
+$ownerOnly = '^src/FlareAI\.Core/(Update|Settings|Llm)/|^src/FlareAI\.Flare/E2EHook\.cs$'
+# The agents' output stays on the VM: this repository is public, so its job logs are too, and the agents read the report.
+$logs = Join-Path $env:SystemDrive "HouseStyle\factory-logs"; New-Item -ItemType Directory -Force $logs | Out-Null
 $token = $env:GH_TOKEN
 $secrets = "GH_TOKEN", "GITHUB_TOKEN", "ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"
 # The agents sign in with the subscription token when there is one; an API key in the environment would win over it.
@@ -35,8 +39,12 @@ if (-not ($env:CLAUDE_CODE_OAUTH_TOKEN -or $env:ANTHROPIC_API_KEY)) { throw "No 
 $noHooks = Join-Path $tmp "factory-no-hooks"; New-Item -ItemType Directory -Force $noHooks | Out-Null
 $env:GIT_CONFIG_COUNT = "1"; $env:GIT_CONFIG_KEY_0 = "core.hooksPath"; $env:GIT_CONFIG_VALUE_0 = $noHooks
 
-function Gh { $o = & gh.exe @args; if ($LASTEXITCODE) { throw "gh $($args -join ' ') failed" }; $o }
-function Say($n, $text) { if (-not $DryRun) { Gh issue comment $n -R $reports --body "**Factory:** $text" | Out-Null } else { Write-Host "[comment #$n] $text" } }
+# Errors name the gh command only: its arguments can hold a comment body, and job logs are public.
+function Gh { $o = & gh.exe @args; if ($LASTEXITCODE) { throw "gh $($args[0]) $($args[1]) failed" }; $o }
+function Say($n, $text) {
+    if (-not $DryRun) { Gh issue comment $n -R $reports --body "**Factory:** $text" | Out-Null; return }
+    $text | Add-Content (Join-Path $logs "report-$n-comments.log"); Write-Host "[comment #$n] $($text.Length) chars, in factory-logs"
+}
 function Label($n, $add, $remove) {
     if ($DryRun) { Write-Host "[label #$n] +$add -$remove"; return }
     $a = @("issue", "edit", $n, "-R", $reports, "--add-label", $add); if ($remove) { $a += @("--remove-label", $remove) }
@@ -57,13 +65,16 @@ function Without([string[]]$names, [scriptblock]$block) {
 $claude = @((Get-Command claude.exe -ErrorAction SilentlyContinue).Source, (Join-Path $env:USERPROFILE ".local\bin\claude.exe")) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
 if (-not $claude) { throw "Claude Code isn't installed for this account (no claude.exe on PATH or in ~\.local\bin)." }
 
-function Agent([string]$prompt, $map, $tools) {
+function Agent([string]$prompt, $map, $tools, [string]$log) {
     foreach ($k in $map.Keys) { $prompt = $prompt.Replace("{{$k}}", $map[$k]) }
+    $log = Join-Path $logs $log
     Without $agentStrips {
         $ErrorActionPreference = "Continue"
         $global:LASTEXITCODE = -1   # a claude that never starts must not look like success
-        $prompt | & $claude -p --setting-sources user --permission-mode acceptEdits --allowedTools $tools --disallowedTools "WebFetch,WebSearch,Bash(gh:*),Bash(curl:*),Bash(git push:*)" --max-turns 200 2>&1 | Out-Host
-        if ($LASTEXITCODE) { throw "claude exited $LASTEXITCODE" }
+        $prompt | & $claude -p --setting-sources user --permission-mode acceptEdits --allowedTools $tools --disallowedTools "WebFetch,WebSearch,Bash(gh:*),Bash(curl:*),Bash(git push:*)" --max-turns 200 *> $log
+        $code = $LASTEXITCODE
+        Write-Host "Agent output: $log on the factory VM"
+        if ($code) { throw "claude exited $code" }
     }
 }
 
@@ -121,7 +132,7 @@ try {
 
     $tools = "Read,Grep,Glob,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git add:*),Bash(git commit:*)," +
              "Bash(dotnet build:*),Bash(dotnet test:*),Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/e2e/Run-FlareE2E.ps1:*)"
-    Agent $fixPrompt @{ REPORT_PATH = $reportPath; RESULT_PATH = $resultPath } $tools
+    Agent $fixPrompt @{ REPORT_PATH = $reportPath; RESULT_PATH = $resultPath } $tools "report-$n-fix.log"
     Assert-CleanTree "The fixing agent"
     $result = Get-Content $resultPath -Raw | ConvertFrom-Json
     $summary = ("" + $result.summary).Trim()
@@ -139,16 +150,25 @@ try {
     $changes = @(git diff --no-renames --name-status "$base..HEAD")
     $bad = foreach ($c in $changes) { $path = ($c -split "`t")[-1]; if ($path -notmatch $allowed -or $path -match $denied) { $c } }
     if ($bad) { throw "The fix changed files the factory may not touch: $($bad -join ', ')" }
+    $mine = foreach ($c in $changes) { $path = ($c -split "`t")[-1]; if ($path -match $ownerOnly) { $path } }
+    if ($mine) {
+        Say $n "The fix touches code the owner reviews (updates, settings, AI providers): $($mine -join ', '). The branch stays on the factory VM for the owner; nothing was pushed."
+        Label $n "factory:needs-decision" "factory:working"
+        return
+    }
     $modes = @(git diff --no-renames --summary "$base..HEAD" | Where-Object { $_ -match 'mode change|create mode 120000|delete mode 120000' })
     if ($modes) { throw "The fix changes file modes or adds symlinks: $($modes -join '; ')" }
     $lines = (git diff --no-renames --numstat "$base..HEAD" | ForEach-Object { $p = $_ -split "`t"; [int]($p[0] -replace '-', '0') + [int]($p[1] -replace '-', '0') } | Measure-Object -Sum).Sum
     if ($lines -gt 800) { throw "The fix is $lines lines; too big for the factory to merge on its own." }
 
     # ---- test it again here, not on the agent's word; agent-written code runs with no secrets ----------------------
+    # The agent's tests could print the report or anything else readable: no report on disk, output to factory-logs.
+    Remove-Item $reportPath
     Without $secrets {
-        dotnet test FlareAI.sln -c Release | Out-Host
+        $ErrorActionPreference = "Continue"   # with Stop, redirected stderr from a native command throws; exit codes decide
+        dotnet test FlareAI.sln -c Release *> (Join-Path $logs "report-$n-unit.log")
         if ($LASTEXITCODE) { throw "Unit tests fail on the fix." }
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\e2e\Run-FlareE2E.ps1 -Install -NoAi | Out-Host
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests\e2e\Run-FlareE2E.ps1 -Install -NoAi *> (Join-Path $logs "report-$n-e2e.log")
         if ($LASTEXITCODE) { throw "End-to-end checks fail on the fix." }
     }
     git clean -xfdq -e bin -e obj   # build output is ignored; anything else the tests left is dropped
@@ -158,7 +178,7 @@ try {
     $diffPath = Join-Path $tmp "fix-$n.diff"; git diff --no-renames "$base..HEAD" | Set-Content $diffPath -Encoding UTF8
     $summaryPath = Join-Path $tmp "summary-$n.txt"; Set-Content $summaryPath $summary -Encoding UTF8
     $reviewPath = Join-Path $tmp "review-$n.json"; Remove-Item $reviewPath -ErrorAction SilentlyContinue
-    Agent $reviewPrompt @{ DIFF_PATH = $diffPath; SUMMARY_PATH = $summaryPath; RESULT_PATH = $reviewPath } "Read,Grep,Glob,Write"
+    Agent $reviewPrompt @{ DIFF_PATH = $diffPath; SUMMARY_PATH = $summaryPath; RESULT_PATH = $reviewPath } "Read,Grep,Glob,Write" "report-$n-review.log"
     Assert-CleanTree "The reviewing agent"
     $review = Get-Content $reviewPath -Raw | ConvertFrom-Json
     if ($review.verdict -ne "MERGE") { throw "Review blocked the fix: $($review.reasons -join '; ')" }
@@ -194,8 +214,8 @@ try {
     Gh issue close $n -R $reports | Out-Null
 }
 catch {
-    Say $n "I couldn't finish this one: $($_.Exception.Message)"
-    Label $n "factory:stuck" "factory:working"
-    throw
+    try { Say $n "I couldn't finish this one: $($_.Exception.Message)"; Label $n "factory:stuck" "factory:working" }
+    catch { Write-Host "Couldn't mark report #$n as stuck on GitHub." }
+    throw "Report #$n is stuck. The reason is on the report, in the private reports repo."   # not the message: it can quote the report
 }
 finally { Pop-Location -ErrorAction SilentlyContinue }

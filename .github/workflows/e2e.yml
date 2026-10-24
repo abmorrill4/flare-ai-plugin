@@ -11,9 +11,8 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: flare-e2e   # one Flare on the machine at a time
-  cancel-in-progress: false
+# No concurrency group: the single "flare" runner already runs one job at a time, and a group keeps only one waiting
+# run, cancelling the older ones.
 
 jobs:
   e2e:
@@ -28,7 +27,8 @@ jobs:
       - name: Run the scenarios in Flare
         shell: powershell
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # factory/* branches hold agent-written code: no key, so their ai-* scenarios are skipped.
+          ANTHROPIC_API_KEY: ${{ !startsWith(github.ref_name, 'factory/') && secrets.ANTHROPIC_API_KEY || '' }}
         run: |
           $noAi = -not $env:ANTHROPIC_API_KEY
           if ($noAi) { Write-Host "No ANTHROPIC_API_KEY: skipping the ai-* scenarios." }

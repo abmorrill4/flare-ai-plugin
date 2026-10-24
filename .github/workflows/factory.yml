@@ -17,7 +17,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: flare-e2e
+  group: factory   # one factory run at a time; the e2e workflow has no group, so it never cancels these
   cancel-in-progress: false
 jobs:
   factory:

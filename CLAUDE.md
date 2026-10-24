@@ -6,10 +6,10 @@ gethousestyle.com. This file is for development sessions. Area notes load on the
 `src/FlareAI.Flare/CLAUDE.md`, `src/FlareAI.Core/Update/CLAUDE.md`, `tools/feedback-worker/CLAUDE.md`.
 
 ## Start of every session
-1. **Work in a worktree from `origin/main`. Never in the main checkout `E:\flare-ai-plugin`**, which is often behind
-   and shared by other sessions:
-   `git fetch origin; git worktree add ..\hs-<topic> -b <topic> origin/main`. Don't switch branches, stash or reset
-   in a checkout you didn't create.
+1. **Work in the main checkout `E:\HouseStyle\repos\house-style`, on a short branch from `origin/main`.** Sessions
+   start in `E:\HouseStyle`. Add a worktree (`git worktree add ..\worktrees\<topic> -b <topic> origin/main`) only
+   when another session is working in parallel, and remove it once its PR merges. Planning and design work go in
+   `E:\HouseStyle\planning`, never in a worktree.
 2. **Continuing earlier work?** The SessionStart hook lists the newest handoff notes. When the user says
    "continue", "pick up" or names a topic, read the matching note before anything else. Notes describe the past, so
    check them against `git log` and `gh pr view` before acting on them.
