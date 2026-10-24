@@ -12,7 +12,6 @@ namespace FlareAI.Flare.UI
     /// </summary>
     internal sealed class RuleEditDialog : Form
     {
-        private static readonly string[] Levels = { "error", "warning", "suggestion" };
         private readonly List<KeyValuePair<string, string>> _fields;
         private readonly List<Control> _boxes = new List<Control>();
 
@@ -33,20 +32,10 @@ namespace FlareAI.Flare.UI
             grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             foreach (var f in _fields)
             {
-                Control box;
-                if (f.Key.Equals("Severity", StringComparison.OrdinalIgnoreCase) && (f.Value.Length == 0 || Levels.Contains(f.Value.ToLowerInvariant())))
-                {
-                    var combo = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
-                    combo.Items.AddRange(Levels);
-                    combo.SelectedItem = f.Value.Length == 0 ? "warning" : f.Value.ToLowerInvariant();
-                    box = combo;
-                }
-                else
-                {
-                    var wide = f.Value.Length > 40 || new[] { "Rule", "Why", "Example", "Bad", "Good" }.Contains(f.Key, StringComparer.OrdinalIgnoreCase);
-                    // Enter saves (AcceptsReturn stays off), so a multiline box is for wrapping only.
-                    box = new TextBox { Text = f.Value, Dock = DockStyle.Fill, Multiline = wide, Height = wide ? 54 : 23, ScrollBars = wide ? ScrollBars.Vertical : ScrollBars.None };
-                }
+                // No level here: Change Level sets it and records who, when and why.
+                var wide = f.Value.Length > 40 || new[] { "Rule", "Why", "Example", "Bad", "Good" }.Contains(f.Key, StringComparer.OrdinalIgnoreCase);
+                // Enter saves (AcceptsReturn stays off), so a multiline box is for wrapping only.
+                Control box = new TextBox { Text = f.Value, Dock = DockStyle.Fill, Multiline = wide, Height = wide ? 54 : 23, ScrollBars = wide ? ScrollBars.Vertical : ScrollBars.None };
                 A11y.Name(box, f.Key);
                 grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 grid.Controls.Add(new Label { Text = f.Key + ":", AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Top, Padding = new Padding(0, 5, 8, 0) });
@@ -59,6 +48,7 @@ namespace FlareAI.Flare.UI
             var ok = new Button { Text = "Save", AutoSize = true };
             ok.Click += (s, e) => Save();
             bar.Controls.AddRange(new Control[] { cancel, ok });
+            ok.TabIndex = 0; cancel.TabIndex = 1;   // Tab follows the buttons left to right
             Controls.Add(grid); Controls.Add(bar);
             AcceptButton = ok; CancelButton = cancel;
             A11y.Name(bar, "Dialog buttons");

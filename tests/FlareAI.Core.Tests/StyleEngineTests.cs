@@ -311,6 +311,45 @@ namespace FlareAI.Core.Tests
             finally { Directory.Delete(root, true); }
         }
 
+        [Fact]
+        public void EditRule_LeavesTheLevelToChangeLevel_AndRefusesARowTheGuideCantRead()
+        {
+            var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Terms.htm",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html><body><h1>Terms</h1>\n<table><tr><td></td><td></td></tr>" +
+                "<tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr><tr><td>utilise</td><td>use</td><td>Warning</td><td>Plain words.</td><td>We utilise it.</td></tr></table>\n" +
+                "<table><tr><th>Pattern</th><th>Use</th><th>Example</th></tr><tr><td>\\bdon't\\b</td><td>do not</td><td>We don't.</td></tr></table>\n" +
+                "<ul><li>Say members.<ul><li>Good: Our members.</li></ul></li></ul>\n</body></html>"));
+            var file = Path.Combine(root, @"Content\Resources\StyleGuide\Terms.htm");
+            try
+            {
+                Func<StyleEngine> engine = () => new StyleEngine(new[] { root }, Guide);
+                Func<string, GuideRule> rule = text => engine().Rules(null).FirstOrDefault(x => x.Layer != "google" && x.Text.Contains(text));
+                var guide = engine().EditableGuide(root);
+                var utilise = rule("utilise");
+
+                // The headings come from the first row with text; the level column isn't offered.
+                var fields = guide.RuleFields(utilise.Id, file, utilise.Text);
+                Assert.Equal(new[] { "Avoid", "Use", "Why", "Example" }, fields.Select(f => f.Key).ToArray());
+                guide.EditRule(utilise.Id, file, utilise.Text, new[] { Field("Avoid", "utilise"), Field("Use", "use"), Field("Why", "Plain words help."), Field("Example", "We utilise it.") });
+                Assert.Contains("<td>Warning</td>", File.ReadAllText(file));   // untouched, as written
+
+                var row = rule("utilise");
+                Assert.Throws<ArgumentException>(() => engine().EditableGuide(root).EditRule(row.Id, file, row.Text, new[] { Field("Avoid", ""), Field("Use", "use"), Field("Why", "x"), Field("Example", "y") }));
+                var pattern = engine().Rules(null).First(x => x.Layer != "google" && x.Example == "We don't.");
+                var pf = engine().EditableGuide(root).RuleFields(pattern.Id, file, pattern.Text);
+                Assert.Equal("Pattern", pf[0].Key);
+                Assert.Throws<ArgumentException>(() => engine().EditableGuide(root).EditRule(pattern.Id, file, pattern.Text, new[] { Field("Pattern", "(unclosed"), pf[1], pf[2] }));
+
+                // Clearing a bullet's only example leaves no empty list behind.
+                var members = rule("Say members");
+                engine().EditableGuide(root).EditRule(members.Id, file, members.Text, new[] { Field("Rule", "Say members."), Field("Bad", ""), Field("Good", "") });
+                Assert.Equal("", rule("Say members").Good);
+                Assert.DoesNotContain("<ul />", File.ReadAllText(file));
+                Assert.DoesNotContain("<ul></ul>", File.ReadAllText(file));
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
         private static System.Collections.Generic.KeyValuePair<string, string> Field(string k, string v) { return new System.Collections.Generic.KeyValuePair<string, string>(k, v); }
 
         [Fact]

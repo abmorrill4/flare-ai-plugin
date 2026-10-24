@@ -186,7 +186,7 @@ namespace FlareAI.Core.Style
 
         private void LoadTopic(string path)
         {
-            var doc = new XmlDocument { PreserveWhitespace = true };
+            var doc = new XmlDocument { PreserveWhitespace = true, XmlResolver = null };   // shared folder: no external entities
             try { doc.Load(path); }
             catch (XmlException e) { Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Not well-formed XML: " + e.Message }); return; }
             catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
@@ -513,8 +513,9 @@ namespace FlareAI.Core.Style
         }
 
         /// <summary>
-        /// The parts of a rule an owner can edit, as written: a table row's cells under their headings (Avoid, Use, Severity,
-        /// Why, Example, or whatever the table names them), or a bullet's wording with its Bad and Good examples. The rule is
+        /// The parts of a rule an owner can edit, as written: a table row's cells under their headings (Avoid, Use, Why,
+        /// Example, or whatever the table names them; not its level, which Change Level sets and records), or a bullet's
+        /// wording with its Bad and Good examples. The rule is
         /// the one with this id in topic <paramref name="file"/> whose wording is still <paramref name="text"/>; null when the
         /// topic no longer has it there (the guide changed since the caller read it).
         /// </summary>
@@ -532,7 +533,7 @@ namespace FlareAI.Core.Style
                 var heads = HeadsOf(el);
                 var cells = Cells(el);
                 for (var i = 0; i < cells.Count; i++)
-                    fields.Add(new KeyValuePair<string, string>(i < heads.Count && heads[i].Length > 0 ? heads[i] : "Column " + (i + 1), TextOf(cells[i])));
+                    if (!IsLevelHeading(Head(heads, i))) fields.Add(new KeyValuePair<string, string>(Head(heads, i), TextOf(cells[i])));
                 return fields;
             }
             var examples = ExampleNodes(el);
@@ -556,13 +557,24 @@ namespace FlareAI.Core.Style
             Func<string, string> now = k => fields.Where(f => f.Key == k).Select(f => (f.Value ?? "").Trim()).FirstOrDefault();
             Func<string, bool> changed = k => { var v = now(k); return v != null && v != before.First(f => f.Key == k).Value; };
             if (el.LocalName == "li" && changed("Rule") && now("Rule").Length == 0) throw new ArgumentException("A rule needs its wording.");
+            if (el.LocalName == "tr")
+                foreach (var f in before.Where(f => changed(f.Key)))
+                {
+                    var key = f.Key.ToLowerInvariant();
+                    if ((key.StartsWith("avoid") || key.StartsWith("pattern") || key.StartsWith("rule")) && now(f.Key).Length == 0)
+                        throw new ArgumentException(f.Key + " can't be empty. To remove the rule, use Delete Rule.");
+                    if (key.StartsWith("pattern"))
+                        try { new Regex(now(f.Key)); }
+                        catch (ArgumentException ex) { throw new ArgumentException("The pattern isn't valid. " + ex.Message); }
+                }
             return SaveRule(item, () =>
             {
                 if (el.LocalName == "tr")
                 {
                     var cells = Cells(el);
-                    for (var i = 0; i < cells.Count && i < fields.Count && i < before.Count; i++)
-                        if ((fields[i].Value ?? "").Trim() != before[i].Value) cells[i].InnerText = (fields[i].Value ?? "").Trim();
+                    var heads = HeadsOf(el);
+                    for (var i = 0; i < cells.Count; i++)
+                        if (before.Any(f => f.Key == Head(heads, i)) && changed(Head(heads, i))) cells[i].InnerText = now(Head(heads, i));
                     return;
                 }
                 if (changed("Rule"))
@@ -576,7 +588,7 @@ namespace FlareAI.Core.Style
                     if (!changed(kind)) continue;
                     XmlElement node;
                     ExampleNodes(el).TryGetValue(kind, out node);
-                    if (now(kind).Length == 0) { if (node != null) node.ParentNode.RemoveChild(node); continue; }
+                    if (now(kind).Length == 0) { if (node != null) RemoveWithEmptyList(node); continue; }
                     if (node == null)
                     {
                         var nested = el.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().FirstOrDefault(IsList);
@@ -602,7 +614,7 @@ namespace FlareAI.Core.Style
             {
                 if (el.LocalName == "li")
                     foreach (var n in ExampleNodes(el).Values.Where(n => n.ParentNode == el.ParentNode.ParentNode)) n.ParentNode.RemoveChild(n);
-                el.ParentNode.RemoveChild(el);
+                RemoveWithEmptyList(el);
             });
         }
 
@@ -634,6 +646,22 @@ namespace FlareAI.Core.Style
             return item.Source;
         }
 
+        /// <summary>Removes a list item, and its list when that leaves the list empty.</summary>
+        private static void RemoveWithEmptyList(XmlNode n)
+        {
+            var parent = n.ParentNode;
+            parent.RemoveChild(n);
+            if (IsList(parent) && !parent.ChildNodes.Cast<XmlNode>().Any(c => c.NodeType == XmlNodeType.Element)) parent.ParentNode.RemoveChild(parent);
+        }
+
+        private static string Head(List<string> heads, int i) { return i < heads.Count && heads[i].Length > 0 ? heads[i] : "Column " + (i + 1); }
+
+        private static bool IsLevelHeading(string h)
+        {
+            var k = h.ToLowerInvariant();
+            return k.StartsWith("severity") || k.StartsWith("level") || k.StartsWith("setting") || k.StartsWith("status");
+        }
+
         private static bool IsList(XmlNode n) { return n.NodeType == XmlNodeType.Element && (n.LocalName == "ul" || n.LocalName == "ol"); }
 
         private static List<XmlElement> Cells(XmlElement tr)
@@ -641,13 +669,13 @@ namespace FlareAI.Core.Style
             return tr.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().Where(c => c.LocalName == "td" || c.LocalName == "th").ToList();
         }
 
-        /// <summary>The headings of the row's table: its first row.</summary>
+        /// <summary>The headings of the row's table: its first row with any text, as the guide reads it.</summary>
         private static List<string> HeadsOf(XmlElement tr)
         {
             for (XmlNode t = tr.ParentNode; t != null; t = t.ParentNode)
                 if (t.LocalName == "table")
                 {
-                    var first = t.SelectSingleNode(".//*[local-name()='tr']") as XmlElement;
+                    var first = t.SelectNodes(".//*[local-name()='tr']").Cast<XmlElement>().FirstOrDefault(r => Cells(r).Any(c => TextOf(c).Length > 0));
                     return first == null || first == tr ? new List<string>() : Cells(first).Select(c => TextOf(c)).ToList();
                 }
             return new List<string>();
