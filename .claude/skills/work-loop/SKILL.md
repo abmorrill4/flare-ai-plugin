@@ -74,10 +74,9 @@ intent and research done, spec in progress". Never just "mid-design".
   decided), `from:research` (our own reviews, plans or research).
 - A new idea or request: an issue with its origin label, attached to a theme if one fits, otherwise its own `When`.
   A new outcome gets a new theme (`planning/roadmap/themes.json`, then `create_themes.py`).
-- **Tester reports** arrive in the private `abmorrill4/house-style-reports` repo (Report a Problem). Triage each one:
-  a public `from:tester` issue in your own words (never the report text or the tester's name), attached to a theme
-  or given a `When`, then a comment on the report linking the issue. The roadmap page lists open reports above the
-  board until they are triaged.
+- **Tester reports** arrive in the private `abmorrill4/house-style-reports` repo. The factory triages each one into a
+  brief and builds nothing until the owner decides. The `triage` skill is how the owner decides; a report decided as
+  `plan` becomes a `from:tester` issue that enters this loop at Intent.
 - The roadmap page is rebuilt with `python planning/roadmap/build.py` and republished to the same artifact URL
   (`planning/roadmap.md` has the link).
 
