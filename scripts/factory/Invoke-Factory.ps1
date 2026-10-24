@@ -53,11 +53,16 @@ function Without([string[]]$names, [scriptblock]$block) {
 # (subscription token or API key) stays: it is the agent's credential. User settings only: the repository's .claude
 # settings and hooks don't apply to the factory's agent. Claude's notes go to stderr, which Windows PowerShell would
 # treat as a failure, so its exit code decides.
+# The runner's PATH is fixed when it is registered and may not include Claude Code's own install folder.
+$claude = @((Get-Command claude.exe -ErrorAction SilentlyContinue).Source, (Join-Path $env:USERPROFILE ".local\bin\claude.exe")) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+if (-not $claude) { throw "Claude Code isn't installed for this account (no claude.exe on PATH or in ~\.local\bin)." }
+
 function Agent([string]$prompt, $map, $tools) {
     foreach ($k in $map.Keys) { $prompt = $prompt.Replace("{{$k}}", $map[$k]) }
     Without $agentStrips {
         $ErrorActionPreference = "Continue"
-        $prompt | & claude -p --setting-sources user --permission-mode acceptEdits --allowedTools $tools --disallowedTools "WebFetch,WebSearch,Bash(gh:*),Bash(curl:*),Bash(git push:*)" --max-turns 200 2>&1 | Out-Host
+        $global:LASTEXITCODE = -1   # a claude that never starts must not look like success
+        $prompt | & $claude -p --setting-sources user --permission-mode acceptEdits --allowedTools $tools --disallowedTools "WebFetch,WebSearch,Bash(gh:*),Bash(curl:*),Bash(git push:*)" --max-turns 200 2>&1 | Out-Host
         if ($LASTEXITCODE) { throw "claude exited $LASTEXITCODE" }
     }
 }
