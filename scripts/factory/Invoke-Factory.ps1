@@ -12,7 +12,8 @@
 - This script reruns the unit tests and the e2e checks; a second agent reviews the diff only, never the report.
 - Merge only after every required check on the pushed commit has passed, pinned to that commit.
 - The public PR says only "Fixes tester report n"; what the tester wrote stays in the private reports repo.
-Needs: GH_TOKEN (repo and reports access), ANTHROPIC_API_KEY. Windows PowerShell 5.1 or PowerShell 7.
+Needs: GH_TOKEN (repo and reports access), and CLAUDE_CODE_OAUTH_TOKEN (the owner's subscription, from
+`claude setup-token`) or ANTHROPIC_API_KEY for the agents. Windows PowerShell 5.1 or PowerShell 7.
 #>
 param([int]$Issue, [switch]$DryRun)
 $ErrorActionPreference = "Stop"
@@ -24,7 +25,15 @@ $here = Split-Path (Split-Path $PSScriptRoot)   # repo root
 $allowed = '^(src|tests|styleguide/Company|docs/user-guide)/'
 $denied = '\.csproj$|Directory\.Build\.|nuget\.config$|packages\.lock\.json$|^tests/e2e/(Run-FlareE2E\.ps1|FlareE2E\.psm1)$'
 $token = $env:GH_TOKEN
-$secrets = "GH_TOKEN", "GITHUB_TOKEN", "ANTHROPIC_API_KEY"
+$secrets = "GH_TOKEN", "GITHUB_TOKEN", "ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"
+# The agents sign in with the subscription token when there is one; an API key in the environment would win over it.
+$agentStrips = @("GH_TOKEN", "GITHUB_TOKEN") + $(if ($env:CLAUDE_CODE_OAUTH_TOKEN) { @("ANTHROPIC_API_KEY") } else { @() })
+if (-not ($env:CLAUDE_CODE_OAUTH_TOKEN -or $env:ANTHROPIC_API_KEY)) { throw "No CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY for the agents." }
+
+# No git hooks for any git call this run makes: an agent or its tests could plant one in .git/hooks, and the script's
+# own git calls (fetch, switch, push) run with the GitHub token. Child processes inherit this too.
+$noHooks = Join-Path $tmp "factory-no-hooks"; New-Item -ItemType Directory -Force $noHooks | Out-Null
+$env:GIT_CONFIG_COUNT = "1"; $env:GIT_CONFIG_KEY_0 = "core.hooksPath"; $env:GIT_CONFIG_VALUE_0 = $noHooks
 
 function Gh { $o = & gh.exe @args; if ($LASTEXITCODE) { throw "gh $($args -join ' ') failed" }; $o }
 function Say($n, $text) { if (-not $DryRun) { Gh issue comment $n -R $reports --body "**Factory:** $text" | Out-Null } else { Write-Host "[comment #$n] $text" } }
@@ -40,13 +49,13 @@ function Without([string[]]$names, [scriptblock]$block) {
     try { & $block } finally { foreach ($v in $names) { [Environment]::SetEnvironmentVariable($v, $saved[$v]) } }
 }
 
-# Claude Code without the GitHub token, without web tools, with only the commands the job needs. The Anthropic key
-# stays: it is the agent's own credential. User settings only: the repository's .claude settings and hooks don't apply
-# to the factory's agent. Claude's notes go to stderr, which Windows PowerShell would treat as a failure, so its exit
-# code decides.
+# Claude Code without the GitHub token, without web tools, with only the commands the job needs. Its own sign-in
+# (subscription token or API key) stays: it is the agent's credential. User settings only: the repository's .claude
+# settings and hooks don't apply to the factory's agent. Claude's notes go to stderr, which Windows PowerShell would
+# treat as a failure, so its exit code decides.
 function Agent([string]$prompt, $map, $tools) {
     foreach ($k in $map.Keys) { $prompt = $prompt.Replace("{{$k}}", $map[$k]) }
-    Without "GH_TOKEN", "GITHUB_TOKEN" {
+    Without $agentStrips {
         $ErrorActionPreference = "Continue"
         $prompt | & claude -p --setting-sources user --permission-mode acceptEdits --allowedTools $tools --disallowedTools "WebFetch,WebSearch,Bash(gh:*),Bash(curl:*),Bash(git push:*)" --max-turns 200 2>&1 | Out-Host
         if ($LASTEXITCODE) { throw "claude exited $LASTEXITCODE" }
@@ -56,6 +65,16 @@ function Agent([string]$prompt, $map, $tools) {
 function Assert-CleanTree($who) {
     $dirty = git status --porcelain
     if ($dirty) { throw "$who left changes outside its commits: $(@($dirty) -join '; ')" }
+    Assert-GitConfig $who
+}
+
+# The checkout's own git config may hold only harmless keys. Code an agent wrote could add ones that run programs
+# (core.fsmonitor, core.sshCommand, credential.helper, url.*.insteadOf, ...), and the script's git calls run with the
+# token. The checkout persists between runs, so this is checked at the start too.
+function Assert-GitConfig($who) {
+    $ok = '^(core\.(repositoryformatversion|filemode|bare|logallrefupdates|symlinks|ignorecase|autocrlf|longpaths)|remote\.origin\.(url|fetch)|branch\..+\.(remote|merge)|user\.(name|email)|gc\.auto|extensions\.worktreeconfig|maintenance\.auto)='
+    $bad = @(git config --local --list | Where-Object { $_ -notmatch $ok })
+    if ($bad) { throw "$who left git settings the factory doesn't allow: $(($bad | ForEach-Object { ($_ -split '=')[0] }) -join ', ')" }
 }
 
 foreach ($l in "factory:working", "factory:done", "factory:needs-decision", "factory:stuck") {
@@ -89,6 +108,7 @@ try {
     $branch = "factory/report-$n"
     git switch -q -C $branch origin/main
     git clean -xfdq
+    Assert-GitConfig "An earlier run"
     $base = git rev-parse HEAD
     # Prompts from main, read before any agent runs, so an agent can't rewrite the reviewer's instructions.
     $fixPrompt = (git show "${base}:.github/factory/fix-prompt.md") -join "`n"

@@ -36,6 +36,10 @@ It takes one open report per run. Guards against report text steering the agent:
 - The report reaches the agent as a file, framed as untrusted data, never inside the prompt.
 - No GitHub token while an agent runs or while agent-written code runs (the unit tests and e2e run with no secrets at
   all). The token is used only to push, open the PR and merge. The checkout keeps no credential.
+- The agents sign in with the owner's subscription (`CLAUDE_CODE_OAUTH_TOKEN`, from `claude setup-token`) when that
+  secret is set, else with `ANTHROPIC_API_KEY`.
+- None of the run's git calls use hooks (`core.hooksPath` points at an empty folder), so a hook planted in `.git/hooks`
+  never runs with the token.
 - The agents get no web tools and only a short list of commands. That's a speed bump, so the real checks happen
   outside the agent:
   - the working tree must be clean afterwards;
