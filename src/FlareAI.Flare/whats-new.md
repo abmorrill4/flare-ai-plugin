@@ -17,6 +17,8 @@ Write each entry from the writer's side, in short plain sentences. No arrows, co
 - Help opens the House Style user guide, now online at gethousestyle.com/guide.
 - Report a Problem has one box. Describe the problem or the change you'd like, and select Send.
 - The last line of What's New is no longer cut off.
+- Fix a rule that's already in your style guide. In Rules, select Edit Rule to change its wording or examples, or
+  Delete Rule to remove it. You no longer have to edit the guide topic in Flare.
 
 ## 0.3.3
 
