@@ -24,7 +24,7 @@ Wait-Until { $d = Rules; $d -and @($d.rows).Count -gt 0 } 60 "the Rules window w
 Save-E2EScreenshot "rules-1-open"
 Assert-E2E ((Focused) -eq "Search rules") "search has focus when Rules opens (focus: $(Focused))"
 
-Keys "members"
+Keys "say members"
 Keys "{ENTER}"
 $d = Wait-Until { $d = Rules; if ($d.focus -eq "Rules" -and @($d.rows | Where-Object { $_.selected -and $_.text -like "Say members*" }).Count) { $d } } 15 "Enter to select the matching rule in the list"
 Save-E2EScreenshot "rules-2-search"

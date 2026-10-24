@@ -162,8 +162,13 @@ function Confirm-MessageBox([Parameter(Mandatory)][string]$Action, [string]$Butt
         }
     } 15 "the $Action message box"
     $b = $box.FindFirst($Scope::Descendants, (New-And (New-Cond $A::NameProperty $Button) (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))))
-    if (-not $b) { throw "No $Button button in the $Action message box" }
-    $b.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
+    if ($b) { $b.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke(); return }
+    # Owned message boxes don't always expose their buttons: answer with the keyboard (Enter is OK, Esc is Cancel).
+    $keys = @{ OK = "{ENTER}"; Yes = "y"; No = "n"; Cancel = "{ESC}" }[$Button]
+    if (-not $keys) { throw "No $Button button in the $Action message box" }
+    Add-Type -AssemblyName System.Windows.Forms
+    $box.SetFocus()
+    [System.Windows.Forms.SendKeys]::SendWait($keys)
 }
 
 <# Saves a screenshot of the whole screen as <name>.png in this run's folder, for checks a person reviews (keyboard, scaling). #>
