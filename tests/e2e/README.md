@@ -42,7 +42,8 @@ It closes any running Flare. Don't run it while you have unsaved work in Flare.
 
 A `scenarios\*.ps1` file takes `-Fixture` and throws on failure. Use the module's functions: `Start-FlareE2E`,
 `Send-E2E <verb>` (`open`, `click`, `rowMenu`, `command`, `dialogClick`, `dialogSelect`, `state`), `Invoke-Ribbon`,
-`Wait-PaneDone`, `Test-PaneOnScreen`, `Assert-E2E`. Name AI scenarios `ai-*` so `-NoAi` skips them.
+`Wait-PaneDone`, `Test-PaneOnScreen`, `Assert-E2E`. Name AI scenarios `ai-*` so `-NoAi` skips them. CI runs them only on `main`, nightly and by hand, because their
+results vary from run to run. `Get-E2EHistory.ps1` shows how each scenario has done over recent runs.
 
 ## This machine's setup (once)
 

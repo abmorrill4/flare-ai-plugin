@@ -14,14 +14,18 @@ scripts\factory\Install-FactoryTools.ps1                                      # 
 - Windows 11 Enterprise LTSC evaluation, activated for 90 days. Rebuild from a newer evaluation ISO when it runs out.
 - A local account `factory` signs in by itself, because Flare needs a desktop. Its password is in
   `E:\HouseStyle\vm\factory-credential.xml`, which only the owner's Windows account can read.
-- Checkpoints: `windows-ready`, then `tools-ready`, then `e2e-ready` (suite verified). To reset, apply one:
-  `Restore-VMSnapshot -VMName HSFACTORY -Name e2e-ready -Confirm:$false`.
+- Checkpoints: one production checkpoint, `factory-base`, which the nightly reset goes back to (below). The build
+  scripts take `windows-ready`, `tools-ready` and `e2e-ready` along the way. `Reset-FactoryVM.ps1 -Refresh` merges
+  them into the disk.
 
 ## Keeping it running
 
 ```powershell
 scripts\factory\Install-Runner.ps1 -Token (gh api -X POST repos/abmorrill4/house-style/actions/runners/registration-token --jq .token)
 scripts\factory\Watch-Factory.ps1 -Install   # host task, every 5 minutes
+scripts\factory\Reset-FactoryVM.ps1 -Refresh  # once, then after updating the VM's tools and about monthly
+scripts\factory\Reset-FactoryVM.ps1 -Install  # host task, nightly at 03:00
+tests\e2e\Get-E2EHistory.ps1 -Runs 50         # how each scenario has done lately
 ```
 
 - **Install-Runner** (elevated, on the host) installs the runner and registers it with `-Token`. It starts the runner
@@ -35,6 +39,17 @@ scripts\factory\Watch-Factory.ps1 -Install   # host task, every 5 minutes
   `not-ready.txt` says the last job found the desktop unusable. That's a guest reboot through Hyper-V, never a hard
   reset, and at most one every 30 minutes. Create `E:\HouseStyle\vm\maintenance` to keep it away during checkpoint
   merges or rebuilds, and delete it afterwards. Its log is `E:\HouseStyle\vm\watch-factory.log`.
+- **Reset-FactoryVM** runs on the host every night at 03:00. It waits up to an hour for a running job, then holds
+  Watch-Factory off and copies `C:\HouseStyle\factory-logs` to `E:\HouseStyle\vm\factory-logs`. It puts the VM back
+  on `factory-base` and waits for the runner to come online. Whatever happened in the VM since the base is gone:
+  leftover files, Windows updates, disk growth. `-Refresh` makes the VM as it is now the new base. Run it after
+  updating the VM's tools, and about monthly so Windows updates and the runner version stay current. Its log is
+  `E:\HouseStyle\vm\reset-factory.log`.
+- **The ai-\* e2e scenarios** run on pushes to `main`, nightly at 08:23 UTC (after the reset) and by hand, never on
+  a branch push. Their results vary from run to run, so they don't judge a change.
+- **Get-E2EHistory** reads the last runs' `results.json` artifacts and shows each scenario's passes, test failures,
+  VM failures and passes on retry. A scenario that keeps passing only on a retry points at the VM. One that fails now
+  and then as a test failure is flaky.
 
 ## Things learned the hard way
 
