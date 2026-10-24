@@ -291,6 +291,22 @@ namespace FlareAI.Core.Style
             return n;
         }
 
+        /// <summary>
+        /// The guide that has rule <paramref name="id"/> written in it, read fresh from disk, for an owner to edit or delete
+        /// the rule there (<see cref="GuideLayer.EditRule"/>, <see cref="GuideLayer.DeleteRule"/>; then <see cref="Invalidate"/>).
+        /// Null for rules no guide of the team's writes: Google's generated rules, the bundled guide's, generated ones.
+        /// </summary>
+        public GuideLayer WritableLayerOf(string id)
+        {
+            var guides = (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g) && WhyUnreadable(g) == null);
+            foreach (var g in guides.Where(g => _bundled == null || !SamePath(g, _bundled)))
+            {
+                var layer = GuideLayer.Load(g, null, null, "Google");
+                if (layer.RuleFields(id) != null) return layer;
+            }
+            return null;
+        }
+
         /// <summary>Terms every layer's glossary defines (for topic assists: don't propose what's already there).</summary>
         public List<string> GlossaryTerms(string project)
         {

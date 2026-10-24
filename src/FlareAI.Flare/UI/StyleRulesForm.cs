@@ -29,7 +29,7 @@ namespace FlareAI.Flare.UI
         private readonly TextBox _search, _detail;
         private readonly ComboBox _source, _state, _fix, _content;
         private readonly ListView _list;
-        private readonly Button _off, _level, _restore, _clear;
+        private readonly Button _edit, _delete, _off, _level, _restore, _clear;
         private readonly Timer _typing = new Timer { Interval = 250 };
         private RuleCatalog _catalog;
         private bool _filling;
@@ -89,8 +89,10 @@ namespace FlareAI.Flare.UI
             _restore = new Button { Text = "&Enable Rule", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
             _level = new Button { Text = "Change &Level…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
             _off = new Button { Text = "&Disable Rule…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
-            bar.Controls.AddRange(new Control[] { close, _restore, _level, _off });
-            _off.TabIndex = 0; _level.TabIndex = 1; _restore.TabIndex = 2; close.TabIndex = 3;   // Tab follows the buttons left to right
+            _delete = new Button { Text = "Dele&te Rule…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
+            _edit = new Button { Text = "Ed&it Rule…", AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Enabled = false };
+            bar.Controls.AddRange(new Control[] { close, _restore, _level, _off, _delete, _edit });
+            _edit.TabIndex = 0; _delete.TabIndex = 1; _off.TabIndex = 2; _level.TabIndex = 3; _restore.TabIndex = 4; close.TabIndex = 5;   // Tab follows the buttons left to right
 
             root.Controls.Add(_head, 0, 0);
             root.Controls.Add(filters, 0, 1);
@@ -106,6 +108,8 @@ namespace FlareAI.Flare.UI
             tips.SetToolTip(_off, "Stop linting for this rule.");
             tips.SetToolTip(_level, "Make this rule an error, a warning or a suggestion.");
             tips.SetToolTip(_restore, "Lint with this rule again.");
+            tips.SetToolTip(_edit, "Change the wording, words or examples of this rule in your style guide.");
+            tips.SetToolTip(_delete, "Remove this rule from your style guide.");
 
             A11y.Name(_search, "Search rules", "Words from the rule, its examples, its page or its reference. Every word must match.");
             A11y.Name(_source, "Source", "Show the rules from one source: Google, Company, your team's guide, your own guide or the project.");
@@ -135,6 +139,8 @@ namespace FlareAI.Flare.UI
             _off.Click += (s, e) => ChangeRule(false);
             _level.Click += (s, e) => ChangeRule(true);
             _restore.Click += (s, e) => Restore();
+            _edit.Click += (s, e) => EditRule();
+            _delete.Click += (s, e) => DeleteRule();
             KeyDown += (s, e) => { if (e.Control && e.KeyCode == Keys.F) { e.SuppressKeyPress = true; _search.Focus(); _search.SelectAll(); } else if (e.KeyCode == Keys.F5) { e.SuppressKeyPress = true; Reload(null, Current() == null ? null : Current().Key); } };
             Resize += (s, e) => FitHead();
             Shown += (s, e) => { split.SplitterDistance = Math.Max(split.Panel1MinSize, split.Width * 3 / 5); SizeColumns(); FitHead(); Reload(null, null); _search.Focus(); };
@@ -448,7 +454,60 @@ namespace FlareAI.Flare.UI
             var toDefault = r != null && r.State != RuleState.Off && r.Change != null && !r.IsDefault;
             _restore.Text = toDefault ? (restoreAsks ? "Request the &Default…" : "Use the &Default") : (restoreAsks ? "Request to &Enable…" : "&Enable Rule");
             _restore.Enabled = r != null && r.Change != null && !(r.IsDefault && r.State != RuleState.Off) && (r.ChangeIsProject || canTeam);
-            foreach (var b in new[] { _off, _level, _restore }) b.AccessibleName = b.Text.Replace("&", "").Replace("…", "");
+            // Edit and Delete change the guide's own topic, so they're for whoever can write it (owners, a writer's own guide).
+            _edit.Visible = _delete.Visible = !asking;
+            _edit.Enabled = _delete.Enabled = !asking && Editable(r);
+            foreach (var b in new[] { _edit, _delete, _off, _level, _restore }) b.AccessibleName = b.Text.Replace("&", "").Replace("…", "");
+        }
+
+        /// <summary>A rule written in the team's or the writer's own guide: not Google's generated rules, not the guide
+        /// shipped with House Style, not the open project's (edited in that project), not generated from variables.</summary>
+        private bool Editable(CatalogRule r)
+        {
+            return r != null && r.Id != null && r.File != null && r.Origin != "google" && !(_isDefault != null && _isDefault(r.File)) &&
+                   !r.Source.StartsWith("Project ", StringComparison.Ordinal);
+        }
+
+        /// <summary>Edit Rule: rewrites the rule's row or bullet in its guide topic.</summary>
+        private void EditRule()
+        {
+            var r = Current();
+            if (!Editable(r)) return;
+            try
+            {
+                var layer = _style.WritableLayerOf(r.Key);
+                if (layer == null) { _head.Text = "This rule isn't in a style guide you can change. Press F5 to read the guide again."; return; }
+                List<KeyValuePair<string, string>> fields;
+                using (var d = new RuleEditDialog(layer.RuleFields(r.Key)))
+                {
+                    if (d.ShowDialog(this) != DialogResult.OK) return;
+                    fields = d.Fields;
+                }
+                var file = layer.EditRule(r.Key, fields);
+                _style.Invalidate();
+                Diagnostics.Log("Rules: edited " + r.Key + " in " + file);
+                Reload("Rule saved." + Team.CommitHint(_team == null ? null : _team.GuideRoot) + " It applies the next time you lint.", r.Key);
+            }
+            catch (Exception ex) { Failed(ex, "save the rule"); }
+        }
+
+        /// <summary>Delete Rule: removes the rule's row or bullet from its guide topic, after asking.</summary>
+        private void DeleteRule()
+        {
+            var r = Current();
+            if (!Editable(r)) return;
+            if (!Notify.Confirm(this, "Delete this rule from your style guide?\n\n" + r.Source + " · " + r.Page + ": " + r.Title +
+                                      "\n\nTo stop it for now and keep it in the guide, use Disable Rule instead.", "Delete Rule")) return;
+            try
+            {
+                var layer = _style.WritableLayerOf(r.Key);
+                if (layer == null) { _head.Text = "This rule isn't in a style guide you can change. Press F5 to read the guide again."; return; }
+                var file = layer.DeleteRule(r.Key);
+                _style.Invalidate();
+                Diagnostics.Log("Rules: deleted " + r.Key + " from " + file);
+                Reload("Rule deleted." + Team.CommitHint(_team == null ? null : _team.GuideRoot) + " It stops applying the next time you lint.", null);
+            }
+            catch (Exception ex) { Failed(ex, "delete the rule"); }
         }
 
         /// <summary>Turn off (or Change level): asks scope, level and why (and, on a read-only guide, sends a request).</summary>

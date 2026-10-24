@@ -511,6 +511,131 @@ namespace FlareAI.Core.Style
             return assigned;
         }
 
+        /// <summary>
+        /// The parts of a rule an owner can edit, as written: a table row's cells under their headings (Avoid, Use, Severity,
+        /// Why, Example, or whatever the table names them), or a bullet's wording with its Bad and Good examples. Null when
+        /// <paramref name="id"/> isn't a rule written in this layer.
+        /// </summary>
+        public List<KeyValuePair<string, string>> RuleFields(string id)
+        {
+            var el = ElementOf(id);
+            if (el == null) return null;
+            var fields = new List<KeyValuePair<string, string>>();
+            if (el.LocalName == "tr")
+            {
+                var heads = HeadsOf(el);
+                var cells = Cells(el);
+                for (var i = 0; i < cells.Count; i++)
+                    fields.Add(new KeyValuePair<string, string>(i < heads.Count && heads[i].Length > 0 ? heads[i] : "Column " + (i + 1), cells[i].InnerText.Trim()));
+                return fields;
+            }
+            fields.Add(new KeyValuePair<string, string>("Rule", OwnWords(el)));
+            fields.Add(new KeyValuePair<string, string>("Bad", ExampleOf(el, "Bad")));
+            fields.Add(new KeyValuePair<string, string>("Good", ExampleOf(el, "Good")));
+            return fields;
+        }
+
+        /// <summary>
+        /// Writes <paramref name="fields"/> (from <see cref="RuleFields"/>, edited) back into the rule's row or bullet and
+        /// saves its topic; the rule keeps its id. A bullet's inline formatting is replaced by the plain wording. Returns the
+        /// topic written, or null when the rule isn't in this layer.
+        /// </summary>
+        public string EditRule(string id, IList<KeyValuePair<string, string>> fields)
+        {
+            var el = ElementOf(id);
+            if (el == null || fields == null) return null;
+            Func<string, string> get = k => fields.Where(f => f.Key == k).Select(f => (f.Value ?? "").Trim()).FirstOrDefault() ?? "";
+            if (el.LocalName == "tr")
+            {
+                var cells = Cells(el);
+                for (var i = 0; i < cells.Count && i < fields.Count; i++) cells[i].InnerText = (fields[i].Value ?? "").Trim();
+            }
+            else
+            {
+                if (get("Rule").Length == 0) throw new ArgumentException("A rule needs its wording.");
+                var nested = el.ChildNodes.Cast<XmlNode>().FirstOrDefault(c => c.NodeType == XmlNodeType.Element && (c.LocalName == "ul" || c.LocalName == "ol"));
+                foreach (var c in el.ChildNodes.Cast<XmlNode>().Where(c => c != nested).ToList()) el.RemoveChild(c);
+                el.InsertBefore(el.OwnerDocument.CreateTextNode(get("Rule")), el.FirstChild);
+                foreach (var kind in new[] { "Bad", "Good" })
+                {
+                    var li = nested == null ? null : nested.ChildNodes.Cast<XmlNode>().OfType<XmlElement>()
+                        .FirstOrDefault(x => x.LocalName == "li" && x.InnerText.TrimStart().StartsWith(kind + ":", StringComparison.OrdinalIgnoreCase));
+                    var text = get(kind);
+                    if (text.Length == 0) { if (li != null) nested.RemoveChild(li); continue; }
+                    if (li == null)
+                    {
+                        if (nested == null) { nested = el.OwnerDocument.CreateElement("ul", el.NamespaceURI); el.AppendChild(nested); }
+                        li = el.OwnerDocument.CreateElement("li", el.NamespaceURI);
+                        nested.AppendChild(li);
+                    }
+                    li.InnerText = kind + ": " + text;
+                }
+                if (nested != null && !nested.HasChildNodes) el.RemoveChild(nested);
+            }
+            return SaveRule(id);
+        }
+
+        /// <summary>Removes the rule's row or bullet from its topic and saves it. Returns the topic written, or null when the rule isn't in this layer.</summary>
+        public string DeleteRule(string id)
+        {
+            var el = ElementOf(id);
+            return el == null ? null : SaveRule(id, () => el.ParentNode.RemoveChild(el));
+        }
+
+        private XmlElement ElementOf(string id)
+        {
+            var item = Items.FirstOrDefault(i => string.Equals(i.Id, id, StringComparison.OrdinalIgnoreCase) && i.Element != null);
+            return item != null && _docs.ContainsKey(item.Source) ? item.Element : null;
+        }
+
+        /// <summary>Gives every rule permanent keys first, so removing or rewording one never moves another rule's id
+        /// (and with it the team's settings and feedback for that rule); then applies <paramref name="change"/> and saves.</summary>
+        private string SaveRule(string id, Action change = null)
+        {
+            var item = Items.First(i => string.Equals(i.Id, id, StringComparison.OrdinalIgnoreCase));
+            AssignKeys();
+            if (change != null) change();
+            try { Save(_docs[item.Source], item.Source); }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { throw new GuideWriteException(item.Source, ex); }
+            return item.Source;
+        }
+
+        private static List<XmlElement> Cells(XmlElement tr)
+        {
+            return tr.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().Where(c => c.LocalName == "td" || c.LocalName == "th").ToList();
+        }
+
+        /// <summary>The headings of the row's table: its first row.</summary>
+        private static List<string> HeadsOf(XmlElement tr)
+        {
+            for (XmlNode t = tr.ParentNode; t != null; t = t.ParentNode)
+                if (t.LocalName == "table")
+                {
+                    var first = t.SelectSingleNode(".//*[local-name()='tr']") as XmlElement;
+                    return first == null || first == tr ? new List<string>() : Cells(first).Select(c => c.InnerText.Trim()).ToList();
+                }
+            return new List<string>();
+        }
+
+        /// <summary>A bullet's wording without its examples (inline "Bad:"/"Good:" paragraphs or the nested list).</summary>
+        private static string OwnWords(XmlElement li)
+        {
+            var sb = new StringBuilder();
+            foreach (XmlNode c in li.ChildNodes)
+            {
+                if (c.NodeType == XmlNodeType.Element && (c.LocalName == "ul" || c.LocalName == "ol" || Regex.IsMatch(TextOf(c), @"^(Bad|Good):", RegexOptions.IgnoreCase))) continue;
+                sb.Append(c.InnerText);
+            }
+            return Regex.Replace(sb.ToString(), @"[ \t\r\n\f\v]+", " ").Trim();
+        }
+
+        private static string ExampleOf(XmlElement li, string kind)
+        {
+            string own, bad, good;
+            BulletParts(li, out own, out bad, out good);
+            return kind == "Bad" ? bad : good;
+        }
+
         private static string Base36(int v)
         {
             const string digits = "0123456789abcdefghijklmnopqrstuvwxyz";

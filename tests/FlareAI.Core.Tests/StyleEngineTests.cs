@@ -232,6 +232,56 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void OwnerEditsAndDeletesRules_InTheGuideTopic_KeepingTheirIds()
+        {
+            const string head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html><body><h1>Words</h1>\n";
+            var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Words.htm", head +
+                "<ul><li>Say members.<ul><li>Bad: Our users.</li></ul></li><li>Say sign in.</li></ul>\n" +
+                "<table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr><td>utilise</td><td>use</td><td>We utilise it.</td></tr><tr><td>leverage</td><td>use</td><td>Leverage it.</td></tr></table>\n</body></html>"));
+            var file = Path.Combine(root, @"Content\Resources\StyleGuide\Words.htm");
+            try
+            {
+                Func<StyleEngine> engine = () => new StyleEngine(new[] { root }, Guide);
+                Func<string, GuideRule> rule = text => engine().Rules(null).FirstOrDefault(x => x.Layer != "google" && x.Text.Contains(text));
+                var members = rule("Say members").Id;
+                var utilise = rule("utilise").Id;
+
+                // Nothing the team doesn't write can be edited: Google's generated rules aren't in a writable guide.
+                Assert.Null(engine().WritableLayerOf(engine().Rules(null).First(x => x.Layer == "google").Id));
+
+                // A bullet: new wording, a Good example added, the Bad one kept. Same id.
+                var layer = engine().WritableLayerOf(members);
+                var fields = layer.RuleFields(members);
+                Assert.Equal(new[] { "Rule", "Bad", "Good" }, fields.Select(f => f.Key).ToArray());
+                Assert.Equal("Our users.", fields[1].Value);
+                Assert.EndsWith("Words.htm", layer.EditRule(members, new[] { Field("Rule", "Say members, not users."), Field("Bad", "Our users."), Field("Good", "Our members.") }));
+                var edited = rule("Say members, not users.");
+                Assert.Equal(members, edited.Id);
+                Assert.Equal("Our users.", edited.Bad);
+                Assert.Equal("Our members.", edited.Good);
+
+                // A table row: its cells under the table's headings.
+                layer = engine().WritableLayerOf(utilise);
+                Assert.Equal(new[] { "Avoid", "Use", "Example" }, layer.RuleFields(utilise).Select(f => f.Key).ToArray());
+                layer.EditRule(utilise, new[] { Field("Avoid", "utilise, utilize"), Field("Use", "use"), Field("Example", "We utilize it.") });
+                Assert.Contains(engine().Lint(new[] { "We utilize it." }, null, null), h => h.RuleId == utilise);
+
+                // Delete: the row and the bullet are gone, the other rules keep their ids.
+                var leverage = rule("leverage").Id;
+                engine().WritableLayerOf(utilise).DeleteRule(utilise);
+                engine().WritableLayerOf(members).DeleteRule(members);
+                Assert.Null(rule("utilise"));
+                Assert.Null(rule("Say members"));
+                Assert.Equal(leverage, rule("leverage").Id);
+                Assert.Contains("Say sign in.", File.ReadAllText(file));
+                Assert.Throws<ArgumentException>(() => engine().WritableLayerOf(rule("Say sign in").Id).EditRule(rule("Say sign in").Id, new[] { Field("Rule", " ") }));
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
+        private static System.Collections.Generic.KeyValuePair<string, string> Field(string k, string v) { return new System.Collections.Generic.KeyValuePair<string, string>(k, v); }
+
+        [Fact]
         public void TurningOffAGoogleRuleForTheTeam_WritesTheGuide_AndStopsLintAndAi()
         {
             var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Company\Changes.htm",
