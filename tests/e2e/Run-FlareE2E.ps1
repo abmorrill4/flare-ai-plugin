@@ -3,6 +3,8 @@
 .DESCRIPTION Each scenario (scenarios\*.ps1) gets a fresh Flare on a fresh copy of the fixture project, with the
 plugin's settings isolated in the run folder. A failure saves Flare's state (JSON) and a screenshot next to results.json.
 Closes any running Flare: don't run it while you have unsaved work in Flare.
+A watchdog ends a scenario that runs past -ScenarioMinutes: it saves a screenshot and the open windows' titles, then
+kills Flare, which also frees a UI Automation call stuck on an unresponsive window.
 .EXAMPLE powershell.exe -File tests\e2e\Run-FlareE2E.ps1 -Install
 .EXAMPLE powershell.exe -File tests\e2e\Run-FlareE2E.ps1 -Scenario reopen-issues
 #>
@@ -11,7 +13,8 @@ param(
     [switch]$Install,                         # build Release and install into Flare first
     [switch]$NoAi,                            # skip scenarios that call the AI (no key, or to save cost)
     [string]$Fixture = (Join-Path $PSScriptRoot "..\..\corpus\DigitalBanking"),
-    [string]$OutDir
+    [string]$OutDir,
+    [int]$ScenarioMinutes = 8                 # a scenario still running after this is treated as hung
 )
 $ErrorActionPreference = "Stop"
 if ($PSVersionTable.PSEdition -ne "Desktop") { throw "Run with Windows PowerShell 5.1 (powershell.exe): UI Automation needs .NET Framework." }
@@ -32,9 +35,27 @@ if (-not @($files).Count) { throw "No scenarios to run (check -Scenario names)."
 $out = $OutDir
 New-Item -ItemType Directory -Force $out | Out-Null
 $results = @()
+# Runs in its own process, so it fires even while this one is blocked inside a UI Automation call. It uses no UI
+# Automation for the same reason: process window titles only.
+$watchdog = {
+    param($seconds, $png, $txt)
+    Start-Sleep $seconds
+    Get-Process | Where-Object MainWindowTitle | ForEach-Object { "$($_.ProcessName) $($_.Id) responding=$($_.Responding) '$($_.MainWindowTitle)'" } | Set-Content $txt
+    try {
+        Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+        $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+        $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+        [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
+        $bmp.Save($png)
+    } catch { }
+    Get-Process Flare -ErrorAction SilentlyContinue | Stop-Process -Force
+}
 foreach ($f in $files) {
     $start = Get-Date
     Write-Host "== $($f.BaseName)"
+    $hung = Join-Path $out "$($f.BaseName)-hung.txt"
+    $cmd = "& {$watchdog} $($ScenarioMinutes * 60) '$(Join-Path $out "$($f.BaseName)-hung.png")' '$hung'"
+    $dog = Start-Process powershell.exe -WindowStyle Hidden -PassThru -ArgumentList "-NoProfile", "-EncodedCommand", ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd)))
     $r = [ordered]@{ scenario = $f.BaseName; passed = $false; seconds = 0; error = $null; version = $null; artifacts = @() }
     try {
         & $f.FullName -Fixture $Fixture
@@ -42,6 +63,7 @@ foreach ($f in $files) {
         Write-Host "   PASS" -ForegroundColor Green
     } catch {
         $r.error = $_.Exception.Message
+        if (Test-Path $hung) { $r.error = "Hung for $ScenarioMinutes min, so the watchdog killed Flare: $($r.error)"; $r.artifacts += "$($f.BaseName)-hung.txt", "$($f.BaseName)-hung.png" }
         Write-Host "   $($r.error)" -ForegroundColor Red
         try { Get-E2EState | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out "$($f.BaseName)-state.json"); $r.artifacts += "$($f.BaseName)-state.json" } catch { }
         try {
@@ -52,6 +74,7 @@ foreach ($f in $files) {
             $bmp.Save((Join-Path $out "$($f.BaseName).png")); $r.artifacts += "$($f.BaseName).png"
         } catch { }
     } finally {
+        Stop-Process -Id $dog.Id -Force -ErrorAction SilentlyContinue
         try { $r.version = (Get-Module FlareE2E).Invoke({ $script:Run.Version }) } catch { }
         Stop-FlareE2E
         $r.seconds = [int]((Get-Date) - $start).TotalSeconds

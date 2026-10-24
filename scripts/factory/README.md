@@ -54,3 +54,12 @@ It takes one open report per run. Guards against report text steering the agent:
 - The e2e workflow runs on pushes to this repo's branches, never on `pull_request`. For a PR, GitHub runs the
   workflow file from the PR itself, so a fork could rewrite any guard in it.
 - Features and questions go back to the owner as a comment and a `factory:needs-decision` label.
+- So does a fix that touches `src/FlareAI.Core/Update/`, `Settings/`, `Llm/` or `src/FlareAI.Flare/E2EHook.cs`.
+  Nothing is pushed.
+- The agents' output goes to `C:\HouseStyle\factory-logs` on the VM, never the job log: this repo is public, so its
+  job logs are too. A failed run logs only "report n is stuck". The reason is on the private report.
+- e2e runs on `factory/*` branches get no API key, so their `ai-*` scenarios are skipped.
+- The e2e workflow has no concurrency group, because the single `flare` runner already queues its jobs. A group keeps
+  only one waiting run and cancels the rest. The factory has its own group, so two factory runs never overlap.
+- Each e2e scenario has a watchdog (`-ScenarioMinutes`, 8 by default). A hung scenario leaves a screenshot and the
+  open windows' titles, then Flare is killed.
