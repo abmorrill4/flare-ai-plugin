@@ -20,7 +20,8 @@
   its backup are lost, installs can't update automatically again.
 - **Protect the release path in `build.yml`:**
   - Keep `contents: read` at workflow level. Only the `release` job writes.
-  - Keep `environment: release` (the owner approves) and the "tag is on main" check.
+  - Keep `environment: release` (it holds the signing key and deploys only `v*` tags), the check that the run was
+    started by `nightly.yml`, and the "tag is on main" check. Releases are nightly with no approval click (2026-10-24).
   - Keep `persist-credentials: false`, and keep the tag name validated before it's used.
 - **Never delete a junction recursively.** The layout uses junctions (`Junction.Remove`). Remember the Flare 2026
   "junction to a junction" startup crash (#119).

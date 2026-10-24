@@ -24,7 +24,7 @@ $reports = "abmorrill4/house-style-reports"
 $owner = "abmorrill4"
 $tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath() }
 $here = Split-Path (Split-Path $PSScriptRoot)   # repo root
-$allowed = '^(src|tests|styleguide/Company|docs/user-guide)/'
+$allowed = '^(src|tests|styleguide/Company|docs/user-guide|changes)/'
 $denied = '\.csproj$|\.csproj\.user$|Directory\.Build\.|Directory\.Packages\.props$|nuget\.config$|packages\.lock\.json$|^tests/e2e/(Run-FlareE2E\.ps1|FlareE2E\.psm1)$|^tests/e2e/flaui/'
 # Code that updates the plugin, holds settings and keys, or talks to AI providers: a fix here goes to the owner.
 $ownerOnly = '^src/FlareAI\.Core/(Update|Settings|Llm)/|^src/FlareAI\.Flare/E2EHook\.cs$'

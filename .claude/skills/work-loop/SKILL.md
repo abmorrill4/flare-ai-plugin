@@ -53,7 +53,8 @@ intent and research done, spec in progress". Never just "mid-design".
    `tests/e2e` scenario in real Flare (the factory VM when the local Flare is busy).
 7. **Build review.** Run `work-loop-review` with `stage: "build"` on the PR. Lenses: correctness, security,
    consistency. Fix confirmed blocking findings. Then merge per the merge policy (CI green plus this review).
-8. **Ship and learn.** Release notes and `whats-new.md` from the writer's side. Feedback that comes back starts a
+8. **Ship and learn.** A `changes/<name>.md` note from the writer's side (`changes/README.md`); the nightly release
+   ships everything merged that day. Feedback that comes back starts a
    new loop at Intent.
 
 ## Where things live

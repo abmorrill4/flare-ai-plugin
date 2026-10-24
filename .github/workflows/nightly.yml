@@ -1,0 +1,69 @@
+# The nightly release: if anything that ships changed since the last release, tag the next patch version on main and
+# start build.yml on that tag, which builds, signs and publishes it. No approval click (owner decision 2026-10-24).
+# Only the GitHub Actions app may create v* tags (tag ruleset), and build.yml's release job accepts only runs started
+# here. GitHub doesn't start workflows from a tag this job's token pushes, so the build is started with a
+# workflow_dispatch, which it does allow. A failure is reported on the pinned "Nightly release" issue.
+name: nightly
+on:
+  schedule:
+    - cron: '7 8 * * *'   # 08:07 UTC, about 3 a.m. Eastern; off the hour, when GitHub drops the most scheduled runs
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Say what would be released, without tagging'
+        type: boolean
+        default: false
+permissions:
+  contents: write   # create the tag
+  actions: write    # start build.yml on it
+  issues: write     # report a failure
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.repository == 'abmorrill4/house-style' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Release if anything shipped changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          last=$(git tag -l 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          # A tag with no published release (a failed night): finish that one first.
+          if ! gh release view "$last" -R "$REPO" >/dev/null 2>&1; then
+            echo "Release $last was tagged but never published. Building it again."
+            [ "$DRY_RUN" = "true" ] || gh workflow run build.yml -R "$REPO" --ref "$last"
+            exit 0
+          fi
+          if [ -z "$(git diff --name-only "$last" HEAD -- src styleguide)" ]; then echo "Nothing shipped changed since $last."; exit 0; fi
+          IFS=. read -r major minor patch <<< "${last#v}"
+          next="v$major.$minor.$((patch + 1))"
+          sha=$(git rev-parse HEAD)
+          echo "Releasing $next at $sha (after $last)."
+          pwsh -NoProfile -File scripts/release/Build-WhatsNew.ps1 -Version "${next#v}" -NotesOnly
+          if [ "$DRY_RUN" = "true" ]; then echo "Dry run: no tag."; exit 0; fi
+          gh api "repos/$REPO/git/refs" -f ref="refs/tags/$next" -f sha="$sha" >/dev/null
+          gh workflow run build.yml -R "$REPO" --ref "$next"
+
+      - name: Report a failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          n=$(gh issue list -R "$REPO" --state open --search 'in:title "Nightly release"' --json number,title --jq '[.[] | select(.title == "Nightly release")][0].number')
+          if [ -z "$n" ] || [ "$n" = "null" ]; then
+            gh issue create -R "$REPO" --title "Nightly release" --label from:owner --body "Failures of the nightly release are reported here."
+            n=$(gh issue list -R "$REPO" --state open --search 'in:title "Nightly release"' --json number --jq '.[0].number')
+          fi
+          gh issue comment "$n" -R "$REPO" --body "The nightly release failed: $RUN"
