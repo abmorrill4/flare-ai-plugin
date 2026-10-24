@@ -15,9 +15,9 @@ Pick the size first. When unsure, go one size up.
 
 | Size | What it is | Stages it runs |
 |---|---|---|
-| **Fix** | A bug with a clear cause, a copy change, a small hardening item | Intent, Build, Verify, Build review |
+| **Fix** | A bug with a clear cause, a copy change, a small hardening item | Intent (naming the test that reproduces the bug), Build, Verify, Build review, Ship |
 | **Feature** | New or changed behavior a writer would notice | All stages |
-| **Theme** | An outcome made of several features (a parent issue labeled `theme`) | Intent, Research and Spec at theme level, then the loop per feature |
+| **Theme** | An outcome made of several features (a parent issue labeled `theme`) | Intent, Research, Spec and Spec review at theme level, then the loop per feature |
 
 ## Stages
 
@@ -48,7 +48,8 @@ intent and research done, spec in progress". Never just "mid-design".
    - *goals*: does it serve the intent and the owner's decisions, or drift past them.
    Fix the spec for every confirmed blocking finding, then move on. Notes are optional.
 5. **Build.** Code against the verification plan, test first where you can. One branch and PR per piece.
-6. **Verify.** Run every check the plan named, and the full Release suite before you push. A UI change needs its
+6. **Verify.** Run every check the plan named (for a Fix, the reproducing test named in its Intent), and the full
+   Release suite before you push. A UI change needs its
    `tests/e2e` scenario in real Flare (the factory VM when the local Flare is busy).
 7. **Build review.** Run `work-loop-review` with `stage: "build"` on the PR. Lenses: correctness, security,
    consistency. Fix confirmed blocking findings. Then merge per the merge policy (CI green plus this review).
@@ -73,6 +74,10 @@ intent and research done, spec in progress". Never just "mid-design".
   decided), `from:research` (our own reviews, plans or research).
 - A new idea or request: an issue with its origin label, attached to a theme if one fits, otherwise its own `When`.
   A new outcome gets a new theme (`planning/roadmap/themes.json`, then `create_themes.py`).
+- **Tester reports** arrive in the private `abmorrill4/house-style-reports` repo (Report a Problem). Triage each one:
+  a public `from:tester` issue in your own words (never the report text or the tester's name), attached to a theme
+  or given a `When`, then a comment on the report linking the issue. The roadmap page lists open reports above the
+  board until they are triaged.
 - The roadmap page is rebuilt with `python planning/roadmap/build.py` and republished to the same artifact URL
   (`planning/roadmap.md` has the link).
 
@@ -80,4 +85,5 @@ intent and research done, spec in progress". Never just "mid-design".
 
 - Name every issue, theme or PR in plain words first, with the number second as a link.
 - Status is the stage names above, not "in progress" or "mid-design".
-- Ask only at the Intent check and for outward actions (a release to testers). Everything else proceeds.
+- Ask only at the Intent check, for a copy deck (CLAUDE.md), and for outward actions (a release to testers).
+  Everything else proceeds.

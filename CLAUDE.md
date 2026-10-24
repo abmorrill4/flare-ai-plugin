@@ -91,12 +91,13 @@ powershell.exe -File tests\e2e\Run-FlareE2E.ps1 -Install   # build, install and 
   - Required checks are `build` and `feedback-worker`.
   - Commit messages are a short summary line plus a body listing what changed and why.
 - **Issues** use labels `bug`, `enhancement`, `trust`, `pilot`, `security`, `ready-for-release` and `area:*` (core,
-  rules, guide, settings, pane, install), plus one origin label: `from:tester`, `from:owner` or `from:research`.
+  rules, guide, settings, pane, install), `theme` for roadmap themes, plus one origin label: `from:tester`,
+  `from:owner` or `from:research`.
 - **The roadmap** is the project board at https://github.com/users/abmorrill4/projects/2. There are no phases or
   milestones. Themes (issues labeled `theme`) hold their issues as sub-issues, and the board's `When` field (Now,
   Next, Later) orders themes and single issues. The `work-loop` skill has the details.
 - **Every piece of work goes through the work loop** (`.claude/skills/work-loop`): intent, research, spec with a
-  verification plan, spec review, build, verify, build review. The reviews run the `work-loop-review` workflow.
+  verification plan, spec review, build, verify, build review, ship. The reviews run the `work-loop-review` workflow.
 - **To release:**
   1. Bump the version: add a `## x.y.z` section to `src/FlareAI.Flare/whats-new.md` and a new
      `docs/release-notes/x.y.z.md`.
