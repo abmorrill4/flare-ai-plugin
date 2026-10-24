@@ -28,11 +28,13 @@ scripts\factory\Watch-Factory.ps1 -Install   # host task, every 5 minutes
   at sign-in in the factory account's desktop, un-elevated, and restarts it within 30 seconds if it exits. It also
   turns off the screensaver and sleep. Without `-Token` it only refreshes those settings.
 - **Test-FactoryReady** is the first step of every e2e and factory job. It fails in seconds, with the reason, if the
-  runner has no desktop, the desktop is locked or C: is nearly full. It also closes any Flare left by an earlier run.
-- **Watch-Factory** runs on the host while the owner is signed in. It starts the VM if it's off and restarts it if the
-  runner has been offline for 10 minutes, for example a VM stuck at the sign-in screen after a reboot (seen
-  2026-10-23). Create `E:\HouseStyle\vm\maintenance` to keep it away during checkpoint merges or rebuilds, and
-  delete it afterwards. Its log is `E:\HouseStyle\vm\watch-factory.log`.
+  runner has no desktop, the desktop is locked or disconnected, or C: is nearly full. It also closes any Flare left by
+  an earlier run. A failure leaves `C:\HouseStyle\not-ready.txt` in the VM.
+- **Watch-Factory** runs on the host while the owner is signed in. It starts the VM if it's off. It reboots the guest
+  if the runner has been offline for 10 minutes, for example a VM stuck at the sign-in screen (seen 2026-10-23), or if
+  `not-ready.txt` says the last job found the desktop unusable. That's a guest reboot through Hyper-V, never a hard
+  reset, and at most one every 30 minutes. Create `E:\HouseStyle\vm\maintenance` to keep it away during checkpoint
+  merges or rebuilds, and delete it afterwards. Its log is `E:\HouseStyle\vm\watch-factory.log`.
 
 ## Things learned the hard way
 
