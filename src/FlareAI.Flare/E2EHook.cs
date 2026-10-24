@@ -182,8 +182,10 @@ namespace FlareAI.Flare
                     text = All(f).OfType<Label>().Where(l => l.Visible && l.Text.Length > 0).Select(l => l.Text).ToList(),
                     items = All(f).OfType<ListBox>().SelectMany(l => l.Items.Cast<object>().Select(i => i.ToString())).ToList(),
                     rows = All(f).OfType<ListView>().SelectMany(l => l.Items.Cast<ListViewItem>().Select(i => new { text = i.Text, tip = i.ToolTipText, selected = i.Selected })).ToList(),
+                    // Never a password box: an API key must not reach the results.
                     boxes = All(f).Where(x => x.Visible && (x is TextBox || x is ComboBox) && !string.IsNullOrEmpty(x.AccessibleName) &&
-                                              !(x is TextBox && (((TextBox)x).UseSystemPasswordChar || ((TextBox)x).PasswordChar != '\0')))   // never a key.Select(x => new { name = x.AccessibleName, text = x.Text }).ToList()
+                                              !(x is TextBox && (((TextBox)x).UseSystemPasswordChar || ((TextBox)x).PasswordChar != '\0')))
+                                  .Select(x => new { name = x.AccessibleName, text = x.Text }).ToList()
                 }).ToList()
             };
         }
