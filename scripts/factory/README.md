@@ -40,12 +40,13 @@ tests\e2e\Get-E2EHistory.ps1 -Runs 50         # how each scenario has done latel
   reset, and at most one every 30 minutes. Create `E:\HouseStyle\vm\maintenance` to keep it away during checkpoint
   merges or rebuilds, and delete it afterwards. Its log is `E:\HouseStyle\vm\watch-factory.log`.
 - **Reset-FactoryVM** runs on the host every night at 03:00. It waits up to an hour for a running job, then holds
-  Watch-Factory off and copies `C:\HouseStyle\factory-logs` to `E:\HouseStyle\vm\factory-logs`. It puts the VM back
+  Watch-Factory off and copies `C:\HouseStyle\factory-logs` to a dated folder under `E:\HouseStyle\vm\factory-logs`. It checks for a
+  running job again just before the VM goes off, and skips the night if it can't read the runner's state. It puts the VM back
   on `factory-base` and waits for the runner to come online. Whatever happened in the VM since the base is gone:
   leftover files, Windows updates, disk growth. `-Refresh` makes the VM as it is now the new base. Run it after
   updating the VM's tools, and about monthly so Windows updates and the runner version stay current. Its log is
   `E:\HouseStyle\vm\reset-factory.log`.
-- **The ai-\* e2e scenarios** run on pushes to `main`, nightly at 08:23 UTC (after the reset) and by hand, never on
+- **The ai-\* e2e scenarios** run on pushes to `main`, nightly at 10:23 UTC (well after the reset) and by hand, never on
   a branch push. Their results vary from run to run, so they don't judge a change.
 - **Get-E2EHistory** reads the last runs' `results.json` artifacts and shows each scenario's passes, test failures,
   VM failures and passes on retry. A scenario that keeps passing only on a retry points at the VM. One that fails now

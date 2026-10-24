@@ -12,14 +12,14 @@ param(
     [string]$Repo = "abmorrill4/house-style"
 )
 $ErrorActionPreference = "Stop"
-$list = @("run", "list", "-R", $Repo, "--workflow", "e2e", "--status", "completed", "--limit", "$Runs", "--json", "databaseId,headBranch,event,createdAt")
+$list = @("run", "list", "-R", $Repo, "--workflow", "e2e", "--status", "completed", "--limit", "$Runs", "--json", "databaseId,headBranch,event,createdAt,conclusion")
 if ($Branch) { $list += @("--branch", $Branch) }
 # In parentheses: Windows PowerShell's ConvertFrom-Json sends a whole array down the pipeline as one object.
 $history = @((& gh.exe @list | Out-String | ConvertFrom-Json))
 if ($LASTEXITCODE) { throw "gh run list failed" }
 
 $tmp = Join-Path ([IO.Path]::GetTempPath()) "e2e-history-$PID"
-$rows = @(); $missing = 0
+$rows = @(); $missing = 0; $notReady = 0
 foreach ($run in $history) {
     $dir = Join-Path $tmp $run.databaseId
     $ErrorActionPreference = "Continue"   # gh's stderr (no artifact) would otherwise throw
@@ -27,7 +27,11 @@ foreach ($run in $history) {
     $ok = -not $LASTEXITCODE
     $ErrorActionPreference = "Stop"
     $file = Join-Path $dir "results.json"
-    if (-not $ok -or -not (Test-Path $file)) { $missing++; continue }   # expired, cancelled before results, or setup failed
+    if (-not $ok -or -not (Test-Path $file)) {
+        # A failed run with no results stopped before any scenario: the VM wasn't ready, or install or setup failed.
+        if ($run.conclusion -eq "failure") { $notReady++ } else { $missing++ }
+        continue
+    }
     foreach ($r in @((Get-Content $file -Raw | ConvertFrom-Json))) {
         $kind = if ($r.passed) { if ($r.PSObject.Properties["firstTry"] -and $r.firstTry) { "retried" } else { "pass" } }
                 elseif ($r.PSObject.Properties["kind"] -and $r.kind) { $r.kind } else { "unknown" }
@@ -36,7 +40,7 @@ foreach ($run in $history) {
 }
 Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
 
-Write-Host "$($history.Count) runs read, $missing without results (expired, cancelled or stopped before any scenario)."
+Write-Host "$($history.Count) runs read. $notReady failed before any scenario (VM not ready, or install or setup failed). $missing had no results (cancelled, or the artifact expired)."
 $rows | Group-Object scenario | ForEach-Object {
     $g = $_.Group
     $count = { param($k) @($g | Where-Object kind -eq $k).Count }

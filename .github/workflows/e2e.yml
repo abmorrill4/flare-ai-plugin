@@ -8,7 +8,7 @@ on:
   push:
   workflow_dispatch:
   schedule:
-    - cron: '23 8 * * *'   # nightly, after the factory VM's 03:00 reset (owner's time); the AI scenarios run here
+    - cron: '23 10 * * *'   # nightly, well after the factory VM's 03:00 reset (owner's time, EST or EDT); the AI scenarios run here
 
 permissions:
   contents: read
@@ -34,8 +34,8 @@ jobs:
         shell: powershell
         env:
           # The ai-* scenarios vary from run to run, so they run only on main, nightly and by hand, never on a branch
-          # push. That also keeps the key away from factory/* branches, which hold agent-written code.
-          ANTHROPIC_API_KEY: ${{ (github.ref == 'refs/heads/main' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && secrets.ANTHROPIC_API_KEY || '' }}
+          # push. factory/* branches hold agent-written code and never get the key, even when run by hand.
+          ANTHROPIC_API_KEY: ${{ !startsWith(github.ref_name, 'factory/') && (github.ref == 'refs/heads/main' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && secrets.ANTHROPIC_API_KEY || '' }}
         run: |
           $noAi = -not $env:ANTHROPIC_API_KEY
           if ($noAi) { Write-Host "Skipping the ai-* scenarios: they run on main, nightly and by hand." }

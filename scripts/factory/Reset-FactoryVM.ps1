@@ -47,11 +47,18 @@ function RunnerState {
     if ($ok) { (($json | Out-String | ConvertFrom-Json).runners | Where-Object name -eq $Name) }
 }
 
-$deadline = (Get-Date).AddMinutes($WaitMinutes)
-while (($r = RunnerState) -and $r.busy) {
-    if ((Get-Date) -gt $deadline) { Log "Runner still busy after $WaitMinutes min; skipping."; return }
-    Start-Sleep 60
+# Waits for an idle runner. If GitHub can't say (gh signed out, offline), it skips: a job might be running.
+function Wait-Idle {
+    $deadline = (Get-Date).AddMinutes($WaitMinutes)
+    while ($true) {
+        $r = RunnerState
+        if (-not $r) { Log "Couldn't read the runner's state from GitHub; skipping."; return $false }
+        if (-not $r.busy) { return $true }
+        if ((Get-Date) -gt $deadline) { Log "Runner still busy after $WaitMinutes min; skipping."; return $false }
+        Start-Sleep 60
+    }
 }
+if (-not (Wait-Idle)) { return }
 
 if ($Refresh) {
     New-Item $flag -ItemType File -Force | Out-Null
@@ -72,17 +79,21 @@ if (-not (Get-VMSnapshot -VMName $Name -Name $base -ErrorAction SilentlyContinue
 New-Item $flag -ItemType File -Force | Out-Null
 try {
     $cred = Import-Clixml (Join-Path $Root "factory-credential.xml")
+    $s = $null
     try {
         $s = New-PSSession -VMName $Name -Credential $cred
-        $dest = Join-Path $Root "factory-logs"
-        New-Item -ItemType Directory -Force $dest | Out-Null
+        $dest = Join-Path $Root "factory-logs\$(Get-Date -Format yyyy-MM-dd)"   # one folder a night: nothing overwritten
         if (Invoke-Command -Session $s { Test-Path C:\HouseStyle\factory-logs }) {
+            New-Item -ItemType Directory -Force $dest | Out-Null
             Copy-Item -FromSession $s C:\HouseStyle\factory-logs\* $dest -Recurse -Force
             Log "Copied factory logs to $dest."
         }
-        Remove-PSSession $s
     }
     catch { Log "Couldn't copy the factory logs ($($_.Exception.Message)); resetting anyway." }
+    finally { if ($s) { Remove-PSSession $s } }
+
+    # A queued run can start the moment the last one ends: check once more, just before the VM goes off.
+    if (-not (Wait-Idle)) { return }
 
     Stop-VM $Name -TurnOff -Force   # its state is being thrown away, so no shutdown that could hang
     Restore-VMSnapshot -VMName $Name -Name $base -Confirm:$false
