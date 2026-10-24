@@ -4,7 +4,7 @@
 name: factory
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '17,47 * * * *'   # off the hour and half hour, when GitHub drops the most scheduled runs
   workflow_dispatch:
     inputs:
       issue:
