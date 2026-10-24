@@ -73,9 +73,10 @@ function Get-FlareWindow([string]$Name) {
 .PARAMETER Fixture  A Flare project folder (copied; the original is never touched).
 .PARAMETER Ai       Turn AI review on (needs ANTHROPIC_API_KEY, from the environment or the repo's .env).
 .PARAMETER Force    Close a Flare that is already running (its unsaved work is lost).
+.PARAMETER Settings More plugin settings for this run (for example StyleLayers, to point at a team guide).
 #>
 function Start-FlareE2E {
-    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = (Get-E2ERoot))
+    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = (Get-E2ERoot), [hashtable]$Settings = @{})
     $script:Run = $null
     $running = Get-Process Flare -ErrorAction SilentlyContinue
     if ($running) {
@@ -93,7 +94,7 @@ function Start-FlareE2E {
     $flprj = Get-ChildItem (Join-Path $dir "project") -Filter *.flprj | Select-Object -First 1
 
     # Setup already done and the tour already offered, so no first-run dialogs; AI per -Ai.
-    @{ AiOff = (-not $Ai); WriteDiagnostics = $true; LiveCheck = $false } | ConvertTo-Json | Set-Content (Join-Path $appdata "settings.json")
+    (@{ AiOff = (-not $Ai); WriteDiagnostics = $true; LiveCheck = $false } + $Settings) | ConvertTo-Json | Set-Content (Join-Path $appdata "settings.json")
     @{ FirstStart = (Get-Date).ToUniversalTime().ToString("o"); TourOffered = $true; ChecklistHidden = $true; ProjectLinted = $true } | ConvertTo-Json | Set-Content (Join-Path $appdata "onboarding.json")
     # Flare loads a plugin only when it is turned on for this user.
     $key = "HKCU:\Software\MadCap Software\Flare\Plugins\House Style"
@@ -184,6 +185,32 @@ function Test-PaneOnScreen {
     return [bool]@($titles | Where-Object { $_.Name -like "House Style Issues*" -and -not $_.Properties.IsOffscreen.ValueOrDefault }).Count
 }
 
+<# Answers a message box House Style shows (title "House Style - <Action>", with an em dash) by its button. Message boxes
+   are Windows' own dialogs, which the hook can't reach, and owned ones don't expose their buttons to UI Automation, so the
+   box gets the button's command directly (OK and Yes are 1 and 6, Cancel and No are 2 and 7). #>
+function Confirm-MessageBox([Parameter(Mandatory)][string]$Action, [string]$Button = "OK") {
+    if (-not ("E2EWin" -as [type])) {
+        Add-Type -Name E2EWin -Namespace "" -MemberDefinition @"
+[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern System.IntPtr FindWindow(string cls, string title);
+[DllImport("user32.dll")] public static extern bool PostMessage(System.IntPtr h, uint msg, System.IntPtr w, System.IntPtr l);
+"@
+    }
+    $id = @{ OK = 1; Cancel = 2; Yes = 6; No = 7 }[$Button]
+    if (-not $id) { throw "Unknown message box button $Button" }
+    $title = "House Style $([char]0x2014) $Action"
+    $h = Wait-Until { $w = [E2EWin]::FindWindow("#32770", $title); if ($w -ne [IntPtr]::Zero) { $w } } 15 "the $Action message box"
+    [void][E2EWin]::PostMessage($h, 0x0111, [IntPtr]$id, [IntPtr]::Zero)   # WM_COMMAND
+}
+
+function Save-E2EScreenshot([Parameter(Mandatory)][string]$Name) {
+    Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+    $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+    [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
+    $dir = if ($env:HOUSESTYLE_E2E_OUT) { $env:HOUSESTYLE_E2E_OUT } else { $script:Run.Dir }   # the runner's results folder, uploaded by CI
+    $bmp.Save((Join-Path $dir "$Name.png"))
+}
+
 function Assert-E2E([bool]$Condition, [string]$Message) { if (-not $Condition) { throw "FAIL: $Message" } }
 
-Export-ModuleMember -Function Get-E2ERoot, Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until
+Export-ModuleMember -Function Get-E2ERoot, Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until, Confirm-MessageBox, Save-E2EScreenshot

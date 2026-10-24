@@ -186,7 +186,7 @@ namespace FlareAI.Core.Style
 
         private void LoadTopic(string path)
         {
-            var doc = new XmlDocument { PreserveWhitespace = true };
+            var doc = new XmlDocument { PreserveWhitespace = true, XmlResolver = null };   // shared folder: no external entities
             try { doc.Load(path); }
             catch (XmlException e) { Problems.Add(new GuideIssue { Level = "error", Layer = Name, File = path, Location = "", Message = "Not well-formed XML: " + e.Message }); return; }
             catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
@@ -485,11 +485,12 @@ namespace FlareAI.Core.Style
         /// is frozen to its current positional ids (so recorded feedback stays attached); otherwise new rules get a new
         /// short key. Returns how many rules got keys. Only topics that change are saved.
         /// </summary>
-        public int AssignKeys()
+        /// <param name="onlyTopic">Only this topic's rules (before one of them is edited); null for every topic.</param>
+        public int AssignKeys(string onlyTopic = null)
         {
             var assigned = 0;
             var rnd = new Random();
-            foreach (var topic in Items.Where(i => i.Element != null).GroupBy(i => i.Source))
+            foreach (var topic in Items.Where(i => i.Element != null && (onlyTopic == null || i.Source == onlyTopic)).GroupBy(i => i.Source))
             {
                 XmlDocument doc;
                 if (!_docs.TryGetValue(topic.Key, out doc)) continue;
@@ -509,6 +510,221 @@ namespace FlareAI.Core.Style
                 catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { Diagnostics.Log("keys: can't write " + topic.Key, ex); }   // read-only (bundled guide, locked file)
             }
             return assigned;
+        }
+
+        /// <summary>
+        /// The parts of a rule an owner can edit, as written: a table row's cells under their headings (Avoid, Use, Why,
+        /// Example, or whatever the table names them; not its level, which Change Level sets and records), or a bullet's
+        /// wording with its Bad and Good examples. The rule is
+        /// the one with this id in topic <paramref name="file"/> whose wording is still <paramref name="text"/>; null when the
+        /// topic no longer has it there (the guide changed since the caller read it).
+        /// </summary>
+        public List<KeyValuePair<string, string>> RuleFields(string id, string file, string text)
+        {
+            var item = Find(id, file, text);
+            return item == null ? null : Fields(item.Element);
+        }
+
+        private static List<KeyValuePair<string, string>> Fields(XmlElement el)
+        {
+            var fields = new List<KeyValuePair<string, string>>();
+            if (el.LocalName == "tr")
+            {
+                var heads = HeadsOf(el);
+                var cells = Cells(el);
+                for (var i = 0; i < cells.Count; i++)
+                    if (!IsLevelHeading(Head(heads, i))) fields.Add(new KeyValuePair<string, string>(Head(heads, i), TextOf(cells[i])));
+                return fields;
+            }
+            var examples = ExampleNodes(el);
+            fields.Add(new KeyValuePair<string, string>("Rule", OwnWords(el)));
+            foreach (var kind in new[] { "Bad", "Good" })
+                fields.Add(new KeyValuePair<string, string>(kind, examples.ContainsKey(kind) ? ExampleText(examples[kind]) : ""));
+            return fields;
+        }
+
+        /// <summary>
+        /// Writes the fields the owner changed (<paramref name="fields"/>, from <see cref="RuleFields"/>) back into the rule's
+        /// row or bullet and saves its topic; the rule keeps its id. Fields that didn't change keep their formatting; a
+        /// changed one becomes plain text. Returns the topic written, or null when the rule isn't there any more.
+        /// </summary>
+        public string EditRule(string id, string file, string text, IList<KeyValuePair<string, string>> fields)
+        {
+            var item = Find(id, file, text);
+            if (item == null || fields == null) return null;
+            var el = item.Element;
+            var before = Fields(el);
+            Func<string, string> now = k => fields.Where(f => f.Key == k).Select(f => (f.Value ?? "").Trim()).FirstOrDefault();
+            Func<string, bool> changed = k => { var v = now(k); return v != null && v != before.First(f => f.Key == k).Value; };
+            if (el.LocalName == "li" && changed("Rule") && now("Rule").Length == 0) throw new ArgumentException("A rule needs its wording.");
+            if (el.LocalName == "tr")
+                foreach (var f in before.Where(f => changed(f.Key)))
+                {
+                    var key = f.Key.ToLowerInvariant();
+                    if ((key.StartsWith("avoid") || key.StartsWith("pattern") || key.StartsWith("rule")) && now(f.Key).Length == 0)
+                        throw new ArgumentException(f.Key + " can't be empty. To remove the rule, use Delete Rule.");
+                    if (key.StartsWith("pattern"))
+                        try { new Regex(now(f.Key)); }
+                        catch (ArgumentException ex) { throw new ArgumentException("The pattern isn't valid. " + ex.Message); }
+                }
+            return SaveRule(item, () =>
+            {
+                if (el.LocalName == "tr")
+                {
+                    var cells = Cells(el);
+                    var heads = HeadsOf(el);
+                    for (var i = 0; i < cells.Count; i++)
+                        if (before.Any(f => f.Key == Head(heads, i)) && changed(Head(heads, i))) cells[i].InnerText = now(Head(heads, i));
+                    return;
+                }
+                if (changed("Rule"))
+                {
+                    var examples = new HashSet<XmlNode>(ExampleNodes(el).Values);
+                    foreach (var c in el.ChildNodes.Cast<XmlNode>().Where(c => !IsList(c) && !examples.Contains(c)).ToList()) el.RemoveChild(c);
+                    el.InsertBefore(el.OwnerDocument.CreateTextNode(now("Rule")), el.FirstChild);
+                }
+                foreach (var kind in new[] { "Bad", "Good" })
+                {
+                    if (!changed(kind)) continue;
+                    XmlElement node;
+                    ExampleNodes(el).TryGetValue(kind, out node);
+                    if (now(kind).Length == 0) { if (node != null) RemoveWithEmptyList(node); continue; }
+                    if (node == null)
+                    {
+                        var nested = el.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().FirstOrDefault(IsList);
+                        if (nested == null) { nested = el.OwnerDocument.CreateElement("ul", el.NamespaceURI); el.AppendChild(nested); }
+                        node = el.OwnerDocument.CreateElement("li", el.NamespaceURI);
+                        nested.AppendChild(node);
+                    }
+                    node.InnerText = kind + ": " + now(kind);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Removes the rule's row or bullet from its topic (with Bad/Good paragraphs that belong to it) and saves the topic.
+        /// Returns the topic written, or null when the rule isn't there any more.
+        /// </summary>
+        public string DeleteRule(string id, string file, string text)
+        {
+            var item = Find(id, file, text);
+            if (item == null) return null;
+            var el = item.Element;
+            return SaveRule(item, () =>
+            {
+                if (el.LocalName == "li")
+                    foreach (var n in ExampleNodes(el).Values.Where(n => n.ParentNode == el.ParentNode.ParentNode)) n.ParentNode.RemoveChild(n);
+                RemoveWithEmptyList(el);
+            });
+        }
+
+        /// <summary>The rule with this id (its part after the layer name, so a writer's own guide matches whatever layer name
+        /// it loads under) in exactly this topic, still worded as <paramref name="text"/>.</summary>
+        private GuideRule Find(string id, string file, string text)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(file)) return null;
+            string full;
+            try { full = System.IO.Path.GetFullPath(file); } catch (Exception) { return null; }
+            return Items.FirstOrDefault(i => i.Element != null && _docs.ContainsKey(i.Source) &&
+                                             string.Equals(Local(i.Id), Local(id), StringComparison.OrdinalIgnoreCase) &&
+                                             string.Equals(System.IO.Path.GetFullPath(i.Source), full, StringComparison.OrdinalIgnoreCase) &&
+                                             (text == null || i.Text == text));
+        }
+
+        private static string Local(string id) { return id.Substring(id.IndexOf(':') + 1); }
+
+        /// <summary>
+        /// Gives the rules of the item's topic permanent keys first, so removing or rewording one never moves another rule's
+        /// id (and with it the team's settings and feedback for that rule); then applies <paramref name="change"/> and saves.
+        /// </summary>
+        private string SaveRule(GuideRule item, Action change)
+        {
+            AssignKeys(item.Source);
+            change();
+            try { Save(_docs[item.Source], item.Source); }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException) { throw new GuideWriteException(item.Source, ex); }
+            return item.Source;
+        }
+
+        /// <summary>Removes a list item, and its list when that leaves the list empty.</summary>
+        private static void RemoveWithEmptyList(XmlNode n)
+        {
+            var parent = n.ParentNode;
+            parent.RemoveChild(n);
+            if (IsList(parent) && !parent.ChildNodes.Cast<XmlNode>().Any(c => c.NodeType == XmlNodeType.Element)) parent.ParentNode.RemoveChild(parent);
+        }
+
+        private static string Head(List<string> heads, int i) { return i < heads.Count && heads[i].Length > 0 ? heads[i] : "Column " + (i + 1); }
+
+        private static bool IsLevelHeading(string h)
+        {
+            var k = h.ToLowerInvariant();
+            return k.StartsWith("severity") || k.StartsWith("level") || k.StartsWith("setting") || k.StartsWith("status");
+        }
+
+        private static bool IsList(XmlNode n) { return n.NodeType == XmlNodeType.Element && (n.LocalName == "ul" || n.LocalName == "ol"); }
+
+        private static List<XmlElement> Cells(XmlElement tr)
+        {
+            return tr.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().Where(c => c.LocalName == "td" || c.LocalName == "th").ToList();
+        }
+
+        /// <summary>The headings of the row's table: its first row with any text, as the guide reads it.</summary>
+        private static List<string> HeadsOf(XmlElement tr)
+        {
+            for (XmlNode t = tr.ParentNode; t != null; t = t.ParentNode)
+                if (t.LocalName == "table")
+                {
+                    var first = t.SelectNodes(".//*[local-name()='tr']").Cast<XmlElement>().FirstOrDefault(r => Cells(r).Any(c => TextOf(c).Length > 0));
+                    return first == null || first == tr ? new List<string>() : Cells(first).Select(c => TextOf(c)).ToList();
+                }
+            return new List<string>();
+        }
+
+        private static readonly Regex ExampleLine = new Regex(@"^(Bad|Good):\s*", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// The elements holding a bullet's Bad and Good examples, as the guide reads them: a nested list item, an inline
+        /// paragraph, or, for the last bullet of a list, a "Bad:"/"Good:" paragraph right after the list. A later one wins.
+        /// </summary>
+        private static Dictionary<string, XmlElement> ExampleNodes(XmlElement li)
+        {
+            var map = new Dictionary<string, XmlElement>(StringComparer.OrdinalIgnoreCase);
+            Func<XmlElement, bool> add = e =>
+            {
+                var m = ExampleLine.Match(TextOf(e));
+                if (!m.Success) return false;
+                var kind = m.Groups[1].Value;
+                map[char.ToUpperInvariant(kind[0]) + kind.Substring(1).ToLowerInvariant()] = e;
+                return true;
+            };
+            foreach (var c in li.ChildNodes.Cast<XmlNode>().OfType<XmlElement>())
+            {
+                if (IsList(c)) { foreach (var sub in c.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().Where(x => x.LocalName == "li")) add(sub); }
+                else add(c);
+            }
+            var list = li.ParentNode;
+            if (list != null && li == list.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().LastOrDefault(e => e.LocalName == "li"))
+                for (var n = list.NextSibling; n != null; n = n.NextSibling)
+                {
+                    if (n.NodeType != XmlNodeType.Element) continue;
+                    if (n.LocalName != "p" || !add((XmlElement)n)) break;
+                }
+            return map;
+        }
+
+        private static string ExampleText(XmlElement e) { return ExampleLine.Replace(TextOf(e), "").Trim(); }
+
+        /// <summary>A bullet's wording without its examples (nested lists and "Bad:"/"Good:" lines).</summary>
+        private static string OwnWords(XmlElement li)
+        {
+            var sb = new StringBuilder();
+            foreach (XmlNode c in li.ChildNodes)
+            {
+                if (IsList(c) || c.NodeType == XmlNodeType.Element && ExampleLine.IsMatch(TextOf(c))) continue;
+                sb.Append(c.InnerText);
+            }
+            return Regex.Replace(sb.ToString(), @"[ \t\r\n\f\v]+", " ").Trim();
         }
 
         private static string Base36(int v)

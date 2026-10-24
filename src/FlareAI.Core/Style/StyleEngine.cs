@@ -291,6 +291,19 @@ namespace FlareAI.Core.Style
             return n;
         }
 
+        /// <summary>
+        /// The style guide at <paramref name="root"/>, read fresh from disk, for its owner to edit or delete a rule written in
+        /// it (<see cref="GuideLayer.EditRule"/>, <see cref="GuideLayer.DeleteRule"/>; then <see cref="Invalidate"/>). Null
+        /// unless it is one of the guides in effect, and never the guide bundled with the plugin.
+        /// </summary>
+        public GuideLayer EditableGuide(string root)
+        {
+            if (string.IsNullOrEmpty(root) || !Directory.Exists(root) || WhyUnreadable(root) != null) return null;
+            if (_bundled != null && SamePath(root, _bundled)) return null;
+            if (!(_roots() ?? new string[0]).Any(g => !string.IsNullOrEmpty(g) && SamePath(g, root))) return null;
+            return GuideLayer.Load(root, null, null, "Google");
+        }
+
         /// <summary>Terms every layer's glossary defines (for topic assists: don't propose what's already there).</summary>
         public List<string> GlossaryTerms(string project)
         {

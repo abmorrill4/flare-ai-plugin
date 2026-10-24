@@ -34,6 +34,7 @@ if ($NoAi) { $files = $files | Where-Object { $_.BaseName -notlike "ai-*" } }
 if (-not @($files).Count) { throw "No scenarios to run (check -Scenario names)." }   # an empty run must not look like a pass
 $out = $OutDir
 New-Item -ItemType Directory -Force $out | Out-Null
+$env:HOUSESTYLE_E2E_OUT = $out   # Save-E2EScreenshot puts its screenshots here
 $results = @()
 # Runs in its own process, so it fires even while this one is blocked inside a UI Automation call. It uses no UI
 # Automation for the same reason: process window titles only.

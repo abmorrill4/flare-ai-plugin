@@ -232,6 +232,127 @@ namespace FlareAI.Core.Tests
         }
 
         [Fact]
+        public void OwnerEditsAndDeletesRules_InTheGuideTopic_KeepingTheirIds()
+        {
+            const string head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html><body><h1>Words</h1>\n";
+            var root = TempProject(r =>
+            {
+                Write(r, @"Content\Resources\StyleGuide\Words.htm", head +
+                    "<ul><li>Say <b>members</b>.<ul><li>Bad: Our users.</li></ul></li><li>Say sign in.</li><li>Spell out numbers.</li></ul>\n<p>Bad: There are 3 steps.</p>\n" +
+                    "<table><tr><th>Avoid</th><th>Use</th><th>Example</th></tr><tr><td>utilise</td><td>use</td><td>We <code>utilise</code> it.</td></tr><tr><td>leverage</td><td>use</td><td>Leverage it.</td></tr></table>\n</body></html>");
+                // Same file name in another folder: its rules get the same ids as Words.htm's.
+                Write(r, @"Content\Resources\StyleGuide\Product\Words.htm", head + "<ul><li>Say workspace.</li></ul>\n</body></html>");
+            });
+            var file = Path.Combine(root, @"Content\Resources\StyleGuide\Words.htm");
+            var other = Path.Combine(root, @"Content\Resources\StyleGuide\Product\Words.htm");
+            try
+            {
+                Func<StyleEngine> engine = () => new StyleEngine(new[] { root }, Guide);
+                Func<string, GuideRule> rule = text => engine().Rules(null).FirstOrDefault(x => x.Layer != "google" && x.Text.Contains(text));
+                Func<GuideLayer> guide = () => engine().EditableGuide(root);
+                var members = rule("Say members");
+                var utilise = rule("utilise");
+                var numbers = rule("Spell out numbers");
+
+                // Only a guide in effect, never the bundled one.
+                Assert.Null(engine().EditableGuide(Guide));
+                Assert.Null(engine().EditableGuide(Path.GetTempPath()));
+
+                // The rule is found in its own topic only, and only while it still reads the same.
+                Assert.Null(guide().RuleFields(members.Id, other, members.Text));
+                Assert.Null(guide().RuleFields(members.Id, file, "Say clients."));
+
+                // A bullet: change only Good. The wording keeps its formatting, the Bad example stays. Same id.
+                var fields = guide().RuleFields(members.Id, file, members.Text);
+                Assert.Equal(new[] { "Rule", "Bad", "Good" }, fields.Select(f => f.Key).ToArray());
+                Assert.Equal("Say members.", fields[0].Value);
+                Assert.Equal("Our users.", fields[1].Value);
+                Assert.EndsWith("Words.htm", guide().EditRule(members.Id, file, members.Text, new[] { Field("Rule", "Say members."), Field("Bad", "Our users."), Field("Good", "Our members.") }));
+                Assert.Contains("<b>members</b>", File.ReadAllText(file));
+                var edited = rule("Say members");
+                Assert.Equal(members.Id, edited.Id);
+                Assert.Equal("Our users.", edited.Bad);
+                Assert.Equal("Our members.", edited.Good);
+                Assert.Contains("Say workspace.", File.ReadAllText(other));   // the other Words.htm is untouched
+
+                // New wording replaces the formatting of the wording only.
+                guide().EditRule(members.Id, file, edited.Text, new[] { Field("Rule", "Say members, not users."), Field("Bad", "Our users."), Field("Good", "Our members.") });
+                Assert.Equal(members.Id, rule("Say members, not users.").Id);
+                Assert.Equal("Our members.", rule("Say members, not users.").Good);
+
+                // An example written as a paragraph after the list belongs to the last bullet: Edit shows and changes it there.
+                Assert.Equal("There are 3 steps.", guide().RuleFields(numbers.Id, file, numbers.Text)[1].Value);
+                guide().EditRule(numbers.Id, file, numbers.Text, new[] { Field("Rule", numbers.Text), Field("Bad", "There are 4 steps."), Field("Good", "") });
+                Assert.Equal("There are 4 steps.", rule("Spell out numbers").Bad);
+                Assert.Equal(1, System.Text.RegularExpressions.Regex.Matches(File.ReadAllText(file), "Bad: There are").Count);
+
+                // A table row: only the changed cell is rewritten; the Example keeps its code formatting.
+                fields = guide().RuleFields(utilise.Id, file, utilise.Text);
+                Assert.Equal(new[] { "Avoid", "Use", "Example" }, fields.Select(f => f.Key).ToArray());
+                guide().EditRule(utilise.Id, file, utilise.Text, new[] { Field("Avoid", "utilise, utilize"), Field("Use", "use"), Field("Example", fields[2].Value) });
+                Assert.Contains("<code>utilise</code>", File.ReadAllText(file));
+                Assert.Contains(engine().Lint(new[] { "We utilize it." }, null, null), h => h.RuleId == utilise.Id);
+
+                // Delete: the row and the bullets are gone (the last one with its example paragraph); the others keep their ids.
+                var leverage = rule("leverage").Id;
+                var signIn = rule("Say sign in").Id;
+                guide().DeleteRule(utilise.Id, file, rule("utilise").Text);
+                guide().DeleteRule(numbers.Id, file, rule("Spell out numbers").Text);
+                Assert.Null(rule("utilise"));
+                Assert.Null(rule("Spell out numbers"));
+                Assert.DoesNotContain("There are 4 steps", File.ReadAllText(file));
+                Assert.Equal(leverage, rule("leverage").Id);
+                Assert.Equal(signIn, rule("Say sign in").Id);
+                Assert.Equal("", rule("Say sign in").Bad);   // the deleted bullet's example didn't move to the one before it
+                Assert.Null(guide().DeleteRule(numbers.Id, file, numbers.Text));   // already gone: nothing else is deleted
+                var keep = rule("Say members, not users.");
+                Assert.Throws<ArgumentException>(() => guide().EditRule(keep.Id, file, keep.Text, new[] { Field("Rule", " "), Field("Bad", "Our users."), Field("Good", "Our members.") }));
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
+        [Fact]
+        public void EditRule_LeavesTheLevelToChangeLevel_AndRefusesARowTheGuideCantRead()
+        {
+            var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Terms.htm",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<html><body><h1>Terms</h1>\n<table><tr><td></td><td></td></tr>" +
+                "<tr><th>Avoid</th><th>Use</th><th>Severity</th><th>Why</th><th>Example</th></tr><tr><td>utilise</td><td>use</td><td>Warning</td><td>Plain words.</td><td>We utilise it.</td></tr></table>\n" +
+                "<table><tr><th>Pattern</th><th>Use</th><th>Example</th></tr><tr><td>\\bdon't\\b</td><td>do not</td><td>We don't.</td></tr></table>\n" +
+                "<ul><li>Say members.<ul><li>Good: Our members.</li></ul></li></ul>\n</body></html>"));
+            var file = Path.Combine(root, @"Content\Resources\StyleGuide\Terms.htm");
+            try
+            {
+                Func<StyleEngine> engine = () => new StyleEngine(new[] { root }, Guide);
+                Func<string, GuideRule> rule = text => engine().Rules(null).FirstOrDefault(x => x.Layer != "google" && x.Text.Contains(text));
+                var guide = engine().EditableGuide(root);
+                var utilise = rule("utilise");
+
+                // The headings come from the first row with text; the level column isn't offered.
+                var fields = guide.RuleFields(utilise.Id, file, utilise.Text);
+                Assert.Equal(new[] { "Avoid", "Use", "Why", "Example" }, fields.Select(f => f.Key).ToArray());
+                guide.EditRule(utilise.Id, file, utilise.Text, new[] { Field("Avoid", "utilise"), Field("Use", "use"), Field("Why", "Plain words help."), Field("Example", "We utilise it.") });
+                Assert.Contains("<td>Warning</td>", File.ReadAllText(file));   // untouched, as written
+
+                var row = rule("utilise");
+                Assert.Throws<ArgumentException>(() => engine().EditableGuide(root).EditRule(row.Id, file, row.Text, new[] { Field("Avoid", ""), Field("Use", "use"), Field("Why", "x"), Field("Example", "y") }));
+                var pattern = engine().Rules(null).First(x => x.Layer != "google" && x.Example == "We don't.");
+                var pf = engine().EditableGuide(root).RuleFields(pattern.Id, file, pattern.Text);
+                Assert.Equal("Pattern", pf[0].Key);
+                Assert.Throws<ArgumentException>(() => engine().EditableGuide(root).EditRule(pattern.Id, file, pattern.Text, new[] { Field("Pattern", "(unclosed"), pf[1], pf[2] }));
+
+                // Clearing a bullet's only example leaves no empty list behind.
+                var members = rule("Say members");
+                engine().EditableGuide(root).EditRule(members.Id, file, members.Text, new[] { Field("Rule", "Say members."), Field("Bad", ""), Field("Good", "") });
+                Assert.Equal("", rule("Say members").Good);
+                Assert.DoesNotContain("<ul />", File.ReadAllText(file));
+                Assert.DoesNotContain("<ul></ul>", File.ReadAllText(file));
+            }
+            finally { Directory.Delete(root, true); }
+        }
+
+        private static System.Collections.Generic.KeyValuePair<string, string> Field(string k, string v) { return new System.Collections.Generic.KeyValuePair<string, string>(k, v); }
+
+        [Fact]
         public void TurningOffAGoogleRuleForTheTeam_WritesTheGuide_AndStopsLintAndAi()
         {
             var root = TempProject(r => Write(r, @"Content\Resources\StyleGuide\Company\Changes.htm",
