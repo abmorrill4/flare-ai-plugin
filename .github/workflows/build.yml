@@ -32,13 +32,13 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" != "pull_request" ]; then echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; fi
           # Fail safe: if the diff can't be read or is empty, run everything.
-          files=$(git diff --name-only "$BASE" HEAD) || { echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; }
+          files=$(git diff --name-only --no-renames "$BASE" HEAD) || { echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; }
           if [ -z "$files" ] || echo "$files" | grep -qvE '^(docs/.*|[^/]*)[.]md$'; then code=true; else code=false; fi
           echo "code=$code" >> "$GITHUB_OUTPUT"
 
   build:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}   # runs if changes failed
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -164,7 +164,7 @@ jobs:
   feedback-worker:
     # The Cloudflare Worker that receives in-app reports (#124). Tests only; the owner deploys it by hand (see its README).
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}   # runs if changes failed
     runs-on: ubuntu-latest
     defaults:
       run:
