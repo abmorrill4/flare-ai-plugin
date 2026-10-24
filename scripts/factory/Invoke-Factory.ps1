@@ -41,11 +41,14 @@ function Without([string[]]$names, [scriptblock]$block) {
 }
 
 # Claude Code without the GitHub token, without web tools, with only the commands the job needs. The Anthropic key
-# stays: it is the agent's own credential.
+# stays: it is the agent's own credential. User settings only: the repository's .claude settings and hooks don't apply
+# to the factory's agent. Claude's notes go to stderr, which Windows PowerShell would treat as a failure, so its exit
+# code decides.
 function Agent([string]$prompt, $map, $tools) {
     foreach ($k in $map.Keys) { $prompt = $prompt.Replace("{{$k}}", $map[$k]) }
     Without "GH_TOKEN", "GITHUB_TOKEN" {
-        $prompt | & claude -p --permission-mode acceptEdits --allowedTools $tools --disallowedTools "WebFetch,WebSearch,Bash(gh:*),Bash(curl:*),Bash(git push:*)" --max-turns 200 | Out-Host
+        $ErrorActionPreference = "Continue"
+        $prompt | & claude -p --setting-sources user --permission-mode acceptEdits --allowedTools $tools --disallowedTools "WebFetch,WebSearch,Bash(gh:*),Bash(curl:*),Bash(git push:*)" --max-turns 200 2>&1 | Out-Host
         if ($LASTEXITCODE) { throw "claude exited $LASTEXITCODE" }
     }
 }
