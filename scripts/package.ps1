@@ -16,7 +16,8 @@ Copy-Item "tools\FlareAI.Mcp\bin\Release\net48\FlareAI.Mcp.exe", "tools\FlareAI.
 # The updater (issue #101): waits for Flare to close, then swaps %LOCALAPPDATA%\HouseStyle\current to a staged update.
 dotnet build tools\FlareAI.Updater\FlareAI.Updater.csproj -c Release -p:Version=$Version
 Copy-Item "tools\FlareAI.Updater\bin\Release\net48\FlareAI.Updater.exe", "tools\FlareAI.Updater\bin\Release\net48\FlareAI.Updater.exe.config" -Destination $stage
-Copy-Item "src\FlareAI.Flare\whats-new.md" -Destination $stage
+# The hand-written notes plus each release's changes/ files (scripts\release\Build-WhatsNew.ps1).
+& (Join-Path $PSScriptRoot "release\Build-WhatsNew.ps1") -Version $Version -Out (Join-Path $stage "whats-new.md")
 if (Test-Path "src\FlareAI.Flare\Icons") { Copy-Item "src\FlareAI.Flare\Icons" -Destination $stage -Recurse }
 # The practice project for the guided first lint (copied to Documents\House Style Practice on first use).
 Copy-Item "src\FlareAI.Flare\Samples" -Destination $stage -Recurse

@@ -24,7 +24,7 @@ $reports = "abmorrill4/house-style-reports"
 $owner = "abmorrill4"
 $tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath() }
 $here = Split-Path (Split-Path $PSScriptRoot)   # repo root
-$allowed = '^(src|tests|styleguide/Company|docs/user-guide)/'
+$allowed = '^(src|tests|styleguide/Company|docs/user-guide|changes)/'
 $denied = '\.csproj$|\.csproj\.user$|Directory\.Build\.|Directory\.Packages\.props$|nuget\.config$|packages\.lock\.json$|^tests/e2e/(Run-FlareE2E\.ps1|FlareE2E\.psm1)$|^tests/e2e/flaui/'
 # Code that updates the plugin, holds settings and keys, or talks to AI providers: a fix here goes to the owner.
 $ownerOnly = '^src/FlareAI\.Core/(Update|Settings|Llm)/|^src/FlareAI\.Flare/E2EHook\.cs$'
@@ -256,7 +256,9 @@ try {
     git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$token")))" push -q -f origin $branch
     if ($LASTEXITCODE) { throw "Push failed." }
     $prBody = "Fixes tester report $n (private reports repo).`n`nThe factory's second agent reviewed the diff: MERGE. Unit tests and the end-to-end checks in Flare passed on the factory VM.$(if ($retried) { " These passed only on a retry after a VM failure, so look for a flaky start-up: $($retried -join ', ')." })`n`n🤖 Generated with [Claude Code](https://claude.com/claude-code)"
-    $url = Gh pr create -R $repo --base main --head $branch --title "Fix tester report $n" --body $prBody
+    # Every fix should carry a changes/ note; if the agent left it out, the PR says so with no-notes rather than fail CI.
+    $noteArgs = if (@($changes | Where-Object { ($_ -split "`t")[-1] -like "changes/*.md" }).Count) { @() } else { @("--label", "no-notes") }
+    $url = Gh pr create -R $repo --base main --head $branch --title "Fix tester report $n" --body $prBody @noteArgs
     $pr = ($url -split '/')[-1]
 
     # Required checks: wait until they exist and none is pending; every one must pass.
