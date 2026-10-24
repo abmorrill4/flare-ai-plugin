@@ -52,29 +52,35 @@ $watchdog = {
     } catch { }
     Get-Process Flare -ErrorAction SilentlyContinue | Stop-Process -Force
 }
-foreach ($f in $files) {
+$q = { param($p) "'" + ($p -replace "'", "''") + "'" }
+# One try of one scenario. A failure is "vm" only when Flare itself never came up (no main window, or the licensing
+# wizard stuck) or hung before the plugin reported ready: the machine is the likely cause, so it earns one retry.
+# Everything else is "test" and is never retried: Flare up but the plugin never ready, a scenario that fails before
+# starting Flare, and anything after the plugin is ready, hangs included (a fix can deadlock Flare).
+function Invoke-Once($f, $tag) {
     $start = Get-Date
-    Write-Host "== $($f.BaseName)"
-    $hung = Join-Path $out "$($f.BaseName)-hung.txt"
-    $q = { param($p) "'" + ($p -replace "'", "''") + "'" }
-    $cmd = "& {$watchdog} $PID $($ScenarioMinutes * 60) $(& $q (Join-Path $out "$($f.BaseName)-hung.png")) $(& $q $hung)"
+    $hung = Join-Path $out "$tag-hung.txt"
+    $cmd = "& {$watchdog} $PID $($ScenarioMinutes * 60) $(& $q (Join-Path $out "$tag-hung.png")) $(& $q $hung)"
     $dog = Start-Process powershell.exe -WindowStyle Hidden -PassThru -ArgumentList "-NoProfile", "-EncodedCommand", ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd)))
-    $r = [ordered]@{ scenario = $f.BaseName; passed = $false; seconds = 0; error = $null; version = $null; artifacts = @() }
+    $r = [ordered]@{ passed = $false; kind = $null; seconds = 0; error = $null; version = $null; artifacts = @() }
+    (Get-Module FlareE2E).Invoke({ $script:Run = $null })   # no state from the scenario before
     try {
-        & $f.FullName -Fixture $Fixture
+        & $f.FullName -Fixture $Fixture | Out-Host   # to the console, not into this function's result
         $r.passed = $true
-        Write-Host "   PASS" -ForegroundColor Green
     } catch {
         $r.error = $_.Exception.Message
-        if (Test-Path $hung) { $r.error = "Hung for $ScenarioMinutes min, so the watchdog killed Flare: $($r.error)"; $r.artifacts += "$($f.BaseName)-hung.txt", "$($f.BaseName)-hung.png" }
-        Write-Host "   $($r.error)" -ForegroundColor Red
-        try { Get-E2EState | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out "$($f.BaseName)-state.json"); $r.artifacts += "$($f.BaseName)-state.json" } catch { }
+        # Where Flare got to: never launched by this scenario, launched, or the plugin ready.
+        $stage = (Get-Module FlareE2E).Invoke({ if (-not $script:Run) { "none" } elseif ($script:Run.PSObject.Properties["PluginReady"]) { "ready" } else { "launched" } })
+        $flareUp = $stage -eq "launched" -and -not (Test-Path $hung) -and [bool](Get-Process Flare -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -and $_.MainWindowTitle -ne "Licensing Wizard" })
+        $r.kind = if ($stage -eq "launched" -and -not $flareUp) { "vm" } else { "test" }
+        if (Test-Path $hung) { $r.error = "Hung for $ScenarioMinutes min, so the watchdog killed Flare: $($r.error)"; $r.artifacts += "$tag-hung.txt", "$tag-hung.png" }
+        try { Get-E2EState | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out "$tag-state.json"); $r.artifacts += "$tag-state.json" } catch { }
         try {
             Add-Type -AssemblyName System.Windows.Forms, System.Drawing
             $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
             $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
             [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
-            $bmp.Save((Join-Path $out "$($f.BaseName).png")); $r.artifacts += "$($f.BaseName).png"
+            $bmp.Save((Join-Path $out "$tag.png")); $r.artifacts += "$tag.png"
         } catch { }
     } finally {
         Stop-Process -Id $dog.Id -Force -ErrorAction SilentlyContinue
@@ -82,9 +88,29 @@ foreach ($f in $files) {
         Stop-FlareE2E
         $r.seconds = [int]((Get-Date) - $start).TotalSeconds
     }
-    $results += [pscustomobject]$r
+    $r
 }
-$results | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $out "results.json")
-$failed = @($results | Where-Object { -not $_.passed }).Count
-Write-Host "$($results.Count - $failed) passed, $failed failed. $out\results.json"
-exit $failed
+
+foreach ($f in $files) {
+    Write-Host "== $($f.BaseName)"
+    $r = Invoke-Once $f $f.BaseName
+    if (-not $r.passed -and $r.kind -eq "vm") {
+        Write-Host "   VM failure, retrying once: $($r.error)" -ForegroundColor Yellow
+        $first = $r
+        $r = Invoke-Once $f "$($f.BaseName)-retry"
+        $r.firstTry = [ordered]@{ kind = $first.kind; error = $first.error; artifacts = $first.artifacts }
+        $r.artifacts = @($first.artifacts) + @($r.artifacts)
+        $r.seconds += $first.seconds
+        if ($r.passed) { Write-Host "::warning::$($f.BaseName) passed on a retry after a VM failure: $($first.error)" }
+    }
+    if ($r.passed) { Write-Host "   PASS$(if ($r.Contains('firstTry')) { ' (on retry)' })" -ForegroundColor Green }
+    else { Write-Host "   $($r.kind.ToUpper()) FAILURE: $($r.error)" -ForegroundColor Red; Write-Host "::error::$($f.BaseName) ($($r.kind) failure): $($r.error)" }
+    $row = [ordered]@{ scenario = $f.BaseName }; foreach ($k in $r.Keys) { $row[$k] = $r[$k] }
+    $results += [pscustomobject]$row
+}
+$results | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $out "results.json")
+$failed = @($results | Where-Object { -not $_.passed })
+$vm = @($failed | Where-Object kind -eq "vm").Count
+$retried = @($results | Where-Object { $_.passed -and $_.firstTry }).Count
+Write-Host "$($results.Count - $failed.Count) passed$(if ($retried) { " ($retried on retry)" }), $($failed.Count) failed ($($failed.Count - $vm) test, $vm VM). $out\results.json"
+exit $failed.Count
