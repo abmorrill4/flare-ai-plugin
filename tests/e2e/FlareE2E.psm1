@@ -38,9 +38,10 @@ function Get-FlareWindow([string]$Name) {
 .PARAMETER Fixture  A Flare project folder (copied; the original is never touched).
 .PARAMETER Ai       Turn AI review on (needs ANTHROPIC_API_KEY, from the environment or the repo's .env).
 .PARAMETER Force    Close a Flare that is already running (its unsaved work is lost).
+.PARAMETER Settings More plugin settings for this run (for example StyleLayers, to point at a team guide).
 #>
 function Start-FlareE2E {
-    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = (Get-E2ERoot))
+    param([Parameter(Mandatory)][string]$Fixture, [switch]$Ai, [switch]$Force, [string]$RunRoot = (Get-E2ERoot), [hashtable]$Settings = @{})
     $script:Run = $null
     $running = Get-Process Flare -ErrorAction SilentlyContinue
     if ($running) {
@@ -58,7 +59,7 @@ function Start-FlareE2E {
     $flprj = Get-ChildItem (Join-Path $dir "project") -Filter *.flprj | Select-Object -First 1
 
     # Setup already done and the tour already offered, so no first-run dialogs; AI per -Ai.
-    @{ AiOff = (-not $Ai); WriteDiagnostics = $true; LiveCheck = $false } | ConvertTo-Json | Set-Content (Join-Path $appdata "settings.json")
+    (@{ AiOff = (-not $Ai); WriteDiagnostics = $true; LiveCheck = $false } + $Settings) | ConvertTo-Json | Set-Content (Join-Path $appdata "settings.json")
     @{ FirstStart = (Get-Date).ToUniversalTime().ToString("o"); TourOffered = $true; ChecklistHidden = $true; ProjectLinted = $true } | ConvertTo-Json | Set-Content (Join-Path $appdata "onboarding.json")
     # Flare loads a plugin only when it is turned on for this user.
     $key = "HKCU:\Software\MadCap Software\Flare\Plugins\House Style"
@@ -146,6 +147,35 @@ function Test-PaneOnScreen {
     return [bool]@($titles | Where-Object { $_.Current.Name -like "House Style Issues*" -and -not $_.Current.IsOffscreen }).Count
 }
 
+<# Answers a message box House Style shows (title "House Style — <Action>") by its button, through UI Automation:
+   message boxes are Windows' own dialogs, which the hook can't reach. #>
+function Confirm-MessageBox([Parameter(Mandatory)][string]$Action, [string]$Button = "OK") {
+    # A message box owned by a dialog shows up under that dialog's window, not at the top level.
+    $title = "House Style $([char]0x2014) $Action"
+    $cond = New-And (New-Cond $A::NameProperty $title) (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Window))
+    $box = Wait-Until {
+        $top = Get-FlareWindow $title
+        if ($top) { $top } else {
+            foreach ($p in @(Get-Process Flare -ErrorAction SilentlyContinue)) {
+                foreach ($w in @($A::RootElement.FindAll($Scope::Children, (New-Cond $A::ProcessIdProperty $p.Id)))) { $f = $w.FindFirst($Scope::Descendants, $cond); if ($f) { return $f } }
+            }
+        }
+    } 15 "the $Action message box"
+    $b = $box.FindFirst($Scope::Descendants, (New-And (New-Cond $A::NameProperty $Button) (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))))
+    if (-not $b) { throw "No $Button button in the $Action message box" }
+    $b.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
+}
+
+<# Saves a screenshot of the whole screen as <name>.png in this run's folder, for checks a person reviews (keyboard, scaling). #>
+function Save-E2EScreenshot([Parameter(Mandatory)][string]$Name) {
+    Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+    $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+    [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
+    $dir = if ($env:HOUSESTYLE_E2E_OUT) { $env:HOUSESTYLE_E2E_OUT } else { $script:Run.Dir }   # the runner's results folder, uploaded by CI
+    $bmp.Save((Join-Path $dir "$Name.png"))
+}
+
 function Assert-E2E([bool]$Condition, [string]$Message) { if (-not $Condition) { throw "FAIL: $Message" } }
 
-Export-ModuleMember -Function Get-E2ERoot, Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until
+Export-ModuleMember -Function Get-E2ERoot, Start-FlareE2E, Stop-FlareE2E, Send-E2E, Get-E2EState, Wait-PaneDone, Invoke-Ribbon, Test-PaneOnScreen, Assert-E2E, Wait-Until, Confirm-MessageBox, Save-E2EScreenshot

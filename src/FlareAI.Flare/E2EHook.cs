@@ -90,7 +90,10 @@ namespace FlareAI.Flare
                 case "click": Click(Pane(), arg); return null;                        // a button in the issues pane
                 case "rowMenu": return Pane().E2ERowMenu((int)c["index"], arg);       // right-click a row, click an item
                 case "dialogClick": Click(Dialog((string)c["title"]), arg); return null;
-                case "dialogSelect": Select(Dialog((string)c["title"]), (int)c["index"]); return null;
+                case "dialogSelect":                                                  // a list item by index, or a list view row by its text
+                    if (c["text"] != null) SelectRow(Dialog((string)c["title"]), (string)c["text"]); else Select(Dialog((string)c["title"]), (int)c["index"]);
+                    return null;
+                case "dialogType": Type(Dialog((string)c["title"]), (string)c["name"], arg); return null;   // a text box or list by its accessible name
                 default: throw new ArgumentException("Unknown verb " + verb);
             }
         }
@@ -134,6 +137,27 @@ namespace FlareAI.Flare
             box.SelectedIndex = index;
         }
 
+        /// <summary>Selects the first row of the dialog's list view whose text contains <paramref name="text"/>, as a click would.</summary>
+        private static void SelectRow(Control root, string text)
+        {
+            var list = All(root).OfType<ListView>().FirstOrDefault(x => x.Visible);
+            if (list == null) throw new InvalidOperationException("No list view in the dialog");
+            var item = list.Items.Cast<ListViewItem>().FirstOrDefault(i => i.Text.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (item == null) throw new InvalidOperationException("No row with " + text);
+            list.SelectedItems.Clear();
+            item.Selected = true; item.Focused = true; item.EnsureVisible();
+        }
+
+        /// <summary>Types <paramref name="text"/> into the dialog's text box (or picks it in the list) named <paramref name="name"/>.</summary>
+        private static void Type(Control root, string name, string text)
+        {
+            var box = All(root).FirstOrDefault(x => x.Visible && (x is TextBox || x is ComboBox) && x.AccessibleName == name);
+            if (box == null) throw new InvalidOperationException("No box named " + name);
+            var combo = box as ComboBox;
+            if (combo != null && combo.DropDownStyle == ComboBoxStyle.DropDownList) combo.SelectedItem = combo.Items.Cast<object>().First(i => i.ToString() == text);
+            else box.Text = text;
+        }
+
         private static IEnumerable<Control> All(Control root)
         {
             foreach (Control c in root.Controls)
@@ -153,11 +177,22 @@ namespace FlareAI.Flare
                 dialogs = Application.OpenForms.Cast<Form>().Where(IsOurs).Select(f => new
                 {
                     title = f.Text,
+                    focus = Focus(f),
                     buttons = Buttons(f),
                     text = All(f).OfType<Label>().Where(l => l.Visible && l.Text.Length > 0).Select(l => l.Text).ToList(),
-                    items = All(f).OfType<ListBox>().SelectMany(l => l.Items.Cast<object>().Select(i => i.ToString())).ToList()
+                    items = All(f).OfType<ListBox>().SelectMany(l => l.Items.Cast<object>().Select(i => i.ToString())).ToList(),
+                    rows = All(f).OfType<ListView>().SelectMany(l => l.Items.Cast<ListViewItem>().Select(i => new { text = i.Text, tip = i.ToolTipText, selected = i.Selected })).ToList(),
+                    boxes = All(f).Where(x => x.Visible && (x is TextBox || x is ComboBox) && !string.IsNullOrEmpty(x.AccessibleName)).Select(x => new { name = x.AccessibleName, text = x.Text }).ToList()
                 }).ToList()
             };
+        }
+
+        /// <summary>The control with the keyboard focus in <paramref name="f"/>: its accessible name, else its text.</summary>
+        private static string Focus(Form f)
+        {
+            Control c = f.ActiveControl;
+            for (var inner = c as ContainerControl; inner != null && inner.ActiveControl != null; inner = inner.ActiveControl as ContainerControl) c = inner.ActiveControl;
+            return c == null ? null : !string.IsNullOrEmpty(c.AccessibleName) ? c.AccessibleName : c.Text.Replace("&", "").TrimEnd('…');
         }
 
         private static List<object> Buttons(Control root)
