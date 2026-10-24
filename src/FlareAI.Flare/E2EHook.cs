@@ -91,7 +91,7 @@ namespace FlareAI.Flare
                 case "rowMenu": return Pane().E2ERowMenu((int)c["index"], arg);       // right-click a row, click an item
                 case "dialogClick": Click(Dialog((string)c["title"]), arg); return null;
                 case "dialogSelect":                                                  // a list item by index, or a list view row by its text
-                    if (c["text"] != null) SelectRow(Dialog((string)c["title"]), (string)c["text"]); else Select(Dialog((string)c["title"]), (int)c["index"]);
+                    if (c.Value<string>("text") != null) SelectRow(Dialog((string)c["title"]), (string)c["text"]); else Select(Dialog((string)c["title"]), (int)c["index"]);
                     return null;
                 case "dialogType": Type(Dialog((string)c["title"]), (string)c["name"], arg); return null;   // a text box or list by its accessible name
                 default: throw new ArgumentException("Unknown verb " + verb);

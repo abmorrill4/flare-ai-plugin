@@ -147,31 +147,23 @@ function Test-PaneOnScreen {
     return [bool]@($titles | Where-Object { $_.Current.Name -like "House Style Issues*" -and -not $_.Current.IsOffscreen }).Count
 }
 
-<# Answers a message box House Style shows (title "House Style — <Action>") by its button, through UI Automation:
-   message boxes are Windows' own dialogs, which the hook can't reach. #>
+<# Answers a message box House Style shows (title "House Style - <Action>", with an em dash) by its button. Message boxes
+   are Windows' own dialogs, which the hook can't reach, and owned ones don't expose their buttons to UI Automation, so the
+   box gets the button's command directly (OK and Yes are 1 and 6, Cancel and No are 2 and 7). #>
 function Confirm-MessageBox([Parameter(Mandatory)][string]$Action, [string]$Button = "OK") {
-    # A message box owned by a dialog shows up under that dialog's window, not at the top level.
+    if (-not ("E2EWin" -as [type])) {
+        Add-Type -Name E2EWin -Namespace "" -MemberDefinition @"
+[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern System.IntPtr FindWindow(string cls, string title);
+[DllImport("user32.dll")] public static extern bool PostMessage(System.IntPtr h, uint msg, System.IntPtr w, System.IntPtr l);
+"@
+    }
+    $id = @{ OK = 1; Cancel = 2; Yes = 6; No = 7 }[$Button]
+    if (-not $id) { throw "Unknown message box button $Button" }
     $title = "House Style $([char]0x2014) $Action"
-    $cond = New-And (New-Cond $A::NameProperty $title) (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Window))
-    $box = Wait-Until {
-        $top = Get-FlareWindow $title
-        if ($top) { $top } else {
-            foreach ($p in @(Get-Process Flare -ErrorAction SilentlyContinue)) {
-                foreach ($w in @($A::RootElement.FindAll($Scope::Children, (New-Cond $A::ProcessIdProperty $p.Id)))) { $f = $w.FindFirst($Scope::Descendants, $cond); if ($f) { return $f } }
-            }
-        }
-    } 15 "the $Action message box"
-    $b = $box.FindFirst($Scope::Descendants, (New-And (New-Cond $A::NameProperty $Button) (New-Cond $A::ControlTypeProperty ([System.Windows.Automation.ControlType]::Button))))
-    if ($b) { $b.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke(); return }
-    # Owned message boxes don't always expose their buttons: answer with the keyboard (Enter is OK, Esc is Cancel).
-    $keys = @{ OK = "{ENTER}"; Yes = "y"; No = "n"; Cancel = "{ESC}" }[$Button]
-    if (-not $keys) { throw "No $Button button in the $Action message box" }
-    Add-Type -AssemblyName System.Windows.Forms
-    $box.SetFocus()
-    [System.Windows.Forms.SendKeys]::SendWait($keys)
+    $h = Wait-Until { $w = [E2EWin]::FindWindow("#32770", $title); if ($w -ne [IntPtr]::Zero) { $w } } 15 "the $Action message box"
+    [void][E2EWin]::PostMessage($h, 0x0111, [IntPtr]$id, [IntPtr]::Zero)   # WM_COMMAND
 }
 
-<# Saves a screenshot of the whole screen as <name>.png in this run's folder, for checks a person reviews (keyboard, scaling). #>
 function Save-E2EScreenshot([Parameter(Mandatory)][string]$Name) {
     Add-Type -AssemblyName System.Windows.Forms, System.Drawing
     $b = [System.Windows.Forms.SystemInformation]::VirtualScreen

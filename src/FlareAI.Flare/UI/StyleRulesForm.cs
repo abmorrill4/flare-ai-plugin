@@ -77,7 +77,8 @@ namespace FlareAI.Flare.UI
             filters.Controls.Add(Caption("A&pplies to:")); filters.Controls.Add(_content);
             filters.Controls.Add(_clear);
 
-            var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Vertical, Margin = new Padding(0, 6, 0, 6) };
+            // TabStop off: Tab goes from the list straight to the details, not to the divider between them.
+            var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Vertical, Margin = new Padding(0, 6, 0, 6), TabStop = false };
             _list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, HideSelection = false, MultiSelect = false, ShowItemToolTips = true };
             foreach (var c in new[] { "Rule", "Level", "State", "Changed by" }) _list.Columns.Add(c);
             _detail = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, BackColor = SystemColors.Window };
@@ -460,12 +461,34 @@ namespace FlareAI.Flare.UI
             foreach (var b in new[] { _edit, _delete, _off, _level, _restore }) b.AccessibleName = b.Text.Replace("&", "").Replace("…", "");
         }
 
-        /// <summary>A rule written in the team's or the writer's own guide: not Google's generated rules, not the guide
-        /// shipped with House Style, not the open project's (edited in that project), not generated from variables.</summary>
+        /// <summary>A rule written in a topic of the guide this writer's changes go to (the team's guide, or their own):
+        /// not Google's generated rules, not the guide shipped with House Style, not an earlier configured guide with owners
+        /// of its own, not the open project's (edited in that project), not generated from variables or a guide.md file.</summary>
         private bool Editable(CatalogRule r)
         {
-            return r != null && r.Id != null && r.File != null && r.Origin != "google" && !(_isDefault != null && _isDefault(r.File)) &&
-                   !r.Source.StartsWith("Project ", StringComparison.Ordinal);
+            if (r == null || r.Id == null || r.File == null || _team == null || _team.GuideRoot == null) return false;
+            var ext = System.IO.Path.GetExtension(r.File);
+            return (ext.Equals(".htm", StringComparison.OrdinalIgnoreCase) || ext.Equals(".html", StringComparison.OrdinalIgnoreCase)) &&
+                   r.Origin != "google" && !(_isDefault != null && _isDefault(r.File)) && !r.Source.StartsWith("Project ", StringComparison.Ordinal) &&
+                   FlareAI.Core.Settings.PluginSettings.IsUnder(r.File, _team.GuideRoot);
+        }
+
+        /// <summary>The guide topic as it is now, for Edit Rule and Delete Rule; null (with the reason shown) when this
+        /// writer may no longer change the guide or the rule isn't where Rules last read it.</summary>
+        private GuideLayer GuideFor(CatalogRule r)
+        {
+            if (RuleChanges.NeedsRequest(_team))
+            {
+                Reload("Your changes to this style guide now go to its owners as requests.", r.Key);
+                return null;
+            }
+            var layer = _style.EditableGuide(_team.GuideRoot);
+            if (layer == null || layer.RuleFields(r.Key, r.File, r.Text) == null)
+            {
+                Reload("The style guide changed. Check the rule and try again.", r.Key);
+                return null;
+            }
+            return layer;
         }
 
         /// <summary>Edit Rule: rewrites the rule's row or bullet in its guide topic.</summary>
@@ -475,15 +498,19 @@ namespace FlareAI.Flare.UI
             if (!Editable(r)) return;
             try
             {
-                var layer = _style.WritableLayerOf(r.Key);
-                if (layer == null) { _head.Text = "This rule isn't in a style guide you can change. Press F5 to read the guide again."; return; }
+                var layer = GuideFor(r);
+                if (layer == null) return;
                 List<KeyValuePair<string, string>> fields;
-                using (var d = new RuleEditDialog(layer.RuleFields(r.Key)))
+                using (var d = new RuleEditDialog(layer.RuleFields(r.Key, r.File, r.Text)))
                 {
                     if (d.ShowDialog(this) != DialogResult.OK) return;
                     fields = d.Fields;
                 }
-                var file = layer.EditRule(r.Key, fields);
+                // Read again: the topic may have changed while the dialog was open.
+                layer = GuideFor(r);
+                if (layer == null) return;
+                var file = layer.EditRule(r.Key, r.File, r.Text, fields);
+                if (file == null) { Reload("The style guide changed. Check the rule and try again.", r.Key); return; }
                 _style.Invalidate();
                 Diagnostics.Log("Rules: edited " + r.Key + " in " + file);
                 Reload("Rule saved." + Team.CommitHint(_team == null ? null : _team.GuideRoot) + " It applies the next time you lint.", r.Key);
@@ -500,9 +527,10 @@ namespace FlareAI.Flare.UI
                                       "\n\nTo stop it for now and keep it in the guide, use Disable Rule instead.", "Delete Rule")) return;
             try
             {
-                var layer = _style.WritableLayerOf(r.Key);
-                if (layer == null) { _head.Text = "This rule isn't in a style guide you can change. Press F5 to read the guide again."; return; }
-                var file = layer.DeleteRule(r.Key);
+                var layer = GuideFor(r);
+                if (layer == null) return;
+                var file = layer.DeleteRule(r.Key, r.File, r.Text);
+                if (file == null) { Reload("The style guide changed. Check the rule and try again.", r.Key); return; }
                 _style.Invalidate();
                 Diagnostics.Log("Rules: deleted " + r.Key + " from " + file);
                 Reload("Rule deleted." + Team.CommitHint(_team == null ? null : _team.GuideRoot) + " It stops applying the next time you lint.", null);

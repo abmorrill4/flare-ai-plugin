@@ -292,19 +292,16 @@ namespace FlareAI.Core.Style
         }
 
         /// <summary>
-        /// The guide that has rule <paramref name="id"/> written in it, read fresh from disk, for an owner to edit or delete
-        /// the rule there (<see cref="GuideLayer.EditRule"/>, <see cref="GuideLayer.DeleteRule"/>; then <see cref="Invalidate"/>).
-        /// Null for rules no guide of the team's writes: Google's generated rules, the bundled guide's, generated ones.
+        /// The style guide at <paramref name="root"/>, read fresh from disk, for its owner to edit or delete a rule written in
+        /// it (<see cref="GuideLayer.EditRule"/>, <see cref="GuideLayer.DeleteRule"/>; then <see cref="Invalidate"/>). Null
+        /// unless it is one of the guides in effect, and never the guide bundled with the plugin.
         /// </summary>
-        public GuideLayer WritableLayerOf(string id)
+        public GuideLayer EditableGuide(string root)
         {
-            var guides = (_roots() ?? new string[0]).Where(g => !string.IsNullOrEmpty(g) && Directory.Exists(g) && WhyUnreadable(g) == null);
-            foreach (var g in guides.Where(g => _bundled == null || !SamePath(g, _bundled)))
-            {
-                var layer = GuideLayer.Load(g, null, null, "Google");
-                if (layer.RuleFields(id) != null) return layer;
-            }
-            return null;
+            if (string.IsNullOrEmpty(root) || !Directory.Exists(root) || WhyUnreadable(root) != null) return null;
+            if (_bundled != null && SamePath(root, _bundled)) return null;
+            if (!(_roots() ?? new string[0]).Any(g => !string.IsNullOrEmpty(g) && SamePath(g, root))) return null;
+            return GuideLayer.Load(root, null, null, "Google");
         }
 
         /// <summary>Terms every layer's glossary defines (for topic assists: don't propose what's already there).</summary>
