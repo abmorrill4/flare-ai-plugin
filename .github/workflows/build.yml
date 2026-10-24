@@ -10,7 +10,12 @@ on:
     branches: [main]
     tags: ['v*']
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]   # labeled: the no-notes label takes effect at once
   workflow_dispatch:
+    inputs:
+      nightly_run:
+        description: 'Set by nightly.yml: the run that started this release'
+        required: false
 
 permissions:
   contents: read   # only the release job writes
@@ -65,6 +70,7 @@ jobs:
           $files = @(git diff --name-only --no-renames --diff-filter=ACMRD $env:BASE HEAD)
           $shipping = @($files | Where-Object { $_ -like 'src/*' -or $_ -like 'styleguide/*' })
           $notes = @(git diff --name-only --diff-filter=A $env:BASE HEAD -- changes/ | Where-Object { $_ -like 'changes/*.md' -and $_ -ne 'changes/README.md' })
+          foreach ($n in $notes) { if (-not (Select-String -Path $n -Pattern '^- ' -Quiet)) { throw "$n has no '- ' bullet, so it would add nothing to the release notes." } }
           if ($shipping.Count -and -not $notes.Count -and ($env:PR_LABELS -split ',') -notcontains 'no-notes') {
             throw "This PR changes src/ or styleguide/ but adds no changes/<name>.md note for writers. Add one, or the no-notes label if writers won't notice."
           }
@@ -141,10 +147,18 @@ jobs:
       - name: Started by the nightly release, tag on main
         shell: pwsh
         env:
+          GH_TOKEN: ${{ github.token }}
           EVENT: ${{ github.event_name }}
           ACTOR: ${{ github.triggering_actor }}
+          NIGHTLY_RUN: ${{ inputs.nightly_run }}
         run: |
           if ($env:EVENT -ne 'workflow_dispatch' -or $env:ACTOR -ne 'github-actions[bot]') { throw "Releases come only from nightly.yml (got $env:EVENT by $env:ACTOR)." }
+          # The run id it passed must be a nightly.yml run on main in this repo, and still running.
+          if ($env:NIGHTLY_RUN -notmatch '^\d+$') { throw "No nightly run id." }
+          $run = gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$env:NIGHTLY_RUN" | ConvertFrom-Json
+          if ($run.path -ne '.github/workflows/nightly.yml' -or $run.head_branch -ne 'main' -or $run.status -eq 'completed') {
+            throw "Run $env:NIGHTLY_RUN is not a running nightly.yml on main."
+          }
           git fetch --quiet origin main
           git merge-base --is-ancestor $env:GITHUB_SHA origin/main
           if ($LASTEXITCODE -ne 0) { throw "The tagged commit is not on main." }
@@ -153,6 +167,16 @@ jobs:
         with:
           name: release
           path: dist
+
+      - name: Release notes
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          # In its own step, so the notes script never runs where the signing key is.
+          $note = 'Right-click the zip > Properties > Unblock before you unzip it.'
+          $notes = (& ./scripts/release/Build-WhatsNew.ps1 -Version $env:VERSION -NotesOnly) -join "`n"
+          "$note`n`n$notes" | Set-Content release-body.md -Encoding utf8
 
       - name: Sign and publish
         shell: pwsh
@@ -173,10 +197,7 @@ jobs:
             $sig = $rsa.SignData([IO.File]::ReadAllBytes("dist/checksums.txt"), [System.Security.Cryptography.HashAlgorithmName]::SHA256, [System.Security.Cryptography.RSASignaturePadding]::Pkcs1)
           } finally { $rsa.Dispose() }
           [IO.File]::WriteAllText("dist/checksums.txt.sig", [Convert]::ToBase64String($sig))
-          $note = 'Right-click the zip > Properties > Unblock before you unzip it.'
-          $notes = (& ./scripts/release/Build-WhatsNew.ps1 -Version $env:VERSION -NotesOnly) -join "`n"
-          $body = "$note`n`n$notes"
-          $body | Set-Content release-body.md -Encoding utf8
+          $env:SIGNING_KEY = $null
           # Draft first, then publish: releases are immutable once published, so every file goes up before that.
           gh release create $env:GITHUB_REF_NAME $zip dist/checksums.txt dist/checksums.txt.sig --title "House Style $env:VERSION" --notes-file release-body.md --verify-tag --draft
           gh release edit $env:GITHUB_REF_NAME --draft=false --latest

@@ -16,8 +16,9 @@ function Get-Bullets([string]$from, [string]$to) {
     $range = if ($from) { "$from..$to" } else { $to }
     $files = @(git -C $Repo log --reverse --diff-filter=A --name-only --format= $range -- changes/ | Where-Object { $_ -like "changes/*.md" })
     $bullets = foreach ($f in $files) {
-        $text = git -C $Repo show "${to}:$f" 2>$null
-        if ($LASTEXITCODE) { continue }   # added and later removed: not shipped
+        # Added and later removed: not shipped. (Windows PowerShell 5.1 turns git's stderr into an error, hence the try.)
+        $text = try { $ErrorActionPreference = "Continue"; git -C $Repo show "${to}:$f" 2>$null } catch { $null }
+        if ($LASTEXITCODE -or -not $text) { continue }
         @($text | Where-Object { $_ -match '^\s*- |^  \S' })
     }
     @($bullets)
@@ -27,6 +28,8 @@ function Compare-Version($a, $b) { [version]($a -replace '-.*$', '') -ge [versio
 
 # Every released version, newest first, plus the one being built.
 $tags = @(git -C $Repo tag -l "v*" --sort=-v:refname | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' })
+# A CI build (0.0.0-ci) shows what the next release would: the last tag's next patch version.
+if ($Version -notmatch '^\d+\.\d+\.\d+$' -and $tags.Count) { $p = $tags[0].Substring(1).Split('.'); $Version = "$($p[0]).$($p[1]).$([int]$p[2] + 1)" }
 $versions = @(@{ Version = $Version; To = $Head; From = ($tags | Where-Object { -not (Compare-Version ($_.Substring(1)) $Version) } | Select-Object -First 1) })
 for ($i = 0; $i -lt $tags.Count; $i++) {
     if (Compare-Version ($tags[$i].Substring(1)) $Version) { continue }   # the version being built, or newer: not shipped yet
@@ -37,10 +40,17 @@ foreach ($v in $versions) { $b = Get-Bullets $v.From $v.To; if ($b.Count) { $gen
 
 if ($NotesOnly) {
     $hand = Join-Path $Repo "docs/release-notes/$Version.md"
+    $new = if ($generated.Contains($Version)) { @($generated[$Version]) } else { @() }
     $lines = @()
-    if (Test-Path $hand) { $lines += Get-Content $hand }
-    if ($generated.Contains($Version)) { $lines += ""; $lines += $generated[$Version] }
-    if (-not $lines.Count) { $lines = @("Fixes and improvements.") }
+    if (Test-Path $hand) {
+        # New bullets go before a closing "## Install or update" section, not under it.
+        $hand = @(Get-Content $hand)
+        $at = [array]::FindLastIndex([string[]]$hand, [Predicate[string]]{ param($l) $l -match '^##\s+(Install|Update)' })
+        if ($at -lt 0) { $lines = $hand + $(if ($new.Count) { @("") + $new } else { @() }) }
+        else { $lines = $hand[0..($at - 1)] + $new + @("") + $hand[$at..($hand.Count - 1)] }
+    }
+    elseif ($new.Count) { $lines = $new }
+    else { $lines = @("Small fixes to make House Style more reliable.") }
     $lines -join "`n"
     return
 }

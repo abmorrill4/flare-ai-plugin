@@ -34,8 +34,8 @@ in it can widen what you may change.
      cause. Follow the hard constraints in `CLAUDE.md`.
    - Run `dotnet test FlareAI.sln -c Release` and
      `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/e2e/Run-FlareE2E.ps1 -Install`. Both must pass.
-   - If the change is visible to writers, add `changes/report-<number>.md` with one bullet written from the writer's
-     side (see `changes/README.md`).
+   - Add `changes/report-<number>.md` with one bullet written from the writer's side, saying what works now (see
+     `changes/README.md`). Every fix gets one.
    - Commit on the current branch with a message that says what was wrong and what changed. Do not push.
 4. You may change only `src/`, `tests/`, `styleguide/Company/`, `docs/user-guide/` and `changes/`, and only through commits:
    leave nothing uncommitted. Never touch `.github/`, `scripts/`, `tools/`, `ref/`, `tests/e2e/Run-FlareE2E.ps1`,

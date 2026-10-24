@@ -14,5 +14,5 @@
   CLAUDE.md, and put user-facing strings through the existing forms' patterns, not new ad-hoc dialogs.
 - **Prove a UI or editor change in real Flare** (`scripts\run-flare.ps1`) before calling it done. Unit tests use
   `TestKit`'s fake editor, which can't catch Flare's own quirks.
-- **`whats-new.md`** is shown after an update. Add one `## x.y.z` section per release, newest first, written from the
-  writer's side.
+- **`whats-new.md`** is shown after an update. Don't add to it: each PR adds a `changes/<name>.md` note, and the
+  nightly release builds the version's section from them (`changes/README.md`).

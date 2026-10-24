@@ -14,6 +14,7 @@ function Put($r, $rel, $text) { Set-Content (Join-Path $r $rel) $text -Encoding 
 
 Describe 'Build-WhatsNew' {
     $r = New-Repo
+    $hand = Join-Path $r 'docs\release-notes\0.3.6.md'
     Put $r 'src\FlareAI.Flare\whats-new.md' "# What's new in House Style`n`n<!-- intro -->`n`n## 0.3.4`n`n- Hand-written for 0.3.4.`n`n## 0.3.3`n`n- Old release."
     Commit $r 'base'; git -C $r tag v0.3.3
     Put $r 'changes\reopen.md' "- Reopen Issues brings back your last results."
@@ -45,11 +46,28 @@ Describe 'Build-WhatsNew' {
         & $script -Version 0.3.6 -Repo $r -NotesOnly | Should Not Match 'Edit Rule'
     }
     It 'puts the hand-written release notes first when there are some' {
-        Put $r 'docs\release-notes\0.3.6.md' "Big release."
-        $n = & $script -Version 0.3.6 -Repo $r -NotesOnly
+        Set-Content $hand "Big release." -Encoding UTF8
+        $n = (& $script -Version 0.3.6 -Repo $r -NotesOnly) -join "`n"
         $n | Should Match '(?s)Big release\..*Something later'
     }
+    It 'puts new notes before a closing Install section' {
+        Set-Content $hand "Big release.`n`n## Changes`n`n- Hand.`n`n## Install or update`n`nRun the installer." -Encoding UTF8
+        $n = (& $script -Version 0.3.6 -Repo $r -NotesOnly) -join "`n"
+        $n | Should Match '(?s)- Hand\..*Something later.*## Install or update'
+        Remove-Item $hand
+    }
+    It 'shows a CI build the next release' {
+        & $script -Version 0.0.0-ci -Repo $r | Should Match '## 0\.3\.6\s+- Something later'
+    }
+    It 'skips a note that was added and later removed' {
+        Put $r 'changes\gone.md' "- Gone."
+        Commit $r 'gone'
+        Remove-Item (Join-Path $r 'changes\gone.md'); Commit $r 'remove gone'
+        & $script -Version 0.3.6 -Repo $r -NotesOnly | Should Not Match 'Gone'
+    }
     It 'says something when there are no notes at all' {
-        & $script -Version 0.9.0 -Repo (New-Repo) -NotesOnly | Should Be 'Fixes and improvements.'
+        $empty = New-Repo
+        Put $empty 'src\FlareAI.Flare\whats-new.md' "# What's new"; Commit $empty 'base'
+        & $script -Version 0.9.0 -Repo $empty -NotesOnly | Should Be 'Small fixes to make House Style more reliable.'
     }
 }
