@@ -49,7 +49,7 @@ namespace FlareAI.Flare
         public static readonly CommandInfo Rules = new CommandInfo
         {
             Id = "rules", Label = "Rules", KeyTip = "U", Icon = "rules", Group = GroupLint,
-            Tooltip = "View the style guide rules, and change, disable or delete them."
+            Tooltip = "View the style guide rules and enable or disable them."
         };
         public static readonly CommandInfo TopicMetadata = new CommandInfo
         {
